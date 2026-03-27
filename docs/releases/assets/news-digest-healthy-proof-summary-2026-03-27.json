@@ -1,0 +1,53 @@
+{
+  "artifact_type": "news_digest_healthy_proof_summary",
+  "status": "SUCCESS",
+  "commit": "03b8bf9",
+  "run_id": "run_20260327_102651_8274cd4519324674a3ddd67506febd83",
+  "generated_at": "2026-03-27T10:27:20.898375+00:00",
+  "task_template": "news_digest",
+  "topic": "Seattle AI",
+  "requested_sources": [
+    "theverge.com"
+  ],
+  "max_results": 3,
+  "pipeline": {
+    "ok": true,
+    "runs": 4,
+    "verification_runs": 1,
+    "failure_rate": 0.0
+  },
+  "providers": [
+    {
+      "provider": "gemini_web",
+      "attempts": 2,
+      "successes": 2,
+      "session_mode": "allow_profile",
+      "headless": true,
+      "min_duration_ms": 9532,
+      "max_duration_ms": 9532,
+      "average_duration_ms": 9532.0,
+      "reference_url": "https://gemini.google.com/"
+    },
+    {
+      "provider": "grok_web",
+      "attempts": 2,
+      "successes": 2,
+      "session_mode": "allow_profile",
+      "headless": true,
+      "min_duration_ms": 10317,
+      "max_duration_ms": 10346,
+      "average_duration_ms": 10331.5,
+      "reference_url": "https://grok.com/"
+    }
+  ],
+  "tracked_assets": {
+    "proof_markdown": "docs/releases/assets/news-digest-healthy-proof-2026-03-27.md",
+    "gemini_screenshot": "docs/releases/assets/news-digest-healthy-proof-gemini-2026-03-27.png",
+    "grok_screenshot": "docs/releases/assets/news-digest-healthy-proof-grok-2026-03-27.png",
+    "benchmark_markdown": "docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md"
+  },
+  "runtime_origin": {
+    "original_root": ".runtime-cache/w3-news-digest-attempt-profile-allowlist-v2/runs/run_20260327_102651_8274cd4519324674a3ddd67506febd83",
+    "cleaned_after_copy": true
+  }
+}
