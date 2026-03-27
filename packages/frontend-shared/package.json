@@ -1,0 +1,18 @@
+{
+  "name": "@cortexpilot/frontend-shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./statusPresentation": {
+      "types": "./statusPresentation.ts",
+      "import": "./statusPresentation.js",
+      "default": "./statusPresentation.js"
+    },
+    "./types": {
+      "types": "./types.ts",
+      "import": "./types.js",
+      "default": "./types.js"
+    }
+  }
+}

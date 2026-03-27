@@ -1,0 +1,81 @@
+# Dashboard Module
+
+## Positioning
+
+This module is the repository's **web operator surface**.
+
+Read it as:
+
+- the browser-based control surface for runs, sessions, reviews, and command
+  visibility
+- a way to inspect and operate CortexPilot Command Tower orchestration truth from the web
+- a repo-owned UI for evaluating control-plane behavior
+
+Do **not** read it as:
+
+- a polished customer-facing SaaS product
+- a standalone web application with its own independent product roadmap
+- evidence that every workflow here is already broad-market ready
+
+## Module Responsibility
+
+- Provide run, workflow, session, and review visualization for CortexPilot Command Tower
+  orchestration output.
+- Surface operator-facing status, artifacts, and control points for the web.
+
+## Why This Module Exists
+
+If `apps/orchestrator/` is the machine room, `apps/dashboard/` is the glass
+window operators use to see what the machine room is doing. Its job is
+visibility and control, not pretending the whole repository is already a
+finished consumer product.
+
+## Input / Output
+
+- Input: API responses from the orchestrator backend.
+- Output: operational UI views for runs, events, contracts, reports, and
+  command surfaces.
+
+## Strongest Signals
+
+- operator-first web workflows
+- command visibility over product marketing polish
+- alignment with the repository's three truth layers
+
+## Key Config
+
+- API base and frontend fetch layer are defined in `apps/dashboard/lib/api.ts`.
+- Runtime defaults and startup commands are coordinated from the repo root
+  quickstart in `README.md`.
+- Dashboard dependency hotfixes should keep the root `package.json` overrides,
+  root `pnpm-lock.yaml`, and `apps/dashboard/pnpm-lock.yaml` aligned so
+  dashboard-only transitive patches do not drift from the workspace baseline.
+- `apps/dashboard/pnpm-lock.yaml` is a maintained dashboard-specific lockfile;
+  keep transitive security patch updates in the same change set when dashboard
+  dependency metadata changes.
+- The optional `depcheck` package is intentionally absent from the default
+  dashboard dependency set; the dead-code gate already skips when the probe is
+  unavailable, so leaving it out avoids carrying an otherwise unnecessary
+  `brace-expansion` advisory path in the maintained lock surface.
+- Dashboard dependency lock refreshes are repo-owned: when transitive package
+  fixes land here, keep `apps/dashboard/pnpm-lock.yaml` aligned with the root
+  `package.json` / `pnpm-lock.yaml` change set.
+- Current transitive hardening includes the `yaml` override used through
+  `cosmiconfig@7.1.0`; keep the dashboard lockfile and the root override in
+  sync so the dashboard does not drift onto an older parser patch level.
+- Current lock maintenance also pins patched `picomatch` / `brace-expansion`
+  transitive paths through the repo-owned override set so GitHub security
+  receipts and the dashboard lockfile stay aligned.
+- When a dashboard security-only lock refresh lands, keep this module README in
+  the same change set so doc-drift gates can trace the maintenance decision to
+  the dashboard surface that actually owns the lockfile.
+
+## Common Troubleshooting
+
+- Dependencies missing: `pnpm --dir apps/dashboard install`
+- Test failure: `pnpm --dir apps/dashboard test`
+- Typecheck: `pnpm --dir apps/dashboard exec tsc -p tsconfig.typecheck.json --noEmit`
+
+## Quality Gate
+
+- Coverage gate (stage-1): >= 85%

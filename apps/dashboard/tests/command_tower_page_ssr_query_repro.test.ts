@@ -1,0 +1,18 @@
+import fs from "node:fs";
+import path from "node:path";
+
+import { describe, expect, it } from "vitest";
+
+describe("command tower page SSR query reproduction", () => {
+  it("uses fixed PM sessions fetch on first load and does not read searchParams", () => {
+    const pagePath = path.resolve(process.cwd(), "app/command-tower/page.tsx");
+    const source = fs.readFileSync(pagePath, "utf8");
+
+    expect(source).toContain("safeLoad(() => fetchPmSessions({ limit: 100 })");
+    expect(source).toContain("export default function CommandTowerPage()");
+    expect(source).not.toContain("searchParams");
+    expect(source).not.toContain("project_key");
+    expect(source).not.toContain("status[]");
+    expect(source).not.toContain("sort");
+  });
+});
