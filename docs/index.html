@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CortexPilot | Governed AI task orchestration with evidence and replay</title>
+    <meta
+      name="description"
+      content="CortexPilot is a governed AI task orchestration control plane for teams that need auditable runs, operator visibility, evidence, replay, and reviewable execution history."
+    />
+    <meta property="og:title" content="CortexPilot | Governed AI task orchestration with evidence and replay" />
+    <meta
+      property="og:description"
+      content="Governed AI task orchestration for teams that need auditable runs, evidence, replay, and operator visibility."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="./assets/storefront/social-preview-1280x640.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="CortexPilot | Governed AI task orchestration with evidence and replay" />
+    <meta
+      name="twitter:description"
+      content="Governed AI task orchestration for teams that need auditable runs, evidence, replay, and operator visibility."
+    />
+    <meta name="twitter:image" content="./assets/storefront/social-preview-1280x640.png" />
+    <style>
+      :root {
+        --bg: #f5f0e8;
+        --paper: #fffaf2;
+        --ink: #17232c;
+        --muted: #4f616e;
+        --accent: #cb7349;
+        --accent-dark: #234056;
+        --line: #d8ccbb;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Trebuchet MS", Verdana, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 10% 15%, rgba(203, 115, 73, 0.18), transparent 22%),
+          radial-gradient(circle at 85% 10%, rgba(35, 64, 86, 0.14), transparent 18%),
+          linear-gradient(180deg, #f7f2ea 0%, #efe6d8 100%);
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 56px 24px 88px;
+      }
+
+      .hero {
+        display: grid;
+        gap: 28px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(35, 64, 86, 0.08);
+        color: var(--accent-dark);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      h1 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(40px, 7vw, 68px);
+        line-height: 1.05;
+      }
+
+      .lede {
+        max-width: 850px;
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(20px, 2.5vw, 26px);
+        line-height: 1.5;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .actions a {
+        text-decoration: none;
+        border-radius: 999px;
+        padding: 14px 20px;
+        font-weight: 700;
+      }
+
+      .actions .primary {
+        background: var(--accent);
+        color: white;
+      }
+
+      .actions .secondary {
+        background: rgba(35, 64, 86, 0.08);
+        color: var(--accent-dark);
+      }
+
+      .panel,
+      .grid-card {
+        background: rgba(255, 250, 242, 0.9);
+        border: 1px solid var(--line);
+        border-radius: 26px;
+      }
+
+      .panel {
+        padding: 24px;
+      }
+
+      .hero-image {
+        width: 100%;
+        border-radius: 22px;
+        border: 1px solid var(--line);
+        background: white;
+      }
+
+      .caption {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      .section {
+        margin-top: 44px;
+      }
+
+      .section h2 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 32px;
+        margin: 0 0 14px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .grid-card {
+        padding: 20px;
+      }
+
+      .grid-card h3 {
+        margin-top: 0;
+        font-size: 19px;
+      }
+
+      .grid-card p,
+      .section p,
+      .section li {
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      code {
+        background: rgba(35, 64, 86, 0.08);
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-family: "SFMono-Regular", "Menlo", monospace;
+        color: var(--accent-dark);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <span class="eyebrow">Public landing source for CortexPilot</span>
+        <h1>Governed AI task orchestration with evidence, replay, and operator visibility.</h1>
+        <p class="lede">
+          CortexPilot is for teams that need more than “the agent replied.” It gives you
+          contracts, command-tower visibility, evidence bundles, and replay paths for the
+          same run.
+        </p>
+        <div class="actions">
+          <a class="primary" href="https://github.com/xiaojiou176-open/CortexPilot">Open repository home</a>
+          <a class="secondary" href="https://github.com/xiaojiou176-open/CortexPilot/blob/main/docs/README.md">Read docs map</a>
+          <a class="secondary" href="https://github.com/xiaojiou176-open/CortexPilot/blob/main/docs/architecture/runtime-topology.md">See runtime topology</a>
+        </div>
+
+        <div class="panel">
+          <img
+            class="hero-image"
+            src="./assets/storefront/hero-command-tower.svg"
+            alt="CortexPilot flow from PM request to Command Tower to evidence and replay"
+          />
+          <p class="caption">
+            The public story should be simple: send one request, watch it move through Command Tower,
+            then inspect the evidence bundle and replay path.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>What this repository is good at</h2>
+        <div class="grid">
+          <article class="grid-card">
+            <h3>Governed execution</h3>
+            <p>Contracts and hard gates stay explicit instead of hiding in prompt glue.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Evidence-first runs</h3>
+            <p>Reports, artifacts, and run bundles stay attached to the same execution.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Replay and review</h3>
+            <p>Inspect failures, compare reruns, and keep the execution chain auditable.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>First success path</h2>
+        <p>
+          This file is a tracked landing-page candidate inside the repository. If GitHub Pages is later
+          enabled for <code>/docs</code>, it can become the search-facing landing entry. Until a public URL is
+          actually configured and verified, do not describe this page as a live site. The main calls to
+          action intentionally point to stable public GitHub URLs, the repository README remains the
+          conversion page, and the host-compatible quickstart stays:
+        </p>
+        <ol>
+          <li><code>npm run bootstrap:host</code></li>
+          <li><code>CORTEXPILOT_HOST_COMPAT=1 bash scripts/test_quick.sh --no-related</code></li>
+          <li><code>npm run dashboard:dev</code></li>
+        </ol>
+      </section>
+    </main>
+  </body>
+</html>

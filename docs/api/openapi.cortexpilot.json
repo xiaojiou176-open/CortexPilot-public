@@ -1,0 +1,199 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CortexPilot Command Tower Public Frontend API Contract",
+    "version": "1.0.0",
+    "description": "Canonical public API contract SSOT for Dashboard/Desktop frontend clients."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:10000"
+    }
+  ],
+  "tags": [
+    {
+      "name": "command-tower"
+    },
+    {
+      "name": "pm-sessions"
+    }
+  ],
+  "paths": {
+    "/api/command-tower/overview": {
+      "get": {
+        "tags": [
+          "command-tower"
+        ],
+        "operationId": "fetchCommandTowerOverview",
+        "responses": {
+          "200": {
+            "description": "Command Tower overview payload"
+          }
+        }
+      }
+    },
+    "/api/command-tower/alerts": {
+      "get": {
+        "tags": [
+          "command-tower"
+        ],
+        "operationId": "fetchCommandTowerAlerts",
+        "responses": {
+          "200": {
+            "description": "Command Tower alerts payload"
+          }
+        }
+      }
+    },
+    "/api/pm/sessions": {
+      "get": {
+        "tags": [
+          "pm-sessions"
+        ],
+        "operationId": "fetchPmSessions",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status[]",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "types[]",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "run_ids",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "run_ids[]",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "PM session list payload"
+          }
+        }
+      }
+    },
+    "/api/pm/sessions/{pm_session_id}/messages": {
+      "post": {
+        "tags": [
+          "pm-sessions"
+        ],
+        "operationId": "postPmSessionMessage",
+        "parameters": [
+          {
+            "name": "pm_session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "PM session message write result"
+          }
+        }
+      }
+    }
+  },
+  "x-cortexpilot-frontend-contract": {
+    "defaultApiBase": "http://127.0.0.1:10000",
+    "envKeys": [
+      "NEXT_PUBLIC_CORTEXPILOT_API_BASE",
+      "NEXT_PUBLIC_CORTEXPILOT_API_BASE",
+      "VITE_CORTEXPILOT_API_BASE",
+      "VITE_CORTEXPILOT_API_BASE",
+      "CORTEXPILOT_API_BASE",
+      "CORTEXPILOT_API_BASE"
+    ],
+    "headers": {
+      "requestId": "x-request-id",
+      "traceId": "x-trace-id",
+      "traceparent": "traceparent",
+      "runId": "x-cortexpilot-run-id"
+    },
+    "network": {
+      "fetchCredentials": "include",
+      "eventSourceWithCredentials": true
+    },
+    "query": {
+      "status": "status",
+      "statusArray": "status[]",
+      "types": "types",
+      "typesArray": "types[]",
+      "runIds": "run_ids",
+      "runIdsArray": "run_ids[]"
+    },
+    "paths": {
+      "commandTowerOverview": "/api/command-tower/overview",
+      "commandTowerAlerts": "/api/command-tower/alerts",
+      "pmSessions": "/api/pm/sessions",
+      "pmSessionMessages": "/api/pm/sessions/{pm_session_id}/messages"
+    },
+    "pmSessionSortOptions": [
+      "updated_desc",
+      "created_desc",
+      "failed_desc",
+      "blocked_desc"
+    ],
+    "uiFlow": {
+      "pmJourneyStages": [
+        "discover",
+        "clarify",
+        "execute",
+        "verify"
+      ],
+      "commandTowerPriorityLanes": [
+        "live",
+        "risk",
+        "actions",
+        "details"
+      ],
+      "desktopWorkModes": [
+        "execute",
+        "observe",
+        "handoff"
+      ]
+    }
+  }
+}
