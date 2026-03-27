@@ -1,0 +1,332 @@
+import { lazy, Suspense, type RefObject } from "react";
+import { ArrowUp } from "lucide-react";
+import { Button } from "../ui/Button";
+import { Textarea } from "../ui/Input";
+import { OnboardingBanner } from "./OnboardingBanner";
+import { renderChatEmbed, type ChatMessage, type Workspace } from "../../lib/desktopUi";
+
+const LazyMarkdownMessage = lazy(async () => {
+  const module = await import("./MarkdownMessage");
+  return { default: module.MarkdownMessage };
+});
+
+function shouldRenderMarkdown(content: string): boolean {
+  return (
+    content.includes("```") ||
+    /`[^`]+`/.test(content) ||
+    /^\s{0,3}#{1,6}\s/m.test(content) ||
+    /^\s*>\s/m.test(content) ||
+    /^\s*([-*+]|\d+\.)\s/m.test(content) ||
+    /\[[^\]]+\]\([^)]+\)/.test(content) ||
+    /(^|\n)\|.+\|/.test(content) ||
+    /(\*\*[^*]+\*\*|__[^_]+__)/.test(content)
+  );
+}
+
+type ChatPanelProps = {
+  onboardingVisible: boolean;
+  dismissOnboarding: () => void;
+  isOffline: boolean;
+  liveError: string;
+  workspace: Workspace | null;
+  activeSessionId: string;
+  activeSessionGenerating: boolean;
+  phaseText: string;
+  refreshNow: () => void;
+  drawerVisible: boolean;
+  drawerPinned: boolean;
+  setDrawerVisible: (updater: (value: boolean) => boolean) => void;
+  setDrawerPinned: (updater: (value: boolean) => boolean) => void;
+  activeTimeline: ChatMessage[];
+  chatThreadRef: RefObject<HTMLElement | null>;
+  streamingText: string;
+  reportActions: {
+    onAccept?: (embedId: string) => void;
+    onRework?: (embedId: string) => void;
+    onViewDiff?: (embedId: string) => void;
+  };
+  creatingFirstSession: boolean;
+  firstSessionBootstrapError: string;
+  firstSessionAllowedPath: string;
+  onCreateFirstSession: () => void;
+  onOpenSessionFallback: () => void;
+  chooseDecision: (messageId: string, embedId: string, optionId: string) => void;
+  recoverableDraft: { key: string; value: string } | null;
+  restoreDraft: () => void;
+  discardDraft: () => void;
+  composerRef: RefObject<HTMLTextAreaElement | null>;
+  composerInput: string;
+  setComposerInput: (value: string) => void;
+  onComposerEnterSend: () => void;
+  composerPlaceholder: string;
+  composerLength: number;
+  composerMaxChars: number;
+  composerOverLimit: boolean;
+  canSend: boolean;
+  sendDisabledReason: string | null;
+  starterPrompts: string[];
+  onApplyStarterPrompt: (prompt: string) => void;
+  hasActiveGeneration: boolean;
+  stopGeneration: () => void;
+  isUserNearBottom: boolean;
+  unreadCount: number;
+  onBackToBottom: () => void;
+};
+
+export function ChatPanel({
+  onboardingVisible,
+  dismissOnboarding,
+  isOffline,
+  liveError,
+  workspace,
+  activeSessionId,
+  activeSessionGenerating,
+  phaseText,
+  refreshNow,
+  drawerVisible,
+  drawerPinned,
+  setDrawerVisible,
+  setDrawerPinned,
+  activeTimeline,
+  chatThreadRef,
+  streamingText,
+  reportActions,
+  creatingFirstSession,
+  firstSessionBootstrapError,
+  firstSessionAllowedPath,
+  onCreateFirstSession,
+  onOpenSessionFallback,
+  chooseDecision,
+  recoverableDraft,
+  restoreDraft,
+  discardDraft,
+  composerRef,
+  composerInput,
+  setComposerInput,
+  onComposerEnterSend,
+  composerPlaceholder,
+  composerLength,
+  composerMaxChars,
+  composerOverLimit,
+  canSend,
+  sendDisabledReason,
+  starterPrompts,
+  onApplyStarterPrompt,
+  hasActiveGeneration,
+  stopGeneration,
+  isUserNearBottom,
+  unreadCount,
+  onBackToBottom
+}: ChatPanelProps) {
+  const hasUserMessage = activeTimeline.some((item) => item.role === "user");
+  const nextStepLabel = !activeSessionId
+    ? "Step 0: create the first session"
+    : !hasUserMessage
+    ? "Step 1: send the first request"
+    : activeSessionGenerating
+      ? "Next: wait for this stage to finish"
+      : "Step 2: type /run to begin";
+
+  function focusComposerWithTemplate(): void {
+    if (!activeSessionId) {
+      onCreateFirstSession();
+      return;
+    }
+    composerRef.current?.focus();
+    if (!hasUserMessage && !composerInput.trim()) {
+      setComposerInput(`objective: Complete a first task in ${firstSessionAllowedPath} that can be verified within 3 minutes.\nallowed_paths: ["${firstSessionAllowedPath}"]`);
+    } else if (!activeSessionGenerating && !composerInput.trim()) {
+      setComposerInput("/run");
+    }
+  }
+
+  return (
+    <section className="chat-panel" aria-label="Conversation panel">
+      <OnboardingBanner
+        visible={onboardingVisible}
+        phaseText={activeSessionGenerating ? phaseText : hasUserMessage ? "Ready for /run" : "Waiting for the first request"}
+        nextStepLabel={nextStepLabel}
+        onNextStep={focusComposerWithTemplate}
+        onDismiss={dismissOnboarding}
+      />
+      {isOffline ? (
+        <section className="alert-warning" role="alert">
+          You are offline. Sync will resume automatically when the network returns.
+        </section>
+      ) : null}
+      {liveError ? (
+        <section className="alert-warning" role="alert" aria-live="polite">
+          {liveError}
+        </section>
+      ) : null}
+      {!workspace ? (
+        <section className="workspace-empty" aria-label="Empty workspace state">
+          <h2>Select a workspace before starting the conversation</h2>
+          <p>Each workspace represents one repository and one agent configuration.</p>
+        </section>
+      ) : (
+        <>
+          <section className="chat-toolbar" aria-label="Session toolbar">
+            <p>
+              <strong>{workspace.repo}</strong> / {workspace.branch} · Session {activeSessionId || "not created yet"}
+            </p>
+            <p className="shortcut-hint" role="status" aria-live="polite">
+              {!activeSessionId ? "Create the first session before sending a message" : activeSessionGenerating ? phaseText : "The PM is ready for your next instruction"}
+            </p>
+            {activeSessionGenerating ? (
+              <p className="shortcut-hint" role="note" aria-live="polite">Syncing session data...</p>
+            ) : null}
+            <p className="shortcut-hint" role="note">
+              <kbd>Cmd/Ctrl+\\</kbd> toggle layout · <kbd>Cmd/Ctrl+Shift+D</kbd> pop out Chain
+            </p>
+            <div className="quick-actions" role="group" aria-label="Live quick actions">
+              <Button variant="secondary" onClick={() => refreshNow()}>Refresh now</Button>
+              <Button variant="secondary" aria-pressed={drawerVisible} onClick={() => setDrawerVisible((value) => !value)}>
+                {drawerVisible ? "Hide drawer" : "Show drawer"}
+              </Button>
+              <Button
+                variant={drawerPinned ? "primary" : "ghost"}
+                aria-pressed={drawerPinned}
+                onClick={() => setDrawerPinned((value) => !value)}
+              >
+                {drawerPinned ? "Drawer pinned" : "Drawer unpinned"}
+              </Button>
+            </div>
+          </section>
+          {!activeSessionId ? (
+            <section className="workspace-empty" aria-label="First-session empty state">
+              <h2>Create the first session in desktop before sending a request</h2>
+              <p>Desktop submits the smallest intake: <code>objective</code> + <code>allowed_paths</code>.</p>
+              <p className="shortcut-hint">Default <code>allowed_paths</code>: <code>{firstSessionAllowedPath}</code></p>
+              {firstSessionBootstrapError ? (
+                <p className="composer-state-note" role="alert" aria-live="assertive">
+                  {firstSessionBootstrapError}
+                </p>
+              ) : null}
+              <div className="quick-actions">
+                <Button variant="primary" onClick={onCreateFirstSession} disabled={isOffline || creatingFirstSession}>
+                  {creatingFirstSession ? "Creating the first session in desktop..." : "Create first session in desktop"}
+                </Button>
+                <Button variant="secondary" onClick={onOpenSessionFallback}>Open Dashboard /pm and create it manually</Button>
+              </div>
+            </section>
+          ) : null}
+          <section
+            ref={chatThreadRef}
+            className="chat-thread"
+            aria-label="Session messages"
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions text"
+            aria-busy={activeSessionGenerating}
+          >
+            {!activeSessionId ? (
+              <p className="drawer-mode-note">No session exists yet. Click "Create first session in desktop" first. If that fails, open Dashboard /pm and create it manually.</p>
+            ) : activeTimeline.length === 0 ? (
+              <p className="drawer-mode-note">This session has no messages yet. Enter a request below and press Enter to send.</p>
+            ) : (
+              activeTimeline.map((item) => (
+                <article
+                  key={item.id}
+                  data-message-id={item.id}
+                  className={`chat-bubble ${item.role === "user" ? "is-user" : "is-pm"}`.trim()}
+                >
+                  <strong>{item.role === "user" ? "You" : "CortexPilot Command Tower PM"}</strong>
+                  <div className="markdown-content">
+                    {shouldRenderMarkdown(item.content) ? (
+                      <Suspense fallback={<p className="chat-plain-text">{item.content}</p>}>
+                        <LazyMarkdownMessage content={item.content} />
+                      </Suspense>
+                    ) : (
+                      <p className="chat-plain-text">{item.content}</p>
+                    )}
+                  </div>
+                  {(item.embeds || []).map((embed) => renderChatEmbed(item, embed, chooseDecision, reportActions))}
+                </article>
+              ))
+            )}
+            {activeSessionGenerating ? (
+              <article className="chat-bubble is-pm typing-bubble" aria-live="polite">
+                <strong>CortexPilot Command Tower PM</strong>
+                <p>{streamingText || phaseText}</p>
+              </article>
+            ) : null}
+          </section>
+          <section className="chat-composer" aria-label="Message composer">
+            <label htmlFor="desktop-chat-input">Continue the conversation</label>
+            {recoverableDraft ? (
+              <section className="alert-warning draft-recovery" role="status" aria-live="polite">
+                <p>An unsent draft was found. Restore it?</p>
+                <div className="quick-actions">
+                  <Button variant="secondary" onClick={restoreDraft}>Restore draft</Button>
+                  <Button variant="destructive" onClick={discardDraft}>Discard draft</Button>
+                </div>
+              </section>
+            ) : null}
+            <Textarea
+              ref={composerRef}
+              id="desktop-chat-input"
+              value={composerInput}
+              onChange={(event) => setComposerInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+                  event.preventDefault();
+                  onComposerEnterSend();
+                }
+              }}
+              rows={1}
+              maxLength={composerMaxChars}
+              placeholder={composerPlaceholder}
+              disabled={!workspace || isOffline}
+            />
+            {!hasUserMessage && starterPrompts.length > 0 ? (
+              <div className="starter-prompts" role="group" aria-label="Starter request templates">
+                {starterPrompts.map((prompt) => (
+                  <Button
+                    key={prompt}
+                    type="button"
+                    unstyled
+                    className="starter-prompt"
+                    onClick={() => onApplyStarterPrompt(prompt)}
+                    disabled={!workspace || isOffline || hasActiveGeneration}
+                  >
+                    {prompt}
+                  </Button>
+                ))}
+              </div>
+            ) : null}
+            <div className="composer-meta">
+              <p className="shortcut-hint" role="note">Press Enter to send. Use Shift+Enter for a new line.</p>
+              <span className={`status-badge ${composerOverLimit ? "status-critical" : "status-running"}`}>
+                {composerLength}/{composerMaxChars}
+              </span>
+            </div>
+            {sendDisabledReason ? (
+              <p className="composer-state-note" role="status" aria-live="polite">
+                {sendDisabledReason}
+              </p>
+            ) : null}
+            <div className="quick-actions">
+              <Button
+                variant="primary"
+                onClick={onComposerEnterSend}
+                disabled={!canSend}
+              >
+                <ArrowUp size={16} aria-hidden="true" />
+                Send message
+              </Button>
+              {!isUserNearBottom || unreadCount > 0 ? (
+                <Button variant="secondary" onClick={onBackToBottom} disabled={activeTimeline.length === 0}>
+                  Back to bottom{unreadCount > 0 ? ` (${unreadCount})` : ""}
+                </Button>
+              ) : null}
+              <Button variant="ghost" onClick={stopGeneration} disabled={!hasActiveGeneration}>
+                Stop generation
+              </Button>
+            </div>
+          </section>
+        </>
+      )}
+    </section>
+  );
+}
