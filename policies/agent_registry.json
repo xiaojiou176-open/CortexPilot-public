@@ -1,0 +1,164 @@
+{
+  "version": "v1",
+  "agents": [
+    {
+      "agent_id": "agent-1",
+      "role": "WORKER",
+      "codex_home": "$HOME/.codex-homes/cortexpilot-worker-core",
+      "defaults": {
+        "sandbox": "workspace-write",
+        "approval_policy": "never",
+        "network": "deny"
+      },
+      "capabilities": {
+        "mcp_tools": [
+          "01-filesystem",
+          "codex",
+          "sampling",
+          "aider",
+          "continue",
+          "open_interpreter"
+        ],
+        "notes": "default worker"
+      }
+    },
+    {
+      "agent_id": "agent-1",
+      "role": "REVIEWER",
+      "codex_home": "$HOME/.codex-homes/cortexpilot-reviewer",
+      "defaults": {
+        "sandbox": "read-only",
+        "approval_policy": "never",
+        "network": "deny"
+      },
+      "capabilities": {
+        "mcp_tools": [
+          "codex"
+        ],
+        "notes": "reviewer requires codex for MCP gate compatibility"
+      }
+    },
+    {
+      "agent_id": "agent-1",
+      "role": "TEST_RUNNER",
+      "codex_home": "$HOME/.codex-homes/cortexpilot-test-runner",
+      "defaults": {
+        "sandbox": "workspace-write",
+        "approval_policy": "never",
+        "network": "deny"
+      }
+    },
+    {
+      "agent_id": "agent-1",
+      "role": "TECH_LEAD",
+      "codex_home": "$HOME/.codex-homes/cortexpilot-techlead",
+      "defaults": {
+        "sandbox": "read-only",
+        "approval_policy": "never",
+        "network": "deny"
+      }
+    },
+    {
+      "agent_id": "agent-1",
+      "role": "PM",
+      "codex_home": "$HOME/.codex-homes/cortexpilot-pm",
+      "defaults": {
+        "sandbox": "read-only",
+        "approval_policy": "never",
+        "network": "deny"
+      }
+    },
+    {
+      "agent_id": "agent-1",
+      "role": "UI_UX",
+      "codex_home": "$HOME/.codex-homes/cortexpilot-ui-ux",
+      "defaults": {
+        "sandbox": "workspace-write",
+        "approval_policy": "never",
+        "network": "deny"
+      }
+    },
+    {
+      "agent_id": "agent-1",
+      "role": "FRONTEND",
+      "codex_home": "$HOME/.codex-homes/cortexpilot-worker-frontend",
+      "defaults": {
+        "sandbox": "workspace-write",
+        "approval_policy": "never",
+        "network": "deny"
+      }
+    },
+    {
+      "agent_id": "agent-1",
+      "role": "BACKEND",
+      "codex_home": "$HOME/.codex-homes/cortexpilot-worker-backend",
+      "defaults": {
+        "sandbox": "workspace-write",
+        "approval_policy": "never",
+        "network": "deny"
+      }
+    },
+    {
+      "agent_id": "agent-1",
+      "role": "SEARCHER",
+      "codex_home": "$HOME/.codex-homes/cortexpilot-searcher",
+      "defaults": {
+        "sandbox": "workspace-write",
+        "approval_policy": "never",
+        "network": "allow"
+      }
+    },
+    {
+      "agent_id": "agent-1",
+      "role": "RESEARCHER",
+      "codex_home": "$HOME/.codex-homes/cortexpilot-researcher",
+      "defaults": {
+        "sandbox": "workspace-write",
+        "approval_policy": "never",
+        "network": "allow"
+      }
+    },
+    {
+      "agent_id": "worker",
+      "role": "WORKER",
+      "codex_home": "$HOME/.codex-homes/cortexpilot-worker",
+      "defaults": {
+        "sandbox": "workspace-write",
+        "approval_policy": "never",
+        "network": "deny"
+      },
+      "capabilities": {
+        "mcp_tools": [
+          "01-filesystem",
+          "codex",
+          "sampling",
+          "aider",
+          "continue",
+          "open_interpreter"
+        ],
+        "notes": "worker alias"
+      }
+    },
+    {
+      "agent_id": "e2e-worker",
+      "role": "WORKER",
+      "codex_home": "$HOME/.codex-homes/cortexpilot-worker-e2e",
+      "defaults": {
+        "sandbox": "workspace-write",
+        "approval_policy": "never",
+        "network": "deny"
+      },
+      "capabilities": {
+        "mcp_tools": [
+          "01-filesystem",
+          "codex",
+          "sampling",
+          "aider",
+          "continue",
+          "open_interpreter"
+        ],
+        "notes": "e2e worker"
+      }
+    }
+  ]
+}

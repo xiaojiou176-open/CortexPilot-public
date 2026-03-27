@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "description": "SSOT for repository-level third-party asset and branding provenance review. Non-verified entries must not be treated as legal-safe public redistribution approval.",
+  "entries": [
+    {
+      "id": "desktop-icon-bundle",
+      "surface_kind": "application_icon_bundle",
+      "path_globs": [
+        "apps/desktop/src-tauri/icons/**/*"
+      ],
+      "status": "active",
+      "review_state": "verified",
+      "owner": "repository-maintainer",
+      "origin_summary": "Desktop icon bundle is now generated in-repo by the repository-owned script `scripts/generate_first_party_desktop_icons.py`, so the current icon assets are first-party branding rather than third-party source material.",
+      "usage_boundary": "Treat the desktop icon bundle as first-party repository branding; redistribution follows the repository LICENSE boundary, not a pending third-party clearance workflow.",
+      "evidence_refs": [
+        "THIRD_PARTY_NOTICES.md",
+        "scripts/generate_first_party_desktop_icons.py",
+        "CHANGELOG.md"
+      ]
+    }
+  ]
+}

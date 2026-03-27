@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "description": "Minimal navigation registry for the public documentation surface.",
+  "entries": [
+    {
+      "path": "docs/README.md",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/architecture/runtime-topology.md",
+      "kind": "reference",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/specs/00_SPEC.md",
+      "kind": "policy",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/runbooks/onboarding-30min.md",
+      "kind": "runbook",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/runbooks/space-governance.md",
+      "kind": "runbook",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/runbooks/public-release-checklist.md",
+      "kind": "runbook",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    },
+    {
+      "path": "docs/runbooks/storefront-share-kit.md",
+      "kind": "runbook",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    },
+    {
+      "path": "docs/runbooks/github-storefront-manual-steps.md",
+      "kind": "runbook",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    },
+    {
+      "path": "docs/governance/doc-drift-map.json",
+      "kind": "policy",
+      "status": "active",
+      "canonical": false,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    },
+    {
+      "path": "docs/governance/incident-regression-map.json",
+      "kind": "policy",
+      "status": "active",
+      "canonical": false,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    },
+    {
+      "path": "docs/governance/ui_protocol_allowlist.json",
+      "kind": "policy",
+      "status": "active",
+      "canonical": false,
+      "generated": false,
+      "owner_surface": "ui",
+      "listed_in_primary_navigation": false
+    },
+    {
+      "path": "docs/governance/perf-baseline.json",
+      "kind": "policy",
+      "status": "active",
+      "canonical": false,
+      "generated": false,
+      "owner_surface": "ci",
+      "listed_in_primary_navigation": false
+    },
+    {
+      "path": "docs/governance/ui-button-coverage-matrix.md",
+      "kind": "reference",
+      "status": "active",
+      "canonical": false,
+      "generated": true,
+      "owner_surface": "ui",
+      "listed_in_primary_navigation": false
+    }
+  ]
+}

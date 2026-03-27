@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/handoff.v1.json",
+  "title": "AgentHandoff",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["instruction", "summary", "risks"],
+  "properties": {
+    "instruction": {"type": "string", "minLength": 1},
+    "summary": {"type": "string"},
+    "risks": {"type": "array", "items": {"type": "string"}}
+  }
+}
