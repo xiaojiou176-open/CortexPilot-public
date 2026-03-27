@@ -1,0 +1,644 @@
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Callable
+
+from fastapi import HTTPException, Query, Request
+from fastapi.responses import StreamingResponse
+
+from cortexpilot_orch.api import search_payload_helpers
+from tooling.search_pipeline import build_evidence_bundle
+
+
+_logger = logging.getLogger(__name__)
+
+
+def build_runs_handlers(
+    *,
+    runs_root_fn: Callable[[], Path],
+    load_contract_fn: Callable[[str], dict],
+    parse_iso_ts_fn: Callable[[str], datetime],
+    select_baseline_by_window_fn: Callable[[str, dict], str | None],
+    last_event_ts_fn: Callable[[str], str],
+    collect_workflows_fn: Callable[[], dict[str, dict]],
+    read_events_fn: Callable[[str], list[dict]],
+    filter_events_fn: Callable[..., list[dict]],
+    event_cursor_value_fn: Callable[[dict[str, Any]], str],
+    safe_artifact_target_fn: Callable[[str, str], Path],
+    read_artifact_fn: Callable[[str, str], object | None],
+    read_report_fn: Callable[[str, str], object | None],
+    extract_search_queries_fn: Callable[[dict], list[str]],
+    promote_evidence_fn: Callable[[str, dict[str, Any]], dict[str, Any]],
+    orchestration_service_fn: Callable[[], Any],
+    load_config_fn: Callable[[], Any],
+    error_detail_fn: Callable[[str], dict[str, str]],
+    current_request_id_fn: Callable[[], str],
+    log_event_fn: Callable[..., None],
+    json_loads_fn: Callable[[str], object],
+    json_decode_error_cls: type[Exception],
+    list_diff_gate_fn: Callable[[], list[dict]],
+    rollback_run_fn: Callable[[str], dict],
+    reject_run_fn: Callable[[str], dict],
+    list_reviews_fn: Callable[[], list[dict]],
+    list_tests_fn: Callable[[], list[dict]],
+    list_agents_fn: Callable[[], dict],
+    list_agents_status_fn: Callable[[str | None], dict],
+    list_policies_fn: Callable[[], dict],
+    list_locks_fn: Callable[[], list[dict]],
+    list_worktrees_fn: Callable[[], list[dict]],
+    read_events_incremental_fn: Callable[..., tuple[list[dict[str, Any]], int]] | None = None,
+) -> dict[str, Callable[..., Any]]:
+    def _read_events_light(run_dir: Path) -> list[dict[str, Any]]:
+        events_path = run_dir / "events.jsonl"
+        if not events_path.exists():
+            return []
+        items: list[dict[str, Any]] = []
+        for raw in events_path.read_text(encoding="utf-8").splitlines():
+            text = raw.strip()
+            if not text:
+                continue
+            try:
+                payload = json_loads_fn(text)
+            except Exception as exc:  # noqa: BLE001
+                _logger.debug("main_runs_handlers: skip invalid event line: %s", exc)
+                continue
+            if isinstance(payload, dict):
+                items.append(payload)
+        return items
+
+    def _as_dict(value: Any) -> dict[str, Any]:
+        return value if isinstance(value, dict) else {}
+
+    def _safe_load_json(path: Path) -> dict[str, Any] | None:
+        try:
+            payload = json_loads_fn(path.read_text(encoding="utf-8"))
+        except Exception as exc:  # noqa: BLE001
+            _logger.debug("main_runs_handlers: _safe_load_json failed for %s: %s", path, exc)
+            return None
+        return payload if isinstance(payload, dict) else None
+
+    def _normalize_contract(value: Any) -> dict[str, Any]:
+        return value if isinstance(value, dict) else {}
+
+    def _is_rejected_diff_gate(event: dict[str, Any]) -> bool:
+        name = str(event.get("event") or "")
+        if name in {"DIFF_GATE_REJECTED", "DIFF_GATE_FAIL"}:
+            return True
+        if name != "DIFF_GATE_RESULT":
+            return False
+        context = _as_dict(event.get("context"))
+        meta = _as_dict(event.get("meta"))
+        candidates = [
+            str(context.get("result") or ""),
+            str(context.get("status") or ""),
+            str(meta.get("result") or ""),
+            str(meta.get("status") or ""),
+        ]
+        return any(item.upper() == "REJECTED" for item in candidates)
+
+    def _infer_failure_fields(
+        *,
+        status: str,
+        manifest: dict[str, Any],
+        events: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        existing = {
+            "failure_class": manifest.get("failure_class"),
+            "failure_code": manifest.get("failure_code"),
+            "failure_stage": manifest.get("failure_stage"),
+            "failure_summary_zh": manifest.get("failure_summary_zh"),
+            "action_hint_zh": manifest.get("action_hint_zh"),
+            "root_event": manifest.get("root_event"),
+        }
+
+        for event in reversed(events):
+            name = str(event.get("event") or "")
+            meta = _as_dict(event.get("meta"))
+            if _is_rejected_diff_gate(event):
+                existing.update(
+                    {
+                        "failure_class": "gate",
+                        "failure_code": "DIFF_GATE_REJECTED",
+                        "failure_stage": "diff_gate",
+                        "failure_summary_zh": "Rule blocked: the diff gate rejected the change and the run was denied.",
+                        "action_hint_zh": "Review the diff-gate rule and evidence, then resubmit.",
+                        "root_event": name or "DIFF_GATE_RESULT",
+                    }
+                )
+                break
+            if name == "HUMAN_APPROVAL_REQUIRED":
+                existing.update(
+                    {
+                        "failure_class": "manual",
+                        "failure_code": "HUMAN_APPROVAL_REQUIRED",
+                        "failure_stage": "approval",
+                        "failure_summary_zh": "Manual confirmation required: the run is waiting for human approval and did not continue automatically.",
+                        "action_hint_zh": "Complete the approval in the control panel, then retry.",
+                        "root_event": name,
+                    }
+                )
+                break
+            if name == "ROLLBACK_APPLIED" and str(meta.get("reason") or "") == "worktree_ref missing":
+                existing.update(
+                    {
+                        "failure_class": "env",
+                        "failure_code": "ROLLBACK_WORKTREE_REF_MISSING",
+                        "failure_stage": "rollback",
+                        "failure_summary_zh": "Rollback failed: missing worktree_ref reference.",
+                        "action_hint_zh": "Confirm that worktree_ref.txt exists in the run directory and points to a valid path.",
+                        "root_event": name,
+                    }
+                )
+                break
+
+        if str(status).upper() == "FAILURE":
+            failure_reason = str(manifest.get("failure_reason") or "").strip()
+            if "diff gate" in failure_reason.lower() and not existing.get("failure_class"):
+                existing.update(
+                    {
+                        "failure_class": "gate",
+                        "failure_code": "DIFF_GATE_REJECTED",
+                        "failure_stage": "diff_gate",
+                        "failure_summary_zh": "Rule blocked: the diff gate rejected the change and the run was denied.",
+                        "action_hint_zh": "Review the diff-gate rule and evidence, then resubmit.",
+                        "root_event": existing.get("root_event") or "DIFF_GATE_RESULT",
+                    }
+                )
+            if not existing.get("failure_class"):
+                existing["failure_class"] = "product"
+            if not existing.get("failure_code"):
+                existing["failure_code"] = "FAILURE_REASON" if failure_reason else "FAILURE_UNKNOWN"
+            if not existing.get("failure_stage"):
+                existing["failure_stage"] = "runtime"
+            if not existing.get("failure_summary_zh"):
+                existing["failure_summary_zh"] = (
+                    f"Run failed: {failure_reason}" if failure_reason else "Run failed with no explicit reason provided."
+                )
+            if not existing.get("action_hint_zh"):
+                existing["action_hint_zh"] = "Review events.jsonl and logs, identify the root cause, then retry."
+            if not existing.get("root_event"):
+                existing["root_event"] = manifest.get("root_event") or "UNKNOWN"
+
+        return {
+            "failure_class": existing.get("failure_class") or "",
+            "failure_code": existing.get("failure_code") or "",
+            "failure_stage": existing.get("failure_stage") or "",
+            "failure_summary_zh": existing.get("failure_summary_zh") or "",
+            "action_hint_zh": existing.get("action_hint_zh") or "",
+            "root_event": existing.get("root_event") or "",
+        }
+
+    def _resolve_outcome(status: str, failure_class: str) -> dict[str, str]:
+        status_upper = str(status or "").upper()
+        if status_upper in {"SUCCESS", "SUCCEEDED", "COMPLETED", "DONE"}:
+            return {"outcome_type": "success", "outcome_label_zh": "Success"}
+        if status_upper in {"FAILURE", "FAILED", "REJECTED", "ERROR"}:
+            class_token = str(failure_class or "").strip().lower()
+            if class_token == "gate":
+                return {"outcome_type": "gate", "outcome_label_zh": "Rule blocked"}
+            if class_token == "manual":
+                return {"outcome_type": "manual", "outcome_label_zh": "Manual confirmation required"}
+            if class_token == "env":
+                return {"outcome_type": "env", "outcome_label_zh": "Environment issue"}
+            if class_token == "product":
+                return {"outcome_type": "product", "outcome_label_zh": "Functional anomaly"}
+            if class_token == "unknown":
+                return {"outcome_type": "product", "outcome_label_zh": "Functional anomaly"}
+            return {"outcome_type": "failure", "outcome_label_zh": "Functional anomaly"}
+        if status_upper in {"RUNNING", "PENDING", "QUEUED", "IN_PROGRESS", "PAUSED"}:
+            return {"outcome_type": "in_progress", "outcome_label_zh": "In progress"}
+        return {"outcome_type": "unknown", "outcome_label_zh": "Unknown"}
+
+    def list_runs() -> list[dict]:
+        runs: list[dict[str, Any]] = []
+        for run_dir in runs_root_fn().glob("*"):
+            manifest_path = run_dir / "manifest.json"
+            if not manifest_path.exists():
+                continue
+            manifest = _safe_load_json(manifest_path)
+            if manifest is None:
+                continue
+            workflow = manifest.get("workflow", {}) if isinstance(manifest.get("workflow"), dict) else {}
+            created_at = manifest.get("created_at") or manifest.get("start_ts")
+            finished_at = manifest.get("finished_at") or manifest.get("end_ts")
+            mtime = manifest_path.stat().st_mtime
+            try:
+                contract = _normalize_contract(load_contract_fn(run_dir.name))
+            except Exception as exc:  # noqa: BLE001
+                _logger.debug("main_runs_handlers: load_contract_fn failed for %s: %s", run_dir.name, exc)
+                contract = {}
+            owner = contract.get("owner_agent", {}) if isinstance(contract.get("owner_agent"), dict) else {}
+            assigned = contract.get("assigned_agent", {}) if isinstance(contract.get("assigned_agent"), dict) else {}
+            failure_reason = manifest.get("failure_reason", "")
+            status = str(manifest.get("status") or "")
+            events = _read_events_light(run_dir)
+            failure_attrs = _infer_failure_fields(status=status, manifest=manifest, events=events)
+            outcome = _resolve_outcome(status, str(failure_attrs.get("failure_class") or ""))
+            sort_ts = mtime
+            if isinstance(created_at, str) and created_at.strip():
+                try:
+                    sort_ts = parse_iso_ts_fn(created_at).timestamp()
+                except Exception as exc:  # noqa: BLE001
+                    _logger.debug("main_runs_handlers: parse_iso_ts_fn failed for %s: %s", created_at, exc)
+                    sort_ts = mtime
+            runs.append(
+                {
+                    "run_id": manifest.get("run_id"),
+                    "task_id": manifest.get("task_id"),
+                    "status": manifest.get("status"),
+                    "workflow_id": workflow.get("workflow_id", ""),
+                    "workflow_status": workflow.get("status", ""),
+                    "created_at": created_at,
+                    "finished_at": finished_at,
+                    "start_ts": created_at,
+                    "end_ts": finished_at,
+                    "owner_agent_id": owner.get("agent_id", ""),
+                    "owner_role": owner.get("role", ""),
+                    "assigned_agent_id": assigned.get("agent_id", ""),
+                    "assigned_role": assigned.get("role", ""),
+                    "failure_reason": failure_reason,
+                    "last_event_ts": last_event_ts_fn(run_dir.name),
+                    **failure_attrs,
+                    **outcome,
+                    "_sort": sort_ts,
+                }
+            )
+        runs.sort(key=lambda item: item.get("_sort", 0), reverse=True)
+        for item in runs:
+            item.pop("_sort", None)
+        return runs
+
+    def list_workflows() -> list[dict]:
+        workflows = list(collect_workflows_fn().values())
+
+        def _latest_ts(entry: dict) -> datetime:
+            latest = None
+            for run in entry.get("runs", []):
+                created_at = run.get("created_at")
+                if not created_at:
+                    continue
+                try:
+                    ts = parse_iso_ts_fn(str(created_at))
+                except Exception as exc:  # noqa: BLE001
+                    _logger.debug("main_runs_handlers: _latest_ts parse failed: %s", exc)
+                    continue
+                if latest is None or ts > latest:
+                    latest = ts
+            return latest or datetime.fromtimestamp(0, tz=timezone.utc)
+
+        workflows.sort(key=_latest_ts, reverse=True)
+        return workflows
+
+    def get_workflow(workflow_id: str) -> dict:
+        workflows = collect_workflows_fn()
+        entry = workflows.get(workflow_id)
+        if not entry:
+            raise HTTPException(status_code=404, detail=error_detail_fn("WORKFLOW_NOT_FOUND"))
+
+        events: list[dict] = []
+        for run in entry.get("runs", []):
+            run_id = run.get("run_id")
+            if not run_id:
+                continue
+            for ev in read_events_fn(str(run_id)):
+                if not isinstance(ev, dict):
+                    continue
+                context = ev.get("context") if isinstance(ev.get("context"), dict) else {}
+                workflow_match = context.get("workflow_id") == workflow_id
+                if ev.get("event") in {
+                    "WORKFLOW_BOUND",
+                    "WORKFLOW_STATUS",
+                    "TEMPORAL_NOTIFY_START",
+                    "TEMPORAL_NOTIFY_DONE",
+                } or workflow_match:
+                    ev["_run_id"] = run_id
+                    events.append(ev)
+
+        def _event_key(ev: dict) -> str:
+            return str(ev.get("ts") or ev.get("_ts") or "")
+
+        events.sort(key=_event_key, reverse=True)
+        return {
+            "workflow": entry,
+            "runs": entry.get("runs", []),
+            "events": events,
+        }
+
+    def get_run(run_id: str) -> dict:
+        run_dir = runs_root_fn() / run_id
+        manifest_path = run_dir / "manifest.json"
+        if not manifest_path.exists():
+            raise HTTPException(status_code=404, detail=error_detail_fn("RUN_NOT_FOUND"))
+        manifest = _safe_load_json(manifest_path) or {}
+        contract_path = run_dir / "contract.json"
+        contract = _safe_load_json(contract_path) if contract_path.exists() else {}
+        normalized_contract = _normalize_contract(contract)
+        status = str(manifest.get("status") or "")
+        events = _read_events_light(run_dir)
+        failure_attrs = _infer_failure_fields(
+            status=status,
+            manifest=manifest,
+            events=events,
+        )
+        outcome = _resolve_outcome(status, str(failure_attrs.get("failure_class") or ""))
+        allowed_paths = normalized_contract.get("allowed_paths")
+        if not isinstance(allowed_paths, list):
+            allowed_paths = []
+        return {
+            "run_id": run_id,
+            "task_id": manifest.get("task_id"),
+            "status": manifest.get("status"),
+            "allowed_paths": allowed_paths,
+            "contract": normalized_contract,
+            "manifest": manifest,
+            **failure_attrs,
+            **outcome,
+        }
+
+    def get_events(
+        run_id: str,
+        since: str | None = None,
+        limit: int | None = Query(default=None, ge=1, le=5000),
+        tail: bool = False,
+    ) -> list[dict]:
+        events = read_events_fn(run_id)
+        return filter_events_fn(events, since=since, limit=limit, tail=tail)
+
+    async def stream_events(
+        run_id: str,
+        request: Request,
+        since: str | None = None,
+        limit: int = Query(default=200, ge=1, le=5000),
+        tail: bool = True,
+        follow: bool = True,
+    ) -> StreamingResponse:
+        run_dir = runs_root_fn() / run_id
+        if not run_dir.exists():
+            raise HTTPException(status_code=404, detail=error_detail_fn("RUN_NOT_FOUND"))
+
+        async def _event_stream():
+            nonlocal since
+
+            stream_offset = 0
+            if callable(read_events_incremental_fn):
+                initial_events, stream_offset = read_events_incremental_fn(
+                    run_id=run_id,
+                    offset=0,
+                    since=since,
+                    limit=limit,
+                    tail=tail,
+                )
+            else:
+                initial_events = filter_events_fn(read_events_fn(run_id), since=since, limit=limit, tail=tail)
+            for item in initial_events:
+                cursor = event_cursor_value_fn(item)
+                payload = json.dumps(item, ensure_ascii=False)
+                if cursor:
+                    since = cursor
+                    yield f"id: {cursor}\n"
+                yield "event: run_event\n"
+                yield f"data: {payload}\n\n"
+
+            if not follow:
+                return
+
+            while True:
+                if await request.is_disconnected():
+                    break
+                await asyncio.sleep(1.5)
+                if callable(read_events_incremental_fn):
+                    delta_events, stream_offset = read_events_incremental_fn(
+                        run_id=run_id,
+                        offset=stream_offset,
+                        since=since,
+                        limit=limit,
+                        tail=False,
+                    )
+                else:
+                    delta_events = filter_events_fn(read_events_fn(run_id), since=since, limit=limit, tail=False)
+                if not delta_events:
+                    yield ": keep-alive\n\n"
+                    continue
+
+                for item in delta_events:
+                    cursor = event_cursor_value_fn(item)
+                    payload = json.dumps(item, ensure_ascii=False)
+                    if cursor:
+                        since = cursor
+                        yield f"id: {cursor}\n"
+                    yield "event: run_event\n"
+                    yield f"data: {payload}\n\n"
+
+        return StreamingResponse(
+            _event_stream(),
+            media_type="text/event-stream",
+            headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"},
+        )
+
+    def get_diff(run_id: str) -> dict:
+        diff_path = runs_root_fn() / run_id / "patch.diff"
+        diff_text = diff_path.read_text(encoding="utf-8") if diff_path.exists() else ""
+        return {"diff": diff_text}
+
+    def get_reports(run_id: str) -> list[dict]:
+        reports_dir = runs_root_fn() / run_id / "reports"
+        if not reports_dir.exists():
+            return []
+        reports = []
+        for path in reports_dir.glob("*.json"):
+            try:
+                data = json_loads_fn(path.read_text(encoding="utf-8"))
+            except json_decode_error_cls:
+                data = {"raw": path.read_text(encoding="utf-8")}
+            except Exception as exc:
+                log_event_fn(
+                    "ERROR",
+                    "api",
+                    "REPORTS_READ_FAILED",
+                    run_id=run_id,
+                    meta={"request_id": current_request_id_fn(), "error": str(exc), "report": path.name},
+                )
+                raise HTTPException(status_code=500, detail=error_detail_fn("REPORTS_READ_FAILED")) from exc
+            reports.append({"name": path.name, "data": data})
+        return reports
+
+    def get_artifacts(run_id: str, name: str | None = None) -> dict:
+        artifacts_dir = runs_root_fn() / run_id / "artifacts"
+        if not artifacts_dir.exists():
+            return {"items": []}
+        if name:
+            target = safe_artifact_target_fn(run_id, name)
+            if not target.exists():
+                return {"name": name, "data": None}
+            if target.is_dir():
+                raise HTTPException(status_code=400, detail=error_detail_fn("ARTIFACT_PATH_IS_DIRECTORY"))
+            try:
+                if target.suffix == ".json":
+                    return {"name": name, "data": json_loads_fn(target.read_text(encoding="utf-8"))}
+                if target.suffix == ".jsonl":
+                    lines: list[dict] = []
+                    for raw in target.read_text(encoding="utf-8").splitlines():
+                        if not raw.strip():
+                            continue
+                        try:
+                            lines.append(json_loads_fn(raw))
+                        except json_decode_error_cls:
+                            lines.append({"raw": raw})
+                    return {"name": name, "data": lines}
+                return {"name": name, "data": target.read_text(encoding="utf-8")}
+            except Exception as exc:
+                log_event_fn(
+                    "ERROR",
+                    "api",
+                    "ARTIFACTS_READ_FAILED",
+                    run_id=run_id,
+                    meta={"request_id": current_request_id_fn(), "error": str(exc), "artifact": name},
+                )
+                raise HTTPException(status_code=500, detail=error_detail_fn("ARTIFACTS_READ_FAILED")) from exc
+        return {"items": [p.name for p in artifacts_dir.iterdir() if p.is_file()]}
+
+    def get_search(run_id: str) -> dict:
+        run_dir = runs_root_fn() / run_id
+        if not run_dir.exists():
+            raise HTTPException(status_code=404, detail=error_detail_fn("RUN_NOT_FOUND"))
+        return search_payload_helpers.build_search_payload(
+            run_id,
+            read_artifact_fn=read_artifact_fn,
+            read_report_fn=read_report_fn,
+        )
+
+    def promote_evidence(run_id: str) -> dict:
+        run_dir = runs_root_fn() / run_id
+        if not run_dir.exists():
+            raise HTTPException(status_code=404, detail=error_detail_fn("RUN_NOT_FOUND"))
+        contract = load_contract_fn(run_id)
+        raw = read_artifact_fn(run_id, "search_results.json")
+        results: list[dict] = []
+        if isinstance(raw, dict):
+            latest = raw.get("latest") if isinstance(raw.get("latest"), dict) else None
+            if isinstance(latest, dict) and isinstance(latest.get("results"), list):
+                results = latest.get("results", [])
+            elif isinstance(raw.get("results"), list):
+                results = raw.get("results", [])
+        queries = extract_search_queries_fn(contract)
+        raw_question = "; ".join(queries) if queries else "search"
+        refined_prompt = raw_question
+        requested_by = contract.get("assigned_agent", {}) if isinstance(contract, dict) else {}
+        bundle = build_evidence_bundle(
+            raw_question=raw_question,
+            refined_prompt=refined_prompt,
+            results=results,
+            requested_by=requested_by,
+            limitations=["promoted manually from search ui"],
+        )
+        return promote_evidence_fn(run_id, bundle)
+
+    def replay_run(run_id: str, payload: dict | None = None) -> dict:
+        if payload is not None and not isinstance(payload, dict):
+            raise HTTPException(status_code=400, detail=error_detail_fn("PAYLOAD_INVALID"))
+        baseline_run_id = payload.get("baseline_run_id") if payload else None
+        baseline_window = payload.get("baseline_window") if payload else None
+        if not baseline_run_id and baseline_window:
+            if not isinstance(baseline_window, dict):
+                raise HTTPException(status_code=400, detail=error_detail_fn("BASELINE_WINDOW_INVALID"))
+            try:
+                baseline_run_id = select_baseline_by_window_fn(run_id, baseline_window)
+            except Exception as exc:
+                log_event_fn(
+                    "WARN",
+                    "api",
+                    "BASELINE_WINDOW_INVALID",
+                    run_id=run_id,
+                    meta={"request_id": current_request_id_fn(), "error": str(exc)},
+                )
+                raise HTTPException(status_code=400, detail=error_detail_fn("BASELINE_WINDOW_INVALID")) from exc
+        return orchestration_service_fn().replay_run(run_id, baseline_run_id=baseline_run_id)
+
+    def verify_run(run_id: str, strict: bool = True) -> dict:
+        return orchestration_service_fn().replay_verify(run_id, strict=strict)
+
+    def reexec_run(run_id: str, strict: bool = True) -> dict:
+        return orchestration_service_fn().replay_reexec(run_id, strict=strict)
+
+    def list_contracts() -> list[dict]:
+        cfg = load_config_fn()
+        contracts = []
+
+        def _read_contract_item(path: Path) -> dict[str, Any]:
+            try:
+                raw_text = path.read_text(encoding="utf-8")
+            except Exception:  # noqa: BLE001
+                return {"raw_error": "read_failed"}
+            try:
+                payload = json_loads_fn(raw_text)
+            except json_decode_error_cls:
+                return {"raw": raw_text}
+            except Exception:  # noqa: BLE001
+                return {"raw": raw_text}
+            return payload if isinstance(payload, dict) else {"payload": payload}
+
+        for path in (cfg.contract_root / "examples").glob("*.json"):
+            item = _read_contract_item(path)
+            item["_source"] = "examples"
+            item["_path"] = str(path)
+            contracts.append(item)
+        for bucket in ["tasks", "reviews", "results"]:
+            root = cfg.contract_root / bucket
+            if not root.exists():
+                continue
+            for path in root.glob("**/*.json"):
+                item = _read_contract_item(path)
+                item["_source"] = bucket
+                item["_path"] = str(path)
+                contracts.append(item)
+        return contracts
+
+    def list_events(limit: int = 200) -> list[dict]:
+        items: list[dict] = []
+        for run_dir in runs_root_fn().glob("*"):
+            run_id = run_dir.name
+            for item in read_events_fn(run_id):
+                item["_run_id"] = run_id
+                items.append(item)
+
+        def _key(ev: dict) -> str:
+            return str(ev.get("ts") or ev.get("_ts") or "")
+
+        items.sort(key=_key, reverse=True)
+        return items[: max(1, min(2000, limit))]
+
+    def list_agents_status(run_id: str | None = None) -> dict:
+        return list_agents_status_fn(run_id)
+
+    return {
+        "list_runs": list_runs,
+        "list_workflows": list_workflows,
+        "get_workflow": get_workflow,
+        "get_run": get_run,
+        "get_events": get_events,
+        "stream_events": stream_events,
+        "get_diff": get_diff,
+        "get_reports": get_reports,
+        "get_artifacts": get_artifacts,
+        "get_search": get_search,
+        "promote_evidence": promote_evidence,
+        "replay_run": replay_run,
+        "verify_run": verify_run,
+        "reexec_run": reexec_run,
+        "list_contracts": list_contracts,
+        "list_events": list_events,
+        "list_diff_gate": list_diff_gate_fn,
+        "rollback_run": rollback_run_fn,
+        "reject_run": reject_run_fn,
+        "list_reviews": list_reviews_fn,
+        "list_tests": list_tests_fn,
+        "list_agents": list_agents_fn,
+        "list_agents_status": list_agents_status,
+        "list_policies": list_policies_fn,
+        "list_locks": list_locks_fn,
+        "list_worktrees": list_worktrees_fn,
+    }

@@ -1,0 +1,286 @@
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+from typing import Any
+
+from cortexpilot_orch.contract.validator import ContractValidator, resolve_agent_registry_path
+
+_FORBIDDEN_POLICY_FILE = "policies/forbidden_actions.json"
+
+# NOTE: Default shell policy stays `deny` to preserve the SSOT minimum-permission baseline.
+_DEFAULT_TOOL_PERMISSIONS: dict[str, Any] = {
+    "filesystem": "workspace-write",
+    "shell": "deny",
+    "network": "deny",
+    "mcp_tools": ["codex"],
+}
+
+_DEFAULT_TIMEOUT_RETRY: dict[str, Any] = {
+    "timeout_sec": 900,
+    "max_retries": 0,
+    "retry_backoff_sec": 0,
+}
+
+_DEFAULT_ROLLBACK: dict[str, Any] = {
+    "strategy": "git_reset_hard",
+    "baseline_ref": "HEAD",
+}
+
+_DEFAULT_LOG_REFS: dict[str, Any] = {
+    "run_id": "",
+    "paths": {
+        "codex_jsonl": "",
+        "codex_transcript": "",
+        "git_diff": "",
+        "tests_log": "",
+        "trace_id": "",
+    },
+}
+
+_DEFAULT_REQUIRED_OUTPUT = {
+    "name": "patch.diff",
+    "type": "patch",
+    "acceptance": "generate auditable code changes",
+}
+_DEFAULT_ACCEPTANCE_TESTS = [
+    {"name": "repo_hygiene", "cmd": "bash scripts/check_repo_hygiene.sh", "must_pass": True},
+]
+
+_OUTPUT_SCHEMA_BY_ROLE: dict[str, str] = {
+    "REVIEWER": "review_report.v1.json",
+    "TEST_RUNNER": "test_report.v1.json",
+    "TEST": "test_report.v1.json",
+}
+
+
+_FILESYSTEM_ORDER = {"read-only": 0, "workspace-write": 1, "danger-full-access": 2}
+_NETWORK_ORDER = {"deny": 0, "on-request": 1, "allow": 2}
+_SHELL_ORDER = {"deny": 0, "never": 0, "untrusted": 1, "on-request": 2}
+
+
+def _default_owner_agent() -> dict[str, Any]:
+    return {
+        "role": "WORKER",
+        "agent_id": "agent-1",
+        "codex_thread_id": "",
+    }
+
+
+def _default_assigned_agent(owner_agent: dict[str, Any] | None) -> dict[str, Any]:
+    if isinstance(owner_agent, dict):
+        role = owner_agent.get("role")
+        if role in {"WORKER", "REVIEWER", "TEST_RUNNER", "TEST", "AI", "SECURITY", "INFRA", "OPS"}:
+            return owner_agent
+    return {
+        "role": "WORKER",
+        "agent_id": "agent-1",
+        "codex_thread_id": "",
+    }
+
+
+def _output_schema_name_for_role(role: str | None) -> str:
+    role_key = (role or "").strip().upper()
+    return _OUTPUT_SCHEMA_BY_ROLE.get(role_key, "agent_task_result.v1.json")
+
+
+def _output_schema_role_key(role: str | None) -> str:
+    role_key = (role or "").strip().lower()
+    return role_key or "worker"
+
+
+def _build_output_schema_artifact(role: str | None, schema_root: Path) -> dict[str, Any]:
+    schema_name = _output_schema_name_for_role(role)
+    schema_path = schema_root / schema_name
+    if not schema_path.exists():
+        raise ValueError(f"output schema missing: {schema_path}")
+    sha = hashlib.sha256(schema_path.read_bytes()).hexdigest()
+    role_key = _output_schema_role_key(role)
+    return {
+        "name": f"output_schema.{role_key}",
+        "uri": f"schemas/{schema_name}",
+        "sha256": sha,
+    }
+
+
+def _inject_output_schema_artifact(
+    artifacts: list[Any],
+    role: str | None,
+    schema_root: Path,
+) -> list[Any]:
+    role_key = _output_schema_role_key(role)
+    candidates = {f"output_schema.{role_key}", "output_schema"}
+    filtered: list[Any] = []
+    for artifact in artifacts:
+        if not isinstance(artifact, dict):
+            filtered.append(artifact)
+            continue
+        name = artifact.get("name")
+        if isinstance(name, str) and name.strip() in candidates:
+            continue
+        filtered.append(artifact)
+    filtered.append(_build_output_schema_artifact(role, schema_root))
+    return filtered
+
+
+def _resolve_assigned_agent(plan: dict[str, Any], owner_agent: dict[str, Any] | None) -> dict[str, Any]:
+    assigned = plan.get("assigned_agent")
+    if isinstance(assigned, dict) and assigned.get("role") and assigned.get("agent_id"):
+        return assigned
+    return _default_assigned_agent(owner_agent)
+
+
+def _load_forbidden_actions() -> list[str]:
+    repo_root = Path(__file__).resolve().parents[5]
+    policy_path = repo_root / _FORBIDDEN_POLICY_FILE
+    if not policy_path.exists():
+        return []
+    try:
+        payload = json.loads(policy_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return []
+    actions = payload.get("forbidden_actions") if isinstance(payload, dict) else []
+    return [str(item).strip() for item in actions if str(item).strip()]
+
+
+def _load_agent_registry() -> dict[str, Any] | None:
+    path = resolve_agent_registry_path()
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"agent_registry invalid: {exc}") from exc
+    ContractValidator().validate_report(payload, "agent_registry.v1.json")
+    return payload if isinstance(payload, dict) else None
+
+
+def _find_registry_entry(registry: dict[str, Any] | None, agent: dict[str, Any]) -> dict[str, Any] | None:
+    if not isinstance(registry, dict):
+        return None
+    entries = registry.get("agents") if isinstance(registry.get("agents"), list) else []
+    role = agent.get("role")
+    agent_id = agent.get("agent_id")
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("role") == role and entry.get("agent_id") == agent_id:
+            return entry
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("role") == role:
+            return entry
+    return None
+
+
+def _coerce_value(current: str | None, default: str | None, order_map: dict[str, int]) -> str | None:
+    if default is None:
+        return current
+    if current is None:
+        return default
+    if current not in order_map or default not in order_map:
+        return current
+    return current if order_map[current] <= order_map[default] else default
+
+
+def _apply_role_defaults(contract: dict[str, Any]) -> None:
+    registry = _load_agent_registry()
+    assigned_agent = contract.get("assigned_agent", {}) if isinstance(contract.get("assigned_agent"), dict) else {}
+    entry = _find_registry_entry(registry, assigned_agent)
+    if not entry:
+        return
+    defaults = entry.get("defaults") if isinstance(entry.get("defaults"), dict) else {}
+    capabilities = entry.get("capabilities") if isinstance(entry.get("capabilities"), dict) else {}
+    tool_permissions = contract.get("tool_permissions") if isinstance(contract.get("tool_permissions"), dict) else {}
+    updated = dict(tool_permissions)
+    updated["filesystem"] = _coerce_value(
+        updated.get("filesystem"), defaults.get("sandbox"), _FILESYSTEM_ORDER
+    )
+    updated["shell"] = _coerce_value(
+        updated.get("shell"), defaults.get("approval_policy"), _SHELL_ORDER
+    )
+    updated["network"] = _coerce_value(
+        updated.get("network"), defaults.get("network"), _NETWORK_ORDER
+    )
+    allowed_tools = capabilities.get("mcp_tools") if isinstance(capabilities.get("mcp_tools"), list) else None
+    tools = updated.get("mcp_tools")
+    if isinstance(allowed_tools, list):
+        allowed_set = {str(item).strip() for item in allowed_tools if str(item).strip()}
+        if isinstance(tools, list) and tools:
+            updated["mcp_tools"] = [item for item in tools if str(item).strip() in allowed_set]
+        else:
+            updated["mcp_tools"] = list(allowed_set)
+    contract["tool_permissions"] = updated
+
+
+def compile_plan(plan: dict[str, Any]) -> dict[str, Any]:
+    validator = ContractValidator()
+    validator.validate_report(plan, "plan.schema.json")
+
+    plan_id = str(plan.get("plan_id", "")).strip()
+    task_id = str(plan.get("task_id") or plan_id).strip()
+    if not task_id:
+        raise ValueError("plan compile failed: missing task_id")
+
+    owner_agent = plan.get("owner_agent") or _default_owner_agent()
+    assigned_agent = _resolve_assigned_agent(plan, owner_agent)
+    spec = str(plan.get("spec", "")).strip()
+    artifacts = plan.get("artifacts") or []
+    if not isinstance(artifacts, list):
+        artifacts = []
+    schema_root = Path(__file__).resolve().parents[5] / "schemas"
+    role = assigned_agent.get("role") if isinstance(assigned_agent, dict) else None
+    artifacts = _inject_output_schema_artifact(list(artifacts), role, schema_root)
+
+    contract: dict[str, Any] = {
+        "task_id": task_id,
+        "owner_agent": owner_agent,
+        "assigned_agent": assigned_agent,
+        "inputs": {
+            "spec": spec,
+            "artifacts": artifacts,
+        },
+        "required_outputs": plan.get("required_outputs") or [_DEFAULT_REQUIRED_OUTPUT],
+        "allowed_paths": plan.get("allowed_paths") or [],
+        "forbidden_actions": plan.get("forbidden_actions") or _load_forbidden_actions(),
+        "acceptance_tests": plan.get("acceptance_tests") or [],
+        "tool_permissions": plan.get("tool_permissions") or _DEFAULT_TOOL_PERMISSIONS,
+        "mcp_tool_set": plan.get("mcp_tool_set") or [],
+        "timeout_retry": plan.get("timeout_retry") or _DEFAULT_TIMEOUT_RETRY,
+        "rollback": plan.get("rollback") or _DEFAULT_ROLLBACK,
+        "evidence_links": plan.get("evidence_links") or [],
+        "log_refs": _DEFAULT_LOG_REFS,
+    }
+
+    task_type = plan.get("task_type")
+    if isinstance(task_type, str) and task_type.strip():
+        contract["task_type"] = task_type.strip()
+
+    parent_task_id = plan.get("parent_task_id")
+    if isinstance(parent_task_id, str) and parent_task_id.strip():
+        contract["parent_task_id"] = parent_task_id
+
+    audit_only = plan.get("audit_only")
+    if isinstance(audit_only, bool):
+        contract["audit_only"] = audit_only
+
+    _apply_role_defaults(contract)
+
+    tests = contract.get("acceptance_tests")
+    if not isinstance(tests, list) or not tests:
+        contract["acceptance_tests"] = list(_DEFAULT_ACCEPTANCE_TESTS)
+
+    validator.validate_contract(contract)
+    return contract
+
+
+def compile_plan_text(plan_text: str) -> dict[str, Any]:
+    try:
+        payload = json.loads(plan_text)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"plan compile failed: invalid json: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError("plan compile failed: payload must be object")
+    return compile_plan(payload)
