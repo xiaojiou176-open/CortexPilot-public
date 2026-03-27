@@ -508,7 +508,7 @@ jobs:
           clean: true
 
       - name: Download route seed artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: ci-route-seed-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache/cortexpilot/reports/ci/routes
@@ -915,35 +915,35 @@ jobs:
           clean: true
 
       - name: Download quick-feedback artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: ci-quick-feedback-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache
           merge-multiple: true
 
       - name: Download policy-and-security artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: ci-policy-and-security-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache
           merge-multiple: true
 
       - name: Download core-tests artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: ci-core-tests-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache
           merge-multiple: true
 
       - name: Download resilience-and-e2e artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: ci-resilience-and-e2e-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache
           merge-multiple: true
 
       - name: Download route seed artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: ci-route-seed-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache/cortexpilot/reports/ci/routes
@@ -1055,7 +1055,7 @@ jobs:
           clean: true
 
       - name: Download route seed artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: ci-route-seed-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache/cortexpilot/reports/ci/routes
@@ -1184,7 +1184,7 @@ jobs:
           clean: true
 
       - name: Download route report artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c
         with:
           name: ${{ env.ROUTE_ARTIFACT_NAME }}
           path: .runtime-cache/cortexpilot/reports/ci/routes
