@@ -190,10 +190,11 @@ gates can trace the maintenance decision end to end.
 
 ## Release Track
 
-The public release surface is still being rebuilt. Until the first GitHub
-Release is published, use these entrypoints:
+The public release surface now has a live baseline. Use these entrypoints:
 
 - [GitHub Releases page](https://github.com/xiaojiou176-open/CortexPilot/releases)
+- [Live GitHub Release `v0.1.0-alpha.1`](https://github.com/xiaojiou176-open/CortexPilot/releases/tag/v0.1.0-alpha.1)
+- [Live GitHub Pages site](https://xiaojiou176-open.github.io/CortexPilot/)
 - [Changelog](CHANGELOG.md)
 - [Public release checklist](docs/runbooks/public-release-checklist.md)
 - [First public release draft](docs/releases/first-public-release-draft.md)
@@ -202,7 +203,6 @@ Release is published, use these entrypoints:
 
 ## What’s Next
 
-- publish the first user-facing GitHub Release
 - configure the GitHub social preview with the tracked PNG asset
 - add a tracked healthy demo/GIF
 - expand the current single-run benchmark baseline into a broader public

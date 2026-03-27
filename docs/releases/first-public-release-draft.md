@@ -48,8 +48,9 @@ happy-path baseline for proof-oriented copy and future benchmark publication.
 
 - GitHub social preview still needs to be configured in repository settings
 - GitHub Discussions are enabled on the live repository
-- no live GitHub Release entry is published yet
 - no broader multi-round benchmark artifact is published yet
+- GitHub Pages is enabled from `/docs`, and the live site is now
+  `https://xiaojiou176-open.github.io/CortexPilot/`
 
 ## Verification
 

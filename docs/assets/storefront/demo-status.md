@@ -30,14 +30,14 @@ ones that still need a real capture pass.
 | Desktop preview capture | present | shows the shell surface only |
 | Healthy backend-backed `news_digest` public proof set | present | tracked proof summary: `docs/releases/assets/news-digest-healthy-proof-2026-03-27.md` |
 | Public benchmark artifact from a real tracked run | present | first tracked single-run baseline: `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md` |
-| Published GitHub Release page/card | missing live publication | a repo-side draft exists, but publication has not happened yet |
+| Published GitHub Release page/card | present | live release: `https://github.com/xiaojiou176-open/CortexPilot/releases/tag/v0.1.0-alpha.1` |
 
 ## Still Missing
 
 - a tracked healthy live-capture GIF for the official first public happy path
 - a broader multi-round public benchmark artifact beyond the current single-run
   baseline summary
-- a published GitHub Release page/card
+- a live GitHub social preview upload
 
 ## Why This File Exists
 
@@ -50,7 +50,7 @@ are different things.
 - `dashboard-home-live-1440x900.png`, `dashboard-command-tower-live-1440x900.png`, `dashboard-runs-live-1440x900.png`, and `dashboard-live-degraded-loop.gif` are real captures from the dashboard server, but they were captured in a local degraded state where backend data was unavailable.
 - `desktop-shell-live-1440x900.png` is a real screenshot from the desktop snapshot pipeline.
 - `social-preview-1280x640.png` is a repo-tracked upload candidate for the GitHub social preview setting, not proof that the live GitHub setting has already been applied.
-- `docs/releases/first-public-release-draft.md` is a repo-side release draft, not proof that a live GitHub Release has been published.
+- `docs/releases/first-public-release-draft.md` remains the repo-side draft source that fed the published release notes.
 - `docs/releases/assets/news-digest-healthy-proof-2026-03-27.md` and the two
   copied screenshots are repo-tracked evidence from a successful local run,
   not proof that the live GitHub Release page has already been published.
@@ -60,4 +60,6 @@ are different things.
   historical blocker receipt from an earlier failed benchmark route.
 - `docs/releases/assets/news-digest-healthy-proof-route-2026-03-27.md` remains
   a historical blocker receipt from earlier failed healthy-proof attempts.
+- `https://xiaojiou176-open.github.io/CortexPilot/` is now the live GitHub
+  Pages site backed by `main` / `/docs`.
 - None of these captures should be described as proof of a fully healthy end-to-end backend session.

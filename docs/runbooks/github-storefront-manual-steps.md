@@ -10,7 +10,7 @@ Recommended About text:
 
 Website field:
 
-- leave empty until `docs/index.html` is actually published on GitHub Pages or an equivalent public URL
+- `https://xiaojiou176-open.github.io/CortexPilot/`
 
 ## 2. Topics
 
@@ -65,12 +65,19 @@ Draft notes source:
 
 - `docs/releases/first-public-release-draft.md`
 
+Live release:
+
+- `https://github.com/xiaojiou176-open/CortexPilot/releases/tag/v0.1.0-alpha.1`
+
 ## 6. Pages / Landing
 
-Repo-side presence of `docs/index.html` is not evidence that GitHub Pages is enabled.
+Current live state:
 
-If GitHub Pages is enabled from `/docs`:
+- GitHub Pages is enabled from `main` / `/docs`
+- live URL: `https://xiaojiou176-open.github.io/CortexPilot/`
+- the GitHub Website field now points to that URL
 
-- publish `docs/index.html`
-- verify the final public URL
-- then update the GitHub Website field to that URL
+If the Pages source changes in the future:
+
+- verify the final public URL again
+- then update the GitHub Website field to match

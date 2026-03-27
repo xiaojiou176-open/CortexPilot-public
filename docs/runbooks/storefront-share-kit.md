@@ -43,13 +43,13 @@ Governed AI task orchestration with evidence, replay, and operator visibility.
 | Desktop snapshot preview | tracked | use as a UI preview, not as end-to-end proof |
 | Healthy backend-backed `news_digest` capture set | present | safe to reference as repo-tracked proof, not as proof of live GitHub publication |
 | Public benchmark artifact | present | safe to quote as a single-run baseline only |
-| GitHub Release card | missing live publication | say the draft exists, not that the release is published |
+| GitHub Release card | present | safe to reference the live release page and the tracked draft together |
 
 ## Current Gaps
 
 - no tracked healthy live-capture GIF yet
 - no broader multi-round public benchmark figure yet
-- no published GitHub Release card yet
+- no live GitHub social preview upload yet
 
 ## Safe Post Angles
 
