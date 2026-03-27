@@ -1,0 +1,314 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+APP_DIR="${CORTEXPILOT_DASHBOARD_APP_DIR:-$ROOT_DIR/apps/dashboard}"
+source "$ROOT_DIR/scripts/lib/toolchain_env.sh"
+
+STORE_DIR="${CORTEXPILOT_PNPM_STORE_DIR:-$(cortexpilot_pnpm_store_dir "$ROOT_DIR")/dashboard}"
+STATE_ROOT="$ROOT_DIR/.runtime-cache/cortexpilot/temp/install-dashboard-deps-state"
+if [[ "${CORTEXPILOT_CI_CONTAINER:-0}" == "1" && -n "${RUNNER_TEMP:-}" ]]; then
+  STATE_ROOT="${RUNNER_TEMP}/install-dashboard-deps-state"
+fi
+INSTALL_LOG="${STATE_ROOT}/install_dashboard_deps.log"
+LOCK_DIR="${STATE_ROOT}/install-dashboard-deps.lock"
+LOCK_OWNER_FILE="$LOCK_DIR/owner"
+LOCK_HELD=0
+
+log_contains() {
+  local needle="$1"
+  [[ -f "$INSTALL_LOG" ]] || return 1
+  local content=""
+  content="$(<"$INSTALL_LOG")"
+  [[ "$content" == *"$needle"* ]]
+}
+
+install_log_has_partial_bin_warning() {
+  log_contains "Failed to create bin at " && log_contains "ENOENT"
+}
+
+print_install_log_tail() {
+  local lines="${1:-80}"
+  [[ -f "$INSTALL_LOG" ]] || return 0
+  if command -v tail >/dev/null 2>&1; then
+    tail -n "$lines" "$INSTALL_LOG" >&2 || true
+    return 0
+  fi
+  if command -v python3 >/dev/null 2>&1; then
+    python3 - "$INSTALL_LOG" "$lines" >&2 <<'PY' || true
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+limit = int(sys.argv[2])
+for line in path.read_text(encoding="utf-8", errors="replace").splitlines()[-limit:]:
+    print(line)
+PY
+    return 0
+  fi
+  cat "$INSTALL_LOG" >&2 || true
+}
+
+resolve_writable_store_dir() {
+  local candidate="$1"
+  if mkdir -p "$candidate" >/dev/null 2>&1; then
+    printf '%s\n' "$candidate"
+    return 0
+  fi
+  local fallback
+  fallback="${XDG_CACHE_HOME:-$HOME/.cache}/cortexpilot/pnpm-store-dashboard"
+  mkdir -p "$fallback"
+  printf '%s\n' "$fallback"
+}
+
+release_install_lock() {
+  if [[ "$LOCK_HELD" != "1" ]]; then
+    return 0
+  fi
+  if [[ -d "$LOCK_DIR" ]]; then
+    rm -rf "$LOCK_DIR"
+  fi
+  LOCK_HELD=0
+}
+
+acquire_install_lock() {
+  mkdir -p "$(dirname "$LOCK_DIR")"
+  local started_epoch
+  started_epoch="$(date +%s)"
+  while true; do
+    if mkdir "$LOCK_DIR" 2>/dev/null; then
+      cat >"$LOCK_OWNER_FILE" <<EOF
+pid=$$
+started_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+app=dashboard
+EOF
+      LOCK_HELD=1
+      return 0
+    fi
+
+    local owner_pid=""
+    if [[ -f "$LOCK_OWNER_FILE" ]]; then
+      owner_pid="$(sed -n 's/^pid=//p' "$LOCK_OWNER_FILE" | head -n 1)"
+    fi
+    if [[ -n "$owner_pid" && "$owner_pid" =~ ^[0-9]+$ ]] && kill -0 "$owner_pid" 2>/dev/null; then
+      if (( $(date +%s) - started_epoch >= 600 )); then
+        echo "❌ [install-dashboard-deps] lock busy: owner_pid=${owner_pid} lock=${LOCK_DIR}" >&2
+        return 1
+      fi
+      sleep 2
+      continue
+    fi
+
+    rm -rf "$LOCK_DIR" >/dev/null 2>&1 || true
+  done
+}
+
+fresh_retry_store_dir() {
+  local retry_root="${XDG_CACHE_HOME:-$HOME/.cache}/cortexpilot"
+  mkdir -p "$retry_root"
+  mktemp -d "$retry_root/pnpm-store-dashboard-retry.XXXXXX"
+}
+
+cleanup_stale_retry_stores() {
+  local retry_root="${XDG_CACHE_HOME:-$HOME/.cache}/cortexpilot"
+  local candidate=""
+  shopt -s nullglob
+  for candidate in "$retry_root"/pnpm-store-dashboard-retry.*; do
+    [[ "$candidate" == "$STORE_DIR" ]] && continue
+    retire_store_dir "$candidate"
+  done
+  shopt -u nullglob
+}
+
+verify_dashboard_build_toolchain() {
+  (
+    cd "$APP_DIR"
+    test -x "node_modules/.bin/next"
+    test -x "node_modules/.bin/tsc"
+    test -f "node_modules/@next/env/package.json"
+    test -f "node_modules/next/dist/lib/verify-typescript-setup.js"
+    test -f "node_modules/next/dist/compiled/babel/code-frame.js"
+    test -f "node_modules/axe-core/axe.min.js"
+    test -f "node_modules/is-wsl/package.json"
+    test -f "node_modules/lighthouse/package.json"
+    test -f "node_modules/chrome-launcher/dist/utils.js"
+    pnpm exec next --version >/dev/null 2>&1
+    pnpm exec tsc --version >/dev/null 2>&1
+    node -e 'require.resolve("@next/env/package.json")' >/dev/null 2>&1
+    node --input-type=module -e 'await import("chrome-launcher")' >/dev/null 2>&1
+  )
+}
+
+retire_store_dir() {
+  local target="$1"
+  [[ -e "$target" ]] || return 0
+
+  if rm -rf "$target" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  # Stale bind-mounted pnpm stores can refuse recursive delete with
+  # "Directory not empty". Move the broken store aside so retry install can
+  # continue on a fresh store path without polluting repo root.
+  local quarantine_dir="${target}.quarantine.$(date +%s).$$"
+  if mv "$target" "$quarantine_dir" 2>/dev/null; then
+    rm -rf "$quarantine_dir" >/dev/null 2>&1 || true
+    return 0
+  fi
+
+  echo "⚠️ [install-dashboard-deps] unable to fully remove stale store at $target; continuing with a fresh retry store" >&2
+  return 0
+}
+
+if [[ -d "$ROOT_DIR/node_modules" ]]; then
+  echo "❌ [install-dashboard-deps] forbidden root node_modules detected" >&2
+  echo "Run: bash scripts/cleanup_workspace_modules.sh" >&2
+  exit 1
+fi
+
+acquire_install_lock
+trap 'release_install_lock' EXIT INT TERM
+
+STORE_DIR="$(resolve_writable_store_dir "$STORE_DIR")"
+cleanup_stale_retry_stores
+mkdir -p "$STATE_ROOT"
+
+run_install() {
+  (
+    cd "$APP_DIR"
+    unset NODE_ENV
+    export npm_config_production=false
+    export NPM_CONFIG_PRODUCTION=false
+    CI=true pnpm install \
+      --ignore-workspace \
+      --force \
+      --frozen-lockfile \
+      --prod=false \
+      --config.node-linker=hoisted \
+      --config.package-import-method=copy \
+      --shamefully-hoist \
+      --store-dir "$STORE_DIR" \
+      >"$INSTALL_LOG" 2>&1
+  )
+}
+
+reset_app_node_modules() {
+  local target="$APP_DIR/node_modules"
+  [[ -d "$target" ]] || return 0
+  if rm -rf "$target" 2>/dev/null; then
+    return 0
+  fi
+
+  # Docker bind-mounted node_modules can trip ENOTEMPTY during recursive delete.
+  # Move the stubborn tree into runtime temp first so a clean reinstall can proceed.
+  local quarantine_root="${STATE_ROOT}/quarantine"
+  local quarantine_dir="$quarantine_root/node_modules.$(date +%s).$$"
+  mkdir -p "$quarantine_root"
+  if mv "$target" "$quarantine_dir" 2>/dev/null; then
+    rm -rf "$quarantine_dir" >/dev/null 2>&1 || true
+    return 0
+  fi
+
+  echo "❌ [install-dashboard-deps] unable to reset dashboard node_modules at $target" >&2
+  return 1
+}
+
+recover_with_fresh_store() {
+  local reason="$1"
+  local max_attempts="${2:-3}"
+  local attempt=1
+  while (( attempt <= max_attempts )); do
+    echo "⚠️ [install-dashboard-deps] ${reason}; switching to a fresh retry store and resetting dashboard node_modules (attempt ${attempt}/${max_attempts})" >&2
+    retire_store_dir "$STORE_DIR"
+    STORE_DIR="$(fresh_retry_store_dir)"
+    if ! reset_app_node_modules; then
+      print_install_log_tail 80
+      exit 1
+    fi
+    if ! run_install; then
+      if log_contains "ERR_PNPM_ENOENT"; then
+        if (( attempt < max_attempts )); then
+          echo "⚠️ [install-dashboard-deps] fresh-store recovery hit another ERR_PNPM_ENOENT; retrying with a new retry store" >&2
+          attempt=$((attempt + 1))
+          continue
+        fi
+        echo "❌ [install-dashboard-deps] pnpm install failed after ${max_attempts} fresh-store recovery attempts; tail follows" >&2
+        print_install_log_tail 80
+        exit 1
+      fi
+      echo "❌ [install-dashboard-deps] pnpm install failed after fresh-store recovery; tail follows" >&2
+      print_install_log_tail 80
+      exit 1
+    fi
+    if install_log_has_partial_bin_warning; then
+      if (( attempt < max_attempts )); then
+        echo "⚠️ [install-dashboard-deps] detected partial bin-link warning after fresh-store recovery; retrying with a new retry store" >&2
+        attempt=$((attempt + 1))
+        continue
+      fi
+      echo "❌ [install-dashboard-deps] partial bin-link warning persisted after ${max_attempts} fresh-store recovery attempts; tail follows" >&2
+      print_install_log_tail 80
+      exit 1
+    fi
+    return 0
+  done
+}
+
+if ! run_install; then
+  if log_contains "ERR_PNPM_ENOENT"; then
+    recover_with_fresh_store "detected pnpm store ENOENT"
+  elif log_contains "ERR_PNPM_ENOTDIR"; then
+    echo "⚠️ [install-dashboard-deps] detected app-local node_modules ENOTDIR; resetting dashboard node_modules and retrying once" >&2
+    if ! reset_app_node_modules; then
+      print_install_log_tail 80
+      exit 1
+    fi
+    if ! run_install; then
+      echo "❌ [install-dashboard-deps] pnpm install failed after node_modules reset; tail follows" >&2
+      print_install_log_tail 80
+      exit 1
+    fi
+  elif log_contains "ERR_PNPM_ENOTEMPTY"; then
+    echo "⚠️ [install-dashboard-deps] detected app-local node_modules ENOTEMPTY; resetting dashboard node_modules and retrying once" >&2
+    if ! reset_app_node_modules; then
+      print_install_log_tail 80
+      exit 1
+    fi
+    if ! run_install; then
+      echo "❌ [install-dashboard-deps] pnpm install failed after node_modules reset; tail follows" >&2
+      print_install_log_tail 80
+      exit 1
+    fi
+  else
+    echo "❌ [install-dashboard-deps] pnpm install failed; tail follows" >&2
+    print_install_log_tail 80
+    exit 1
+  fi
+elif install_log_has_partial_bin_warning; then
+  recover_with_fresh_store "detected pnpm bin-link ENOENT warning"
+fi
+
+if [[ -d "$ROOT_DIR/node_modules" ]]; then
+  echo "❌ [install-dashboard-deps] install polluted root node_modules" >&2
+  exit 1
+fi
+
+if ! verify_dashboard_build_toolchain; then
+  recover_with_fresh_store "dashboard build toolchain unavailable after install"
+  if ! verify_dashboard_build_toolchain; then
+    echo "❌ [install-dashboard-deps] dashboard build toolchain is still unavailable after fresh-store recovery" >&2
+    ls -l "$APP_DIR/node_modules/.bin/next" "$APP_DIR/node_modules/.bin/tsc" >&2 || true
+    ls -l \
+      "$APP_DIR/node_modules/@next/env/package.json" \
+      "$APP_DIR/node_modules/next/dist/lib/verify-typescript-setup.js" \
+      "$APP_DIR/node_modules/next/dist/compiled/babel/code-frame.js" \
+      "$APP_DIR/node_modules/axe-core/axe.min.js" \
+      "$APP_DIR/node_modules/is-wsl/package.json" \
+      "$APP_DIR/node_modules/lighthouse/package.json" \
+      "$APP_DIR/node_modules/chrome-launcher/dist/utils.js" >&2 || true
+    print_install_log_tail 80
+    exit 1
+  fi
+fi
+
+echo "dashboard dependencies ready"

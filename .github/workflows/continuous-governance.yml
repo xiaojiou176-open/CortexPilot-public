@@ -1,0 +1,122 @@
+name: Continuous Governance
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Run mode for continuous governance
+        required: true
+        type: choice
+        options:
+          - quick
+          - full
+        default: quick
+      streak_windows:
+        description: Recent streak windows CSV (e.g. 7,14)
+        required: true
+        default: "7,14"
+        type: string
+      streak_strict:
+        description: Fail when recent run history is insufficient
+        required: true
+        default: true
+        type: boolean
+  schedule:
+    # Daily run (Tuesday-Sunday): 03:00 UTC
+    - cron: "0 3 * * 0,2-6"
+    # Weekly run: Monday 03:00 UTC
+    - cron: "0 3 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: continuous-governance-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  continuous-governance:
+    name: Continuous Governance Ops
+    runs-on: [self-hosted, shared-pool]
+    timeout-minutes: 60
+
+    permissions:
+      contents: read
+      actions: write
+
+    steps:
+      - name: Initialize Runner Tool Cache Env
+        run: |
+          echo "AGENT_TOOLSDIRECTORY=${RUNNER_TEMP}/hostedtoolcache-${GITHUB_JOB}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_ENV}"
+          echo "RUNNER_TOOL_CACHE=${RUNNER_TEMP}/hostedtoolcache-${GITHUB_JOB}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_ENV}"
+
+      - name: Repair Workspace Ownership
+        run: |
+          if [[ -d "${GITHUB_WORKSPACE}" ]]; then
+            sudo chown -R "$(id -u):$(id -g)" "${GITHUB_WORKSPACE}" || true
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+          clean: true
+
+      - name: Resolve Continuous Governance Lane Inputs
+        id: resolve
+        run: |
+          set -euo pipefail
+          MODE="quick"
+          STREAK_WINDOWS="7,14"
+          STREAK_STRICT="1"
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            MODE="${{ inputs.mode }}"
+            STREAK_WINDOWS="${{ inputs.streak_windows }}"
+            if [[ "${{ inputs.streak_strict }}" == "true" ]]; then
+              STREAK_STRICT="1"
+            else
+              STREAK_STRICT="0"
+            fi
+          elif [[ "${{ github.event_name }}" == "schedule" && "${{ github.event.schedule }}" == "0 3 * * 1" ]]; then
+            MODE="full"
+          fi
+
+          echo "mode=${MODE}" >> "${GITHUB_OUTPUT}"
+          echo "streak_windows=${STREAK_WINDOWS}" >> "${GITHUB_OUTPUT}"
+          echo "streak_strict=${STREAK_STRICT}" >> "${GITHUB_OUTPUT}"
+
+      - name: Run Continuous Governance Lane via docker_ci
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RUN_ID="continuous_governance_${{ github.run_id }}_${{ github.run_attempt }}"
+          sudo -E bash scripts/docker_ci.sh lane continuous-governance \
+            --mode "${{ steps.resolve.outputs.mode }}" \
+            --streak-windows "${{ steps.resolve.outputs.streak_windows }}" \
+            --streak-strict "${{ steps.resolve.outputs.streak_strict }}" \
+            --run-id "${RUN_ID}"
+
+      - name: Publish Streak Trend Summary
+        if: always()
+        run: |
+          RUN_ID="continuous_governance_${{ github.run_id }}_${{ github.run_attempt }}"
+          SUMMARY_FILE=".runtime-cache/test_output/continuous_governance/${RUN_ID}/recent_streak_summary.md"
+          if [[ -f "$SUMMARY_FILE" ]]; then
+            cat "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### Continuous Governance Trend Score" >> "$GITHUB_STEP_SUMMARY"
+            echo "- recent_streak_summary.md not found for run_id=${RUN_ID}" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload Continuous Governance Artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: continuous-governance-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 14
+          path: |
+            .runtime-cache/test_output/continuous_governance
+            .runtime-cache/cortexpilot/reports/ci
+          if-no-files-found: warn

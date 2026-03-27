@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: https://github.com/xiaojiou176-open/CortexPilot/blob/main/SECURITY.md
+    about: Do not open a public issue for vulnerabilities; use SECURITY.md for the documented GitHub advisory form private path. An additional fallback private channel is not yet established.
+  - name: Support guide
+    url: https://github.com/xiaojiou176-open/CortexPilot/blob/main/SUPPORT.md
+    about: Use SUPPORT.md for public bugs, docs fixes, and usage questions before opening an issue.
