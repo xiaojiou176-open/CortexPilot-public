@@ -5,7 +5,7 @@ replay, and operator visibility** instead of one-shot agent output.
 
 CortexPilot is a contract-first multi-agent orchestration repository.
 
-[Quickstart](#quickstart) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [Spec](docs/specs/00_SPEC.md) · [Releases](https://github.com/xiaojiou176-open/CortexPilot/releases)
+[Quickstart](#quickstart) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [Spec](docs/specs/00_SPEC.md) · [Releases](https://github.com/xiaojiou176-open/CortexPilot-public/releases)
 
 ![CortexPilot command tower flow](docs/assets/storefront/hero-command-tower.svg)
 
@@ -192,9 +192,9 @@ gates can trace the maintenance decision end to end.
 
 The public release surface now has a live baseline. Use these entrypoints:
 
-- [GitHub Releases page](https://github.com/xiaojiou176-open/CortexPilot/releases)
-- [Live GitHub Release `v0.1.0-alpha.1`](https://github.com/xiaojiou176-open/CortexPilot/releases/tag/v0.1.0-alpha.1)
-- [Live GitHub Pages site](https://xiaojiou176-open.github.io/CortexPilot/)
+- [GitHub Releases page](https://github.com/xiaojiou176-open/CortexPilot-public/releases)
+- [Live GitHub Release `v0.1.0-alpha.1`](https://github.com/xiaojiou176-open/CortexPilot-public/releases/tag/v0.1.0-alpha.1)
+- [Live GitHub Pages site](https://xiaojiou176-open.github.io/CortexPilot-public/)
 - [Changelog](CHANGELOG.md)
 - [Public release checklist](docs/runbooks/public-release-checklist.md)
 - [First public release draft](docs/releases/first-public-release-draft.md)
