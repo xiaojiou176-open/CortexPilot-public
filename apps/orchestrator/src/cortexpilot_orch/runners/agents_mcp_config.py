@@ -120,7 +120,30 @@ def _override_model_provider_base_url(
 
 
 def _strip_model_provider_secret_fields(config_text: str) -> str:
-    return _strip_toml_keys(config_text, {"experimental_bearer_token", "api_key", "env_key"})
+    return _strip_toml_keys(
+        config_text,
+        {
+            "experimental_bearer_token",
+            "api_key",
+            "env_key",
+            "password",
+            "secret",
+            "access_token",
+            "refresh_token",
+            "token",
+            "bearer_token",
+        },
+    )
+
+
+def assert_model_provider_secret_fields_removed(config_text: str) -> None:
+    forbidden_patterns = (
+        re.compile(r"^[ \t]*experimental_bearer_token[ \t]*=", re.M),
+        re.compile(r"^[ \t]*api_key[ \t]*=", re.M),
+        re.compile(r"^[ \t]*env_key[ \t]*=", re.M),
+    )
+    if any(pattern.search(config_text) for pattern in forbidden_patterns):
+        raise ValueError("model provider secret fields remained after config sanitization")
 
 
 def _filter_mcp_config(config_text: str, allowed: set[str], include_non_mcp: bool = True) -> str:

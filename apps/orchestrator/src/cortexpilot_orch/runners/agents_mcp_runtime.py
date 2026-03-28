@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 import logging
 import os
 import shutil
+import tomllib
 from pathlib import Path
 from typing import Any, Callable
 
@@ -37,6 +39,17 @@ _PROVIDER_TO_MODEL_PROVIDER = {
     "equilibrium": "codex_equilibrium",
     "codex_equilibrium": "codex_equilibrium",
 }
+_WORKER_CONFIG_SECRET_PREFIXES = (
+    "experimental_bearer_token",
+    "api_key",
+    "env_key",
+    "password",
+    "secret",
+    "access_token",
+    "refresh_token",
+    "token",
+    "bearer_token",
+)
 
 
 def _normalize_provider_name(provider: str) -> str:
@@ -121,6 +134,72 @@ def _extract_model_provider_section(config_text: str, provider: str) -> str:
     if not collected:
         return ""
     return "\n".join(collected).rstrip() + "\n"
+
+
+def _looks_like_worker_config_secret_key(key: str) -> bool:
+    return str(key).strip().lower().replace("-", "_") in _WORKER_CONFIG_SECRET_PREFIXES
+
+
+def _format_toml_key(key: str) -> str:
+    return key if key and all(ch.isalnum() or ch in {"_", "-"} for ch in key) else json.dumps(key, ensure_ascii=False)
+
+
+def _format_toml_value(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float)):
+        return str(value)
+    if isinstance(value, str):
+        return json.dumps(value, ensure_ascii=False)
+    if isinstance(value, list):
+        return "[" + ", ".join(_format_toml_value(item) for item in value) + "]"
+    raise TypeError(f"unsupported TOML value type: {type(value).__name__}")
+
+
+def _sanitize_worker_config_payload(payload: Any) -> Any:
+    if isinstance(payload, dict):
+        sanitized: dict[str, Any] = {}
+        for key, value in payload.items():
+            if _looks_like_worker_config_secret_key(str(key)):
+                continue
+            sanitized[str(key)] = _sanitize_worker_config_payload(value)
+        return sanitized
+    if isinstance(payload, list):
+        return [_sanitize_worker_config_payload(item) for item in payload]
+    return payload
+
+
+def _dump_toml_table(payload: dict[str, Any], prefix: tuple[str, ...] = ()) -> list[str]:
+    scalar_lines: list[str] = []
+    child_blocks: list[list[str]] = []
+    for key, value in payload.items():
+        key_name = str(key)
+        if isinstance(value, dict):
+            child_blocks.append(_dump_toml_table(value, (*prefix, key_name)))
+            continue
+        scalar_lines.append(f"{_format_toml_key(key_name)} = {_format_toml_value(value)}")
+
+    lines: list[str] = []
+    if prefix:
+        header = ".".join(_format_toml_key(part) for part in prefix)
+        lines.append(f"[{header}]")
+    lines.extend(scalar_lines)
+    for block in child_blocks:
+        if lines:
+            lines.append("")
+        lines.extend(block)
+    return lines
+
+
+def _build_write_safe_worker_config(config_text: str) -> str:
+    stripped_config = agents_mcp_config._strip_model_provider_secret_fields(config_text)
+    config_payload = tomllib.loads(stripped_config)
+    safe_payload = _sanitize_worker_config_payload(config_payload)
+    if not isinstance(safe_payload, dict):
+        raise TypeError("worker config payload must be table-shaped")
+    write_safe_config = "\n".join(_dump_toml_table(safe_payload)).rstrip() + "\n"
+    agents_mcp_config.assert_model_provider_secret_fields_removed(write_safe_config)
+    return write_safe_config
 
 
 def runtime_root_from_store(store: RunStore) -> Path:
@@ -336,8 +415,8 @@ def materialize_worker_codex_home(
         if codex_base_url:
             provider_name = agents_mcp_config._resolve_model_provider(merged)
             merged = agents_mcp_config._override_model_provider_base_url(merged, provider_name, codex_base_url)
-    merged = agents_mcp_config._strip_model_provider_secret_fields(merged)
-    (target / "config.toml").write_text(merged, encoding="utf-8")
+    write_safe_config_toml = _build_write_safe_worker_config(merged)
+    (target / "config.toml").write_text(write_safe_config_toml, encoding="utf-8")
     for name in ("requirements.toml",):
         src = role_home / name
         if src.exists():

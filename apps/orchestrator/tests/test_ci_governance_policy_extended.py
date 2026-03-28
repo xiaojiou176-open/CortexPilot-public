@@ -95,11 +95,14 @@ def _base_policy() -> dict:
                     "runner-bootstrap",
                     "policy-and-security",
                     "core-tests",
-                    "resilience-and-e2e",
                     "pr-release-critical-gates",
                     "pr-ci-gate",
                 ],
-                "required_artifact_prefixes": ["ci-route-report-trusted_pr-"],
+                "required_artifact_prefixes": [
+                    "ci-policy-and-security-artifacts-",
+                    "ci-core-tests-artifacts-",
+                    "ci-route-report-trusted_pr-",
+                ],
             },
             "push_main": {
                 "event_names": ["push"],
@@ -238,9 +241,21 @@ jobs:
           name: ci-route-report-${{ needs.ci-trust-boundary.outputs.route_id }}-${{ github.run_id }}
   pr-release-critical-gates:
     runs-on: [self-hosted, shared-pool]
+    needs: [ci-trust-boundary, quick-feedback, runner-bootstrap, policy-and-security, core-tests]
+    steps:
+      - run: |
+          python3 scripts/build_ci_route_report.py finalize \
+            --job-observed ci-trust-boundary \
+            --job-observed quick-feedback \
+            --job-observed runner-bootstrap \
+            --job-observed policy-and-security \
+            --job-observed core-tests \
+            --job-observed pr-release-critical-gates \
+            --artifact-name ci-policy-and-security-artifacts-${{ github.run_id }}-${{ github.run_attempt }} \
+            --artifact-name ci-core-tests-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
   pr-ci-gate:
     runs-on: ubuntu-24.04
-    needs: [quick-feedback, ci-trust-boundary]
+    needs: [quick-feedback, ci-trust-boundary, pr-release-critical-gates]
 """
     docker_ci = """
 STRICT_CI_CORTEXPILOT_ENV_ALLOWLIST=(
@@ -292,6 +307,34 @@ def test_policy_checker_accepts_dynamic_route_artifact_prefixes(tmp_path: Path) 
         check=False,
     )
     assert proc.returncode == 0, proc.stdout + proc.stderr
+
+
+def test_policy_checker_rejects_trusted_pr_route_drift(tmp_path: Path) -> None:
+    root = tmp_path / "repo-trusted-route-drift"
+    workflow_text, docker_ci_text = _workflow_text()
+    _write(root, ".github/workflows/ci.yml", workflow_text)
+    _write(root, "scripts/docker_ci.sh", docker_ci_text)
+    policy = _base_policy()
+    policy["route_contract"]["trusted_pr"]["required_jobs"].insert(5, "resilience-and-e2e")
+    policy["route_contract"]["trusted_pr"]["required_artifact_prefixes"].insert(2, "ci-resilience-and-e2e-artifacts-")
+    policy_path = root / "configs" / "ci_governance_policy.json"
+    _write(root, "configs/ci_governance_policy.json", json.dumps(policy))
+
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(REPO_ROOT / "scripts" / "check_ci_governance_policy.py"),
+            "--root",
+            str(root),
+            "--policy",
+            str(policy_path),
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert proc.returncode == 1
+    assert "details=redacted_for_safe_logging" in (proc.stdout + proc.stderr)
 
 
 def test_policy_checker_rejects_strict_allowlist_drift(tmp_path: Path) -> None:

@@ -92,3 +92,17 @@ def test_truncate_output_caps_large_check_logs() -> None:
 
     assert truncated.startswith("0123456789abcdef")
     assert "[truncated " in truncated
+
+
+def test_frontend_observability_check_cleans_workspace_modules() -> None:
+    module = _load_module()
+
+    check = next(
+        item
+        for item in module.CHECKS["logging"]
+        if item["id"] == "frontend_observability_tests"
+    )
+
+    command = " ".join(check["command"])
+    assert "install_frontend_api_client_deps.sh" in command
+    assert "cleanup_workspace_modules.sh" in command

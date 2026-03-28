@@ -46,6 +46,11 @@ Work in CortexPilot as a contract-first engineering agent:
 - when closeout work lands across both dashboard and desktop packaging surfaces,
   update the root entrypoint docs in the same patch instead of relying only on
   module-local README changes
+- when the live public GitHub surface moves or changes repository URLs, sync the
+  root docs/security/storefront entrypoints in the same patch so repo-side
+  links do not drift behind the published `CortexPilot-public` surface
+- when security reporting wording changes, keep `SECURITY.md`, `SUPPORT.md`,
+  issue template contact links, and the root README aligned in the same patch
 
 ## Local Overrides
 

@@ -63,5 +63,6 @@ Governed AI task orchestration with evidence, replay, and operator visibility.
 - describe `dashboard-live-degraded-loop.gif` as a local degraded dashboard capture unless a healthy backend-backed capture replaces it
 - quote the current benchmark artifact only as a single-run `news_digest`
   baseline until a broader benchmark summary replaces it
-- if mentioning the first release, say “release draft is ready in repo” until
-  the live GitHub Release page is actually published
+- if mentioning the first release, link the live GitHub Release page first and
+  treat `docs/releases/first-public-release-draft.md` as the repo-side source
+  that fed those published notes

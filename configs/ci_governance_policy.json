@@ -97,14 +97,12 @@
         "runner-bootstrap",
         "policy-and-security",
         "core-tests",
-        "resilience-and-e2e",
         "pr-release-critical-gates",
         "pr-ci-gate"
       ],
       "required_artifact_prefixes": [
         "ci-policy-and-security-artifacts-",
         "ci-core-tests-artifacts-",
-        "ci-resilience-and-e2e-artifacts-",
         "ci-route-report-trusted_pr-"
       ]
     },

@@ -29,7 +29,7 @@ build_local_advisory_current_run_manifest() {
   local head_sha
   head_sha="$(git rev-parse HEAD)"
   mkdir -p "$CURRENT_RUN_ROOT" "$(dirname "$CURRENT_RUN_ROUTE_REPORT")"
-  python3 scripts/build_ci_route_report.py seed \
+  bash scripts/run_governance_py.sh scripts/build_ci_route_report.py seed \
     --output "$CURRENT_RUN_ROUTE_REPORT" \
     --route-id "local-advisory" \
     --trust-class "trusted" \
@@ -41,7 +41,7 @@ build_local_advisory_current_run_manifest() {
     --github-ref "local" \
     --github-event-name "local" \
     --job-observed "truth-triage"
-  python3 scripts/build_ci_current_run_sources.py \
+  bash scripts/run_governance_py.sh scripts/build_ci_current_run_sources.py \
     --output "$CURRENT_RUN_SOURCE_MANIFEST" \
     --route-id "local-advisory" \
     --trust-class "trusted" \
@@ -67,7 +67,7 @@ echo
 
 echo "== external truth =="
 bash scripts/run_governance_py.sh scripts/check_upstream_inventory.py --mode gate
-python3 scripts/check_upstream_same_run_cohesion.py
+bash scripts/run_governance_py.sh scripts/check_upstream_same_run_cohesion.py
 echo
 
 echo "== current-run truth =="

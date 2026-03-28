@@ -42,8 +42,8 @@ def _has_strict_dotenv_boundary(text: str) -> bool:
     return any(pattern in text for pattern in accepted_patterns)
 
 
-def _sanitize_violation_message(message: str) -> str:
-    return re.sub(r"(?i)(token|secret|password|api[_-]?key)[^\\s]*", "[redacted]", str(message))
+def _job_text(job: dict[str, Any]) -> str:
+    return json.dumps(job, ensure_ascii=False, sort_keys=True)
 
 
 def main() -> int:
@@ -106,6 +106,39 @@ def main() -> int:
     pr_gate_needs = set((jobs.get("pr-ci-gate") or {}).get("needs") or [])
     _require({"quick-feedback", "ci-trust-boundary"}.issubset(pr_gate_needs), errors, "pr-ci-gate must depend on quick-feedback + ci-trust-boundary")
 
+    trusted_pr_policy = route_contract.get("trusted_pr") or {}
+    pr_release_gate = jobs.get("pr-release-critical-gates") or {}
+    trusted_gate_needs = set(pr_release_gate.get("needs") or [])
+    if trusted_pr_policy:
+        expected_trusted_gate_needs = set(trusted_pr_policy.get("required_jobs") or []) - {"pr-release-critical-gates", "pr-ci-gate"}
+        _require(
+            trusted_gate_needs == expected_trusted_gate_needs,
+            errors,
+            "trusted_pr route drift: pr-release-critical-gates.needs must match trusted_pr required upstream jobs",
+        )
+        pr_release_gate_text = _job_text(pr_release_gate)
+        expected_trusted_artifact_prefixes = [
+            prefix
+            for prefix in trusted_pr_policy.get("required_artifact_prefixes") or []
+            if not str(prefix).startswith("ci-route-report-")
+        ]
+        for prefix in expected_trusted_artifact_prefixes:
+            _require(
+                prefix in pr_release_gate_text,
+                errors,
+                f"trusted_pr route drift: pr-release-critical-gates missing artifact prefix `{prefix}`",
+            )
+        for forbidden_prefix in (
+            "ci-ui-truth-artifacts-",
+            "ci-resilience-and-e2e-artifacts-",
+            "ci-release-evidence-artifacts-",
+        ):
+            _require(
+                forbidden_prefix not in pr_release_gate_text,
+                errors,
+                f"trusted_pr route drift: pr-release-critical-gates must not reference `{forbidden_prefix}`",
+            )
+
     release_job = jobs.get("release-evidence") or {}
     release_needs = set(release_job.get("needs") or [])
     _require(set(policy["trusted_semantic_jobs"][:-1]).issubset(release_needs), errors, "release-evidence must depend on earlier trusted semantic slices")
@@ -158,6 +191,7 @@ def main() -> int:
     if errors:
         print("❌ [ci-governance-policy] violations:")
         print(f"- count={len(errors)}")
+        print("- details=redacted_for_safe_logging")
         return 1
     print("✅ [ci-governance-policy] workflow satisfies governance policy")
     return 0

@@ -54,7 +54,8 @@
     "apps/dashboard/.next",
     "apps/desktop/node_modules",
     "apps/desktop/dist",
-    "apps/desktop/tsconfig.tsbuildinfo"
+    "apps/desktop/tsconfig.tsbuildinfo",
+    "packages/frontend-api-client/node_modules"
   ],
   "space_governance_gray_zone_roots": [
     "apps/desktop/src-tauri/target",

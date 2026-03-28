@@ -14,6 +14,7 @@
 - env registry updated if needed: yes/no
 - runtime/output policy updated if needed: yes/no
 - public-boundary docs updated if positioning, support, privacy, rights, or third-party claims changed: yes/no
+- security reporting docs updated if the vulnerability intake path or fallback guidance changed: yes/no
 
 ## Submission Terms
 
@@ -26,3 +27,4 @@
 
 - unresolved risks
 - follow-up items if any
+- if this change affects vulnerability intake or private disclosure handling, note whether a maintainer follow-up is still required before calling the security surface closed

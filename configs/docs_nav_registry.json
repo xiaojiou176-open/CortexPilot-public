@@ -12,6 +12,15 @@
       "listed_in_primary_navigation": true
     },
     {
+      "path": "docs/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
       "path": "docs/architecture/runtime-topology.md",
       "kind": "reference",
       "status": "active",
@@ -68,6 +77,33 @@
     {
       "path": "docs/runbooks/github-storefront-manual-steps.md",
       "kind": "runbook",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    },
+    {
+      "path": "docs/releases/first-public-release-draft.md",
+      "kind": "reference",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    },
+    {
+      "path": "docs/assets/storefront/demo-status.md",
+      "kind": "reference",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    },
+    {
+      "path": "docs/assets/storefront/benchmark-methodology.md",
+      "kind": "reference",
       "status": "active",
       "canonical": true,
       "generated": false,

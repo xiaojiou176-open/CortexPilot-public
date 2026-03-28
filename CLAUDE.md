@@ -27,6 +27,12 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
 - when one closeout patch touches both dashboard and desktop packaging, mirror
   that decision in the root docs entrypoints instead of relying on module docs
   alone
+- when the live public GitHub surface moves or changes repository URLs, sync
+  the root docs/security/storefront entrypoints in the same patch so
+  repo-side links do not drift behind the published `CortexPilot-public`
+  surface
+- when security reporting wording changes, keep `SECURITY.md`, `SUPPORT.md`,
+  issue template contact links, and the root README aligned in the same patch
 
 ## Key Commands
 

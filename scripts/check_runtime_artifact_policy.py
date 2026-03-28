@@ -54,10 +54,11 @@ def main() -> int:
         if not str(raw_path).startswith(".runtime-cache/"):
             errors.append(f"namespace {name} must stay under .runtime-cache/: {raw_path}")
 
+    allowed_repo_local_parents = (ROOT / "apps", ROOT / "packages")
     for raw_path in machine_managed_repo_local_roots:
         path = ROOT / str(raw_path)
-        if path.exists() and not path.is_relative_to(ROOT / "apps"):
-            errors.append(f"machine-managed repo-local root must stay under apps/: {raw_path}")
+        if path.exists() and not any(path.is_relative_to(parent) for parent in allowed_repo_local_parents):
+            errors.append(f"machine-managed repo-local root must stay under apps/ or packages/: {raw_path}")
 
     if "temp" not in namespaces:
         errors.append("runtime artifact policy must declare temp namespace")

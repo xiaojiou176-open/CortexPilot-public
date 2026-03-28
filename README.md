@@ -144,8 +144,9 @@ CortexPilot is not the right choice if you want:
 Public bugs, documentation fixes, and usage questions go through
 [SUPPORT.md](SUPPORT.md). Vulnerabilities go through
 [SECURITY.md](SECURITY.md), which documents the GitHub advisory form as the
-current private reporting path. An additional fallback private channel is not
-yet established and should not be assumed.
+current private reporting path on the live public repository. An additional
+verified fallback private channel is not yet published and should not be
+assumed.
 
 Current repo-side verification entrypoints:
 
@@ -207,6 +208,8 @@ The public release surface now has a live baseline. Use these entrypoints:
 - add a tracked healthy demo/GIF
 - expand the current single-run benchmark baseline into a broader public
   benchmark artifact
+- publish a verified fallback private security reporting channel if maintainers
+  want the public security surface to be fully closed
 
 ## Read Deeper
 

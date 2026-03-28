@@ -97,6 +97,75 @@ def test_agents_mcp_runtime_materialize_worker_codex_home_fallback_catalog_branc
     assert (out / "requirements.toml").exists()
 
 
+def test_agents_mcp_runtime_materialize_worker_codex_home_strips_generic_secret_keys(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    role_home = tmp_path / "role-home"
+    base_home = tmp_path / "base-home"
+    role_home.mkdir(parents=True, exist_ok=True)
+    base_home.mkdir(parents=True, exist_ok=True)
+
+    (role_home / "config.toml").write_text(
+        "\n".join(
+            [
+                'model_provider = "gemini"',
+                "[model_providers.gemini]",
+                'password = "should-not-persist"',
+                'secret = "should-not-persist"',
+                'token = "should-not-persist"',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (base_home / "config.toml").write_text(
+        "\n".join(
+            [
+                'model_provider = "gemini"',
+                "",
+                '[mcp_servers."01-filesystem"]',
+                'command = ["python", "-m", "dummy"]',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setenv("CODEX_HOME", str(role_home))
+    monkeypatch.setenv("CORTEXPILOT_CODEX_BASE_HOME", str(base_home))
+    monkeypatch.setattr(agents_mcp_runtime, "resolve_runtime_provider_from_env", lambda: "gemini")
+    monkeypatch.setattr(
+        agents_mcp_runtime,
+        "resolve_provider_credentials",
+        lambda: types.SimpleNamespace(
+            gemini_api_key="gemini-key",
+            openai_api_key="",
+            anthropic_api_key="",
+            equilibrium_api_key="",
+        ),
+    )
+    monkeypatch.setattr(
+        agents_mcp_runtime.agents_prompting,
+        "resolve_role_prompt_path",
+        lambda _role, _worktree_path: None,
+    )
+
+    store = RunStore(runs_root=tmp_path / "runs")
+    out = agents_mcp_runtime.materialize_worker_codex_home(
+        store=store,
+        run_id="run-strip-generic-secrets",
+        task_id="task-strip-generic-secrets",
+        tool_set=["01-filesystem"],
+        role="WORKER",
+        worktree_path=tmp_path,
+        skip_role_prompt=True,
+    )
+    text = (out / "config.toml").read_text(encoding="utf-8")
+    assert 'password = "should-not-persist"' not in text
+    assert 'secret = "should-not-persist"' not in text
+    assert 'token = "should-not-persist"' not in text
+
+
 def test_agents_mcp_runtime_materialize_worker_codex_home_strips_nested_agent_tables(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

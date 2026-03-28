@@ -30,7 +30,7 @@ ones that still need a real capture pass.
 | Desktop preview capture | present | shows the shell surface only |
 | Healthy backend-backed `news_digest` public proof set | present | tracked proof summary: `docs/releases/assets/news-digest-healthy-proof-2026-03-27.md` |
 | Public benchmark artifact from a real tracked run | present | first tracked single-run baseline: `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md` |
-| Published GitHub Release page/card | present | live release: `https://github.com/xiaojiou176-open/CortexPilot/releases/tag/v0.1.0-alpha.1` |
+| Published GitHub Release page/card | present | live release: `https://github.com/xiaojiou176-open/CortexPilot-public/releases/tag/v0.1.0-alpha.1` |
 
 ## Still Missing
 
@@ -60,6 +60,6 @@ are different things.
   historical blocker receipt from an earlier failed benchmark route.
 - `docs/releases/assets/news-digest-healthy-proof-route-2026-03-27.md` remains
   a historical blocker receipt from earlier failed healthy-proof attempts.
-- `https://xiaojiou176-open.github.io/CortexPilot/` is now the live GitHub
+- `https://xiaojiou176-open.github.io/CortexPilot-public/` is now the live GitHub
   Pages site backed by `main` / `/docs`.
 - None of these captures should be described as proof of a fully healthy end-to-end backend session.

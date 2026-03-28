@@ -224,3 +224,82 @@ def test_write_json_redacts_sensitive_values(monkeypatch: pytest.MonkeyPatch, tm
     assert "user:pass" not in serialized
     assert "supersecret" not in serialized
     assert "should-not-leak" not in serialized
+    assert "secret_hint" not in serialized
+
+
+def test_write_status_json_sanitizes_string_fields(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    module = _load_probe_module(monkeypatch)
+    output = tmp_path / "status.json"
+
+    module._write_status_json(
+        output,
+        run_id="https://user:pass@example.com/private-run",
+        stage="Bearer supersecret",
+        started_at="2026-03-25T00:00:00Z",
+        updated_at="2026-03-25T00:00:01Z",
+    )
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    serialized = json.dumps(payload, ensure_ascii=False)
+    assert "user:pass" not in serialized
+    assert "supersecret" not in serialized
+    assert payload["run_id"] == "https://example.com/private-run"
+    assert payload["stage"] == "Bearer [REDACTED]"
+
+
+def test_write_report_json_summarizes_non_secret_artifacts(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    module = _load_probe_module(monkeypatch)
+    output = tmp_path / "probe-summary.json"
+
+    module._write_report_json(
+        output,
+        run_id="probe-2",
+        started_at="2026-03-25T00:00:00Z",
+        finished_at="2026-03-25T00:00:01Z",
+        success=False,
+        failure_stage="browser_probe",
+        failure_category="runtime_failure",
+        title="Some runtime failure",
+        artifacts={
+            "status_text": "raw detail that should not be persisted verbatim",
+            "nested": {"one": 1, "two": 2},
+            "items": ["a", "b", "c"],
+        },
+    )
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload["artifacts"]["status_text"] == "[STRING]"
+    assert payload["artifacts"]["nested"] == {"type": "object", "items": 2}
+    assert payload["artifacts"]["items"] == {"type": "list", "items": 3}
+
+
+def test_write_report_json_redacts_sensitive_container_keys(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    module = _load_probe_module(monkeypatch)
+    output = tmp_path / "probe-sensitive-summary.json"
+
+    module._write_report_json(
+        output,
+        run_id="probe-3",
+        started_at="2026-03-25T00:00:00Z",
+        finished_at="2026-03-25T00:00:01Z",
+        success=False,
+        failure_stage="provider_api_probe",
+        failure_category="provider_probe_failure",
+        title="Bearer topsecret",
+        artifacts={
+            "password_bundle": {"raw": "should-not-leak"},
+            "secret_items": ["a", "b"],
+            "api_key": "plain-secret",
+        },
+    )
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    artifacts = payload["artifacts"]
+    assert "password_bundle" not in artifacts
+    assert "secret_items" not in artifacts
+    assert "api_key" not in artifacts
+    assert artifacts["redacted_field_1"] == "[REDACTED]"
+    assert artifacts["redacted_field_2"] == "[REDACTED]"
+    assert artifacts["redacted_field_3"] == "[REDACTED]"

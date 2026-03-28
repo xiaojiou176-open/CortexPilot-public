@@ -76,7 +76,7 @@ CHECKS = {
             "command": [
                 "bash",
                 "-lc",
-                "bash scripts/install_frontend_api_client_deps.sh >/dev/null && node --test packages/frontend-api-client/tests/observability.test.mjs",
+                "bash scripts/install_frontend_api_client_deps.sh >/dev/null && node --test packages/frontend-api-client/tests/observability.test.mjs && bash scripts/cleanup_workspace_modules.sh >/dev/null",
             ],
         },
     ],

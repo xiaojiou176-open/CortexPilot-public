@@ -10,7 +10,7 @@ Recommended About text:
 
 Website field:
 
-- `https://xiaojiou176-open.github.io/CortexPilot/`
+- `https://xiaojiou176-open.github.io/CortexPilot-public/`
 
 ## 2. Topics
 
@@ -67,14 +67,14 @@ Draft notes source:
 
 Live release:
 
-- `https://github.com/xiaojiou176-open/CortexPilot/releases/tag/v0.1.0-alpha.1`
+- `https://github.com/xiaojiou176-open/CortexPilot-public/releases/tag/v0.1.0-alpha.1`
 
 ## 6. Pages / Landing
 
 Current live state:
 
 - GitHub Pages is enabled from `main` / `/docs`
-- live URL: `https://xiaojiou176-open.github.io/CortexPilot/`
+- live URL: `https://xiaojiou176-open.github.io/CortexPilot-public/`
 - the GitHub Website field now points to that URL
 
 If the Pages source changes in the future:

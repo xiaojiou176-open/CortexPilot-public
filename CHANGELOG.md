@@ -6,6 +6,13 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- aligned the live public GitHub repository, Pages, release, and security-reporting links around `CortexPilot-public` so repo-side docs no longer point at stale repo URLs
+- synchronized root AI entrypoints, README, support/security docs, and GitHub issue/PR templates with the current public security-reporting boundary and fallback-channel follow-up
+- fixed docs inventory drift by registering `docs/index.html` plus release/proof docs in the docs navigation registry and upgrading the navigation checker to catch summary-vs-registry drift
+- aligned the trusted PR CI governance contract with the real workflow aggregation path and extended the checker/tests to catch route-semantic drift
+- moved the RUM writer onto config-driven log roots and `log_event.v2`-shaped metadata, then verified the path with targeted orchestrator tests
+- expanded repository-level provenance tracking from a single icon bundle to storefront and release-proof asset bundles, and taught the runtime artifact / clean-room checks about the package-local frontend client module cache
+- hardened the PM chat E2E runner to follow the current English-first PM intake surface instead of older Chinese-only control labels
 - clarified the first public release contract so repo docs now separate tracked proof, missing proof, and live GitHub manual steps
 - locked the first public proof-oriented happy path to `news_digest` in release-facing docs until other slices have their own healthy proof
 - documented the minimum public benchmark artifact contract and the truth boundary for repo-tracked storefront assets
