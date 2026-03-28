@@ -7,8 +7,20 @@ DESKTOP_NATIVE_IMAGE_NAME="cortexpilot-ci-desktop-native:local"
 CONTAINER_RUN_ARGS=()
 DOCKER_CI_STAGE_CONTEXT="${CORTEXPILOT_DOCKER_CI_STAGE_CONTEXT:-docker_ci}"
 DOCKER_PRECHECK_TIMEOUT_SEC="${CORTEXPILOT_DOCKER_PRECHECK_TIMEOUT_SEC:-20}"
-DOCKER_PRECHECK_RETRIES="${CORTEXPILOT_DOCKER_PRECHECK_RETRIES:-4}"
-DOCKER_PRECHECK_RETRY_SLEEP_SEC="${CORTEXPILOT_DOCKER_PRECHECK_RETRY_SLEEP_SEC:-5}"
+DOCKER_PRECHECK_RETRIES_RAW="${CORTEXPILOT_DOCKER_PRECHECK_RETRIES:-4}"
+if [[ "${DOCKER_PRECHECK_RETRIES_RAW}" =~ ^[0-9]+$ ]]; then
+  DOCKER_PRECHECK_RETRIES="${DOCKER_PRECHECK_RETRIES_RAW}"
+else
+  echo "⚠️ [docker_ci] invalid CORTEXPILOT_DOCKER_PRECHECK_RETRIES=${DOCKER_PRECHECK_RETRIES_RAW}; using default 4" >&2
+  DOCKER_PRECHECK_RETRIES="4"
+fi
+DOCKER_PRECHECK_RETRY_SLEEP_SEC_RAW="${CORTEXPILOT_DOCKER_PRECHECK_RETRY_SLEEP_SEC:-5}"
+if [[ "${DOCKER_PRECHECK_RETRY_SLEEP_SEC_RAW}" =~ ^[0-9]+$ ]]; then
+  DOCKER_PRECHECK_RETRY_SLEEP_SEC="${DOCKER_PRECHECK_RETRY_SLEEP_SEC_RAW}"
+else
+  echo "⚠️ [docker_ci] invalid CORTEXPILOT_DOCKER_PRECHECK_RETRY_SLEEP_SEC=${DOCKER_PRECHECK_RETRY_SLEEP_SEC_RAW}; using default 5" >&2
+  DOCKER_PRECHECK_RETRY_SLEEP_SEC="5"
+fi
 STRICT_CI_CORTEXPILOT_ENV_ALLOWLIST=(
   CORTEXPILOT_DOC_GATE_MODE
   CORTEXPILOT_DOC_GATE_BASE_SHA
@@ -91,7 +103,8 @@ ensure_docker() {
 }
 
 attempt_default_docker_host_fallback() {
-  if [[ -n "${DOCKER_HOST:-}" ]]; then
+  local ignore_current_host="${1:-0}"
+  if [[ "${ignore_current_host}" != "1" && -n "${DOCKER_HOST:-}" ]]; then
     return 1
   fi
   local fallback_sock="/var/run/docker.sock"
@@ -128,15 +141,18 @@ PY
 docker_daemon_precheck_or_fail() {
   local phase_label="${1:-docker-precheck}"
   local selected_docker_host=""
-  local attempt=1
-  while (( attempt <= DOCKER_PRECHECK_RETRIES )); do
+  local attempt
+  for (( attempt=1; attempt<=DOCKER_PRECHECK_RETRIES; attempt++ )); do
     emit_stage "docker-daemon-precheck" "phase=${phase_label} timeout_sec=${DOCKER_PRECHECK_TIMEOUT_SEC} attempt=${attempt}/${DOCKER_PRECHECK_RETRIES}"
     if ! selected_docker_host="$(python3 scripts/lib/docker_daemon_probe.py --timeout-sec "${DOCKER_PRECHECK_TIMEOUT_SEC}")"; then
-      unset DOCKER_HOST || true
-      if ! attempt_default_docker_host_fallback; then
+      local current_docker_host="${DOCKER_HOST:-}"
+      local force_unix_fallback=0
+      if [[ -z "${current_docker_host}" || "${current_docker_host}" == unix://* ]]; then
+        force_unix_fallback=1
+      fi
+      if ! attempt_default_docker_host_fallback "${force_unix_fallback}"; then
         if (( attempt < DOCKER_PRECHECK_RETRIES )); then
           emit_stage "docker-daemon-retry" "phase=${phase_label} sleeping=${DOCKER_PRECHECK_RETRY_SLEEP_SEC}s reason=probe_failed"
-          attempt=$((attempt + 1))
           sleep "${DOCKER_PRECHECK_RETRY_SLEEP_SEC}"
           continue
         fi
@@ -146,7 +162,6 @@ docker_daemon_precheck_or_fail() {
       if ! selected_docker_host="$(python3 scripts/lib/docker_daemon_probe.py --timeout-sec "${DOCKER_PRECHECK_TIMEOUT_SEC}")"; then
         if (( attempt < DOCKER_PRECHECK_RETRIES )); then
           emit_stage "docker-daemon-retry" "phase=${phase_label} sleeping=${DOCKER_PRECHECK_RETRY_SLEEP_SEC}s reason=fallback_probe_failed"
-          attempt=$((attempt + 1))
           sleep "${DOCKER_PRECHECK_RETRY_SLEEP_SEC}"
           continue
         fi
@@ -181,7 +196,6 @@ PY
     if (( attempt < DOCKER_PRECHECK_RETRIES )); then
       emit_stage "docker-daemon-retry" "phase=${phase_label} sleeping=${DOCKER_PRECHECK_RETRY_SLEEP_SEC}s reason=docker_info_failed"
       sleep "${DOCKER_PRECHECK_RETRY_SLEEP_SEC}"
-      attempt=$((attempt + 1))
       continue
     fi
     echo "❌ docker daemon unavailable for ${phase_label}" >&2
