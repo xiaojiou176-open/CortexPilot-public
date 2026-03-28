@@ -41,3 +41,7 @@ python -m cortexpilot_orch.cli --help
   status/report outputs. The writer helpers also no longer take `run_id`
   inputs; receipts now persist stage/category allowlists, epoch timing fields,
   and artifact summaries only.
+- Probe sanitizer coverage keeps secret-like fixture strings in direct helper
+  tests, while JSON writer contract tests use non-sensitive placeholders so PR
+  security scans do not mistake unit-test fixtures for persisted clear-text
+  payloads.
