@@ -85,4 +85,8 @@ navigation set.
   same patch; the current examples are `.runtime-cache/test_output/ci/` and
   `configs/pip_audit_ignored_advisories.json`, plus the dashboard and desktop
   ENOSPC recovery knobs plus the Docker daemon precheck retry knobs registered
-  in `configs/env.registry.json`
+  in `configs/env.registry.json`; current CI contract changes also include the
+  upstream receipt refresh fallback to `scripts/verify_upstream_slices.py --mode smoke`
+  and the strict self-hosted live-provider rule that allows
+  process env first and `~/.codex/config.toml` second while keeping dotenv and
+  shell-export fallbacks disabled on mainline

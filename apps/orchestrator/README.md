@@ -60,3 +60,11 @@ python -m cortexpilot_orch.cli --help
   JSON now live under `.runtime-cache/test_output/ci/`, which keeps retention
   reports free of root-level `test_output` residue during `main` push
   validation.
+- Strict upstream governance refresh now reuses cached upstream receipts only
+  when the full same-batch smoke bundle is present, fresh, and passed; missing,
+  stale, failed, or mixed-batch receipts fall back to
+  `scripts/verify_upstream_slices.py --mode smoke` so `main` validation
+  regenerates real receipts instead of failing on missing files alone.
+- Mainline live-provider probes keep the stricter credential contract: process
+  env first, `~/.codex/config.toml` second, while repo-local dotenv files and
+  shell-export fallback stay disabled on `CI` / strict mainline contexts.

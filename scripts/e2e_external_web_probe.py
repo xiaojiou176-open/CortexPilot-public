@@ -62,14 +62,26 @@ def _is_mainline_context() -> bool:
     return False
 
 
-def _resolve_key_candidates(candidates: tuple[str, ...]) -> dict[str, str]:
+def _resolve_process_env_key_candidates(candidates: tuple[str, ...]) -> dict[str, str]:
     for key_name in candidates:
         val = str(os.environ.get(key_name, "")).strip()
         if val:
             return {"env_name": key_name, "value": val, "source": "process_env"}
 
-    if _is_mainline_context():
-        return {"env_name": "", "value": "", "source": "none"}
+    return {"env_name": "", "value": "", "source": "none"}
+
+
+def _resolve_key_candidates(
+    candidates: tuple[str, ...], *, allow_local_fallback: bool | None = None
+) -> dict[str, str]:
+    resolved = _resolve_process_env_key_candidates(candidates)
+    if resolved.get("value"):
+        return resolved
+
+    if allow_local_fallback is None:
+        allow_local_fallback = not _is_mainline_context()
+    if not allow_local_fallback:
+        return resolved
 
     for env_file in (Path(".env.local"), Path(".env")):
         dotenv = _parse_dotenv(env_file)
@@ -97,7 +109,7 @@ def _resolve_key_candidates(candidates: tuple[str, ...]) -> dict[str, str]:
                 os.environ.setdefault(key_name, raw)
                 return {"env_name": key_name, "value": raw, "source": "zsh_env"}
 
-    return {"env_name": "", "value": "", "source": "none"}
+    return resolved
 
 
 def _codex_config_path() -> Path:
@@ -140,10 +152,11 @@ def _resolve_key() -> dict[str, str]:
 
 
 def _resolve_provider_probe_key() -> dict[str, str]:
-    resolved = _resolve_key_candidates(("GEMINI_API_KEY", "OPENAI_API_KEY"))
+    resolved = _resolve_key_candidates(
+        ("GEMINI_API_KEY", "OPENAI_API_KEY"),
+        allow_local_fallback=not _is_mainline_context(),
+    )
     if resolved.get("value"):
-        return resolved
-    if _is_mainline_context():
         return resolved
 
     provider_name, provider_block = _load_codex_provider_block()

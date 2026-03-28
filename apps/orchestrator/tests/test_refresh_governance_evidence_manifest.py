@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 from pathlib import Path
 
 
@@ -23,13 +24,18 @@ def _write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-def test_reuse_upstream_records_reports_fresh_failures_and_missing_receipts(tmp_path: Path) -> None:
+def test_reuse_upstream_records_requires_all_fresh_passed_receipts(tmp_path: Path) -> None:
     module = _load_module()
     module.ROOT = tmp_path
     module.UPSTREAM_RECORD_FRESH_SEC = 3600
 
     provider_path = tmp_path / ".runtime-cache/test_output/governance/upstream/provider-runtime-path.json"
-    ui_audit_path = tmp_path / ".runtime-cache/test_output/governance/upstream/ui-audit-playwright.json"
+    ci_image_path = tmp_path / ".runtime-cache/test_output/governance/upstream/ci-core-image.json"
+    provider_log_path = tmp_path / ".runtime-cache/test_output/governance/upstream/provider-runtime-path.log"
+    ci_image_log_path = tmp_path / ".runtime-cache/test_output/governance/upstream/ci-core-image.log"
+    provider_log_path.parent.mkdir(parents=True, exist_ok=True)
+    provider_log_path.write_text("provider ok\n", encoding="utf-8")
+    ci_image_log_path.write_text("ci image ok\n", encoding="utf-8")
 
     _write_json(
         provider_path,
@@ -48,17 +54,17 @@ def test_reuse_upstream_records_reports_fresh_failures_and_missing_receipts(tmp_
         },
     )
     _write_json(
-        ui_audit_path,
+        ci_image_path,
         {
-            "integration_slice": "ui-audit-playwright",
+            "integration_slice": "ci-core-image",
             "verification_mode": "smoke",
-            "status": "failed",
+            "status": "passed",
             "last_verified_at": "2026-03-26T12:01:00+00:00",
-            "last_verified_run_id": "run-ui",
+            "last_verified_run_id": "run-ci-image",
             "verification_batch_id": "batch-1",
-            "last_verified_artifact": ".runtime-cache/test_output/governance/upstream/ui-audit-playwright.log",
-            "command": "ui-audit",
-            "exit_code": 130,
+            "last_verified_artifact": ".runtime-cache/test_output/governance/upstream/ci-core-image.log",
+            "command": "ci-image",
+            "exit_code": 0,
             "rollback_path": "n/a",
             "failure_attribution_hint": "n/a",
         },
@@ -69,7 +75,6 @@ def test_reuse_upstream_records_reports_fresh_failures_and_missing_receipts(tmp_
         "weight": 8,
         "artifacts": [
             ".runtime-cache/test_output/governance/upstream/provider-runtime-path.json",
-            ".runtime-cache/test_output/governance/upstream/ui-audit-playwright.json",
             ".runtime-cache/test_output/governance/upstream/ci-core-image.json",
         ],
     }
@@ -77,11 +82,173 @@ def test_reuse_upstream_records_reports_fresh_failures_and_missing_receipts(tmp_
     result = module._reuse_upstream_verification_records(check)
 
     assert result is not None
-    assert result["ok"] is False
+    assert result["ok"] is True
     assert result["command"] == ["reuse:fresh-upstream-records"]
-    assert any(not row["exists"] for row in result["artifacts"])
-    assert "missing slices: .runtime-cache/test_output/governance/upstream/ci-core-image.json" in result["output"]
-    assert "failing slices: ui-audit-playwright: failed" in result["output"]
+    assert all(row["exists"] for row in result["artifacts"])
+    assert "batches: batch-1" in result["output"]
+    assert "missing slices" not in result["output"]
+    assert "failing slices" not in result["output"]
+
+
+def test_reuse_upstream_records_returns_none_when_receipts_are_missing_or_failed(tmp_path: Path) -> None:
+    module = _load_module()
+    module.ROOT = tmp_path
+    module.UPSTREAM_RECORD_FRESH_SEC = 3600
+
+    provider_path = tmp_path / ".runtime-cache/test_output/governance/upstream/provider-runtime-path.json"
+    provider_log_path = tmp_path / ".runtime-cache/test_output/governance/upstream/provider-runtime-path.log"
+    provider_log_path.parent.mkdir(parents=True, exist_ok=True)
+    provider_log_path.write_text("provider ok\n", encoding="utf-8")
+    _write_json(
+        provider_path,
+        {
+            "integration_slice": "provider-runtime-path",
+            "verification_mode": "smoke",
+            "status": "failed",
+            "last_verified_at": "2026-03-26T12:00:00+00:00",
+            "last_verified_run_id": "run-provider",
+            "verification_batch_id": "batch-1",
+            "last_verified_artifact": ".runtime-cache/test_output/governance/upstream/provider-runtime-path.log",
+            "command": "provider",
+            "exit_code": 1,
+            "rollback_path": "n/a",
+            "failure_attribution_hint": "n/a",
+        },
+    )
+
+    check = {
+        "id": "verification_smoke",
+        "weight": 8,
+        "artifacts": [
+            ".runtime-cache/test_output/governance/upstream/provider-runtime-path.json",
+            ".runtime-cache/test_output/governance/upstream/ci-core-image.json",
+        ],
+    }
+
+    assert module._reuse_upstream_verification_records(check) is None
+
+
+def test_reuse_upstream_records_returns_none_when_receipts_are_stale_or_artifact_missing(tmp_path: Path) -> None:
+    module = _load_module()
+    module.ROOT = tmp_path
+    module.UPSTREAM_RECORD_FRESH_SEC = 60
+
+    provider_path = tmp_path / ".runtime-cache/test_output/governance/upstream/provider-runtime-path.json"
+    _write_json(
+        provider_path,
+        {
+            "integration_slice": "provider-runtime-path",
+            "verification_mode": "smoke",
+            "status": "passed",
+            "last_verified_at": "2026-03-26T12:00:00+00:00",
+            "last_verified_run_id": "run-provider",
+            "verification_batch_id": "batch-1",
+            "last_verified_artifact": ".runtime-cache/test_output/governance/upstream/provider-runtime-path.log",
+            "command": "provider",
+            "exit_code": 0,
+            "rollback_path": "n/a",
+            "failure_attribution_hint": "n/a",
+        },
+    )
+    old_ts = provider_path.stat().st_mtime - 7200
+    os.utime(provider_path, (old_ts, old_ts))
+
+    check = {
+        "id": "verification_smoke",
+        "weight": 8,
+        "artifacts": [
+            ".runtime-cache/test_output/governance/upstream/provider-runtime-path.json",
+        ],
+    }
+
+    assert module._reuse_upstream_verification_records(check) is None
+
+
+def test_reuse_upstream_records_returns_none_when_batches_do_not_match(tmp_path: Path) -> None:
+    module = _load_module()
+    module.ROOT = tmp_path
+    module.UPSTREAM_RECORD_FRESH_SEC = 3600
+
+    base_dir = tmp_path / ".runtime-cache/test_output/governance/upstream"
+    base_dir.mkdir(parents=True, exist_ok=True)
+    for name, batch_id in (
+        ("provider-runtime-path", "batch-1"),
+        ("ci-core-image", "batch-2"),
+    ):
+        (base_dir / f"{name}.log").write_text(f"{name} ok\n", encoding="utf-8")
+        _write_json(
+            base_dir / f"{name}.json",
+            {
+                "integration_slice": name,
+                "verification_mode": "smoke",
+                "status": "passed",
+                "last_verified_at": "2026-03-26T12:00:00+00:00",
+                "last_verified_run_id": f"run-{name}",
+                "verification_batch_id": batch_id,
+                "last_verified_artifact": f".runtime-cache/test_output/governance/upstream/{name}.log",
+                "command": name,
+                "exit_code": 0,
+                "rollback_path": "n/a",
+                "failure_attribution_hint": "n/a",
+            },
+        )
+
+    check = {
+        "id": "verification_smoke",
+        "weight": 8,
+        "artifacts": [
+            ".runtime-cache/test_output/governance/upstream/provider-runtime-path.json",
+            ".runtime-cache/test_output/governance/upstream/ci-core-image.json",
+        ],
+    }
+
+    assert module._reuse_upstream_verification_records(check) is None
+
+
+def test_run_check_falls_back_to_real_smoke_command_when_reuse_is_not_allowed(tmp_path: Path) -> None:
+    module = _load_module()
+    module.ROOT = tmp_path
+
+    def _fake_run(cmd: list[str]) -> tuple[bool, str]:
+        assert cmd == ["python3", "scripts/verify_upstream_slices.py", "--mode", "smoke"]
+        record_path = tmp_path / ".runtime-cache/test_output/governance/upstream/provider-runtime-path.json"
+        artifact_path = tmp_path / ".runtime-cache/test_output/governance/upstream/provider-runtime-path.log"
+        artifact_path.parent.mkdir(parents=True, exist_ok=True)
+        artifact_path.write_text("provider ok\n", encoding="utf-8")
+        _write_json(
+            record_path,
+            {
+                "integration_slice": "provider-runtime-path",
+                "verification_mode": "smoke",
+                "status": "passed",
+                "last_verified_at": "2026-03-26T12:00:00+00:00",
+                "last_verified_run_id": "run-provider",
+                "verification_batch_id": "batch-1",
+                "last_verified_artifact": ".runtime-cache/test_output/governance/upstream/provider-runtime-path.log",
+                "command": "provider",
+                "exit_code": 0,
+                "rollback_path": "n/a",
+                "failure_attribution_hint": "n/a",
+            },
+        )
+        return True, "verification records written"
+
+    module._run = _fake_run
+
+    check = {
+        "id": "verification_smoke",
+        "weight": 8,
+        "command": ["python3", "scripts/verify_upstream_slices.py", "--mode", "smoke"],
+        "artifacts": [
+            ".runtime-cache/test_output/governance/upstream/provider-runtime-path.json",
+        ],
+    }
+
+    result = module._run_check(check)
+
+    assert result["ok"] is True
+    assert result["command"] == ["python3", "scripts/verify_upstream_slices.py", "--mode", "smoke"]
+    assert "verification records written" in result["output"]
 
 
 def test_truncate_output_caps_large_check_logs() -> None:

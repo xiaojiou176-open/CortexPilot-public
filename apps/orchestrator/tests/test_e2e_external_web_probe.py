@@ -96,6 +96,11 @@ def test_resolve_provider_probe_key_ignores_dotenv_and_shell_fallback_in_mainlin
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("CI", "1")
     monkeypatch.setattr(module, "shutil_which", lambda _name: True)
+    monkeypatch.setattr(
+        module.subprocess,
+        "check_output",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("zsh fallback should not run in mainline")),
+    )
     fake_home = tmp_path / "home"
     fake_home.mkdir(parents=True, exist_ok=True)
     monkeypatch.setattr(module.Path, "home", staticmethod(lambda: fake_home))
@@ -106,6 +111,72 @@ def test_resolve_provider_probe_key_ignores_dotenv_and_shell_fallback_in_mainlin
     assert resolved["env_name"] == ""
     assert resolved["value"] == ""
     assert resolved["source"] == "none"
+
+
+def test_resolve_provider_probe_key_uses_codex_config_env_key_in_mainline_context(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    module = _load_probe_module(monkeypatch)
+    fake_home = tmp_path / "home"
+    codex_dir = fake_home / ".codex"
+    codex_dir.mkdir(parents=True, exist_ok=True)
+    (codex_dir / "config.toml").write_text(
+        """
+model_provider = "cliproxyapi"
+
+[model_providers.cliproxyapi]
+base_url = "http://127.0.0.1:18317/v1"
+env_key = "CLIPROXYAPI_TOKEN"
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("CI", "1")
+    monkeypatch.setattr(module.Path, "home", staticmethod(lambda: fake_home))
+    monkeypatch.setattr(module, "shutil_which", lambda _name: False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("CLIPROXYAPI_TOKEN", "proxy-token")
+
+    resolved = module._resolve_provider_probe_key()
+
+    assert resolved["env_name"] == "CLIPROXYAPI_TOKEN"
+    assert resolved["value"] == "proxy-token"
+    assert resolved["source"] == "codex_config_env_key"
+
+
+def test_resolve_provider_probe_key_uses_codex_config_bearer_token_in_mainline_context(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    module = _load_probe_module(monkeypatch)
+    fake_home = tmp_path / "home"
+    codex_dir = fake_home / ".codex"
+    codex_dir.mkdir(parents=True, exist_ok=True)
+    (codex_dir / "config.toml").write_text(
+        """
+model_provider = "cliproxyapi"
+
+[model_providers.cliproxyapi]
+base_url = "http://127.0.0.1:18317/v1"
+experimental_bearer_token = "${LOCAL_PROXY_TOKEN}"
+""".strip()
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("CI", "1")
+    monkeypatch.setattr(module.Path, "home", staticmethod(lambda: fake_home))
+    monkeypatch.setattr(module, "shutil_which", lambda _name: False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("LOCAL_PROXY_TOKEN", "proxy-token")
+
+    resolved = module._resolve_provider_probe_key()
+
+    assert resolved["env_name"] == "LOCAL_PROXY_TOKEN"
+    assert resolved["value"] == "proxy-token"
+    assert resolved["source"] == "codex_config_env:LOCAL_PROXY_TOKEN"
 
 
 def test_resolve_provider_probe_target_prefers_codex_config_for_custom_openai_compatible_provider(
