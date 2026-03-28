@@ -58,8 +58,8 @@ Work in CortexPilot as a contract-first engineering agent:
   tracked runtime report namespaces, sync the root AI/docs entrypoints in the
   same patch; current examples include `.runtime-cache/test_output/ci/` and
   `configs/pip_audit_ignored_advisories.json`, plus the dashboard
-  and desktop install-time ENOSPC recovery knobs registered in
-  `configs/env.registry.json`
+  and desktop install-time ENOSPC recovery knobs plus the Docker daemon
+  precheck retry knobs registered in `configs/env.registry.json`
 
 ## Local Overrides
 

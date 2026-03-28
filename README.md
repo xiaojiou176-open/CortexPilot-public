@@ -199,6 +199,9 @@ env knobs when copy-heavy self-hosted installs run out of disk.
 Desktop dependency installs now mirror the same ENOSPC recovery strategy,
 including the registered desktop install env knobs that scope hardlink imports
 to the recovery attempt and move retry stores onto workspace-local temp roots.
+Docker-backed self-hosted CI lanes now retry daemon prechecks with bounded
+backoff and registered retry knobs before failing closed on a transient socket
+refusal.
 When one closeout patch touches both dashboard and desktop packaging, expect the
 root AI/docs entrypoints and the module READMEs to move together so doc-sync
 gates can trace the maintenance decision end to end.
