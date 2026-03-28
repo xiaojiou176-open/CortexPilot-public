@@ -195,9 +195,8 @@ dependency audit downgrades only the explicitly tracked upstream-unfixed
 `pygments` advisory through `configs/pip_audit_ignored_advisories.json`.
 Upstream governance evidence now reuses only fully fresh smoke receipts; if
 strict lanes do not already have the required upstream receipt bundle, the
-governance manifest refresh falls back to `scripts/verify_upstream_slices.py
---mode smoke` to regenerate the receipts instead of failing on missing files
-alone.
+governance manifest refresh falls back to `scripts/verify_upstream_slices.py --mode smoke`
+to regenerate the receipts instead of failing on missing files alone.
 Dashboard dependency installs now also carry an ENOSPC recovery branch that
 retries with a workspace-local pnpm store and the registered dashboard install
 env knobs when copy-heavy self-hosted installs run out of disk.
