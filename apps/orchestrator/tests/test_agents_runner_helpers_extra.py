@@ -120,7 +120,7 @@ def test_materialize_worker_codex_home_and_probe(tmp_path: Path, monkeypatch) ->
     )
     merged = (target / "config.toml").read_text(encoding="utf-8")
     assert "developer_instructions" in merged
-    assert "[mcp_servers.\"01-filesystem\"]" in merged
+    assert '[mcp_servers."01-filesystem"]' in merged or "[mcp_servers.01-filesystem]" in merged
 
     alias_target = agents_runner._materialize_worker_codex_home(
         store,
@@ -132,7 +132,7 @@ def test_materialize_worker_codex_home_and_probe(tmp_path: Path, monkeypatch) ->
         skip_role_prompt=True,
     )
     alias_merged = (alias_target / "config.toml").read_text(encoding="utf-8")
-    assert "[mcp_servers.\"01-filesystem\"]" in alias_merged
+    assert '[mcp_servers."01-filesystem"]' in alias_merged or "[mcp_servers.01-filesystem]" in alias_merged
 
     (base_home / "config.toml").write_text(
         '\n'.join(
@@ -157,7 +157,10 @@ def test_materialize_worker_codex_home_and_probe(tmp_path: Path, monkeypatch) ->
         skip_role_prompt=True,
     )
     devtools_alias_merged = (devtools_alias_target / "config.toml").read_text(encoding="utf-8")
-    assert "[mcp_servers.\"devtools-04-filesystem\"]" in devtools_alias_merged
+    assert (
+        '[mcp_servers."devtools-04-filesystem"]' in devtools_alias_merged
+        or "[mcp_servers.devtools-04-filesystem]" in devtools_alias_merged
+    )
 
     (base_home / "config.toml").write_text(
         '\n'.join(
@@ -182,7 +185,7 @@ def test_materialize_worker_codex_home_and_probe(tmp_path: Path, monkeypatch) ->
         skip_role_prompt=True,
     )
     vcs_merged = (vcs_target / "config.toml").read_text(encoding="utf-8")
-    assert "[mcp_servers.\"vcs-01-filesystem\"]" in vcs_merged
+    assert '[mcp_servers."vcs-01-filesystem"]' in vcs_merged or "[mcp_servers.vcs-01-filesystem]" in vcs_merged
 
 
 def test_materialize_worker_codex_home_fallback_to_default_catalog(tmp_path: Path, monkeypatch) -> None:
@@ -228,7 +231,7 @@ def test_materialize_worker_codex_home_fallback_to_default_catalog(tmp_path: Pat
     )
 
     merged = (target / "config.toml").read_text(encoding="utf-8")
-    assert "[mcp_servers.\"vcs-01-filesystem\"]" in merged
+    assert '[mcp_servers."vcs-01-filesystem"]' in merged or "[mcp_servers.vcs-01-filesystem]" in merged
 
 
 async def _collect_probe_payload() -> dict:

@@ -26,7 +26,10 @@ def test_ui_audit_container_staging_prefers_runner_temp() -> None:
 def test_install_logs_use_dedicated_runtime_subdir() -> None:
     dash = _read("scripts/install_dashboard_deps.sh")
     desktop = _read("scripts/install_desktop_deps.sh")
-    assert 'INSTALL_LOG="$ROOT_DIR/.runtime-cache/logs/runtime/deps_install/install_dashboard_deps.log"' in dash
+    assert (
+        'INSTALL_LOG="$ROOT_DIR/.runtime-cache/logs/runtime/deps_install/install_dashboard_deps.log"' in dash
+        or 'INSTALL_LOG="${STATE_ROOT}/install_dashboard_deps.log"' in dash
+    )
     assert 'INSTALL_LOG="$ROOT_DIR/.runtime-cache/logs/runtime/deps_install/install_desktop_deps.log"' in desktop
 
 

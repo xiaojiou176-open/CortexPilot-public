@@ -584,12 +584,14 @@ class IntakeService:
             "intake_id": intake_id,
             "status": "NEEDS_INPUT",
             "questions": questions,
-            "task_template": normalized_payload.get("task_template"),
-            "template_payload": normalized_payload.get("template_payload"),
             "browser_policy_preset": preset,
             "effective_browser_policy": effective_policy,
             "policy_notes": policy_notes,
         }
+        if isinstance(normalized_payload.get("task_template"), str) and str(normalized_payload.get("task_template")).strip():
+            response["task_template"] = str(normalized_payload.get("task_template")).strip()
+        if isinstance(normalized_payload.get("template_payload"), dict) and normalized_payload.get("template_payload"):
+            response["template_payload"] = normalized_payload.get("template_payload")
         self._validator.validate_report(response, "pm_intake_response.v1.json")
         self._store.write_response(intake_id, response)
         return response
@@ -646,12 +648,15 @@ class IntakeService:
             "questions": [],
             "plan": plan,
             "plan_bundle": plan_bundle,
-            "task_template": intake.get("task_template") if isinstance(intake, dict) else None,
-            "template_payload": intake.get("template_payload") if isinstance(intake, dict) else None,
             "browser_policy_preset": intake.get("browser_policy_preset") if isinstance(intake, dict) else "safe",
             "effective_browser_policy": intake.get("browser_policy") if isinstance(intake, dict) else None,
             "policy_notes": intake.get("policy_notes") if isinstance(intake, dict) else "",
         }
+        if isinstance(intake, dict):
+            if isinstance(intake.get("task_template"), str) and str(intake.get("task_template")).strip():
+                response["task_template"] = str(intake.get("task_template")).strip()
+            if isinstance(intake.get("template_payload"), dict) and intake.get("template_payload"):
+                response["template_payload"] = intake.get("template_payload")
         if task_chain:
             response["task_chain"] = task_chain
             chain_path = self._store._intake_dir(intake_id) / "task_chain.json"

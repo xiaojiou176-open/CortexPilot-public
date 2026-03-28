@@ -16,10 +16,10 @@ import type { CommandTowerAlertsPayload, CommandTowerOverviewPayload } from "../
 describe("command tower async hardening (home)", () => {
   const mocks = getCommandTowerAsyncMocks();
   const { mockFetchCommandTowerOverview, mockFetchPmSessions, mockFetchCommandTowerAlerts } = mocks;
-  const pauseLiveButtonName = /Pause Live|暂停实时刷新|暂停实时/;
-  const resumeLiveButtonName = /Resume Live|恢复实时刷新|恢复实时/;
-  const focusToggleGroupName = /聚焦视图切换|focus/i;
-  const drawerRegionName = /指挥塔上下文面板|上下文与筛选抽屉/i;
+  const pauseLiveButtonName = /Pause Live/i;
+  const resumeLiveButtonName = /Resume Live/i;
+  const focusToggleGroupName = /Focus view switcher|focus/i;
+  const drawerRegionName = /Command Tower context panel|Context and filters/i;
   const statusContains = (pattern: RegExp): boolean =>
     screen.getAllByRole("status").some((node) => pattern.test(node.textContent || ""));
   const querySessionLink = (sessionId: string): HTMLAnchorElement | null =>
@@ -74,7 +74,7 @@ describe("command tower async hardening (home)", () => {
         { timeout: 5000 },
       );
       await ensureDrawerOpen();
-      expect(screen.getByText(/当前存在 网络异常/)).toBeInTheDocument();
+      expect(screen.getByText(/Current issue:\s*Network issue/i)).toBeInTheDocument();
     } finally {
       window.history.pushState({}, "", previousUrl);
     }
@@ -93,14 +93,14 @@ describe("command tower async hardening (home)", () => {
     fireEvent.click(failedCheckbox);
     fireEvent.click(failedCheckbox);
     fireEvent.click(failedCheckbox);
-    fireEvent.change(screen.getByPlaceholderText(/例如：cortexpilot|cortexpilot/), {
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. cortexpilot|cortexpilot/i), {
       target: { value: "cortexpilot" },
     });
     fireEvent.change(screen.getByRole("combobox"), {
       target: { value: "failed_desc" },
     });
     fireEvent.click(
-      within(screen.getByRole("region", { name: /Details（筛选）|筛选/ })).getByRole("button", { name: /应用筛选|应用/ }),
+      within(screen.getByRole("region", { name: /Filter console/i })).getByRole("button", { name: /Apply filters|Apply/i }),
     );
 
     await waitFor(() => {
@@ -166,17 +166,17 @@ describe("command tower async hardening (home)", () => {
     );
 
     await ensureDrawerOpen();
-    const filterRegion = screen.getByRole("region", { name: /Details（筛选）|筛选/ });
-    const projectInput = screen.getByPlaceholderText(/例如：cortexpilot|cortexpilot/);
+    const filterRegion = screen.getByRole("region", { name: /Filter console/i });
+    const projectInput = screen.getByPlaceholderText(/e\.g\. cortexpilot|cortexpilot/i);
     fireEvent.change(projectInput, { target: { value: "cortexpilot" } });
 
-    fireEvent.click(within(filterRegion).getByRole("button", { name: /应用筛选|应用/ }));
+    fireEvent.click(within(filterRegion).getByRole("button", { name: /Apply filters|Apply/i }));
     await waitFor(() => {
       const lastCall = mockFetchPmSessions.mock.calls.at(-1)?.[0] as { projectKey?: string } | undefined;
       expect(lastCall?.projectKey).toBe("cortexpilot");
     });
 
-    fireEvent.click(within(filterRegion).getByRole("button", { name: /重置筛选|重置/ }));
+    fireEvent.click(within(filterRegion).getByRole("button", { name: /Reset filters|Reset/i }));
     await waitFor(() => {
       const lastCall = mockFetchPmSessions.mock.calls.at(-1)?.[0] as { projectKey?: string } | undefined;
       expect(lastCall?.projectKey).toBeUndefined();
@@ -212,7 +212,7 @@ describe("command tower async hardening (home)", () => {
     fireEvent.click(blockedButton);
     expect(blockedButton).toHaveAttribute("aria-pressed", "true");
     await waitFor(() => {
-      expect(screen.getByText(/当前聚焦视图无命中|无命中|no match/i)).toBeInTheDocument();
+      expect(screen.getByText(/No sessions match the current focus view|no match/i)).toBeInTheDocument();
     });
 
     fireEvent.click(allFocusButton);
@@ -246,7 +246,7 @@ describe("command tower async hardening (home)", () => {
       await vi.advanceTimersByTimeAsync(1);
     });
 
-    const toggleButton = screen.getByRole("button", { name: "聚焦高风险会话" });
+    const toggleButton = screen.getByRole("button", { name: "Focus high-risk sessions" });
     const callsBeforeEnable = mockFetchPmSessions.mock.calls.length;
     await act(async () => {
       fireEvent.click(toggleButton);
@@ -255,10 +255,10 @@ describe("command tower async hardening (home)", () => {
 
     expect(mockFetchPmSessions.mock.calls.length).toBe(callsBeforeEnable + 1);
     expect(toggleButton).toHaveAttribute("aria-pressed", "true");
-    expect(toggleButton.getAttribute("aria-label") || "").toMatch(/再次点击恢复全部会话/);
-    expect(screen.getByText(/当前仅显示高风险会话，再次点击左侧聚焦按钮可恢复全部显示/)).toBeInTheDocument();
-    expect(statusContains(/已切换为高风险会话，会话列表已更新/)).toBe(true);
-    expect(statusContains(/重试成功，实时总览已更新/)).toBe(false);
+    expect(toggleButton.getAttribute("aria-label") || "").toMatch(/restore all sessions/i);
+    expect(screen.getByText(/Only high-risk sessions are visible/i)).toBeInTheDocument();
+    expect(statusContains(/Focus high-risk sessions|Only high-risk sessions are visible/i)).toBe(true);
+    expect(statusContains(/Retry succeeded and the live overview is updated/i)).toBe(false);
     expect(querySessionLink("pm-risk-toggle")).toBeInTheDocument();
     expect(querySessionLink("pm-1")).toBeNull();
 
@@ -270,7 +270,7 @@ describe("command tower async hardening (home)", () => {
 
     expect(mockFetchPmSessions.mock.calls.length).toBe(callsBeforeDisable + 1);
     expect(toggleButton).toHaveAttribute("aria-pressed", "false");
-    expect(screen.queryByText(/当前仅显示高风险会话/)).toBeNull();
+    expect(screen.queryByText(/Only high-risk sessions are visible/i)).toBeNull();
     expect(querySessionLink("pm-1")).toBeInTheDocument();
   });
 
@@ -297,18 +297,26 @@ describe("command tower async hardening (home)", () => {
     });
 
     const callsBeforeToggleOn = mockFetchPmSessions.mock.calls.length;
-    fireEvent.click(screen.getByRole("button", { name: "聚焦高风险会话" }));
+    fireEvent.click(screen.getByRole("button", { name: "Focus high-risk sessions" }));
     await waitFor(() => {
       expect(mockFetchPmSessions.mock.calls.length).toBeGreaterThan(callsBeforeToggleOn);
     });
-    expect(screen.getByRole("button", { name: /已聚焦高风险/ })).toHaveAttribute("aria-pressed", "true");
+    expect(
+      screen.getByRole("button", {
+        name: /High-risk sessions are focused\. Click again to restore all sessions\.|High-risk focused/i,
+      }),
+    ).toHaveAttribute("aria-pressed", "true");
 
     const callsBeforeToggleOff = mockFetchPmSessions.mock.calls.length;
-    fireEvent.click(screen.getByRole("button", { name: /已聚焦高风险/ }));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /High-risk sessions are focused\. Click again to restore all sessions\.|High-risk focused/i,
+      }),
+    );
     await waitFor(() => {
       expect(mockFetchPmSessions.mock.calls.length).toBeGreaterThan(callsBeforeToggleOff);
     });
-    expect(screen.getByRole("button", { name: "聚焦高风险会话" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "Focus high-risk sessions" })).toHaveAttribute("aria-pressed", "false");
   });
 
   it("supports global shortcuts for focus switching and share link copy", async () => {
@@ -350,7 +358,7 @@ describe("command tower async hardening (home)", () => {
       expect(writeText.mock.calls[0]?.[0]).toContain("focus=high_risk");
     });
     await waitFor(() => {
-      expect(statusContains(/已复制当前视图链接|copied/i)).toBe(true);
+      expect(statusContains(/Copied the current view link|copied/i)).toBe(true);
     });
   });
 
@@ -365,7 +373,7 @@ describe("command tower async hardening (home)", () => {
     });
 
     await ensureDrawerOpen();
-    const projectInput = screen.getByPlaceholderText(/例如：cortexpilot|cortexpilot/);
+    const projectInput = screen.getByPlaceholderText(/e\.g\. cortexpilot|cortexpilot/i);
     await act(async () => {
       fireEvent.change(projectInput, { target: { value: "tower" } });
     });
@@ -449,10 +457,10 @@ describe("command tower async hardening (home)", () => {
     );
 
     await ensureDrawerOpen();
-    const alertsList = await screen.findByRole("list", { name: /告警列表|alert/i });
+    const alertsList = await screen.findByRole("list", { name: /Alerts|alert/i });
     expect(within(alertsList).getByText(/^UNKNOWN$/)).toBeInTheDocument();
     expect(within(alertsList).getByText(/UNKNOWN_CODE/)).toBeInTheDocument();
-    expect(within(alertsList).getByText(/无告警详情|no details/i)).toBeInTheDocument();
+    expect(within(alertsList).getByText(/No alert details/i)).toBeInTheDocument();
   });
 
   it("covers home export button, degraded SLO badge and no-suggested-action alert", async () => {
@@ -504,11 +512,11 @@ describe("command tower async hardening (home)", () => {
       expect(screen.getAllByText(/SLO:\s*warning/i).length).toBeGreaterThan(0);
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /导出失败会话|导出失败|export/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Export failed/i }));
     expect(createUrl).toHaveBeenCalledTimes(1);
     expect(clickSpy).toHaveBeenCalledTimes(1);
     expect(revokeUrl).toHaveBeenCalledTimes(1);
-    expect(screen.queryByText(/建议:|suggested action/i)).toBeNull();
+    expect(within(screen.getByRole("list", { name: /Alerts|alert/i })).queryByText(/Suggested action:/i)).toBeNull();
   });
 
   it("covers home all-failed fallback and paused state", async () => {
@@ -527,7 +535,7 @@ describe("command tower async hardening (home)", () => {
     await advanceRetryWindow();
     expect(hasBackoffSignal()).toBe(true);
     await ensureDrawerOpen();
-    expect(screen.getByText(/当前存在 服务异常/)).toBeInTheDocument();
+    expect(screen.getByText(/Current issue:\s*Service issue\./i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: pauseLiveButtonName }));
     expect(screen.getByRole("button", { name: resumeLiveButtonName })).toBeInTheDocument();
@@ -563,16 +571,16 @@ describe("command tower async hardening (home)", () => {
     );
 
     await ensureDrawerOpen();
-    fireEvent.keyDown(screen.getByPlaceholderText(/例如：cortexpilot|cortexpilot/), { key: "x" });
+    fireEvent.keyDown(screen.getByPlaceholderText(/e\.g\. cortexpilot|cortexpilot/i), { key: "x" });
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(10);
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /导出失败会话|导出失败/ }));
+    fireEvent.click(screen.getByRole("button", { name: /Export failed sessions|export/i }));
 
     expect(screen.getAllByText(/SLO:/).length).toBeGreaterThan(0);
-    expect(screen.getByText(/系统健康，暂无告警。|暂无告警，系统处于健康状态。/)).toBeInTheDocument();
+    expect(screen.getByText(/System healthy\. No alerts\./i)).toBeInTheDocument();
   });
 
   it("covers home partial failures with non-Error reasons", async () => {
@@ -592,7 +600,7 @@ describe("command tower async hardening (home)", () => {
     await advanceRetryWindow();
     expect(hasBackoffSignal()).toBe(true);
     await ensureDrawerOpen();
-    expect(screen.getByText(/当前存在 服务异常/)).toBeInTheDocument();
+    expect(screen.getByText(/Current issue:\s*Service issue\./i)).toBeInTheDocument();
   });
 
   it("uses alerts failure as fallback error source", async () => {
@@ -612,7 +620,7 @@ describe("command tower async hardening (home)", () => {
     await advanceRetryWindow();
     expect(hasBackoffSignal()).toBe(true);
     await ensureDrawerOpen();
-    expect(screen.getByText(/当前存在 服务异常/)).toBeInTheDocument();
+    expect(screen.getByText(/Current issue:\s*Service issue\./i)).toBeInTheDocument();
   });
 
   it("shows failure-events action in degraded snapshot card when failed sessions exist", async () => {
@@ -634,11 +642,11 @@ describe("command tower async hardening (home)", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("group", { name: "异常处置动作" })).toBeInTheDocument();
+      expect(screen.getByRole("group", { name: "Degraded-state actions" })).toBeInTheDocument();
     });
-    const actions = screen.getByRole("group", { name: "异常处置动作" });
-    expect(within(actions).getByRole("link", { name: "查看失败事件" })).toHaveAttribute("href", "/events");
-    expect(within(actions).queryByRole("link", { name: "查看运行记录" })).toBeNull();
+    const actions = screen.getByRole("group", { name: "Degraded-state actions" });
+    expect(within(actions).getByRole("link", { name: "Review failure events" })).toHaveAttribute("href", "/events");
+    expect(within(actions).queryByRole("link", { name: "Review runs" })).toBeNull();
   });
 
   it("shows run-record action in degraded snapshot card when no failed or blocked sessions exist", async () => {
@@ -650,11 +658,11 @@ describe("command tower async hardening (home)", () => {
     render(<CommandTowerHomeLive initialOverview={baseOverview()} initialSessions={[activeSession]} />);
 
     await waitFor(() => {
-      expect(screen.getByRole("group", { name: "异常处置动作" })).toBeInTheDocument();
+      expect(screen.getByRole("group", { name: "Degraded-state actions" })).toBeInTheDocument();
     });
-    const actions = screen.getByRole("group", { name: "异常处置动作" });
-    expect(within(actions).getByRole("link", { name: "查看运行记录" })).toHaveAttribute("href", "/runs");
-    expect(within(actions).queryByRole("link", { name: "查看失败事件" })).toBeNull();
+    const actions = screen.getByRole("group", { name: "Degraded-state actions" });
+    expect(within(actions).getByRole("link", { name: "Review runs" })).toHaveAttribute("href", "/runs");
+    expect(within(actions).queryByRole("link", { name: "Review failure events" })).toBeNull();
   });
 
   it("shows run-record action in full fallback card when live data is unavailable", async () => {
@@ -665,10 +673,10 @@ describe("command tower async hardening (home)", () => {
     render(<CommandTowerHomeLive initialOverview={{ ...baseOverview(), total_sessions: 0 }} initialSessions={[]} />);
 
     await waitFor(() => {
-      expect(screen.getByRole("group", { name: "降级状态主操作" })).toBeInTheDocument();
+      expect(screen.getByRole("group", { name: "Degraded-state primary actions" })).toBeInTheDocument();
     });
-    const fallbackActions = screen.getByRole("group", { name: "降级状态主操作" });
-    expect(within(fallbackActions).getByRole("link", { name: "查看运行记录" })).toHaveAttribute("href", "/runs");
+    const fallbackActions = screen.getByRole("group", { name: "Degraded-state primary actions" });
+    expect(within(fallbackActions).getByRole("link", { name: "Review runs" })).toHaveAttribute("href", "/runs");
   });
 
   it("supports drawer layout controls and keyboard shortcuts with aria semantics", async () => {
@@ -683,19 +691,19 @@ describe("command tower async hardening (home)", () => {
 
     fireEvent.keyDown(window, { key: "d", altKey: true, shiftKey: true });
     await waitFor(() => {
-      expect(statusContains(/已展开右侧上下文抽屉/)).toBe(true);
+      expect(statusContains(/Expanded the right context drawer/i)).toBe(true);
       expect(screen.getByRole("region", { name: drawerRegionName })).toBeInTheDocument();
     });
-    expect(screen.getByRole("button", { name: /关闭面板/ })).toHaveAttribute("aria-keyshortcuts", "Alt+Shift+D");
+    expect(screen.getByRole("button", { name: /Close panel/ })).toHaveAttribute("aria-keyshortcuts", "Alt+Shift+D");
 
     fireEvent.keyDown(window, { key: "p", altKey: true, shiftKey: true });
     await waitFor(() => {
-      expect(statusContains(/右侧抽屉已解除固定|右侧抽屉已固定/)).toBe(true);
+      expect(statusContains(/Pinned the right drawer|Unpinned the right drawer/i)).toBe(true);
     });
 
     fireEvent.keyDown(window, { key: "d", altKey: true, shiftKey: true });
     await waitFor(() => {
-      expect(statusContains(/已折叠右侧上下文抽屉/)).toBe(true);
+      expect(statusContains(/Collapsed the right context drawer/i)).toBe(true);
       expect(screen.queryByRole("region", { name: drawerRegionName })).toBeNull();
     });
   });
@@ -718,10 +726,10 @@ describe("command tower async hardening (home)", () => {
     });
 
     await ensureDrawerOpen();
-    expect(screen.getAllByText(/部分降级（2\/3）|全量刷新成功|刷新异常/).length).toBeGreaterThan(0);
-    expect(statusContains(/最近成功刷新于|最近刷新时间：|暂无成功刷新记录|刷新间隔/)).toBe(true);
+    expect(screen.getByText(/Refresh is partially degraded|Refresh failed|Full refresh healthy/i)).toBeInTheDocument();
+    expect(statusContains(/Refresh state|Last successful refresh|No successful refresh yet/i)).toBe(true);
 
-    const quickRefreshButton = screen.getByRole("button", { name: /执行刷新/ });
+    const quickRefreshButton = screen.getByRole("button", { name: /Refresh now/i });
     const describedBy = quickRefreshButton.getAttribute("aria-describedby");
     const describedByIds = (describedBy ?? "").split(" ").filter(Boolean);
     expect(describedByIds.length).toBeGreaterThan(0);

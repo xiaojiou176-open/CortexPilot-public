@@ -119,6 +119,39 @@ def _override_model_provider_base_url(
     return "\n".join(output) + "\n"
 
 
+def _override_model_provider_api_key(
+    config_text: str,
+    provider: str | None,
+    api_key: str | None,
+) -> str:
+    if not provider or not api_key:
+        return config_text
+    lines = config_text.splitlines()
+    output: list[str] = []
+    in_section = False
+    replaced = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("[") and stripped.endswith("]"):
+            if in_section and not replaced:
+                output.append(f'experimental_bearer_token = "{api_key}"')
+                replaced = True
+            section_name = _section_model_provider_name(stripped[1:-1].strip())
+            in_section = section_name == provider
+            output.append(line)
+            continue
+        if in_section and (
+            stripped.startswith("experimental_bearer_token") or stripped.startswith("api_key")
+        ) and "=" in stripped:
+            output.append(f'experimental_bearer_token = "{api_key}"')
+            replaced = True
+            continue
+        output.append(line)
+    if in_section and not replaced:
+        output.append(f'experimental_bearer_token = "{api_key}"')
+    return "\n".join(output) + "\n"
+
+
 def _strip_model_provider_secret_fields(config_text: str) -> str:
     return _strip_toml_keys(
         config_text,
