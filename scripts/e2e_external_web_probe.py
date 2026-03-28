@@ -382,85 +382,60 @@ def _sanitize_report_url(value: str) -> str:
     return urllib.parse.urlunsplit((parsed.scheme, netloc, parsed.path, "", ""))
 
 
-def _sanitize_report_payload(payload: Any, key_name: str = "") -> Any:
-    if isinstance(payload, dict):
-        sanitized: dict[str, Any] = {}
-        for key, value in payload.items():
-            lowered = str(key).lower()
-            if any(token in lowered for token in ("token", "secret", "password", "api_key", "bearer")):
-                sanitized[str(key)] = "[REDACTED]"
-                continue
-            if lowered.endswith("url") or lowered.endswith("base_url"):
-                sanitized[str(key)] = _sanitize_report_url(str(value))
-                continue
-            sanitized[str(key)] = _sanitize_report_payload(value, lowered)
-        return sanitized
-    if isinstance(payload, list):
-        return [_sanitize_report_payload(item, key_name) for item in payload]
-    if isinstance(payload, str):
-        if "://" in payload and "@" in payload:
-            return _sanitize_report_url(payload)
-        if key_name.endswith("url") or key_name.endswith("base_url"):
-            return _sanitize_report_url(payload)
-        return _sanitize_report_string(payload)
-    return payload
+def _is_sensitive_report_key(key_name: str) -> bool:
+    lowered = str(key_name).lower()
+    return any(token in lowered for token in ("token", "secret", "password", "api_key", "bearer"))
 
 
-def _summarize_report_payload(payload: Any, key_name: str = "") -> Any:
-    if isinstance(payload, dict):
-        summarized: dict[str, Any] = {}
-        for key, value in payload.items():
-            lowered = str(key).lower()
-            if isinstance(value, dict):
-                summarized[str(key)] = {
-                    "type": "object",
-                    "keys": sorted(str(item) for item in value.keys()),
-                }
-                continue
-            if isinstance(value, list):
-                summarized[str(key)] = {
-                    "type": "list",
-                    "items": len(value),
-                }
-                continue
-            if any(token in lowered for token in ("token", "secret", "password", "api_key", "bearer")):
-                summarized[str(key)] = "[REDACTED]"
-                continue
-            if lowered.endswith("url") or lowered.endswith("base_url"):
-                summarized[str(key)] = _sanitize_report_url(str(value))
-                continue
-            if isinstance(value, str):
-                summarized[str(key)] = "[STRING]"
-                continue
-            summarized[str(key)] = value if isinstance(value, (bool, int, float)) or value is None else f"<{type(value).__name__}>"
-        return summarized
-    if isinstance(payload, list):
-        return {"type": "list", "items": len(payload)}
-    if isinstance(payload, str):
-        lowered = str(key_name).lower()
-        if any(token in lowered for token in ("token", "secret", "password", "api_key", "bearer")):
-            return "[REDACTED]"
-        if lowered.endswith("url") or lowered.endswith("base_url") or "://" in payload:
-            return _sanitize_report_url(payload)
+def _safe_report_field_name(key_name: str, *, redacted_index: int) -> str:
+    raw_key = str(key_name)
+    if _is_sensitive_report_key(raw_key):
+        return f"redacted_field_{redacted_index}"
+    return raw_key
+
+
+def _summarize_report_field(key_name: str, value: Any) -> Any:
+    lowered = str(key_name).lower()
+    if _is_sensitive_report_key(lowered):
+        return "[REDACTED]"
+    if isinstance(value, dict):
+        return {
+            "type": "object",
+            "items": len(value),
+        }
+    if isinstance(value, list):
+        return {
+            "type": "list",
+            "items": len(value),
+        }
+    if isinstance(value, str):
+        if lowered.endswith("url") or lowered.endswith("base_url") or ("://" in value and "@" in value):
+            return _sanitize_report_url(value)
         return "[STRING]"
-    return payload if isinstance(payload, (bool, int, float)) or payload is None else f"<{type(payload).__name__}>"
+    if isinstance(value, (bool, int, float)) or value is None:
+        return value
+    return f"<{type(value).__name__}>"
 
 
-def _write_sanitized_json(path: Path, payload: dict[str, Any]) -> None:
-    sanitized_payload = _sanitize_report_payload(payload)
-    if not isinstance(sanitized_payload, dict):
-        raise TypeError("sanitized report payload must stay object-shaped")
-    path.write_text(json.dumps(sanitized_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+def _summarize_report_artifacts(artifacts: dict[str, Any]) -> dict[str, Any]:
+    summarized: dict[str, Any] = {}
+    redacted_index = 0
+    for key, value in artifacts.items():
+        if _is_sensitive_report_key(str(key)):
+            redacted_index += 1
+        field_name = _safe_report_field_name(key, redacted_index=redacted_index)
+        summarized[field_name] = _summarize_report_field(str(key), value)
+    return summarized
 
 
 def _write_status_json(path: Path, *, run_id: str, stage: str, started_at: str, updated_at: str) -> None:
     status_payload = {
-        "run_id": _sanitize_report_string(run_id),
+        "run_id": _sanitize_report_url(run_id) if "://" in str(run_id) else _sanitize_report_string(run_id),
         "stage": _sanitize_report_string(stage),
         "started_at": started_at,
         "updated_at": updated_at,
     }
-    _write_sanitized_json(path, status_payload)
+    path.write_text(json.dumps(status_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def _write_report_json(
@@ -483,9 +458,9 @@ def _write_report_json(
         "failure_stage": _sanitize_report_string(failure_stage),
         "failure_category": _sanitize_report_string(failure_category),
         "title": _sanitize_report_string(title),
-        "artifacts": _summarize_report_payload(_sanitize_report_payload(artifacts)),
+        "artifacts": _summarize_report_artifacts(artifacts),
     }
-    _write_sanitized_json(path, report_payload)
+    path.write_text(json.dumps(report_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def _fallback_probe_url(url: str, error: Exception | None) -> str | None:

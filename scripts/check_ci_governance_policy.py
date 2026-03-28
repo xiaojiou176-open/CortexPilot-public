@@ -42,8 +42,55 @@ def _has_strict_dotenv_boundary(text: str) -> bool:
     return any(pattern in text for pattern in accepted_patterns)
 
 
-def _sanitize_violation_message(message: str) -> str:
-    return re.sub(r"(?i)(token|secret|password|api[_-]?key)[^\\s]*", "[redacted]", str(message))
+def _violation_label(message: str) -> str:
+    text = str(message)
+    if text.startswith("trusted_pr route drift:"):
+        return "trusted_pr route drift"
+    if text.startswith("route_contract missing "):
+        return "route_contract missing route"
+    if ".event_names missing" in text:
+        return "route_contract event_names missing"
+    if ".runner_class invalid" in text:
+        return "route_contract runner_class invalid"
+    if ".trust_class invalid" in text:
+        return "route_contract trust_class invalid"
+    if "references unknown job" in text:
+        return "route_contract references unknown job"
+    if "missing workflow artifact prefix" in text:
+        return "route_contract missing workflow artifact prefix"
+    if text.startswith("missing required job "):
+        return "missing required job"
+    if text.startswith("concurrency.group must be "):
+        return "concurrency.group drift"
+    if text == "concurrency.cancel-in-progress drift":
+        return text
+    if "must run on ubuntu-24.04" in text:
+        return "github-hosted runner drift"
+    if "must run on [self-hosted, shared-pool]" in text:
+        return "self-hosted runner drift"
+    if text == "ci-trust-boundary must export route_id":
+        return text
+    if text == "pr-ci-gate must depend on quick-feedback + ci-trust-boundary":
+        return text
+    if text == "release-evidence must depend on earlier trusted semantic slices":
+        return text
+    if "upload artifact path missing" in text:
+        return "artifact upload path missing"
+    if text.startswith("strict_env_contract.allowlisted_cortexpilot_env drift"):
+        return "strict env allowlist drift"
+    if text == "docker_ci strict dotenv boundary missing":
+        return text
+    if text == "docker_ci strict allowlist hook missing":
+        return text
+    if text.startswith("freshness_contract."):
+        return "freshness contract invalid"
+    if "must not request" in text:
+        return "cloud bootstrap forbidden permission request"
+    if text.endswith("must gate on cloud_bootstrap_allowed"):
+        return "cloud bootstrap gate missing"
+    if text == "docker_ci must pass route metadata into strict container path":
+        return text
+    return "ci governance policy violation"
 
 
 def _job_text(job: dict[str, Any]) -> str:
@@ -196,7 +243,7 @@ def main() -> int:
         print("❌ [ci-governance-policy] violations:")
         print(f"- count={len(errors)}")
         for item in errors:
-            print(f"- {_sanitize_violation_message(item)}")
+            print(f"- {_violation_label(item)}")
         return 1
     print("✅ [ci-governance-policy] workflow satisfies governance policy")
     return 0

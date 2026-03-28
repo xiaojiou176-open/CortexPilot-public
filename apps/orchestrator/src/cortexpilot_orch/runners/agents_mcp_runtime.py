@@ -37,6 +37,17 @@ _PROVIDER_TO_MODEL_PROVIDER = {
     "equilibrium": "codex_equilibrium",
     "codex_equilibrium": "codex_equilibrium",
 }
+_WORKER_CONFIG_SECRET_PREFIXES = (
+    "experimental_bearer_token",
+    "api_key",
+    "env_key",
+    "password",
+    "secret",
+    "access_token",
+    "refresh_token",
+    "token",
+    "bearer_token",
+)
 
 
 def _normalize_provider_name(provider: str) -> str:
@@ -121,6 +132,19 @@ def _extract_model_provider_section(config_text: str, provider: str) -> str:
     if not collected:
         return ""
     return "\n".join(collected).rstrip() + "\n"
+
+
+def _build_write_safe_worker_config(config_text: str) -> str:
+    stripped_config = agents_mcp_config._strip_model_provider_secret_fields(config_text)
+    safe_lines: list[str] = []
+    for raw in stripped_config.splitlines():
+        stripped = raw.strip()
+        if any(stripped.startswith(f"{prefix} =") or stripped.startswith(f"{prefix}=") for prefix in _WORKER_CONFIG_SECRET_PREFIXES):
+            continue
+        safe_lines.append(raw)
+    write_safe_config = "\n".join(safe_lines).rstrip() + "\n"
+    agents_mcp_config.assert_model_provider_secret_fields_removed(write_safe_config)
+    return write_safe_config
 
 
 def runtime_root_from_store(store: RunStore) -> Path:
@@ -336,9 +360,8 @@ def materialize_worker_codex_home(
         if codex_base_url:
             provider_name = agents_mcp_config._resolve_model_provider(merged)
             merged = agents_mcp_config._override_model_provider_base_url(merged, provider_name, codex_base_url)
-    sanitized_config_toml = agents_mcp_config._strip_model_provider_secret_fields(merged)
-    agents_mcp_config.assert_model_provider_secret_fields_removed(sanitized_config_toml)
-    (target / "config.toml").write_text(sanitized_config_toml, encoding="utf-8")
+    write_safe_config_toml = _build_write_safe_worker_config(merged)
+    (target / "config.toml").write_text(write_safe_config_toml, encoding="utf-8")
     for name in ("requirements.toml",):
         src = role_home / name
         if src.exists():
