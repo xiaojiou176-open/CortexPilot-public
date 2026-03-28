@@ -10,7 +10,7 @@ STATE_ROOT="$ROOT_DIR/.runtime-cache/cortexpilot/temp/install-dashboard-deps-sta
 if [[ "${CORTEXPILOT_CI_CONTAINER:-0}" == "1" && -n "${RUNNER_TEMP:-}" ]]; then
   STATE_ROOT="${RUNNER_TEMP}/install-dashboard-deps-state"
 fi
-INSTALL_LOG="${STATE_ROOT}/install_dashboard_deps.log"
+INSTALL_LOG="$ROOT_DIR/.runtime-cache/logs/runtime/deps_install/install_dashboard_deps.log"
 LOCK_DIR="${STATE_ROOT}/install-dashboard-deps.lock"
 LOCK_OWNER_FILE="$LOCK_DIR/owner"
 LOCK_HELD=0
@@ -172,6 +172,7 @@ trap 'release_install_lock' EXIT INT TERM
 STORE_DIR="$(resolve_writable_store_dir "$STORE_DIR")"
 cleanup_stale_retry_stores
 mkdir -p "$STATE_ROOT"
+mkdir -p "$(dirname "$INSTALL_LOG")"
 
 run_install() {
   (
