@@ -7,6 +7,8 @@ DESKTOP_NATIVE_IMAGE_NAME="cortexpilot-ci-desktop-native:local"
 CONTAINER_RUN_ARGS=()
 DOCKER_CI_STAGE_CONTEXT="${CORTEXPILOT_DOCKER_CI_STAGE_CONTEXT:-docker_ci}"
 DOCKER_PRECHECK_TIMEOUT_SEC="${CORTEXPILOT_DOCKER_PRECHECK_TIMEOUT_SEC:-20}"
+DOCKER_PRECHECK_RETRIES="${CORTEXPILOT_DOCKER_PRECHECK_RETRIES:-4}"
+DOCKER_PRECHECK_RETRY_SLEEP_SEC="${CORTEXPILOT_DOCKER_PRECHECK_RETRY_SLEEP_SEC:-5}"
 STRICT_CI_CORTEXPILOT_ENV_ALLOWLIST=(
   CORTEXPILOT_DOC_GATE_MODE
   CORTEXPILOT_DOC_GATE_BASE_SHA
@@ -126,23 +128,38 @@ PY
 docker_daemon_precheck_or_fail() {
   local phase_label="${1:-docker-precheck}"
   local selected_docker_host=""
-  emit_stage "docker-daemon-precheck" "phase=${phase_label} timeout_sec=${DOCKER_PRECHECK_TIMEOUT_SEC}"
-  if ! selected_docker_host="$(python3 scripts/lib/docker_daemon_probe.py --timeout-sec "${DOCKER_PRECHECK_TIMEOUT_SEC}")"; then
-    if ! attempt_default_docker_host_fallback; then
-      echo "❌ docker daemon unavailable for ${phase_label}" >&2
-      return 125
-    fi
+  local attempt=1
+  while (( attempt <= DOCKER_PRECHECK_RETRIES )); do
+    emit_stage "docker-daemon-precheck" "phase=${phase_label} timeout_sec=${DOCKER_PRECHECK_TIMEOUT_SEC} attempt=${attempt}/${DOCKER_PRECHECK_RETRIES}"
     if ! selected_docker_host="$(python3 scripts/lib/docker_daemon_probe.py --timeout-sec "${DOCKER_PRECHECK_TIMEOUT_SEC}")"; then
-      echo "❌ docker daemon unavailable for ${phase_label}" >&2
-      return 125
+      unset DOCKER_HOST || true
+      if ! attempt_default_docker_host_fallback; then
+        if (( attempt < DOCKER_PRECHECK_RETRIES )); then
+          emit_stage "docker-daemon-retry" "phase=${phase_label} sleeping=${DOCKER_PRECHECK_RETRY_SLEEP_SEC}s reason=probe_failed"
+          attempt=$((attempt + 1))
+          sleep "${DOCKER_PRECHECK_RETRY_SLEEP_SEC}"
+          continue
+        fi
+        echo "❌ docker daemon unavailable for ${phase_label}" >&2
+        return 125
+      fi
+      if ! selected_docker_host="$(python3 scripts/lib/docker_daemon_probe.py --timeout-sec "${DOCKER_PRECHECK_TIMEOUT_SEC}")"; then
+        if (( attempt < DOCKER_PRECHECK_RETRIES )); then
+          emit_stage "docker-daemon-retry" "phase=${phase_label} sleeping=${DOCKER_PRECHECK_RETRY_SLEEP_SEC}s reason=fallback_probe_failed"
+          attempt=$((attempt + 1))
+          sleep "${DOCKER_PRECHECK_RETRY_SLEEP_SEC}"
+          continue
+        fi
+        echo "❌ docker daemon unavailable for ${phase_label}" >&2
+        return 125
+      fi
     fi
-  fi
-  selected_docker_host="$(printf '%s' "${selected_docker_host}" | tr -d '\r' | tail -n 1)"
-  if [[ -n "${selected_docker_host}" && "${DOCKER_HOST:-}" != "${selected_docker_host}" ]]; then
-    export DOCKER_HOST="${selected_docker_host}"
-    emit_stage "docker-daemon-selected-host" "phase=${phase_label} host=${DOCKER_HOST}"
-  fi
-  if ! python3 - "$DOCKER_PRECHECK_TIMEOUT_SEC" <<'PY'
+    selected_docker_host="$(printf '%s' "${selected_docker_host}" | tr -d '\r' | tail -n 1)"
+    if [[ -n "${selected_docker_host}" && "${DOCKER_HOST:-}" != "${selected_docker_host}" ]]; then
+      export DOCKER_HOST="${selected_docker_host}"
+      emit_stage "docker-daemon-selected-host" "phase=${phase_label} host=${DOCKER_HOST}"
+    fi
+    if python3 - "$DOCKER_PRECHECK_TIMEOUT_SEC" <<'PY'
 import subprocess
 import sys
 
@@ -158,11 +175,20 @@ except subprocess.TimeoutExpired:
     raise SystemExit(1)
 raise SystemExit(0 if proc.returncode == 0 else 1)
 PY
-  then
+    then
+      return 0
+    fi
+    if (( attempt < DOCKER_PRECHECK_RETRIES )); then
+      emit_stage "docker-daemon-retry" "phase=${phase_label} sleeping=${DOCKER_PRECHECK_RETRY_SLEEP_SEC}s reason=docker_info_failed"
+      sleep "${DOCKER_PRECHECK_RETRY_SLEEP_SEC}"
+      attempt=$((attempt + 1))
+      continue
+    fi
     echo "❌ docker daemon unavailable for ${phase_label}" >&2
     return 125
-  fi
-  return 0
+  done
+  echo "❌ docker daemon unavailable for ${phase_label}" >&2
+  return 125
 }
 
 ensure_host_dispatch_context_or_fail() {
