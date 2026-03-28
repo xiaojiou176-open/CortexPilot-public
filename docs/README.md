@@ -83,5 +83,5 @@ navigation set.
 - when CI maintenance changes the runtime report namespace or the Python
   dependency audit contract, sync this summary and the root entrypoints in the
   same patch; the current examples are `.runtime-cache/test_output/ci/` and
-  `configs/pip_audit_ignored_advisories.json`, plus the dashboard ENOSPC
-  recovery knobs registered in `configs/env.registry.json`
+  `configs/pip_audit_ignored_advisories.json`, plus the dashboard and desktop
+  ENOSPC recovery knobs registered in `configs/env.registry.json`
