@@ -25,7 +25,8 @@ CI, hygiene, and release tasks.
 - `e2e_external_web_probe.py` no longer persists `run_id` in its JSON status
   and report artifacts; its JSON writer helpers no longer accept `run_id` as an
   input, and probe receipts now persist epoch timing fields, stage/category
-  allowlists, and summarized artifacts only.
+  allowlists, and summarized artifacts from dedicated safe summary scalars
+  only.
 - Run Gemini-backed UI audits explicitly when needed:
   - `python3 scripts/ui_ux_gemini_quick_gate.py`
   - `bash scripts/ci_slice_runner.sh ui-truth`
