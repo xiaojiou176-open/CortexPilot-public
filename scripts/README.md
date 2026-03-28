@@ -22,6 +22,9 @@ CI, hygiene, and release tasks.
   passwordless sudo is available; otherwise they fall back to direct
   `bash scripts/docker_ci.sh ...` execution so `main` push lanes do not fail on
   runners that can invoke Docker without an interactive sudo prompt.
+- `e2e_external_web_probe.py` now redacts persisted `run_id` values in its JSON
+  status and report artifacts, rather than storing either the original runtime
+  identifier or a derived digest of it.
 - Run Gemini-backed UI audits explicitly when needed:
   - `python3 scripts/ui_ux_gemini_quick_gate.py`
   - `bash scripts/ci_slice_runner.sh ui-truth`
