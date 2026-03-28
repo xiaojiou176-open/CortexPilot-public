@@ -224,6 +224,9 @@ def test_write_json_redacts_sensitive_values(monkeypatch: pytest.MonkeyPatch, tm
     assert "supersecret" not in serialized
     assert "should-not-leak" not in serialized
     assert "secret_hint" not in serialized
+    assert payload["started_at_epoch"] == 1774396800
+    assert payload["finished_at_epoch"] == 1774396801
+    assert payload["title_present"] is True
 
 
 def test_write_status_json_sanitizes_string_fields(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -241,7 +244,9 @@ def test_write_status_json_sanitizes_string_fields(monkeypatch: pytest.MonkeyPat
     serialized = json.dumps(payload, ensure_ascii=False)
     assert "supersecret" not in serialized
     assert "run_id" not in payload
-    assert payload["stage"] == "Bearer [REDACTED]"
+    assert payload["stage"] == "unknown"
+    assert payload["started_at_epoch"] == 1774396800
+    assert payload["updated_at_epoch"] == 1774396801
 
 
 def test_write_report_json_summarizes_non_secret_artifacts(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
@@ -265,6 +270,8 @@ def test_write_report_json_summarizes_non_secret_artifacts(monkeypatch: pytest.M
 
     payload = json.loads(output.read_text(encoding="utf-8"))
     assert "run_id" not in payload
+    assert payload["started_at_epoch"] == 1774396800
+    assert payload["finished_at_epoch"] == 1774396801
     assert payload["artifacts"]["status_text"] == "[STRING]"
     assert payload["artifacts"]["nested"] == {"type": "object", "items": 2}
     assert payload["artifacts"]["items"] == {"type": "list", "items": 3}
@@ -293,6 +300,9 @@ def test_write_report_json_redacts_sensitive_container_keys(
 
     payload = json.loads(output.read_text(encoding="utf-8"))
     artifacts = payload["artifacts"]
+    assert payload["title_present"] is True
+    assert payload["failure_stage"] == "provider_api_probe"
+    assert payload["failure_category"] == "provider_probe_failure"
     assert "password_bundle" not in artifacts
     assert "secret_items" not in artifacts
     assert "api_key" not in artifacts
