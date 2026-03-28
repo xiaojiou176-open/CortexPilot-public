@@ -40,6 +40,10 @@ CI, hygiene, and release tasks.
 - `check_pip_audit_gate.py` now enforces Python dependency audit findings
   through a machine-readable ignore contract and only downgrades explicitly
   listed advisories when `pip-audit` exposes no published fix version.
+- `install_dashboard_deps.sh` now detects `ERR_PNPM_ENOSPC` and retries with a
+  workspace-local pnpm store plus hardlink imports so self-hosted `main`
+  lanes can recover when copy-based installs exhaust the bind-mounted
+  workspace volume.
 - `install_dashboard_deps.sh` now records its install transcript under
   `.runtime-cache/logs/runtime/deps_install/install_dashboard_deps.log` even
   when its lock/retry bookkeeping still uses the temp state root.
