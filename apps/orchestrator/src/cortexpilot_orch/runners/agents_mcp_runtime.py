@@ -336,8 +336,9 @@ def materialize_worker_codex_home(
         if codex_base_url:
             provider_name = agents_mcp_config._resolve_model_provider(merged)
             merged = agents_mcp_config._override_model_provider_base_url(merged, provider_name, codex_base_url)
-    merged = agents_mcp_config._strip_model_provider_secret_fields(merged)
-    (target / "config.toml").write_text(merged, encoding="utf-8")
+    sanitized_config_toml = agents_mcp_config._strip_model_provider_secret_fields(merged)
+    agents_mcp_config.assert_model_provider_secret_fields_removed(sanitized_config_toml)
+    (target / "config.toml").write_text(sanitized_config_toml, encoding="utf-8")
     for name in ("requirements.toml",):
         src = role_home / name
         if src.exists():

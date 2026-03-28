@@ -296,10 +296,20 @@ def test_api_rum_web_vitals_ingest_sanitizes_sensitive_fields(tmp_path: Path, mo
     lines = rum_path.read_text(encoding="utf-8").splitlines()
     assert len(lines) == 1
     written = json.loads(lines[0])
+    assert written["level"] == "INFO"
+    assert written["domain"] == "ui"
+    assert written["surface"] == "dashboard"
+    assert written["service"] == "cortexpilot-dashboard"
+    assert written["component"] == "api.routes_admin"
+    assert written["lane"] == "runtime"
+    assert written["artifact_kind"] == "rum_web_vitals"
+    assert written["schema_version"] == "log_event.v2"
+    assert written["redaction_version"] == "redaction.v1"
     assert written["event"] == "RUM_WEB_VITAL_RECEIVED"
-    assert written["payload"]["api_key"] == "[REDACTED]"
-    assert written["payload"]["nested"]["token"] == "[REDACTED]"
-    assert written["payload"]["nested"]["safe"] == "yes"
+    assert written["meta"]["payload_size_bytes"] > 0
+    assert written["meta"]["payload"]["api_key"] == "[REDACTED]"
+    assert written["meta"]["payload"]["nested"]["token"] == "[REDACTED]"
+    assert written["meta"]["payload"]["nested"]["safe"] == "yes"
 
 
 def test_api_rum_web_vitals_ingest_write_failure_reports_reason(tmp_path: Path, monkeypatch) -> None:

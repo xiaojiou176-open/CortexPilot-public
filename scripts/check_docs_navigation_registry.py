@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 
@@ -14,6 +15,8 @@ PRIMARY_NAV_DOCS = (
     ROOT / "docs" / "governance" / "README.md",
 )
 PRIMARY_NAV_REFERENCE_EXEMPTIONS = {"docs/README.md"}
+DOCS_SUMMARY_PATH = ROOT / "docs" / "README.md"
+REPOSITORY_ENTRY_ALLOWED = {"README.md"}
 
 
 def _nav_tokens(path: str) -> set[str]:
@@ -27,6 +30,28 @@ def _nav_tokens(path: str) -> set[str]:
         if path.startswith(prefix):
             tokens.add(path.removeprefix(prefix))
     return {token for token in tokens if token}
+
+
+def _extract_section_targets(markdown: str, heading: str) -> set[str]:
+    lines = markdown.splitlines()
+    in_section = False
+    captured: set[str] = set()
+    for line in lines:
+        if line.startswith("## "):
+            in_section = line.strip() == heading
+            continue
+        if not in_section:
+            continue
+        for match in re.finditer(r"\(([^)]+)\)", line):
+            target = match.group(1).strip()
+            if not target or "://" in target or target.startswith("#"):
+                continue
+            try:
+                rel = (DOCS_SUMMARY_PATH.parent / target).resolve().relative_to(ROOT).as_posix()
+            except ValueError:
+                continue
+            captured.add(rel)
+    return captured
 
 
 def parse_args() -> argparse.Namespace:
@@ -61,11 +86,23 @@ def main() -> int:
         for item in entries
         if item.get("status") == "active" and item.get("listed_in_primary_navigation") is True
     }
+    active_registered_supplemental_targets = {
+        str(item.get("path") or "").strip()
+        for item in entries
+        if item.get("status") == "active"
+        and item.get("canonical") is True
+        and item.get("listed_in_primary_navigation") is False
+    }
     archived_targets = {
         str(item.get("path") or "").strip()
         for item in entries
         if item.get("status") == "archived"
     }
+
+    docs_summary_text = DOCS_SUMMARY_PATH.read_text(encoding="utf-8")
+    repository_entry_targets = _extract_section_targets(docs_summary_text, "## Repository Entry")
+    primary_summary_targets = _extract_section_targets(docs_summary_text, "## Primary Registered Docs")
+    supplemental_summary_targets = _extract_section_targets(docs_summary_text, "## Supplemental Registered Docs")
 
     for item in entries:
         path = str(item.get("path") or "").strip()
@@ -94,6 +131,31 @@ def main() -> int:
             continue
         if not any(token in nav_text for token in _nav_tokens(path)):
             errors.append(f"missing required primary navigation reference: {path}")
+
+    if repository_entry_targets != REPOSITORY_ENTRY_ALLOWED:
+        extras = sorted(repository_entry_targets - REPOSITORY_ENTRY_ALLOWED)
+        missing = sorted(REPOSITORY_ENTRY_ALLOWED - repository_entry_targets)
+        if extras:
+            errors.append(f"repository entry section contains unexpected targets: {', '.join(extras)}")
+        if missing:
+            errors.append(f"repository entry section missing targets: {', '.join(missing)}")
+
+    expected_primary_summary_targets = active_primary_targets - PRIMARY_NAV_REFERENCE_EXEMPTIONS
+    if primary_summary_targets != expected_primary_summary_targets:
+        extras = sorted(primary_summary_targets - expected_primary_summary_targets)
+        missing = sorted(expected_primary_summary_targets - primary_summary_targets)
+        if extras:
+            errors.append(f"primary docs summary lists non-registry targets: {', '.join(extras)}")
+        if missing:
+            errors.append(f"primary docs summary missing registry targets: {', '.join(missing)}")
+
+    if supplemental_summary_targets != active_registered_supplemental_targets:
+        extras = sorted(supplemental_summary_targets - active_registered_supplemental_targets)
+        missing = sorted(active_registered_supplemental_targets - supplemental_summary_targets)
+        if extras:
+            errors.append(f"supplemental docs summary lists non-registry targets: {', '.join(extras)}")
+        if missing:
+            errors.append(f"supplemental docs summary missing registry targets: {', '.join(missing)}")
 
     if errors:
         print("❌ [docs-nav] navigation registry violations:")

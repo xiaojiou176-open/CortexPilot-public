@@ -1,7 +1,8 @@
 # CortexPilot v0.1.0-alpha.1 - repo-side first public release draft
 
-This file is a repo-side draft for the first public GitHub Release. It is not
-proof that the live release page has already been published.
+This file is the repo-side draft source for the first public GitHub Release. It
+is not the live release page itself, and future edits to this file do not
+retroactively prove that the published release notes were updated.
 
 This draft is the first public storefront baseline for CortexPilot.
 
@@ -44,13 +45,15 @@ happy-path baseline for proof-oriented copy and future benchmark publication.
 - a tracked single-run public baseline now exists in
   `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md`
 
-## Missing Before Live Publication
+## Live Publication State
 
 - GitHub social preview still needs to be configured in repository settings
 - GitHub Discussions are enabled on the live repository
+- the live GitHub Release is now
+  `https://github.com/xiaojiou176-open/CortexPilot-public/releases/tag/v0.1.0-alpha.1`
 - no broader multi-round benchmark artifact is published yet
 - GitHub Pages is enabled from `/docs`, and the live site is now
-  `https://xiaojiou176-open.github.io/CortexPilot/`
+  `https://xiaojiou176-open.github.io/CortexPilot-public/`
 
 ## Verification
 

@@ -17,7 +17,7 @@ from cortexpilot_orch.store import run_store
 
 router = APIRouter(prefix="/api", tags=["admin"])
 _orchestration_service = OrchestrationService()
-_RUM_JSONL_PATH = Path(".runtime-cache/logs/runtime/rum_web_vitals.jsonl")
+_RUM_JSONL_PATH: Path | None = None
 _DEFAULT_APPROVAL_ROLES = {"OWNER", "ARCHITECT", "OPS", "TECH_LEAD"}
 try:
     _RUM_MAX_PAYLOAD_BYTES = max(1, int(os.getenv("CORTEXPILOT_RUM_MAX_PAYLOAD_BYTES", "32768")))
@@ -186,12 +186,32 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _rum_jsonl_path() -> Path:
+    if _RUM_JSONL_PATH is not None:
+        return _RUM_JSONL_PATH
+    return load_config().logs_root / "runtime" / "rum_web_vitals.jsonl"
+
+
 def _json_payload_size_bytes(payload: Any) -> int:
     try:
         serialized = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
     except (TypeError, ValueError):
         serialized = json.dumps({"raw_payload": str(payload)}, ensure_ascii=False, separators=(",", ":"))
     return len(serialized.encode("utf-8"))
+
+
+def _rum_correlation_kind(body: dict[str, Any]) -> str:
+    if str(body.get("run_id") or "").strip():
+        return "run"
+    if str(body.get("session_id") or "").strip():
+        return "session"
+    if str(body.get("request_id") or "").strip():
+        return "request"
+    if str(body.get("trace_id") or "").strip():
+        return "trace"
+    if str(body.get("test_id") or "").strip():
+        return "test"
+    return "none"
 
 
 def _append_rum_record(payload: Any) -> tuple[bool, str]:
@@ -204,15 +224,35 @@ def _append_rum_record(payload: Any) -> tuple[bool, str]:
             body = payload
         else:
             body = {"raw_payload": payload}
+        sanitized_body = sanitize_approval_payload(body)
         event = {
             "ts": _now_iso(),
+            "level": "INFO",
+            "domain": "ui",
+            "surface": "dashboard",
+            "service": "cortexpilot-dashboard",
+            "component": "api.routes_admin",
             "event": "RUM_WEB_VITAL_RECEIVED",
-            "source": "dashboard_web_vitals",
-            "payload_size_bytes": payload_size_bytes,
-            "payload": sanitize_approval_payload(body),
+            "lane": "runtime",
+            "run_id": str(sanitized_body.get("run_id") or ""),
+            "request_id": str(sanitized_body.get("request_id") or ""),
+            "trace_id": str(sanitized_body.get("trace_id") or ""),
+            "session_id": str(sanitized_body.get("session_id") or ""),
+            "test_id": str(sanitized_body.get("test_id") or ""),
+            "source_kind": "app_log",
+            "artifact_kind": "rum_web_vitals",
+            "correlation_kind": _rum_correlation_kind(sanitized_body),
+            "meta": {
+                "source": "dashboard_web_vitals",
+                "payload_size_bytes": payload_size_bytes,
+                "payload": sanitized_body,
+            },
+            "redaction_version": "redaction.v1",
+            "schema_version": "log_event.v2",
         }
-        _RUM_JSONL_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with _RUM_JSONL_PATH.open("a", encoding="utf-8") as handle:
+        rum_path = _rum_jsonl_path()
+        rum_path.parent.mkdir(parents=True, exist_ok=True)
+        with rum_path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(event, ensure_ascii=False) + "\n")
         return True, ""
     except Exception:  # pragma: no cover - defensive fallback

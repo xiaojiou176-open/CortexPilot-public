@@ -2,23 +2,29 @@
 
 This repository keeps its public documentation intentionally small.
 
-If GitHub Pages is later enabled from `/docs`, `docs/index.html` is the
-search-facing landing page source. `docs/README.md` remains the repo-side
-documentation summary for contributors and maintainers.
+`docs/index.html` is the current tracked GitHub Pages landing source for the
+public docs surface. `docs/README.md` remains the repo-side documentation
+summary for contributors and maintainers.
 
 `configs/docs_nav_registry.json` is the machine source of truth for the active
 docs inventory. This file is the human-readable summary of that registry.
 
-## Primary Navigation
+## Repository Entry
 
-These are the active canonical docs that stay in the primary docs navigation.
+This link stays outside the docs inventory registry. Treat it as the public
+repository entrypoint rather than a registered docs page.
 
 1. [../README.md](../README.md)
-2. [index.html](index.html)
-3. [architecture/runtime-topology.md](architecture/runtime-topology.md)
-4. [specs/00_SPEC.md](specs/00_SPEC.md)
-5. [runbooks/onboarding-30min.md](runbooks/onboarding-30min.md)
-6. [runbooks/space-governance.md](runbooks/space-governance.md)
+
+## Primary Registered Docs
+
+These are the active registered docs that stay in the primary docs navigation.
+
+1. [index.html](index.html)
+2. [architecture/runtime-topology.md](architecture/runtime-topology.md)
+3. [specs/00_SPEC.md](specs/00_SPEC.md)
+4. [runbooks/onboarding-30min.md](runbooks/onboarding-30min.md)
+5. [runbooks/space-governance.md](runbooks/space-governance.md)
 
 ## Supplemental Registered Docs
 
@@ -28,10 +34,13 @@ navigation set.
 1. [runbooks/public-release-checklist.md](runbooks/public-release-checklist.md)
 2. [runbooks/storefront-share-kit.md](runbooks/storefront-share-kit.md)
 3. [runbooks/github-storefront-manual-steps.md](runbooks/github-storefront-manual-steps.md)
+4. [releases/first-public-release-draft.md](releases/first-public-release-draft.md)
+5. [assets/storefront/demo-status.md](assets/storefront/demo-status.md)
+6. [assets/storefront/benchmark-methodology.md](assets/storefront/benchmark-methodology.md)
 
 ## What Each File Is For
 
-- `docs/index.html`: search-facing landing source for a future Pages/docs surface
+- `docs/index.html`: search-facing landing source for the live GitHub Pages/docs surface
 - `docs/architecture/runtime-topology.md`: system layout and major boundaries
 - `docs/specs/00_SPEC.md`: active product and contract baseline
 - `docs/runbooks/onboarding-30min.md`: shortest contributor handoff path
@@ -39,6 +48,9 @@ navigation set.
 - `docs/runbooks/public-release-checklist.md`: user-facing GitHub release preparation checklist
 - `docs/runbooks/storefront-share-kit.md`: tracked punchline and sharing kit for storefront work
 - `docs/runbooks/github-storefront-manual-steps.md`: exact GitHub UI values and manual storefront steps
+- `docs/releases/first-public-release-draft.md`: repo-side draft source for the first public GitHub Release
+- `docs/assets/storefront/demo-status.md`: status ledger for tracked public demo and proof assets
+- `docs/assets/storefront/benchmark-methodology.md`: public benchmark evidence contract and wording boundary
 
 ## Documentation Rules
 

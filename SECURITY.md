@@ -3,12 +3,16 @@
 ## Reporting A Vulnerability
 
 - Do not open a public issue or pull request for a suspected security problem.
-- Current private reporting path: if GitHub shows the private vulnerability
-  reporting form for this repository, submit the report at
-  `https://github.com/xiaojiou176-open/CortexPilot/security/advisories/new`.
+- Current live private reporting path: the public repository
+  `xiaojiou176-open/CortexPilot-public` has GitHub private vulnerability
+  reporting enabled. Submit reports through the advisory form at
+  `https://github.com/xiaojiou176-open/CortexPilot-public/security/advisories/new`.
 - If that form is unavailable, do not disclose details publicly. This
-  repository does not currently document an additional verified fallback
-  private reporting channel, so none should be assumed.
+  repository still does not publish a second verified fallback private
+  reporting channel, so none should be assumed by reporters.
+- Maintainer follow-up tail: before calling the security reporting surface
+  fully closed, publish or verify a non-public fallback path outside public
+  issues and pull requests.
 - Wait for maintainer acknowledgement through the advisory flow before sharing
   any details publicly.
 
@@ -41,5 +45,7 @@ Please report issues involving:
 - security reports are triaged on a best-effort basis
 - no SLA or bounty program is promised
 - coordinated disclosure is preferred
+- branch protection and other GitHub security controls should be treated as
+  separate governance checks; they do not replace the private reporting path
 
 Thank you for helping keep CortexPilot safer for contributors and users.

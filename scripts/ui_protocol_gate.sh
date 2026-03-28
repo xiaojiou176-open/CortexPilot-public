@@ -477,25 +477,33 @@ desktop_state_view = root / "apps/desktop/src/components/ui/StateView.tsx"
 
 if pm_anchor is not None:
     required_pm_signals = [
-        ("loading", "正在加载历史会话"),
+        ("loading", ("正在加载历史会话", "Loading session history")),
         ("error", 'role="alert"'),
-        ("empty", "暂无历史会话"),
+        ("empty", ("暂无历史会话", "No previous sessions yet")),
         ("disabled", "disabled={"),
         ("success", "alert-success"),
     ]
     for state_name, needle in required_pm_signals:
+        if isinstance(needle, tuple):
+            if not any(item in pm_text for item in needle):
+                add("state-coverage", pm_anchor, 1, f"Missing PM state signal: {state_name} ({' | '.join(needle)}).")
+            continue
         if needle not in pm_text:
             add("state-coverage", pm_anchor, 1, f"Missing PM state signal: {state_name} ({needle}).")
 
 if session_anchor is not None:
     required_session_signals = [
-        ("loading", "正在刷新会话上下文"),
+        ("loading", ("正在刷新会话上下文", "Refreshing session context")),
         ("error", 'role="alert"'),
-        ("empty", "暂无事件时间线"),
+        ("empty", ("暂无事件时间线", "No event timeline yet")),
         ("disabled", "disabled={"),
         ("success", 'role="status"'),
     ]
     for state_name, needle in required_session_signals:
+        if isinstance(needle, tuple):
+            if not any(item in session_text for item in needle):
+                add("state-coverage", session_anchor, 1, f"Missing session state signal: {state_name} ({' | '.join(needle)}).")
+            continue
         if needle not in session_text:
             add("state-coverage", session_anchor, 1, f"Missing session state signal: {state_name} ({needle}).")
 
@@ -505,13 +513,17 @@ desktop_chat_anchor = desktop_chat_sources[0] if desktop_chat_sources else None
 
 if desktop_chat_anchor is not None:
     required_desktop_signals = [
-        ("loading", "正在同步会话数据"),
+        ("loading", ("正在同步会话数据", "Syncing session data")),
         ("error", 'role="alert"'),
-        ("empty", "当前会话暂无消息"),
+        ("empty", ("当前会话暂无消息", "This session has no messages yet")),
         ("disabled", "composerInput.trim().length === 0"),
         ("success", 'role="status"'),
     ]
     for state_name, needle in required_desktop_signals:
+        if isinstance(needle, tuple):
+            if not any(item in desktop_chat_text for item in needle):
+                add("state-coverage", desktop_chat_anchor, 1, f"Missing desktop app state signal: {state_name} ({' | '.join(needle)}).")
+            continue
         if needle not in desktop_chat_text:
             add("state-coverage", desktop_chat_anchor, 1, f"Missing desktop app state signal: {state_name} ({needle}).")
 
@@ -577,8 +589,8 @@ if pm_anchor is not None:
             add("chat-core", pm_anchor, 1, f"Missing PM chat core signal: {check_name} ({detail}).")
 
     chat_adv_pm = [
-        ("chat-back-to-bottom", "回到底部" in pm_text, "回到底部"),
-        ("chat-cancel-control", "停止生成" in pm_text or "取消当前请求" in pm_text, "停止生成|取消当前请求"),
+        ("chat-back-to-bottom", "回到底部" in pm_text or "Back to bottom" in pm_text, "回到底部|Back to bottom"),
+        ("chat-cancel-control", "停止生成" in pm_text or "取消当前请求" in pm_text or "Stop generation" in pm_text or "Cancel current request" in pm_text, "停止生成|取消当前请求|Stop generation|Cancel current request"),
     ]
     for check_name, ok, detail in chat_adv_pm:
         if not ok:
@@ -587,7 +599,7 @@ if pm_anchor is not None:
 if session_anchor is not None:
     chat_core_session = [
         ("chat-stream-runtime", "openEventsStream" in session_text, "openEventsStream"),
-        ("chat-enter-hint", "Shift+Enter 换行" in session_text, "Shift+Enter 换行"),
+        ("chat-enter-hint", "Shift+Enter 换行" in session_text or "Shift+Enter for newlines" in session_text or "Shift+Enter for a newline" in session_text, "Shift+Enter 换行|Shift+Enter for newlines"),
         ("chat-input-guard", "disabled={" in session_text, "disabled={"),
         ("chat-error-surface", 'role="alert"' in session_text, 'role="alert"'),
     ]
@@ -605,14 +617,14 @@ if desktop_chat_anchor is not None:
         ("chat-enter-send-handler", bool(enter_send_handler_re.search(desktop_chat_text)), 'onKeyDown Enter + !Shift handler'),
         ("chat-send-disabled", "hasActiveGeneration" in desktop_chat_text, "hasActiveGeneration"),
         ("chat-cancel-runtime", bool(desktop_cancel_runtime_re.search(desktop_chat_text)), "pendingReplyRef + clearTimeout"),
-        ("chat-enter-hint", "Shift+Enter 换行" in desktop_chat_text, "Shift+Enter 换行"),
+        ("chat-enter-hint", "Shift+Enter 换行" in desktop_chat_text or "Shift+Enter for newlines" in desktop_chat_text or "Shift+Enter for a new line" in desktop_chat_text, "Shift+Enter 换行|Shift+Enter for new line"),
     ]
     for check_name, ok, detail in chat_core_desktop:
         if not ok:
             add("chat-core", desktop_chat_anchor, 1, f"Missing desktop chat core signal: {check_name} ({detail}).")
     chat_adv_desktop = [
-        ("chat-back-to-bottom", "回到底部" in desktop_chat_text, "回到底部"),
-        ("chat-cancel-control", "停止生成" in desktop_chat_text or "取消当前请求" in desktop_chat_text, "停止生成|取消当前请求"),
+        ("chat-back-to-bottom", "回到底部" in desktop_chat_text or "Back to bottom" in desktop_chat_text, "回到底部|Back to bottom"),
+        ("chat-cancel-control", "停止生成" in desktop_chat_text or "取消当前请求" in desktop_chat_text or "Stop generation" in desktop_chat_text or "Cancel current request" in desktop_chat_text, "停止生成|取消当前请求|Stop generation|Cancel current request"),
     ]
     for check_name, ok, detail in chat_adv_desktop:
         if not ok:

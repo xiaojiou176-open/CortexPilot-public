@@ -3,7 +3,8 @@
 Use this checklist before publishing a user-facing GitHub Release.
 
 This file is the repo-side contract for the first public release bundle. It is
-not proof that the live GitHub Release already exists.
+not the live GitHub Release page itself, and its presence alone does not prove
+that the live notes, social preview, or other repository settings are current.
 
 ## 1. Truth Boundary
 

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "owner": "xiaojiou176-open",
-  "repo": "CortexPilot",
+  "repo": "CortexPilot-public",
   "default_branch": "main",
   "required_actions_permissions": {
     "enabled": true,

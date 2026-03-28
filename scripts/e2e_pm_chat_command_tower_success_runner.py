@@ -196,9 +196,21 @@ with sync_playwright() as p:
     progress("goto /pm start")
     page.goto(f"{dash_base}/pm", wait_until="domcontentloaded")
     progress("goto /pm done")
-    chat_input = page.locator('textarea[aria-label="PM 对话输入框"], textarea[aria-label="PM chat input"]').first
-    send_btn = page.get_by_role("button", name=re.compile(r"^(发送并推进|发送)$"))
-    reset_btn = page.get_by_role("button", name=re.compile(r"^(新建 PM 对话|\\+\\s*新对话|新对话)$"))
+    workspace_input = page.get_by_label(re.compile(r"Workspace path", re.IGNORECASE)).first
+    repo_input = page.get_by_label(re.compile(r"Repository slug|Repo", re.IGNORECASE)).first
+    chat_input = page.locator(
+        'textarea[aria-label="PM composer"]:visible, '
+        'textarea[aria-label="PM chat input"]:visible, '
+        'textarea[aria-label="PM 对话输入框"]:visible'
+    ).last
+    send_btn = page.get_by_role("button", name=re.compile(r"^(Send|发送并推进|发送)$", re.IGNORECASE))
+    reset_btn = page.get_by_role(
+        "button",
+        name=re.compile(
+            r"^(\\+\\s*New chat|New chat|Start first request|Send first request now|新建 PM 对话|\\+\\s*新对话|新对话)$",
+            re.IGNORECASE,
+        ),
+    )
 
     try:
         if reset_btn.is_visible() and reset_btn.is_enabled():
@@ -207,8 +219,23 @@ with sync_playwright() as p:
     except Exception:
         pass
 
+    try:
+        if workspace_input.is_visible():
+            current_workspace = workspace_input.input_value().strip()
+            if not current_workspace:
+                workspace_input.fill("apps/dashboard")
+                page.wait_for_timeout(100)
+        if repo_input.is_visible():
+            current_repo = repo_input.input_value().strip()
+            if not current_repo:
+                repo_input.fill("cortexpilot")
+                page.wait_for_timeout(100)
+    except Exception:
+        pass
+
     def extract_intake_id_from_body(text: str) -> str:
         patterns = [
+            r"Session:\s*([A-Za-z0-9._:/\\-]+)",
             r"当前会话:\s*([A-Za-z0-9._:/\\-]+)",
             r"intake_id:\s*([A-Za-z0-9._:/\\-]+)",
             r"session:\s*([A-Za-z0-9._:/\\-]+)",
@@ -218,18 +245,33 @@ with sync_playwright() as p:
             if not match:
                 continue
             candidate = (match.group(1) or "").strip()
-            if candidate and candidate not in {"-", "(未创建)", "未创建"}:
+            if candidate and candidate not in {"-", "(未创建)", "未创建", "(not created)", "not created"}:
                 return candidate
         return ""
 
     def wait_chat_ready(timeout_sec: float = 60.0) -> None:
         deadline = time.time() + timeout_sec
+        unlock_attempted = False
         while time.time() < deadline:
             try:
                 if chat_input.is_enabled():
                     return
             except Exception:
                 pass
+            if not unlock_attempted:
+                for pattern in (
+                    r"(Fill example and focus composer|Next: enter the first request|Start first request|Send first request now)",
+                    r"(Draft session \(start typing\)|Current session: Draft \(unsent\))",
+                ):
+                    try:
+                        candidate = page.get_by_role("button", name=re.compile(pattern, re.IGNORECASE)).first
+                        if candidate.is_visible() and candidate.is_enabled():
+                            candidate.click()
+                            page.wait_for_timeout(300)
+                            unlock_attempted = True
+                            break
+                    except Exception:
+                        continue
             page.wait_for_timeout(200)
         page.screenshot(path=screen_pm, full_page=True)
         raise RuntimeError("chat input remains disabled before send")

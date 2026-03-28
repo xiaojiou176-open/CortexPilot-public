@@ -28,8 +28,10 @@
 
 For vulnerabilities, do not open a public issue. Follow
 [SECURITY.md](SECURITY.md) and use the documented GitHub advisory form private
-path there first. An additional fallback private reporting channel is not yet
-established in the repository docs and should not be assumed.
+path there first on the live public repository. An additional verified fallback
+private reporting channel is still not published in the repository docs and
+should not be assumed by reporters. If maintainers want a fully closed public
+security surface, that fallback must be published or verified separately.
 
 ## Before Filing An Issue
 

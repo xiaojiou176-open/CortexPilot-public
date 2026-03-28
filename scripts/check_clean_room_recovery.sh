@@ -136,6 +136,7 @@ node --test \
   "$ROOT_DIR/packages/frontend-api-client/tests/http.test.mjs" \
   "$ROOT_DIR/packages/frontend-api-client/tests/client.test.mjs" \
   "$ROOT_DIR/packages/frontend-api-client/tests/observability.test.mjs"
+bash "$ROOT_DIR/scripts/cleanup_workspace_modules.sh" >/dev/null 2>&1 || true
 bash "$ROOT_DIR/scripts/cleanup_runtime.sh" dry-run
 CORTEXPILOT_HYGIENE_SKIP_UPSTREAM=1 bash "$ROOT_DIR/scripts/check_repo_hygiene.sh"
 
