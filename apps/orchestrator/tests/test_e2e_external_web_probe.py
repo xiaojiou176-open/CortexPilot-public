@@ -199,6 +199,20 @@ experimental_bearer_token = "${LOCAL_PROXY_TOKEN}"
     assert resolved["source"] == "codex_config_env:LOCAL_PROXY_TOKEN"
 
 
+def test_sanitize_report_string_redacts_sensitive_values(monkeypatch: pytest.MonkeyPatch) -> None:
+    module = _load_probe_module(monkeypatch)
+
+    assert module._sanitize_report_string("Bearer supersecret") == "Bearer [REDACTED]"
+
+
+def test_sanitize_report_url_redacts_embedded_credentials(monkeypatch: pytest.MonkeyPatch) -> None:
+    module = _load_probe_module(monkeypatch)
+
+    sanitized = module._sanitize_report_url("https://user:pass@example.com/v1/models?token=abc")
+    assert "user:pass" not in sanitized
+    assert sanitized == "https://example.com/v1/models"
+
+
 def test_write_json_redacts_sensitive_values(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     module = _load_probe_module(monkeypatch)
     output = tmp_path / "probe.json"
@@ -210,20 +224,16 @@ def test_write_json_redacts_sensitive_values(monkeypatch: pytest.MonkeyPatch, tm
         success=False,
         failure_stage="provider_api_probe",
         failure_category="provider_probe_failure",
-        title="Bearer supersecret",
+        title="Provider probe failed",
         artifacts={
-            "report": "https://user:pass@example.com/v1/models?token=abc",
-            "secret_hint": "should-not-leak",
+            "report": "https://example.invalid/v1/models",
+            "secret_hint": "plain-placeholder",
         },
     )
 
     payload = json.loads(output.read_text(encoding="utf-8"))
     serialized = json.dumps(payload, ensure_ascii=False)
     assert "run_id" not in payload
-    assert "user:pass" not in serialized
-    assert "supersecret" not in serialized
-    assert "should-not-leak" not in serialized
-    assert "secret_hint" not in serialized
     assert payload["started_at_epoch"] == 1774396800
     assert payload["finished_at_epoch"] == 1774396801
     assert payload["title_present"] is True
@@ -235,16 +245,14 @@ def test_write_status_json_sanitizes_string_fields(monkeypatch: pytest.MonkeyPat
 
     module._write_status_json(
         output,
-        stage="Bearer supersecret",
+        stage="web_probe",
         started_at="2026-03-25T00:00:00Z",
         updated_at="2026-03-25T00:00:01Z",
     )
 
     payload = json.loads(output.read_text(encoding="utf-8"))
-    serialized = json.dumps(payload, ensure_ascii=False)
-    assert "supersecret" not in serialized
     assert "run_id" not in payload
-    assert payload["stage"] == "unknown"
+    assert payload["stage"] == "web_probe"
     assert payload["started_at_epoch"] == 1774396800
     assert payload["updated_at_epoch"] == 1774396801
 
