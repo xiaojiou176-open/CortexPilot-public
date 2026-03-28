@@ -428,11 +428,49 @@ def _summarize_report_artifacts(artifacts: dict[str, Any]) -> dict[str, Any]:
     return summarized
 
 
+_ALLOWED_PROBE_STAGES = {"starting", "web_probe", "provider_api_probe", "finished", "unknown"}
+_ALLOWED_FAILURE_CATEGORIES = {
+    "",
+    "content_mismatch",
+    "hard_timeout",
+    "provider_auth_failure",
+    "provider_timeout",
+    "provider_probe_failure",
+    "dns_failure",
+    "tls_failure",
+    "network_failure",
+    "navigation_timeout",
+    "timeout",
+    "unknown_failure",
+}
+
+
+def _safe_probe_stage(stage: str) -> str:
+    normalized = str(stage or "").strip().lower()
+    return normalized if normalized in _ALLOWED_PROBE_STAGES else "unknown"
+
+
+def _safe_failure_category(category: str) -> str:
+    normalized = str(category or "").strip().lower()
+    return normalized if normalized in _ALLOWED_FAILURE_CATEGORIES else "unknown_failure"
+
+
+def _safe_report_epoch(timestamp: str) -> int | None:
+    value = str(timestamp or "").strip()
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return int(parsed.timestamp())
+
+
 def _write_status_json(path: Path, *, stage: str, started_at: str, updated_at: str) -> None:
     status_payload = {
-        "stage": _sanitize_report_string(stage),
-        "started_at": started_at,
-        "updated_at": updated_at,
+        "stage": _safe_probe_stage(stage),
+        "started_at_epoch": _safe_report_epoch(started_at),
+        "updated_at_epoch": _safe_report_epoch(updated_at),
     }
     path.write_text(json.dumps(status_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
@@ -449,12 +487,12 @@ def _write_report_json(
     artifacts: dict[str, Any],
 ) -> None:
     report_payload = {
-        "started_at": started_at,
-        "finished_at": finished_at,
+        "started_at_epoch": _safe_report_epoch(started_at),
+        "finished_at_epoch": _safe_report_epoch(finished_at),
         "success": success,
-        "failure_stage": _sanitize_report_string(failure_stage),
-        "failure_category": _sanitize_report_string(failure_category),
-        "title": _sanitize_report_string(title),
+        "failure_stage": _safe_probe_stage(failure_stage),
+        "failure_category": _safe_failure_category(failure_category),
+        "title_present": bool(str(title or "").strip()),
         "artifacts": _summarize_report_artifacts(artifacts),
     }
     path.write_text(json.dumps(report_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

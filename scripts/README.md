@@ -24,8 +24,8 @@ CI, hygiene, and release tasks.
   runners that can invoke Docker without an interactive sudo prompt.
 - `e2e_external_web_probe.py` no longer persists `run_id` in its JSON status
   and report artifacts; its JSON writer helpers no longer accept `run_id` as an
-  input, so probe receipts keep timestamps, stages, and summarized artifacts
-  only.
+  input, and probe receipts now persist epoch timing fields, stage/category
+  allowlists, and summarized artifacts only.
 - Run Gemini-backed UI audits explicitly when needed:
   - `python3 scripts/ui_ux_gemini_quick_gate.py`
   - `bash scripts/ci_slice_runner.sh ui-truth`

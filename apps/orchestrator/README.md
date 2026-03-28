@@ -39,5 +39,5 @@ python -m cortexpilot_orch.cli --help
 
 - `scripts/e2e_external_web_probe.py` does not persist `run_id` values in JSON
   status/report outputs. The writer helpers also no longer take `run_id`
-  inputs, so probe receipts keep timestamps, stages, and artifact summaries
-  only.
+  inputs; receipts now persist stage/category allowlists, epoch timing fields,
+  and artifact summaries only.
