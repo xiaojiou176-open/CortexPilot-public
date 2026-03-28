@@ -18,6 +18,10 @@ CI, hygiene, and release tasks.
 ## Audit Lane Notes
 
 - Keep default blocking lanes focused on stable, repeatable checks.
+- Self-hosted CI lanes now try `sudo -E bash scripts/docker_ci.sh ...` only when
+  passwordless sudo is available; otherwise they fall back to direct
+  `bash scripts/docker_ci.sh ...` execution so `main` push lanes do not fail on
+  runners that can invoke Docker without an interactive sudo prompt.
 - Run Gemini-backed UI audits explicitly when needed:
   - `python3 scripts/ui_ux_gemini_quick_gate.py`
   - `bash scripts/ci_slice_runner.sh ui-truth`

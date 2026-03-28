@@ -6,6 +6,10 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- let self-hosted CI Docker lanes fall back to direct `bash scripts/docker_ci.sh ...`
+  execution when passwordless sudo is unavailable, so `main` push jobs no
+  longer fail immediately on runners that can use Docker without an interactive
+  sudo prompt
 - aligned the live public GitHub repository, Pages, release, and security-reporting links around `CortexPilot-public` so repo-side docs no longer point at stale repo URLs
 - synchronized root AI entrypoints, README, support/security docs, and GitHub issue/PR templates with the current public security-reporting boundary and fallback-channel follow-up
 - fixed docs inventory drift by registering `docs/index.html` plus release/proof docs in the docs navigation registry and upgrading the navigation checker to catch summary-vs-registry drift
