@@ -41,7 +41,11 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   same patch; current examples include `.runtime-cache/test_output/ci/` and
   `configs/pip_audit_ignored_advisories.json`, plus the dashboard
   and desktop install-time ENOSPC recovery knobs plus the Docker daemon
-  precheck retry knobs registered in `configs/env.registry.json`
+  precheck retry knobs registered in `configs/env.registry.json`; current CI
+  credential/evidence examples also include the upstream receipt refresh
+  fallback to `scripts/verify_upstream_slices.py --mode smoke` and the strict
+  live-provider rule that resolves process env first and `~/.codex/config.toml`
+  second while keeping dotenv and shell-export fallbacks disabled on mainline
 
 ## Key Commands
 

@@ -223,14 +223,11 @@ def _reuse_upstream_verification_records(check: dict[str, object]) -> dict[str, 
     _, artifact_rows = _artifact_status(artifacts)
 
     now_ts = time.time()
-    failures: list[str] = []
-    missing: list[str] = []
     batches: set[str] = set()
     for raw_path in artifacts:
         path = ROOT / raw_path
         if not path.exists():
-            missing.append(raw_path)
-            continue
+            return None
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
         except Exception:
@@ -240,23 +237,33 @@ def _reuse_upstream_verification_records(check: dict[str, object]) -> dict[str, 
         stat = path.stat()
         if now_ts - stat.st_mtime > UPSTREAM_RECORD_FRESH_SEC:
             return None
-        batches.add(str(payload.get("verification_batch_id") or ""))
+        if str(payload.get("verification_mode") or "").strip().lower() != "smoke":
+            return None
+        batch_id = str(payload.get("verification_batch_id") or "").strip()
+        if not batch_id:
+            return None
+        batches.add(batch_id)
         status = str(payload.get("status") or "").strip().lower()
         if status != "passed":
-            failures.append(f"{payload.get('integration_slice')}: {status or 'unknown'}")
+            return None
+        artifact_rel = str(payload.get("last_verified_artifact") or "").strip()
+        if not artifact_rel:
+            return None
+        artifact_path = ROOT / artifact_rel
+        if not artifact_path.exists():
+            return None
+    if len(batches) != 1:
+        return None
 
-    ok = not failures and not missing
     batch_summary = ", ".join(sorted(batch for batch in batches if batch))
     output = (
         "reused fresh upstream verification records"
         + (f" (batches: {batch_summary})" if batch_summary else "")
-        + (f"; missing slices: {', '.join(missing)}" if missing else "")
-        + (f"; failing slices: {', '.join(failures)}" if failures else "")
     )
     return {
         "id": str(check["id"]),
         "weight": int(check["weight"]),
-        "ok": ok,
+        "ok": True,
         "command": ["reuse:fresh-upstream-records"],
         "executed_at": datetime.now(timezone.utc).isoformat(),
         "duration_sec": 0.0,
