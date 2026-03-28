@@ -428,7 +428,7 @@ def _summarize_report_artifacts(artifacts: dict[str, Any]) -> dict[str, Any]:
     return summarized
 
 
-def _write_status_json(path: Path, *, run_id: str, stage: str, started_at: str, updated_at: str) -> None:
+def _write_status_json(path: Path, *, stage: str, started_at: str, updated_at: str) -> None:
     status_payload = {
         "stage": _sanitize_report_string(stage),
         "started_at": started_at,
@@ -440,7 +440,6 @@ def _write_status_json(path: Path, *, run_id: str, stage: str, started_at: str, 
 def _write_report_json(
     path: Path,
     *,
-    run_id: str,
     started_at: str,
     finished_at: str,
     success: bool,
@@ -565,7 +564,6 @@ def main() -> int:
             hb_state["updated_at"] = _utc_now()
             _write_status_json(
                 heartbeat_path,
-                run_id=str(hb_state.get("run_id", "")),
                 stage=str(hb_state.get("stage", "")),
                 started_at=str(hb_state.get("started_at", "")),
                 updated_at=str(hb_state.get("updated_at", "")),
@@ -578,7 +576,6 @@ def main() -> int:
                 hb_state["updated_at"] = _utc_now()
                 _write_status_json(
                     heartbeat_path,
-                    run_id=str(hb_state.get("run_id", "")),
                     stage=str(hb_state.get("stage", "")),
                     started_at=str(hb_state.get("started_at", "")),
                     updated_at=str(hb_state.get("updated_at", "")),
@@ -699,7 +696,6 @@ def main() -> int:
             report["failure_category"] = ""
         _write_report_json(
             report_path,
-            run_id=str(report.get("run_id", "")),
             started_at=str(report.get("started_at", "")),
             finished_at=str(report.get("finished_at", "")),
             success=bool(report.get("success", False)),

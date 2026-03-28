@@ -23,8 +23,9 @@ CI, hygiene, and release tasks.
   `bash scripts/docker_ci.sh ...` execution so `main` push lanes do not fail on
   runners that can invoke Docker without an interactive sudo prompt.
 - `e2e_external_web_probe.py` no longer persists `run_id` in its JSON status
-  and report artifacts; probe receipts keep timestamps, stages, and summarized
-  artifacts only.
+  and report artifacts; its JSON writer helpers no longer accept `run_id` as an
+  input, so probe receipts keep timestamps, stages, and summarized artifacts
+  only.
 - Run Gemini-backed UI audits explicitly when needed:
   - `python3 scripts/ui_ux_gemini_quick_gate.py`
   - `bash scripts/ci_slice_runner.sh ui-truth`
