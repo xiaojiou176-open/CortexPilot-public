@@ -428,16 +428,8 @@ def _summarize_report_artifacts(artifacts: dict[str, Any]) -> dict[str, Any]:
     return summarized
 
 
-def _redacted_report_run_ref(value: str) -> str:
-    text = str(value).strip()
-    if not text:
-        return ""
-    return "[REDACTED]"
-
-
 def _write_status_json(path: Path, *, run_id: str, stage: str, started_at: str, updated_at: str) -> None:
     status_payload = {
-        "run_id": _redacted_report_run_ref(run_id),
         "stage": _sanitize_report_string(stage),
         "started_at": started_at,
         "updated_at": updated_at,
@@ -458,7 +450,6 @@ def _write_report_json(
     artifacts: dict[str, Any],
 ) -> None:
     report_payload = {
-        "run_id": _redacted_report_run_ref(run_id),
         "started_at": started_at,
         "finished_at": finished_at,
         "success": success,
