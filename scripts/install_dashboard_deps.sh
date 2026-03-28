@@ -13,6 +13,9 @@ fi
 INSTALL_NODE_LINKER="${CORTEXPILOT_DASHBOARD_PNPM_NODE_LINKER:-hoisted}"
 INSTALL_PACKAGE_IMPORT_METHOD="${CORTEXPILOT_DASHBOARD_PNPM_IMPORT_METHOD:-copy}"
 INSTALL_SHAMEFULLY_HOIST="${CORTEXPILOT_DASHBOARD_PNPM_SHAMEFULLY_HOIST:-1}"
+BASE_INSTALL_NODE_LINKER="$INSTALL_NODE_LINKER"
+BASE_INSTALL_PACKAGE_IMPORT_METHOD="$INSTALL_PACKAGE_IMPORT_METHOD"
+BASE_INSTALL_SHAMEFULLY_HOIST="$INSTALL_SHAMEFULLY_HOIST"
 INSTALL_LOG="$ROOT_DIR/.runtime-cache/logs/runtime/deps_install/install_dashboard_deps.log"
 LOCK_DIR="${STATE_ROOT}/install-dashboard-deps.lock"
 LOCK_OWNER_FILE="$LOCK_DIR/owner"
@@ -115,7 +118,18 @@ fresh_retry_store_dir() {
 workspace_retry_store_dir() {
   local retry_root="$ROOT_DIR/.runtime-cache/cache/pnpm-store-dashboard-workspace"
   mkdir -p "$retry_root"
-  printf '%s\n' "$retry_root"
+  mktemp -d "$retry_root/retry.XXXXXX"
+}
+
+cleanup_stale_workspace_retry_stores() {
+  local retry_root="$ROOT_DIR/.runtime-cache/cache/pnpm-store-dashboard-workspace"
+  local candidate=""
+  shopt -s nullglob
+  for candidate in "$retry_root"/retry.*; do
+    [[ "$candidate" == "$STORE_DIR" ]] && continue
+    retire_store_dir "$candidate"
+  done
+  shopt -u nullglob
 }
 
 cleanup_stale_retry_stores() {
@@ -180,6 +194,7 @@ trap 'release_install_lock' EXIT INT TERM
 
 STORE_DIR="$(resolve_writable_store_dir "$STORE_DIR")"
 cleanup_stale_retry_stores
+cleanup_stale_workspace_retry_stores
 mkdir -p "$STATE_ROOT"
 mkdir -p "$(dirname "$INSTALL_LOG")"
 
@@ -274,16 +289,31 @@ recover_with_workspace_store() {
   echo "⚠️ [install-dashboard-deps] ${reason}; switching to workspace-local pnpm store + hardlink import mode and resetting dashboard node_modules" >&2
   retire_store_dir "$STORE_DIR"
   STORE_DIR="$(workspace_retry_store_dir)"
+  cleanup_stale_workspace_retry_stores
+  local previous_import_method="$INSTALL_PACKAGE_IMPORT_METHOD"
+  local previous_node_linker="$INSTALL_NODE_LINKER"
+  local previous_shamefully_hoist="$INSTALL_SHAMEFULLY_HOIST"
   INSTALL_PACKAGE_IMPORT_METHOD="${CORTEXPILOT_DASHBOARD_ENOSPC_IMPORT_METHOD:-hardlink}"
+  INSTALL_NODE_LINKER="$BASE_INSTALL_NODE_LINKER"
+  INSTALL_SHAMEFULLY_HOIST="$BASE_INSTALL_SHAMEFULLY_HOIST"
   if ! reset_app_node_modules; then
+    INSTALL_PACKAGE_IMPORT_METHOD="$previous_import_method"
+    INSTALL_NODE_LINKER="$previous_node_linker"
+    INSTALL_SHAMEFULLY_HOIST="$previous_shamefully_hoist"
     print_install_log_tail 80
     exit 1
   fi
   if ! run_install; then
+    INSTALL_PACKAGE_IMPORT_METHOD="$previous_import_method"
+    INSTALL_NODE_LINKER="$previous_node_linker"
+    INSTALL_SHAMEFULLY_HOIST="$previous_shamefully_hoist"
     echo "❌ [install-dashboard-deps] pnpm install failed after ENOSPC recovery; tail follows" >&2
     print_install_log_tail 80
     exit 1
   fi
+  INSTALL_PACKAGE_IMPORT_METHOD="$previous_import_method"
+  INSTALL_NODE_LINKER="$previous_node_linker"
+  INSTALL_SHAMEFULLY_HOIST="$previous_shamefully_hoist"
 }
 
 if ! run_install; then
