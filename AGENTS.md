@@ -51,6 +51,9 @@ Work in CortexPilot as a contract-first engineering agent:
   links do not drift behind the published `CortexPilot-public` surface
 - when security reporting wording changes, keep `SECURITY.md`, `SUPPORT.md`,
   issue template contact links, and the root README aligned in the same patch
+- when dashboard/operator wording or intake/runtime contracts change, sync the
+  root AI/docs entrypoints in the same patch so doc-sync gates can trace the
+  live English-first dashboard surface and the current intake/probe contracts
 
 ## Local Overrides
 

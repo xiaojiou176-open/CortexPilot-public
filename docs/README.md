@@ -76,3 +76,7 @@ navigation set.
 - when a single closeout patch spans both dashboard and desktop packaging, pair
   these docs updates with the root AI entrypoints (`AGENTS.md` / `CLAUDE.md`)
   so doc-sync gates can follow the decision chain without guessing
+- when dashboard/operator labels or intake/probe contracts move, keep the
+  module READMEs and root entrypoints aligned in the same patch; the current
+  examples are the English-first Command Tower regression surface and the
+  intake/probe response fields that now omit absent `task_template` data
