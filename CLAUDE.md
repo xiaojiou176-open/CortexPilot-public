@@ -36,6 +36,10 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
 - when dashboard/operator wording or intake/runtime contracts change, sync the
   root AI/docs entrypoints in the same patch so doc-sync gates keep following
   the live English-first dashboard surface and the current intake/probe rules
+- when CI maintenance changes the Python dependency audit contract or the
+  tracked runtime report namespaces, sync the root AI/docs entrypoints in the
+  same patch; current examples include `.runtime-cache/test_output/ci/` and
+  `configs/pip_audit_ignored_advisories.json`
 
 ## Key Commands
 

@@ -54,6 +54,10 @@ Work in CortexPilot as a contract-first engineering agent:
 - when dashboard/operator wording or intake/runtime contracts change, sync the
   root AI/docs entrypoints in the same patch so doc-sync gates can trace the
   live English-first dashboard surface and the current intake/probe contracts
+- when CI maintenance changes the Python dependency audit contract or the
+  tracked runtime report namespaces, sync the root AI/docs entrypoints in the
+  same patch; current examples include `.runtime-cache/test_output/ci/` and
+  `configs/pip_audit_ignored_advisories.json`
 
 ## Local Overrides
 

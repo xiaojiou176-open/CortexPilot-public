@@ -707,7 +707,7 @@ python3 scripts/build_governance_dashboard.py \
   --output-json "$DASHBOARD_JSON" \
   --output-markdown "$DASHBOARD_MD" \
   --changed-scope-report ".runtime-cache/test_output/changed_scope_pytest/selection_report.json" \
-  --ci-policy-snapshot ".runtime-cache/test_output/ci_policy_snapshot.json"
+  --ci-policy-snapshot ".runtime-cache/test_output/ci/ci_policy_snapshot.json"
 
 echo "📊 [continuous-governance] dashboard_json=$DASHBOARD_JSON"
 echo "📊 [continuous-governance] dashboard_md=$DASHBOARD_MD"

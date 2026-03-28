@@ -1,0 +1,14 @@
+{
+  "ids": [
+    "CVE-2026-4539"
+  ],
+  "unfixed_surface_findings": [
+    {
+      "id": "CVE-2026-4539",
+      "package": "pygments",
+      "surface": "apps/orchestrator/uv.lock",
+      "rationale": "pip-audit reports the advisory against the latest published pygments release and exposes no fix_versions yet, so the finding is tracked as an upstream-unfixed advisory until a patched release ships.",
+      "treatment": "Allowed to downgrade to advisory-only in the default Python dependency gate; remove this entry as soon as a fix version exists."
+    }
+  ]
+}

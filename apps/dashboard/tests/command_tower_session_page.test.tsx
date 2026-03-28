@@ -203,7 +203,7 @@ describe("command tower session page state handling", () => {
       }),
     );
 
-    expect(screen.getByRole("status")).toHaveTextContent("会话事件流暂不可用，请稍后重试。");
+    expect(screen.getByRole("status")).toHaveTextContent("Session event stream is unavailable right now. Please try again later.");
     const props = mockSessionLive.mock.calls[0]?.[0] as { initialEvents: unknown[] };
     expect(props.initialEvents).toEqual([]);
   });

@@ -27,6 +27,19 @@ CI, hygiene, and release tasks.
   input, and probe receipts now persist epoch timing fields, stage/category
   allowlists, and summarized artifacts from dedicated safe summary scalars
   only.
+- `ci_slice_runner.sh` now exports `PYTHONDONTWRITEBYTECODE=1` before running
+  the slice driver so self-hosted `policy-and-security` / `core-tests` lanes do
+  not pollute the workspace with `__pycache__` residues mid-run.
+- `ci_main_impl.sh` and `resolve_ci_policy.py` now write CI stage logs, policy
+  snapshots, and the orchestrator coverage JSON under
+  `.runtime-cache/test_output/ci/` so retention-report hygiene no longer flags
+  root-level `test_output` residue during `main` push validation.
+- `security_scan.sh` now filters a very small allowlist of non-verified,
+  synthetic placeholder findings from test/example git history while still
+  failing on every other trufflehog hit.
+- `check_pip_audit_gate.py` now enforces Python dependency audit findings
+  through a machine-readable ignore contract and only downgrades explicitly
+  listed advisories when `pip-audit` exposes no published fix version.
 - `install_dashboard_deps.sh` now records its install transcript under
   `.runtime-cache/logs/runtime/deps_install/install_dashboard_deps.log` even
   when its lock/retry bookkeeping still uses the temp state root.

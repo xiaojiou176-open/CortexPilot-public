@@ -74,6 +74,7 @@ trap 'write_summary "$final_status"' EXIT
 export CI=1
 export CORTEXPILOT_CI_PROFILE="${CORTEXPILOT_CI_PROFILE:-strict}"
 export CORTEXPILOT_CI_SLICE="$SLICE"
+export PYTHONDONTWRITEBYTECODE=1
 
 bash scripts/lib/ci_main_impl.sh "$@"
 final_status="success"

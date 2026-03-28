@@ -275,7 +275,7 @@ info "case: lower-priority base_url env is shadowed by higher-priority base_url 
 must_fail run_case CORTEXPILOT_CI_PM_CHAT_BASE_URL=https://gateway.primary/v1 CORTEXPILOT_E2E_CODEX_BASE_URL=https://gateway.shadow/v1 >/dev/null
 
 info "case: shadow resolver writes default snapshot with expected schema"
-snapshot_path="$ROOT_DIR/.runtime-cache/test_output/ci_policy_snapshot.json"
+snapshot_path="$ROOT_DIR/.runtime-cache/test_output/ci/ci_policy_snapshot.json"
 rm -f "$snapshot_path"
 python3 "$SHADOW_RESOLVER" >/dev/null
 if [[ ! -f "$snapshot_path" ]]; then
