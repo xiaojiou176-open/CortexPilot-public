@@ -630,8 +630,13 @@ jobs:
       - name: Run policy/security slice
         run: |
           source scripts/lib/test_heartbeat.sh
+          if sudo -n true >/dev/null 2>&1; then
+            lane_runner=(sudo -E bash scripts/docker_ci.sh lane ci-policy-and-security)
+          else
+            lane_runner=(bash scripts/docker_ci.sh lane ci-policy-and-security)
+          fi
           run_with_heartbeat_and_timeout "ci:policy-and-security" "3600" "30" -- \
-            sudo -E bash scripts/docker_ci.sh lane ci-policy-and-security
+            "${lane_runner[@]}"
 
       - name: Publish policy/security summary
         if: always()
@@ -703,8 +708,13 @@ jobs:
           CORTEXPILOT_CI_TEST_PHASE_PARALLEL: "1"
         run: |
           source scripts/lib/test_heartbeat.sh
+          if sudo -n true >/dev/null 2>&1; then
+            lane_runner=(sudo -E bash scripts/docker_ci.sh lane ci-core-tests)
+          else
+            lane_runner=(bash scripts/docker_ci.sh lane ci-core-tests)
+          fi
           run_with_heartbeat_and_timeout "ci:core-tests" "5400" "30" -- \
-            sudo -E bash scripts/docker_ci.sh lane ci-core-tests
+            "${lane_runner[@]}"
 
       - name: Publish core-tests summary
         if: always()
@@ -774,8 +784,13 @@ jobs:
       - name: Run ui-truth slice
         run: |
           source scripts/lib/test_heartbeat.sh
+          if sudo -n true >/dev/null 2>&1; then
+            lane_runner=(sudo -E bash scripts/docker_ci.sh lane ci-ui-truth)
+          else
+            lane_runner=(bash scripts/docker_ci.sh lane ci-ui-truth)
+          fi
           run_with_heartbeat_and_timeout "ci:ui-truth" "7200" "30" -- \
-            sudo -E bash scripts/docker_ci.sh lane ci-ui-truth
+            "${lane_runner[@]}"
 
       - name: Publish ui-truth summary
         if: always()
@@ -846,8 +861,13 @@ jobs:
       - name: Run resilience/E2E slice
         run: |
           source scripts/lib/test_heartbeat.sh
+          if sudo -n true >/dev/null 2>&1; then
+            lane_runner=(sudo -E bash scripts/docker_ci.sh lane ci-resilience-and-e2e)
+          else
+            lane_runner=(bash scripts/docker_ci.sh lane ci-resilience-and-e2e)
+          fi
           run_with_heartbeat_and_timeout "ci:resilience-and-e2e" "7200" "30" -- \
-            sudo -E bash scripts/docker_ci.sh lane ci-resilience-and-e2e
+            "${lane_runner[@]}"
 
       - name: Publish resilience/E2E summary
         if: always()
@@ -953,8 +973,13 @@ jobs:
         id: run_release_evidence_slice
         run: |
           source scripts/lib/test_heartbeat.sh
+          if sudo -n true >/dev/null 2>&1; then
+            lane_runner=(sudo -E bash scripts/docker_ci.sh lane ci-release-evidence)
+          else
+            lane_runner=(bash scripts/docker_ci.sh lane ci-release-evidence)
+          fi
           run_with_heartbeat_and_timeout "ci:release-evidence" "5400" "30" -- \
-            sudo -E bash scripts/docker_ci.sh lane ci-release-evidence
+            "${lane_runner[@]}"
 
       - name: Finalize trusted route report
         if: always()
