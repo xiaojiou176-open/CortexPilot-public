@@ -80,3 +80,7 @@ navigation set.
   module READMEs and root entrypoints aligned in the same patch; the current
   examples are the English-first Command Tower regression surface and the
   intake/probe response fields that now omit absent `task_template` data
+- when CI maintenance changes the runtime report namespace or the Python
+  dependency audit contract, sync this summary and the root entrypoints in the
+  same patch; the current examples are `.runtime-cache/test_output/ci/` and
+  `configs/pip_audit_ignored_advisories.json`

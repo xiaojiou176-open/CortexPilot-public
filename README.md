@@ -189,6 +189,10 @@ Dashboard/operator wording is now English-first across the tracked Command
 Tower regression surface, and orchestrator intake responses only emit
 `task_template` / `template_payload` when those values are actually present so
 API/schema coverage and the live contract stay aligned.
+Mainline CI now keeps policy snapshots, stage logs, and the orchestrator
+coverage JSON under `.runtime-cache/test_output/ci/`, and the Python
+dependency audit downgrades only the explicitly tracked upstream-unfixed
+`pygments` advisory through `configs/pip_audit_ignored_advisories.json`.
 When one closeout patch touches both dashboard and desktop packaging, expect the
 root AI/docs entrypoints and the module READMEs to move together so doc-sync
 gates can trace the maintenance decision end to end.
