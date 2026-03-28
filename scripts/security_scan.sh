@@ -39,8 +39,10 @@ REQUIRE_SCANNER="${CORTEXPILOT_SECURITY_REQUIRE_SCANNER:-$require_scanner_defaul
 if command -v trufflehog >/dev/null 2>&1; then
   echo "🚀 [security] scanning git history with trufflehog"
   tmp_output="$(mktemp "${TMPDIR:-/tmp}/cortexpilot-trufflehog.XXXXXX.jsonl")"
+  filtered_output="$(mktemp "${TMPDIR:-/tmp}/cortexpilot-trufflehog.filtered.XXXXXX.jsonl")"
   cleanup_tmp_output() {
     rm -f "$tmp_output"
+    rm -f "$filtered_output"
   }
   trap cleanup_tmp_output EXIT
   set +e
@@ -57,9 +59,72 @@ if command -v trufflehog >/dev/null 2>&1; then
     cat "$tmp_output" >&2 || true
     exit "$trufflehog_status"
   fi
-  if [[ -s "$tmp_output" ]]; then
+  ignored_count="$(
+    python3 - "$tmp_output" "$filtered_output" <<'PY'
+import json
+import pathlib
+import sys
+
+source = pathlib.Path(sys.argv[1])
+dest = pathlib.Path(sys.argv[2])
+
+
+def is_allowed(record: dict) -> bool:
+    if record.get("Verified") is True:
+        return False
+
+    git_meta = (
+        record.get("SourceMetadata", {})
+        .get("Data", {})
+        .get("Git", {})
+    )
+    path = git_meta.get("file", "")
+    detector = record.get("DetectorName", "")
+    raw = record.get("RawV2") or record.get("Raw") or ""
+
+    if (
+        path == "apps/orchestrator/tests/test_e2e_external_web_probe.py"
+        and detector == "URI"
+        and raw.startswith("https://user:pass@example.com")
+    ):
+        return True
+
+    if (
+        path in {
+            "infra/docker/langfuse/.env.example",
+            "infra/docker/langfuse/docker-compose.yml",
+            "infra/docker/langfuse/README.md",
+        }
+        and detector == "Postgres"
+        and raw.startswith("postgresql://postgres:")
+        and "@postgres:5432" in raw
+    ):
+        return True
+
+    return False
+
+
+ignored = 0
+kept: list[str] = []
+for line in source.read_text(encoding="utf-8").splitlines():
+    if not line.strip():
+        continue
+    record = json.loads(line)
+    if is_allowed(record):
+        ignored += 1
+        continue
+    kept.append(line)
+
+dest.write_text(("".join(f"{line}\n" for line in kept)), encoding="utf-8")
+print(ignored)
+PY
+  )"
+  if [[ "$ignored_count" != "0" ]]; then
+    echo "ℹ️ [security] ignored ${ignored_count} known synthetic placeholder findings from test/example git history"
+  fi
+  if [[ -s "$filtered_output" ]]; then
     echo "❌ [security] trufflehog findings detected:" >&2
-    cat "$tmp_output" >&2
+    cat "$filtered_output" >&2
     exit 1
   fi
   echo "✅ [security] trufflehog scan passed"

@@ -41,8 +41,8 @@ describe("RunDetail edge cases", () => {
       await flushPromises();
     });
 
-    fireEvent.click(screen.getByText("报告"));
-    fireEvent.click(screen.getByText("执行回放对比"));
+    fireEvent.click(screen.getByText("Reports"));
+    fireEvent.click(screen.getByText("Run replay comparison"));
 
     await waitFor(() => {
       expect(screen.getByText(/Replay comparison failed/)).toBeInTheDocument();
@@ -55,11 +55,11 @@ describe("RunDetail edge cases", () => {
       );
     });
 
-    fireEvent.click(screen.getByText("日志"));
-    expect(screen.getByRole("alert")).toHaveTextContent("工具调用加载失败");
+    fireEvent.click(screen.getByText("Logs"));
+    expect(screen.getByRole("alert")).toHaveTextContent("Tool calls unavailable");
 
-    fireEvent.click(screen.getByText("链路"));
-    expect(screen.getByRole("alert")).toHaveTextContent("链路规格加载失败");
+    fireEvent.click(screen.getByText("Chain"));
+    expect(screen.getByRole("alert")).toHaveTextContent("Chain spec unavailable");
   });
 
   it("skips chain spec when run_id missing and allows diff tab switch", async () => {
@@ -80,8 +80,8 @@ describe("RunDetail edge cases", () => {
       await flushPromises();
     });
 
-    fireEvent.click(screen.getByText("日志"));
-    fireEvent.click(screen.getByText("差异"));
+    fireEvent.click(screen.getByText("Logs"));
+    fireEvent.click(screen.getByText("Diff"));
     await waitFor(() => {
       expect(document.querySelector(".diff-viewer")).not.toBeNull();
     });
@@ -110,11 +110,11 @@ describe("RunDetail edge cases", () => {
       await flushPromises();
     });
 
-    expect(screen.getByText("运行允许路径:")).toBeInTheDocument();
-    expect(screen.getByText("合约")).toBeInTheDocument();
+    expect(screen.getByText("Allowed paths:")).toBeInTheDocument();
+    expect(screen.getByText("Contract")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByText("报告"));
-    fireEvent.click(screen.getByText("执行回放对比"));
+    fireEvent.click(screen.getByText("Reports"));
+    fireEvent.click(screen.getByText("Run replay comparison"));
     await waitFor(() => {
       expect(screen.getByText(/Replay comparison failed/)).toBeInTheDocument();
     });
@@ -148,17 +148,17 @@ describe("RunDetail edge cases", () => {
       await flushPromises();
     });
 
-    fireEvent.click(screen.getByText("日志"));
+    fireEvent.click(screen.getByText("Logs"));
     expect(screen.getAllByText(/CODEX_CMD/).length).toBeGreaterThan(0);
     expect(screen.getAllByText("{}").length).toBeGreaterThan(0);
 
-    fireEvent.click(screen.getByText("报告"));
-    fireEvent.click(screen.getByText("执行回放对比"));
+    fireEvent.click(screen.getByText("Reports"));
+    fireEvent.click(screen.getByText("Run replay comparison"));
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining("/events"), expect.anything());
     });
-    fireEvent.click(screen.getByText("日志"));
-    expect(screen.getByText("暂无工具调用")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Logs"));
+    expect(screen.getByText("No tool calls yet")).toBeInTheDocument();
   });
 
   it("renders agent cards, tool call cards, trace link, workflow link and live toggle", async () => {
@@ -214,20 +214,20 @@ describe("RunDetail edge cases", () => {
       await flushPromises();
     });
 
-    expect(screen.getByText(/追踪 ID: trace-rich/)).toBeInTheDocument();
+    expect(screen.getByText(/Trace ID: trace-rich/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "https://trace.local/rich" })).toHaveAttribute(
       "href",
       "https://trace.local/rich",
     );
     expect(screen.getByRole("link", { name: "wf-rich" })).toHaveAttribute("href", "/workflows/wf-rich");
-    expect(screen.getByText(/可观测: 已开启/)).toBeInTheDocument();
+    expect(screen.getByText(/Observability: Enabled/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByText("日志"));
-    expect(screen.getByText(/工具: shell/)).toBeInTheDocument();
-    expect(screen.getByText(/代理 ID: agent-rich/)).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Logs"));
+    expect(screen.getByText(/Tool: shell/)).toBeInTheDocument();
+    expect(screen.getByText(/Agent ID: agent-rich/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Pause Live|暂停实时刷新/ }));
-    expect(screen.getByText(/已暂停|Paused/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Pause live refresh|Pause Live/i }));
+    expect(screen.getByText(/Paused/i)).toBeInTheDocument();
   });
 
   it("shows replay evidence empty state when replay report is absent", async () => {
@@ -252,8 +252,8 @@ describe("RunDetail edge cases", () => {
       await flushPromises();
     });
 
-    fireEvent.click(screen.getByText("报告"));
-    expect(screen.getByText("暂无 replay 证据哈希")).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Reports"));
+    expect(screen.getByText("No replay evidence hashes yet")).toBeInTheDocument();
   });
 
   it("renders sparse fallback fields for agent/tool/replay diff rows", async () => {
@@ -298,20 +298,20 @@ describe("RunDetail edge cases", () => {
       await flushPromises();
     });
 
-    expect(screen.getByText(/工作流状态: -/)).toBeInTheDocument();
-    expect(screen.getByText(/终态状态: RUNNING/)).toBeInTheDocument();
+    expect(screen.getByText(/Workflow status: -/)).toBeInTheDocument();
+    expect(screen.getByText(/Terminal status: RUNNING/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByText("日志"));
-    expect(screen.getAllByText(/代理 ID: -/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/任务 ID: -/).length).toBeGreaterThan(0);
-    expect(screen.getByText(/工具:/)).toBeInTheDocument();
-    expect(screen.getByText(/耗时\(ms\): -/)).toBeInTheDocument();
+    fireEvent.click(screen.getByText("Logs"));
+    expect(screen.getAllByText(/Agent ID: -/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Task ID: -/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Tool:/)).toBeInTheDocument();
+    expect(screen.getByText(/Duration \(ms\): -/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByText("报告"));
-    expect(screen.getByText(/键:/)).toBeInTheDocument();
-    expect(screen.getByText(/基线:/)).toBeInTheDocument();
-    expect(screen.getByText(/当前:/)).toBeInTheDocument();
-    expect(screen.getAllByText(/缺失:/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/新增:/).length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByText("Reports"));
+    expect(screen.getByText(/Key:/)).toBeInTheDocument();
+    expect(screen.getByText(/Baseline:/)).toBeInTheDocument();
+    expect(screen.getByText(/Current:/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Missing:/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Extra:/).length).toBeGreaterThan(0);
   });
 });

@@ -29,7 +29,7 @@ SOURCE_SELECTION_LAYERS: dict[str, list[tuple[str, Any]]] = {
         ("path", str(ROOT_DIR / ".runtime-cache" / "test_output" / "orchestrator_coverage_recheck.json")),
         ("path", str(ROOT_DIR / ".runtime-cache" / "test_output" / "orchestrator_coverage.json")),
         ("path", str(ROOT_DIR / ".runtime-cache" / "test_output" / "repo_coverage" / "orchestrator_coverage_test_gate.json")),
-        ("path", str(ROOT_DIR / ".runtime-cache" / "test_output" / "orchestrator_coverage_ci_gate.json")),
+        ("path", str(ROOT_DIR / ".runtime-cache" / "test_output" / "ci" / "orchestrator_coverage_ci_gate.json")),
     ],
     "dashboard": [
         ("path", str(ROOT_DIR / ".runtime-cache" / "test_output" / "repo_coverage" / "dashboard" / "coverage-summary.json")),

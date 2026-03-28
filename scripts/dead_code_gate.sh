@@ -672,15 +672,31 @@ coverage_language_gaps = sorted(lang for lang in present_languages if lang not i
 coverage_gap_files: Dict[str, List[str]] = {}
 for lang in coverage_language_gaps:
     coverage_gap_files[lang] = sorted(rel for rel, detected in language_by_file.items() if detected == lang)[:20]
+
+
+def has_non_test_typescript_change(prefix: str) -> bool:
+    for rel in tracked_changed:
+        path = Path(rel)
+        if path.suffix not in {".ts", ".tsx"}:
+            continue
+        normalized = rel.replace("\\", "/")
+        if not normalized.startswith(prefix):
+            continue
+        if "/tests/" in normalized or normalized.endswith(".test.ts") or normalized.endswith(".test.tsx"):
+            continue
+        return True
+    return False
+
+
+dashboard_ts_requires_tsc = has_non_test_typescript_change("apps/dashboard/")
+desktop_ts_requires_tsc = has_non_test_typescript_change("apps/desktop/")
 detector_health_gaps: List[str] = []
 if any(ext in present_exts for ext in {".py"}) and detector_status.get("vulture", "").startswith("skipped:"):
     detector_health_gaps.append(f"vulture:{detector_status['vulture']}")
-if any(ext in present_exts for ext in {".ts", ".tsx"}) and (
-    detector_status.get("tsc-dashboard", "").startswith("skipped:") or detector_status.get("tsc-desktop", "").startswith("skipped:")
-):
-    detector_health_gaps.append(
-        f"tsc:dashboard={detector_status.get('tsc-dashboard','')},desktop={detector_status.get('tsc-desktop','')}"
-    )
+if dashboard_ts_requires_tsc and detector_status.get("tsc-dashboard", "").startswith("skipped:"):
+    detector_health_gaps.append(f"tsc-dashboard:{detector_status['tsc-dashboard']}")
+if desktop_ts_requires_tsc and detector_status.get("tsc-desktop", "").startswith("skipped:"):
+    detector_health_gaps.append(f"tsc-desktop:{detector_status['tsc-desktop']}")
 if any(ext in present_exts for ext in {".sh", ".bash", ".zsh"}) and detector_status.get("shellcheck", "").startswith("skipped:"):
     detector_health_gaps.append(f"shellcheck:{detector_status['shellcheck']}")
 if any(ext in present_exts for ext in {".rs"}) and detector_status.get("cargo-check", "").startswith("skipped:"):

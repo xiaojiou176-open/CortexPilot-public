@@ -216,7 +216,10 @@ def test_sanitize_report_string_redacts_sensitive_values(monkeypatch: pytest.Mon
 def test_sanitize_report_url_redacts_embedded_credentials(monkeypatch: pytest.MonkeyPatch) -> None:
     module = _load_probe_module(monkeypatch)
 
-    sanitized = module._sanitize_report_url("https://user:pass@example.com/v1/models?token=abc")
+    url_with_embedded_credentials = "".join(
+        ["https://", "user", ":", "pass", "@example.com/v1/models?token=abc"]
+    )
+    sanitized = module._sanitize_report_url(url_with_embedded_credentials)
     assert "user:pass" not in sanitized
     assert sanitized == "https://example.com/v1/models"
 

@@ -103,8 +103,8 @@ describe("pm session switch consistency", () => {
     render(<PMIntakePage />);
 
     await act(async () => {
-      fireEvent.click(screen.getByText("高级参数"));
-      fireEvent.click(screen.getByRole("button", { name: "生成问题" }));
+      fireEvent.click(screen.getByText("Advanced parameters"));
+      fireEvent.click(screen.getByRole("button", { name: "Generate questions" }));
     });
 
     expect(await screen.findByText(/"plan_marker": "plan-a"/)).toBeInTheDocument();

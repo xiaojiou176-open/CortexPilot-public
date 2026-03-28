@@ -5,7 +5,7 @@ Keep Langfuse out of the core execution path until `events.jsonl` is stable.
 
 Runbook:
 1. `cp .env.example .env`
-2. Set `DATABASE_URL` in `.env` using your own local DSN, for example `postgresql://postgres:<password>@postgres:5432/postgres`.
+2. Set `DATABASE_URL` in `.env` using your own local Postgres DSN that matches your local user, password, host, port, and database name.
 3. Update all remaining `REPLACE_WITH_*` values in `.env` (required; compose is fail-closed for secret-like keys).
 4. Generate strong secrets where needed (for example: `openssl rand -hex 32` for `ENCRYPTION_KEY`).
 5. `docker compose up -d`

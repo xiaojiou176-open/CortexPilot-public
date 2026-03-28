@@ -12,7 +12,7 @@ from typing import Any
 DEFAULT_CORE_PATH = Path("configs/ci_policy.core.json")
 DEFAULT_PROFILE_PATH = Path("configs/ci_policy.profiles.json")
 DEFAULT_ADVANCED_PATH = Path("configs/ci_policy.advanced.json")
-DEFAULT_OUTPUT_PATH = Path(".runtime-cache/test_output/ci_policy_snapshot.json")
+DEFAULT_OUTPUT_PATH = Path(".runtime-cache/test_output/ci/ci_policy_snapshot.json")
 
 LayerMap = dict[str, Any]
 

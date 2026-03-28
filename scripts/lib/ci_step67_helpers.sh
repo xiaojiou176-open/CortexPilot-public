@@ -30,14 +30,14 @@ run_ci_step7_dependency_audit() {
       exit 1
     fi
     echo "⚠️ [WARN] soft audit mode enabled"
-    "$PYTHON" -m pip_audit || true
+    "$PYTHON" scripts/check_pip_audit_gate.py || true
     cd apps/dashboard
     pnpm audit --audit-level high --prod || true
     cd "$ROOT_DIR/apps/desktop"
     pnpm audit --audit-level high --prod || true
     cd "$ROOT_DIR"
   else
-    "$PYTHON" -m pip_audit
+    "$PYTHON" scripts/check_pip_audit_gate.py
     cd apps/dashboard
     pnpm audit --audit-level high --prod
     cd "$ROOT_DIR/apps/desktop"

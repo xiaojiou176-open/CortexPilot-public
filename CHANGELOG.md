@@ -35,6 +35,12 @@ All notable changes to this repository will be documented in this file.
 - replaced the legacy `JARVIS` PM-session fixture with a neutral project key so governance closeout artifacts stay identity-clean
 - aligned GitHub branch-protection required checks with the lightweight PR route so the live control-plane policy and `pr-ci-gate` stay in sync
 - aligned GitHub branch protection required-check names with the active PR route gates (`Quick Feedback`, `PR Release-Critical Gates`, `PR CI Gate`)
+- aligned dashboard contract tests with the current English-first Command Tower and RunDetail surfaces instead of older Chinese UI wording
+- taught `scripts/ci_slice_runner.sh` to force `PYTHONDONTWRITEBYTECODE=1` so self-hosted policy/core slices stop generating `__pycache__` residue during `main` push validation
+- moved CI stage logs, policy snapshots, and the orchestrator coverage JSON under `.runtime-cache/test_output/ci/` so the retention-report gate no longer flags root-level test-output residue on `main` push runs
+- aligned remaining dashboard regression tests with the live English-first PM and Command Tower copy instead of legacy Chinese labels
+- filtered secret-scan history noise down to a narrow set of known synthetic placeholder findings and removed the live embedded-credential sample from the external web probe tests
+- added a machine-readable Python audit ignore contract for unfixed upstream advisories and taught the dependency gate to downgrade only those entries when `pip-audit` reports no fix version
 - pinned transitive `picomatch` and `brace-expansion` security fixes across the root, dashboard, and desktop lockfile surfaces so GitHub Dependabot findings close on the same documented change set
 - removed the optional dashboard `depcheck` package because the dead-code gate already skips when the probe is absent and the package kept an unpatchable `brace-expansion` advisory alive in the default workspace lock surface
 - aligned dashboard Command Tower regression tests with the current

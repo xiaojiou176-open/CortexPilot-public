@@ -76,22 +76,22 @@ describe("dashboard p1 controls", () => {
     render(<PMIntakePage />);
     expect(await screen.findByText("pm-history-1")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /\+ 新对话/ }));
+    fireEvent.click(screen.getByRole("button", { name: /\+ New chat/ }));
     const chatLog = screen.getByRole("log");
     const emptyState = chatLog.querySelector(".pm-empty-state");
     expect(chatLog).toHaveAttribute("aria-busy", "false");
     expect(emptyState).not.toBeNull();
-    expect(emptyState).toHaveTextContent(/还没有会话/);
-    expect(emptyState).toHaveTextContent(/第一条需求/);
-    expect(screen.getByText(/首用三步：发需求/)).toBeInTheDocument();
+    expect(emptyState).toHaveTextContent(/No session yet\. Send the first request/);
+    expect(emptyState).toHaveTextContent(/Send the first request and I will create the session automatically\./);
+    expect(screen.getByText(/First-run path: send request -> answer clarifiers -> type \/run/)).toBeInTheDocument();
 
     const sessionEntry = screen.getByText("pm-history-1").closest("button");
     expect(sessionEntry).not.toBeNull();
     fireEvent.click(sessionEntry as HTMLButtonElement);
     await waitFor(() => expect(fetchPmSession).toHaveBeenCalled());
 
-    const layoutModeGroup = screen.getByRole("tablist", { name: "布局模式" });
-    const splitButton = within(layoutModeGroup).getByRole("tab", { name: "并排" });
+    const layoutModeGroup = screen.getByRole("tablist", { name: "Layout mode" });
+    const splitButton = within(layoutModeGroup).getByRole("tab", { name: "Split" });
     fireEvent.click(splitButton);
     expect(splitButton).toHaveAttribute("aria-selected", "true");
     const page = document.querySelector("main.pm-claude-page");

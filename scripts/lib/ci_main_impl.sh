@@ -754,7 +754,7 @@ PY
 
 run_policy_shadow_snapshot() {
   local shadow_enabled="${CORTEXPILOT_CI_POLICY_SHADOW_ENABLED:-1}"
-  local snapshot_path=".runtime-cache/test_output/ci_policy_snapshot.json"
+  local snapshot_path=".runtime-cache/test_output/ci/ci_policy_snapshot.json"
   echo "ℹ️ [ci] policy shadow: enabled=${shadow_enabled}, snapshot_path=${snapshot_path}"
   if [[ "$shadow_enabled" != "1" ]]; then
     echo "⚠️ [WARN] policy shadow snapshot disabled (CORTEXPILOT_CI_POLICY_SHADOW_ENABLED=${shadow_enabled})"
@@ -1073,11 +1073,12 @@ if [[ -z "${CORTEXPILOT_CI_TEST_PHASE_PARALLEL:-}" ]]; then
 else
   CORTEXPILOT_CI_TEST_PHASE_PARALLEL="${CORTEXPILOT_CI_TEST_PHASE_PARALLEL}"
 fi
-PYTEST_PARALLEL_LOG=".runtime-cache/test_output/ci_gate_parallel_latest.log"
-ORCH_STAGE_LOG=".runtime-cache/test_output/ci_orchestrator_stage.log"
-DASH_STAGE_LOG=".runtime-cache/test_output/ci_dashboard_stage.log"
-ORCH_COVERAGE_JSON_REPORT=".runtime-cache/test_output/orchestrator_coverage_ci_gate.json"
-mkdir -p .runtime-cache/test_output
+CI_TEST_OUTPUT_DIR=".runtime-cache/test_output/ci"
+PYTEST_PARALLEL_LOG="${CI_TEST_OUTPUT_DIR}/ci_gate_parallel_latest.log"
+ORCH_STAGE_LOG="${CI_TEST_OUTPUT_DIR}/ci_orchestrator_stage.log"
+DASH_STAGE_LOG="${CI_TEST_OUTPUT_DIR}/ci_dashboard_stage.log"
+ORCH_COVERAGE_JSON_REPORT="${CI_TEST_OUTPUT_DIR}/orchestrator_coverage_ci_gate.json"
+mkdir -p "$CI_TEST_OUTPUT_DIR"
 phase_start_epoch="$(date +%s)"
 orch_duration_sec=0
 dash_duration_sec=0
