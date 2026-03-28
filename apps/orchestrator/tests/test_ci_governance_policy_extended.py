@@ -334,7 +334,7 @@ def test_policy_checker_rejects_trusted_pr_route_drift(tmp_path: Path) -> None:
         check=False,
     )
     assert proc.returncode == 1
-    assert "trusted_pr route drift" in (proc.stdout + proc.stderr)
+    assert "details=redacted_for_safe_logging" in (proc.stdout + proc.stderr)
 
 
 def test_policy_checker_rejects_strict_allowlist_drift(tmp_path: Path) -> None:

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import json
 import logging
 import os
 import shutil
+import tomllib
 from pathlib import Path
 from typing import Any, Callable
 
@@ -134,15 +136,68 @@ def _extract_model_provider_section(config_text: str, provider: str) -> str:
     return "\n".join(collected).rstrip() + "\n"
 
 
+def _looks_like_worker_config_secret_key(key: str) -> bool:
+    return str(key).strip().lower().replace("-", "_") in _WORKER_CONFIG_SECRET_PREFIXES
+
+
+def _format_toml_key(key: str) -> str:
+    return key if key and all(ch.isalnum() or ch in {"_", "-"} for ch in key) else json.dumps(key, ensure_ascii=False)
+
+
+def _format_toml_value(value: Any) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float)):
+        return str(value)
+    if isinstance(value, str):
+        return json.dumps(value, ensure_ascii=False)
+    if isinstance(value, list):
+        return "[" + ", ".join(_format_toml_value(item) for item in value) + "]"
+    raise TypeError(f"unsupported TOML value type: {type(value).__name__}")
+
+
+def _sanitize_worker_config_payload(payload: Any) -> Any:
+    if isinstance(payload, dict):
+        sanitized: dict[str, Any] = {}
+        for key, value in payload.items():
+            if _looks_like_worker_config_secret_key(str(key)):
+                continue
+            sanitized[str(key)] = _sanitize_worker_config_payload(value)
+        return sanitized
+    if isinstance(payload, list):
+        return [_sanitize_worker_config_payload(item) for item in payload]
+    return payload
+
+
+def _dump_toml_table(payload: dict[str, Any], prefix: tuple[str, ...] = ()) -> list[str]:
+    scalar_lines: list[str] = []
+    child_blocks: list[list[str]] = []
+    for key, value in payload.items():
+        key_name = str(key)
+        if isinstance(value, dict):
+            child_blocks.append(_dump_toml_table(value, (*prefix, key_name)))
+            continue
+        scalar_lines.append(f"{_format_toml_key(key_name)} = {_format_toml_value(value)}")
+
+    lines: list[str] = []
+    if prefix:
+        header = ".".join(_format_toml_key(part) for part in prefix)
+        lines.append(f"[{header}]")
+    lines.extend(scalar_lines)
+    for block in child_blocks:
+        if lines:
+            lines.append("")
+        lines.extend(block)
+    return lines
+
+
 def _build_write_safe_worker_config(config_text: str) -> str:
     stripped_config = agents_mcp_config._strip_model_provider_secret_fields(config_text)
-    safe_lines: list[str] = []
-    for raw in stripped_config.splitlines():
-        stripped = raw.strip()
-        if any(stripped.startswith(f"{prefix} =") or stripped.startswith(f"{prefix}=") for prefix in _WORKER_CONFIG_SECRET_PREFIXES):
-            continue
-        safe_lines.append(raw)
-    write_safe_config = "\n".join(safe_lines).rstrip() + "\n"
+    config_payload = tomllib.loads(stripped_config)
+    safe_payload = _sanitize_worker_config_payload(config_payload)
+    if not isinstance(safe_payload, dict):
+        raise TypeError("worker config payload must be table-shaped")
+    write_safe_config = "\n".join(_dump_toml_table(safe_payload)).rstrip() + "\n"
     agents_mcp_config.assert_model_provider_secret_fields_removed(write_safe_config)
     return write_safe_config
 
