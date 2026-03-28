@@ -219,12 +219,12 @@ def test_write_json_redacts_sensitive_values(monkeypatch: pytest.MonkeyPatch, tm
 
     module._write_report_json(
         output,
-        started_at="2026-03-25T00:00:00Z",
-        finished_at="2026-03-25T00:00:01Z",
+        started_at_epoch=1774396800,
+        finished_at_epoch=1774396801,
         success=False,
         failure_stage="provider_api_probe",
         failure_category="provider_probe_failure",
-        title="Provider probe failed",
+        title_present=True,
         artifacts={
             "report": "https://example.invalid/v1/models",
             "secret_hint": "plain-placeholder",
@@ -246,8 +246,8 @@ def test_write_status_json_sanitizes_string_fields(monkeypatch: pytest.MonkeyPat
     module._write_status_json(
         output,
         stage="web_probe",
-        started_at="2026-03-25T00:00:00Z",
-        updated_at="2026-03-25T00:00:01Z",
+        started_at_epoch=1774396800,
+        updated_at_epoch=1774396801,
     )
 
     payload = json.loads(output.read_text(encoding="utf-8"))
@@ -263,12 +263,12 @@ def test_write_report_json_summarizes_non_secret_artifacts(monkeypatch: pytest.M
 
     module._write_report_json(
         output,
-        started_at="2026-03-25T00:00:00Z",
-        finished_at="2026-03-25T00:00:01Z",
+        started_at_epoch=1774396800,
+        finished_at_epoch=1774396801,
         success=False,
         failure_stage="browser_probe",
         failure_category="runtime_failure",
-        title="Some runtime failure",
+        title_present=True,
         artifacts={
             "status_text": "raw detail that should not be persisted verbatim",
             "nested": {"one": 1, "two": 2},
@@ -293,12 +293,12 @@ def test_write_report_json_redacts_sensitive_container_keys(
 
     module._write_report_json(
         output,
-        started_at="2026-03-25T00:00:00Z",
-        finished_at="2026-03-25T00:00:01Z",
+        started_at_epoch=1774396800,
+        finished_at_epoch=1774396801,
         success=False,
         failure_stage="provider_api_probe",
         failure_category="provider_probe_failure",
-        title="Bearer topsecret",
+        title_present=True,
         artifacts={
             "password_bundle": {"raw": "should-not-leak"},
             "secret_items": ["a", "b"],

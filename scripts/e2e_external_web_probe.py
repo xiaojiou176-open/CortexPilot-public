@@ -26,6 +26,10 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _utc_now_epoch() -> int:
+    return int(datetime.now(timezone.utc).timestamp())
+
+
 def _parse_dotenv(path: Path) -> dict[str, str]:
     values: dict[str, str] = {}
     if not path.exists():
@@ -466,11 +470,17 @@ def _safe_report_epoch(timestamp: str) -> int | None:
     return int(parsed.timestamp())
 
 
-def _write_status_json(path: Path, *, stage: str, started_at: str, updated_at: str) -> None:
+def _write_status_json(
+    path: Path,
+    *,
+    stage: str,
+    started_at_epoch: int | None,
+    updated_at_epoch: int | None,
+) -> None:
     status_payload = {
         "stage": _safe_probe_stage(stage),
-        "started_at_epoch": _safe_report_epoch(started_at),
-        "updated_at_epoch": _safe_report_epoch(updated_at),
+        "started_at_epoch": started_at_epoch,
+        "updated_at_epoch": updated_at_epoch,
     }
     path.write_text(json.dumps(status_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
@@ -478,21 +488,21 @@ def _write_status_json(path: Path, *, stage: str, started_at: str, updated_at: s
 def _write_report_json(
     path: Path,
     *,
-    started_at: str,
-    finished_at: str,
+    started_at_epoch: int | None,
+    finished_at_epoch: int | None,
     success: bool,
     failure_stage: str,
     failure_category: str,
-    title: str,
+    title_present: bool,
     artifacts: dict[str, Any],
 ) -> None:
     report_payload = {
-        "started_at_epoch": _safe_report_epoch(started_at),
-        "finished_at_epoch": _safe_report_epoch(finished_at),
+        "started_at_epoch": started_at_epoch,
+        "finished_at_epoch": finished_at_epoch,
         "success": success,
         "failure_stage": _safe_probe_stage(failure_stage),
         "failure_category": _safe_failure_category(failure_category),
-        "title_present": bool(str(title or "").strip()),
+        "title_present": title_present,
         "artifacts": _summarize_report_artifacts(artifacts),
     }
     path.write_text(json.dumps(report_payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -551,9 +561,24 @@ def main() -> int:
     key_info = _resolve_provider_probe_key() if args.provider_api_mode != "off" else _resolve_key()
     provider_probe_target = _resolve_provider_probe_target()
 
+    started_at_iso = _utc_now()
+    started_at_epoch = _safe_report_epoch(started_at_iso)
+    heartbeat_stage = "starting"
+    heartbeat_updated_at_epoch = _utc_now_epoch()
+    summary_finished_at_epoch: int | None = None
+    summary_success = False
+    summary_failure_stage = ""
+    summary_failure_category = ""
+    summary_title_present = False
+    summary_artifacts = {
+        "screenshot": str(screenshot_path),
+        "heartbeat": str(heartbeat_path),
+        "report": str(report_path),
+    }
+
     report: dict[str, Any] = {
         "run_id": run_id,
-        "started_at": _utc_now(),
+        "started_at": started_at_iso,
         "url": args.url,
         "title_regex": args.title_regex,
         "timeout_ms": args.timeout_ms,
@@ -579,47 +604,38 @@ def main() -> int:
             "target_source": provider_probe_target.get("source", "none"),
             "error": "",
         },
-        "artifacts": {
-            "screenshot": str(screenshot_path),
-            "heartbeat": str(heartbeat_path),
-            "report": str(report_path),
-        },
+        "artifacts": summary_artifacts.copy(),
     }
 
-    hb_state: dict[str, Any] = {
-        "run_id": run_id,
-        "stage": "starting",
-        "started_at": report["started_at"],
-        "updated_at": _utc_now(),
-        "url": args.url,
-    }
     hb_lock = threading.Lock()
     hb_stop = threading.Event()
 
     def set_stage(stage: str) -> None:
+        nonlocal heartbeat_stage, heartbeat_updated_at_epoch
         with hb_lock:
-            hb_state["stage"] = stage
-            hb_state["updated_at"] = _utc_now()
+            heartbeat_stage = stage
+            heartbeat_updated_at_epoch = _utc_now_epoch()
             _write_status_json(
                 heartbeat_path,
-                stage=str(hb_state.get("stage", "")),
-                started_at=str(hb_state.get("started_at", "")),
-                updated_at=str(hb_state.get("updated_at", "")),
+                stage=heartbeat_stage,
+                started_at_epoch=started_at_epoch,
+                updated_at_epoch=heartbeat_updated_at_epoch,
             )
 
     def hb_loop() -> None:
+        nonlocal heartbeat_updated_at_epoch
         interval = max(1, int(args.heartbeat_interval_sec))
         while not hb_stop.wait(timeout=interval):
             with hb_lock:
-                hb_state["updated_at"] = _utc_now()
+                heartbeat_updated_at_epoch = _utc_now_epoch()
                 _write_status_json(
                     heartbeat_path,
-                    stage=str(hb_state.get("stage", "")),
-                    started_at=str(hb_state.get("started_at", "")),
-                    updated_at=str(hb_state.get("updated_at", "")),
+                    stage=heartbeat_stage,
+                    started_at_epoch=started_at_epoch,
+                    updated_at_epoch=heartbeat_updated_at_epoch,
                 )
                 print(
-                    f"💓 [external-web-probe] run_id={run_id} stage={hb_state.get('stage')} url={args.url}",
+                    f"💓 [external-web-probe] run_id={run_id} stage={heartbeat_stage} url={args.url}",
                     flush=True,
                 )
 
@@ -692,6 +708,7 @@ def main() -> int:
             if not title:
                 raise RuntimeError(str(last_nav_error or "navigation failed"))
             report["title"] = title
+            summary_title_present = bool(title)
             if not re.search(args.title_regex, title, flags=re.IGNORECASE):
                 raise AssertionError(
                     f"title mismatch: got={title!r}, expected_regex={args.title_regex!r}"
@@ -714,33 +731,41 @@ def main() -> int:
                 )
 
         report["success"] = True
+        summary_success = True
     except PlaywrightTimeoutError as exc:
         report["errors"].append(f"playwright_timeout: {exc}")
         report["failure_stage"] = "web_probe"
         report["failure_category"] = _classify_failure("web_probe", exc)
+        summary_failure_stage = "web_probe"
+        summary_failure_category = _classify_failure("web_probe", exc)
     except Exception as exc:  # noqa: BLE001
         report["errors"].append(f"probe_error: {exc}")
-        current_stage = str(hb_state.get("stage") or "unknown")
+        current_stage = str(heartbeat_stage or "unknown")
         report["failure_stage"] = current_stage
         report["failure_category"] = _classify_failure(current_stage, exc)
+        summary_failure_stage = current_stage
+        summary_failure_category = _classify_failure(current_stage, exc)
     finally:
         signal.alarm(0)
         set_stage("finished")
         hb_stop.set()
         hb_thread.join(timeout=2)
         report["finished_at"] = _utc_now()
+        summary_finished_at_epoch = _utc_now_epoch()
         if report["success"]:
             report["failure_stage"] = ""
             report["failure_category"] = ""
+            summary_failure_stage = ""
+            summary_failure_category = ""
         _write_report_json(
             report_path,
-            started_at=str(report.get("started_at", "")),
-            finished_at=str(report.get("finished_at", "")),
-            success=bool(report.get("success", False)),
-            failure_stage=str(report.get("failure_stage", "")),
-            failure_category=str(report.get("failure_category", "")),
-            title=str(report.get("title", "")),
-            artifacts=dict(report.get("artifacts", {})),
+            started_at_epoch=started_at_epoch,
+            finished_at_epoch=summary_finished_at_epoch,
+            success=summary_success,
+            failure_stage=summary_failure_stage,
+            failure_category=summary_failure_category,
+            title_present=summary_title_present,
+            artifacts=summary_artifacts,
         )
 
     print(json.dumps({"report": str(report_path), "success": bool(report["success"])}, ensure_ascii=False))

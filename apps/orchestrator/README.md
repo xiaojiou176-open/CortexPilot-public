@@ -40,7 +40,8 @@ python -m cortexpilot_orch.cli --help
 - `scripts/e2e_external_web_probe.py` does not persist `run_id` values in JSON
   status/report outputs. The writer helpers also no longer take `run_id`
   inputs; receipts now persist stage/category allowlists, epoch timing fields,
-  and artifact summaries only.
+  and artifact summaries through dedicated safe summary scalars instead of
+  reading from the mixed internal report state.
 - Probe sanitizer coverage keeps secret-like fixture strings in direct helper
   tests, while JSON writer contract tests use non-sensitive placeholders so PR
   security scans do not mistake unit-test fixtures for persisted clear-text
