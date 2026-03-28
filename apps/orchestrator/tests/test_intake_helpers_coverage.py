@@ -346,7 +346,7 @@ def test_intake_service_answer_and_build_contract(monkeypatch, tmp_path: Path) -
     assert isinstance(contract, dict)
     artifacts = contract.get("inputs", {}).get("artifacts", [])
     assert any(item.get("name") == "search_requests.json" for item in artifacts)
-    assert contract["tool_permissions"]["mcp_tools"] == ["codex"]
+    assert contract["tool_permissions"]["mcp_tools"] == ["codex", "search"]
 
     # PM owner should force handoff chain in compiled contract.
     response_path = service._store._intake_dir(intake_id) / "response.json"

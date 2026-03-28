@@ -185,6 +185,10 @@ Desktop production builds run on Vite 8 / Rolldown; keep
 `apps/desktop/vite.config.ts` vendor chunking in the current function-based
 `manualChunks` form so `vite build` and the `ui-audit` closeout lane stay
 compatible.
+Dashboard/operator wording is now English-first across the tracked Command
+Tower regression surface, and orchestrator intake responses only emit
+`task_template` / `template_payload` when those values are actually present so
+API/schema coverage and the live contract stay aligned.
 When one closeout patch touches both dashboard and desktop packaging, expect the
 root AI/docs entrypoints and the module READMEs to move together so doc-sync
 gates can trace the maintenance decision end to end.

@@ -46,3 +46,6 @@ python -m cortexpilot_orch.cli --help
   tests, while JSON writer contract tests use non-sensitive placeholders so PR
   security scans do not mistake unit-test fixtures for persisted clear-text
   payloads.
+- PM intake responses only emit `task_template` / `template_payload` when those
+  fields are actually present, keeping the response payload aligned with the
+  schema contract used by API and intake coverage tests.

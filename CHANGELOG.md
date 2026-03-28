@@ -37,6 +37,12 @@ All notable changes to this repository will be documented in this file.
 - aligned GitHub branch protection required-check names with the active PR route gates (`Quick Feedback`, `PR Release-Critical Gates`, `PR CI Gate`)
 - pinned transitive `picomatch` and `brace-expansion` security fixes across the root, dashboard, and desktop lockfile surfaces so GitHub Dependabot findings close on the same documented change set
 - removed the optional dashboard `depcheck` package because the dead-code gate already skips when the probe is absent and the package kept an unpatchable `brace-expansion` advisory alive in the default workspace lock surface
+- aligned dashboard Command Tower regression tests with the current
+  English-first operator surface and synced the root/module docs required by
+  doc-sync gates
+- aligned intake/probe helper tests and runtime helpers with the current
+  response/writer contracts, including optional `task_template` emission and
+  dedicated dashboard dependency install logs
 
 ## 2026-03-24
 

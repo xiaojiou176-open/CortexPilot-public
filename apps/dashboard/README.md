@@ -79,3 +79,6 @@ finished consumer product.
 ## Quality Gate
 
 - Coverage gate (stage-1): >= 85%
+- Command Tower regression tests now treat the English-first labels, drawer
+  names, and quick-action copy as the canonical operator contract; update the
+  dashboard tests in the same patch whenever those public-facing labels move.

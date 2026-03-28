@@ -33,6 +33,9 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   surface
 - when security reporting wording changes, keep `SECURITY.md`, `SUPPORT.md`,
   issue template contact links, and the root README aligned in the same patch
+- when dashboard/operator wording or intake/runtime contracts change, sync the
+  root AI/docs entrypoints in the same patch so doc-sync gates keep following
+  the live English-first dashboard surface and the current intake/probe rules
 
 ## Key Commands
 

@@ -27,6 +27,9 @@ CI, hygiene, and release tasks.
   input, and probe receipts now persist epoch timing fields, stage/category
   allowlists, and summarized artifacts from dedicated safe summary scalars
   only.
+- `install_dashboard_deps.sh` now records its install transcript under
+  `.runtime-cache/logs/runtime/deps_install/install_dashboard_deps.log` even
+  when its lock/retry bookkeeping still uses the temp state root.
 - Run Gemini-backed UI audits explicitly when needed:
   - `python3 scripts/ui_ux_gemini_quick_gate.py`
   - `bash scripts/ci_slice_runner.sh ui-truth`

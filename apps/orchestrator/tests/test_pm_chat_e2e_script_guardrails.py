@@ -29,13 +29,15 @@ def test_pm_chat_e2e_no_longer_falls_back_to_sessions_head() -> None:
 
 def test_pm_chat_e2e_route_rewrite_does_not_override_headers() -> None:
     text = _runner_text()
-    assert "route.continue_(post_data=json.dumps(payload, ensure_ascii=False))" in text
+    assert 'route.continue_(post_data=json.dumps(payload, ensure_ascii=False), headers=headers)' in text
     assert "route.continue_(method=\"POST\", headers=headers, post_data=" not in text
 
 
 def test_pm_chat_e2e_resets_pm_dialog_before_first_send() -> None:
     text = _runner_text()
-    assert 'reset_btn = page.get_by_role("button", name=re.compile(r"^(新建 PM 对话|\\\\+\\\\s*新对话|新对话)$"))' in text
+    assert 'reset_btn = page.get_by_role(' in text
+    assert "Start first request" in text
+    assert "新建 PM 对话" in text
     assert "if reset_btn.is_visible() and reset_btn.is_enabled():" in text
 
 

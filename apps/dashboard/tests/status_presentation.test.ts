@@ -13,18 +13,18 @@ import {
 } from "../lib/statusPresentation";
 
 describe("statusLabelZh", () => {
-  it("maps common states to Chinese labels", () => {
-    expect(statusLabelZh("success")).toBe("已完成");
-    expect(statusLabelZh("running")).toBe("运行中");
-    expect(statusLabelZh("blocked")).toBe("阻塞");
-    expect(statusLabelZh("failed")).toBe("失败");
-    expect(statusLabelZh("paused")).toBe("已暂停");
-    expect(statusLabelZh("archived")).toBe("已归档");
+  it("maps common states to canonical English labels", () => {
+    expect(statusLabelZh("success")).toBe("Completed");
+    expect(statusLabelZh("running")).toBe("Running");
+    expect(statusLabelZh("blocked")).toBe("Blocked");
+    expect(statusLabelZh("failed")).toBe("Failed");
+    expect(statusLabelZh("paused")).toBe("Paused");
+    expect(statusLabelZh("archived")).toBe("Archived");
   });
 
   it("returns fallback for unknown values", () => {
-    expect(statusLabelZh("")).toBe("未知");
-    expect(statusLabelZh("new_state")).toBe("未知");
+    expect(statusLabelZh("")).toBe("Unknown");
+    expect(statusLabelZh("new_state")).toBe("Unknown");
   });
 });
 
@@ -48,20 +48,20 @@ describe("status presentation helpers", () => {
     expect(badgeClass("pending")).toBe("badge badge--warning");
     expect(badgeClass("unmapped")).toBe("badge");
 
-    expect(statusCtaZh("running")).toBe("查看进度");
-    expect(statusCtaZh("paused")).toBe("继续执行");
-    expect(statusCtaZh("unknown")).toBe("查看详情");
-    expect(statusCtaZh("")).toBe("查看详情");
+    expect(statusCtaZh("running")).toBe("View progress");
+    expect(statusCtaZh("paused")).toBe("Resume run");
+    expect(statusCtaZh("unknown")).toBe("View details");
+    expect(statusCtaZh("")).toBe("View details");
   });
 
   it("maps stage label variant and cta consistently", () => {
-    expect(stageLabelZh("planning")).toBe("方案规划");
-    expect(stageLabelZh("analysis")).toBe("需求澄清");
-    expect(stageLabelZh("execution")).toBe("执行中");
-    expect(stageLabelZh("qa")).toBe("验证复核");
-    expect(stageLabelZh("release")).toBe("发布交付");
-    expect(stageLabelZh("done")).toBe("收尾完成");
-    expect(stageLabelZh("unknown")).toBe("未知阶段");
+    expect(stageLabelZh("planning")).toBe("Planning");
+    expect(stageLabelZh("analysis")).toBe("Discovery");
+    expect(stageLabelZh("execution")).toBe("Execution");
+    expect(stageLabelZh("qa")).toBe("Verification");
+    expect(stageLabelZh("release")).toBe("Release");
+    expect(stageLabelZh("done")).toBe("Done");
+    expect(stageLabelZh("unknown")).toBe("Unknown stage");
 
     expect(stageVariant("planning")).toBe("todo");
     expect(stageVariant("analysis")).toBe("active");
@@ -71,30 +71,30 @@ describe("status presentation helpers", () => {
     expect(stageVariant("done")).toBe("done");
     expect(stageVariant("unknown")).toBe("default");
 
-    expect(stageCtaZh("todo")).toBe("开始录入");
-    expect(stageCtaZh("plan")).toBe("确认方案");
-    expect(stageCtaZh("verify")).toBe("处理评审");
-    expect(stageCtaZh("release")).toBe("发起发布");
-    expect(stageCtaZh("done")).toBe("查看结果");
-    expect(stageCtaZh("unknown")).toBe("查看详情");
-    expect(stageCtaZh("")).toBe("查看详情");
+    expect(stageCtaZh("todo")).toBe("Start intake");
+    expect(stageCtaZh("plan")).toBe("Confirm plan");
+    expect(stageCtaZh("verify")).toBe("Handle review");
+    expect(stageCtaZh("release")).toBe("Start release");
+    expect(stageCtaZh("done")).toBe("View result");
+    expect(stageCtaZh("unknown")).toBe("View details");
+    expect(stageCtaZh("")).toBe("View details");
   });
 });
 
 describe("outcome type presentation helpers", () => {
   it("maps unified outcome labels without legacy wording", () => {
-    expect(knownOutcomeTypeLabelZh("gate")).toBe("规则拦截");
-    expect(knownOutcomeTypeLabelZh("manual")).toBe("待人工确认");
-    expect(knownOutcomeTypeLabelZh("env")).toBe("环境异常");
-    expect(knownOutcomeTypeLabelZh("product")).toBe("功能异常");
-    expect(knownOutcomeTypeLabelZh("functional_failure")).toBe("功能异常");
-    expect(knownOutcomeTypeLabelZh("unknown")).toBe("失败待确认");
+    expect(knownOutcomeTypeLabelZh("gate")).toBe("Gate blocked");
+    expect(knownOutcomeTypeLabelZh("manual")).toBe("Manual confirmation required");
+    expect(knownOutcomeTypeLabelZh("env")).toBe("Environment issue");
+    expect(knownOutcomeTypeLabelZh("product")).toBe("Functional failure");
+    expect(knownOutcomeTypeLabelZh("functional_failure")).toBe("Functional failure");
+    expect(knownOutcomeTypeLabelZh("unknown")).toBe("Failure pending confirmation");
     expect(knownOutcomeTypeLabelZh("not_exists")).toBeUndefined();
 
-    expect(outcomeTypeLabelZh("gate_blocked")).toBe("规则拦截");
-    expect(outcomeTypeLabelZh("manual_pending")).toBe("待人工确认");
-    expect(outcomeTypeLabelZh("environment_error")).toBe("环境异常");
-    expect(outcomeTypeLabelZh("functional_failure")).toBe("功能异常");
-    expect(outcomeTypeLabelZh("not_exists")).toBe("未分类");
+    expect(outcomeTypeLabelZh("gate_blocked")).toBe("Gate blocked");
+    expect(outcomeTypeLabelZh("manual_pending")).toBe("Manual confirmation required");
+    expect(outcomeTypeLabelZh("environment_error")).toBe("Environment issue");
+    expect(outcomeTypeLabelZh("functional_failure")).toBe("Functional failure");
+    expect(outcomeTypeLabelZh("not_exists")).toBe("Unclassified");
   });
 });

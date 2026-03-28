@@ -160,7 +160,7 @@ def test_round4_routes_admin_approve_and_rum_branches(monkeypatch: pytest.Monkey
     assert ok is True
     assert reason == ""
     written = json.loads(rum_path.read_text(encoding="utf-8").splitlines()[0])
-    assert written["payload"]["raw_payload"] == ["raw-payload"]
+    assert written["meta"]["payload"]["raw_payload"] == ["raw-payload"]
 
     with pytest.raises(HTTPException) as exc_payload:
         routes_admin.approve_god_mode(payload=["bad"])  # type: ignore[arg-type]

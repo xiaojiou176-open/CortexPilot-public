@@ -84,15 +84,19 @@ describe("command tower priority layout", () => {
     expect(await screen.findByRole("heading", { name: "Live Lane" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Risk Lane" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Action Lane" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "聚焦高风险会话" })).toBeInTheDocument();
-    expect(screen.getByText("每张 Lane 卡片下方都提供对应快捷动作，便于直接收敛到实时控制、风险聚焦或下一步处置。")).toBeInTheDocument();
-    expect(await screen.findByRole("link", { name: "重新加载" })).toHaveAttribute("href", "/command-tower");
-    expect(screen.getAllByText(/缓存快照/).length).toBeGreaterThan(0);
-    expect(screen.queryByRole("button", { name: /展开面板|收起面板/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "切换到暂停分析" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "切换到高风险视图" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "打开首个风险会话" })).toHaveAttribute("href", "/command-tower/sessions/pm-2");
-    expect(screen.queryByRole("button", { name: /立即重试|重试中/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Focus high-risk sessions" })).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Each lane card exposes quick actions so you can jump straight into live control, risk focus, or the next operator step.",
+      ),
+    ).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: "Reload" })).toHaveAttribute("href", "/command-tower");
+    expect(screen.getAllByText(/cached snapshot/i).length).toBeGreaterThan(0);
+    expect(screen.queryByRole("button", { name: /Expand|Collapse/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Switch to paused analysis" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Switch to high-risk view" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open first risk session" })).toHaveAttribute("href", "/command-tower/sessions/pm-2");
+    expect(screen.queryByRole("button", { name: /Retry|Retrying/i })).not.toBeInTheDocument();
   });
 
   it("keeps session details collapsed until expanded", async () => {
@@ -114,8 +118,8 @@ describe("command tower priority layout", () => {
     );
 
     const failedRow = screen.getByRole("row", { name: /session two/i });
-    expect(await screen.findByText(/风险样本 2 条/)).toBeInTheDocument();
-    expect(within(failedRow).getAllByText("失败链路 1").length).toBeGreaterThan(0);
-    expect(within(failedRow).getAllByText("阻塞 1").length).toBeGreaterThan(0);
+    expect(await screen.findByText(/Risk sample:\s*2 sessions/i)).toBeInTheDocument();
+    expect(within(failedRow).getAllByText("Failure path 1").length).toBeGreaterThan(0);
+    expect(within(failedRow).getAllByText("Blocked 1").length).toBeGreaterThan(0);
   });
 });
