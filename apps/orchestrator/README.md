@@ -37,6 +37,6 @@ python -m cortexpilot_orch.cli --help
 
 ## Probe Artifact Note
 
-- `scripts/e2e_external_web_probe.py` now persists a stable hashed `run_id`
-  reference in JSON status/report outputs instead of writing the original
-  runtime identifier back to disk.
+- `scripts/e2e_external_web_probe.py` now redacts persisted `run_id` values in
+  JSON status/report outputs instead of writing the original runtime
+  identifier, or any derived digest of it, back to disk.

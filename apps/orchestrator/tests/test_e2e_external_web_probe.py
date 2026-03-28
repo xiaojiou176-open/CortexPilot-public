@@ -1,6 +1,4 @@
 from __future__ import annotations
-
-import hashlib
 import json
 import importlib.util
 import sys
@@ -222,7 +220,7 @@ def test_write_json_redacts_sensitive_values(monkeypatch: pytest.MonkeyPatch, tm
 
     payload = json.loads(output.read_text(encoding="utf-8"))
     serialized = json.dumps(payload, ensure_ascii=False)
-    assert payload["run_id"] == "run-ref-" + hashlib.sha256("probe-1".encode("utf-8")).hexdigest()[:12]
+    assert payload["run_id"] == "[REDACTED]"
     assert "user:pass" not in serialized
     assert "supersecret" not in serialized
     assert "should-not-leak" not in serialized
@@ -245,9 +243,7 @@ def test_write_status_json_sanitizes_string_fields(monkeypatch: pytest.MonkeyPat
     serialized = json.dumps(payload, ensure_ascii=False)
     assert "user:pass" not in serialized
     assert "supersecret" not in serialized
-    assert payload["run_id"] == "run-ref-" + hashlib.sha256(
-        "https://user:pass@example.com/private-run".encode("utf-8")
-    ).hexdigest()[:12]
+    assert payload["run_id"] == "[REDACTED]"
     assert payload["stage"] == "Bearer [REDACTED]"
 
 
@@ -272,7 +268,7 @@ def test_write_report_json_summarizes_non_secret_artifacts(monkeypatch: pytest.M
     )
 
     payload = json.loads(output.read_text(encoding="utf-8"))
-    assert payload["run_id"] == "run-ref-" + hashlib.sha256("probe-2".encode("utf-8")).hexdigest()[:12]
+    assert payload["run_id"] == "[REDACTED]"
     assert payload["artifacts"]["status_text"] == "[STRING]"
     assert payload["artifacts"]["nested"] == {"type": "object", "items": 2}
     assert payload["artifacts"]["items"] == {"type": "list", "items": 3}
