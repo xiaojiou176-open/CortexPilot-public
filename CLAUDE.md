@@ -39,7 +39,8 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
 - when CI maintenance changes the Python dependency audit contract or the
   tracked runtime report namespaces, sync the root AI/docs entrypoints in the
   same patch; current examples include `.runtime-cache/test_output/ci/` and
-  `configs/pip_audit_ignored_advisories.json`
+  `configs/pip_audit_ignored_advisories.json`, plus the dashboard
+  install-time ENOSPC recovery knobs registered in `configs/env.registry.json`
 
 ## Key Commands
 

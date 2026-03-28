@@ -193,6 +193,9 @@ Mainline CI now keeps policy snapshots, stage logs, and the orchestrator
 coverage JSON under `.runtime-cache/test_output/ci/`, and the Python
 dependency audit downgrades only the explicitly tracked upstream-unfixed
 `pygments` advisory through `configs/pip_audit_ignored_advisories.json`.
+Dashboard dependency installs now also carry an ENOSPC recovery branch that
+retries with a workspace-local pnpm store and the registered dashboard install
+env knobs when copy-heavy self-hosted installs run out of disk.
 When one closeout patch touches both dashboard and desktop packaging, expect the
 root AI/docs entrypoints and the module READMEs to move together so doc-sync
 gates can trace the maintenance decision end to end.
