@@ -205,7 +205,6 @@ def test_write_json_redacts_sensitive_values(monkeypatch: pytest.MonkeyPatch, tm
 
     module._write_report_json(
         output,
-        run_id="probe-1",
         started_at="2026-03-25T00:00:00Z",
         finished_at="2026-03-25T00:00:01Z",
         success=False,
@@ -233,7 +232,6 @@ def test_write_status_json_sanitizes_string_fields(monkeypatch: pytest.MonkeyPat
 
     module._write_status_json(
         output,
-        run_id="https://user:pass@example.com/private-run",
         stage="Bearer supersecret",
         started_at="2026-03-25T00:00:00Z",
         updated_at="2026-03-25T00:00:01Z",
@@ -241,7 +239,6 @@ def test_write_status_json_sanitizes_string_fields(monkeypatch: pytest.MonkeyPat
 
     payload = json.loads(output.read_text(encoding="utf-8"))
     serialized = json.dumps(payload, ensure_ascii=False)
-    assert "user:pass" not in serialized
     assert "supersecret" not in serialized
     assert "run_id" not in payload
     assert payload["stage"] == "Bearer [REDACTED]"
@@ -253,7 +250,6 @@ def test_write_report_json_summarizes_non_secret_artifacts(monkeypatch: pytest.M
 
     module._write_report_json(
         output,
-        run_id="probe-2",
         started_at="2026-03-25T00:00:00Z",
         finished_at="2026-03-25T00:00:01Z",
         success=False,
@@ -282,7 +278,6 @@ def test_write_report_json_redacts_sensitive_container_keys(
 
     module._write_report_json(
         output,
-        run_id="probe-3",
         started_at="2026-03-25T00:00:00Z",
         finished_at="2026-03-25T00:00:01Z",
         success=False,
