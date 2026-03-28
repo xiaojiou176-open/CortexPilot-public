@@ -49,3 +49,14 @@ python -m cortexpilot_orch.cli --help
 - PM intake responses only emit `task_template` / `template_payload` when those
   fields are actually present, keeping the response payload aligned with the
   schema contract used by API and intake coverage tests.
+
+## Mainline CI Notes
+
+- The orchestrator Python lock surface now carries explicit security pins for
+  `cryptography`, `pyasn1`, `pyjwt`, and `requests`, and the default dependency
+  gate treats the remaining upstream-unfixed `pygments` advisory as
+  advisory-only through `configs/pip_audit_ignored_advisories.json`.
+- CI policy snapshots, policy/core stage logs, and the orchestrator coverage
+  JSON now live under `.runtime-cache/test_output/ci/`, which keeps retention
+  reports free of root-level `test_output` residue during `main` push
+  validation.
