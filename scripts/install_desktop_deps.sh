@@ -6,6 +6,12 @@ APP_DIR="$ROOT_DIR/apps/desktop"
 source "$ROOT_DIR/scripts/lib/toolchain_env.sh"
 
 STORE_DIR="${CORTEXPILOT_PNPM_STORE_DIR:-$(cortexpilot_pnpm_store_dir "$ROOT_DIR")/desktop}"
+INSTALL_NODE_LINKER="${CORTEXPILOT_DESKTOP_PNPM_NODE_LINKER:-hoisted}"
+INSTALL_PACKAGE_IMPORT_METHOD="${CORTEXPILOT_DESKTOP_PNPM_IMPORT_METHOD:-copy}"
+INSTALL_SHAMEFULLY_HOIST="${CORTEXPILOT_DESKTOP_PNPM_SHAMEFULLY_HOIST:-1}"
+BASE_INSTALL_NODE_LINKER="$INSTALL_NODE_LINKER"
+BASE_INSTALL_PACKAGE_IMPORT_METHOD="$INSTALL_PACKAGE_IMPORT_METHOD"
+BASE_INSTALL_SHAMEFULLY_HOIST="$INSTALL_SHAMEFULLY_HOIST"
 INSTALL_LOG="$ROOT_DIR/.runtime-cache/logs/runtime/deps_install/install_desktop_deps.log"
 LOCK_DIR="$ROOT_DIR/.runtime-cache/cortexpilot/locks/install-desktop-deps.lock"
 LOCK_OWNER_FILE="$LOCK_DIR/owner"
@@ -70,11 +76,28 @@ fresh_retry_store_dir() {
   mktemp -d "$retry_root/pnpm-store-desktop-retry.XXXXXX"
 }
 
+workspace_retry_store_dir() {
+  local retry_root="$ROOT_DIR/.runtime-cache/cache/pnpm-store-desktop-workspace"
+  mkdir -p "$retry_root"
+  mktemp -d "$retry_root/retry.XXXXXX"
+}
+
 cleanup_stale_retry_stores() {
   local retry_root="${XDG_CACHE_HOME:-$HOME/.cache}/cortexpilot"
   local candidate=""
   shopt -s nullglob
   for candidate in "$retry_root"/pnpm-store-desktop-retry.*; do
+    [[ "$candidate" == "$STORE_DIR" ]] && continue
+    retire_store_dir "$candidate"
+  done
+  shopt -u nullglob
+}
+
+cleanup_stale_workspace_retry_stores() {
+  local retry_root="$ROOT_DIR/.runtime-cache/cache/pnpm-store-desktop-workspace"
+  local candidate=""
+  shopt -s nullglob
+  for candidate in "$retry_root"/retry.*; do
     [[ "$candidate" == "$STORE_DIR" ]] && continue
     retire_store_dir "$candidate"
   done
@@ -110,6 +133,7 @@ trap 'release_install_lock' EXIT INT TERM
 
 STORE_DIR="$(resolve_writable_store_dir "$STORE_DIR")"
 cleanup_stale_retry_stores
+cleanup_stale_workspace_retry_stores
 mkdir -p "$(dirname "$INSTALL_LOG")"
 
 run_install() {
@@ -118,15 +142,20 @@ run_install() {
     unset NODE_ENV
     export npm_config_production=false
     export NPM_CONFIG_PRODUCTION=false
+    local install_args=(
+      --ignore-workspace
+      --force
+      --frozen-lockfile
+      --prod=false
+      --config.node-linker="$INSTALL_NODE_LINKER"
+      --config.package-import-method="$INSTALL_PACKAGE_IMPORT_METHOD"
+      --store-dir "$STORE_DIR"
+    )
+    if [[ "$INSTALL_SHAMEFULLY_HOIST" == "1" ]]; then
+      install_args+=(--shamefully-hoist)
+    fi
     CI=true pnpm install \
-      --ignore-workspace \
-      --force \
-      --frozen-lockfile \
-      --prod=false \
-      --config.node-linker=hoisted \
-      --config.package-import-method=copy \
-      --shamefully-hoist \
-      --store-dir "$STORE_DIR" \
+      "${install_args[@]}" \
       >"$INSTALL_LOG" 2>&1
   )
 }
@@ -154,6 +183,38 @@ recover_with_fresh_store() {
   fi
 }
 
+recover_with_workspace_store() {
+  local reason="$1"
+  echo "⚠️ [install-desktop-deps] ${reason}; switching to workspace-local pnpm store + hardlink import mode and resetting desktop node_modules" >&2
+  retire_store_dir "$STORE_DIR"
+  STORE_DIR="$(workspace_retry_store_dir)"
+  cleanup_stale_workspace_retry_stores
+  local previous_import_method="$INSTALL_PACKAGE_IMPORT_METHOD"
+  local previous_node_linker="$INSTALL_NODE_LINKER"
+  local previous_shamefully_hoist="$INSTALL_SHAMEFULLY_HOIST"
+  INSTALL_PACKAGE_IMPORT_METHOD="${CORTEXPILOT_DESKTOP_ENOSPC_IMPORT_METHOD:-hardlink}"
+  INSTALL_NODE_LINKER="$BASE_INSTALL_NODE_LINKER"
+  INSTALL_SHAMEFULLY_HOIST="$BASE_INSTALL_SHAMEFULLY_HOIST"
+  if ! reset_app_node_modules; then
+    INSTALL_PACKAGE_IMPORT_METHOD="$previous_import_method"
+    INSTALL_NODE_LINKER="$previous_node_linker"
+    INSTALL_SHAMEFULLY_HOIST="$previous_shamefully_hoist"
+    tail -n 80 "$INSTALL_LOG" >&2 || true
+    exit 1
+  fi
+  if ! run_install; then
+    INSTALL_PACKAGE_IMPORT_METHOD="$previous_import_method"
+    INSTALL_NODE_LINKER="$previous_node_linker"
+    INSTALL_SHAMEFULLY_HOIST="$previous_shamefully_hoist"
+    echo "❌ [install-desktop-deps] pnpm install failed after ENOSPC recovery; tail follows" >&2
+    tail -n 80 "$INSTALL_LOG" >&2 || true
+    exit 1
+  fi
+  INSTALL_PACKAGE_IMPORT_METHOD="$previous_import_method"
+  INSTALL_NODE_LINKER="$previous_node_linker"
+  INSTALL_SHAMEFULLY_HOIST="$previous_shamefully_hoist"
+}
+
 reset_app_node_modules() {
   local target="$APP_DIR/node_modules"
   [[ -d "$target" ]] || return 0
@@ -176,6 +237,8 @@ reset_app_node_modules() {
 if ! run_install; then
   if grep -q "ERR_PNPM_ENOENT" "$INSTALL_LOG"; then
     recover_with_fresh_store "detected pnpm store ENOENT"
+  elif grep -q "ERR_PNPM_ENOSPC" "$INSTALL_LOG" || grep -qi "no space left on device" "$INSTALL_LOG"; then
+    recover_with_workspace_store "detected pnpm ENOSPC"
   elif grep -q "ERR_PNPM_ENOTDIR" "$INSTALL_LOG"; then
     echo "⚠️ [install-desktop-deps] detected app-local node_modules ENOTDIR; resetting desktop node_modules and retrying once" >&2
     if ! reset_app_node_modules; then

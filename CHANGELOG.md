@@ -42,6 +42,7 @@ All notable changes to this repository will be documented in this file.
 - filtered secret-scan history noise down to a narrow set of known synthetic placeholder findings and removed the live embedded-credential sample from the external web probe tests
 - added a machine-readable Python audit ignore contract for unfixed upstream advisories and taught the dependency gate to downgrade only those entries when `pip-audit` reports no fix version
 - taught `install_dashboard_deps.sh` to recover from `ERR_PNPM_ENOSPC` by retrying with a workspace-local pnpm store and hardlink imports on self-hosted `main` validation lanes
+- taught `install_desktop_deps.sh` to recover from `ERR_PNPM_ENOSPC` with the same workspace-local retry strategy, while scoping hardlink imports to the recovery attempt and using per-attempt workspace retry stores
 - pinned transitive `picomatch` and `brace-expansion` security fixes across the root, dashboard, and desktop lockfile surfaces so GitHub Dependabot findings close on the same documented change set
 - removed the optional dashboard `depcheck` package because the dead-code gate already skips when the probe is absent and the package kept an unpatchable `brace-expansion` advisory alive in the default workspace lock surface
 - aligned dashboard Command Tower regression tests with the current

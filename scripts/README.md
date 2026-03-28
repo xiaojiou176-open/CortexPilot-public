@@ -44,6 +44,10 @@ CI, hygiene, and release tasks.
   workspace-local pnpm store plus hardlink imports so self-hosted `main`
   lanes can recover when copy-based installs exhaust the bind-mounted
   workspace volume.
+- `install_desktop_deps.sh` now mirrors the same `ERR_PNPM_ENOSPC` recovery
+  path, uses per-attempt workspace retry stores, and scopes hardlink imports
+  to the recovery attempt so repeated self-hosted runs do not accumulate a
+  long-lived desktop workspace cache.
 - `install_dashboard_deps.sh` now records its install transcript under
   `.runtime-cache/logs/runtime/deps_install/install_dashboard_deps.log` even
   when its lock/retry bookkeeping still uses the temp state root.
