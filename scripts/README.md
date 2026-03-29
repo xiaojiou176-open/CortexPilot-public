@@ -32,6 +32,10 @@ user's ambient Python environment.
 ## Audit Lane Notes
 
 - Keep default blocking lanes focused on stable, repeatable checks.
+- Public CI is hosted-first: fork PRs stay on low-privilege GitHub-hosted
+  checks, while `ui-truth`, `resilience-and-e2e`, and `release-evidence` are
+  protected `workflow_dispatch` lanes that require
+  `owner-approved-sensitive`.
 - Hosted CI lanes now try `sudo -E bash scripts/docker_ci.sh ...` only when
   passwordless sudo is available; otherwise they fall back to direct
   `bash scripts/docker_ci.sh ...` execution so `main` push lanes do not fail on

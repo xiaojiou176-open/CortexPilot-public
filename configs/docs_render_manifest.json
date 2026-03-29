@@ -16,6 +16,46 @@
         "ui_button_coverage_reference"
       ],
       "human_editable_regions": "none"
+    },
+    {
+      "output_path": "docs/generated/fragments/ci-topology-summary.md",
+      "mode": "full_render",
+      "source_inputs": [
+        "scripts/render_docs.py",
+        "configs/ci_governance_policy.json"
+      ],
+      "generator": "python3 scripts/render_docs.py",
+      "freshness_strategy": "timestamp",
+      "authoritative_for": [
+        "generated_ci_topology_summary"
+      ],
+      "human_editable_regions": "none"
+    },
+    {
+      "output_path": "docs/generated/fragments/current-run-evidence-summary.md",
+      "mode": "full_render",
+      "source_inputs": [
+        "scripts/render_docs.py"
+      ],
+      "generator": "python3 scripts/render_docs.py",
+      "freshness_strategy": "timestamp",
+      "authoritative_for": [
+        "generated_current_run_summary"
+      ],
+      "human_editable_regions": "none"
+    },
+    {
+      "output_path": "docs/generated/fragments/coverage-summary.md",
+      "mode": "full_render",
+      "source_inputs": [
+        "scripts/render_docs.py"
+      ],
+      "generator": "python3 scripts/render_docs.py",
+      "freshness_strategy": "timestamp",
+      "authoritative_for": [
+        "generated_coverage_summary"
+      ],
+      "human_editable_regions": "none"
     }
   ]
 }

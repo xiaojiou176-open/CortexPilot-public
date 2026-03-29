@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Baseline drift contract for trusted self-hosted CI runners.",
+  "description": "Baseline drift contract for GitHub-hosted CI runner toolchains.",
   "commands": [
     {
       "name": "docker",

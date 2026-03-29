@@ -84,9 +84,9 @@ run_ci_ui_full_gemini_audit() {
   local run_id="${run_id_prefix}_$(date +%Y%m%d_%H%M%S)"
   local external_api_base="${CORTEXPILOT_E2E_EXTERNAL_API_BASE:-}"
   local external_dashboard_base="${CORTEXPILOT_E2E_EXTERNAL_DASHBOARD_BASE:-}"
-  local ui_full_audit_local_self_hosted="0"
+  local ui_full_audit_local_service_reuse_mode="0"
   if [ -z "$external_api_base" ] || [ -z "$external_dashboard_base" ]; then
-    ui_full_audit_local_self_hosted="1"
+    ui_full_audit_local_service_reuse_mode="1"
   fi
   local serial_break_glass_var="CORTEXPILOT_CI_UI_FULL_AUDIT_SERIAL_BREAK_GLASS"
   local serial_break_glass_reason_var="CORTEXPILOT_CI_UI_FULL_AUDIT_SERIAL_BREAK_GLASS_REASON"
@@ -227,7 +227,7 @@ PY
       local shared_dashboard_port="${CORTEXPILOT_UI_FULL_E2E_DASHBOARD_PORT:-19700}"
       if ui_full_audit_check_shared_services "$shared_host" "$shared_api_port" "$shared_dashboard_port"; then
         ui_full_audit_use_shared_services="1"
-        echo "ℹ️ [ci] ui full audit parallel enabled in local self-hosted mode (reuse-running-services=1)"
+        echo "ℹ️ [ci] ui full audit parallel enabled in local shared-service reuse mode (reuse-running-services=1)"
       else
         if [ "$ui_full_audit_auto_bootstrap_shared_services" = "1" ]; then
           if ui_full_audit_bootstrap_shared_services "$shared_host" "$shared_api_port" "$shared_dashboard_port"; then

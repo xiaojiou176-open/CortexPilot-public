@@ -33,7 +33,7 @@ build_local_advisory_current_run_manifest() {
     --output "$CURRENT_RUN_ROUTE_REPORT" \
     --route-id "local-advisory" \
     --trust-class "trusted" \
-    --runner-class "self_hosted" \
+    --runner-class "local" \
     --cloud-bootstrap-allowed "false" \
     --github-run-id "local-run" \
     --github-run-attempt "local-attempt" \

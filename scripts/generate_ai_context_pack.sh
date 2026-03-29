@@ -6,6 +6,7 @@ cd "$ROOT_DIR"
 source "$ROOT_DIR/scripts/lib/env.sh"
 
 OUT_FILE=".runtime-cache/cortexpilot/reports/ai/ai-repo-full-context.generated.md"
+mkdir -p "$(dirname "$OUT_FILE")"
 
 if ! command -v rg >/dev/null 2>&1; then
   echo "❌ [ai-pack] ripgrep (rg) is required"

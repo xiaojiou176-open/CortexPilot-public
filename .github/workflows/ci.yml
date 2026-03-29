@@ -8,7 +8,23 @@ on:
   workflow_dispatch:
     inputs:
       run_ui_truth:
-        description: "Run the manual UI truth lane"
+        description: "Run the protected UI truth lane"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      run_resilience_and_e2e:
+        description: "Run protected live/external verification lanes"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      run_release_evidence:
+        description: "Build protected release evidence after live verification"
         required: false
         default: "false"
         type: choice
@@ -32,8 +48,8 @@ jobs:
       contents: read
       actions: write
     outputs:
-      self_hosted_allowed: ${{ steps.decide.outputs.self_hosted_allowed }}
-      cloud_bootstrap_allowed: ${{ steps.decide.outputs.cloud_bootstrap_allowed }}
+      trusted_route_allowed: ${{ steps.decide.outputs.trusted_route_allowed }}
+      sensitive_dispatch_allowed: ${{ steps.decide.outputs.sensitive_dispatch_allowed }}
       untrusted_pr: ${{ steps.decide.outputs.untrusted_pr }}
       route_id: ${{ steps.decide.outputs.route_id }}
       trust_class: ${{ steps.decide.outputs.trust_class }}
@@ -49,19 +65,18 @@ jobs:
           GITHUB_REF_VALUE: ${{ github.ref }}
         run: |
           set -euo pipefail
-          self_hosted_allowed="false"
-          cloud_bootstrap_allowed="false"
+          trusted_route_allowed="false"
+          sensitive_dispatch_allowed="false"
           untrusted_pr="false"
           route_id="trusted_pr"
           trust_class="trusted"
-          runner_class="self_hosted"
+          runner_class="github_hosted"
 
           if [[ "${EVENT_NAME}" == "pull_request" ]]; then
             if [[ "${PR_HEAD_REPO}" == "${REPOSITORY}" && "${PR_IS_FORK}" != "true" ]]; then
-              self_hosted_allowed="true"
+              trusted_route_allowed="true"
               route_id="trusted_pr"
               trust_class="trusted"
-              runner_class="self_hosted"
             else
               untrusted_pr="true"
               route_id="untrusted_pr"
@@ -69,22 +84,20 @@ jobs:
               runner_class="github_hosted"
             fi
           else
-            self_hosted_allowed="true"
+            trusted_route_allowed="true"
             trust_class="trusted"
-            runner_class="self_hosted"
           fi
 
           if [[ "${EVENT_NAME}" == "push" && "${GITHUB_REF_VALUE}" == "refs/heads/main" ]]; then
-            cloud_bootstrap_allowed="true"
             route_id="push_main"
           elif [[ "${EVENT_NAME}" == "workflow_dispatch" ]]; then
-            cloud_bootstrap_allowed="true"
+            sensitive_dispatch_allowed="true"
             route_id="workflow_dispatch"
           fi
 
           {
-            echo "self_hosted_allowed=${self_hosted_allowed}"
-            echo "cloud_bootstrap_allowed=${cloud_bootstrap_allowed}"
+            echo "trusted_route_allowed=${trusted_route_allowed}"
+            echo "sensitive_dispatch_allowed=${sensitive_dispatch_allowed}"
             echo "untrusted_pr=${untrusted_pr}"
             echo "route_id=${route_id}"
             echo "trust_class=${trust_class}"
@@ -94,8 +107,8 @@ jobs:
           {
             echo "### CI Trust Boundary"
             echo "- event: ${EVENT_NAME}"
-            echo "- self_hosted_allowed: ${self_hosted_allowed}"
-            echo "- cloud_bootstrap_allowed: ${cloud_bootstrap_allowed}"
+            echo "- trusted_route_allowed: ${trusted_route_allowed}"
+            echo "- sensitive_dispatch_allowed: ${sensitive_dispatch_allowed}"
             echo "- untrusted_pr: ${untrusted_pr}"
             echo "- route_id: ${route_id}"
             echo "- trust_class: ${trust_class}"
@@ -155,7 +168,7 @@ jobs:
           ROUTE_ID: ${{ steps.decide.outputs.route_id }}
           TRUST_CLASS: ${{ steps.decide.outputs.trust_class }}
           RUNNER_CLASS: ${{ steps.decide.outputs.runner_class }}
-          CLOUD_BOOTSTRAP_ALLOWED: ${{ steps.decide.outputs.cloud_bootstrap_allowed }}
+          CLOUD_BOOTSTRAP_ALLOWED: ${{ steps.decide.outputs.sensitive_dispatch_allowed }}
 
       - name: Upload route seed artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -314,173 +327,6 @@ jobs:
             .runtime-cache/logs
             .runtime-cache/cortexpilot/reports
 
-  runner-cloud-bootstrap:
-    name: Runner Cloud Bootstrap (Protected Events Only)
-    needs:
-      - ci-trust-boundary
-      - quick-feedback
-    if: needs.ci-trust-boundary.outputs.self_hosted_allowed == 'true' && needs.ci-trust-boundary.outputs.cloud_bootstrap_allowed == 'true'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    permissions:
-      contents: read
-      id-token: write
-    env:
-      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-      GCP_ZONE: ${{ vars.GCP_ZONE || 'us-central1-a' }}
-      GCP_WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
-      GCP_WIF_SERVICE_ACCOUNT: ${{ vars.GCP_WIF_SERVICE_ACCOUNT }}
-    steps:
-      - name: Initialize Runner Tool Cache Env
-        run: |
-          echo "AGENT_TOOLSDIRECTORY=${RUNNER_TEMP}/hostedtoolcache-${GITHUB_JOB}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_ENV}"
-          echo "RUNNER_TOOL_CACHE=${RUNNER_TEMP}/hostedtoolcache-${GITHUB_JOB}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_ENV}"
-
-      - name: Repair Workspace Ownership
-        run: |
-          if [[ -d "${GITHUB_WORKSPACE}" ]]; then
-            sudo chown -R "$(id -u):$(id -g)" "${GITHUB_WORKSPACE}" || true
-          fi
-
-      - name: Authenticate to Google Cloud (WIF)
-        id: gcp_auth
-        continue-on-error: true
-        uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193
-        with:
-          workload_identity_provider: ${{ env.GCP_WIF_PROVIDER }}
-          service_account: ${{ env.GCP_WIF_SERVICE_ACCOUNT }}
-
-      - name: Setup gcloud
-        if: steps.gcp_auth.outcome == 'success'
-        uses: google-github-actions/setup-gcloud@6a7c903a70c8625ed6700fa299f5ddb4ca6022e9
-        with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
-
-      - name: Start Offline Runner Instances
-        if: steps.gcp_auth.outcome == 'success'
-        run: |
-          set -euo pipefail
-          instances=(github-runner-core-01 github-runner-core-02 github-runner-core-03)
-          for instance in "${instances[@]}"; do
-            status="$(gcloud compute instances describe "${instance}" --zone "${GCP_ZONE}" --project "${GCP_PROJECT_ID}" --format='value(status)' 2>/dev/null || echo UNKNOWN)"
-            echo "instance=${instance} status=${status}"
-            if [[ "${status}" == "TERMINATED" ]]; then
-              gcloud compute instances start "${instance}" --zone "${GCP_ZONE}" --project "${GCP_PROJECT_ID}"
-            fi
-          done
-
-      - name: Wait Until 3 GCE Runner Hosts Are RUNNING
-        if: steps.gcp_auth.outcome == 'success'
-        run: |
-          set -euo pipefail
-          instances=(github-runner-core-01 github-runner-core-02 github-runner-core-03)
-          for attempt in $(seq 1 60); do
-            running=0
-            for instance in "${instances[@]}"; do
-              status="$(gcloud compute instances describe "${instance}" --zone "${GCP_ZONE}" --project "${GCP_PROJECT_ID}" --format='value(status)' 2>/dev/null || echo UNKNOWN)"
-              if [[ "${status}" == "RUNNING" ]]; then
-                running=$((running + 1))
-              fi
-              echo "attempt=${attempt} instance=${instance} status=${status}"
-            done
-            if [[ "${running}" -eq 3 ]]; then
-              exit 0
-            fi
-            sleep 10
-          done
-          echo "❌ Timeout waiting for runner instances to reach RUNNING."
-          exit 1
-
-  runner-bootstrap:
-    name: Runner Bootstrap (Trusted Self-Hosted Gate)
-    needs:
-      - ci-trust-boundary
-      - quick-feedback
-      - runner-cloud-bootstrap
-    if: always() && needs.ci-trust-boundary.outputs.self_hosted_allowed == 'true' && (needs.runner-cloud-bootstrap.result == 'success' || needs.runner-cloud-bootstrap.result == 'skipped')
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    permissions:
-      contents: read
-    env:
-      GH_TOKEN: ${{ secrets.ORG_RUNNER_TOKEN || github.token }}
-    steps:
-      - name: Initialize Runner Tool Cache Env
-        run: |
-          echo "AGENT_TOOLSDIRECTORY=${RUNNER_TEMP}/hostedtoolcache-${GITHUB_JOB}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_ENV}"
-          echo "RUNNER_TOOL_CACHE=${RUNNER_TEMP}/hostedtoolcache-${GITHUB_JOB}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_ENV}"
-
-      - name: Repair Workspace Ownership
-        run: |
-          if [[ -d "${GITHUB_WORKSPACE}" ]]; then
-            sudo chown -R "$(id -u):$(id -g)" "${GITHUB_WORKSPACE}" || true
-          fi
-
-      - name: Validate Runner API Token
-        run: |
-          set -euo pipefail
-          if [[ -z "${GH_TOKEN:-}" ]]; then
-            echo "❌ Missing GH token for org runner inventory API." >&2
-            exit 1
-          fi
-
-      - name: Wait Until 9 Target Org Runners Are Online
-        run: |
-          set -euo pipefail
-          owner="${GITHUB_REPOSITORY_OWNER}"
-          expected=(
-            pool-core01-01 pool-core01-02 pool-core01-03
-            pool-core02-01 pool-core02-02 pool-core02-03
-            pool-core03-01 pool-core03-02 pool-core03-03
-          )
-          expected_json="$(jq -nc '$ARGS.positional | sort' --args "${expected[@]}")"
-          last_json=""
-          fetch_runners_json() {
-            local response body status
-            response="$({
-              curl -sS \
-                -H "Authorization: Bearer ${GH_TOKEN}" \
-                -H "Accept: application/vnd.github+json" \
-                -H "X-GitHub-Api-Version: 2022-11-28" \
-                -w '\n%{http_code}' \
-                "https://api.github.com/orgs/${owner}/actions/runners"
-            })" || return 1
-            status="${response##*$'\n'}"
-            body="${response%$'\n'*}"
-            if [[ "${status}" == "200" ]]; then
-              printf '%s' "${body}"
-              return 0
-            fi
-            if [[ "${status}" == "403" ]] && grep -qi "rate limit exceeded" <<<"${body}"; then
-              return 10
-            fi
-            echo "${body}" >&2
-            return 1
-          }
-          for attempt in $(seq 1 60); do
-            if ! json="$(fetch_runners_json)"; then
-              status=$?
-              if [[ "${status}" -eq 10 ]]; then
-                sleep 10
-                continue
-              fi
-              exit "${status}"
-            fi
-            last_json="${json}"
-            online_expected="$(jq --argjson expected "${expected_json}" '[.runners[] | select((.name as $n | $expected | index($n)) and .status == "online")] | length' <<<"${json}")"
-            missing_count="$(jq --argjson expected "${expected_json}" '[.runners[] | .name] | sort | ($expected - .) | length' <<<"${json}")"
-            echo "attempt=${attempt} online_expected=${online_expected}/9 missing=${missing_count}"
-            if [[ "${missing_count}" -eq 0 && "${online_expected}" -eq 9 ]]; then
-              exit 0
-            fi
-            sleep 10
-          done
-          echo "❌ Timeout waiting for required 9 org runners to all be online."
-          if [[ -n "${last_json}" ]]; then
-            jq '.runners[] | {name,status,busy,labels:[.labels[].name]}' <<<"${last_json}"
-          fi
-          exit 1
-
   untrusted-pr-basic-gates:
     name: PR Low-Privilege Gates
     needs:
@@ -593,8 +439,7 @@ jobs:
     needs:
       - ci-trust-boundary
       - quick-feedback
-      - runner-bootstrap
-    if: needs.ci-trust-boundary.outputs.self_hosted_allowed == 'true'
+    if: needs.ci-trust-boundary.outputs.trusted_route_allowed == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     permissions:
@@ -603,8 +448,8 @@ jobs:
     env:
       CORTEXPILOT_CI_ROUTE_ID: ${{ needs.ci-trust-boundary.outputs.route_id }}
       CORTEXPILOT_CI_TRUST_CLASS: ${{ needs.ci-trust-boundary.outputs.trust_class }}
-      CORTEXPILOT_CI_RUNNER_CLASS: self_hosted
-      CORTEXPILOT_CI_CLOUD_BOOTSTRAP_ALLOWED: ${{ needs.ci-trust-boundary.outputs.cloud_bootstrap_allowed }}
+      CORTEXPILOT_CI_RUNNER_CLASS: github_hosted
+      CORTEXPILOT_CI_CLOUD_BOOTSTRAP_ALLOWED: ${{ needs.ci-trust-boundary.outputs.sensitive_dispatch_allowed }}
     steps:
       - name: Initialize Runner Tool Cache Env
         run: |
@@ -624,7 +469,7 @@ jobs:
           fetch-depth: 0
           clean: true
 
-      - name: Run self-hosted control-plane doctor
+      - name: Run hosted control-plane doctor
         run: bash scripts/ci_control_plane_doctor.sh
 
       - name: Run policy/security slice
@@ -672,8 +517,7 @@ jobs:
     needs:
       - ci-trust-boundary
       - quick-feedback
-      - runner-bootstrap
-    if: needs.ci-trust-boundary.outputs.self_hosted_allowed == 'true'
+    if: needs.ci-trust-boundary.outputs.trusted_route_allowed == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     permissions:
@@ -682,8 +526,8 @@ jobs:
     env:
       CORTEXPILOT_CI_ROUTE_ID: ${{ needs.ci-trust-boundary.outputs.route_id }}
       CORTEXPILOT_CI_TRUST_CLASS: ${{ needs.ci-trust-boundary.outputs.trust_class }}
-      CORTEXPILOT_CI_RUNNER_CLASS: self_hosted
-      CORTEXPILOT_CI_CLOUD_BOOTSTRAP_ALLOWED: ${{ needs.ci-trust-boundary.outputs.cloud_bootstrap_allowed }}
+      CORTEXPILOT_CI_RUNNER_CLASS: github_hosted
+      CORTEXPILOT_CI_CLOUD_BOOTSTRAP_ALLOWED: ${{ needs.ci-trust-boundary.outputs.sensitive_dispatch_allowed }}
     steps:
       - name: Initialize Runner Tool Cache Env
         run: |
@@ -745,11 +589,11 @@ jobs:
     needs:
       - ci-trust-boundary
       - quick-feedback
-      - runner-bootstrap
       - core-tests
-    if: needs.ci-trust-boundary.outputs.self_hosted_allowed == 'true' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_ui_truth == 'true'
+    if: needs.ci-trust-boundary.outputs.trusted_route_allowed == 'true' && needs.ci-trust-boundary.outputs.sensitive_dispatch_allowed == 'true' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_ui_truth == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 180
+    environment: owner-approved-sensitive
     permissions:
       contents: read
       actions: write
@@ -760,8 +604,8 @@ jobs:
       CORTEXPILOT_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE: require
       CORTEXPILOT_CI_ROUTE_ID: ${{ needs.ci-trust-boundary.outputs.route_id }}
       CORTEXPILOT_CI_TRUST_CLASS: ${{ needs.ci-trust-boundary.outputs.trust_class }}
-      CORTEXPILOT_CI_RUNNER_CLASS: self_hosted
-      CORTEXPILOT_CI_CLOUD_BOOTSTRAP_ALLOWED: ${{ needs.ci-trust-boundary.outputs.cloud_bootstrap_allowed }}
+      CORTEXPILOT_CI_RUNNER_CLASS: github_hosted
+      CORTEXPILOT_CI_CLOUD_BOOTSTRAP_ALLOWED: ${{ needs.ci-trust-boundary.outputs.sensitive_dispatch_allowed }}
     steps:
       - name: Initialize Runner Tool Cache Env
         run: |
@@ -821,11 +665,11 @@ jobs:
     needs:
       - ci-trust-boundary
       - quick-feedback
-      - runner-bootstrap
       - core-tests
-    if: needs.ci-trust-boundary.outputs.self_hosted_allowed == 'true' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: needs.ci-trust-boundary.outputs.trusted_route_allowed == 'true' && needs.ci-trust-boundary.outputs.sensitive_dispatch_allowed == 'true' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_resilience_and_e2e == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 120
+    environment: owner-approved-sensitive
     permissions:
       contents: read
       actions: write
@@ -837,8 +681,8 @@ jobs:
       CORTEXPILOT_CI_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE: require
       CORTEXPILOT_CI_ROUTE_ID: ${{ needs.ci-trust-boundary.outputs.route_id }}
       CORTEXPILOT_CI_TRUST_CLASS: ${{ needs.ci-trust-boundary.outputs.trust_class }}
-      CORTEXPILOT_CI_RUNNER_CLASS: self_hosted
-      CORTEXPILOT_CI_CLOUD_BOOTSTRAP_ALLOWED: ${{ needs.ci-trust-boundary.outputs.cloud_bootstrap_allowed }}
+      CORTEXPILOT_CI_RUNNER_CLASS: github_hosted
+      CORTEXPILOT_CI_CLOUD_BOOTSTRAP_ALLOWED: ${{ needs.ci-trust-boundary.outputs.sensitive_dispatch_allowed }}
     steps:
       - name: Initialize Runner Tool Cache Env
         run: |
@@ -898,13 +742,13 @@ jobs:
     needs:
       - ci-trust-boundary
       - quick-feedback
-      - runner-bootstrap
       - policy-and-security
       - core-tests
       - resilience-and-e2e
-    if: needs.ci-trust-boundary.outputs.self_hosted_allowed == 'true' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: needs.ci-trust-boundary.outputs.trusted_route_allowed == 'true' && needs.ci-trust-boundary.outputs.sensitive_dispatch_allowed == 'true' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_release_evidence == 'true' && needs.resilience-and-e2e.result == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 90
+    environment: owner-approved-sensitive
     permissions:
       contents: read
       actions: write
@@ -913,8 +757,8 @@ jobs:
     env:
       CORTEXPILOT_CI_ROUTE_ID: ${{ needs.ci-trust-boundary.outputs.route_id }}
       CORTEXPILOT_CI_TRUST_CLASS: ${{ needs.ci-trust-boundary.outputs.trust_class }}
-      CORTEXPILOT_CI_RUNNER_CLASS: self_hosted
-      CORTEXPILOT_CI_CLOUD_BOOTSTRAP_ALLOWED: ${{ needs.ci-trust-boundary.outputs.cloud_bootstrap_allowed }}
+      CORTEXPILOT_CI_RUNNER_CLASS: github_hosted
+      CORTEXPILOT_CI_CLOUD_BOOTSTRAP_ALLOWED: ${{ needs.ci-trust-boundary.outputs.sensitive_dispatch_allowed }}
     steps:
       - name: Initialize Runner Tool Cache Env
         run: |
@@ -994,10 +838,9 @@ jobs:
             --input ".runtime-cache/cortexpilot/reports/ci/routes/${{ needs.ci-trust-boundary.outputs.route_id }}.json" \
             --output ".runtime-cache/cortexpilot/reports/ci/routes/${{ needs.ci-trust-boundary.outputs.route_id }}.json" \
             --overall-status "${status}" \
-            --cloud-bootstrap-used "${{ needs.ci-trust-boundary.outputs.cloud_bootstrap_allowed }}" \
+            --cloud-bootstrap-used "${{ needs.ci-trust-boundary.outputs.sensitive_dispatch_allowed }}" \
             --job-observed ci-trust-boundary \
             --job-observed quick-feedback \
-            --job-observed runner-bootstrap \
             --job-observed policy-and-security \
             --job-observed core-tests \
             --job-observed resilience-and-e2e \
@@ -1047,13 +890,12 @@ jobs:
 
   pr-release-critical-gates:
     name: PR Release-Critical Gates
-    if: always() && github.event_name == 'pull_request' && needs.ci-trust-boundary.outputs.self_hosted_allowed == 'true'
+    if: always() && github.event_name == 'pull_request' && needs.ci-trust-boundary.outputs.trusted_route_allowed == 'true'
     outputs:
       route_report_artifact_name: ${{ steps.finalize_trusted_pr_route.outputs.route_report_artifact_name }}
     needs:
       - ci-trust-boundary
       - quick-feedback
-      - runner-bootstrap
       - policy-and-security
       - core-tests
     runs-on: ubuntu-24.04
@@ -1087,7 +929,7 @@ jobs:
           merge-multiple: true
 
       - name: Aggregate PR release-critical gates
-        run: echo "✅ PR release-critical gate aggregation passed (release evidence stays on push-main/workflow_dispatch; UI truth is a manual workflow_dispatch lane only)."
+        run: echo "✅ PR release-critical gate aggregation passed (sensitive verification stays on protected workflow_dispatch lanes only)."
 
       - name: Finalize trusted PR route report
         if: always()
@@ -1110,7 +952,6 @@ jobs:
             --cloud-bootstrap-used false \
             --job-observed ci-trust-boundary \
             --job-observed quick-feedback \
-            --job-observed runner-bootstrap \
             --job-observed policy-and-security \
             --job-observed core-tests \
             --job-observed pr-release-critical-gates \
@@ -1144,13 +985,12 @@ jobs:
     steps:
       - name: Enforce PR CI route
         env:
-          SELF_HOSTED_ALLOWED: ${{ needs.ci-trust-boundary.outputs.self_hosted_allowed }}
+          TRUSTED_ROUTE_ALLOWED: ${{ needs.ci-trust-boundary.outputs.trusted_route_allowed }}
           ROUTE_ID: ${{ needs.ci-trust-boundary.outputs.route_id }}
           ROUTE_RUNNER_CLASS: ${{ needs.ci-trust-boundary.outputs.runner_class }}
           QUICK_FEEDBACK_RESULT: ${{ needs.quick-feedback.result }}
           LOW_PRIV_RESULT: ${{ needs.untrusted-pr-basic-gates.result }}
           TRUSTED_RESULT: ${{ needs.pr-release-critical-gates.result }}
-          ROUTE_SEED_ARTIFACT_NAME: ci-route-seed-${{ github.run_id }}-${{ github.run_attempt }}
           LOW_PRIV_ROUTE_ARTIFACT_NAME: ${{ needs.untrusted-pr-basic-gates.outputs.route_report_artifact_name }}
           TRUSTED_ROUTE_ARTIFACT_NAME: ${{ needs.pr-release-critical-gates.outputs.route_report_artifact_name }}
         run: |
@@ -1159,25 +999,16 @@ jobs:
             echo "❌ Quick feedback must pass before PR can be considered green." >&2
             exit 1
           fi
-          if [[ "${SELF_HOSTED_ALLOWED}" == "true" ]]; then
-            if [[ "${TRUSTED_RESULT}" == "success" ]]; then
-              artifact_name="${TRUSTED_ROUTE_ARTIFACT_NAME}"
-              expected_trust="trusted"
-              expected_runner="self_hosted"
-              expected_cloud="false"
-              route_report_mode="finalized"
-              echo "✅ Trusted PR satisfied release-critical gates."
-            elif [[ "${TRUSTED_RESULT}" == "skipped" ]]; then
-              artifact_name="${ROUTE_SEED_ARTIFACT_NAME}"
-              expected_trust="trusted"
-              expected_runner="${ROUTE_RUNNER_CLASS}"
-              expected_cloud="false"
-              route_report_mode="seeded_quick_path"
-              echo "✅ Trusted PR stayed on quick-path; validating seeded trusted route."
-            else
+          if [[ "${TRUSTED_ROUTE_ALLOWED}" == "true" ]]; then
+            if [[ "${TRUSTED_RESULT}" != "success" ]]; then
               echo "❌ Trusted PR must pass release-critical gates." >&2
               exit 1
             fi
+            artifact_name="${TRUSTED_ROUTE_ARTIFACT_NAME}"
+            expected_trust="trusted"
+            expected_runner="github_hosted"
+            expected_cloud="false"
+            echo "✅ Trusted PR satisfied hosted release-critical gates."
           else
             if [[ "${LOW_PRIV_RESULT}" != "success" ]]; then
               echo "❌ Untrusted PR must pass low-privilege GitHub-hosted gates." >&2
@@ -1196,7 +1027,6 @@ jobs:
           fi
           echo "ROUTE_ARTIFACT_NAME=${artifact_name}" >> "${GITHUB_ENV}"
           echo "ROUTE_ID=${ROUTE_ID}" >> "${GITHUB_ENV}"
-          echo "ROUTE_REPORT_MODE=${route_report_mode}" >> "${GITHUB_ENV}"
           echo "EXPECTED_TRUST=${expected_trust}" >> "${GITHUB_ENV}"
           echo "EXPECTED_RUNNER=${expected_runner}" >> "${GITHUB_ENV}"
           echo "EXPECTED_CLOUD=${expected_cloud}" >> "${GITHUB_ENV}"
@@ -1214,21 +1044,6 @@ jobs:
           name: ${{ env.ROUTE_ARTIFACT_NAME }}
           path: .runtime-cache/cortexpilot/reports/ci/routes
           merge-multiple: true
-
-      - name: Finalize quick-path trusted route report
-        if: env.ROUTE_REPORT_MODE == 'seeded_quick_path'
-        run: |
-          set -euo pipefail
-          python3 scripts/build_ci_route_report.py finalize \
-            --input ".runtime-cache/cortexpilot/reports/ci/routes/${ROUTE_ID}.json" \
-            --output ".runtime-cache/cortexpilot/reports/ci/routes/${ROUTE_ID}.json" \
-            --overall-status pass \
-            --cloud-bootstrap-used false \
-            --job-observed ci-trust-boundary \
-            --job-observed quick-feedback \
-            --job-observed runner-bootstrap \
-            --job-observed pr-ci-gate \
-            --artifact-name "ci-quick-feedback-artifacts-${{ github.run_id }}-${{ github.run_attempt }}"
 
       - name: Validate route report
         run: |

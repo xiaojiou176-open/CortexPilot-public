@@ -1025,7 +1025,7 @@ echo "✅ [STEP 3.8/12] Completed"
 echo "🚀 [STEP 3.81/12] Start: E2E marker consistency gate"
 "$PYTHON" scripts/check_e2e_marker_consistency.py
 echo "✅ [STEP 3.81/12] Completed"
-echo "🚀 [STEP 3.82/12] Start: Trusted runner drift gate"
+echo "🚀 [STEP 3.82/12] Start: GitHub-hosted runner toolchain drift gate"
 bash scripts/run_governance_py.sh scripts/check_ci_runner_drift.py --mode strict
 echo "✅ [STEP 3.82/12] Completed"
 fi

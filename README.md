@@ -106,6 +106,25 @@ repository should be judged on.
   closeout and governance receipt path
 - Windows desktop is not part of the current public support contract
 
+## Public CI Safety Model
+
+Public collaboration follows a hosted-first contract:
+
+- all default public CI routes run on **GitHub-hosted** runners
+- fork PRs stay on a low-privilege path and must not touch secrets, live
+  providers, or high-cost external checks
+- maintainer-owned PRs still use GitHub-hosted policy/core lanes; they do not
+  fall back to private runner pools
+- sensitive verification lanes (`ui-truth`, `resilience-and-e2e`,
+  `release-evidence`) are **manual `workflow_dispatch` lanes only**
+- sensitive lanes require the protected environment
+  `owner-approved-sensitive`, so owner review happens before secrets or live
+  systems are touched
+
+The machine CI contract lives in `configs/ci_governance_policy.json`, and the
+live GitHub control-plane requirements live in
+`configs/github_control_plane_policy.json`.
+
 ## Current Public Task Slices
 
 The intentionally supported public task slices are:
@@ -184,6 +203,29 @@ npm run dashboard:dev
 npm run desktop:up
 npm run truth:triage
 ```
+
+## Generated Governance Context
+
+<!-- GENERATED:ci-topology-summary:start -->
+- trust flow: `ci-trust-boundary -> quick-feedback -> hosted policy/core slices -> pr-release-critical-gates -> pr-ci-gate`
+- hosted policy/core slices: `policy-and-security, core-tests`
+- untrusted PR path: `quick-feedback -> untrusted-pr-basic-gates -> pr-ci-gate`
+- protected sensitive lanes: `workflow_dispatch -> owner-approved-sensitive -> ui-truth / resilience-and-e2e / release-evidence`
+- canonical machine SSOT: `configs/ci_governance_policy.json`
+<!-- GENERATED:ci-topology-summary:end -->
+
+<!-- GENERATED:current-run-evidence-summary:start -->
+- authoritative release-truth builders must consume `.runtime-cache/cortexpilot/reports/ci/current_run/source_manifest.json`.
+- the live current-run authority verdict belongs to `python3 scripts/check_ci_current_run_sources.py` and `.runtime-cache/cortexpilot/reports/ci/current_run/consistency.json`.
+- current-run builders: `artifact_index/current_run_index`, `cost_profile`, `runner_health`, `slo`, `portal`, `provenance`.
+- docs and wrappers must not hand-maintain live current-run status; they must point readers back to the checker receipts.
+- if the current-run source manifest is missing, authoritative current-run reports must fail closed or run only in explicit advisory mode.
+<!-- GENERATED:current-run-evidence-summary:end -->
+
+<!-- GENERATED:coverage-summary:start -->
+- repo coverage snapshot unavailable
+- run `npm run coverage:repo` to refresh this fragment.
+<!-- GENERATED:coverage-summary:end -->
 
 ## Required Check Policy
 
