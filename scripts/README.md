@@ -12,6 +12,7 @@ CI, hygiene, and release tasks.
 - `docker_ci.sh`
 - `build_space_governance_report.py`
 - `check_space_cleanup_gate.py`
+- `check_space_governance_inventory.py`
 - `apply_space_cleanup.py`
 - `cleanup_space.sh`
 
@@ -34,6 +35,16 @@ CI, hygiene, and release tasks.
   snapshots, and the orchestrator coverage JSON under
   `.runtime-cache/test_output/ci/` so retention-report hygiene no longer flags
   root-level `test_output` residue during `main` push validation.
+- `check_space_governance_inventory.py` now closes the loop between
+  `runtime_artifact_policy.json`, `space_governance_policy.json`, and
+  `cleanup_workspace_modules.sh`, so repo-local cleanup targets must be
+  contract-declared before hygiene accepts them.
+- `apply_space_cleanup.py` now records per-target reclaim estimates,
+  post-cleanup verification commands, verification results, and rollback notes
+  instead of treating deletion as a completed recovery by itself.
+- `test_quick.sh` now keeps its quick-check logs under
+  `.runtime-cache/test_output/governance/quick_checks/` so retention-report
+  discipline no longer has to tolerate root-level `test_output` files.
 - `security_scan.sh` now filters a very small allowlist of non-verified,
   synthetic placeholder findings from test/example git history while still
   failing on every other trufflehog hit.
