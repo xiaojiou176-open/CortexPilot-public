@@ -1030,7 +1030,11 @@ echo "🚀 [STEP 3.81/12] Start: E2E marker consistency gate"
 "$PYTHON" scripts/check_e2e_marker_consistency.py
 echo "✅ [STEP 3.81/12] Completed"
 echo "🚀 [STEP 3.82/12] Start: GitHub-hosted runner toolchain drift gate"
-bash scripts/run_governance_py.sh scripts/check_ci_runner_drift.py --mode strict
+if [[ "${CORTEXPILOT_CI_ROUTE_ID:-local_full_ci}" == "trusted_pr" || "${CORTEXPILOT_CI_ROUTE_ID:-local_full_ci}" == "untrusted_pr" ]]; then
+  echo "ℹ️ [ci] skip strict runner drift gate on ${CORTEXPILOT_CI_ROUTE_ID:-unknown} route; GitHub-hosted toolchain drift stays report-only on pull_request lanes"
+else
+  bash scripts/run_governance_py.sh scripts/check_ci_runner_drift.py --mode strict
+fi
 echo "✅ [STEP 3.82/12] Completed"
 fi
 if ci_slice_enabled "core-tests"; then
