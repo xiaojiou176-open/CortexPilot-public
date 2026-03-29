@@ -7,6 +7,8 @@ CortexPilot is a contract-first orchestration repo for teams that want one
 operator surface, one governed run path, and one replayable evidence trail
 instead of scattered agents, logs, and scripts.
 
+CortexPilot is a contract-first multi-agent orchestration repository.
+
 [Quickstart](#quickstart) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [Spec](docs/specs/00_SPEC.md) · [Releases](https://github.com/xiaojiou176-open/CortexPilot-public/releases)
 
 ![CortexPilot studio preview card](docs/assets/storefront/cortexpilot-studio-preview.svg)
