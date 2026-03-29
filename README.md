@@ -202,14 +202,14 @@ governance manifest refresh falls back to `scripts/verify_upstream_slices.py --m
 to regenerate the receipts instead of failing on missing files alone.
 Dashboard dependency installs now also carry an ENOSPC recovery branch that
 retries with a workspace-local pnpm store and the registered dashboard install
-env knobs when copy-heavy self-hosted installs run out of disk.
+env knobs when copy-heavy CI or local maintenance installs run out of disk.
 Desktop dependency installs now mirror the same ENOSPC recovery strategy,
 including the registered desktop install env knobs that scope hardlink imports
 to the recovery attempt and move retry stores onto workspace-local temp roots.
-Docker-backed self-hosted CI lanes now retry daemon prechecks with bounded
-backoff and registered retry knobs before failing closed on a transient socket
-refusal.
-Strict self-hosted live provider probes now resolve credentials from process
+Docker-backed GitHub-hosted maintenance lanes now retry daemon prechecks with
+bounded backoff and registered retry knobs before failing closed on a transient
+socket refusal.
+Strict hosted-first live provider probes now resolve credentials from process
 env first and may fall back to `~/.codex/config.toml`; repo-local dotenv files
 and shell-export fallback remain disabled in mainline contexts so the CI
 credential contract stays auditable.

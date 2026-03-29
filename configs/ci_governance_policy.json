@@ -25,18 +25,17 @@
       "ci-trust-boundary",
       "quick-feedback",
       "runner-cloud-bootstrap",
-      "untrusted-pr-basic-gates",
-      "pr-ci-gate"
-    ],
-    "self_hosted": [
       "runner-bootstrap",
+      "untrusted-pr-basic-gates",
       "policy-and-security",
       "core-tests",
       "ui-truth",
       "resilience-and-e2e",
       "release-evidence",
-      "pr-release-critical-gates"
-    ]
+      "pr-release-critical-gates",
+      "pr-ci-gate"
+    ],
+    "self_hosted": []
   },
   "trusted_semantic_jobs": [
     "policy-and-security",
@@ -89,7 +88,7 @@
     "trusted_pr": {
       "event_names": ["pull_request"],
       "trust_class": "trusted",
-      "runner_class": "self_hosted",
+      "runner_class": "github_hosted",
       "cloud_bootstrap_allowed": false,
       "required_jobs": [
         "ci-trust-boundary",
@@ -109,7 +108,7 @@
     "push_main": {
       "event_names": ["push"],
       "trust_class": "trusted",
-      "runner_class": "self_hosted",
+      "runner_class": "github_hosted",
       "cloud_bootstrap_allowed": true,
       "required_jobs": [
         "ci-trust-boundary",
@@ -132,7 +131,7 @@
     "workflow_dispatch": {
       "event_names": ["workflow_dispatch"],
       "trust_class": "trusted",
-      "runner_class": "self_hosted",
+      "runner_class": "github_hosted",
       "cloud_bootstrap_allowed": true,
       "required_jobs": [
         "ci-trust-boundary",

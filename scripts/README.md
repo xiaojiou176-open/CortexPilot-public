@@ -6,6 +6,8 @@ CI, hygiene, and release tasks.
 ## Common Entry Points
 
 - `bootstrap.sh`
+- `run_orchestrator_cli.sh`
+- `run_orchestrator_pytest.sh`
 - `test.sh`
 - `test_quick.sh`
 - `check_repo_hygiene.sh`
@@ -16,10 +18,21 @@ CI, hygiene, and release tasks.
 - `apply_space_cleanup.py`
 - `cleanup_space.sh`
 
+`run_orchestrator_pytest.sh` is the canonical repo-owned wrapper for
+orchestrator pytest entrypoints. It resolves the managed Python toolchain,
+exports `PYTHONDONTWRITEBYTECODE=1`, and keeps `PYTHONPATH=apps/orchestrator/src`
+aligned so module docs do not rely on `uv run pytest` selecting a compatible
+interpreter by accident.
+
+`run_orchestrator_cli.sh` is the matching repo-owned wrapper for
+`cortexpilot_orch.cli` commands. It keeps the managed Python toolchain and
+`PYTHONPATH=apps/orchestrator/src` aligned so module docs do not depend on the
+user's ambient Python environment.
+
 ## Audit Lane Notes
 
 - Keep default blocking lanes focused on stable, repeatable checks.
-- Self-hosted CI lanes now try `sudo -E bash scripts/docker_ci.sh ...` only when
+- Hosted CI lanes now try `sudo -E bash scripts/docker_ci.sh ...` only when
   passwordless sudo is available; otherwise they fall back to direct
   `bash scripts/docker_ci.sh ...` execution so `main` push lanes do not fail on
   runners that can invoke Docker without an interactive sudo prompt.
@@ -29,7 +42,7 @@ CI, hygiene, and release tasks.
   allowlists, and summarized artifacts from dedicated safe summary scalars
   only.
 - `ci_slice_runner.sh` now exports `PYTHONDONTWRITEBYTECODE=1` before running
-  the slice driver so self-hosted `policy-and-security` / `core-tests` lanes do
+  the slice driver so hosted `policy-and-security` / `core-tests` lanes do
   not pollute the workspace with `__pycache__` residues mid-run.
 - `ci_main_impl.sh` and `resolve_ci_policy.py` now write CI stage logs, policy
   snapshots, and the orchestrator coverage JSON under
@@ -52,12 +65,12 @@ CI, hygiene, and release tasks.
   through a machine-readable ignore contract and only downgrades explicitly
   listed advisories when `pip-audit` exposes no published fix version.
 - `install_dashboard_deps.sh` now detects `ERR_PNPM_ENOSPC` and retries with a
-  workspace-local pnpm store plus hardlink imports so self-hosted `main`
+  workspace-local pnpm store plus hardlink imports so hosted `main`
   lanes can recover when copy-based installs exhaust the bind-mounted
   workspace volume.
 - `install_desktop_deps.sh` now mirrors the same `ERR_PNPM_ENOSPC` recovery
   path, uses per-attempt workspace retry stores, and scopes hardlink imports
-  to the recovery attempt so repeated self-hosted runs do not accumulate a
+  to the recovery attempt so repeated hosted runs do not accumulate a
   long-lived desktop workspace cache.
 - `install_dashboard_deps.sh` now records its install transcript under
   `.runtime-cache/logs/runtime/deps_install/install_dashboard_deps.log` even
