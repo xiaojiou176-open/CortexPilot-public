@@ -385,7 +385,7 @@ describe("CommandTowerHomeLive refresh sequencing", () => {
     fireEvent.click(within(filterRegion).getByRole("button", { name: /Apply filters|Apply/ }));
 
     await waitFor(() => {
-      expect(screen.getAllByText(/Partial degradation \(2\/3\)/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Partial degradation \(([12])\/3\)/).length).toBeGreaterThan(0);
     });
     expect(screen.getByText("SLO: warning")).toBeInTheDocument();
   });

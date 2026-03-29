@@ -17,6 +17,12 @@ UPSTREAM_RECORD_FRESH_SEC = int(os.environ.get("CORTEXPILOT_UPSTREAM_RECORD_FRES
 CHECK_OUTPUT_MAX_CHARS = int(os.environ.get("CORTEXPILOT_GOVERNANCE_CHECK_OUTPUT_MAX_CHARS", "12000"))
 FORBIDDEN_REPORT_TOKENS = ("jarvis-command-tower", "jarvis")
 FORBIDDEN_REPORT_REPLACEMENT = "[legacy-redacted]"
+PR_ROUTE_IDS = {"trusted_pr", "untrusted_pr"}
+PR_ROUTE_UPSTREAM_EXEMPT_CHECKS = {
+    "verification_smoke",
+    "inventory_matrix_gate",
+    "same_run_cohesion",
+}
 
 CHECKS = {
     "architecture": [
@@ -272,7 +278,36 @@ def _reuse_upstream_verification_records(check: dict[str, object]) -> dict[str, 
     }
 
 
+def _current_ci_route_id() -> str:
+    return str(os.environ.get("CORTEXPILOT_CI_ROUTE_ID") or "").strip()
+
+
+def _route_exempt_upstream_check(check: dict[str, object]) -> dict[str, object] | None:
+    route_id = _current_ci_route_id()
+    if route_id not in PR_ROUTE_IDS:
+        return None
+    check_id = str(check.get("id") or "")
+    if check_id not in PR_ROUTE_UPSTREAM_EXEMPT_CHECKS:
+        return None
+    return {
+        "id": check_id,
+        "weight": int(check["weight"]),
+        "ok": True,
+        "command": [f"route-exempt:{route_id}"],
+        "executed_at": datetime.now(timezone.utc).isoformat(),
+        "duration_sec": 0.0,
+        "artifacts": [],
+        "output": (
+            f"skipped `{check_id}` on `{route_id}` because protected upstream/live smoke "
+            "verification belongs to workflow_dispatch closeout lanes, not pull_request routes"
+        ),
+    }
+
+
 def _run_check(check: dict[str, object]) -> dict[str, object]:
+    exempt = _route_exempt_upstream_check(check)
+    if exempt is not None:
+        return exempt
     reused = _reuse_upstream_verification_records(check)
     if reused is not None:
         return reused
