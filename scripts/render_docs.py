@@ -14,7 +14,6 @@ ANCHOR_TARGETS = (
     ROOT / "README.md",
     ROOT / "AGENTS.md",
     ROOT / "CLAUDE.md",
-    ROOT / "docs" / "ai" / "agent-guide.md",
 )
 
 
@@ -52,9 +51,10 @@ def _ci_topology_summary() -> str:
     policy = _load_policy()
     trusted = ", ".join(policy.get("trusted_semantic_jobs") or [])
     return (
-        "- trust flow: `ci-trust-boundary -> quick-feedback -> trusted semantic slices -> release-evidence -> pr-ci-gate`\n"
-        f"- trusted semantic slices: `{trusted}`\n"
+        "- trust flow: `ci-trust-boundary -> quick-feedback -> hosted policy/core slices -> pr-release-critical-gates -> pr-ci-gate`\n"
+        f"- hosted policy/core slices: `{trusted}`\n"
         "- untrusted PR path: `quick-feedback -> untrusted-pr-basic-gates -> pr-ci-gate`\n"
+        "- protected sensitive lanes: `workflow_dispatch -> owner-approved-sensitive -> ui-truth / resilience-and-e2e / release-evidence`\n"
         "- canonical machine SSOT: `configs/ci_governance_policy.json`\n"
     )
 

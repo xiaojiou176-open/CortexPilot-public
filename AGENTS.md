@@ -27,6 +27,29 @@ Work in CortexPilot as a contract-first engineering agent:
 - truth split: `npm run truth:triage`
 - full pre-commit: `pre-commit run --all-files`
 
+## Generated Governance Context
+
+<!-- GENERATED:ci-topology-summary:start -->
+- trust flow: `ci-trust-boundary -> quick-feedback -> hosted policy/core slices -> pr-release-critical-gates -> pr-ci-gate`
+- hosted policy/core slices: `policy-and-security, core-tests`
+- untrusted PR path: `quick-feedback -> untrusted-pr-basic-gates -> pr-ci-gate`
+- protected sensitive lanes: `workflow_dispatch -> owner-approved-sensitive -> ui-truth / resilience-and-e2e / release-evidence`
+- canonical machine SSOT: `configs/ci_governance_policy.json`
+<!-- GENERATED:ci-topology-summary:end -->
+
+<!-- GENERATED:current-run-evidence-summary:start -->
+- authoritative release-truth builders must consume `.runtime-cache/cortexpilot/reports/ci/current_run/source_manifest.json`.
+- the live current-run authority verdict belongs to `python3 scripts/check_ci_current_run_sources.py` and `.runtime-cache/cortexpilot/reports/ci/current_run/consistency.json`.
+- current-run builders: `artifact_index/current_run_index`, `cost_profile`, `runner_health`, `slo`, `portal`, `provenance`.
+- docs and wrappers must not hand-maintain live current-run status; they must point readers back to the checker receipts.
+- if the current-run source manifest is missing, authoritative current-run reports must fail closed or run only in explicit advisory mode.
+<!-- GENERATED:current-run-evidence-summary:end -->
+
+<!-- GENERATED:coverage-summary:start -->
+- repo coverage snapshot unavailable
+- run `npm run coverage:repo` to refresh this fragment.
+<!-- GENERATED:coverage-summary:end -->
+
 ## Change Rules
 
 - update tests when behavior changes
@@ -34,6 +57,8 @@ Work in CortexPilot as a contract-first engineering agent:
 - keep public docs English-first and minimal
 - keep runtime output under `.runtime-cache/`
 - prefer repo-owned scripts over ad-hoc shell glue
+- keep public CI hosted-first: fork PRs stay low-privilege on GitHub-hosted
+  lanes, and sensitive verification stays on protected manual dispatch lanes
 - treat `configs/github_control_plane_policy.json` as the machine SSOT for
   required check names, and reuse the root `README.md` required-check summary
   instead of restating the names here

@@ -13,7 +13,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", required=True)
     parser.add_argument("--route-id", required=True)
     parser.add_argument("--trust-class", required=True, choices=("trusted", "untrusted"))
-    parser.add_argument("--runner-class", required=True, choices=("github_hosted", "self_hosted", "local"))
+    parser.add_argument("--runner-class", required=True, choices=("github_hosted", "local"))
     parser.add_argument("--cloud-bootstrap-allowed", required=True, choices=("true", "false"))
     parser.add_argument("--cloud-bootstrap-used", default="false", choices=("true", "false"))
     parser.add_argument("--github-run-id", required=True)

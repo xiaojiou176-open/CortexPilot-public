@@ -11,15 +11,11 @@ run_ci_step126_current_run_fanin() {
   CI_CLOUD_BOOTSTRAP_ALLOWED="${CORTEXPILOT_CI_CLOUD_BOOTSTRAP_ALLOWED:-false}"
   CI_CLOUD_BOOTSTRAP_USED="${CORTEXPILOT_CI_CLOUD_BOOTSTRAP_USED:-false}"
   CI_ROUTE_REPORT_PATH="${CI_REPORT_ROOT}/routes/${CI_ROUTE_ID}.json"
-  CI_ROUTE_REPORT_RUNNER_CLASS="${CI_RUNNER_CLASS}"
-  if [[ "${CI_ROUTE_REPORT_RUNNER_CLASS}" == "local" ]]; then
-    CI_ROUTE_REPORT_RUNNER_CLASS="self_hosted"
-  fi
   python3 scripts/build_ci_route_report.py seed \
     --output "${CI_ROUTE_REPORT_PATH}" \
     --route-id "${CI_ROUTE_ID}" \
     --trust-class "${CI_TRUST_CLASS}" \
-    --runner-class "${CI_ROUTE_REPORT_RUNNER_CLASS}" \
+    --runner-class "${CI_RUNNER_CLASS}" \
     --cloud-bootstrap-allowed "${CI_CLOUD_BOOTSTRAP_ALLOWED}" \
     --github-run-id "${GITHUB_RUN_ID:-local-run}" \
     --github-run-attempt "${GITHUB_RUN_ATTEMPT:-local-attempt}" \

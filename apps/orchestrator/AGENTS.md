@@ -16,5 +16,5 @@ Read root `AGENTS.md` first.
 
 ## Commands
 
-- `uv run pytest -q`
-- `python -m cortexpilot_orch.cli --help`
+- `bash scripts/run_orchestrator_pytest.sh apps/orchestrator/tests -q`
+- `bash scripts/run_orchestrator_cli.sh --help`

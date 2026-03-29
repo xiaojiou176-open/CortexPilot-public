@@ -8,7 +8,6 @@ from pathlib import Path
 
 
 ALLOWED_RUNS_ON = {
-    "runs-on: [self-hosted, shared-pool]",
     "runs-on: ubuntu-24.04",
 }
 FORBIDDEN_RUNNER_REGISTRATION_TOKENS = (
@@ -181,7 +180,7 @@ def check_root(root: Path) -> list[str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Enforce self-hosted workflow governance.")
+    parser = argparse.ArgumentParser(description="Enforce hosted-first workflow governance.")
     parser.add_argument("--root", default=".", help="Repo root to scan")
     args = parser.parse_args()
     root = Path(args.root).resolve()

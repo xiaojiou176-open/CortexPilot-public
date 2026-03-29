@@ -9,8 +9,6 @@
   "required_jobs": [
     "ci-trust-boundary",
     "quick-feedback",
-    "runner-cloud-bootstrap",
-    "runner-bootstrap",
     "untrusted-pr-basic-gates",
     "policy-and-security",
     "core-tests",
@@ -24,8 +22,6 @@
     "github_hosted": [
       "ci-trust-boundary",
       "quick-feedback",
-      "runner-cloud-bootstrap",
-      "runner-bootstrap",
       "untrusted-pr-basic-gates",
       "policy-and-security",
       "core-tests",
@@ -34,14 +30,11 @@
       "release-evidence",
       "pr-release-critical-gates",
       "pr-ci-gate"
-    ],
-    "self_hosted": []
+    ]
   },
   "trusted_semantic_jobs": [
     "policy-and-security",
-    "core-tests",
-    "resilience-and-e2e",
-    "release-evidence"
+    "core-tests"
   ],
   "artifact_roots_required": [
     ".runtime-cache/test_output",
@@ -93,7 +86,6 @@
       "required_jobs": [
         "ci-trust-boundary",
         "quick-feedback",
-        "runner-bootstrap",
         "policy-and-security",
         "core-tests",
         "pr-release-critical-gates",
@@ -109,23 +101,17 @@
       "event_names": ["push"],
       "trust_class": "trusted",
       "runner_class": "github_hosted",
-      "cloud_bootstrap_allowed": true,
+      "cloud_bootstrap_allowed": false,
       "required_jobs": [
         "ci-trust-boundary",
         "quick-feedback",
-        "runner-cloud-bootstrap",
-        "runner-bootstrap",
         "policy-and-security",
-        "core-tests",
-        "resilience-and-e2e",
-        "release-evidence"
+        "core-tests"
       ],
       "required_artifact_prefixes": [
         "ci-policy-and-security-artifacts-",
         "ci-core-tests-artifacts-",
-        "ci-resilience-and-e2e-artifacts-",
-        "ci-release-evidence-artifacts-",
-        "ci-route-report-push_main-"
+        "ci-quick-feedback-artifacts-"
       ]
     },
     "workflow_dispatch": {
@@ -136,20 +122,22 @@
       "required_jobs": [
         "ci-trust-boundary",
         "quick-feedback",
-        "runner-cloud-bootstrap",
-        "runner-bootstrap",
         "policy-and-security",
-        "core-tests",
-        "resilience-and-e2e",
-        "release-evidence"
+        "core-tests"
       ],
       "required_artifact_prefixes": [
         "ci-policy-and-security-artifacts-",
         "ci-core-tests-artifacts-",
-        "ci-resilience-and-e2e-artifacts-",
-        "ci-release-evidence-artifacts-",
-        "ci-route-report-workflow_dispatch-"
+        "ci-quick-feedback-artifacts-"
       ]
+    }
+  },
+  "protected_dispatch_contract": {
+    "required_environment": "owner-approved-sensitive",
+    "manual_only_jobs": {
+      "ui-truth": "run_ui_truth",
+      "resilience-and-e2e": "run_resilience_and_e2e",
+      "release-evidence": "run_release_evidence"
     }
   },
   "strict_env_contract": {
@@ -178,21 +166,6 @@
     "analytics_only_blacklist_paths": [
       ".runtime-cache/test_output/changed_scope_quality/meta/truth_status.json"
     ]
-  },
-  "cloud_bootstrap_contract": {
-    "allowed_route_ids": [
-      "push_main",
-      "workflow_dispatch"
-    ],
-    "forbidden_route_ids": [
-      "untrusted_pr",
-      "trusted_pr"
-    ],
-    "allowed_job_names": [
-      "runner-cloud-bootstrap"
-    ],
-    "required_permission_key": "id-token",
-    "required_permission_value": "write"
   },
   "supply_chain": {
     "allowed_action_repos": [

@@ -22,8 +22,6 @@ def _base_policy() -> dict:
         "required_jobs": [
             "ci-trust-boundary",
             "quick-feedback",
-            "runner-cloud-bootstrap",
-            "runner-bootstrap",
             "untrusted-pr-basic-gates",
             "policy-and-security",
             "core-tests",
@@ -37,26 +35,19 @@ def _base_policy() -> dict:
             "github_hosted": [
                 "ci-trust-boundary",
                 "quick-feedback",
-                "runner-cloud-bootstrap",
                 "untrusted-pr-basic-gates",
-                "pr-ci-gate",
-            ],
-            "self_hosted": [
-                "runner-bootstrap",
                 "policy-and-security",
                 "core-tests",
                 "ui-truth",
                 "resilience-and-e2e",
                 "release-evidence",
                 "pr-release-critical-gates",
+                "pr-ci-gate",
             ],
         },
         "trusted_semantic_jobs": [
             "policy-and-security",
             "core-tests",
-            "ui-truth",
-            "resilience-and-e2e",
-            "release-evidence",
         ],
         "artifact_roots_required": [".runtime-cache/test_output", ".runtime-cache/logs", ".runtime-cache/cortexpilot/reports"],
         "artifact_roots_release_required": [".runtime-cache/cortexpilot/release"],
@@ -87,12 +78,11 @@ def _base_policy() -> dict:
             "trusted_pr": {
                 "event_names": ["pull_request"],
                 "trust_class": "trusted",
-                "runner_class": "self_hosted",
+                "runner_class": "github_hosted",
                 "cloud_bootstrap_allowed": False,
                 "required_jobs": [
                     "ci-trust-boundary",
                     "quick-feedback",
-                    "runner-bootstrap",
                     "policy-and-security",
                     "core-tests",
                     "pr-release-critical-gates",
@@ -107,18 +97,26 @@ def _base_policy() -> dict:
             "push_main": {
                 "event_names": ["push"],
                 "trust_class": "trusted",
-                "runner_class": "self_hosted",
-                "cloud_bootstrap_allowed": True,
-                "required_jobs": ["runner-cloud-bootstrap", "release-evidence"],
-                "required_artifact_prefixes": ["ci-route-report-push_main-"],
+                "runner_class": "github_hosted",
+                "cloud_bootstrap_allowed": False,
+                "required_jobs": ["ci-trust-boundary", "quick-feedback", "policy-and-security", "core-tests"],
+                "required_artifact_prefixes": ["ci-quick-feedback-artifacts-", "ci-policy-and-security-artifacts-", "ci-core-tests-artifacts-"],
             },
             "workflow_dispatch": {
                 "event_names": ["workflow_dispatch"],
                 "trust_class": "trusted",
-                "runner_class": "self_hosted",
+                "runner_class": "github_hosted",
                 "cloud_bootstrap_allowed": True,
-                "required_jobs": ["runner-cloud-bootstrap", "release-evidence"],
-                "required_artifact_prefixes": ["ci-route-report-workflow_dispatch-"],
+                "required_jobs": ["ci-trust-boundary", "quick-feedback", "policy-and-security", "core-tests"],
+                "required_artifact_prefixes": ["ci-quick-feedback-artifacts-", "ci-policy-and-security-artifacts-", "ci-core-tests-artifacts-"],
+            },
+        },
+        "protected_dispatch_contract": {
+            "required_environment": "owner-approved-sensitive",
+            "manual_only_jobs": {
+                "ui-truth": "run_ui_truth",
+                "resilience-and-e2e": "run_resilience_and_e2e",
+                "release-evidence": "run_release_evidence",
             },
         },
         "strict_env_contract": {
@@ -141,13 +139,6 @@ def _base_policy() -> dict:
             "required_report_metadata_fields": ["generated_at", "source_run_id", "source_route", "source_event"],
             "analytics_only_blacklist_paths": [".runtime-cache/test_output/changed_scope_quality/meta/truth_status.json"],
         },
-        "cloud_bootstrap_contract": {
-            "allowed_route_ids": ["push_main", "workflow_dispatch"],
-            "forbidden_route_ids": ["untrusted_pr", "trusted_pr"],
-            "allowed_job_names": ["runner-cloud-bootstrap"],
-            "required_permission_key": "id-token",
-            "required_permission_value": "write",
-        },
         "supply_chain": {"allowed_action_repos": [], "allowed_download_hosts": []},
     }
 
@@ -155,6 +146,15 @@ def _base_policy() -> dict:
 def _workflow_text(*, include_route_artifact: bool = True, include_allowlist: bool = True) -> tuple[str, str]:
     workflow = """
 name: CI
+on:
+  workflow_dispatch:
+    inputs:
+      run_ui_truth:
+        required: false
+      run_resilience_and_e2e:
+        required: false
+      run_release_evidence:
+        required: false
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -162,24 +162,29 @@ jobs:
   ci-trust-boundary:
     runs-on: ubuntu-24.04
     outputs:
+      trusted_route_allowed: ${{ steps.decide.outputs.trusted_route_allowed }}
+      sensitive_dispatch_allowed: ${{ steps.decide.outputs.sensitive_dispatch_allowed }}
       route_id: ${{ steps.decide.outputs.route_id }}
+      trust_class: ${{ steps.decide.outputs.trust_class }}
+      runner_class: ${{ steps.decide.outputs.runner_class }}
+    steps:
+      - id: decide
+        run: |
+          echo "trusted_route_allowed=true" >> "$GITHUB_OUTPUT"
+          echo "sensitive_dispatch_allowed=true" >> "$GITHUB_OUTPUT"
+          echo "route_id=workflow_dispatch" >> "$GITHUB_OUTPUT"
+          echo "trust_class=trusted" >> "$GITHUB_OUTPUT"
+          echo "runner_class=github_hosted" >> "$GITHUB_OUTPUT"
   quick-feedback:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
+          name: ci-quick-feedback-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             .runtime-cache/test_output
             .runtime-cache/logs
             .runtime-cache/cortexpilot/reports
-  runner-cloud-bootstrap:
-    if: needs.ci-trust-boundary.outputs.cloud_bootstrap_allowed == 'true'
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      id-token: write
-  runner-bootstrap:
-    runs-on: [self-hosted, shared-pool]
   untrusted-pr-basic-gates:
     runs-on: ubuntu-24.04
     steps:
@@ -191,7 +196,7 @@ jobs:
             .runtime-cache/logs
             .runtime-cache/cortexpilot/reports
   policy-and-security:
-    runs-on: [self-hosted, shared-pool]
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -201,7 +206,7 @@ jobs:
             .runtime-cache/cortexpilot/reports
             .runtime-cache/cortexpilot/release
   core-tests:
-    runs-on: [self-hosted, shared-pool]
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -210,7 +215,9 @@ jobs:
             .runtime-cache/logs
             .runtime-cache/cortexpilot/reports
   ui-truth:
-    runs-on: [self-hosted, shared-pool]
+    if: needs.ci-trust-boundary.outputs.trusted_route_allowed == 'true' && needs.ci-trust-boundary.outputs.sensitive_dispatch_allowed == 'true' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_ui_truth == 'true'
+    environment: owner-approved-sensitive
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -219,7 +226,9 @@ jobs:
             .runtime-cache/logs
             .runtime-cache/cortexpilot/reports
   resilience-and-e2e:
-    runs-on: [self-hosted, shared-pool]
+    if: needs.ci-trust-boundary.outputs.trusted_route_allowed == 'true' && needs.ci-trust-boundary.outputs.sensitive_dispatch_allowed == 'true' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_resilience_and_e2e == 'true'
+    environment: owner-approved-sensitive
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -228,7 +237,9 @@ jobs:
             .runtime-cache/logs
             .runtime-cache/cortexpilot/reports
   release-evidence:
-    runs-on: [self-hosted, shared-pool]
+    if: needs.ci-trust-boundary.outputs.trusted_route_allowed == 'true' && needs.ci-trust-boundary.outputs.sensitive_dispatch_allowed == 'true' && github.event_name == 'workflow_dispatch' && github.event.inputs.run_release_evidence == 'true'
+    environment: owner-approved-sensitive
+    runs-on: ubuntu-24.04
     needs: [policy-and-security, core-tests, ui-truth, resilience-and-e2e]
     steps:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -240,14 +251,13 @@ jobs:
             .runtime-cache/cortexpilot/reports
           name: ci-route-report-${{ needs.ci-trust-boundary.outputs.route_id }}-${{ github.run_id }}
   pr-release-critical-gates:
-    runs-on: [self-hosted, shared-pool]
-    needs: [ci-trust-boundary, quick-feedback, runner-bootstrap, policy-and-security, core-tests]
+    runs-on: ubuntu-24.04
+    needs: [ci-trust-boundary, quick-feedback, policy-and-security, core-tests]
     steps:
       - run: |
           python3 scripts/build_ci_route_report.py finalize \
             --job-observed ci-trust-boundary \
             --job-observed quick-feedback \
-            --job-observed runner-bootstrap \
             --job-observed policy-and-security \
             --job-observed core-tests \
             --job-observed pr-release-critical-gates \

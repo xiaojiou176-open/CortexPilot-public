@@ -20,7 +20,7 @@ def _write_workflow(root: Path, name: str, body: str) -> None:
     (workflows / name).write_text(body, encoding="utf-8")
 
 
-def test_workflow_runner_governance_accepts_exact_self_hosted_and_runner_temp() -> None:
+def test_workflow_runner_governance_accepts_hosted_runner_temp_contract() -> None:
     module = _load_module()
     tmp_root = Path.cwd() / ".runtime-cache" / "test_output" / "workflow_runner_governance_ok"
     if tmp_root.exists():
@@ -34,7 +34,7 @@ def test_workflow_runner_governance_accepts_exact_self_hosted_and_runner_temp() 
 name: test
 jobs:
   demo:
-    runs-on: [self-hosted, shared-pool]
+    runs-on: ubuntu-24.04
     env:
       AGENT_TOOLSDIRECTORY: ${{ runner.temp }}/hostedtoolcache-job
       RUNNER_TOOL_CACHE: ${{ runner.temp }}/hostedtoolcache-job
@@ -62,7 +62,7 @@ def test_workflow_runner_governance_rejects_workspace_cache_paths() -> None:
 name: test
 jobs:
   demo:
-    runs-on: [self-hosted, shared-pool]
+    runs-on: ubuntu-24.04
     env:
       AGENT_TOOLSDIRECTORY: ${{ github.workspace }}/.runtime-cache/hostedtoolcache
     steps:
@@ -111,7 +111,7 @@ def test_workflow_runner_governance_rejects_checkout_without_explicit_clean_true
 name: test
 jobs:
   demo:
-    runs-on: [self-hosted, shared-pool]
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -137,7 +137,7 @@ def test_workflow_runner_governance_accepts_checkout_with_explicit_clean_true() 
 name: test
 jobs:
   demo:
-    runs-on: [self-hosted, shared-pool]
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -165,7 +165,7 @@ def test_workflow_runner_governance_accepts_container_entry_lane() -> None:
 name: test
 jobs:
   full-ci:
-    runs-on: [self-hosted, shared-pool]
+    runs-on: ubuntu-24.04
     env:
       AGENT_TOOLSDIRECTORY: ${{ runner.temp }}/hostedtoolcache-job
       RUNNER_TOOL_CACHE: ${{ runner.temp }}/hostedtoolcache-job

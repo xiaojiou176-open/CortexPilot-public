@@ -52,6 +52,19 @@ navigation set.
 - `docs/assets/storefront/demo-status.md`: status ledger for tracked public demo and proof assets
 - `docs/assets/storefront/benchmark-methodology.md`: public benchmark evidence contract and wording boundary
 
+## Public CI Contract
+
+- default public CI is hosted-first and GitHub-hosted
+- fork PRs stay on low-privilege checks only and must not touch secrets or
+  live/external systems
+- maintainer-owned PRs still stay on GitHub-hosted policy/core lanes
+- protected sensitive lanes (`ui-truth`, `resilience-and-e2e`,
+  `release-evidence`) are manual `workflow_dispatch` paths gated by the
+  `owner-approved-sensitive` environment
+- `configs/ci_governance_policy.json` is the machine SSOT for repo-side CI
+  routing; `configs/github_control_plane_policy.json` is the live GitHub
+  control-plane contract
+
 ## Documentation Rules
 
 - keep docs English-first

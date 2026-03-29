@@ -34,7 +34,7 @@ def _run_command(name: str, args: list[str]) -> tuple[bool, str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Check trusted self-hosted CI runner drift.")
+    parser = argparse.ArgumentParser(description="Check GitHub-hosted CI runner toolchain drift.")
     parser.add_argument("--baseline", default=str(DEFAULT_BASELINE), help="Baseline JSON path")
     parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR), help="Output directory")
     parser.add_argument(

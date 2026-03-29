@@ -10,7 +10,7 @@ const requestedPool = process.env.DASHBOARD_VITEST_POOL ?? process.env.VITEST_PO
 const unstablePools = new Set(["vmThreads"]);
 const pool = unstablePools.has(requestedPool) ? "forks" : requestedPool;
 const coverageEnabled = process.argv.includes("--coverage");
-// v8 coverage writes per-worker temp files under coverage/.tmp; on CI self-hosted runners
+// v8 coverage writes per-worker temp files under coverage/.tmp; on busy GitHub-hosted CI runners
 // the full dashboard suite can race that temp directory when many workers flush at once.
 const serialCoverageMode = Boolean(
   coverageEnabled &&

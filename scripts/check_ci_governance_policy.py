@@ -59,6 +59,7 @@ def main() -> int:
     workflow_text = workflow_path.read_text(encoding="utf-8")
     workflow = yaml.safe_load(workflow_text)
     jobs: dict[str, Any] = workflow.get("jobs") or {}
+    trigger_block = workflow.get("on") or workflow.get(True) or {}
     errors: list[str] = []
     docker_ci_path = repo_root / "scripts" / "docker_ci.sh"
     docker_ci_text = docker_ci_path.read_text(encoding="utf-8")
@@ -78,7 +79,7 @@ def main() -> int:
         if not isinstance(route_policy, dict):
             continue
         _require(bool(route_policy.get("event_names")), errors, f"route_contract.{route_id}.event_names missing")
-        _require(route_policy.get("runner_class") in {"github_hosted", "self_hosted"}, errors, f"route_contract.{route_id}.runner_class invalid")
+        _require(route_policy.get("runner_class") == "github_hosted", errors, f"route_contract.{route_id}.runner_class must be github_hosted")
         _require(route_policy.get("trust_class") in {"trusted", "untrusted"}, errors, f"route_contract.{route_id}.trust_class invalid")
         for job_name in route_policy.get("required_jobs") or []:
             _require(job_name in jobs, errors, f"route_contract.{route_id} references unknown job `{job_name}`")
@@ -92,10 +93,14 @@ def main() -> int:
                 f"route_contract.{route_id} missing workflow artifact prefix `{artifact_prefix}`",
             )
 
+    _require("self_hosted_allowed" not in workflow_text, errors, "legacy self_hosted_allowed contract still present in workflow")
+    _require('runner_class="self_hosted"' not in workflow_text, errors, "legacy self_hosted runner_class assignment still present in workflow")
+    _require("CORTEXPILOT_CI_RUNNER_CLASS: self_hosted" not in workflow_text, errors, "legacy self_hosted runner_class env still present in workflow")
+
     for job_name in policy["runner_contract"]["github_hosted"]:
         job = jobs.get(job_name) or {}
         _require(job.get("runs-on") == "ubuntu-24.04", errors, f"{job_name} must run on ubuntu-24.04")
-    for job_name in policy["runner_contract"]["self_hosted"]:
+    for job_name in (policy.get("runner_contract") or {}).get("self_hosted", []):
         job = jobs.get(job_name) or {}
         _require(job.get("runs-on") == ["self-hosted", "shared-pool"], errors, f"{job_name} must run on [self-hosted, shared-pool]")
 
@@ -141,7 +146,7 @@ def main() -> int:
 
     release_job = jobs.get("release-evidence") or {}
     release_needs = set(release_job.get("needs") or [])
-    _require(set(policy["trusted_semantic_jobs"][:-1]).issubset(release_needs), errors, "release-evidence must depend on earlier trusted semantic slices")
+    _require(set(policy["trusted_semantic_jobs"]).issubset(release_needs), errors, "release-evidence must depend on earlier trusted semantic slices")
 
     def _upload_paths(job_name: str) -> str:
         job = jobs.get(job_name) or {}
@@ -172,19 +177,40 @@ def main() -> int:
     _require(isinstance(freshness.get("max_report_age_sec"), int) and int(freshness.get("max_report_age_sec")) > 0, errors, "freshness_contract.max_report_age_sec invalid")
     _require(bool(freshness.get("required_report_metadata_fields")), errors, "freshness_contract.required_report_metadata_fields missing")
 
-    cloud = policy.get("cloud_bootstrap_contract") or {}
-    allowed_jobs = set(cloud.get("allowed_job_names") or [])
-    permission_key = str(cloud.get("required_permission_key") or "")
-    permission_value = str(cloud.get("required_permission_value") or "")
-    for job_name, job in jobs.items():
-        permissions = job.get("permissions") or {}
-        if permissions.get(permission_key) == permission_value and job_name not in allowed_jobs:
-            errors.append(f"{job_name} must not request {permission_key}: {permission_value}")
-    for job_name in allowed_jobs:
-        job = jobs.get(job_name) or {}
-        permissions = job.get("permissions") or {}
-        _require(permissions.get(permission_key) == permission_value, errors, f"{job_name} missing {permission_key}: {permission_value}")
-        _require("cloud_bootstrap_allowed" in str(job.get("if") or ""), errors, f"{job_name} must gate on cloud_bootstrap_allowed")
+    protected_dispatch = policy.get("protected_dispatch_contract") or {}
+    required_environment = str(protected_dispatch.get("required_environment") or "").strip()
+    manual_only_jobs = protected_dispatch.get("manual_only_jobs") or {}
+    workflow_dispatch_inputs = (
+        trigger_block.get("workflow_dispatch", {}).get("inputs", {})
+        if isinstance(trigger_block, dict)
+        else {}
+    )
+    if required_environment:
+        _require(required_environment in workflow_text, errors, f"protected dispatch environment missing from workflow: {required_environment}")
+    if not isinstance(workflow_dispatch_inputs, dict):
+        workflow_dispatch_inputs = {}
+    if manual_only_jobs:
+        for job_name, input_name in manual_only_jobs.items():
+            job = jobs.get(job_name) or {}
+            _require(job.get("runs-on") == "ubuntu-24.04", errors, f"{job_name} must run on ubuntu-24.04")
+            if required_environment:
+                _require(job.get("environment") == required_environment, errors, f"{job_name} must use environment `{required_environment}`")
+            condition_text = str(job.get("if") or "")
+            _require("github.event_name == 'workflow_dispatch'" in condition_text, errors, f"{job_name} must be workflow_dispatch only")
+            _require(
+                f"github.event.inputs.{input_name} == 'true'" in condition_text,
+                errors,
+                f"{job_name} must gate on workflow_dispatch input `{input_name}`",
+            )
+            _require(
+                "trusted_route_allowed" in condition_text and "sensitive_dispatch_allowed" in condition_text,
+                errors,
+                f"{job_name} must gate on trusted_route_allowed + sensitive_dispatch_allowed",
+            )
+            _require(input_name in workflow_dispatch_inputs, errors, f"workflow_dispatch missing input `{input_name}` for {job_name}")
+            for route_id in ("trusted_pr", "push_main"):
+                route_jobs = set((route_contract.get(route_id) or {}).get("required_jobs") or [])
+                _require(job_name not in route_jobs, errors, f"{job_name} must not be part of {route_id} required_jobs")
 
     _require("CORTEXPILOT_CI_ROUTE_ID" in docker_ci_text, errors, "docker_ci must pass route metadata into strict container path")
 

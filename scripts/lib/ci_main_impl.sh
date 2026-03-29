@@ -913,7 +913,11 @@ bash scripts/check_repo_hygiene.sh
 echo "ℹ️ [STEP 2/12] repo-side hygiene passed; refreshing governance evidence (includes external truth receipts)"
 bash scripts/run_governance_py.sh scripts/refresh_governance_evidence_manifest.py
 bash scripts/run_governance_py.sh scripts/build_governance_scorecard.py --enforce
-bash scripts/run_governance_py.sh scripts/build_governance_closeout_report.py --mode ci
+if [[ "${CORTEXPILOT_CI_ROUTE_ID:-local_full_ci}" != "trusted_pr" && "${CORTEXPILOT_CI_ROUTE_ID:-local_full_ci}" != "untrusted_pr" ]]; then
+  bash scripts/run_governance_py.sh scripts/build_governance_closeout_report.py --mode ci
+else
+  echo "ℹ️ [ci] skip governance closeout report on ${CORTEXPILOT_CI_ROUTE_ID:-unknown} route; authoritative closeout belongs to final closeout lanes"
+fi
 echo "✅ [STEP 2/12] Completed"
 echo "🚀 [STEP 3/12] Start: Secret scanning gate"
 default_scanner_required=1
@@ -1025,8 +1029,12 @@ echo "✅ [STEP 3.8/12] Completed"
 echo "🚀 [STEP 3.81/12] Start: E2E marker consistency gate"
 "$PYTHON" scripts/check_e2e_marker_consistency.py
 echo "✅ [STEP 3.81/12] Completed"
-echo "🚀 [STEP 3.82/12] Start: Trusted runner drift gate"
-bash scripts/run_governance_py.sh scripts/check_ci_runner_drift.py --mode strict
+echo "🚀 [STEP 3.82/12] Start: GitHub-hosted runner toolchain drift gate"
+if [[ "${CORTEXPILOT_CI_ROUTE_ID:-local_full_ci}" == "trusted_pr" || "${CORTEXPILOT_CI_ROUTE_ID:-local_full_ci}" == "untrusted_pr" ]]; then
+  echo "ℹ️ [ci] skip strict runner drift gate on ${CORTEXPILOT_CI_ROUTE_ID:-unknown} route; GitHub-hosted toolchain drift stays report-only on pull_request lanes"
+else
+  bash scripts/run_governance_py.sh scripts/check_ci_runner_drift.py --mode strict
+fi
 echo "✅ [STEP 3.82/12] Completed"
 fi
 if ci_slice_enabled "core-tests"; then

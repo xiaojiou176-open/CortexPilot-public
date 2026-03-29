@@ -18,7 +18,7 @@ def parse_args() -> argparse.Namespace:
     seed.add_argument("--output", required=True)
     seed.add_argument("--route-id", required=True)
     seed.add_argument("--trust-class", required=True, choices=("trusted", "untrusted"))
-    seed.add_argument("--runner-class", required=True, choices=("github_hosted", "self_hosted"))
+    seed.add_argument("--runner-class", required=True, choices=("github_hosted", "local"))
     seed.add_argument("--cloud-bootstrap-allowed", required=True, choices=("true", "false"))
     seed.add_argument("--github-run-id", required=True)
     seed.add_argument("--github-run-attempt", required=True)
@@ -40,7 +40,7 @@ def parse_args() -> argparse.Namespace:
     validate.add_argument("--input", required=True)
     validate.add_argument("--expected-route-id", required=True)
     validate.add_argument("--expected-trust-class", required=True, choices=("trusted", "untrusted"))
-    validate.add_argument("--expected-runner-class", required=True, choices=("github_hosted", "self_hosted"))
+    validate.add_argument("--expected-runner-class", required=True, choices=("github_hosted", "local"))
     validate.add_argument("--expected-cloud-bootstrap-allowed", required=True, choices=("true", "false"))
     validate.add_argument("--forbid-cloud-bootstrap-used", action="store_true")
     validate.add_argument("--forbid-self-hosted-artifacts", action="store_true")
@@ -168,4 +168,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
