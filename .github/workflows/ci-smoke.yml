@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   smoke:
-    runs-on: [self-hosted, shared-pool]
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Initialize Runner Tool Cache Env

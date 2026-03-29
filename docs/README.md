@@ -87,6 +87,6 @@ navigation set.
   ENOSPC recovery knobs plus the Docker daemon precheck retry knobs registered
   in `configs/env.registry.json`; current CI contract changes also include the
   upstream receipt refresh fallback to `scripts/verify_upstream_slices.py --mode smoke`
-  and the strict self-hosted live-provider rule that allows
+  and the strict hosted-first live-provider rule that allows
   process env first and `~/.codex/config.toml` second while keeping dotenv and
   shell-export fallbacks disabled on mainline

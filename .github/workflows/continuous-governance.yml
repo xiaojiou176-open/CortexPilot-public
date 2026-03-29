@@ -37,7 +37,7 @@ concurrency:
 jobs:
   continuous-governance:
     name: Continuous Governance Ops
-    runs-on: [self-hosted, shared-pool]
+    runs-on: ubuntu-latest
     timeout-minutes: 60
 
     permissions:
