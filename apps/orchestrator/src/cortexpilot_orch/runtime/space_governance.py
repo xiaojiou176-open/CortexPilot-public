@@ -678,6 +678,17 @@ def inspect_path_entry(
         cleanup_candidates = collect_named_descendant_candidates(
             base_path=path,
             target_names={str(item) for item in entry_spec.get("cleanup_target_names", []) if str(item).strip()},
+            exclude_names={
+                "__pycache__",
+                ".pytest_cache",
+                "node_modules",
+                ".venv",
+                ".git",
+                ".runtime-cache",
+                *(str(item) for item in entry_spec.get("cleanup_exclude_names", []) if str(item).strip()),
+            },
+            now=now,
+            recent_window_hours=recent_window_hours,
         )
 
     governance_owner = infer_governance_owner(entry_spec=entry_spec, layer_name=layer_name)
@@ -899,11 +910,15 @@ def collect_named_descendant_candidates(
     *,
     base_path: Path,
     target_names: set[str],
+    exclude_names: set[str],
+    now: datetime,
+    recent_window_hours: int,
 ) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
     if not target_names:
         return candidates
     for root, dirnames, _ in os.walk(base_path):
+        dirnames[:] = [dirname for dirname in dirnames if dirname not in exclude_names]
         for dirname in sorted(dirnames):
             if dirname not in target_names:
                 continue
@@ -917,7 +932,7 @@ def collect_named_descendant_candidates(
                     "size_bytes": size_bytes,
                     "size_human": human_size(size_bytes),
                     "mtime_utc": candidate_mtime.isoformat(),
-                    "recent_activity": False,
+                    "recent_activity": ((now - candidate_mtime).total_seconds() / 3600.0) < float(recent_window_hours),
                 }
             )
     return sorted(candidates, key=lambda item: item["size_bytes"], reverse=True)

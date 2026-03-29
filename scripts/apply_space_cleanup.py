@@ -7,6 +7,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -40,6 +41,25 @@ def remove_path(path: Path) -> None:
     shutil.rmtree(path)
 
 
+def size_for_cleanup_path(path: Path) -> int:
+    if not path.exists() and not path.is_symlink():
+        return 0
+    resolved_path = path.resolve(strict=False)
+    size_target = resolved_path if path.is_symlink() and resolved_path.exists() else path
+    return path_size_bytes(size_target)
+
+
+def read_tail(path: Path, *, max_bytes: int = 1000) -> str:
+    if not path.exists():
+        return ""
+    with path.open("rb") as handle:
+        try:
+            handle.seek(-max_bytes, 2)
+        except OSError:
+            handle.seek(0)
+        return handle.read().decode("utf-8", errors="replace")
+
+
 def run_verification_commands(*, repo_root: Path, commands: list[dict]) -> tuple[list[dict], str]:
     results: list[dict] = []
     for command in commands:
@@ -56,13 +76,26 @@ def run_verification_commands(*, repo_root: Path, commands: list[dict]) -> tuple
                 }
             )
             return results, "cleanup completed but no runnable post-cleanup verification command was available; rerun the declared rebuild commands manually"
-        proc = subprocess.run(
-            argv,
-            cwd=repo_root,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        with tempfile.NamedTemporaryFile(mode="w+b", delete=False) as stdout_handle, tempfile.NamedTemporaryFile(
+            mode="w+b", delete=False
+        ) as stderr_handle:
+            stdout_path = Path(stdout_handle.name)
+            stderr_path = Path(stderr_handle.name)
+        try:
+            with stdout_path.open("w", encoding="utf-8") as stdout_file, stderr_path.open("w", encoding="utf-8") as stderr_file:
+                proc = subprocess.run(
+                    argv,
+                    cwd=repo_root,
+                    stdout=stdout_file,
+                    stderr=stderr_file,
+                    text=True,
+                    check=False,
+                )
+            stdout_tail = read_tail(stdout_path)
+            stderr_tail = read_tail(stderr_path)
+        finally:
+            stdout_path.unlink(missing_ok=True)
+            stderr_path.unlink(missing_ok=True)
         results.append(
             {
                 "command_id": str(command.get("command_id", "")),
@@ -70,8 +103,8 @@ def run_verification_commands(*, repo_root: Path, commands: list[dict]) -> tuple
                 "exit_code": int(proc.returncode),
                 "available": bool(command.get("available", False)),
                 "detail": str(command.get("detail", "")),
-                "stdout_tail": proc.stdout[-1000:],
-                "stderr_tail": proc.stderr[-1000:],
+                "stdout_tail": stdout_tail,
+                "stderr_tail": stderr_tail,
             }
         )
         if proc.returncode != 0:
@@ -115,11 +148,10 @@ def main() -> int:
     verification_failures: list[dict[str, object]] = []
     for item in revalidation["validated_targets"]:
         path = Path(item["path"])
-        canonical_path = Path(item["canonical_path"])
-        before = path_size_bytes(path)
+        before = size_for_cleanup_path(path)
         before_total += before
         remove_path(path)
-        after = path_size_bytes(canonical_path if canonical_path.exists() else path)
+        after = size_for_cleanup_path(path)
         after_total += after
         verification_commands = list(item.get("post_cleanup_verification_commands", []))
         verification_results, failure_rollback_note = run_verification_commands(
