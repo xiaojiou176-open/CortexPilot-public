@@ -35,7 +35,7 @@ cleanup_quick_runtime_residue() {
 trap cleanup_quick_runtime_residue EXIT INT TERM
 
 WORK_DIR=".runtime-cache/cache/test_quick"
-mkdir -p "$WORK_DIR" ".runtime-cache/test_output"
+mkdir -p "$WORK_DIR" ".runtime-cache/test_output/governance/quick_checks"
 CHANGED_FILE="$WORK_DIR/changed_files.txt"
 ORCH_TARGETS="$WORK_DIR/orchestrator_targets.txt"
 DASH_CHANGED="$WORK_DIR/dashboard_changed.txt"
@@ -464,7 +464,7 @@ fi
 
 if [[ -s "$ORCH_TARGETS" ]]; then
   log "running Orchestrator quick checks"
-  run_pytest_with_parallel_fallback "$ORCH_TARGETS" ".runtime-cache/test_output/test_quick_orchestrator_parallel.log"
+  run_pytest_with_parallel_fallback "$ORCH_TARGETS" ".runtime-cache/test_output/governance/quick_checks/test_quick_orchestrator_parallel.log"
   printf '%s\n' "orchestrator:$(tr '\n' ' ' < "$ORCH_TARGETS")" >> "$SUMMARY_FILE"
   printf '%s\n' "orchestrator_map_trace:$(tr '\n' ' ' < "$ORCH_MATCH_TRACE")" >> "$SUMMARY_FILE"
 fi
@@ -490,7 +490,7 @@ if [[ "$DASH_TOUCHED" -eq 1 ]]; then
       "$DASH_CHANGED" \
       "$DASH_FALLBACK" \
       "apps/dashboard" \
-      ".runtime-cache/test_output/test_quick_dashboard_related.log"
+      ".runtime-cache/test_output/governance/quick_checks/test_quick_dashboard_related.log"
   ) &
   dash_pid=$!
 fi
@@ -503,7 +503,7 @@ if [[ "$DESK_TOUCHED" -eq 1 ]]; then
       "$DESK_CHANGED" \
       "$DESK_FALLBACK" \
       "apps/desktop" \
-      ".runtime-cache/test_output/test_quick_desktop_related.log"
+      ".runtime-cache/test_output/governance/quick_checks/test_quick_desktop_related.log"
   ) &
   desk_pid=$!
 fi

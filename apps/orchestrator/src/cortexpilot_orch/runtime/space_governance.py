@@ -41,6 +41,7 @@ class RebuildCommandStatus:
     description: str
     available: bool
     detail: str
+    argv: list[str]
 
 
 class SpaceGovernancePolicyError(ValueError):
@@ -97,6 +98,18 @@ def load_space_governance_policy(path: Path) -> dict[str, Any]:
                     raise SpaceGovernancePolicyError(
                         f"space governance policy entry `{entry['id']}` must define list for `{hint_field}`"
                     )
+            for list_field in ("rebuild_command_ids", "post_cleanup_command_ids", "cleanup_target_names"):
+                values = entry.get(list_field, [])
+                if values and not isinstance(values, list):
+                    raise SpaceGovernancePolicyError(
+                        f"space governance policy entry `{entry['id']}` must define list for `{list_field}`"
+                    )
+            cleanup_mode = str(entry.get("cleanup_mode", "")).strip()
+            if cleanup_mode == "named-descendants":
+                if not entry.get("cleanup_target_names"):
+                    raise SpaceGovernancePolicyError(
+                        f"space governance policy named-descendants entry must declare cleanup_target_names: {entry['id']}"
+                    )
 
     wave_targets = payload.get("wave_targets")
     if not isinstance(wave_targets, dict):
@@ -136,6 +149,39 @@ def load_space_governance_policy(path: Path) -> dict[str, Any]:
             raise SpaceGovernancePolicyError(
                 f"rebuild_commands entry must use supported kind (npm_script|shell_script): {command}"
             )
+        args = command.get("args", [])
+        if args and not isinstance(args, list):
+            raise SpaceGovernancePolicyError(
+                f"rebuild_commands args must be a list when present: {command}"
+            )
+
+    known_command_ids = {
+        str(command.get("id", "")).strip()
+        for command in rebuild_commands
+        if isinstance(command, dict) and str(command.get("id", "")).strip()
+    }
+    for layer in POLICY_LAYERS:
+        for entry in layers.get(layer, []):
+            cleanup_mode = str(entry.get("cleanup_mode", "")).strip()
+            apply_eligible = cleanup_mode in {"remove-path", "aged-children", "named-descendants"}
+            rebuild_command_ids = [str(item).strip() for item in entry.get("rebuild_command_ids", []) if str(item).strip()]
+            verification_command_ids = [
+                str(item).strip() for item in entry.get("post_cleanup_command_ids", []) if str(item).strip()
+            ]
+            missing = sorted(
+                command_id
+                for command_id in {*(rebuild_command_ids), *(verification_command_ids)}
+                if command_id not in known_command_ids
+            )
+            if missing:
+                raise SpaceGovernancePolicyError(
+                    f"space governance policy entry references unknown command ids {missing}: {entry['id']}"
+                )
+            if apply_eligible and str(entry.get("recommendation", "")).strip() != "observe_only":
+                if not rebuild_command_ids and not verification_command_ids:
+                    raise SpaceGovernancePolicyError(
+                        f"apply-eligible space governance policy entry must declare rebuild/verification commands: {entry['id']}"
+                    )
 
     return payload
 
@@ -149,7 +195,7 @@ def build_space_governance_report(
 ) -> dict[str, Any]:
     current_time = now or datetime.now(timezone.utc)
     recent_window_hours = int(policy.get("recent_activity_hours", DEFAULT_RECENT_ACTIVITY_HOURS))
-    rebuild_statuses = collect_rebuild_command_statuses(repo_root=repo_root, policy=policy)
+    command_statuses = collect_rebuild_command_statuses(repo_root=repo_root, policy=policy)
 
     layer_entries: dict[str, list[dict[str, Any]]] = {layer: [] for layer in POLICY_LAYERS}
     all_entries: list[dict[str, Any]] = []
@@ -167,7 +213,11 @@ def build_space_governance_report(
             for entry in resolved_entries:
                 entry["required_rebuild_commands"] = resolve_rebuild_command_statuses(
                     command_ids=entry_spec.get("rebuild_command_ids", []),
-                    statuses=rebuild_statuses,
+                    statuses=command_statuses,
+                )
+                entry["post_cleanup_verification_commands"] = resolve_rebuild_command_statuses(
+                    command_ids=entry_spec.get("post_cleanup_command_ids", entry_spec.get("rebuild_command_ids", [])),
+                    statuses=command_statuses,
                 )
                 layer_entries[layer_name].append(entry)
                 all_entries.append(entry)
@@ -211,6 +261,7 @@ def build_space_governance_report(
         summary=summary,
         layer_entries=layer_entries,
     )
+    retention_summary = load_retention_summary(repo_root=repo_root)
 
     return {
         "generated_at": current_time.isoformat(),
@@ -219,7 +270,8 @@ def build_space_governance_report(
         "policy_hash": policy_hash(policy),
         "summary": summary,
         "process_matches": process_matches,
-        "rebuild_commands": [status.__dict__ for status in rebuild_statuses],
+        "rebuild_commands": [status.__dict__ for status in command_statuses],
+        "retention_summary": retention_summary,
         "layers": layer_entries,
         "needs_verification": needs_verification,
         "environment_drift_signals": environment_drift_signals,
@@ -310,6 +362,7 @@ def evaluate_cleanup_gate(
             manual_findings.append(
                 {
                     "blocking_reason_kind": "unknown",
+                    "manual_confirmation_kind": "unknown",
                     "evidence_scope": "unknown",
                     "process_group": group,
                     "message": message,
@@ -363,6 +416,7 @@ def evaluate_cleanup_gate(
             manual_findings.append(
                 {
                     "blocking_reason_kind": "shared_layer",
+                    "manual_confirmation_kind": "shared_cache",
                     "evidence_scope": "shared_layer",
                     "message": message,
                     "entry_id": entry["id"],
@@ -378,6 +432,7 @@ def evaluate_cleanup_gate(
             manual_findings.append(
                 {
                     "blocking_reason_kind": "recent_hot_data",
+                    "manual_confirmation_kind": "recent_hot_data",
                     "evidence_scope": "recent_hot_data",
                     "message": message,
                     "entry_id": entry["id"],
@@ -394,11 +449,14 @@ def evaluate_cleanup_gate(
                     "canonical_path": entry["canonical_path"],
                     "target_kind": "path",
                     "size_bytes": entry["size_bytes"],
+                    "expected_reclaim_bytes": entry["size_bytes"],
                     "classification": entry["recommendation"],
                     "rebuild_entrypoints": entry["required_rebuild_commands"],
+                    "post_cleanup_verification_commands": entry["post_cleanup_verification_commands"],
+                    "apply_serial_only": bool(entry.get("apply_serial_only", False)),
                 }
             )
-        elif cleanup_mode == "aged-children":
+        elif cleanup_mode in {"aged-children", "named-descendants"}:
             for candidate in entry.get("cleanup_candidates", []):
                 if candidate.get("recent_activity") and not allow_recent:
                     message = (
@@ -409,6 +467,7 @@ def evaluate_cleanup_gate(
                     manual_findings.append(
                         {
                             "blocking_reason_kind": "recent_hot_data",
+                            "manual_confirmation_kind": "recent_hot_data",
                             "evidence_scope": "recent_hot_data",
                             "message": message,
                             "entry_id": entry["id"],
@@ -421,12 +480,20 @@ def evaluate_cleanup_gate(
                         "entry_id": entry["id"],
                         "path": candidate["path"],
                         "canonical_path": candidate.get("canonical_path", candidate["path"]),
-                        "target_kind": "aged-child",
+                        "target_kind": "named-descendant" if cleanup_mode == "named-descendants" else "aged-child",
                         "size_bytes": candidate["size_bytes"],
+                        "expected_reclaim_bytes": candidate["size_bytes"],
                         "classification": entry["recommendation"],
                         "rebuild_entrypoints": entry["required_rebuild_commands"],
+                        "post_cleanup_verification_commands": entry["post_cleanup_verification_commands"],
+                        "apply_serial_only": bool(entry.get("apply_serial_only", False)),
                     }
                 )
+
+    eligible_targets = dedupe_target_list(eligible_targets)
+    eligible_targets, deferred_targets = split_serial_cleanup_targets(eligible_targets)
+    execution_order = build_execution_order(eligible_targets)
+    expected_reclaim_bytes = sum(int(item.get("expected_reclaim_bytes", item.get("size_bytes", 0))) for item in eligible_targets)
 
     status = "pass"
     if blocked_reasons:
@@ -448,7 +515,10 @@ def evaluate_cleanup_gate(
         "manual_reasons": dedupe(manual_reasons),
         "blocked_findings": blocked_findings,
         "manual_confirmation_findings": manual_findings,
-        "eligible_targets": dedupe_target_list(eligible_targets),
+        "eligible_targets": eligible_targets,
+        "deferred_targets": deferred_targets,
+        "execution_order": execution_order,
+        "expected_reclaim_bytes": expected_reclaim_bytes,
         "active_process_groups": active_process_groups,
         "noisy_process_groups": noisy_process_groups,
         "required_rebuild_commands": sorted(rebuild_requirements),
@@ -470,11 +540,25 @@ def render_space_governance_markdown(report: dict[str, Any]) -> str:
         f"- Needs verification: **{summary['needs_verification_total_human']}** "
         f"(reported: {summary['needs_verification_reported_total_human']})",
         "",
+        "## Retention Bridge",
+        "",
+    ]
+    retention_summary = report.get("retention_summary")
+    if not isinstance(retention_summary, dict):
+        lines.append("- retention report unavailable")
+    else:
+        lines.append(f"- Latest retention report: `{retention_summary.get('generated_at', 'unknown')}`")
+        if isinstance(retention_summary.get("result"), dict):
+            lines.append(f"- Retention removed_total: **{retention_summary['result'].get('removed_total', 0)}**")
+    lines.extend(
+        [
+            "",
         "## Top Entries",
         "",
         "| Path | Layer | Size | Recommendation | Risk |",
         "| --- | --- | ---: | --- | --- |",
-    ]
+        ]
+    )
     for entry in report["top_entries"]:
         lines.append(
             f"| `{entry['path']}` | `{entry['layer']}` | {entry['size_human']} | "
@@ -590,6 +674,15 @@ def inspect_path_entry(
             exclude_names={str(item) for item in entry_spec.get("cleanup_exclude_names", [])},
             now=now,
         )
+    elif exists and entry_spec["cleanup_mode"] == "named-descendants" and path.is_dir():
+        cleanup_candidates = collect_named_descendant_candidates(
+            base_path=path,
+            target_names={str(item) for item in entry_spec.get("cleanup_target_names", []) if str(item).strip()},
+        )
+
+    governance_owner = infer_governance_owner(entry_spec=entry_spec, layer_name=layer_name)
+    preserve_reason = infer_preserve_reason(entry_spec=entry_spec, layer_name=layer_name)
+    expected_rebuild_commands = entry_spec.get("post_cleanup_command_ids", entry_spec.get("rebuild_command_ids", []))
 
     return {
         "id": entry_id,
@@ -614,6 +707,11 @@ def inspect_path_entry(
         "rebuildability": entry_spec["rebuildability"],
         "recommendation": entry_spec["recommendation"],
         "cleanup_mode": entry_spec["cleanup_mode"],
+        "governance_owner": governance_owner,
+        "preserve_reason": preserve_reason,
+        "expected_rebuild_cost_class": infer_rebuild_cost_class(entry_spec["rebuildability"]),
+        "expected_rebuild_commands": expected_rebuild_commands,
+        "apply_serial_only": bool(entry_spec.get("apply_serial_only", False)),
         "risk": entry_spec["risk"],
         "evidence": entry_spec["evidence"],
         "notes": entry_spec.get("notes", ""),
@@ -636,17 +734,23 @@ def collect_rebuild_command_statuses(*, repo_root: Path, policy: dict[str, Any])
         kind = str(command.get("kind"))
         command_id = str(command.get("id"))
         description = str(command.get("description", command_id))
+        args = [str(item) for item in command.get("args", [])]
         if kind == "npm_script":
             script_name = str(command.get("script", "")).strip()
             available = script_name in package_scripts
             detail = f"npm script `{script_name}` {'present' if available else 'missing'}"
+            argv = ["npm", "run", script_name]
+            if args:
+                argv.extend(["--", *args])
         elif kind == "shell_script":
             script_path = resolve_policy_path(raw_path=str(command.get("path", "")), repo_root=repo_root)
             available = script_path.is_file()
             detail = f"script `{script_path}` {'present' if available else 'missing'}"
+            argv = ["bash", str(script_path), *args]
         else:
             available = False
             detail = f"unsupported rebuild command kind: {kind}"
+            argv = []
         statuses.append(
             RebuildCommandStatus(
                 command_id=command_id,
@@ -654,6 +758,7 @@ def collect_rebuild_command_statuses(*, repo_root: Path, policy: dict[str, Any])
                 description=description,
                 available=available,
                 detail=detail,
+                argv=argv,
             )
         )
     return statuses
@@ -676,6 +781,7 @@ def resolve_rebuild_command_statuses(
                     "description": command_id,
                     "available": False,
                     "detail": "missing from rebuild command registry",
+                    "argv": [],
                 }
             )
         else:
@@ -789,6 +895,34 @@ def collect_aged_child_candidates(
     return sorted(candidates, key=lambda item: item["size_bytes"], reverse=True)
 
 
+def collect_named_descendant_candidates(
+    *,
+    base_path: Path,
+    target_names: set[str],
+) -> list[dict[str, Any]]:
+    candidates: list[dict[str, Any]] = []
+    if not target_names:
+        return candidates
+    for root, dirnames, _ in os.walk(base_path):
+        for dirname in sorted(dirnames):
+            if dirname not in target_names:
+                continue
+            candidate = Path(root) / dirname
+            candidate_mtime = datetime.fromtimestamp(candidate.stat().st_mtime, tz=timezone.utc)
+            size_bytes = path_size_bytes(candidate)
+            candidates.append(
+                {
+                    "path": str(candidate),
+                    "canonical_path": str(candidate.resolve(strict=False)),
+                    "size_bytes": size_bytes,
+                    "size_human": human_size(size_bytes),
+                    "mtime_utc": candidate_mtime.isoformat(),
+                    "recent_activity": False,
+                }
+            )
+    return sorted(candidates, key=lambda item: item["size_bytes"], reverse=True)
+
+
 def iter_paths_at_depth(*, base_path: Path, depth: int) -> list[Path]:
     current: list[Path] = [base_path]
     for _ in range(depth):
@@ -850,6 +984,108 @@ def human_size(size_bytes: int) -> str:
             return f"{value:.2f} {suffix}"
         value /= 1024.0
     return f"{size_bytes} B"
+
+
+def infer_governance_owner(*, entry_spec: dict[str, Any], layer_name: str) -> str:
+    if layer_name == "shared_observation" or str(entry_spec.get("recommendation", "")).strip() == "observe_only":
+        return "observe_only"
+    raw_path = str(entry_spec.get("path", "")).strip()
+    if raw_path.startswith(".runtime-cache/"):
+        return "runtime_retention"
+    if layer_name == "repo_external_related":
+        return "space_wave3"
+    if str(entry_spec.get("cleanup_mode", "")).strip() == "named-descendants":
+        return "space_wave1"
+    if bool(entry_spec.get("apply_serial_only", False)) or str(entry_spec.get("recommendation", "")).strip() == "cautious_cleanup":
+        return "space_wave2"
+    return "space_wave1"
+
+
+def infer_preserve_reason(*, entry_spec: dict[str, Any], layer_name: str) -> str:
+    raw_path = str(entry_spec.get("path", "")).strip()
+    if "backups" in raw_path:
+        return "historical_backup"
+    if layer_name in {"repo_external_related", "shared_observation"} or str(entry_spec.get("sharedness", "")).strip() in {
+        "repo_machine_shared",
+        "shared_observation",
+    }:
+        return "shared_cache"
+    if any(token in raw_path for token in (".runtime-cache/logs", ".runtime-cache/test_output", ".runtime-cache/cortexpilot/contracts")):
+        return "runtime_evidence"
+    if raw_path.startswith(".runtime-cache/"):
+        return "runtime_evidence"
+    if any(token in raw_path for token in ("node_modules", ".venv", ".next", "dist", "tsbuildinfo", "target", "__pycache__", ".pytest_cache")):
+        return "developer_dependency"
+    return "unknown_owner"
+
+
+def infer_rebuild_cost_class(rebuildability: str) -> str:
+    normalized = rebuildability.strip().lower()
+    if "immediately" in normalized:
+        return "immediate"
+    if "network" in normalized or "time" in normalized:
+        return "network_time"
+    if "expensive" in normalized or "high time cost" in normalized:
+        return "expensive"
+    return "unknown"
+
+
+def load_retention_summary(*, repo_root: Path) -> dict[str, Any] | None:
+    report_path = repo_root / ".runtime-cache" / "cortexpilot" / "reports" / "retention_report.json"
+    if not report_path.exists():
+        return None
+    try:
+        payload = json.loads(report_path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    result = {
+        "path": str(report_path),
+        "generated_at": payload.get("generated_at"),
+    }
+    if isinstance(payload.get("log_lane_summary"), dict):
+        result["log_lane_summary"] = payload["log_lane_summary"]
+    if isinstance(payload.get("result"), dict):
+        result["result"] = {
+            "removed_total": payload["result"].get("removed_total", 0),
+        }
+    return result
+
+
+def split_serial_cleanup_targets(items: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    serial_targets = sorted(
+        [item for item in items if item.get("apply_serial_only")],
+        key=lambda item: (int(item.get("expected_reclaim_bytes", item.get("size_bytes", 0))), str(item.get("path", ""))),
+        reverse=True,
+    )
+    non_serial_targets = sorted(
+        [item for item in items if not item.get("apply_serial_only")],
+        key=lambda item: (int(item.get("expected_reclaim_bytes", item.get("size_bytes", 0))), str(item.get("path", ""))),
+        reverse=True,
+    )
+    if len(serial_targets) <= 1:
+        return serial_targets + non_serial_targets, []
+    kept = serial_targets[:1]
+    deferred = [
+        {
+            "entry_id": item["entry_id"],
+            "path": item["path"],
+            "reason": "apply_serial_only target deferred until the current heavy target is rebuilt and verified",
+        }
+        for item in serial_targets[1:]
+    ]
+    return kept + non_serial_targets, deferred
+
+
+def build_execution_order(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "entry_id": str(item.get("entry_id", "")),
+            "path": str(item.get("path", "")),
+            "expected_reclaim_bytes": int(item.get("expected_reclaim_bytes", item.get("size_bytes", 0))),
+            "apply_serial_only": bool(item.get("apply_serial_only", False)),
+        }
+        for item in items
+    ]
 
 
 def is_within(path: Path, root: Path) -> bool:
@@ -938,6 +1174,24 @@ def collect_environment_drift_signals(
                 "code": "policy_external_cache_namespace_absent",
                 "message": "policy-owned external cache namespace absent in current environment",
                 "paths": [str(entry.get("path", "")) for entry in root_entries],
+            }
+        )
+    python_toolchain_entry = next(
+        (
+            entry
+            for entry in repo_external_entries
+            if str(entry.get("policy_entry_id", "")) == "external_python_toolchain_current"
+            and entry.get("exists", False)
+            and not entry.get("path_is_symlink", False)
+        ),
+        None,
+    )
+    if python_toolchain_entry is not None:
+        signals.append(
+            {
+                "code": "python_toolchain_current_materialized_as_directory",
+                "message": "external python toolchain current is materialized as a directory rather than a symlink in this environment",
+                "paths": [str(python_toolchain_entry.get("path", ""))],
             }
         )
     return signals
@@ -1156,6 +1410,15 @@ def revalidate_cleanup_targets(
                     reason = "aged-child target is not part of the current cleanup candidate set"
                 elif allowed_children[path_raw] != str(canonical_target):
                     reason = "aged-child target canonical path no longer matches current cleanup candidate set"
+            elif entry.get("cleanup_mode") == "named-descendants":
+                allowed_children = {
+                    item["path"]: item.get("canonical_path", item["path"])
+                    for item in entry.get("cleanup_candidates", [])
+                }
+                if path_raw not in allowed_children:
+                    reason = "named-descendant target is not part of the current cleanup candidate set"
+                elif allowed_children[path_raw] != str(canonical_target):
+                    reason = "named-descendant target canonical path no longer matches current cleanup candidate set"
             else:
                 reason = f"cleanup mode is not apply-eligible: {entry.get('cleanup_mode')}"
 
@@ -1169,6 +1432,13 @@ def revalidate_cleanup_targets(
                         reason = "repo-external target escapes explicit external allowlist"
                 else:
                     reason = f"layer is not apply-eligible: {entry['layer']}"
+            if not reason:
+                verification_commands = target.get(
+                    "post_cleanup_verification_commands",
+                    entry.get("post_cleanup_verification_commands", []),
+                )
+                if any(not bool(item.get("available", False)) for item in verification_commands):
+                    reason = "post-cleanup verification commands are unavailable"
 
         if reason:
             rejected_targets.append(
@@ -1187,11 +1457,17 @@ def revalidate_cleanup_targets(
                 "canonical_path": str(canonical_target),
                 "target_kind": str(target.get("target_kind", "")),
                 "size_bytes": int(target.get("size_bytes", 0)),
+                "expected_reclaim_bytes": int(target.get("expected_reclaim_bytes", target.get("size_bytes", 0))),
                 "classification": str(target.get("classification", entry.get("recommendation", "needs_verification"))),
                 "rebuild_entrypoints": target.get(
                     "rebuild_entrypoints",
                     entry.get("required_rebuild_commands", []),
                 ),
+                "post_cleanup_verification_commands": target.get(
+                    "post_cleanup_verification_commands",
+                    entry.get("post_cleanup_verification_commands", []),
+                ),
+                "apply_serial_only": bool(target.get("apply_serial_only", entry.get("apply_serial_only", False))),
             }
         )
 
@@ -1206,10 +1482,13 @@ def revalidate_cleanup_targets(
 def annotate_summary_membership(*, entries: list[dict[str, Any]]) -> None:
     ambiguous_paths: set[str] = set()
     entries_by_canonical: dict[str, set[str]] = {}
+    rollup_roots: dict[str, list[dict[str, Any]]] = {}
     for entry in entries:
         canonical = str(entry.get("canonical_path", entry.get("resolved_path", entry.get("path", ""))))
         layer_bucket = canonical_summary_bucket(str(entry.get("layer", "")))
         entries_by_canonical.setdefault(canonical, set()).add(layer_bucket)
+        if str(entry.get("summary_role", "leaf")) == "rollup_root":
+            rollup_roots.setdefault(layer_bucket, []).append(entry)
     for canonical, buckets in entries_by_canonical.items():
         if len({bucket for bucket in buckets if bucket != "needs_verification"}) > 1:
             ambiguous_paths.add(canonical)
@@ -1223,6 +1502,7 @@ def annotate_summary_membership(*, entries: list[dict[str, Any]]) -> None:
         entry["summary_bucket"] = bucket
         entry["counted_in_summary"] = False
         entry["summary_exclusion_reason"] = "not-counted-yet"
+        entry["exclusive_rollup_parent_id"] = find_rollup_parent_id(entry=entry, rollup_roots=rollup_roots, bucket=bucket)
         buckets[bucket].append(entry)
 
     for bucket_name, bucket_entries in buckets.items():
@@ -1249,6 +1529,22 @@ def annotate_summary_membership(*, entries: list[dict[str, Any]]) -> None:
             entry["counted_in_summary"] = True
             entry["summary_exclusion_reason"] = ""
             effective_paths.append(current_path)
+
+
+def find_rollup_parent_id(*, entry: dict[str, Any], rollup_roots: dict[str, list[dict[str, Any]]], bucket: str) -> str:
+    if str(entry.get("summary_role", "leaf")) == "rollup_root":
+        return ""
+    current_path = summary_path(entry)
+    for candidate in sorted(
+        rollup_roots.get(bucket, []),
+        key=lambda item: len(summary_path(item).parts),
+    ):
+        candidate_path = summary_path(candidate)
+        if current_path == candidate_path:
+            continue
+        if is_within(current_path, candidate_path):
+            return str(candidate.get("id", ""))
+    return ""
 
 
 def canonical_summary_bucket(layer_name: str) -> str:

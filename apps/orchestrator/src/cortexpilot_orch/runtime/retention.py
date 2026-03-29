@@ -9,7 +9,7 @@ from typing import Any
 from cortexpilot_orch.config import CortexPilotConfig
 
 CANONICAL_CACHE_NAMESPACES = ("runtime", "test", "build")
-RETENTION_REPORT_SCHEMA_VERSION = 4
+RETENTION_REPORT_SCHEMA_VERSION = 5
 RETENTION_SCOPE_LABELS = ("runs", "worktrees", "logs", "cache", "codex_homes", "intakes", "contracts")
 
 
@@ -154,6 +154,60 @@ def _cleanup_scope(cfg: CortexPilotConfig) -> dict[str, Any]:
             str(cfg.runtime_root / "temp"),
             str(cfg.runtime_root / "locks"),
         ],
+    }
+
+
+def _log_lane_summary(cfg: CortexPilotConfig) -> dict[str, Any]:
+    summary: dict[str, Any] = {}
+    for lane in ("runtime", "error", "access", "e2e", "ci", "governance"):
+        lane_root = cfg.logs_root / lane
+        files = _safe_collect_files(lane_root)
+        total_size_bytes = sum(path.stat().st_size for path in files)
+        newest_mtime = max((_mtime_utc(path) for path in files), default=None)
+        oldest_mtime = min((_mtime_utc(path) for path in files), default=None)
+        max_file_size_bytes = max((path.stat().st_size for path in files), default=0)
+        summary[lane] = {
+            "path": str(lane_root),
+            "file_count": len(files),
+            "total_size_bytes": total_size_bytes,
+            "newest_mtime": newest_mtime.isoformat() if newest_mtime else None,
+            "oldest_mtime": oldest_mtime.isoformat() if oldest_mtime else None,
+            "rotation_headroom_bytes_estimate": max(int(cfg.logging.max_bytes) - max_file_size_bytes, 0),
+            "max_file_size_bytes": max_file_size_bytes,
+        }
+    return summary
+
+
+def _space_bridge(cfg: CortexPilotConfig) -> dict[str, Any]:
+    report_path = cfg.runtime_root / "reports" / "space_governance" / "report.json"
+    if not report_path.exists():
+        return {
+            "path": str(report_path),
+            "exists": False,
+            "latest_space_audit_generated_at": None,
+            "repo_internal_total_bytes": 0,
+            "repo_external_related_total_bytes": 0,
+            "shared_observation_total_bytes": 0,
+        }
+    try:
+        payload = json.loads(report_path.read_text(encoding="utf-8"))
+    except Exception:
+        return {
+            "path": str(report_path),
+            "exists": True,
+            "latest_space_audit_generated_at": None,
+            "repo_internal_total_bytes": 0,
+            "repo_external_related_total_bytes": 0,
+            "shared_observation_total_bytes": 0,
+        }
+    summary = payload.get("summary", {})
+    return {
+        "path": str(report_path),
+        "exists": True,
+        "latest_space_audit_generated_at": payload.get("generated_at"),
+        "repo_internal_total_bytes": int(summary.get("repo_internal_total_bytes", 0)),
+        "repo_external_related_total_bytes": int(summary.get("repo_external_related_total_bytes", 0)),
+        "shared_observation_total_bytes": int(summary.get("shared_observation_total_bytes", 0)),
     }
 
 
@@ -346,6 +400,8 @@ def write_retention_report(cfg: CortexPilotConfig, plan: RetentionPlan, applied:
             "total": plan.total_candidates,
         },
         "cache_namespace_summary": _cache_namespace_summary(plan.cache_candidates, cfg.cache_root),
+        "log_lane_summary": _log_lane_summary(cfg),
+        "space_bridge": _space_bridge(cfg),
         "test_output_visibility": _test_output_visibility_summary(_test_output_root(cfg)),
         "result": apply_result
         or {

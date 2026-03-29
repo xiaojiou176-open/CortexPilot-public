@@ -160,6 +160,9 @@ Useful additional entrypoints:
 
 ```bash
 npm run space:audit
+npm run space:gate:wave1
+npm run space:gate:wave2
+npm run space:gate:wave3
 npm run dashboard:dev
 npm run desktop:up
 npm run truth:triage
@@ -210,6 +213,13 @@ Strict self-hosted live provider probes now resolve credentials from process
 env first and may fall back to `~/.codex/config.toml`; repo-local dotenv files
 and shell-export fallback remain disabled in mainline contexts so the CI
 credential contract stays auditable.
+Runtime retention and space-governance now stay coupled at the report layer:
+`retention_report.json` carries `log_lane_summary` plus `space_bridge`, while
+space-governance receipts expose serial-only heavy cleanup ordering, expected
+reclaim bytes, and post-cleanup verification metadata. Repo-external apply
+scope remains limited to `~/.cache/cortexpilot`; Docker Desktop, global
+Cargo/Rustup, global uv, global npm, and global Playwright remain observation
+only.
 When one closeout patch touches both dashboard and desktop packaging, expect the
 root AI/docs entrypoints and the module READMEs to move together so doc-sync
 gates can trace the maintenance decision end to end.

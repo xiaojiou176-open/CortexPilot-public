@@ -52,6 +52,9 @@ All notable changes to this repository will be documented in this file.
 - aligned intake/probe helper tests and runtime helpers with the current
   response/writer contracts, including optional `task_template` emission and
   dedicated dashboard dependency install logs
+- tightened the space-governance / retention contract so cleanup inventory,
+  wave receipts, retention lane summaries, and test-output namespace discipline
+  now agree on the same repo-local and repo-external cache boundaries
 
 ## 2026-03-24
 

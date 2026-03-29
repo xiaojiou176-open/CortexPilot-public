@@ -46,6 +46,12 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   fallback to `scripts/verify_upstream_slices.py --mode smoke` and the strict
   live-provider rule that resolves process env first and `~/.codex/config.toml`
   second while keeping dotenv and shell-export fallbacks disabled on mainline
+- when retention and space-governance contracts change, sync the root AI/docs
+  entrypoints in the same patch; current examples include retention
+  `log_lane_summary` + `space_bridge`, serial-only heavy cleanup ordering,
+  cleanup inventory consistency checks, and the rule that `~/.cache/cortexpilot`
+  is the repo-external strong-related root while shared ecosystem layers stay
+  observe-only
 
 ## Key Commands
 
