@@ -135,14 +135,14 @@ def main() -> int:
                 "size_before": before,
                 "size_after": after,
                 "released_bytes": max(before - after, 0),
-                "removed_paths_count": 1 if (not path.exists() and not path.is_symlink()) else 0,
+                "removed_paths_count": 1 if not path.exists() else 0,
                 "classification": item["classification"],
                 "rebuild_entrypoints": item["rebuild_entrypoints"],
                 "post_cleanup_verification_commands": verification_commands,
                 "verification_results": verification_results,
                 "verification_failed": verification_failed,
                 "failure_rollback_note": failure_rollback_note,
-                "deleted": not path.exists() and not path.is_symlink(),
+                "deleted": not path.exists(),
                 "skip_reason": "",
             }
         )

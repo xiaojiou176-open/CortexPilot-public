@@ -903,21 +903,23 @@ def collect_named_descendant_candidates(
     candidates: list[dict[str, Any]] = []
     if not target_names:
         return candidates
-    for candidate in sorted(base_path.rglob("*")):
-        if candidate.name not in target_names or not candidate.is_dir():
-            continue
-        candidate_mtime = datetime.fromtimestamp(candidate.stat().st_mtime, tz=timezone.utc)
-        size_bytes = path_size_bytes(candidate)
-        candidates.append(
-            {
-                "path": str(candidate),
-                "canonical_path": str(candidate.resolve(strict=False)),
-                "size_bytes": size_bytes,
-                "size_human": human_size(size_bytes),
-                "mtime_utc": candidate_mtime.isoformat(),
-                "recent_activity": False,
-            }
-        )
+    for root, dirnames, _ in os.walk(base_path):
+        for dirname in sorted(dirnames):
+            if dirname not in target_names:
+                continue
+            candidate = Path(root) / dirname
+            candidate_mtime = datetime.fromtimestamp(candidate.stat().st_mtime, tz=timezone.utc)
+            size_bytes = path_size_bytes(candidate)
+            candidates.append(
+                {
+                    "path": str(candidate),
+                    "canonical_path": str(candidate.resolve(strict=False)),
+                    "size_bytes": size_bytes,
+                    "size_human": human_size(size_bytes),
+                    "mtime_utc": candidate_mtime.isoformat(),
+                    "recent_activity": False,
+                }
+            )
     return sorted(candidates, key=lambda item: item["size_bytes"], reverse=True)
 
 
