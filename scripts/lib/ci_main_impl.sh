@@ -913,7 +913,7 @@ bash scripts/check_repo_hygiene.sh
 echo "ℹ️ [STEP 2/12] repo-side hygiene passed; refreshing governance evidence (includes external truth receipts)"
 bash scripts/run_governance_py.sh scripts/refresh_governance_evidence_manifest.py
 bash scripts/run_governance_py.sh scripts/build_governance_scorecard.py --enforce
-if [[ "${CORTEXPILOT_CI_ROUTE_ID:-}" == "push_main" || "${CORTEXPILOT_CI_ROUTE_ID:-}" == "workflow_dispatch" || "${GITHUB_ACTIONS:-0}" != "1" ]]; then
+if [[ "${CORTEXPILOT_CI_ROUTE_ID:-local_full_ci}" != "trusted_pr" && "${CORTEXPILOT_CI_ROUTE_ID:-local_full_ci}" != "untrusted_pr" ]]; then
   bash scripts/run_governance_py.sh scripts/build_governance_closeout_report.py --mode ci
 else
   echo "ℹ️ [ci] skip governance closeout report on ${CORTEXPILOT_CI_ROUTE_ID:-unknown} route; authoritative closeout belongs to final closeout lanes"
