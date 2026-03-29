@@ -100,6 +100,7 @@ require_file "scripts/check_root_allowlist.py"
 require_file "scripts/check_root_semantic_cleanliness.py"
 require_file "scripts/check_runtime_artifact_policy.py"
 require_file "scripts/check_space_governance_policy.py"
+require_file "scripts/check_space_governance_inventory.py"
 require_file "scripts/check_workspace_runtime_pollution.py"
 require_file "scripts/check_repo_positioning.py"
 require_file "scripts/check_relocation_residues.py"
@@ -301,6 +302,15 @@ if ! space_governance_output="$(run_governance_py scripts/check_space_governance
   violations=$((violations + 1))
 else
   echo "$space_governance_output"
+fi
+
+info "Running space governance inventory consistency gate"
+if ! space_governance_inventory_output="$(run_governance_py scripts/check_space_governance_inventory.py 2>&1)"; then
+  echo "$space_governance_inventory_output"
+  fail "space governance inventory consistency gate failed"
+  violations=$((violations + 1))
+else
+  echo "$space_governance_inventory_output"
 fi
 
 info "Running recursive workspace runtime pollution gate"

@@ -3,8 +3,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import shlex
 import shutil
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,6 +41,80 @@ def remove_path(path: Path) -> None:
     shutil.rmtree(path)
 
 
+def size_for_cleanup_path(path: Path) -> int:
+    if not path.exists() and not path.is_symlink():
+        return 0
+    resolved_path = path.resolve(strict=False)
+    size_target = resolved_path if path.is_symlink() and resolved_path.exists() else path
+    return path_size_bytes(size_target)
+
+
+def read_tail(path: Path, *, max_bytes: int = 1000) -> str:
+    if not path.exists():
+        return ""
+    with path.open("rb") as handle:
+        try:
+            handle.seek(-max_bytes, 2)
+        except OSError:
+            handle.seek(0)
+        return handle.read().decode("utf-8", errors="replace")
+
+
+def run_verification_commands(*, repo_root: Path, commands: list[dict]) -> tuple[list[dict], str]:
+    results: list[dict] = []
+    for command in commands:
+        argv = [str(item) for item in command.get("argv", []) if str(item).strip()]
+        command_line = shlex.join(argv) if argv else ""
+        if not argv:
+            results.append(
+                {
+                    "command_id": str(command.get("command_id", "")),
+                    "command": command_line,
+                    "exit_code": 1,
+                    "available": False,
+                    "detail": "missing argv",
+                }
+            )
+            return results, "cleanup completed but no runnable post-cleanup verification command was available; rerun the declared rebuild commands manually"
+        with tempfile.NamedTemporaryFile(mode="w+b", delete=False) as stdout_handle, tempfile.NamedTemporaryFile(
+            mode="w+b", delete=False
+        ) as stderr_handle:
+            stdout_path = Path(stdout_handle.name)
+            stderr_path = Path(stderr_handle.name)
+        try:
+            with stdout_path.open("w", encoding="utf-8") as stdout_file, stderr_path.open("w", encoding="utf-8") as stderr_file:
+                proc = subprocess.run(
+                    argv,
+                    cwd=repo_root,
+                    stdout=stdout_file,
+                    stderr=stderr_file,
+                    text=True,
+                    check=False,
+                )
+            stdout_tail = read_tail(stdout_path)
+            stderr_tail = read_tail(stderr_path)
+        finally:
+            stdout_path.unlink(missing_ok=True)
+            stderr_path.unlink(missing_ok=True)
+        results.append(
+            {
+                "command_id": str(command.get("command_id", "")),
+                "command": command_line,
+                "exit_code": int(proc.returncode),
+                "available": bool(command.get("available", False)),
+                "detail": str(command.get("detail", "")),
+                "stdout_tail": stdout_tail,
+                "stderr_tail": stderr_tail,
+            }
+        )
+        if proc.returncode != 0:
+            return (
+                results,
+                "cleanup completed but post-cleanup verification failed; rerun the listed rebuild commands to restore this surface before continuing",
+            )
+    return results, ""
+
+
 def main() -> int:
     args = parse_args()
     repo_root = Path(args.repo_root).expanduser().resolve()
@@ -68,14 +145,20 @@ def main() -> int:
     removed_targets = []
     before_total = 0
     after_total = 0
+    verification_failures: list[dict[str, object]] = []
     for item in revalidation["validated_targets"]:
         path = Path(item["path"])
-        canonical_path = Path(item["canonical_path"])
-        before = path_size_bytes(path)
+        before = size_for_cleanup_path(path)
         before_total += before
         remove_path(path)
-        after = path_size_bytes(canonical_path if canonical_path.exists() else path)
+        after = size_for_cleanup_path(path)
         after_total += after
+        verification_commands = list(item.get("post_cleanup_verification_commands", []))
+        verification_results, failure_rollback_note = run_verification_commands(
+            repo_root=repo_root,
+            commands=verification_commands,
+        )
+        verification_failed = bool(failure_rollback_note)
         removed_targets.append(
             {
                 "entry_id": item["entry_id"],
@@ -84,16 +167,29 @@ def main() -> int:
                 "size_before": before,
                 "size_after": after,
                 "released_bytes": max(before - after, 0),
+                "removed_paths_count": 1 if not path.exists() else 0,
                 "classification": item["classification"],
                 "rebuild_entrypoints": item["rebuild_entrypoints"],
-                "deleted": not path.exists() and not path.is_symlink(),
+                "post_cleanup_verification_commands": verification_commands,
+                "verification_results": verification_results,
+                "verification_failed": verification_failed,
+                "failure_rollback_note": failure_rollback_note,
+                "deleted": not path.exists(),
                 "skip_reason": "",
             }
         )
+        if verification_failed:
+            verification_failures.append(
+                {
+                    "entry_id": item["entry_id"],
+                    "path": item["path"],
+                    "failure_rollback_note": failure_rollback_note,
+                }
+            )
 
     payload = {
         "wave": revalidation["wave"],
-        "status": "applied",
+        "status": "verification_failed" if verification_failures else "applied",
         "gate_errors": [],
         "validated_targets": revalidation["validated_targets"],
         "rejected_targets": [],
@@ -101,10 +197,20 @@ def main() -> int:
         "released_total_bytes": max(before_total - after_total, 0),
         "before_total_bytes": before_total,
         "after_total_bytes": after_total,
+        "verification_failures": verification_failures,
         "source_gate": str(gate_path),
     }
     result_path.parent.mkdir(parents=True, exist_ok=True)
     result_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    if verification_failures:
+        print(
+            f"❌ [space-cleanup-apply] cleanup verified with failures wave={payload['wave']} "
+            f"released_bytes={payload['released_total_bytes']} targets={len(removed_targets)}"
+        )
+        for item in verification_failures:
+            print(f"- {item['path']}: {item['failure_rollback_note']}")
+        return 1
+
     print(
         f"🧹 [space-cleanup-apply] applied wave={payload['wave']} "
         f"released_bytes={payload['released_total_bytes']} targets={len(removed_targets)}"

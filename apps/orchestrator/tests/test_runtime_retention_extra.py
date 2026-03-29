@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -82,6 +83,42 @@ def test_build_retention_plan_and_write_report_for_empty_roots(tmp_path: Path, m
     assert '"total": 0' in payload
     assert '"removed_total": 0' in payload
     assert '"protected_live_roots"' in payload
+
+
+def test_retention_report_space_bridge_reads_latest_space_audit(tmp_path: Path, monkeypatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CORTEXPILOT_RUNS_ROOT", str(runtime_root / "runs"))
+    monkeypatch.setenv("CORTEXPILOT_WORKTREE_ROOT", str(runtime_root / "worktrees"))
+    monkeypatch.setenv("CORTEXPILOT_LOGS_ROOT", str(runtime_root / "logs"))
+    monkeypatch.setenv("CORTEXPILOT_CACHE_ROOT", str(runtime_root / "cache"))
+
+    space_report = runtime_root / "reports" / "space_governance" / "report.json"
+    space_report.parent.mkdir(parents=True, exist_ok=True)
+    space_report.write_text(
+        json.dumps(
+            {
+                "generated_at": "2026-03-28T12:00:00+00:00",
+                "summary": {
+                    "repo_internal_total_bytes": 123,
+                    "repo_external_related_total_bytes": 456,
+                    "shared_observation_total_bytes": 789,
+                },
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    cfg = load_config()
+    plan = build_retention_plan(cfg)
+    report_path = write_retention_report(cfg, plan, applied=False, apply_result=None)
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+
+    assert payload["space_bridge"]["exists"] is True
+    assert payload["space_bridge"]["latest_space_audit_generated_at"] == "2026-03-28T12:00:00+00:00"
+    assert payload["space_bridge"]["repo_internal_total_bytes"] == 123
 
 
 def test_config_fails_when_explicit_env_file_missing(monkeypatch) -> None:
