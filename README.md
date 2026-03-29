@@ -1,16 +1,33 @@
 # CortexPilot
 
-Governed AI task orchestration for teams that need **auditable runs, evidence,
-replay, and operator visibility** instead of one-shot agent output.
+Run governed AI tasks, inspect evidence bundles, and replay failures without
+guessing.
+
+CortexPilot is a contract-first orchestration repo for teams that want one
+operator surface, one governed run path, and one replayable evidence trail
+instead of scattered agents, logs, and scripts.
 
 CortexPilot is a contract-first multi-agent orchestration repository.
 
 [Quickstart](#quickstart) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [Spec](docs/specs/00_SPEC.md) · [Releases](https://github.com/xiaojiou176-open/CortexPilot-public/releases)
 
+![CortexPilot studio preview card](docs/assets/storefront/cortexpilot-studio-preview.svg)
+
 ![CortexPilot command tower flow](docs/assets/storefront/hero-command-tower.svg)
 
 The default public loop is simple: **send one request, watch the run move
 through Command Tower, then inspect the evidence bundle and replay path**.
+
+## First Practical Win
+
+If you only want the fastest truthful first result, use one of these three
+paths:
+
+| I want to... | Run this first | What I get |
+| --- | --- | --- |
+| see the operator surface quickly | `npm run bootstrap:host && npm run dashboard:dev` | the PM surface, Command Tower, and run visibility in one local product loop |
+| validate the smallest governed path | `CORTEXPILOT_HOST_COMPAT=1 bash scripts/test_quick.sh --no-related` | the quickest repo-side proof path without pretending the full system already ran |
+| inspect what the system records | open the run list and `.runtime-cache/` after the quick path | a concrete evidence bundle and replay surface, not just a shell success line |
 
 If this repository is close to your use case, star it to track the first public
 release, new task templates, and storefront updates.
