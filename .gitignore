@@ -73,7 +73,6 @@ htmlcov/
 coverage.xml
 .coverage*
 .coveragerc
-docs/generated/
 
 # ------------------------------
 # Local tooling state
