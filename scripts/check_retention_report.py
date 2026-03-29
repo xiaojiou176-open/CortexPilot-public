@@ -29,6 +29,8 @@ def main() -> int:
         "cleanup_scope",
         "candidates",
         "cache_namespace_summary",
+        "log_lane_summary",
+        "space_bridge",
         "test_output_visibility",
         "result",
     }
@@ -57,6 +59,42 @@ def main() -> int:
         for field in ("canonical_namespaces", "candidate_bucket_counts", "non_contract_buckets"):
             if field not in summary:
                 errors.append(f"cache_namespace_summary missing `{field}`")
+
+    log_lane_summary = payload.get("log_lane_summary")
+    if not isinstance(log_lane_summary, dict):
+        errors.append("log_lane_summary must be an object")
+    else:
+        for lane in ("runtime", "error", "access", "e2e", "ci", "governance"):
+            lane_payload = log_lane_summary.get(lane)
+            if not isinstance(lane_payload, dict):
+                errors.append(f"log_lane_summary missing lane object: {lane}")
+                continue
+            for field in (
+                "path",
+                "file_count",
+                "total_size_bytes",
+                "newest_mtime",
+                "oldest_mtime",
+                "rotation_headroom_bytes_estimate",
+                "max_file_size_bytes",
+            ):
+                if field not in lane_payload:
+                    errors.append(f"log_lane_summary.{lane} missing `{field}`")
+
+    space_bridge = payload.get("space_bridge")
+    if not isinstance(space_bridge, dict):
+        errors.append("space_bridge must be an object")
+    else:
+        for field in (
+            "path",
+            "exists",
+            "latest_space_audit_generated_at",
+            "repo_internal_total_bytes",
+            "repo_external_related_total_bytes",
+            "shared_observation_total_bytes",
+        ):
+            if field not in space_bridge:
+                errors.append(f"space_bridge missing `{field}`")
 
     test_output_visibility = payload.get("test_output_visibility")
     if not isinstance(test_output_visibility, dict):

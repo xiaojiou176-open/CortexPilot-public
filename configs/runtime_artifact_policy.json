@@ -52,6 +52,8 @@
     "apps/orchestrator/.venv",
     "apps/dashboard/node_modules",
     "apps/dashboard/.next",
+    "apps/dashboard/tsconfig.tsbuildinfo",
+    "apps/dashboard/tsconfig.typecheck.tsbuildinfo",
     "apps/desktop/node_modules",
     "apps/desktop/dist",
     "apps/desktop/tsconfig.tsbuildinfo",
@@ -110,6 +112,9 @@
     "temp_namespace_retained_by_retention_report": true
   },
   "forbidden_top_level_outputs": [
+    "node_modules",
+    ".pnp.cjs",
+    ".pnp.loader.mjs",
     ".coverage",
     ".cargo",
     ".next",
@@ -122,7 +127,8 @@
     "htmlcov",
     "logs",
     "out",
-    "tmp"
+    "tmp",
+    "Users"
   ],
   "legacy_runtime_paths": [
     "cortexpilot/contracts/results",

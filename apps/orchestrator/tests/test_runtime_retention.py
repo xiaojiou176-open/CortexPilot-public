@@ -73,6 +73,9 @@ def test_retention_dry_plan_and_apply(tmp_path: Path, monkeypatch) -> None:
     assert payload["cache_namespace_summary"]["candidate_bucket_counts"]["runtime"] >= 1
     assert payload["cache_namespace_summary"]["candidate_bucket_counts"]["stale-runs"] >= 1
     assert "stale-runs" in payload["cache_namespace_summary"]["non_contract_buckets"]
+    assert set(payload["log_lane_summary"]) == {"runtime", "error", "access", "e2e", "ci", "governance"}
+    assert payload["log_lane_summary"]["runtime"]["file_count"] >= 1
+    assert payload["space_bridge"]["exists"] is False
 
     result = apply_retention_plan(cfg, plan)
     assert result["removed_total"] >= 1

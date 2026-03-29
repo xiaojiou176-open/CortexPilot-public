@@ -29,6 +29,17 @@ def _load_gate_script_module():
     return module
 
 
+def _load_inventory_script_module():
+    spec = importlib.util.spec_from_file_location(
+        "cortexpilot_check_space_governance_inventory",
+        SCRIPT_ROOT / "scripts" / "check_space_governance_inventory.py",
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def _write_file(path: Path, content: str = "x") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
@@ -426,6 +437,154 @@ def test_space_governance_report_uses_exclusive_summary_for_external_rollup(tmp_
     assert child_entry["summary_exclusion_reason"] == "breakdown-only"
 
 
+def test_cleanup_gate_defers_additional_serial_only_targets(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    home_root = tmp_path / "home"
+    _write_file(repo_root / "package.json", json.dumps({"scripts": {"bootstrap": "echo ok"}}))
+    _write_file(repo_root / "scripts" / "install_dashboard_deps.sh", "#!/usr/bin/env bash\n")
+    _write_file(repo_root / "scripts" / "install_desktop_deps.sh", "#!/usr/bin/env bash\n")
+    dashboard_file = repo_root / "apps" / "dashboard" / "node_modules" / "pkg" / "index.js"
+    desktop_file = repo_root / "apps" / "desktop" / "node_modules" / "pkg" / "index.js"
+    _write_file(dashboard_file, "console.log('dashboard')")
+    _write_file(desktop_file, "console.log('desktop')")
+    _age(dashboard_file, hours=96)
+    _age(desktop_file, hours=96)
+
+    policy_payload = _base_policy(repo_root, home_root)
+    policy_payload["rebuild_commands"].append(
+        {
+            "id": "desktop_deps",
+            "kind": "shell_script",
+            "path": "scripts/install_desktop_deps.sh",
+            "description": "desktop deps",
+        }
+    )
+    policy_payload["layers"]["repo_internal"][0]["post_cleanup_command_ids"] = ["dashboard_deps"]
+    policy_payload["layers"]["repo_internal"][0]["apply_serial_only"] = True
+    policy_payload["layers"]["repo_internal"].append(
+        {
+            "id": "desktop_node_modules",
+            "path": "apps/desktop/node_modules",
+            "type": "dependency",
+            "ownership": "repo local",
+            "ownership_confidence": "High",
+            "sharedness": "repo_local",
+            "rebuildability": "rebuildable",
+            "recommendation": "cautious_cleanup",
+            "cleanup_mode": "remove-path",
+            "risk": "medium",
+            "rebuild_command_ids": ["desktop_deps"],
+            "post_cleanup_command_ids": ["desktop_deps"],
+            "apply_serial_only": True,
+            "evidence": ["scripts/install_desktop_deps.sh"],
+        }
+    )
+    policy_payload["wave_targets"]["wave2"]["target_ids"] = ["dashboard_node_modules", "desktop_node_modules"]
+    policy_payload["wave_targets"]["wave2"]["required_rebuild_commands"] = ["dashboard_deps", "desktop_deps", "bootstrap"]
+    policy_path = tmp_path / "space_policy.json"
+    policy_path.write_text(json.dumps(policy_payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    policy = load_space_governance_policy(policy_path)
+
+    report = build_space_governance_report(repo_root=repo_root, policy=policy, ps_lines=[])
+    gate = evaluate_cleanup_gate(
+        repo_root=repo_root,
+        policy=policy,
+        report=report,
+        wave="wave2",
+        allow_recent=True,
+        ps_lines=[],
+    )
+
+    assert gate["status"] == "pass"
+    assert len(gate["eligible_targets"]) == 1
+    assert gate["deferred_targets"]
+    assert gate["execution_order"][0]["entry_id"] == gate["eligible_targets"][0]["entry_id"]
+    assert gate["eligible_targets"][0]["apply_serial_only"] is True
+    assert gate["expected_reclaim_bytes"] == gate["eligible_targets"][0]["expected_reclaim_bytes"]
+
+
+def test_inventory_consistency_script_catches_undeclared_cleanup_target(tmp_path: Path, monkeypatch) -> None:
+    runtime_policy = {
+        "version": 1,
+        "runtime_roots": {"runtime_root": ".runtime-cache/cortexpilot"},
+        "namespaces": {},
+        "machine_managed_repo_local_roots": ["apps/dashboard/node_modules"],
+        "space_governance_gray_zone_roots": [],
+        "ephemeral_repo_local_roots": [],
+        "workspace_pollution_scan_roots": [],
+        "workspace_forbidden_dirnames": [],
+        "workspace_forbidden_file_globs": [],
+        "machine_cache_roots": ["~/.cache/cortexpilot"],
+        "cleanup_policy": {},
+        "forbidden_top_level_outputs": ["node_modules", ".pnp.cjs", ".pnp.loader.mjs", "Users"],
+        "legacy_runtime_paths": [],
+    }
+    space_policy = {
+        "version": 1,
+        "recent_activity_hours": 24,
+        "apply_gate_max_age_minutes": 15,
+        "shared_realpath_prefixes": [],
+        "process_groups": {"node": {"patterns": ["\\bnode\\b"]}},
+        "rebuild_commands": [{"id": "dashboard_deps", "kind": "shell_script", "path": "scripts/install_dashboard_deps.sh"}],
+        "layers": {
+            "repo_internal": [
+                {
+                    "id": "dashboard_node_modules",
+                    "path": "apps/dashboard/node_modules",
+                    "type": "dependency",
+                    "ownership": "repo local",
+                    "ownership_confidence": "High",
+                    "sharedness": "repo_local",
+                    "rebuildability": "rebuildable",
+                    "recommendation": "cautious_cleanup",
+                    "cleanup_mode": "remove-path",
+                    "risk": "medium",
+                    "rebuild_command_ids": ["dashboard_deps"],
+                    "post_cleanup_command_ids": ["dashboard_deps"],
+                    "evidence": ["scripts/install_dashboard_deps.sh"],
+                }
+            ],
+            "repo_external_related": [],
+            "shared_observation": [],
+        },
+        "wave_targets": {"wave2": {"target_ids": ["dashboard_node_modules"], "process_groups": ["node"], "required_rebuild_commands": ["dashboard_deps"]}},
+    }
+    cleanup_script = tmp_path / "cleanup_workspace_modules.sh"
+    cleanup_script.write_text(
+        "\n".join(
+            [
+                '#!/usr/bin/env bash',
+                'cleanup_target "apps/dashboard/node_modules"',
+                'cleanup_target "packages/frontend-api-contract/node_modules"',
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    runtime_policy_path = tmp_path / "runtime.json"
+    runtime_policy_path.write_text(json.dumps(runtime_policy, ensure_ascii=False, indent=2), encoding="utf-8")
+    space_policy_path = tmp_path / "space.json"
+    space_policy_path.write_text(json.dumps(space_policy, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    inventory_module = _load_inventory_script_module()
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "check_space_governance_inventory.py",
+            "--runtime-policy",
+            str(runtime_policy_path),
+            "--space-policy",
+            str(space_policy_path),
+            "--cleanup-script",
+            str(cleanup_script),
+        ],
+    )
+
+    rc = inventory_module.main()
+    assert rc == 1
+
+
 def test_apply_cleanup_rejects_stale_gate_json(tmp_path: Path) -> None:
     repo_root = tmp_path / "repo"
     home_root = tmp_path / "home"
@@ -593,6 +752,110 @@ def test_apply_cleanup_rejects_symlink_realpath_escape(tmp_path: Path) -> None:
     assert payload["status"] == "rejected"
     assert payload["rejected_targets"]
     assert "escapes repo root" in payload["rejected_targets"][0]["revalidation_reason"]
+
+
+def test_apply_cleanup_records_post_cleanup_verification_failure(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    target_path = repo_root / "apps" / "dashboard" / "node_modules"
+    _write_file(target_path / "pkg" / "index.js", "console.log('x')")
+    failing_script = repo_root / "scripts" / "fail_verify.sh"
+    _write_file(
+        failing_script,
+        "#!/usr/bin/env bash\nexit 7\n",
+    )
+    failing_script.chmod(0o755)
+
+    policy_payload = {
+        "version": 1,
+        "recent_activity_hours": 24,
+        "apply_gate_max_age_minutes": 15,
+        "shared_realpath_prefixes": [],
+        "process_groups": {"node": {"patterns": ["\\bnode\\b"]}},
+        "rebuild_commands": [
+            {"id": "fail_verify", "kind": "shell_script", "path": "scripts/fail_verify.sh", "description": "fail verify"}
+        ],
+        "layers": {
+            "repo_internal": [
+                {
+                    "id": "dashboard_node_modules",
+                    "path": "apps/dashboard/node_modules",
+                    "type": "dependency",
+                    "ownership": "repo local",
+                    "ownership_confidence": "High",
+                    "sharedness": "repo_local",
+                    "rebuildability": "rebuildable",
+                    "recommendation": "cautious_cleanup",
+                    "cleanup_mode": "remove-path",
+                    "risk": "medium",
+                    "rebuild_command_ids": ["fail_verify"],
+                    "post_cleanup_command_ids": ["fail_verify"],
+                    "evidence": ["scripts/fail_verify.sh"],
+                }
+            ],
+            "repo_external_related": [],
+            "shared_observation": [],
+        },
+        "wave_targets": {"wave2": {"target_ids": ["dashboard_node_modules"], "process_groups": ["node"], "required_rebuild_commands": ["fail_verify"]}},
+    }
+    policy_path = tmp_path / "space_policy.json"
+    policy_path.write_text(json.dumps(policy_payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    gate_path = tmp_path / "cleanup_gate.json"
+    result_path = tmp_path / "cleanup_result.json"
+    gate_path.write_text(
+        json.dumps(
+            {
+                "wave": "wave2",
+                "status": "pass",
+                "repo_root": str(repo_root),
+                "policy_hash": policy_hash(policy_payload),
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "gate_max_age_minutes": 15,
+                "allow_recent": True,
+                "allow_shared": False,
+                "eligible_targets": [
+                    {
+                        "entry_id": "dashboard_node_modules",
+                        "path": str(target_path),
+                        "target_kind": "path",
+                        "size_bytes": 0,
+                        "expected_reclaim_bytes": 0,
+                        "classification": "cautious_cleanup",
+                        "rebuild_entrypoints": [{"command_id": "fail_verify", "argv": ["bash", str(failing_script)], "available": True}],
+                        "post_cleanup_verification_commands": [{"command_id": "fail_verify", "argv": ["bash", str(failing_script)], "available": True}],
+                        "apply_serial_only": True,
+                    }
+                ],
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT_ROOT / "scripts" / "apply_space_cleanup.py"),
+            "--repo-root",
+            str(repo_root),
+            "--policy",
+            str(policy_path),
+            "--gate-json",
+            str(gate_path),
+            "--result-json",
+            str(result_path),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert proc.returncode == 1
+    payload = json.loads(result_path.read_text(encoding="utf-8"))
+    assert payload["status"] == "verification_failed"
+    assert payload["verification_failures"]
+    assert payload["removed_targets"][0]["verification_failed"] is True
 
 
 def test_space_cleanup_gate_rebuilds_stale_compatible_report(tmp_path: Path, monkeypatch) -> None:
