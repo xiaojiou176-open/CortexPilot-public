@@ -205,9 +205,10 @@ def test_reuse_upstream_records_returns_none_when_batches_do_not_match(tmp_path:
     assert module._reuse_upstream_verification_records(check) is None
 
 
-def test_run_check_falls_back_to_real_smoke_command_when_reuse_is_not_allowed(tmp_path: Path) -> None:
+def test_run_check_falls_back_to_real_smoke_command_when_reuse_is_not_allowed(tmp_path: Path, monkeypatch) -> None:
     module = _load_module()
     module.ROOT = tmp_path
+    monkeypatch.delenv("CORTEXPILOT_CI_ROUTE_ID", raising=False)
 
     def _fake_run(cmd: list[str]) -> tuple[bool, str]:
         assert cmd == ["python3", "scripts/verify_upstream_slices.py", "--mode", "smoke"]
