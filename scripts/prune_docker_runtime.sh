@@ -3,7 +3,6 @@ set -euo pipefail
 
 IMAGE_NAME="${CORTEXPILOT_DOCKER_RUNTIME_IMAGE:-cortexpilot-ci-core:local}"
 DESKTOP_NATIVE_IMAGE_NAME="${CORTEXPILOT_DOCKER_DESKTOP_NATIVE_IMAGE:-cortexpilot-ci-desktop-native:local}"
-TTL_HOURS="${CORTEXPILOT_DOCKER_RUNTIME_TTL_HOURS:-72}"
 VOLUME_PREFIX="${CORTEXPILOT_DOCKER_VOLUME_PREFIX:-cortexpilot}"
 
 usage() {
@@ -15,7 +14,7 @@ Usage:
 
 Modes:
   --dry-run         Audit Docker runtime surfaces without deleting anything.
-  --rebuildable     Remove stopped repo-image containers and prune aged builder cache.
+  --rebuildable     Remove stopped repo-image containers only.
   --aggressive      Expand rebuildable cleanup to canonical image and repo-related named volumes.
   --include-image   Only valid with --aggressive; remove the canonical local CI image.
   --include-volumes Only valid with --aggressive; remove repo-related named volumes by prefix.
@@ -81,18 +80,14 @@ if ! docker info >/dev/null 2>&1; then
   exit 0
 fi
 
-ttl_filter="${TTL_HOURS}h"
-
 image_line="$(docker images --format '{{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}' | awk -F'\t' -v image="$IMAGE_NAME" '$1 == image { print $0; exit }')"
 desktop_image_line="$(docker images --format '{{.Repository}}:{{.Tag}}\t{{.ID}}\t{{.Size}}' | awk -F'\t' -v image="$DESKTOP_NATIVE_IMAGE_NAME" '$1 == image { print $0; exit }')"
 stopped_containers="$(docker ps -aq --filter "ancestor=${IMAGE_NAME}" --filter status=created --filter status=exited --filter status=dead)"
 desktop_stopped_containers="$(docker ps -aq --filter "ancestor=${DESKTOP_NATIVE_IMAGE_NAME}" --filter status=created --filter status=exited --filter status=dead)"
-builder_containers="$(docker ps -aq --filter name=buildx_buildkit --filter status=created --filter status=exited --filter status=dead)"
 volume_candidates="$(docker volume ls --format '{{.Name}}' | awk -v prefix="$VOLUME_PREFIX" 'index($0, prefix) == 1 { print }')"
 
 echo "[docker-runtime] mode=${mode}"
 echo "[docker-runtime] dry_run=${dry_run}"
-echo "[docker-runtime] ttl_hours=${TTL_HOURS}"
 echo "[docker-runtime] image=${IMAGE_NAME}"
 if [[ -n "$image_line" ]]; then
   echo "[docker-runtime] canonical-image=${image_line}"
@@ -118,12 +113,6 @@ if [[ -n "$desktop_stopped_containers" ]]; then
 else
   echo "(none)"
 fi
-echo "[docker-runtime] buildx-builder-containers:"
-if [[ -n "$builder_containers" ]]; then
-  printf '%s\n' "$builder_containers"
-else
-  echo "(none)"
-fi
 
 echo "[docker-runtime] repo-related-volumes:"
 if [[ -n "$volume_candidates" ]]; then
@@ -132,19 +121,15 @@ else
   echo "(none)"
 fi
 
-echo "[docker-runtime] docker system df -v"
-docker system df -v
+echo "[docker-runtime] workstation-global docker summary (observation only)"
+docker system df
 
 if (( dry_run == 1 )); then
-  echo "[docker-runtime][dry-run] would run: docker builder prune --all --force --filter until=${ttl_filter}"
   if [[ -n "$stopped_containers" ]]; then
     echo "[docker-runtime][dry-run] would remove stopped containers for ${IMAGE_NAME}"
   fi
   if [[ -n "$desktop_stopped_containers" ]]; then
     echo "[docker-runtime][dry-run] would remove stopped containers for ${DESKTOP_NATIVE_IMAGE_NAME}"
-  fi
-  if [[ -n "$builder_containers" ]]; then
-    echo "[docker-runtime][dry-run] would remove stale buildx builder containers"
   fi
   if (( include_image == 1 )) && [[ -n "$image_line" ]]; then
     echo "[docker-runtime][dry-run] would remove image ${IMAGE_NAME}"
@@ -164,11 +149,6 @@ fi
 if [[ -n "$desktop_stopped_containers" ]]; then
   docker rm -f $desktop_stopped_containers
 fi
-if [[ -n "$builder_containers" ]]; then
-  docker rm -f $builder_containers || true
-fi
-
-docker builder prune --all --force --filter "until=${ttl_filter}"
 
 if [[ "$mode" == "aggressive" ]] && (( include_image == 1 )) && [[ -n "$image_line" ]]; then
   if docker ps -q --filter "ancestor=${IMAGE_NAME}" | grep -q .; then

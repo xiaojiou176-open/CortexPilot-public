@@ -56,10 +56,10 @@ npm run docker:runtime:prune:aggressive:full
 Current semantics:
 
 - `docker:runtime:audit` reports `cortexpilot-ci-core:local`, stopped
-  containers derived from that image, repo-related named volumes, and the
-  current builder cache footprint
-- `docker:runtime:prune:rebuildable` removes stopped containers and prunes
-  builder cache older than the default 72-hour TTL
+  containers derived from that image, repo-related named volumes, and a
+  workstation-global Docker summary for observation only
+- `docker:runtime:prune:rebuildable` removes stopped CortexPilot-owned
+  containers only
 - `docker:runtime:prune:aggressive` extends rebuildable cleanup and may also
   remove the canonical local CI image or repo-related named volumes when
   explicitly unlocked with `--include-image` / `--include-volumes`
@@ -68,7 +68,8 @@ Current semantics:
 
 The Docker runtime lane is the canonical operator path for Docker-heavy local
 CI residue. Keep `space:cleanup:wave*` focused on repo-local residue and the
-governed `~/.cache/cortexpilot` namespace.
+governed `~/.cache/cortexpilot` namespace. Workstation-global Docker/cache
+totals remain observation-only and are not apply targets for this lane.
 
 ## Cleanup Rules
 
@@ -90,10 +91,11 @@ governed `~/.cache/cortexpilot` namespace.
   - `npm run docker:runtime:prune:aggressive`
   - `npm run docker:runtime:prune:aggressive:full`
 - Lane semantics:
-  - `audit` inventories `cortexpilot-ci-core:local`, buildx cache totals,
-    exited repo containers, and stale builder containers.
-  - `rebuildable` prunes aged build cache, exited repo containers, and stale
-    buildx builder containers, but keeps the current canonical image.
+  - `audit` inventories CortexPilot-owned images, exited repo containers,
+    repo-related named volumes, and a workstation-global Docker summary that is
+    explicitly observation-only.
+  - `rebuildable` removes exited repo containers and keeps shared Docker/cache
+    layers untouched.
   - `aggressive` can additionally remove `cortexpilot-ci-core:local` when it is
     not backing a running container.
   - `aggressive:full` extends `aggressive` by also removing repo-related named
