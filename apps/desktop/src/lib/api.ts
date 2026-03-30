@@ -4,6 +4,7 @@ import type {
   CommandTowerAlertsPayload,
   CommandTowerOverviewPayload,
   ContractRecord,
+  ExecutionPlanReport,
   EventRecord,
   JsonValue,
   PmSessionConversationGraphPayload,
@@ -11,10 +12,12 @@ import type {
   PmSessionMetricsPayload,
   PmSessionStatus,
   PmSessionSummary,
+  QueueItemRecord,
   ReportRecord,
   RunDetailPayload,
   RunSummary,
   ToolCallRecord,
+  TaskPackManifest,
   WorkflowDetailPayload,
   WorkflowRecord,
 } from "./types";
@@ -188,6 +191,18 @@ export async function fetchWorkflow(workflowId: string) {
   return withNormalizedError(() => desktopApiClient.fetchWorkflow(workflowId) as Promise<WorkflowDetailPayload>);
 }
 
+export async function fetchQueue(workflowId?: string, status?: string) {
+  return withNormalizedError(() => desktopApiClient.fetchQueue(workflowId, status) as Promise<QueueItemRecord[]>);
+}
+
+export async function enqueueRunQueue(runId: string, payload: Record<string, JsonValue> = {}) {
+  return withNormalizedError(() => desktopApiClient.enqueueRunQueue(runId, payload) as Promise<Record<string, JsonValue>>);
+}
+
+export async function runNextQueue(payload: Record<string, JsonValue> = {}) {
+  return withNormalizedError(() => desktopApiClient.runNextQueue(payload) as Promise<Record<string, JsonValue>>);
+}
+
 /* ─── PM Sessions ─── */
 export type FetchPmSessionsOptions = RequestControlOptions & {
   status?: PmSessionStatus | PmSessionStatus[];
@@ -235,9 +250,17 @@ export async function fetchCommandTowerAlerts(options: RequestControlOptions = {
   return withNormalizedError(() => desktopApiClient.fetchCommandTowerAlerts(options) as Promise<CommandTowerAlertsPayload>);
 }
 
+export async function fetchTaskPacks() {
+  return withNormalizedError(() => desktopApiClient.fetchTaskPacks() as Promise<TaskPackManifest[]>);
+}
+
 /* ─── Intake ─── */
 export async function createIntake(payload: Record<string, JsonValue>, options: RequestControlOptions = {}) {
   return withNormalizedError(() => desktopApiClient.createIntake(payload, options) as Promise<Record<string, JsonValue>>);
+}
+
+export async function previewIntake(payload: Record<string, JsonValue>, options: RequestControlOptions = {}) {
+  return withNormalizedError(() => desktopApiClient.previewIntake(payload, options) as Promise<ExecutionPlanReport>);
 }
 
 export async function answerIntake(intakeId: string, payload: Record<string, JsonValue>, options: RequestControlOptions = {}) {

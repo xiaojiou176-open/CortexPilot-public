@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import logging
 import os
+from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from cortexpilot_orch.api import deps as api_deps
 from cortexpilot_orch.api import main_run_views_helpers
@@ -24,6 +25,33 @@ _logger = logging.getLogger(__name__)
 
 class ReleaseLocksPayload(BaseModel):
     paths: list[str]
+
+
+class QueueRunPayload(BaseModel):
+    priority: int = 0
+    scheduled_at: str | None = None
+    deadline_at: str | None = None
+
+    @field_validator("scheduled_at", "deadline_at")
+    @classmethod
+    def _validate_aware_iso_ts(cls, value: str | None) -> str | None:
+        if value is None:
+            return value
+        text = value.strip()
+        if not text:
+            return None
+        normalized = text.replace("Z", "+00:00")
+        try:
+            parsed = datetime.fromisoformat(normalized)
+        except ValueError as exc:
+            raise ValueError("queue timestamps must be valid ISO-8601 strings") from exc
+        if parsed.tzinfo is None or parsed.utcoffset() is None:
+            raise ValueError("queue timestamps must include an explicit timezone offset or Z suffix")
+        return text
+
+
+class QueueRunNextPayload(BaseModel):
+    mock: bool = False
 
 
 def _route_deps_not_configured_http_error(exc: api_deps.RouteDepsNotConfiguredError, *, operation: str) -> HTTPException:
@@ -87,6 +115,36 @@ def list_runs(
         return runs_deps.list_runs()
     except api_deps.RouteDepsNotConfiguredError as exc:
         raise _route_deps_not_configured_http_error(exc, operation="list_runs") from exc
+
+
+@router.get("/queue")
+def list_queue(
+    workflow_id: str | None = None,
+    status: str | None = None,
+    runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
+) -> list[dict[str, Any]]:
+    return runs_deps.list_queue(workflow_id=workflow_id, status=status)
+
+
+@router.post("/queue/from-run/{run_id}")
+def enqueue_run_queue(
+    run_id: str,
+    payload: QueueRunPayload,
+    request: Request,
+    runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
+) -> dict[str, Any]:
+    _enforce_mutation_rbac(request)
+    return runs_deps.enqueue_run_queue(_validated_run_id(run_id), payload.model_dump())
+
+
+@router.post("/queue/run-next")
+def run_next_queue(
+    payload: QueueRunNextPayload,
+    request: Request,
+    runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
+) -> dict[str, Any]:
+    _enforce_mutation_rbac(request)
+    return runs_deps.run_next_queue(payload.model_dump())
 
 
 @router.get("/workflows")

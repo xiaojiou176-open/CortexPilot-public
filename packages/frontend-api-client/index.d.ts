@@ -52,6 +52,9 @@ export type FrontendApiClient = {
   fetchWorktrees: () => Promise<unknown>;
   fetchWorkflows: () => Promise<unknown>;
   fetchWorkflow: (workflowId: string) => Promise<unknown>;
+  fetchQueue: (workflowId?: string, status?: string) => Promise<unknown>;
+  enqueueRunQueue: (runId: string, payload?: Record<string, JsonValue>) => Promise<unknown>;
+  runNextQueue: (payload?: Record<string, JsonValue>) => Promise<unknown>;
   fetchPmSessions: (options?: RequestControlOptions & {
     status?: string | string[];
     ownerPm?: string;
@@ -76,7 +79,9 @@ export type FrontendApiClient = {
   fetchPmSessionMetrics: (pmSessionId: string, options?: RequestControlOptions) => Promise<unknown>;
   fetchCommandTowerOverview: (options?: RequestControlOptions) => Promise<unknown>;
   fetchCommandTowerAlerts: (options?: RequestControlOptions) => Promise<unknown>;
+  fetchTaskPacks: () => Promise<unknown>;
   createIntake: (payload: Record<string, JsonValue>, options?: RequestControlOptions) => Promise<unknown>;
+  previewIntake: (payload: Record<string, JsonValue>, options?: RequestControlOptions) => Promise<unknown>;
   answerIntake: (intakeId: string, payload: Record<string, JsonValue>, options?: RequestControlOptions) => Promise<unknown>;
   runIntake: (intakeId: string, payload: Record<string, JsonValue>, options?: RequestControlOptions) => Promise<unknown>;
   postPmSessionMessage: (pmSessionId: string, payload: Record<string, JsonValue>, options?: RequestControlOptions) => Promise<unknown>;

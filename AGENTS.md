@@ -95,6 +95,11 @@ Work in CortexPilot as a contract-first engineering agent:
   heavy cleanup execution ordering, cleanup inventory consistency checks, and
   the rule that repo-external apply scope stays inside `~/.cache/cortexpilot`
   while shared observation layers remain report-only
+- when workflow-case / proof-pack / compare / task-pack / queue-scheduling
+  contracts change, sync the root AI/docs entrypoints in the same patch; the
+  current examples are `.runtime-cache/cortexpilot/workflow-cases/`,
+  `proof_pack.json`, dedicated run-compare surfaces, desktop Flight Plan
+  preview, and timezone-safe queue scheduling inputs
 
 ## Local Overrides
 

@@ -91,10 +91,14 @@ function createSidebarProps(overrides: Partial<Parameters<typeof PMIntakeRightSi
     chatFlowBusy: false,
     onCreate: vi.fn(),
     onAnswer: vi.fn(),
+    onPreview: vi.fn(),
     onRun: vi.fn(),
     hasIntakeId: true,
     plan: { stage: "ready" },
     taskChain: { chain: "ok" },
+    executionPlanPreview: null,
+    executionPlanPreviewBusy: false,
+    executionPlanPreviewError: "",
     chainPanelRef: createRef<HTMLElement>(),
   };
   return { ...base, ...overrides };

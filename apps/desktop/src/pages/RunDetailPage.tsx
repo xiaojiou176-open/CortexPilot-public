@@ -27,6 +27,7 @@ type RunDetailTab = "events" | "diff" | "reports" | "tools" | "chain" | "contrac
 type RunDetailPageProps = {
   runId: string;
   onBack: () => void;
+  onOpenCompare?: () => void;
 };
 
 /* ─── helpers ─── */
@@ -102,7 +103,7 @@ function statusLabel(status: string): string {
   return labels[normalized] || statusLabelZh(status);
 }
 
-export function RunDetailPage({ runId, onBack }: RunDetailPageProps) {
+export function RunDetailPage({ runId, onBack, onOpenCompare = () => {} }: RunDetailPageProps) {
   const [run, setRun] = useState<RunDetailPayload | null>(null);
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [diff, setDiff] = useState("");
@@ -350,6 +351,8 @@ export function RunDetailPage({ runId, onBack }: RunDetailPageProps) {
   const testReport = reports.find(r => r.name === "test_report.json")?.data;
   const reviewReport = reports.find(r => r.name === "review_report.json")?.data;
   const evidenceReport = reports.find(r => r.name === "evidence_report.json")?.data;
+  const proofPack = reports.find(r => r.name === "proof_pack.json")?.data as Record<string, JsonValue> | undefined;
+  const runCompareReport = reports.find(r => r.name === "run_compare_report.json")?.data as Record<string, JsonValue> | undefined;
   const chainReport = reports.find(r => r.name === "chain_report.json")?.data;
   const workReport = reports.find(r => r.name === "work_report.json")?.data;
   const taskResult = reports.find(r => r.name === "task_result.json")?.data;
@@ -720,6 +723,21 @@ export function RunDetailPage({ runId, onBack }: RunDetailPageProps) {
               <details className="collapsible" open>
                 <summary>Replay result</summary>
                 <div className="collapsible-body"><pre>{JSON.stringify(replayResult, null, 2)}</pre></div>
+              </details>
+            )}
+            {runCompareReport?.compare_summary && (
+              <details className="collapsible" open>
+                <summary>Compare summary</summary>
+                <div className="collapsible-body"><pre>{JSON.stringify(runCompareReport.compare_summary, null, 2)}</pre></div>
+              </details>
+            )}
+            {runCompareReport?.compare_summary && (
+              <Button variant="secondary" onClick={onOpenCompare}>Open compare surface</Button>
+            )}
+            {proofPack && (
+              <details className="collapsible" open>
+                <summary>Proof pack</summary>
+                <div className="collapsible-body"><pre>{JSON.stringify(proofPack, null, 2)}</pre></div>
               </details>
             )}
             {/* Key reports for quick reference */}

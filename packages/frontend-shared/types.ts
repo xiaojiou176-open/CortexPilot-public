@@ -1,7 +1,7 @@
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
 export type JsonObject = { [key: string]: JsonValue };
-export type PublicTaskTemplate = "news_digest" | "topic_brief" | "page_brief";
+export type PublicTaskTemplate = string;
 export type NewsDigestTimeRange = "24h" | "7d" | "30d";
 export type NewsDigestTemplatePayload = {
   topic: string;
@@ -17,6 +17,45 @@ export type TopicBriefTemplatePayload = {
 export type PageBriefTemplatePayload = {
   url: string;
   focus: string;
+};
+export type TaskPackFieldControl = "text" | "textarea" | "url" | "select" | "number";
+export type TaskPackFieldValueCodec = "string" | "string_list" | "integer";
+export type TaskPackFieldOption = {
+  value: string;
+  label: string;
+  description?: string;
+};
+export type TaskPackFieldDefinition = {
+  field_id: string;
+  label: string;
+  control: TaskPackFieldControl;
+  required?: boolean;
+  placeholder?: string;
+  help_text?: string;
+  default_value?: string | number;
+  value_codec?: TaskPackFieldValueCodec;
+  options?: TaskPackFieldOption[];
+  min?: number;
+  max?: number;
+};
+export type TaskPackManifest = {
+  pack_id: string;
+  version: string;
+  title: string;
+  description: string;
+  visibility: "public" | "internal";
+  entry_mode: "pm_intake";
+  task_template: string;
+  input_fields: TaskPackFieldDefinition[];
+  ui_hint: {
+    surface_group: string;
+    default_label?: string;
+  };
+  evidence_contract?: {
+    primary_report?: string;
+    requires_search_requests?: boolean;
+    requires_browser_requests?: boolean;
+  };
 };
 export type NewsDigestItem = {
   title: string;
@@ -89,7 +128,7 @@ export type RunContract = {
   task_id?: string;
   run_id?: string;
   task_template?: PublicTaskTemplate;
-  template_payload?: NewsDigestTemplatePayload | TopicBriefTemplatePayload | PageBriefTemplatePayload;
+  template_payload?: Record<string, JsonValue>;
   allowed_paths?: string[];
   acceptance_tests?: string[];
   tool_permissions?: Record<string, JsonValue>;
@@ -97,6 +136,31 @@ export type RunContract = {
   assigned_agent?: AgentRef;
   rollback?: Record<string, JsonValue>;
   [key: string]: JsonValue | undefined;
+};
+
+export type ExecutionPlanReport = {
+  report_type: "execution_plan_report";
+  generated_at: string;
+  task_template?: string;
+  objective: string;
+  summary: string;
+  browser_policy_preset?: string;
+  effective_browser_policy?: Record<string, JsonValue>;
+  questions: string[];
+  warnings: string[];
+  notes: string[];
+  assigned_role: string;
+  assigned_agent_id?: string;
+  allowed_paths: string[];
+  acceptance_tests: Array<Record<string, JsonValue>>;
+  search_queries: string[];
+  predicted_reports: string[];
+  predicted_artifacts: string[];
+  requires_human_approval: boolean;
+  plan?: JsonValue;
+  plan_bundle?: JsonValue;
+  task_chain?: JsonValue;
+  contract_preview: RunContract;
 };
 
 export type RunManifest = {
@@ -190,8 +254,166 @@ export type WorkflowRecord = {
   status?: string;
   namespace?: string;
   task_queue?: string;
+  objective?: string;
+  owner_pm?: string;
+  project_key?: string;
+  verdict?: string;
+  summary?: string;
+  pm_session_ids?: string[];
+  run_ids?: string[];
+  case_source?: string;
+  case_updated_at?: string;
   runs?: WorkflowRun[];
 };
+
+export type QueueItemRecord = {
+  queue_id: string;
+  task_id: string;
+  owner?: string;
+  contract_path?: string;
+  workflow_id?: string;
+  source_run_id?: string;
+  status: string;
+  priority?: number;
+  scheduled_at?: string;
+  deadline_at?: string;
+  run_id?: string;
+  created_at?: string;
+  claimed_at?: string;
+  completed_at?: string;
+  eligible?: boolean;
+  queue_state?: string;
+  sla_state?: string;
+  waiting_reason?: string;
+};
+
+export const GENERAL_TASK_TEMPLATE = "general";
+
+function splitTaskPackList(raw: string): string[] {
+  return raw
+    .split(/\r?\n|,/g)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function normalizeTaskPackFieldStringValue(field: TaskPackFieldDefinition, raw: unknown): string {
+  if (Array.isArray(raw)) {
+    return raw
+      .map((item) => String(item ?? "").trim())
+      .filter(Boolean)
+      .join("\n");
+  }
+  if (raw === null || raw === undefined) {
+    return "";
+  }
+  if (typeof raw === "number" || typeof raw === "boolean") {
+    return String(raw);
+  }
+  if (typeof raw === "string") {
+    return raw;
+  }
+  return field.value_codec === "integer" ? "0" : "";
+}
+
+export function getTaskPackFieldDefaultValue(field: TaskPackFieldDefinition): string {
+  return normalizeTaskPackFieldStringValue(field, field.default_value);
+}
+
+export function findTaskPackByTemplate(
+  taskPacks: TaskPackManifest[],
+  taskTemplate: string | null | undefined,
+): TaskPackManifest | null {
+  const normalized = String(taskTemplate || "").trim().toLowerCase();
+  if (!normalized || normalized === GENERAL_TASK_TEMPLATE) {
+    return null;
+  }
+  return taskPacks.find((pack) => String(pack.task_template || "").trim().toLowerCase() === normalized) || null;
+}
+
+export function buildTaskPackFieldStateForPack(
+  pack: TaskPackManifest | null | undefined,
+  currentValues: Record<string, string> = {},
+): Record<string, string> {
+  if (!pack) {
+    return { ...currentValues };
+  }
+  const nextValues = { ...currentValues };
+  for (const field of pack.input_fields || []) {
+    if (!(field.field_id in nextValues)) {
+      nextValues[field.field_id] = getTaskPackFieldDefaultValue(field);
+    }
+  }
+  return nextValues;
+}
+
+export function mergeTaskPackFieldStateByTemplate(
+  taskPacks: TaskPackManifest[],
+  currentValuesByTemplate: Record<string, Record<string, string>> = {},
+): Record<string, Record<string, string>> {
+  const nextValuesByTemplate = { ...currentValuesByTemplate };
+  for (const pack of taskPacks) {
+    nextValuesByTemplate[pack.task_template] = buildTaskPackFieldStateForPack(
+      pack,
+      currentValuesByTemplate[pack.task_template] || {},
+    );
+  }
+  return nextValuesByTemplate;
+}
+
+export function buildTaskPackTemplatePayload(
+  pack: TaskPackManifest,
+  fieldValues: Record<string, string> = {},
+): Record<string, JsonValue> {
+  const payload: Record<string, JsonValue> = {};
+  for (const field of pack.input_fields || []) {
+    const rawValue = String(fieldValues[field.field_id] ?? getTaskPackFieldDefaultValue(field));
+    const trimmed = rawValue.trim();
+    if (!trimmed) {
+      if (field.required) {
+        throw new Error(`${field.label} is required`);
+      }
+      continue;
+    }
+    if (field.value_codec === "integer") {
+      const parsed = Number.parseInt(trimmed, 10);
+      if (!Number.isFinite(parsed)) {
+        throw new Error(`${field.label} must be an integer`);
+      }
+      const boundedMin = typeof field.min === "number" ? Math.max(parsed, field.min) : parsed;
+      const boundedValue = typeof field.max === "number" ? Math.min(boundedMin, field.max) : boundedMin;
+      payload[field.field_id] = boundedValue;
+      continue;
+    }
+    if (field.value_codec === "string_list") {
+      const items = splitTaskPackList(trimmed);
+      if (field.required && items.length === 0) {
+        throw new Error(`${field.label} is required`);
+      }
+      payload[field.field_id] = items;
+      continue;
+    }
+    payload[field.field_id] = trimmed;
+  }
+  return payload;
+}
+
+export function hydrateTaskPackFieldStateFromPayload(
+  pack: TaskPackManifest | null | undefined,
+  templatePayload: Record<string, JsonValue> | null | undefined,
+  currentValues: Record<string, string> = {},
+): Record<string, string> {
+  const nextValues = buildTaskPackFieldStateForPack(pack, currentValues);
+  if (!pack || !templatePayload) {
+    return nextValues;
+  }
+  for (const field of pack.input_fields || []) {
+    if (!(field.field_id in templatePayload)) {
+      continue;
+    }
+    nextValues[field.field_id] = normalizeTaskPackFieldStringValue(field, templatePayload[field.field_id]);
+  }
+  return nextValues;
+}
 
 export type WorkflowDetailPayload = {
   workflow: WorkflowRecord;

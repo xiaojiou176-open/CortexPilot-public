@@ -42,6 +42,7 @@
     "backups": ".runtime-cache/cortexpilot/backups",
     "briefings": ".runtime-cache/cortexpilot/briefings",
     "intakes": ".runtime-cache/cortexpilot/intakes",
+    "workflow_cases": ".runtime-cache/cortexpilot/workflow-cases",
     "codex_homes": ".runtime-cache/cortexpilot/codex-homes",
     "browser_profiles": ".runtime-cache/cortexpilot/browser-profiles",
     "temp": ".runtime-cache/cortexpilot/temp",

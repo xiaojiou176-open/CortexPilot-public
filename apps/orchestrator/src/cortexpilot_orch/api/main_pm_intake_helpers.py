@@ -156,10 +156,12 @@ def configure_routes(
     get_command_tower_overview_accessor: Callable[[], Callable[[], dict[str, Any]]],
     get_command_tower_alerts_accessor: Callable[[], Callable[[], dict[str, Any]]],
     list_intakes_accessor: Callable[[], Callable[[], list[dict]]],
+    list_task_packs_accessor: Callable[[], Callable[[], list[dict[str, Any]]]] | None = None,
     get_intake_accessor: Callable[[], Callable[[str], dict]],
     create_intake_accessor: Callable[[], Callable[[dict], dict]],
     answer_intake_accessor: Callable[[], Callable[[str, dict], dict]],
     run_intake_accessor: Callable[[], Callable[[str, dict | None], dict]],
+    preview_intake_accessor: Callable[[], Callable[[dict], dict]] | None = None,
 ) -> None:
     app.state.routes_pm_handlers = {
         "list_pm_sessions": lambda request, status, status_filters, owner_pm, project_key, sort, limit, offset: list_pm_sessions_accessor()(
@@ -181,8 +183,10 @@ def configure_routes(
     }
     app.state.routes_intake_handlers = {
         "list_intakes": lambda: list_intakes_accessor()(),
+        "list_task_packs": lambda: list_task_packs_accessor()() if callable(list_task_packs_accessor) else [],
         "get_intake": lambda intake_id: get_intake_accessor()(intake_id),
         "create_intake": lambda payload: create_intake_accessor()(payload),
+        "preview_intake": lambda payload: (preview_intake_accessor or create_intake_accessor)()(payload),
         "answer_intake": lambda intake_id, payload: answer_intake_accessor()(intake_id, payload),
         "run_intake": lambda intake_id, payload=None: run_intake_accessor()(intake_id, payload),
     }
@@ -341,6 +345,37 @@ def create_intake(
             meta={"request_id": current_request_id_fn(), "error": str(exc)},
         )
         raise HTTPException(status_code=500, detail=error_detail_fn("INTAKE_CREATE_FAILED")) from exc
+
+
+def preview_intake(
+    payload: dict,
+    *,
+    intake_service_cls: type[Any] = IntakeService,
+    error_detail_fn: Callable[[str], dict[str, str]],
+    current_request_id_fn: Callable[[], str],
+) -> dict:
+    service = intake_service_cls()
+    try:
+        return service.preview(payload)
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        log_event(
+            "WARN",
+            "api",
+            "INTAKE_PREVIEW_FAILED",
+            meta={"request_id": current_request_id_fn(), "error": str(exc)},
+        )
+        detail = {**error_detail_fn("INTAKE_PREVIEW_FAILED"), "reason": str(exc)}
+        raise HTTPException(status_code=400, detail=detail) from exc
+    except Exception as exc:  # noqa: BLE001
+        log_event(
+            "ERROR",
+            "api",
+            "INTAKE_PREVIEW_FAILED",
+            meta={"request_id": current_request_id_fn(), "error": str(exc)},
+        )
+        raise HTTPException(status_code=500, detail=error_detail_fn("INTAKE_PREVIEW_FAILED")) from exc
 
 
 def answer_intake(

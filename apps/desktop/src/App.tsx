@@ -5,7 +5,16 @@ import { Button } from "./components/ui/Button";
 import { AppSidebar } from "./components/layout/AppSidebar";
 import { useDesktopData } from "./hooks/useDesktopData";
 import { resolveHotkey } from "./hotkeys";
-import { createIntake, postDesktopPmMessage, type DesktopSessionSummary } from "./lib/api";
+import { createIntake, fetchTaskPacks, postDesktopPmMessage, type DesktopSessionSummary } from "./lib/api";
+import {
+  GENERAL_TASK_TEMPLATE,
+  buildTaskPackTemplatePayload,
+  findTaskPackByTemplate,
+  mergeTaskPackFieldStateByTemplate,
+  type ExecutionPlanReport,
+  type JsonValue,
+  type TaskPackManifest,
+} from "./lib/types";
 import { sanitizeUiError } from "./lib/uiError";
 import { trackPmSendAttempt, trackPmSendBlocked, trackPmStarterPromptUsed } from "./lib/uxTelemetry";
 import {
@@ -29,6 +38,7 @@ import {
   isTimeoutRequestError,
 } from "./features/pm-shell/constants";
 import { PAGE_TITLES, renderDesktopPage, type DesktopPageKey } from "./features/pm-shell/desktopPages";
+import { previewIntake } from "./lib/api";
 import {
   buildComposerPlaceholder,
   buildPmChainGraph,
@@ -77,6 +87,14 @@ function App() {
   const [creatingFirstSession, setCreatingFirstSession] = useState(false);
   const [firstSessionBootstrapError, setFirstSessionBootstrapError] = useState("");
   const [pendingBootstrapSessionId, setPendingBootstrapSessionId] = useState("");
+  const [taskPacks, setTaskPacks] = useState<TaskPackManifest[]>([]);
+  const [taskPacksLoading, setTaskPacksLoading] = useState(false);
+  const [taskPacksError, setTaskPacksError] = useState("");
+  const [taskTemplate, setTaskTemplate] = useState<string>(GENERAL_TASK_TEMPLATE);
+  const [taskPackFieldValuesByTemplate, setTaskPackFieldValuesByTemplate] = useState<Record<string, Record<string, string>>>({});
+  const [executionPlanPreview, setExecutionPlanPreview] = useState<ExecutionPlanReport | null>(null);
+  const [executionPlanPreviewLoading, setExecutionPlanPreviewLoading] = useState(false);
+  const [executionPlanPreviewError, setExecutionPlanPreviewError] = useState("");
 
   const phaseTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pendingRequestRef = useRef<{ requestId: number; sessionId: string; controller: AbortController } | null>(null);
@@ -162,8 +180,20 @@ function App() {
   }, [soundEnabled]);
 
   const workspace = useMemo(() => WORKSPACES.find((w) => w.id === activeWorkspaceId) ?? null, [activeWorkspaceId]);
+  const selectedTaskPack = useMemo(() => findTaskPackByTemplate(taskPacks, taskTemplate), [taskPacks, taskTemplate]);
+  const taskPackFieldValues = taskPackFieldValuesByTemplate[taskTemplate] || {};
   const activeDraftKey = useMemo(() => (!workspace || !activeSessionId) ? "" : draftStorageKey(workspace.id, activeSessionId), [workspace, activeSessionId]);
   const sessionItems = useMemo<DesktopSessionSummary[]>(() => sessions, [sessions]);
+
+  const setTaskPackFieldValue = useCallback((fieldId: string, value: string) => {
+    setTaskPackFieldValuesByTemplate((previous) => ({
+      ...previous,
+      [taskTemplate]: {
+        ...(previous[taskTemplate] || {}),
+        [fieldId]: value,
+      },
+    }));
+  }, [taskTemplate]);
 
   useEffect(() => {
     if (sessionItems.length === 0) {
@@ -182,6 +212,33 @@ function App() {
     setActiveSessionId((p) => sessionItems.some((s) => s.pm_session_id === p) ? p : sessionItems[0]?.pm_session_id ?? p);
     setTimelineBySession((p) => { const n = { ...p }; for (const s of sessionItems) { if (!n[s.pm_session_id]) n[s.pm_session_id] = createSeedTimeline(s.pm_session_id); } return n; });
   }, [sessionItems, pendingBootstrapSessionId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadTaskPacks() {
+      setTaskPacksLoading(true);
+      setTaskPacksError("");
+      try {
+        const packs = await fetchTaskPacks();
+        if (cancelled) return;
+        const resolvedPacks = Array.isArray(packs) ? packs : [];
+        setTaskPacks(resolvedPacks);
+        setTaskPackFieldValuesByTemplate((previous) => mergeTaskPackFieldStateByTemplate(resolvedPacks, previous));
+      } catch (error) {
+        if (cancelled) return;
+        setTaskPacks([]);
+        setTaskPacksError(sanitizeUiError(error, "Task packs unavailable"));
+      } finally {
+        if (!cancelled) {
+          setTaskPacksLoading(false);
+        }
+      }
+    }
+    void loadTaskPacks();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Alert injection
   useEffect(() => {
@@ -564,6 +621,47 @@ function App() {
     toast("Create the first session manually in Dashboard /pm with objective + allowed_paths.");
   }
 
+  function buildFirstSessionPayload(): Record<string, JsonValue> {
+    const payload: Record<string, JsonValue> = {
+      objective: `Create the first session in ${workspace?.repo || "workspace"}/${workspace?.branch || "branch"} and finish one smallest-possible verifiable task.`,
+      allowed_paths: [...FIRST_SESSION_ALLOWED_PATHS],
+    };
+    if (selectedTaskPack) {
+      payload.task_template = selectedTaskPack.task_template;
+      payload.template_payload = buildTaskPackTemplatePayload(
+        selectedTaskPack,
+        taskPackFieldValuesByTemplate[selectedTaskPack.task_template] || {},
+      );
+      payload.objective = "";
+    }
+    return payload;
+  }
+
+  async function previewFirstSessionInDesktop() {
+    if (!workspace) {
+      toast.error("Choose a workspace before previewing the first session.");
+      return;
+    }
+    if (isOffline) {
+      toast.error("Reconnect before previewing the first session.");
+      return;
+    }
+    setExecutionPlanPreviewLoading(true);
+    setExecutionPlanPreviewError("");
+    try {
+      const preview = await previewIntake(buildFirstSessionPayload());
+      setExecutionPlanPreview(preview);
+      toast.success("Flight Plan preview refreshed.");
+    } catch (error) {
+      const reason = sanitizeUiError(error, "Previewing the first session failed");
+      setExecutionPlanPreview(null);
+      setExecutionPlanPreviewError(reason);
+      toast.error("Flight Plan preview failed.");
+    } finally {
+      setExecutionPlanPreviewLoading(false);
+    }
+  }
+
   async function createFirstSessionInDesktop() {
     if (!workspace) {
       toast.error("Choose a workspace before clicking \"Create first session in desktop\".");
@@ -577,11 +675,8 @@ function App() {
     setCreatingFirstSession(true);
     setFirstSessionBootstrapError("");
     try {
-      const objective = `Create the first session in ${workspace.repo}/${workspace.branch} and finish one smallest-possible verifiable task.`;
-      const response = await createIntake({
-        objective,
-        allowed_paths: [...FIRST_SESSION_ALLOWED_PATHS],
-      });
+      const payload = buildFirstSessionPayload();
+      const response = await createIntake(payload);
       const intakeId = typeof response.intake_id === "string" ? response.intake_id.trim() : "";
       if (!intakeId) {
         const fallback = "Open Dashboard /pm and create the first session manually with objective + allowed_paths.";
@@ -624,7 +719,10 @@ function App() {
     onboardingVisible, dismissOnboarding, isOffline, liveError, workspace, activeSessionId, activeSessionGenerating, phaseText, refreshNow,
     drawerVisible, drawerPinned, setDrawerVisible, setDrawerPinned, activeTimeline, chatThreadRef, streamingText,
     creatingFirstSession, firstSessionBootstrapError, firstSessionAllowedPath: FIRST_SESSION_ALLOWED_PATHS[0],
+    taskPacks, taskPacksLoading, taskPacksError, taskTemplate, setTaskTemplate, selectedTaskPack, taskPackFieldValues, setTaskPackFieldValue,
+    executionPlanPreview, executionPlanPreviewLoading, executionPlanPreviewError,
     onCreateFirstSession: () => void createFirstSessionInDesktop(), onOpenSessionFallback: openSessionFallbackCta,
+    onPreviewFirstSession: () => void previewFirstSessionInDesktop(),
     chooseDecision, recoverableDraft, restoreDraft, discardDraft, composerRef, composerInput, setComposerInput,
     onComposerEnterSend: () => void sendMessage(), composerPlaceholder, composerLength, composerMaxChars: COMPOSER_MAX_CHARS,
     composerOverLimit, canSend, sendDisabledReason, starterPrompts,

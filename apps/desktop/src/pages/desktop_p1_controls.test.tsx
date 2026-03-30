@@ -43,14 +43,17 @@ vi.mock("../lib/api", () => ({
   fetchContracts: vi.fn(),
   fetchAllEvents: vi.fn(),
   fetchPendingApprovals: vi.fn(),
+  fetchQueue: vi.fn(),
   fetchLocks: vi.fn(),
   fetchPolicies: vi.fn(),
   fetchReviews: vi.fn(),
   fetchTests: vi.fn(),
+  enqueueRunQueue: vi.fn(),
   fetchWorkflow: vi.fn(),
   fetchWorkflows: vi.fn(),
   fetchWorktrees: vi.fn(),
   fetchRuns: vi.fn(),
+  runNextQueue: vi.fn(),
 }));
 
 import {
@@ -67,14 +70,17 @@ import {
   fetchContracts,
   fetchAllEvents,
   fetchPendingApprovals,
+  fetchQueue,
   fetchLocks,
   fetchPolicies,
   fetchReviews,
   fetchTests,
+  enqueueRunQueue,
   fetchWorkflow,
   fetchWorkflows,
   fetchWorktrees,
   fetchRuns,
+  runNextQueue,
 } from "../lib/api";
 
 function readCssBundle(entryPath: string, visited: Set<string> = new Set()): string {
@@ -98,6 +104,9 @@ function readCssBundle(entryPath: string, visited: Set<string> = new Set()): str
 describe("desktop p1 controls", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(fetchQueue).mockResolvedValue([] as any);
+    vi.mocked(enqueueRunQueue).mockResolvedValue({ ok: true } as any);
+    vi.mocked(runNextQueue).mockResolvedValue({ ok: false, reason: "queue empty" } as any);
 
     Object.defineProperty(navigator, "clipboard", {
       value: { writeText: vi.fn().mockResolvedValue(undefined) },
@@ -234,10 +243,10 @@ describe("desktop p1 controls", () => {
       </>,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "立即刷新" }));
+    fireEvent.click(screen.getByRole("button", { name: /立即刷新|Refresh now/ }));
     expect(refreshNow).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "查看原始输出" }));
+    fireEvent.click(screen.getByRole("button", { name: /查看原始输出|Show raw output/ }));
     expect(onToggleRaw).toHaveBeenCalled();
   });
 
@@ -246,24 +255,24 @@ describe("desktop p1 controls", () => {
     const onNavigateToSession = vi.fn();
 
     const commandTower = render(<CommandTowerPage onNavigateToSession={onNavigateToSession} />);
-    expect(await screen.findByRole("heading", { name: "指挥塔" })).toBeInTheDocument();
-    fireEvent.click(await screen.findByRole("button", { name: "更新进展" }));
-    fireEvent.click(screen.getByRole("button", { name: "暂停自动更新" }));
-    fireEvent.click(screen.getByRole("button", { name: "展开专家信息" }));
-    fireEvent.click(screen.getByRole("button", { name: "应用" }));
-    fireEvent.click(screen.getByRole("button", { name: "重置" }));
-    const focusToggleGroup = screen.getByRole("group", { name: "聚焦视图切换" });
-    fireEvent.click(within(focusToggleGroup).getByRole("button", { name: /^全部/ }));
+    expect(await screen.findByRole("heading", { name: /指挥塔|Command Tower/ })).toBeInTheDocument();
+    fireEvent.click(await screen.findByRole("button", { name: /更新进展|Refresh progress/ }));
+    fireEvent.click(screen.getByRole("button", { name: /暂停自动更新|Pause auto-refresh/ }));
+    fireEvent.click(screen.getByRole("button", { name: /展开专家信息|Show advanced detail/ }));
+    fireEvent.click(screen.getByRole("button", { name: /应用|Apply/ }));
+    fireEvent.click(screen.getByRole("button", { name: /重置|Reset/ }));
+    const focusToggleGroup = screen.getByRole("group", { name: /聚焦视图切换|Focus view switcher/ });
+    fireEvent.click(within(focusToggleGroup).getByRole("button", { name: /^(全部|All)/ }));
     commandTower.unmount();
 
     render(<CTSessionDetailPage sessionId="pm-1" onBack={onBack} />);
-    expect(await screen.findByRole("heading", { name: "会话透视" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "< 返回会话总览" }));
+    expect(await screen.findByRole("heading", { name: /会话透视|Session detail/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /< 返回会话总览|< Back to session overview/ }));
     expect(onBack).toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "暂停实时" }));
-    expect(screen.getByRole("button", { name: "恢复实时" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "手动刷新" }));
+    fireEvent.click(screen.getByRole("button", { name: /暂停实时|Pause live/ }));
+    expect(screen.getByRole("button", { name: /恢复实时|Resume live/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /手动刷新|Refresh now/ }));
     await waitFor(() => expect(fetchPmSession).toHaveBeenCalled());
   });
 
@@ -271,84 +280,84 @@ describe("desktop p1 controls", () => {
     const onNavigate = vi.fn();
 
     const agents = render(<AgentsPage />);
-    expect(await screen.findByRole("heading", { name: "代理" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    expect(await screen.findByRole("heading", { name: /代理|Agents/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchAgents).toHaveBeenCalledTimes(2));
     agents.unmount();
 
     const changeGates = render(<ChangeGatesPage />);
-    expect(await screen.findByRole("heading", { name: "变更门禁" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    expect(await screen.findByRole("heading", { name: /变更门禁|Change Gates/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchDiffGate).toHaveBeenCalledTimes(2));
     changeGates.unmount();
 
     const contracts = render(<ContractsPage />);
-    expect(await screen.findByRole("heading", { name: "合约" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    expect(await screen.findByRole("heading", { name: /合约|Contracts/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchContracts).toHaveBeenCalledTimes(2));
     contracts.unmount();
 
     const events = render(<EventsPage />);
-    expect(await screen.findByRole("heading", { name: "事件流" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    expect(await screen.findByRole("heading", { name: /事件流|Event Stream/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchAllEvents).toHaveBeenCalledTimes(2));
     events.unmount();
 
     const godMode = render(<GodModePage />);
-    expect(await screen.findByRole("heading", { name: "快速审批" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    expect(await screen.findByRole("heading", { name: /快速审批|Fast Approval/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchPendingApprovals).toHaveBeenCalledTimes(2));
     godMode.unmount();
 
     const locks = render(<LocksPage />);
-    expect(await screen.findByRole("heading", { name: "锁管理" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    expect(await screen.findByRole("heading", { name: /锁管理|Locks/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchLocks).toHaveBeenCalledTimes(2));
     locks.unmount();
 
     const overview = render(<OverviewPage onNavigate={onNavigate} onNavigateToRun={vi.fn()} />);
-    expect(await screen.findByRole("heading", { name: "新手起步" })).toBeInTheDocument();
-    const recentExceptionsSection = screen.getByRole("region", { name: "最近异常" });
-    fireEvent.click(within(recentExceptionsSection).getByRole("button", { name: "查看全部异常" }));
+    expect(await screen.findByRole("heading", { name: /新手起步|Operator overview/ })).toBeInTheDocument();
+    const recentExceptionsSection = screen.getByRole("region", { name: /最近异常|Recent exceptions/ });
+    fireEvent.click(within(recentExceptionsSection).getByRole("button", { name: /查看全部异常|View all exceptions/ }));
     expect(onNavigate).toHaveBeenCalledWith("events");
-    fireEvent.click(screen.getByRole("button", { name: "刷新数据" }));
+    fireEvent.click(screen.getByRole("button", { name: /刷新数据|Refresh data/ }));
     await waitFor(() => expect(fetchCommandTowerOverview).toHaveBeenCalledTimes(2));
     overview.unmount();
 
     const policies = render(<PoliciesPage />);
-    expect(await screen.findByRole("heading", { name: "策略" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    expect(await screen.findByRole("heading", { name: /策略|Policies/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchPolicies).toHaveBeenCalledTimes(2));
     policies.unmount();
 
     const reviews = render(<ReviewsPage />);
-    expect(await screen.findByRole("heading", { name: "评审" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    expect(await screen.findByRole("heading", { name: /评审|Reviews/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchReviews).toHaveBeenCalledTimes(2));
     reviews.unmount();
 
     const tests = render(<TestsPage />);
-    expect(await screen.findByRole("heading", { name: "测试" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    expect(await screen.findByRole("heading", { name: /测试|Tests/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchTests).toHaveBeenCalledTimes(2));
     tests.unmount();
 
     const wfDetailOnBack = vi.fn();
     const workflowDetail = render(<WorkflowDetailPage workflowId="wf-001" onBack={wfDetailOnBack} onNavigateToRun={vi.fn()} />);
     expect(await screen.findByText("wf-001")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "返回工作流列表" }));
+    fireEvent.click(screen.getByRole("button", { name: /返回工作流列表|Back to workflow list/ }));
     expect(wfDetailOnBack).toHaveBeenCalled();
     workflowDetail.unmount();
 
     const workflows = render(<WorkflowsPage onNavigateToWorkflow={vi.fn()} />);
-    expect(await screen.findByRole("heading", { name: "工作流" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    expect(await screen.findByRole("heading", { name: /工作流|Workflow Cases/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchWorkflows).toHaveBeenCalledTimes(2));
     workflows.unmount();
 
     const worktrees = render(<WorktreesPage />);
-    expect(await screen.findByRole("heading", { name: "工作树" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    expect(await screen.findByRole("heading", { name: /工作树|Worktrees/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchWorktrees).toHaveBeenCalledTimes(2));
     worktrees.unmount();
   });

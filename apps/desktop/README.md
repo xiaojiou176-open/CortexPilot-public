@@ -32,3 +32,11 @@ npm --prefix apps/desktop run tauri:dev
   lockfile changes, because the quick doc-drift gate treats desktop packaging
   changes as README-owned maintenance work rather than invisible tooling churn.
 - release and notarization helpers remain available through `npm --prefix apps/desktop run tauri:*`
+- The desktop PM shell now loads registry-driven task packs from
+  `/api/pm/task-packs`, supports first-session Flight Plan preview, and carries
+  task-pack payloads into desktop-first session bootstrap before the operator
+  sends the first message.
+- Desktop workflow surfaces now expose workflow-case summaries, queue / SLA
+  state, queue scheduling inputs (`priority`, `scheduled_at`, `deadline_at`),
+  and a dedicated Run Compare page so operator triage is not limited to the
+  dashboard.

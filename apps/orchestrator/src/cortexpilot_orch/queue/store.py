@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 from contextlib import contextmanager
@@ -16,6 +16,28 @@ except Exception:  # noqa: BLE001
 
 def _now_ts() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _parse_iso_ts(raw: Any) -> datetime | None:
+    value = str(raw or "").strip()
+    if not value:
+        return None
+    try:
+        normalized = value.replace("Z", "+00:00")
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        return None
+    return parsed.astimezone(timezone.utc)
+
+
+def _coerce_priority(raw: Any) -> int:
+    try:
+        parsed = int(raw)
+    except (TypeError, ValueError):
+        return 0
+    return max(-100, min(parsed, 100))
 
 
 class QueueStore:
@@ -48,32 +70,49 @@ class QueueStore:
             finally:
                 fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
-    def enqueue(self, contract_path: Path, task_id: str, owner: str = "") -> dict[str, Any]:
+    def enqueue(
+        self,
+        contract_path: Path,
+        task_id: str,
+        owner: str = "",
+        *,
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         payload = {
             "event": "QUEUE_ENQUEUE",
             "status": "PENDING",
             "task_id": task_id,
             "owner": owner,
             "contract_path": str(contract_path),
+            "priority": 0,
         }
+        if isinstance(metadata, dict):
+            payload.update(metadata)
+            payload["priority"] = _coerce_priority(payload.get("priority"))
         return self._append(payload)
 
-    def mark_claimed(self, task_id: str, run_id: str) -> dict[str, Any]:
+    def mark_claimed(self, task_id: str, run_id: str, *, queue_id: str = "") -> dict[str, Any]:
         payload = {
             "event": "QUEUE_CLAIM",
             "status": "CLAIMED",
             "task_id": task_id,
             "run_id": run_id,
+            "claimed_at": _now_ts(),
         }
+        if queue_id:
+            payload["queue_id"] = queue_id
         return self._append(payload)
 
-    def mark_done(self, task_id: str, run_id: str, status: str) -> dict[str, Any]:
+    def mark_done(self, task_id: str, run_id: str, status: str, *, queue_id: str = "") -> dict[str, Any]:
         payload = {
             "event": "QUEUE_DONE",
             "status": status,
             "task_id": task_id,
             "run_id": run_id,
+            "completed_at": _now_ts(),
         }
+        if queue_id:
+            payload["queue_id"] = queue_id
         return self._append(payload)
 
     def _load_state_from_lines(self, lines: list[str]) -> tuple[list[str], dict[str, dict[str, Any]]]:
@@ -100,29 +139,99 @@ class QueueStore:
     def _load_state(self) -> tuple[list[str], dict[str, dict[str, Any]]]:
         return self._load_state_from_lines(self._queue_path.read_text(encoding="utf-8").splitlines())
 
-    def next_pending(self) -> dict[str, Any] | None:
-        order, state = self._load_state()
+    def _queue_item_view(self, item: dict[str, Any]) -> dict[str, Any]:
+        now = datetime.now(timezone.utc)
+        status = str(item.get("status") or "").strip().upper()
+        scheduled_at = _parse_iso_ts(item.get("scheduled_at"))
+        deadline_at = _parse_iso_ts(item.get("deadline_at"))
+        eligible = status == "PENDING" and (scheduled_at is None or scheduled_at <= now)
+
+        if status == "CLAIMED":
+            sla_state = "in_progress"
+        elif status in {"SUCCESS", "DONE", "COMPLETED"}:
+            sla_state = "completed"
+        elif status in {"FAILURE", "FAILED", "ERROR", "REJECTED"}:
+            sla_state = "ended"
+        elif scheduled_at and scheduled_at > now:
+            sla_state = "scheduled"
+        elif deadline_at and deadline_at <= now:
+            sla_state = "breached"
+        elif deadline_at and deadline_at <= now + timedelta(hours=1):
+            sla_state = "at_risk"
+        else:
+            sla_state = "on_track"
+
+        queue_state = "eligible" if eligible else "waiting"
+        if status == "CLAIMED":
+            queue_state = "claimed"
+        elif status not in {"PENDING", "CLAIMED"}:
+            queue_state = "closed"
+
+        next_wait_reason = ""
+        if status == "PENDING" and not eligible and scheduled_at is not None:
+            next_wait_reason = "scheduled_for_future"
+
+        view = {
+            "queue_id": str(item.get("queue_id") or ""),
+            "task_id": str(item.get("task_id") or ""),
+            "owner": str(item.get("owner") or ""),
+            "contract_path": str(item.get("contract_path") or ""),
+            "workflow_id": str(item.get("workflow_id") or ""),
+            "source_run_id": str(item.get("source_run_id") or ""),
+            "status": str(item.get("status") or ""),
+            "priority": _coerce_priority(item.get("priority")),
+            "scheduled_at": str(item.get("scheduled_at") or ""),
+            "deadline_at": str(item.get("deadline_at") or ""),
+            "run_id": str(item.get("run_id") or ""),
+            "claimed_at": str(item.get("claimed_at") or ""),
+            "completed_at": str(item.get("completed_at") or ""),
+        }
+        view["sla_state"] = sla_state
+        view["queue_state"] = queue_state
+        view["eligible"] = eligible
+        view["waiting_reason"] = next_wait_reason
+        view["created_at"] = str(item.get("created_at") or item.get("ts") or "")
+        return view
+
+    def _next_pending_candidate(self, order: list[str], state: dict[str, dict[str, Any]]) -> dict[str, Any] | None:
+        candidates: list[dict[str, Any]] = []
         for task_id in order:
             item = state.get(task_id, {})
-            if item.get("status") == "PENDING":
-                return item
-        return None
+            if item.get("status") != "PENDING":
+                continue
+            view = self._queue_item_view(item)
+            if not view.get("eligible"):
+                continue
+            candidates.append(view)
+        if not candidates:
+            return None
+
+        def _sort_key(item: dict[str, Any]) -> tuple[int, str, str]:
+            scheduled_at = str(item.get("scheduled_at") or "")
+            created_at = str(item.get("created_at") or item.get("ts") or "")
+            return (-_coerce_priority(item.get("priority")), scheduled_at, created_at)
+
+        candidates.sort(key=_sort_key)
+        return candidates[0]
+
+    def next_pending(self) -> dict[str, Any] | None:
+        order, state = self._load_state()
+        return self._next_pending_candidate(order, state)
 
     def claim_next(self, run_id: str = "") -> dict[str, Any] | None:
         with self._locked_handle("a+") as handle:
             handle.seek(0)
             order, state = self._load_state_from_lines(handle.read().splitlines())
-            for task_id in order:
-                item = state.get(task_id, {})
-                if item.get("status") != "PENDING":
-                    continue
+            item = self._next_pending_candidate(order, state)
+            if item is not None:
                 claim_payload = {
                     "event": "QUEUE_CLAIM",
                     "status": "CLAIMED",
-                    "task_id": task_id,
+                    "task_id": item["task_id"],
                     "run_id": run_id,
                     "ts": _now_ts(),
-                    "queue_id": uuid.uuid4().hex,
+                    "queue_id": str(item.get("queue_id") or uuid.uuid4().hex),
+                    "claimed_at": _now_ts(),
                 }
                 handle.seek(0, os.SEEK_END)
                 handle.write(json.dumps(claim_payload, ensure_ascii=False) + "\n")
@@ -135,4 +244,4 @@ class QueueStore:
 
     def list_items(self) -> list[dict[str, Any]]:
         order, state = self._load_state()
-        return [state[task_id] for task_id in order if task_id in state]
+        return [self._queue_item_view(state[task_id]) for task_id in order if task_id in state]

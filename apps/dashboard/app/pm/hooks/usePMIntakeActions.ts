@@ -2,11 +2,20 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import {
+  GENERAL_TASK_TEMPLATE,
+  buildTaskPackTemplatePayload,
+  findTaskPackByTemplate,
+  hydrateTaskPackFieldStateFromPayload,
+  mergeTaskPackFieldStateByTemplate,
+} from "../../../lib/types";
+import {
   answerIntake,
   createIntake,
   fetchPmSession,
   fetchPmSessionEvents,
   fetchPmSessions,
+  fetchTaskPacks,
+  previewIntake,
   runIntake,
 } from "../../../lib/api";
 import { runChatSendFlow } from "../components/PMIntakeFeature.actions";
@@ -74,12 +83,7 @@ export function usePMIntakeActions(state: PMIntakeDataState) {
     constraints,
     searchQueries,
     taskTemplate,
-    newsDigestTopic,
-    newsDigestSources,
-    newsDigestTimeRange,
-    newsDigestMaxResults,
-    pageBriefUrl,
-    pageBriefFocus,
+    taskPackFieldValuesByTemplate,
     workspacePath,
     repoName,
     requesterRole,
@@ -116,13 +120,15 @@ export function usePMIntakeActions(state: PMIntakeDataState) {
     setQuestions,
     setPlan,
     setTaskChain,
+    setExecutionPlanPreview,
+    setExecutionPlanPreviewBusy,
+    setExecutionPlanPreviewError,
+    taskPacks,
+    setTaskPacks,
+    setTaskPacksLoading,
+    setTaskPacksError,
+    setTaskPackFieldValuesByTemplate,
     setTaskTemplate,
-    setNewsDigestTopic,
-    setNewsDigestSources,
-    setNewsDigestTimeRange,
-    setNewsDigestMaxResults,
-    setPageBriefUrl,
-    setPageBriefFocus,
     setEffectiveBrowserPolicy,
     setObjective,
     setChatInput,
@@ -131,6 +137,7 @@ export function usePMIntakeActions(state: PMIntakeDataState) {
     setNewConversationError,
     setNewConversationNotice,
     sessionHistory,
+    executionPlanPreviewBusy,
   } = state;
 
   const urlBootstrapSessionRef = useRef("");
@@ -226,6 +233,36 @@ export function usePMIntakeActions(state: PMIntakeDataState) {
   }, [refreshSessionHistory]);
 
   useEffect(() => {
+    let cancelled = false;
+    async function loadTaskPacks() {
+      setTaskPacksLoading(true);
+      setTaskPacksError("");
+      try {
+        const packs = await fetchTaskPacks();
+        if (cancelled) return;
+        const resolvedPacks = Array.isArray(packs) ? packs : [];
+        setTaskPacks(resolvedPacks);
+        setTaskPackFieldValuesByTemplate((previous) => mergeTaskPackFieldStateByTemplate(resolvedPacks, previous));
+        if (!findTaskPackByTemplate(resolvedPacks, taskTemplate) && resolvedPacks.length > 0 && taskTemplate !== GENERAL_TASK_TEMPLATE) {
+          setTaskTemplate(resolvedPacks[0].task_template);
+        }
+      } catch (error) {
+        if (cancelled) return;
+        setTaskPacks([]);
+        setTaskPacksError(sanitizeErrorMessage(error, "Task packs unavailable"));
+      } finally {
+        if (!cancelled) {
+          setTaskPacksLoading(false);
+        }
+      }
+    }
+    void loadTaskPacks();
+    return () => {
+      cancelled = true;
+    };
+  }, [setTaskPacks, setTaskPacksError, setTaskPacksLoading, setTaskPackFieldValuesByTemplate, setTaskTemplate, taskTemplate]);
+
+  useEffect(() => {
     const fromUrl = readSessionFromUrl();
     if (!fromUrl || urlBootstrapSessionRef.current === fromUrl || intakeId) {
       return;
@@ -240,6 +277,8 @@ export function usePMIntakeActions(state: PMIntakeDataState) {
     setRunId("");
     setPlan(null);
     setTaskChain(null);
+    setExecutionPlanPreview(null);
+    setExecutionPlanPreviewError("");
     setEffectiveBrowserPolicy(null);
     setLiveRole("");
     setProgressFeed([]);
@@ -402,79 +441,26 @@ export function usePMIntakeActions(state: PMIntakeDataState) {
       if (!workspace || !repo) {
         throw new Error("Workspace path and repository name must be bound first");
       }
+      const selectedTaskPack = findTaskPackByTemplate(taskPacks, taskTemplate);
       const normalizedAllowedPaths = splitLines(allowedPaths);
-      const publicTaskTemplate = taskTemplate === "news_digest" || taskTemplate === "topic_brief" || taskTemplate === "page_brief";
-      const publicNewsDigestTemplate = taskTemplate === "news_digest";
-      const publicTopicBriefTemplate = taskTemplate === "topic_brief";
-      const publicPageBriefTemplate = taskTemplate === "page_brief";
-      const digestTopic = newsDigestTopic.trim();
-      const digestSources = splitLines(newsDigestSources);
-      const digestTimeRange = newsDigestTimeRange;
-      const parsedDigestMaxResults = Number.parseInt(newsDigestMaxResults, 10);
-      const digestMaxResults = Number.isFinite(parsedDigestMaxResults)
-        ? Math.max(1, Math.min(parsedDigestMaxResults, 10))
-        : 5;
-      const resolvedPageBriefUrl = pageBriefUrl.trim();
-      const resolvedPageBriefFocus = pageBriefFocus.trim() || "Summarize the page for a first-time reader.";
-      if (publicNewsDigestTemplate || publicTopicBriefTemplate) {
-        if (!digestTopic) {
-          throw new Error("Public digest topic is required");
-        }
-        if (publicNewsDigestTemplate && digestSources.length === 0) {
-          throw new Error("News digest sources are required");
-        }
-      }
-      if (publicPageBriefTemplate && !resolvedPageBriefUrl) {
-        throw new Error("Page brief URL is required");
-      }
-      const resolvedObjective = publicNewsDigestTemplate
-        ? `Build a public-read-only news digest about '${digestTopic}' for the last ${digestTimeRange}.`
-        : publicTopicBriefTemplate
-          ? `Build a public-read-only topic brief about '${digestTopic}' for the last ${digestTimeRange}.`
-          : publicPageBriefTemplate
-            ? `Build a public-read-only page brief for '${resolvedPageBriefUrl}'. Focus: ${resolvedPageBriefFocus}`
-          : nextObjective;
       const payload: Record<string, JsonValue> = {
-        objective: resolvedObjective,
+        objective: nextObjective.trim(),
         allowed_paths: normalizedAllowedPaths.length > 0 ? normalizedAllowedPaths : [...DEFAULT_ALLOWED_PATHS],
         constraints: [`workspace=${workspace}`, `repo=${repo}`, ...splitLines(constraints)],
-        search_queries: publicNewsDigestTemplate
-          ? digestSources.map((source) => (source.includes(".") ? `${digestTopic} site:${source}` : `${digestTopic} ${source}`))
-          : publicTopicBriefTemplate
-            ? [digestTopic]
-            : publicPageBriefTemplate
-              ? []
-          : splitLines(searchQueries),
+        search_queries: splitLines(searchQueries),
         mcp_tool_set: [...DEFAULT_MCP_TOOL_SET],
         acceptance_tests: DEFAULT_ACCEPTANCE_TESTS,
-        browser_policy_preset: publicTaskTemplate ? "safe" : browserPreset,
+        browser_policy_preset: selectedTaskPack ? "safe" : browserPreset,
         requester_role: requesterRole,
       };
-      if (publicNewsDigestTemplate) {
-        payload.task_template = "news_digest";
-        payload.template_payload = {
-          topic: digestTopic,
-          sources: digestSources,
-          time_range: digestTimeRange,
-          max_results: digestMaxResults,
-        };
+      if (selectedTaskPack) {
+        payload.task_template = selectedTaskPack.task_template;
+        payload.template_payload = buildTaskPackTemplatePayload(
+          selectedTaskPack,
+          taskPackFieldValuesByTemplate[selectedTaskPack.task_template] || {},
+        );
       }
-      if (publicTopicBriefTemplate) {
-        payload.task_template = "topic_brief";
-        payload.template_payload = {
-          topic: digestTopic,
-          time_range: digestTimeRange,
-          max_results: digestMaxResults,
-        };
-      }
-      if (publicPageBriefTemplate) {
-        payload.task_template = "page_brief";
-        payload.template_payload = {
-          url: resolvedPageBriefUrl,
-          focus: resolvedPageBriefFocus,
-        };
-      }
-      if (!publicTaskTemplate && browserPreset === "custom") {
+      if (!selectedTaskPack && browserPreset === "custom") {
         try {
           payload.browser_policy = JSON.parse(customBrowserPolicy);
         } catch {
@@ -490,12 +476,8 @@ export function usePMIntakeActions(state: PMIntakeDataState) {
       constraints,
       searchQueries,
       taskTemplate,
-      newsDigestTopic,
-      newsDigestSources,
-      newsDigestTimeRange,
-      newsDigestMaxResults,
-      pageBriefUrl,
-      pageBriefFocus,
+      taskPackFieldValuesByTemplate,
+      taskPacks,
       browserPreset,
       requesterRole,
       customBrowserPolicy,
@@ -511,23 +493,28 @@ export function usePMIntakeActions(state: PMIntakeDataState) {
       setQuestions(nextQuestions);
       setPlan(response.plan || null);
       setTaskChain(response.task_chain || null);
+      setExecutionPlanPreview(null);
+      setExecutionPlanPreviewError("");
       const nextTaskTemplate = asString(response.task_template);
       const nextTemplatePayload =
         response.template_payload && typeof response.template_payload === "object"
           ? (response.template_payload as Record<string, JsonValue>)
           : null;
-      if ((nextTaskTemplate === "news_digest" || nextTaskTemplate === "topic_brief") && nextTemplatePayload) {
-        setTaskTemplate(nextTaskTemplate as "news_digest" | "topic_brief");
-        setNewsDigestTopic(asString(nextTemplatePayload.topic));
-        setNewsDigestSources(asStringArray(nextTemplatePayload.sources).join("\n"));
-        setNewsDigestTimeRange((asString(nextTemplatePayload.time_range) || "24h") as typeof newsDigestTimeRange);
-        setNewsDigestMaxResults(String(nextTemplatePayload.max_results || 5));
-      } else if (nextTaskTemplate === "page_brief" && nextTemplatePayload) {
-        setTaskTemplate("page_brief");
-        setPageBriefUrl(asString(nextTemplatePayload.url));
-        setPageBriefFocus(asString(nextTemplatePayload.focus) || "Summarize the page for a first-time reader.");
+      if (nextTaskTemplate) {
+        const matchedPack = findTaskPackByTemplate(taskPacks, nextTaskTemplate);
+        if (matchedPack) {
+          setTaskPackFieldValuesByTemplate((previous) => ({
+            ...previous,
+            [matchedPack.task_template]: hydrateTaskPackFieldStateFromPayload(
+              matchedPack,
+              nextTemplatePayload,
+              previous[matchedPack.task_template] || {},
+            ),
+          }));
+        }
+        setTaskTemplate(nextTaskTemplate);
       } else {
-        setTaskTemplate("general");
+        setTaskTemplate(GENERAL_TASK_TEMPLATE);
       }
       setEffectiveBrowserPolicy(response.effective_browser_policy ?? null);
       syncSessionQueryParam(nextIntakeId);
@@ -541,13 +528,9 @@ export function usePMIntakeActions(state: PMIntakeDataState) {
       setPlan,
       setTaskChain,
       setTaskTemplate,
-      setNewsDigestTopic,
-      setNewsDigestSources,
-      setNewsDigestTimeRange,
-      setNewsDigestMaxResults,
-      setPageBriefUrl,
-      setPageBriefFocus,
+      setTaskPackFieldValuesByTemplate,
       setEffectiveBrowserPolicy,
+      taskPacks,
       refreshSessionHistory,
     ],
   );
@@ -653,6 +636,8 @@ export function usePMIntakeActions(state: PMIntakeDataState) {
       setQuestions(nextQuestions);
       setPlan(response.plan || null);
       setTaskChain(response.task_chain || null);
+      setExecutionPlanPreview(null);
+      setExecutionPlanPreviewError("");
       setEffectiveBrowserPolicy(response.effective_browser_policy ?? effectiveBrowserPolicy);
       setChatNotice(nextQuestions.length > 0 ? `Answer saved. ${nextQuestions.length} clarifiers remaining.` : "Key details are complete. Keep chatting or type /run.");
     } catch (cause) {
@@ -674,6 +659,41 @@ export function usePMIntakeActions(state: PMIntakeDataState) {
     setTaskChain,
     setEffectiveBrowserPolicy,
     effectiveBrowserPolicy,
+  ]);
+
+  const handlePreview = useCallback(async () => {
+    if (chatBusy || busy || executionPlanPreviewBusy) {
+      return;
+    }
+    setError("");
+    setExecutionPlanPreviewError("");
+    setExecutionPlanPreviewBusy(true);
+    try {
+      const payload = {
+        ...buildIntakePayload(objective),
+        answers: splitLines(answers),
+      };
+      const response = await previewIntake(payload, { timeoutMs: PM_INTAKE_REQUEST_TIMEOUT_MS });
+      setExecutionPlanPreview(response);
+      setChatNotice("Flight Plan ready. Review the predicted contract, gates, and output surface before starting execution.");
+    } catch (cause) {
+      setExecutionPlanPreview(null);
+      setExecutionPlanPreviewError(sanitizeErrorMessage(cause, "Flight Plan preview failed"));
+    } finally {
+      setExecutionPlanPreviewBusy(false);
+    }
+  }, [
+    chatBusy,
+    busy,
+    executionPlanPreviewBusy,
+    setError,
+    setExecutionPlanPreviewError,
+    setExecutionPlanPreviewBusy,
+    buildIntakePayload,
+    objective,
+    answers,
+    setExecutionPlanPreview,
+    setChatNotice,
   ]);
 
   const handleChatSend = useCallback(async () => {
@@ -820,6 +840,8 @@ export function usePMIntakeActions(state: PMIntakeDataState) {
       setRunId("");
       setPlan(null);
       setTaskChain(null);
+      setExecutionPlanPreview(null);
+      setExecutionPlanPreviewError("");
       setEffectiveBrowserPolicy(null);
       setLiveRole("");
       setProgressFeed([]);
@@ -883,6 +905,7 @@ export function usePMIntakeActions(state: PMIntakeDataState) {
     refreshSessionHistory,
     buildIntakePayload,
     syncIntakeResult,
+    handlePreview,
     handleRun,
     handleCreate,
     handleAnswer,

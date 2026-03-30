@@ -9,6 +9,7 @@ import {
   fetchPmSession,
   fetchPmSessionEvents,
   fetchPmSessions,
+  fetchTaskPacks,
   runIntake,
 } from "../lib/api";
 
@@ -18,6 +19,7 @@ vi.mock("../lib/api", () => ({
   fetchPmSession: vi.fn(),
   fetchPmSessionEvents: vi.fn(),
   fetchPmSessions: vi.fn(),
+  fetchTaskPacks: vi.fn(),
   runIntake: vi.fn(),
 }));
 
@@ -193,6 +195,7 @@ describe("pm intake actions hook branches", () => {
   const mockFetchPmSession = vi.mocked(fetchPmSession);
   const mockFetchPmSessionEvents = vi.mocked(fetchPmSessionEvents);
   const mockFetchPmSessions = vi.mocked(fetchPmSessions);
+  const mockFetchTaskPacks = vi.mocked(fetchTaskPacks);
   const mockRunIntake = vi.mocked(runIntake);
 
   beforeEach(() => {
@@ -203,6 +206,21 @@ describe("pm intake actions hook branches", () => {
     mockCreateIntake.mockResolvedValue({ intake_id: "pm-1", questions: [] } as never);
     mockAnswerIntake.mockResolvedValue({ intake_id: "pm-1", questions: [] } as never);
     mockRunIntake.mockResolvedValue({ run_id: "run-1" } as never);
+    mockFetchTaskPacks.mockResolvedValue([
+      {
+        pack_id: "news_digest",
+        version: "v1",
+        title: "Public News Digest",
+        description: "Public, read-only digest over recent sources for one topic.",
+        visibility: "public",
+        entry_mode: "pm_intake",
+        task_template: "news_digest",
+        input_fields: [
+          { field_id: "topic", label: "Topic", control: "text", required: true, default_value: "Seattle tech and AI" },
+        ],
+        ui_hint: { surface_group: "public_task_templates", default_label: "Public news digest" },
+      },
+    ] as never);
   });
 
   it("handles new-conversation refresh failure branch", async () => {

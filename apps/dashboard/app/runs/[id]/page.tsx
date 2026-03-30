@@ -2,6 +2,7 @@ import RunDetail from "../../../components/RunDetail";
 import { Badge } from "../../../components/ui/badge";
 import { fetchRun, fetchEvents, fetchDiff, fetchReports } from "../../../lib/api";
 import { safeLoad } from "../../../lib/serverPageData";
+import Link from "next/link";
 
 type RunDetailPageParams = {
   id: string;
@@ -27,7 +28,10 @@ export default async function RunDetailPage({
             <h1 id="run-detail-page-title" data-testid="run-detail-title">Run detail</h1>
             <p>Follow one run across status, event evidence, and replay comparison.</p>
           </div>
-          <Badge className="mono">{id}</Badge>
+          <div className="toolbar">
+            <Badge className="mono">{id}</Badge>
+            <Link href={`/runs/${encodeURIComponent(id)}/compare`}>Open compare surface</Link>
+          </div>
         </div>
         {warning ? <p className="alert alert-warning" role="status">{warning}</p> : null}
         <RunDetail run={run} events={events} diff={diff} reports={reports} />

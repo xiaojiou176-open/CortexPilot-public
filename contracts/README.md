@@ -2,6 +2,7 @@
 
 This directory holds contract artifacts for CortexPilot governance.
 
+- packs/: source-of-truth task-pack manifests for registry-driven intake surfaces.
 - plans/: PM or Tech Lead plans (plan schema).
 - tasks/: tracked contract examples or source-level task artifacts only; runtime-generated task results do not live here.
 - results/: tracked contract examples or source-level result artifacts only; runtime-generated results do not live here.
@@ -13,6 +14,10 @@ This directory holds contract artifacts for CortexPilot governance.
   - Reviewer `allowed_paths` includes reviewed worker outputs to accept dependency patch context under strict diff gate.
   - Multi-reviewer chains with overlapping review scope run serially (no shared `parallel_group`) to avoid lock contention by design.
 - Runtime-generated task/review/result contracts are written under `.runtime-cache/cortexpilot/contracts/{tasks,reviews,results}`.
+- Runtime-generated pack metadata must not write back into `contracts/packs/`; pack manifests stay source-owned and repo-tracked.
+- Pack manifests now also carry `input_fields` plus `evidence_contract`
+  metadata so dashboard and desktop intake surfaces can render pack-specific
+  forms without inventing their own field registry.
 - `contracts/` is source-of-truth workspace only; any runtime path that writes back into `contracts/tasks|reviews|results` is governance drift.
 - Auto-generated coverage self-heal chains therefore land under `.runtime-cache/cortexpilot/contracts/tasks`, even when their schema/source examples live in this directory.
 

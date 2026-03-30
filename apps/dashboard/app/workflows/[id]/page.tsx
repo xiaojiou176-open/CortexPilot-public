@@ -4,7 +4,7 @@ import type { BadgeVariant } from "../../../components/ui/badge";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { Card } from "../../../components/ui/card";
-import { fetchWorkflow } from "../../../lib/api";
+import { fetchQueue, fetchWorkflow } from "../../../lib/api";
 import { safeLoad } from "../../../lib/serverPageData";
 
 function statusLabelEn(status: string | undefined): string {
@@ -78,6 +78,11 @@ export default async function WorkflowDetailPage({
     { workflow: { workflow_id: workflowId }, runs: [], events: [] },
     "Workflow detail",
   );
+  const { data: queueItems } = await safeLoad(
+    () => fetchQueue(workflowId),
+    [] as Record<string, unknown>[],
+    "Queue detail",
+  );
   const workflow = payload.workflow || { workflow_id: workflowId };
   const runs = Array.isArray(payload.runs) ? payload.runs : [];
   const events = Array.isArray(payload.events) ? payload.events : [];
@@ -97,7 +102,7 @@ export default async function WorkflowDetailPage({
           <div className="section-header">
             <div>
               <h1 id="workflow-detail-title">Workflow detail</h1>
-              <p>Confirm whether the workflow can keep running and whether governance actions should pause.</p>
+              <p>Confirm the workflow case status, linked runs, and whether governance actions should pause.</p>
             </div>
             <Badge className="mono">{workflowId}</Badge>
           </div>
@@ -162,7 +167,7 @@ export default async function WorkflowDetailPage({
         <div className="section-header">
           <div>
             <h1 id="workflow-detail-title">Workflow detail</h1>
-            <p>Classify risk first, then confirm run mapping and the event timeline before taking governance action.</p>
+            <p>Classify risk first, then confirm the case summary, run mapping, and event timeline before taking governance action.</p>
           </div>
           <div className="toolbar" role="group" aria-label="Workflow risk summary">
             <Badge className="mono">{workflow.workflow_id || workflowId}</Badge>
@@ -197,6 +202,9 @@ export default async function WorkflowDetailPage({
             <div className="mono">Updated at: {workflowUpdatedAt}</div>
             <div className="mono">Namespace: {workflow.namespace || "-"}</div>
             <div className="mono">Task queue: {workflow.task_queue || "-"}</div>
+            <div className="mono">Owner: {String(workflowMeta["owner_pm"] || "-")}</div>
+            <div className="mono">Project: {String(workflowMeta["project_key"] || "-")}</div>
+            <div className="mono">Verdict: {String(workflowMeta["verdict"] || "-")}</div>
             <div className="mono">Runs: {runs.length}</div>
           </Card>
           <Card>
@@ -214,6 +222,19 @@ export default async function WorkflowDetailPage({
           <Card>
             <h3>Workflow events</h3>
             <EventTimeline events={events} />
+          </Card>
+          <Card>
+            <h3>Queue / SLA</h3>
+            {queueItems.length === 0 ? (
+              <div className="mono">No queued work for this workflow case.</div>
+            ) : (
+              queueItems.map((item, index) => (
+                <div key={`${String(item.queue_id || "queue")}-${index}`} className="mono">
+                  {String(item.task_id || "-")} / {String(item.status || "-")} / priority {String(item.priority ?? "-")} / sla {String(item.sla_state || "-")}
+                </div>
+              ))
+            )}
+            <span className="mono muted">Queue mutations currently live in desktop and CLI operator flows.</span>
           </Card>
         </div>
       </section>

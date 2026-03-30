@@ -36,6 +36,9 @@ def build_route_deps_not_configured_http_error(*, group_name: str, operation: st
 @dataclass(frozen=True)
 class RunsRouteDeps:
     list_runs: AnyHandler
+    list_queue: AnyHandler
+    enqueue_run_queue: AnyHandler
+    run_next_queue: AnyHandler
     list_workflows: AnyHandler
     get_workflow: AnyHandler
     get_run: AnyHandler
@@ -117,6 +120,9 @@ def _bind_handler(
 def build_runs_route_deps_from_mapping(mapping: Mapping[str, Any]) -> RunsRouteDeps:
     return RunsRouteDeps(
         list_runs=_bind_handler(mapping, "list_runs", "runs"),
+        list_queue=_bind_handler(mapping, "list_queue", "runs"),
+        enqueue_run_queue=_bind_handler(mapping, "enqueue_run_queue", "runs"),
+        run_next_queue=_bind_handler(mapping, "run_next_queue", "runs"),
         list_workflows=_bind_handler(mapping, "list_workflows", "runs"),
         get_workflow=_bind_handler(mapping, "get_workflow", "runs"),
         get_run=_bind_handler(mapping, "get_run", "runs"),

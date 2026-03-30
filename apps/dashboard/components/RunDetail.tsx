@@ -104,7 +104,10 @@ export default function RunDetail({
   const taskResult = reportsState.find((r) => r.name === "task_result.json")?.data;
   const workReport = reportsState.find((r) => r.name === "work_report.json")?.data;
   const evidenceReport = reportsState.find((r) => r.name === "evidence_report.json")?.data;
+  const incidentPack = reportsState.find((r) => r.name === "incident_pack.json")?.data;
+  const proofPack = reportsState.find((r) => r.name === "proof_pack.json")?.data;
   const replayReport = reportsState.find((r) => r.name === "replay_report.json")?.data as Record<string, unknown> | undefined;
+  const runCompareReport = reportsState.find((r) => r.name === "run_compare_report.json")?.data;
   const chainReport = reportsState.find((r) => r.name === "chain_report.json")?.data;
   const chainLifecycle = ((chainReport as Record<string, unknown> | undefined)?.lifecycle || null) as LifecycleSnapshot | null;
   const lifecycleRail = lifecycleBadges(chainLifecycle);
@@ -492,6 +495,9 @@ export default function RunDetail({
           taskResult={taskResult}
           workReport={workReport}
           evidenceReport={evidenceReport}
+          incidentPack={incidentPack}
+          proofPack={proofPack}
+          runCompareReport={runCompareReport}
           availableRunsError={availableRunsError}
           baselineRunId={baselineRunId}
           onBaselineRunIdChange={setBaselineRunId}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo } from "react";
+import { buildTaskPackFieldStateForPack, findTaskPackByTemplate } from "../../../lib/types";
 import { resolvePmJourneyContext } from "../../../lib/pmStageResolver";
 import { usePMLayoutShortcuts } from "./usePMLayoutShortcuts";
 import {
@@ -51,9 +52,11 @@ export function usePMIntakeView(state: PMIntakeDataState, actions: PMIntakeActio
     chatInput,
     setChatInput,
     setChatNotice,
+    taskPacks = [],
     layoutMode,
     setLayoutMode,
     setTaskTemplate,
+    setTaskPackFieldValuesByTemplate = () => {},
     setNewsDigestTopic,
     setNewsDigestSources,
     setNewsDigestTimeRange,
@@ -167,17 +170,31 @@ export function usePMIntakeView(state: PMIntakeDataState, actions: PMIntakeActio
   }, [chatAbortRef, setChatNotice]);
 
   const applyExampleTemplate = useCallback(() => {
-    setTaskTemplate("news_digest");
-    setNewsDigestTopic("Seattle tech and AI");
-    setNewsDigestSources("theverge.com\ntechcrunch.com\nopenai.com/blog");
-    setNewsDigestTimeRange("24h");
-    setNewsDigestMaxResults("5");
+    const preferredPack = findTaskPackByTemplate(taskPacks, "news_digest") || taskPacks[0] || null;
+    if (preferredPack) {
+      setTaskTemplate(preferredPack.task_template);
+      setTaskPackFieldValuesByTemplate((previous) => ({
+        ...previous,
+        [preferredPack.task_template]: buildTaskPackFieldStateForPack(
+          preferredPack,
+          previous[preferredPack.task_template] || {},
+        ),
+      }));
+    } else {
+      setTaskTemplate("news_digest");
+      setNewsDigestTopic("Seattle tech and AI");
+      setNewsDigestSources("theverge.com\ntechcrunch.com\nopenai.com/blog");
+      setNewsDigestTimeRange("24h");
+      setNewsDigestMaxResults("5");
+    }
     setChatInput((current) => current.trim() || "Please create a public-read-only Seattle tech and AI news digest with auditable sources and evidence.");
     chatInputRef.current?.focus();
     setChatError("");
-    setChatNotice("Filled the news_digest example. Send it as-is or keep editing.");
+    setChatNotice(`Filled the ${(preferredPack?.task_template || "news_digest")} example. Send it as-is or keep editing.`);
   }, [
+    taskPacks,
     setTaskTemplate,
+    setTaskPackFieldValuesByTemplate,
     setNewsDigestTopic,
     setNewsDigestSources,
     setNewsDigestTimeRange,

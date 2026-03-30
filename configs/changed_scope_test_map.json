@@ -537,7 +537,23 @@
       ],
       "tests": [
         "apps/orchestrator/tests/test_queue.py",
-        "apps/orchestrator/tests/test_scheduler_paths.py"
+        "apps/orchestrator/tests/test_scheduler_paths.py",
+        "apps/orchestrator/tests/test_api_main_runtime_views.py"
+      ]
+    },
+    {
+      "id": "orchestrator_schedule_contracts",
+      "path_globs": [
+        "schemas/queue_item*.json",
+        "schemas/scheduled_run*.json",
+        "schemas/sla_state*.json",
+        "scripts/check_schedule_boundary.py"
+      ],
+      "tests": [
+        "apps/orchestrator/tests/test_schema_validation.py",
+        "apps/orchestrator/tests/test_schema_aliases.py",
+        "apps/orchestrator/tests/test_queue.py",
+        "apps/orchestrator/tests/test_api_main_runtime_views.py"
       ]
     },
     {

@@ -150,9 +150,14 @@ export function GodModePage() {
           <div className="god-mode-queue">
             {pending.map((item, i) => {
               const runId = String(item.run_id || "");
+              const approvalPack = item.approval_pack && typeof item.approval_pack === "object"
+                ? (item.approval_pack as Record<string, unknown>)
+                : null;
+              const approvalSummary = approvalPack ? String(approvalPack.summary || "").trim() : "";
               return (
                 <div key={i} className="god-mode-item">
                   <div className="god-mode-item-header"><code>{runId || `Task ${i + 1}`}</code><Badge variant="failed">CRITICAL</Badge></div>
+                  {approvalSummary ? <div className="god-mode-detail"><span className="god-mode-detail-label">Summary</span><span>{approvalSummary}</span></div> : null}
                   {item.task_id && <div className="god-mode-detail"><span className="god-mode-detail-label">Task ID</span><span className="mono">{String(item.task_id)}</span></div>}
                   {item.failure_reason && <div className="god-mode-detail"><span className="god-mode-detail-label">Failure reason</span><span className="cell-danger">{String(item.failure_reason)}</span></div>}
                   <Button variant="primary" className="god-mode-approve-btn" disabled={actionBusy} onClick={() => openConfirmDialog(runId)}>Approve execution</Button>

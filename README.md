@@ -192,6 +192,15 @@ npm run test:quick
 bash scripts/check_repo_hygiene.sh
 ```
 
+Recent operator-surface upgrades now include:
+
+- persisted `workflow case` snapshots under `.runtime-cache/cortexpilot/workflow-cases/`
+- derived `proof_pack.json` reports for successful public task slices
+- a dedicated run-compare surface alongside the existing Run Detail replay area
+- desktop-first Flight Plan preview before creating the first PM session
+- queue scheduling inputs (`priority`, `scheduled_at`, `deadline_at`) with
+  timezone-safe API validation
+
 Useful additional entrypoints:
 
 ```bash

@@ -1,12 +1,13 @@
-import type { EventRecord, NewsDigestTemplatePayload, NewsDigestTimeRange, PmSessionSummary } from "../../../lib/types";
+import type { EventRecord, ExecutionPlanReport, NewsDigestTimeRange, PmSessionSummary, TaskPackManifest } from "../../../lib/types";
 
 export type BrowserPreset = "safe" | "balanced" | "aggressive" | "custom";
 export type ChatRole = "PM" | "CortexPilot Command Tower";
 export type PMLayoutMode = "dialog" | "split" | "chain" | "focus";
 export type ChatItemKind = "message" | "decision" | "delegation" | "progress" | "report" | "alert";
-export type PMTaskTemplate = "general" | "news_digest" | "topic_brief" | "page_brief";
-export type NewsDigestFormState = NewsDigestTemplatePayload;
+export type PMTaskTemplate = string;
 export type { NewsDigestTimeRange };
+export type { ExecutionPlanReport };
+export type { TaskPackManifest };
 
 export type ChatCardOption = {
   label: string;

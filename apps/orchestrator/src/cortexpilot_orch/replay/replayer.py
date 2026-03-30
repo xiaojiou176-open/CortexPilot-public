@@ -182,6 +182,17 @@ class ReplayRunner:
         if not snapshot_ok:
             status = "fail"
 
+        compare_summary = {
+            "mismatched_count": len(mismatched),
+            "missing_count": len(missing_hashes),
+            "extra_count": len(extra_hashes),
+            "missing_reports_count": len(missing_reports),
+            "failed_report_checks_count": sum(1 for item in report_checks.values() if not item.get("ok", False)),
+            "evidence_ok": evidence_ok,
+            "llm_params_ok": llm_ok,
+            "llm_snapshot_ok": snapshot_ok,
+        }
+
         self._store.append_event(
             run_id,
             {
@@ -212,6 +223,7 @@ class ReplayRunner:
             "missing_reports": missing_reports,
             "report_checks": report_checks,
             "report_hashes": report_hashes,
+            "compare_summary": compare_summary,
             "evidence_hashes": {
                 "baseline": baseline_hashes,
                 "current": current_hashes,
@@ -238,7 +250,16 @@ class ReplayRunner:
             },
         }
 
+        run_compare_report = {
+            "report_type": "run_compare_report",
+            "run_id": run_id,
+            "baseline_run_id": baseline_run_id,
+            "status": status,
+            "compare_summary": compare_summary,
+        }
+
         self._store.write_report(run_id, "replay_report", replay_report)
+        self._store.write_report(run_id, "run_compare_report", run_compare_report)
         self._store.append_event(
             run_id,
             {

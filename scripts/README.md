@@ -11,6 +11,7 @@ CI, hygiene, and release tasks.
 - `test.sh`
 - `test_quick.sh`
 - `check_repo_hygiene.sh`
+- `check_schedule_boundary.py`
 - `docker_ci.sh`
 - `build_space_governance_report.py`
 - `check_space_cleanup_gate.py`
@@ -62,6 +63,10 @@ user's ambient Python environment.
 - `test_quick.sh` now keeps its quick-check logs under
   `.runtime-cache/test_output/governance/quick_checks/` so retention-report
   discipline no longer has to tolerate root-level `test_output` files.
+- `check_schedule_boundary.py` now guards the queue/schedule runtime contract:
+  `.runtime-cache/cortexpilot/queue.jsonl` must stay compatible with
+  `queue_item.v1.json`, `scheduled_run.v1.json`, and `sla_state.v1.json`
+  before repo-side hygiene accepts scheduling changes.
 - `security_scan.sh` now filters a very small allowlist of non-verified,
   synthetic placeholder findings from test/example git history while still
   failing on every other trufflehog hit.

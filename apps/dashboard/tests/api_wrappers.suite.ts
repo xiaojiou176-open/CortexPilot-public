@@ -10,6 +10,7 @@ import {
   answerIntake,
   approveGodMode,
   createIntake,
+  previewIntake,
   fetchAgentStatus,
   fetchAgents,
   fetchAllEvents,
@@ -31,6 +32,7 @@ import {
   fetchPolicies,
   fetchReports,
   fetchReviews,
+  fetchQueue,
   releaseLocks,
   fetchRun,
   fetchRuns,
@@ -46,6 +48,7 @@ import {
   rejectRun,
   replayRun,
   rollbackRun,
+  runNextQueue,
   runIntake,
 } from "../lib/api";
 import type { PmSessionStatus } from "../lib/types";
@@ -96,10 +99,12 @@ describe("dashboard api wrappers", () => {
       { name: "fetchPolicies", path: "/api/policies", invoke: () => fetchPolicies() },
       { name: "fetchLocks", path: "/api/locks", invoke: () => fetchLocks() },
       { name: "fetchWorktrees", path: "/api/worktrees", invoke: () => fetchWorktrees() },
+      { name: "fetchQueue", path: "/api/queue", invoke: () => fetchQueue() },
       { name: "fetchWorkflows", path: "/api/workflows", invoke: () => fetchWorkflows() },
       { name: "fetchWorkflow", path: "/api/workflows/wf%2F1", invoke: () => fetchWorkflow("wf/1") },
       { name: "fetchCommandTowerOverview", path: "/api/command-tower/overview", invoke: () => fetchCommandTowerOverview() },
       { name: "fetchCommandTowerAlerts", path: "/api/command-tower/alerts", invoke: () => fetchCommandTowerAlerts() },
+      { name: "fetchTaskPacks", path: "/api/pm/task-packs", invoke: () => dashboardApi.fetchTaskPacks() },
       { name: "fetchPmSessions", path: "/api/pm/sessions", invoke: () => fetchPmSessions() },
       {
         name: "fetchPmSessions(options)",
@@ -195,12 +200,14 @@ describe("dashboard api wrappers", () => {
     await rollbackRun("run/1");
     await rejectRun("run/1");
     await createIntake({ topic: "intake" });
+    await previewIntake({ topic: "intake-preview" });
     await answerIntake("intake/1", { answer: "yes" });
     await runIntake("intake/1", { dry_run: false });
     await postPmSessionMessage("session/1", { message: "need update", from_role: "PM" });
     await approveGodMode("run-2");
     await replayRun("run/1");
     await replayRun("run/1", " baseline-9 ");
+    await runNextQueue();
     await releaseLocks(["apps/dashboard", "apps/desktop"]);
 
     const calls = fetchMock.mock.calls as unknown[][];
@@ -222,32 +229,49 @@ describe("dashboard api wrappers", () => {
     expect(JSON.parse(String(call3.init.body))).toEqual({ topic: "intake" });
 
     const call4 = extractCall(calls, 4);
-    expect(call4.url).toBe(`${API_BASE}/api/pm/intake/intake%2F1/answer`);
-    expect(JSON.parse(String(call4.init.body))).toEqual({ answer: "yes" });
+    expect(call4.url).toBe(`${API_BASE}/api/pm/intake/preview`);
+    expect(JSON.parse(String(call4.init.body))).toEqual({ topic: "intake-preview" });
 
     const call5 = extractCall(calls, 5);
-    expect(call5.url).toBe(`${API_BASE}/api/pm/intake/intake%2F1/run`);
-    expect(JSON.parse(String(call5.init.body))).toEqual({ dry_run: false });
+    expect(call5.url).toBe(`${API_BASE}/api/pm/intake/intake%2F1/answer`);
+    expect(JSON.parse(String(call5.init.body))).toEqual({ answer: "yes" });
 
     const call6 = extractCall(calls, 6);
-    expect(call6.url).toBe(`${API_BASE}/api/pm/sessions/session%2F1/messages`);
-    expect(JSON.parse(String(call6.init.body))).toEqual({ message: "need update", from_role: "PM" });
+    expect(call6.url).toBe(`${API_BASE}/api/pm/intake/intake%2F1/run`);
+    expect(JSON.parse(String(call6.init.body))).toEqual({ dry_run: false });
 
     const call7 = extractCall(calls, 7);
-    expect(call7.url).toBe(`${API_BASE}/api/god-mode/approve`);
-    expect(JSON.parse(String(call7.init.body))).toEqual({ run_id: "run-2" });
+    expect(call7.url).toBe(`${API_BASE}/api/pm/sessions/session%2F1/messages`);
+    expect(JSON.parse(String(call7.init.body))).toEqual({ message: "need update", from_role: "PM" });
 
     const call8 = extractCall(calls, 8);
-    expect(call8.url).toBe(`${API_BASE}/api/runs/run%2F1/replay`);
-    expect(JSON.parse(String(call8.init.body))).toEqual({});
+    expect(call8.url).toBe(`${API_BASE}/api/god-mode/approve`);
+    expect(JSON.parse(String(call8.init.body))).toEqual({ run_id: "run-2" });
 
     const call9 = extractCall(calls, 9);
     expect(call9.url).toBe(`${API_BASE}/api/runs/run%2F1/replay`);
-    expect(JSON.parse(String(call9.init.body))).toEqual({ baseline_run_id: "baseline-9" });
+    expect(JSON.parse(String(call9.init.body))).toEqual({});
 
     const call10 = extractCall(calls, 10);
-    expect(call10.url).toBe(`${API_BASE}/api/locks/release`);
-    expect(JSON.parse(String(call10.init.body))).toEqual({ paths: ["apps/dashboard", "apps/desktop"] });
+    expect(call10.url).toBe(`${API_BASE}/api/runs/run%2F1/replay`);
+    expect(JSON.parse(String(call10.init.body))).toEqual({ baseline_run_id: "baseline-9" });
+
+    const call11 = extractCall(calls, 11);
+    expect(call11.url).toBe(`${API_BASE}/api/queue/run-next`);
+    expect(JSON.parse(String(call11.init.body))).toEqual({});
+
+    const call12 = extractCall(calls, 12);
+    expect(call12.url).toBe(`${API_BASE}/api/locks/release`);
+    expect(JSON.parse(String(call12.init.body))).toEqual({ paths: ["apps/dashboard", "apps/desktop"] });
+  });
+
+  it("covers queue enqueue route", async () => {
+    const fetchMock = vi.fn(async () => jsonResponse({ ok: true }));
+    vi.stubGlobal("fetch", fetchMock);
+    await dashboardApi.enqueueRunQueue("run/1", { priority: 3 });
+    const call = extractCall(fetchMock.mock.calls as unknown[][], 0);
+    expect(call.url).toBe(`${API_BASE}/api/queue/from-run/run%2F1`);
+    expect(JSON.parse(String(call.init.body))).toEqual({ priority: 3 });
   });
 
   it("covers PM sessions/events parameter filters with invalid entries", async () => {

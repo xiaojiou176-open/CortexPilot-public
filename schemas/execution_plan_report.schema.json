@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/execution_plan_report.schema.json",
+  "title": "ExecutionPlanReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "report_type",
+    "generated_at",
+    "objective",
+    "summary",
+    "questions",
+    "warnings",
+    "notes",
+    "assigned_role",
+    "allowed_paths",
+    "acceptance_tests",
+    "search_queries",
+    "predicted_reports",
+    "predicted_artifacts",
+    "requires_human_approval",
+    "contract_preview"
+  ],
+  "properties": {
+    "report_type": {
+      "type": "string",
+      "const": "execution_plan_report"
+    },
+    "generated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_template": {
+      "type": "string"
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "browser_policy_preset": {
+      "type": "string"
+    },
+    "effective_browser_policy": {
+      "type": "object"
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "assigned_role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "assigned_agent_id": {
+      "type": "string"
+    },
+    "allowed_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "acceptance_tests": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "search_queries": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "predicted_reports": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "predicted_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "requires_human_approval": {
+      "type": "boolean"
+    },
+    "plan": {
+      "type": "object"
+    },
+    "plan_bundle": {
+      "type": "object"
+    },
+    "task_chain": {
+      "type": "object"
+    },
+    "contract_preview": {
+      "type": "object"
+    }
+  }
+}

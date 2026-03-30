@@ -22,7 +22,30 @@ flowchart LR
 ## Notes
 - API layer should stay protocol-focused and delegate orchestration to services.
 - Current state: write-side run mutations in API (`evidence promote` / `reject` / `god-mode approve`) are routed through `OrchestrationService` first, with legacy fallback kept for test doubles and backward compatibility.
+- PM intake preview now emits an advisory `execution_plan_report` before a run
+  starts; it is a read-only planning surface for contract/gate/output
+  prediction, not a second execution truth source.
+- Pack registry truth lives under `contracts/packs/`; dashboard and desktop
+  intake surfaces consume that metadata, while runtime execution keeps the real
+  output truth under run bundles.
+- Queue truth currently lives in `.runtime-cache/cortexpilot/queue.jsonl`; API
+  and workflow surfaces read that queue state and derive `eligible` /
+  `sla_state` instead of storing a second scheduler database.
+- Workflow-case truth now persists under
+  `.runtime-cache/cortexpilot/workflow-cases/<workflow_id>/case.json`; API and
+  operator surfaces still derive fields from runs/PM sessions, but now write a
+  stable case snapshot for downstream compare/queue/proof flows.
 - Runtime artifacts (`manifest`, `events.jsonl`, reports) are generated per run.
+- Run detail views may now include derived decision packs such as
+  `incident_pack.json`, while approval queues synthesize `approval_pack`
+  summaries from run events plus manifest metadata. These are derived operator
+  reading surfaces, not replacements for `manifest.json` or `events.jsonl`.
+- Successful public task slices can now emit `proof_pack.json`, which packages
+  the primary public result report and evidence refs into a reusable operator
+  proof summary without replacing the underlying run bundle truth.
+- Replay compare flows now also write `run_compare_report.json`, so compare
+  summaries survive as run-local reports instead of living only in transient UI
+  state.
 - Run-bundle evidence logs (for example `tests/stdout.log`, `tests/stderr.log`, `codex/*/mcp_stderr.log`) are retained under `.runtime-cache/cortexpilot/runs/<run_id>/` as audit artifacts; they do not replace the primary operational log channels under `.runtime-cache/logs/`.
 - Daily operator briefings are generated under `.runtime-cache/cortexpilot/briefings/` by `tooling/briefing_generator.py`; this is a governed reporting surface rather than an ad-hoc scratch directory.
 - Chain orchestration now emits lifecycle evidence in `reports/chain_report.json` (`lifecycle` section) and event stream markers (`CHAIN_HANDOFF_STEP_MARKED`, `CHAIN_LIFECYCLE_EVALUATED`, `CHAIN_COMPLETED`) for PM→TL→Worker→Reviewer→Testing→TL→PM closure and reviewer quorum outcomes.
