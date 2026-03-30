@@ -53,7 +53,9 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `log_lane_summary` + `space_bridge`, serial-only heavy cleanup ordering,
   cleanup inventory consistency checks, and the rule that `~/.cache/cortexpilot`
   is the repo-external strong-related root while shared ecosystem layers stay
-  observe-only
+  observe-only; current Docker runtime lane changes must keep cleanup scoped to
+  CortexPilot-owned images/containers/volumes while workstation-global
+  Docker/cache totals stay audit-only
 - when workflow-case / proof-pack / compare / task-pack / queue-scheduling
   contracts change, sync the root AI/docs entrypoints in the same patch; the
   current examples are `.runtime-cache/cortexpilot/workflow-cases/`,
@@ -66,6 +68,7 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
 - `npm run test`
 - `npm run test:quick`
 - `npm run space:audit`
+- `npm run docker:runtime:audit`
 - `bash scripts/check_repo_hygiene.sh`
 - `pre-commit run --all-files`
 

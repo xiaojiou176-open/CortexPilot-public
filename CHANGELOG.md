@@ -60,6 +60,9 @@ All notable changes to this repository will be documented in this file.
 - tightened the space-governance / retention contract so cleanup inventory,
   wave receipts, retention lane summaries, and test-output namespace discipline
   now agree on the same repo-local and repo-external cache boundaries
+- added a dedicated Docker runtime lane for CortexPilot-owned local CI residue,
+  registered its environment knobs, and kept workstation-global Docker/cache
+  totals audit-only instead of apply targets
 
 ## 2026-03-24
 
