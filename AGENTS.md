@@ -23,6 +23,7 @@ Work in CortexPilot as a contract-first engineering agent:
 - fast verification: `npm run test:quick`
 - main local gate: `npm run test`
 - space audit: `npm run space:audit`
+- docker runtime audit: `npm run docker:runtime:audit`
 - hygiene: `bash scripts/check_repo_hygiene.sh`
 - truth split: `npm run truth:triage`
 - full pre-commit: `pre-commit run --all-files`

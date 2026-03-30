@@ -20,6 +20,7 @@ npm run space:gate:wave1
 npm run space:gate:wave2
 npm run space:gate:wave3
 bash scripts/cleanup_space.sh wave1 dry-run
+npm run docker:runtime:audit
 ```
 
 ## What The Workflow Produces
@@ -40,6 +41,35 @@ bash scripts/cleanup_space.sh wave1 dry-run
 - Cross-repo symlink targets, such as Python toolchains that resolve into
   another repo namespace, are never treated as single-repo cleanup targets.
 
+## Docker Runtime Lane
+
+Use the dedicated Docker runtime lane when disk pressure is dominated by the
+local CI image family or builder cache:
+
+```bash
+npm run docker:runtime:audit
+npm run docker:runtime:prune:rebuildable
+npm run docker:runtime:prune:aggressive
+npm run docker:runtime:prune:aggressive:full
+```
+
+Current semantics:
+
+- `docker:runtime:audit` reports `cortexpilot-ci-core:local`, stopped
+  containers derived from that image, repo-related named volumes, and the
+  current builder cache footprint
+- `docker:runtime:prune:rebuildable` removes stopped containers and prunes
+  builder cache older than the default 72-hour TTL
+- `docker:runtime:prune:aggressive` extends rebuildable cleanup and may also
+  remove the canonical local CI image or repo-related named volumes when
+  explicitly unlocked with `--include-image` / `--include-volumes`
+- `docker:runtime:prune:aggressive:full` is the package-level convenience alias
+  that unlocks both image and repo-related volume removal
+
+The Docker runtime lane is the canonical operator path for Docker-heavy local
+CI residue. Keep `space:cleanup:wave*` focused on repo-local residue and the
+governed `~/.cache/cortexpilot` namespace.
+
 ## Cleanup Rules
 
 - Always run the audit and the wave gate before any cleanup apply step.
@@ -53,6 +83,21 @@ bash scripts/cleanup_space.sh wave1 dry-run
   confirmation. The preferred apply targets are child paths such as
   `pnpm-store/dashboard`, `pnpm-store/desktop`, `pnpm-store/v10`, and
   `playwright`, not the rollup root.
+- Docker runtime is now a separate operator lane rather than part of the
+  generic wave cleanup:
+  - `npm run docker:runtime:audit`
+  - `npm run docker:runtime:prune:rebuildable`
+  - `npm run docker:runtime:prune:aggressive`
+  - `npm run docker:runtime:prune:aggressive:full`
+- Lane semantics:
+  - `audit` inventories `cortexpilot-ci-core:local`, buildx cache totals,
+    exited repo containers, and stale builder containers.
+  - `rebuildable` prunes aged build cache, exited repo containers, and stale
+    buildx builder containers, but keeps the current canonical image.
+  - `aggressive` can additionally remove `cortexpilot-ci-core:local` when it is
+    not backing a running container.
+  - `aggressive:full` extends `aggressive` by also removing repo-related named
+    volumes that match the configured prefix.
 - A blocked gate means stop.
 - A manual-confirmation gate means the path is hot or shared and needs an
   explicit override before apply.

@@ -288,6 +288,18 @@ reclaim bytes, and post-cleanup verification metadata. Repo-external apply
 scope remains limited to `~/.cache/cortexpilot`; Docker Desktop, global
 Cargo/Rustup, global uv, global npm, and global Playwright remain observation
 only.
+Docker-heavy local CI residue now has its own operator lane:
+
+- `npm run docker:runtime:audit`
+- `npm run docker:runtime:prune:rebuildable`
+- `npm run docker:runtime:prune:aggressive`
+- `npm run docker:runtime:prune:aggressive:full`
+
+Use the Docker runtime lane for `cortexpilot-ci-core:local`, buildx cache, and
+stale builder/container residue. Keep `space:cleanup:wave*` focused on repo-
+local residue and the governed `~/.cache/cortexpilot` namespace. Aggressive
+cleanup skips images that still back running containers, and the `:full` variant
+adds repo-related named volume removal.
 When one closeout patch touches both dashboard and desktop packaging, expect the
 root AI/docs entrypoints and the module READMEs to move together so doc-sync
 gates can trace the maintenance decision end to end.
