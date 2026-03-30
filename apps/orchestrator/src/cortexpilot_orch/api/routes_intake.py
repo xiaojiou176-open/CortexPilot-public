@@ -10,7 +10,6 @@ router = APIRouter(prefix="/api", tags=["intake"])
 _ListIntakesHandler = Callable[[], list[dict]]
 _GetIntakeHandler = Callable[[str], dict]
 _CreateIntakeHandler = Callable[[dict], dict]
-_PreviewIntakeHandler = Callable[[dict], dict]
 _AnswerIntakeHandler = Callable[[str, dict], dict]
 _RunIntakeHandler = Callable[[str, dict | None], dict]
 _IntakeHandler = Callable[..., Any]

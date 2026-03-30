@@ -806,11 +806,16 @@ class IntakeService:
         task_template = str(normalized_payload.get("task_template") or "general").strip() or "general"
         search_queries = normalized_payload.get("search_queries")
         search_query_list = [str(item).strip() for item in search_queries if str(item).strip()] if isinstance(search_queries, list) else []
+        evidence_contract = _task_pack_registry().get(task_template.lower(), {}).get("evidence_contract", {})
         tool_permissions = contract_preview.get("tool_permissions") if isinstance(contract_preview.get("tool_permissions"), dict) else {}
         filesystem_policy = str(tool_permissions.get("filesystem") or "workspace-write").strip() or "workspace-write"
         network_policy = str(tool_permissions.get("network") or "deny").strip() or "deny"
         shell_policy = str(tool_permissions.get("shell") or "deny").strip() or "deny"
-        requires_network = bool(search_query_list) or task_template.lower() == _PAGE_BRIEF_TEMPLATE
+        requires_network = (
+            bool(search_query_list)
+            or bool(evidence_contract.get("requires_search_requests"))
+            or bool(evidence_contract.get("requires_browser_requests"))
+        )
         requires_human_approval = approval_flow.requires_human_approval(
             requires_network=requires_network,
             filesystem_policy=filesystem_policy,

@@ -43,8 +43,18 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
   if (!data) return null;
   const workflowData = data;
 
+  function resolveLatestRunId(): string {
+    const runs = [...workflowData.runs];
+    runs.sort((lhs, rhs) => {
+      const lhsTs = Date.parse(String(lhs.created_at || ""));
+      const rhsTs = Date.parse(String(rhs.created_at || ""));
+      return (Number.isFinite(rhsTs) ? rhsTs : 0) - (Number.isFinite(lhsTs) ? lhsTs : 0);
+    });
+    return String(runs[0]?.run_id || "").trim();
+  }
+
   async function handleQueueLatestRun() {
-    const latestRunId = workflowData.runs[0]?.run_id;
+    const latestRunId = resolveLatestRunId();
     if (!latestRunId) {
       setQueueNotice("No run is available to enqueue.");
       return;
@@ -57,11 +67,13 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
       if (Number.isFinite(priority)) {
         payload.priority = priority;
       }
-      if (queueScheduledAt.trim()) {
-        payload.scheduled_at = toUtcIsoOrEmpty(queueScheduledAt);
+      const scheduledAtIso = toUtcIsoOrEmpty(queueScheduledAt);
+      if (scheduledAtIso) {
+        payload.scheduled_at = scheduledAtIso;
       }
-      if (queueDeadlineAt.trim()) {
-        payload.deadline_at = toUtcIsoOrEmpty(queueDeadlineAt);
+      const deadlineAtIso = toUtcIsoOrEmpty(queueDeadlineAt);
+      if (deadlineAtIso) {
+        payload.deadline_at = deadlineAtIso;
       }
       const result = await enqueueRunQueue(latestRunId, payload);
       setQueueNotice(`Queued ${String(result.task_id || latestRunId)}.`);

@@ -171,8 +171,21 @@ class QueueStore:
         if status == "PENDING" and not eligible and scheduled_at is not None:
             next_wait_reason = "scheduled_for_future"
 
-        view = dict(item)
-        view["priority"] = _coerce_priority(item.get("priority"))
+        view = {
+            "queue_id": str(item.get("queue_id") or ""),
+            "task_id": str(item.get("task_id") or ""),
+            "owner": str(item.get("owner") or ""),
+            "contract_path": str(item.get("contract_path") or ""),
+            "workflow_id": str(item.get("workflow_id") or ""),
+            "source_run_id": str(item.get("source_run_id") or ""),
+            "status": str(item.get("status") or ""),
+            "priority": _coerce_priority(item.get("priority")),
+            "scheduled_at": str(item.get("scheduled_at") or ""),
+            "deadline_at": str(item.get("deadline_at") or ""),
+            "run_id": str(item.get("run_id") or ""),
+            "claimed_at": str(item.get("claimed_at") or ""),
+            "completed_at": str(item.get("completed_at") or ""),
+        }
         view["sla_state"] = sla_state
         view["queue_state"] = queue_state
         view["eligible"] = eligible

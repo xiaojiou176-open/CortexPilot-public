@@ -13,6 +13,7 @@ if str(ORCH_SRC) not in sys.path:
     sys.path.insert(0, str(ORCH_SRC))
 
 from cortexpilot_orch.contract.validator import ContractValidator
+from cortexpilot_orch.queue import QueueStore
 
 
 def _queue_path() -> Path:
@@ -23,24 +24,7 @@ def _queue_path() -> Path:
 def _load_latest_items(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
         return []
-    state: dict[str, dict[str, Any]] = {}
-    order: list[str] = []
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        text = raw.strip()
-        if not text:
-            continue
-        try:
-            payload = json.loads(text)
-        except json.JSONDecodeError:
-            continue
-        task_id = str(payload.get("task_id") or "").strip()
-        if not task_id:
-          continue
-        if task_id not in state:
-            order.append(task_id)
-            state[task_id] = {}
-        state[task_id].update(payload)
-    return [state[task_id] for task_id in order if task_id in state]
+    return QueueStore(queue_path=path).list_items()
 
 
 def main() -> int:
