@@ -23,6 +23,8 @@ vi.mock("../lib/api", () => ({
   fetchAllEvents: vi.fn(),
   fetchRunSearch: vi.fn(),
   promoteEvidence: vi.fn(),
+  fetchQueue: vi.fn(),
+  enqueueRunQueue: vi.fn(),
   fetchWorkflow: vi.fn(),
   fetchDiffGate: vi.fn(),
   fetchDiff: vi.fn(),
@@ -32,6 +34,7 @@ vi.mock("../lib/api", () => ({
   approveGodMode: vi.fn(),
   fetchCommandTowerAlerts: vi.fn(),
   fetchPmSessions: vi.fn(),
+  runNextQueue: vi.fn(),
 }));
 
 import {
@@ -40,6 +43,8 @@ import {
   fetchAllEvents,
   fetchRunSearch,
   promoteEvidence,
+  fetchQueue,
+  enqueueRunQueue,
   fetchWorkflow,
   fetchDiffGate,
   fetchDiff,
@@ -49,6 +54,7 @@ import {
   approveGodMode,
   fetchCommandTowerAlerts,
   fetchPmSessions,
+  runNextQueue,
 } from "../lib/api";
 
 describe("desktop p0 misc controls", () => {
@@ -70,6 +76,8 @@ describe("desktop p0 misc controls", () => {
     ] as any);
     vi.mocked(fetchRunSearch).mockResolvedValue({ raw: {}, purified: {}, verification: {}, verification_ai: {} } as any);
     vi.mocked(promoteEvidence).mockResolvedValue({ ok: true, bundle: { run_id: "run-001" } } as any);
+    vi.mocked(fetchQueue).mockResolvedValue([] as any);
+    vi.mocked(enqueueRunQueue).mockResolvedValue({ ok: true } as any);
     vi.mocked(fetchWorkflow).mockResolvedValue({
       workflow: { workflow_id: "wf-001", status: "running" },
       runs: [{ run_id: "run-001", status: "running" }],
@@ -88,6 +96,7 @@ describe("desktop p0 misc controls", () => {
       { pm_session_id: "pm-1", status: "active", run_count: 1, running_runs: 1, failed_runs: 0, success_runs: 0, blocked_runs: 0 },
       { pm_session_id: "pm-2", status: "failed", run_count: 1, running_runs: 0, failed_runs: 1, success_runs: 0, blocked_runs: 1 },
     ] as any);
+    vi.mocked(runNextQueue).mockResolvedValue({ ok: false, reason: "queue empty" } as any);
   });
 
   it("covers NodeDetailDrawer + DiffReviewModal action buttons", async () => {
@@ -115,10 +124,10 @@ describe("desktop p0 misc controls", () => {
       </>,
     );
 
-    await user.click(screen.getByRole("button", { name: "打开 Diff 审查" }));
-    await user.click(screen.getByRole("button", { name: "关闭 Diff 审查" }));
-    await user.click(screen.getByRole("button", { name: "接受并合并" }));
-    await user.click(screen.getByRole("button", { name: "要求修改" }));
+    await user.click(screen.getByRole("button", { name: /打开 Diff 审查|Open diff review/ }));
+    await user.click(screen.getByRole("button", { name: /关闭 Diff 审查|Close diff review/ }));
+    await user.click(screen.getByRole("button", { name: /接受并合并|Accept and merge/ }));
+    await user.click(screen.getByRole("button", { name: /要求修改|Request changes/ }));
 
     expect(onOpenDiff).toHaveBeenCalled();
     expect(onClose).toHaveBeenCalled();
@@ -130,25 +139,25 @@ describe("desktop p0 misc controls", () => {
     const user = userEvent.setup();
     render(<ChangeGatesPage />);
 
-    expect(await screen.findByRole("heading", { name: "变更门禁" })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "查看 Diff" }));
+    expect(await screen.findByRole("heading", { name: /变更门禁|Change Gates/ })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /查看 Diff|View diff/ }));
     await waitFor(() => expect(fetchDiff).toHaveBeenCalledWith("run-001"));
-    await user.click(screen.getByRole("button", { name: "隐藏 Diff" }));
-    await user.click(screen.getByRole("button", { name: "回滚" }));
+    await user.click(screen.getByRole("button", { name: /隐藏 Diff|Hide diff/ }));
+    await user.click(screen.getByRole("button", { name: /回滚|Rollback/ }));
     await waitFor(() => expect(rollbackRun).toHaveBeenCalledWith("run-001"));
-    await user.click(screen.getByRole("button", { name: "拒绝变更" }));
+    await user.click(screen.getByRole("button", { name: /拒绝变更|Reject change/ }));
     await waitFor(() => expect(rejectRun).toHaveBeenCalledWith("run-001"));
   });
 
   it("covers GodMode cancel controls in confirm modal", async () => {
     const user = userEvent.setup();
     render(<GodModePage />);
-    expect(await screen.findByRole("heading", { name: "快速审批" })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "批准执行" }));
+    expect(await screen.findByRole("heading", { name: /快速审批|Fast Approval/ })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /批准执行|Approve execution/ }));
 
-    await user.click(screen.getByRole("button", { name: "取消" }));
-    await user.click(screen.getByRole("button", { name: "批准执行" }));
-    await user.click(screen.getByRole("button", { name: "关闭审批确认弹窗" }));
+    await user.click(screen.getByRole("button", { name: /取消|Cancel/ }));
+    await user.click(screen.getByRole("button", { name: /批准执行|Approve execution/ }));
+    await user.click(screen.getByRole("button", { name: /关闭审批确认弹窗|Close approval confirmation dialog/ }));
   });
 
   it("covers overview, runs, search and workflow run navigation controls", async () => {
@@ -157,25 +166,25 @@ describe("desktop p0 misc controls", () => {
     const onNavigateToRun = vi.fn();
 
     const overview = render(<OverviewPage onNavigate={onNavigate} onNavigateToRun={onNavigateToRun} />);
-    expect(await screen.findByRole("heading", { name: "新手起步" })).toBeInTheDocument();
-    expect(screen.getByText(/首次使用建议先走一遍单主流程/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /主步骤 1 · 发需求/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /主步骤 2 · 看进度/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /主步骤 3 · 核结果/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /审批确认（仅有待确认项时）/ })).toBeInTheDocument();
-    expect(screen.getByText(/点进 Run 详情/)).toBeInTheDocument();
-    expect(screen.getByText(/还没有运行记录/)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /新手起步|Operator overview/ })).toBeInTheDocument();
+    expect(screen.getByText(/首次使用建议先走一遍单主流程|follow the primary path/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /主步骤 1 · 发需求|Step 1 · Brief PM/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /主步骤 2 · 看进度|Step 2 · Watch progress/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /主步骤 3 · 核结果|Step 3 · Verify outcomes/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /审批确认（仅有待确认项时）|Approval checkpoint/ })).toBeInTheDocument();
+    expect(screen.getByText(/点进 Run 详情|Open Run detail/)).toBeInTheDocument();
+    expect(screen.getByText(/还没有运行记录|No runs yet/)).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: /主步骤 1 · 发需求/ }));
+    await user.click(screen.getByRole("button", { name: /主步骤 1 · 发需求|Step 1 · Brief PM/ }));
     expect(onNavigate).toHaveBeenCalledWith("pm");
-    await user.click(screen.getByRole("button", { name: /主步骤 2 · 看进度/ }));
+    await user.click(screen.getByRole("button", { name: /主步骤 2 · 看进度|Step 2 · Watch progress/ }));
     expect(onNavigate).toHaveBeenCalledWith("command-tower");
-    await user.click(screen.getByRole("button", { name: /主步骤 3 · 核结果/ }));
+    await user.click(screen.getByRole("button", { name: /主步骤 3 · 核结果|Step 3 · Verify outcomes/ }));
     expect(onNavigate).toHaveBeenCalledWith("runs");
-    await user.click(screen.getByRole("button", { name: /审批确认（仅有待确认项时）/ }));
+    await user.click(screen.getByRole("button", { name: /审批确认（仅有待确认项时）|Approval checkpoint/ }));
     expect(onNavigate).toHaveBeenCalledWith("god-mode");
 
-    await user.click(screen.getByRole("button", { name: "查看全部运行" }));
+    await user.click(screen.getByRole("button", { name: /查看全部运行|View all runs/ }));
     expect(onNavigate).toHaveBeenCalledWith("runs");
     await user.click(screen.getByRole("button", { name: "run-001" }));
     expect(onNavigateToRun).toHaveBeenCalledWith("run-001");
@@ -189,8 +198,8 @@ describe("desktop p0 misc controls", () => {
     runs.unmount();
 
     const search = render(<SearchPage />);
-    await user.type(screen.getByPlaceholderText("输入 run_id"), "run-001");
-    await user.click(screen.getByRole("button", { name: "提升为证据包" }));
+    await user.type(screen.getByPlaceholderText(/输入 run_id|Enter run_id/), "run-001");
+    await user.click(screen.getByRole("button", { name: /提升为证据包|Promote to EvidenceBundle/ }));
     await waitFor(() => expect(promoteEvidence).toHaveBeenCalledWith("run-001"));
     search.unmount();
 
@@ -204,16 +213,16 @@ describe("desktop p0 misc controls", () => {
   it("covers desktop command tower p0 header and expansion buttons", async () => {
     const user = userEvent.setup();
     render(<CommandTowerPage />);
-    expect(await screen.findByRole("heading", { name: "指挥塔" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /指挥塔|Command Tower/ })).toBeInTheDocument();
 
-    await user.click(await screen.findByRole("button", { name: "更新进展" }));
-    await user.click(screen.getByRole("button", { name: "暂停自动更新" }));
-    await user.click(screen.getByRole("button", { name: "继续处理" }));
+    await user.click(await screen.findByRole("button", { name: /更新进展|Refresh progress/ }));
+    await user.click(screen.getByRole("button", { name: /暂停自动更新|Pause auto-refresh/ }));
+    await user.click(screen.getByRole("button", { name: /继续处理|Resume work/ }));
 
-    const toggle = screen.getByRole("button", { name: "展开专家信息" });
+    const toggle = screen.getByRole("button", { name: /展开专家信息|Show advanced detail/ });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     await user.click(toggle);
-    expect(await screen.findByRole("button", { name: "收起专家信息" })).toHaveAttribute("aria-expanded", "true");
+    expect(await screen.findByRole("button", { name: /收起专家信息|Hide advanced detail/ })).toHaveAttribute("aria-expanded", "true");
   });
 
   it("supports keyboard expand/collapse for events rows", async () => {
@@ -222,7 +231,7 @@ describe("desktop p0 misc controls", () => {
       { ts: "2026-02-19T00:00:00Z", event: "CHAIN_STEP", level: "INFO", context: { phase: "worker" } },
     ] as any);
     render(<EventsPage />);
-    const eventRow = await screen.findByRole("button", { name: "查看事件详情 CHAIN_STEP" });
+    const eventRow = await screen.findByRole("button", { name: /查看事件详情 CHAIN_STEP|View event details CHAIN_STEP/ });
     expect(eventRow).toHaveAttribute("aria-expanded", "false");
     eventRow.focus();
     await user.keyboard("{Enter}");

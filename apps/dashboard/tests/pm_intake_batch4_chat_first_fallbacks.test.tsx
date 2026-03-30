@@ -13,6 +13,7 @@ import {
   fetchPmSession,
   fetchPmSessionEvents,
   fetchPmSessions,
+  fetchTaskPacks,
   runIntake,
 } from "../lib/api";
 
@@ -22,6 +23,7 @@ vi.mock("../lib/api", () => ({
   fetchPmSession: vi.fn(),
   fetchPmSessionEvents: vi.fn(),
   fetchPmSessions: vi.fn(),
+  fetchTaskPacks: vi.fn(),
   runIntake: vi.fn(),
 }));
 
@@ -117,10 +119,14 @@ function createSidebarProps(overrides: Partial<Parameters<typeof PMIntakeRightSi
     chatFlowBusy: false,
     onCreate: vi.fn(),
     onAnswer: vi.fn(),
+    onPreview: vi.fn(),
     onRun: vi.fn(),
     hasIntakeId: true,
     plan: null,
     taskChain: null,
+    executionPlanPreview: null,
+    executionPlanPreviewBusy: false,
+    executionPlanPreviewError: "",
     chainPanelRef: createRef<HTMLElement>(),
   };
   return { ...base, ...overrides };
@@ -173,6 +179,25 @@ function createViewActions(overrides: Record<string, unknown> = {}) {
 }
 
 describe("batch4 pm intake components chat-first fallbacks", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(fetchTaskPacks).mockResolvedValue([
+      {
+        pack_id: "news_digest",
+        version: "v1",
+        title: "Public News Digest",
+        description: "Public, read-only digest over recent sources for one topic.",
+        visibility: "public",
+        entry_mode: "pm_intake",
+        task_template: "news_digest",
+        input_fields: [
+          { field_id: "topic", label: "Topic", control: "text", required: true, default_value: "Seattle tech and AI" },
+        ],
+        ui_hint: { surface_group: "public_task_templates", default_label: "Public news digest" },
+      },
+    ] as never);
+  });
+
   it("covers center stage transitions, stage-action callbacks, and empty state variants", () => {
     const onPrimaryStageAction = vi.fn();
     const onFillTemplate = vi.fn();

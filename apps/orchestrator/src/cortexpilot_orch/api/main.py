@@ -35,6 +35,7 @@ from cortexpilot_orch.config import get_api_runtime_config, load_config
 from cortexpilot_orch.contract.validator import resolve_agent_registry_path
 from cortexpilot_orch.observability.logger import log_event
 from cortexpilot_orch.services.orchestration_service import OrchestrationService
+from cortexpilot_orch.queue import QueueStore
 from cortexpilot_orch.services.rollback_service import RollbackService
 from cortexpilot_orch.planning.intake import IntakeService
 from cortexpilot_orch.store import run_store as run_store_fallback
@@ -471,8 +472,19 @@ def _last_event_ts(run_id: str) -> str:
     return run_state_helpers.last_event_ts(run_id, runs_root=_runs_root())
 
 
+def _read_manifest_status(run_id: str) -> str:
+    manifest = _read_json(_runs_root() / run_id / "manifest.json", default={})
+    if not isinstance(manifest, dict):
+        return "UNKNOWN"
+    return str(manifest.get("status") or "UNKNOWN")
+
+
 def _collect_workflows() -> dict[str, dict]:
-    return main_state_store_helpers.collect_workflows(runs_root=_runs_root())
+    return main_state_store_helpers.collect_workflows(
+        runs_root=_runs_root(),
+        runtime_root=load_config().runtime_root,
+        read_events_fn=_read_events,
+    )
 
 
 def _rollback_run_handler(run_id: str) -> dict:
@@ -495,6 +507,7 @@ _runs_handler_map = main_runs_handlers.build_runs_handlers(
     select_baseline_by_window_fn=lambda run_id, window: _select_baseline_by_window(run_id, window),
     last_event_ts_fn=_last_event_ts,
     collect_workflows_fn=_collect_workflows,
+    queue_store_cls=QueueStore,
     read_events_fn=_read_events,
     filter_events_fn=_filter_events,
     event_cursor_value_fn=_event_cursor_value,
@@ -546,11 +559,15 @@ _runs_handler_map = main_runs_handlers.build_runs_handlers(
     ),
     list_locks_fn=lambda: main_run_views_helpers.list_locks(load_locks_fn=_load_locks),
     list_worktrees_fn=lambda: main_run_views_helpers.list_worktrees(load_worktrees_fn=_load_worktrees),
+    read_manifest_status_fn=_read_manifest_status,
     read_events_incremental_fn=_read_events_incremental,
 )
 
 # Explicit symbol export for test shims and direct-call compatibility.
 list_runs = _runs_handler_map["list_runs"]
+list_queue = _runs_handler_map["list_queue"]
+enqueue_run_queue = _runs_handler_map["enqueue_run_queue"]
+run_next_queue = _runs_handler_map["run_next_queue"]
 list_workflows = _runs_handler_map["list_workflows"]
 get_workflow = _runs_handler_map["get_workflow"]
 get_run = _runs_handler_map["get_run"]
@@ -626,8 +643,21 @@ def get_intake(intake_id: str) -> dict:
     return main_pm_intake_helpers.get_intake(intake_id, error_detail_fn=_error_detail)
 
 
+def list_task_packs() -> list[dict]:
+    return IntakeService().list_task_packs()
+
+
 def create_intake(payload: dict) -> dict:
     return main_pm_intake_helpers.create_intake(payload, intake_service_cls=IntakeService, error_detail_fn=_error_detail, current_request_id_fn=_current_request_id)
+
+
+def preview_intake(payload: dict) -> dict:
+    return main_pm_intake_helpers.preview_intake(
+        payload,
+        intake_service_cls=IntakeService,
+        error_detail_fn=_error_detail,
+        current_request_id_fn=_current_request_id,
+    )
 
 
 def answer_intake(intake_id: str, payload: dict) -> dict:
@@ -649,8 +679,10 @@ main_pm_intake_helpers.configure_routes(
     get_command_tower_overview_accessor=lambda: get_command_tower_overview,
     get_command_tower_alerts_accessor=lambda: get_command_tower_alerts,
     list_intakes_accessor=lambda: list_intakes,
+    list_task_packs_accessor=lambda: list_task_packs,
     get_intake_accessor=lambda: get_intake,
     create_intake_accessor=lambda: create_intake,
+    preview_intake_accessor=lambda: preview_intake,
     answer_intake_accessor=lambda: answer_intake,
     run_intake_accessor=lambda: run_intake,
 )

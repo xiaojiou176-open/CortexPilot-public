@@ -10,13 +10,16 @@ from .helpers.api_main_test_io import (
     _write_events,
     _write_lock,
     _write_manifest,
+    _write_report,
 )
 from cortexpilot_orch.api import main as api_main
 
 
 def test_api_workflows_list_and_detail(tmp_path: Path, monkeypatch) -> None:
-    runs_root = tmp_path / "runs"
+    runtime_root = tmp_path / "runtime"
+    runs_root = runtime_root / "runs"
     monkeypatch.setenv("CORTEXPILOT_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
 
     run_a = runs_root / "run_a"
     run_b = runs_root / "run_b"
@@ -71,6 +74,40 @@ def test_api_workflows_list_and_detail(tmp_path: Path, monkeypatch) -> None:
         run_b,
         [json.dumps({"event": "WORKFLOW_STATUS", "context": {"workflow_id": "wf-alpha", "status": "SUCCESS"}})],
     )
+    intake_dir = runtime_root / "intakes" / "pm-alpha"
+    intake_dir.mkdir(parents=True, exist_ok=True)
+    (intake_dir / "intake.json").write_text(
+        json.dumps(
+            {
+                "intake_id": "pm-alpha",
+                "objective": "Ship the workflow case metadata layer",
+                "owner_pm": "pm-owner",
+                "project_key": "cortex-case",
+            }
+        ),
+        encoding="utf-8",
+    )
+    (intake_dir / "response.json").write_text(
+        json.dumps(
+            {
+                "intake_id": "pm-alpha",
+                "status": "READY",
+                "questions": [],
+                "chain_run_id": "run_a",
+            }
+        ),
+        encoding="utf-8",
+    )
+    (intake_dir / "events.jsonl").write_text(
+        "\n".join(
+            [
+                json.dumps({"event": "INTAKE_CHAIN_RUN", "run_id": "run_a", "ts": "2024-01-01T00:00:00Z"}),
+                json.dumps({"event": "INTAKE_RUN", "run_id": "run_b", "ts": "2024-01-02T00:00:00Z"}),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
     client = TestClient(api_main.app)
 
@@ -80,16 +117,143 @@ def test_api_workflows_list_and_detail(tmp_path: Path, monkeypatch) -> None:
     workflow_ids = [item["workflow_id"] for item in payload]
     assert "wf-alpha" in workflow_ids
     assert "wf-beta" in workflow_ids
+    wf_alpha = next(item for item in payload if item["workflow_id"] == "wf-alpha")
+    assert wf_alpha["objective"] == "Ship the workflow case metadata layer"
+    assert wf_alpha["owner_pm"] == "pm-owner"
+    assert wf_alpha["project_key"] == "cortex-case"
+    assert wf_alpha["pm_session_ids"] == ["pm-alpha"]
+    assert wf_alpha["summary"] == "Ship the workflow case metadata layer"
+    assert wf_alpha["case_source"] == "persisted"
+    assert wf_alpha["case_updated_at"]
+
+    workflow_case_path = runtime_root / "workflow-cases" / "wf-alpha" / "case.json"
+    assert workflow_case_path.exists()
+    workflow_case_payload = json.loads(workflow_case_path.read_text(encoding="utf-8"))
+    assert workflow_case_payload["workflow_id"] == "wf-alpha"
+    assert workflow_case_payload["owner_pm"] == "pm-owner"
+    assert workflow_case_payload["case_source"] == "persisted"
+    assert workflow_case_payload["run_ids"] == ["run_a", "run_b"]
 
     detail = client.get("/api/workflows/wf-alpha")
     assert detail.status_code == 200
     body = detail.json()
     assert body["workflow"]["workflow_id"] == "wf-alpha"
+    assert body["workflow"]["owner_pm"] == "pm-owner"
+    assert body["workflow"]["case_source"] == "persisted"
     assert len(body["runs"]) == 2
     assert any(item.get("_run_id") == "run_a" for item in body["events"])
 
     missing = client.get("/api/workflows/missing")
     assert missing.status_code == 404
+
+
+def test_api_queue_list_enqueue_and_run_next(tmp_path: Path, monkeypatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    runs_root = runtime_root / "runs"
+    monkeypatch.setenv("CORTEXPILOT_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+
+    run_dir = runs_root / "run_source"
+    _write_manifest(
+        run_dir,
+        {
+            "run_id": "run_source",
+            "task_id": "task_source",
+            "status": "SUCCESS",
+            "workflow": {"workflow_id": "wf-queue", "task_queue": "cortexpilot-orch", "namespace": "default", "status": "SUCCESS"},
+        },
+    )
+    _write_contract(
+        run_dir,
+        {
+            "task_id": "task_source",
+            "owner_agent": {"agent_id": "agent-1", "role": "WORKER"},
+            "allowed_paths": ["apps/dashboard"],
+        },
+    )
+
+    class _FakeService:
+        def execute_task(self, contract_path: Path, mock_mode: bool = False) -> str:
+            queued_run_dir = runs_root / "run_from_queue"
+            _write_manifest(
+                queued_run_dir,
+                {
+                    "run_id": "run_from_queue",
+                    "task_id": "task_source",
+                    "status": "SUCCESS",
+                },
+            )
+            return "run_from_queue"
+
+    monkeypatch.setattr(api_main, "_orchestration_service", _FakeService())
+
+    client = TestClient(api_main.app)
+
+    enqueue = client.post(
+        "/api/queue/from-run/run_source",
+        json={"priority": 5},
+        headers={"x-cortexpilot-role": "OWNER"},
+    )
+    assert enqueue.status_code == 200
+    assert enqueue.json()["workflow_id"] == "wf-queue"
+    assert enqueue.json()["priority"] == 5
+
+    queue_items = client.get("/api/queue", params={"workflow_id": "wf-queue"})
+    assert queue_items.status_code == 200
+    assert queue_items.json()[0]["task_id"] == "task_source"
+    assert queue_items.json()[0]["eligible"] is True
+
+    run_next = client.post("/api/queue/run-next", json={"mock": True}, headers={"x-cortexpilot-role": "OWNER"})
+    assert run_next.status_code == 200
+    assert run_next.json()["ok"] is True
+    assert run_next.json()["run_id"] == "run_from_queue"
+
+
+def test_api_reports_include_proof_pack_for_successful_public_slice(tmp_path: Path, monkeypatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    runs_root = runtime_root / "runs"
+    monkeypatch.setenv("CORTEXPILOT_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+
+    run_dir = runs_root / "run_news_digest"
+    _write_manifest(
+        run_dir,
+        {
+            "run_id": "run_news_digest",
+            "task_id": "task_news_digest",
+            "status": "SUCCESS",
+        },
+    )
+    _write_report(
+        run_dir,
+        "news_digest_result.json",
+        {
+            "task_template": "news_digest",
+            "generated_at": "2026-03-30T00:00:00Z",
+            "status": "SUCCESS",
+            "topic": "AI",
+            "time_range": "24h",
+            "requested_sources": ["source-a"],
+            "max_results": 5,
+            "summary": "The public digest completed successfully.",
+            "sources": [],
+            "evidence_refs": {
+                "raw": "search_results.json",
+                "purified": "purified_summary.json",
+                "verification": "verification.json",
+                "evidence_bundle": "evidence_bundle.json",
+            },
+        },
+    )
+
+    client = TestClient(api_main.app)
+    response = client.get("/api/runs/run_news_digest/reports")
+    assert response.status_code == 200
+    reports = response.json()
+    by_name = {item["name"]: item["data"] for item in reports}
+    assert by_name["proof_pack.json"]["report_type"] == "proof_pack"
+    assert by_name["proof_pack.json"]["task_template"] == "news_digest"
+    assert by_name["proof_pack.json"]["proof_ready"] is True
 
 
 def test_api_agents_policies_locks_worktrees(tmp_path: Path, monkeypatch) -> None:
@@ -339,3 +503,12 @@ def test_api_search_promote_and_agent_status(tmp_path: Path, monkeypatch) -> Non
     pending_payload = pending_resp.json()[0]
     assert pending_payload["run_id"] == run_id
     assert pending_payload["resume_step"] == "policy_gate"
+    assert pending_payload["approval_pack"]["report_type"] == "approval_pack"
+    assert pending_payload["approval_pack"]["summary"]
+
+    reports_resp = client.get(f"/api/runs/{run_id}/reports")
+    assert reports_resp.status_code == 200
+    reports_payload = reports_resp.json()
+    incident_pack = next(item for item in reports_payload if item["name"] == "incident_pack.json")
+    assert incident_pack["data"]["report_type"] == "incident_pack"
+    assert incident_pack["data"]["root_event"] == "HUMAN_APPROVAL_REQUIRED"

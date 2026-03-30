@@ -217,6 +217,26 @@ function createClient(options = {}) {
     return http.getJson(`/api/workflows/${encodeURIComponent(workflowId)}`);
   }
 
+  async function fetchQueue(workflowId, status) {
+    const params = new URLSearchParams();
+    if (typeof workflowId === "string" && workflowId.trim()) {
+      params.set("workflow_id", workflowId.trim());
+    }
+    if (typeof status === "string" && status.trim()) {
+      params.set("status", status.trim());
+    }
+    const suffix = params.toString() ? `?${params.toString()}` : "";
+    return http.getJson(`/api/queue${suffix}`);
+  }
+
+  async function enqueueRunQueue(runId, payload = {}) {
+    return http.postJson(`/api/queue/from-run/${encodeRunId(runId)}`, payload, "Queue enqueue failed", { runId });
+  }
+
+  async function runNextQueue(payload = {}) {
+    return http.postJson("/api/queue/run-next", payload, "Queue run-next failed");
+  }
+
   async function fetchPmSessions(optionsArg = {}) {
     return http.getJson(withQuery(paths.pmSessions, buildPmSessionQuery(optionsArg)), optionsArg);
   }
@@ -262,8 +282,16 @@ function createClient(options = {}) {
     return http.getJson(paths.commandTowerAlerts, optionsArg);
   }
 
+  async function fetchTaskPacks() {
+    return http.getJson("/api/pm/task-packs");
+  }
+
   async function createIntake(payload, optionsArg = {}) {
     return http.postJson("/api/pm/intake", payload, "Intake create failed", optionsArg);
+  }
+
+  async function previewIntake(payload, optionsArg = {}) {
+    return http.postJson("/api/pm/intake/preview", payload, "Intake preview failed", optionsArg);
   }
 
   async function answerIntake(intakeId, payload, optionsArg = {}) {
@@ -343,6 +371,9 @@ function createClient(options = {}) {
     fetchWorktrees,
     fetchWorkflows,
     fetchWorkflow,
+    fetchQueue,
+    enqueueRunQueue,
+    runNextQueue,
     fetchPmSessions,
     fetchPmSession,
     fetchPmSessionEvents,
@@ -350,7 +381,9 @@ function createClient(options = {}) {
     fetchPmSessionMetrics,
     fetchCommandTowerOverview,
     fetchCommandTowerAlerts,
+    fetchTaskPacks,
     createIntake,
+    previewIntake,
     answerIntake,
     runIntake,
     postPmSessionMessage,

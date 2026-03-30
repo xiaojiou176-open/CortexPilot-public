@@ -126,6 +126,7 @@ require_file "scripts/check_diagnostic_language_policy.py"
 require_file "scripts/check_developer_facing_english.py"
 require_file "scripts/check_retention_report.py"
 require_file "scripts/check_active_report_identity.py"
+require_file "scripts/check_schedule_boundary.py"
 require_file "scripts/verify_upstream_slices.py"
 require_file "scripts/lib/log_event.sh"
 require_file "scripts/generate_frontend_contracts.sh"
@@ -293,6 +294,15 @@ if ! artifact_output="$(run_governance_py scripts/check_runtime_artifact_policy.
   violations=$((violations + 1))
 else
   echo "$artifact_output"
+fi
+
+info "Running schedule boundary gate"
+if ! schedule_boundary_output="$(run_governance_py scripts/check_schedule_boundary.py 2>&1)"; then
+  echo "$schedule_boundary_output"
+  fail "schedule boundary gate failed"
+  violations=$((violations + 1))
+else
+  echo "$schedule_boundary_output"
 fi
 
 info "Running space governance policy gate"

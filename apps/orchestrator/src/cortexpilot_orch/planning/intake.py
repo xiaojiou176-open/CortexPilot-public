@@ -6,6 +6,7 @@ import ipaddress
 import json
 import os
 import re
+from functools import lru_cache
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -13,6 +14,7 @@ from typing import Any
 from cortexpilot_orch.contract.compiler import compile_plan
 from cortexpilot_orch.contract.validator import ContractValidator
 from cortexpilot_orch.config import get_runner_config
+from cortexpilot_orch.scheduler import approval_flow
 from cortexpilot_orch.runners.provider_resolution import (
     build_llm_compat_client,
     merge_provider_credentials,
@@ -95,6 +97,7 @@ _NEWS_DIGEST_TEMPLATE = "news_digest"
 _TOPIC_BRIEF_TEMPLATE = "topic_brief"
 _PAGE_BRIEF_TEMPLATE = "page_brief"
 _NEWS_DIGEST_TIME_RANGES = {"24h", "7d", "30d"}
+_PACKS_ROOT = Path(__file__).resolve().parents[5] / "contracts" / "packs"
 
 
 def _missing_llm_api_key_message(provider: str) -> str:
@@ -269,6 +272,40 @@ def _normalize_page_brief_payload(raw: Any) -> dict[str, Any]:
     }
 
 
+@lru_cache(maxsize=1)
+def _task_pack_registry() -> dict[str, dict[str, Any]]:
+    manifests: dict[str, dict[str, Any]] = {}
+    if not _PACKS_ROOT.exists():
+        return manifests
+    for manifest_path in sorted(_PACKS_ROOT.glob("*/manifest.json")):
+        try:
+            payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(payload, dict):
+            continue
+        ContractValidator().validate_report(payload, "task_pack_manifest.v1.json")
+        task_template = str(payload.get("task_template") or "").strip().lower()
+        if not task_template:
+            continue
+        manifests[task_template] = payload
+    return manifests
+
+
+def _supported_task_templates() -> set[str]:
+    registry = _task_pack_registry()
+    if registry:
+        return set(registry.keys())
+    return {_NEWS_DIGEST_TEMPLATE, _TOPIC_BRIEF_TEMPLATE, _PAGE_BRIEF_TEMPLATE}
+
+
+def list_task_packs() -> list[dict[str, Any]]:
+    registry = _task_pack_registry()
+    manifests = [dict(payload) for payload in registry.values()]
+    manifests.sort(key=lambda payload: (str(payload.get("title") or payload.get("task_template") or "").lower(), str(payload.get("task_template") or "").lower()))
+    return manifests
+
+
 def _build_page_brief_objective(payload: dict[str, Any]) -> str:
     url = str(payload.get("url") or "").strip()
     focus = str(payload.get("focus") or DEFAULT_PAGE_BRIEF_FOCUS).strip() or DEFAULT_PAGE_BRIEF_FOCUS
@@ -292,40 +329,100 @@ def _build_topic_brief_queries(payload: dict[str, Any]) -> list[str]:
     return [topic] if topic else []
 
 
+def _task_pack_handler(task_template: str) -> dict[str, Any]:
+    handlers: dict[str, dict[str, Any]] = {
+        _NEWS_DIGEST_TEMPLATE: {
+            "normalize_payload": _normalize_news_digest_payload,
+            "build_objective": _build_news_digest_objective,
+            "build_search_queries": _build_news_digest_queries,
+        },
+        _TOPIC_BRIEF_TEMPLATE: {
+            "normalize_payload": _normalize_topic_brief_payload,
+            "build_objective": _build_topic_brief_objective,
+            "build_search_queries": _build_topic_brief_queries,
+        },
+        _PAGE_BRIEF_TEMPLATE: {
+            "normalize_payload": _normalize_page_brief_payload,
+            "build_objective": _build_page_brief_objective,
+            "build_search_queries": lambda _payload: [],
+        },
+    }
+    handler = handlers.get(task_template)
+    if handler is None:
+        raise ValueError(f"unsupported task_template: {task_template}")
+    return handler
+
+
+def _predicted_reports_for_task_template(task_template: str) -> list[str]:
+    reports = [
+        "task_result.json",
+        "review_report.json",
+        "test_report.json",
+        "evidence_bundle.json",
+        "evidence_report.json",
+    ]
+    normalized = task_template.strip().lower()
+    primary_report = (
+        _task_pack_registry()
+        .get(normalized, {})
+        .get("evidence_contract", {})
+        .get("primary_report")
+    )
+    if isinstance(primary_report, str) and primary_report.strip() and primary_report not in reports:
+        reports.append(primary_report.strip())
+    return reports
+
+
+def _predicted_artifacts_for_payload(payload: dict[str, Any]) -> list[str]:
+    predicted = ["contract.json", "manifest.json", "events.jsonl", "patch.diff", "diff_name_only.txt"]
+    task_template = str(payload.get("task_template") or "").strip().lower()
+    search_queries = payload.get("search_queries")
+    evidence_contract = _task_pack_registry().get(task_template, {}).get("evidence_contract", {})
+    requires_browser_requests = bool(evidence_contract.get("requires_browser_requests"))
+    requires_search_requests = bool(evidence_contract.get("requires_search_requests"))
+    if requires_browser_requests and "browser_requests.json" not in predicted:
+        predicted.append("browser_requests.json")
+    if requires_search_requests and "search_requests.json" not in predicted:
+        predicted.append("search_requests.json")
+    elif isinstance(search_queries, list) and any(str(item).strip() for item in search_queries):
+        predicted.append("search_requests.json")
+    return predicted
+
+
+def _build_execution_plan_summary(
+    *,
+    task_template: str,
+    objective: str,
+    assigned_role: str,
+    requires_human_approval: bool,
+    predicted_reports: list[str],
+) -> str:
+    normalized_template = task_template.strip().lower() or "general"
+    approval_text = "manual approval likely" if requires_human_approval else "no manual approval expected"
+    return (
+        f"{normalized_template} will compile into a {assigned_role.lower()}-owned execution contract for "
+        f"'{objective}'. {approval_text}. Expected report surface: {len(predicted_reports)} item(s)."
+    )
+
+
 def _apply_task_template_defaults(payload: dict[str, Any]) -> dict[str, Any]:
     task_template = str(payload.get("task_template") or "").strip().lower()
     if not task_template:
         return payload
-    if task_template not in {_NEWS_DIGEST_TEMPLATE, _TOPIC_BRIEF_TEMPLATE, _PAGE_BRIEF_TEMPLATE}:
+    if task_template not in _supported_task_templates():
         raise ValueError(f"unsupported task_template: {task_template}")
-    if task_template == _NEWS_DIGEST_TEMPLATE:
-        template_payload = _normalize_news_digest_payload(payload.get("template_payload"))
-    elif task_template == _TOPIC_BRIEF_TEMPLATE:
-        template_payload = _normalize_topic_brief_payload(payload.get("template_payload"))
-    else:
-        template_payload = _normalize_page_brief_payload(payload.get("template_payload"))
+    handler = _task_pack_handler(task_template)
+    template_payload = handler["normalize_payload"](payload.get("template_payload"))
     payload["task_template"] = task_template
     payload["template_payload"] = template_payload
 
     objective = str(payload.get("objective") or "").strip()
     if not objective:
-        if task_template == _NEWS_DIGEST_TEMPLATE:
-            payload["objective"] = _build_news_digest_objective(template_payload)
-        elif task_template == _TOPIC_BRIEF_TEMPLATE:
-            payload["objective"] = _build_topic_brief_objective(template_payload)
-        else:
-            payload["objective"] = _build_page_brief_objective(template_payload)
+        payload["objective"] = handler["build_objective"](template_payload)
 
     search_queries = payload.get("search_queries")
     if not isinstance(search_queries, list) or not any(str(item).strip() for item in search_queries):
-        if task_template == _PAGE_BRIEF_TEMPLATE:
-            payload["search_queries"] = []
-        else:
-            payload["search_queries"] = (
-                _build_news_digest_queries(template_payload)
-                if task_template == _NEWS_DIGEST_TEMPLATE
-                else _build_topic_brief_queries(template_payload)
-            )
+        payload["search_queries"] = handler["build_search_queries"](template_payload)
 
     raw_constraints = payload.get("constraints")
     constraints = [str(item).strip() for item in raw_constraints if str(item).strip()] if isinstance(raw_constraints, list) else []
@@ -570,10 +667,13 @@ class IntakeService:
         self._store = IntakeStore()
         self._validator = ContractValidator()
 
+    def list_task_packs(self) -> list[dict[str, Any]]:
+        return list_task_packs()
+
     def create(self, payload: dict[str, Any]) -> dict[str, Any]:
-        self._validator.validate_report(payload, "pm_intake_request.v1.json")
         normalized_payload = dict(payload)
         _apply_task_template_defaults(normalized_payload)
+        self._validator.validate_report(normalized_payload, "pm_intake_request.v1.json")
         preset, effective_policy, policy_notes = _resolve_intake_browser_policy(normalized_payload)
         normalized_payload["browser_policy_preset"] = preset
         normalized_payload["browser_policy"] = effective_policy
@@ -684,6 +784,82 @@ class IntakeService:
             response["notes"] = f"{existing}\n{bundle_note}".strip() if existing else bundle_note
         self._validator.validate_report(response, "pm_intake_response.v1.json")
         self._store.write_response(intake_id, response)
+        return response
+
+    def preview(self, payload: dict[str, Any]) -> dict[str, Any]:
+        normalized_payload = dict(payload)
+        _apply_task_template_defaults(normalized_payload)
+        self._validator.validate_report(normalized_payload, "pm_intake_request.v1.json")
+        preset, effective_policy, policy_notes = _resolve_intake_browser_policy(normalized_payload)
+        normalized_payload["browser_policy_preset"] = preset
+        normalized_payload["browser_policy"] = effective_policy
+        normalized_payload["policy_notes"] = policy_notes
+        answers = _normalize_answers(payload.get("answers") if isinstance(payload, dict) else None)
+        plan = generate_plan(normalized_payload, answers)
+        plan_bundle, bundle_note = generate_plan_bundle(normalized_payload, answers)
+        owner_agent = _ensure_agent(normalized_payload.get("owner_agent"), _DEFAULT_OWNER)
+        task_chain = build_task_chain_from_bundle(plan_bundle, owner_agent)
+        self._validator.validate_report(plan, "plan.schema.json")
+        self._validator.validate_report(plan_bundle, "plan_bundle.v1.json")
+        self._validator.validate_report(task_chain, "task_chain.v1.json")
+        contract_preview = compile_plan(plan)
+        task_template = str(normalized_payload.get("task_template") or "general").strip() or "general"
+        search_queries = normalized_payload.get("search_queries")
+        search_query_list = [str(item).strip() for item in search_queries if str(item).strip()] if isinstance(search_queries, list) else []
+        tool_permissions = contract_preview.get("tool_permissions") if isinstance(contract_preview.get("tool_permissions"), dict) else {}
+        filesystem_policy = str(tool_permissions.get("filesystem") or "workspace-write").strip() or "workspace-write"
+        network_policy = str(tool_permissions.get("network") or "deny").strip() or "deny"
+        shell_policy = str(tool_permissions.get("shell") or "deny").strip() or "deny"
+        requires_network = bool(search_query_list) or task_template.lower() == _PAGE_BRIEF_TEMPLATE
+        requires_human_approval = approval_flow.requires_human_approval(
+            requires_network=requires_network,
+            filesystem_policy=filesystem_policy,
+            network_policy=network_policy,
+            shell_policy=shell_policy,
+        )
+        assigned_agent = contract_preview.get("assigned_agent") if isinstance(contract_preview.get("assigned_agent"), dict) else {}
+        assigned_role = str(assigned_agent.get("role") or "WORKER").strip() or "WORKER"
+        predicted_reports = _predicted_reports_for_task_template(task_template)
+        predicted_artifacts = _predicted_artifacts_for_payload(normalized_payload)
+        warnings: list[str] = []
+        if requires_human_approval:
+            warnings.append("Current policies suggest the run may require manual approval before execution can continue.")
+        if not contract_preview.get("allowed_paths"):
+            warnings.append("The compiled contract preview has no allowed_paths. Execution would fail closed until this is resolved.")
+        notes = [policy_notes] if policy_notes else []
+        if bundle_note:
+            notes.append(bundle_note)
+        response = {
+            "report_type": "execution_plan_report",
+            "generated_at": _now_ts(),
+            "task_template": task_template,
+            "objective": str(normalized_payload.get("objective") or "").strip(),
+            "summary": _build_execution_plan_summary(
+                task_template=task_template,
+                objective=str(normalized_payload.get("objective") or "").strip(),
+                assigned_role=assigned_role,
+                requires_human_approval=requires_human_approval,
+                predicted_reports=predicted_reports,
+            ),
+            "browser_policy_preset": preset,
+            "effective_browser_policy": effective_policy,
+            "questions": generate_questions(normalized_payload),
+            "warnings": warnings,
+            "notes": notes,
+            "assigned_role": assigned_role,
+            "assigned_agent_id": str(assigned_agent.get("agent_id") or "").strip(),
+            "allowed_paths": contract_preview.get("allowed_paths") if isinstance(contract_preview.get("allowed_paths"), list) else [],
+            "acceptance_tests": contract_preview.get("acceptance_tests") if isinstance(contract_preview.get("acceptance_tests"), list) else [],
+            "search_queries": search_query_list,
+            "predicted_reports": predicted_reports,
+            "predicted_artifacts": predicted_artifacts,
+            "requires_human_approval": requires_human_approval,
+            "plan": plan,
+            "plan_bundle": plan_bundle,
+            "task_chain": task_chain,
+            "contract_preview": contract_preview,
+        }
+        self._validator.validate_report(response, "execution_plan_report.v1.json")
         return response
 
     def build_contract(self, intake_id: str) -> dict[str, Any] | None:

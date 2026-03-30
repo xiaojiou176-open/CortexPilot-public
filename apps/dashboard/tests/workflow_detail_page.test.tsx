@@ -11,6 +11,7 @@ vi.mock("next/link", () => ({
 }));
 
 vi.mock("../lib/api", () => ({
+  fetchQueue: vi.fn(),
   fetchWorkflow: vi.fn(),
 }));
 
@@ -19,7 +20,7 @@ vi.mock("../lib/serverPageData", () => ({
 }));
 
 import WorkflowDetailPage from "../app/workflows/[id]/page";
-import { fetchWorkflow } from "../lib/api";
+import { fetchQueue, fetchWorkflow } from "../lib/api";
 import { safeLoad } from "../lib/serverPageData";
 
 describe("workflow detail page", () => {
@@ -38,10 +39,20 @@ describe("workflow detail page", () => {
       },
     );
     vi.mocked(fetchWorkflow).mockResolvedValue({
-      workflow: { workflow_id: "wf-1", status: "running", namespace: "ns", task_queue: "q1" },
+      workflow: {
+        workflow_id: "wf-1",
+        status: "running",
+        namespace: "ns",
+        task_queue: "q1",
+        objective: "Close the workflow case loop",
+        owner_pm: "pm-owner",
+        project_key: "cortex-case",
+        verdict: "active",
+      },
       runs: [{ run_id: "run/1", status: "running", created_at: "2026-02-25T00:00:00Z" }],
       events: [],
     } as never);
+    vi.mocked(fetchQueue).mockResolvedValue([] as never);
   });
 
   it("falls back to raw id when route id is malformed percent-encoding", async () => {
@@ -51,6 +62,7 @@ describe("workflow detail page", () => {
     render(view);
     expect(fetchWorkflow).toHaveBeenCalledWith("%E0%A4%A");
     expect(screen.getByText("workflow_id: wf-1")).toBeInTheDocument();
+    expect(screen.getByText("Owner: pm-owner")).toBeInTheDocument();
   });
 
   it("encodes run link when run id contains reserved chars", async () => {

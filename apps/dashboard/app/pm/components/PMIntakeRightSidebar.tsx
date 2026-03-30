@@ -1,10 +1,11 @@
 import type { RefObject } from "react";
 import PmStageContextPanel from "../../../components/pm/PmStageContextPanel";
+import { GENERAL_TASK_TEMPLATE, findTaskPackByTemplate, type TaskPackFieldDefinition } from "../../../lib/types";
 import { statusVariant } from "../../../lib/statusPresentation";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { Input, Select, Textarea } from "../../../components/ui/input";
-import type { BrowserPreset, ChainNode, NewsDigestTimeRange, PMTaskTemplate } from "./PMIntakeFeature.shared";
+import type { BrowserPreset, ChainNode, ExecutionPlanReport, NewsDigestTimeRange, PMTaskTemplate, TaskPackManifest } from "./PMIntakeFeature.shared";
 
 type PmJourneyContext = Parameters<typeof PmStageContextPanel>[0]["context"];
 
@@ -21,6 +22,11 @@ type Props = {
   questions: string[];
   taskTemplate?: PMTaskTemplate;
   onTaskTemplateChange?: (value: PMTaskTemplate) => void;
+  taskPacks?: TaskPackManifest[];
+  taskPacksLoading?: boolean;
+  taskPacksError?: string;
+  taskPackFieldValues?: Record<string, string>;
+  onTaskPackFieldChange?: (fieldId: string, value: string) => void;
   newsDigestTopic?: string;
   onNewsDigestTopicChange?: (value: string) => void;
   newsDigestSources?: string;
@@ -52,10 +58,14 @@ type Props = {
   chatFlowBusy: boolean;
   onCreate: () => void;
   onAnswer: () => void;
+  onPreview: () => void;
   onRun: () => void;
   hasIntakeId: boolean;
   plan: unknown;
   taskChain: unknown;
+  executionPlanPreview: ExecutionPlanReport | null;
+  executionPlanPreviewBusy: boolean;
+  executionPlanPreviewError: string;
   chainPanelRef: RefObject<HTMLElement | null>;
 };
 
@@ -73,6 +83,11 @@ export default function PMIntakeRightSidebar(props: Props) {
     questions,
     taskTemplate = "general",
     onTaskTemplateChange = () => {},
+    taskPacks = [],
+    taskPacksLoading = false,
+    taskPacksError = "",
+    taskPackFieldValues = {},
+    onTaskPackFieldChange = () => {},
     newsDigestTopic = "",
     onNewsDigestTopicChange = () => {},
     newsDigestSources = "",
@@ -104,12 +119,116 @@ export default function PMIntakeRightSidebar(props: Props) {
     chatFlowBusy,
     onCreate,
     onAnswer,
+    onPreview,
     onRun,
     hasIntakeId,
     plan,
     taskChain,
+    executionPlanPreview,
+    executionPlanPreviewBusy,
+    executionPlanPreviewError,
     chainPanelRef,
   } = props;
+  const selectedTaskPack = findTaskPackByTemplate(taskPacks, taskTemplate);
+  const resolvedTaskPackFieldValues =
+    Object.keys(taskPackFieldValues).length > 0
+      ? taskPackFieldValues
+      : {
+          topic: newsDigestTopic,
+          sources: newsDigestSources,
+          time_range: newsDigestTimeRange,
+          max_results: newsDigestMaxResults,
+          url: pageBriefUrl,
+          focus: pageBriefFocus,
+        };
+
+  const handleTaskPackFieldChange = (fieldId: string, value: string) => {
+    if (Object.keys(taskPackFieldValues).length > 0) {
+      onTaskPackFieldChange(fieldId, value);
+      return;
+    }
+    if (fieldId === "topic") {
+      onNewsDigestTopicChange(value);
+      return;
+    }
+    if (fieldId === "sources") {
+      onNewsDigestSourcesChange(value);
+      return;
+    }
+    if (fieldId === "time_range") {
+      onNewsDigestTimeRangeChange(value as NewsDigestTimeRange);
+      return;
+    }
+    if (fieldId === "max_results") {
+      onNewsDigestMaxResultsChange(value);
+      return;
+    }
+    if (fieldId === "url") {
+      onPageBriefUrlChange(value);
+      return;
+    }
+    if (fieldId === "focus") {
+      onPageBriefFocusChange(value);
+    }
+  };
+
+  const renderTaskPackField = (field: TaskPackFieldDefinition) => {
+    const fieldValue = resolvedTaskPackFieldValues[field.field_id] ?? "";
+    if (field.control === "textarea") {
+      return (
+        <label key={field.field_id} className="pm-field">
+          <span className="pm-field-label">{field.label}</span>
+          <Textarea
+            variant="unstyled"
+            value={fieldValue}
+            onChange={(event) => handleTaskPackFieldChange(field.field_id, event.target.value)}
+            rows={field.field_id === "sources" ? 4 : 3}
+            className="pm-input pm-input-multiline"
+            aria-label={field.label}
+            placeholder={field.placeholder}
+          />
+          {field.help_text ? <span className="muted">{field.help_text}</span> : null}
+        </label>
+      );
+    }
+    if (field.control === "select") {
+      return (
+        <label key={field.field_id} className="pm-field">
+          <span className="pm-field-label">{field.label}</span>
+          <Select
+            value={fieldValue}
+            onChange={(event) => handleTaskPackFieldChange(field.field_id, event.target.value)}
+            className="pm-input"
+            aria-label={field.label}
+          >
+            {(field.options || []).map((option) => (
+              <option key={`${field.field_id}-${option.value}`} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+          {field.help_text ? <span className="muted">{field.help_text}</span> : null}
+        </label>
+      );
+    }
+    return (
+      <label key={field.field_id} className="pm-field">
+        <span className="pm-field-label">{field.label}</span>
+        <Input
+          variant="unstyled"
+          type={field.control === "number" ? "number" : field.control === "url" ? "url" : "text"}
+          min={field.control === "number" ? field.min : undefined}
+          max={field.control === "number" ? field.max : undefined}
+          value={fieldValue}
+          onChange={(event) => handleTaskPackFieldChange(field.field_id, event.target.value)}
+          className="pm-input"
+          aria-label={field.label}
+          placeholder={field.placeholder}
+        />
+        {field.help_text ? <span className="muted">{field.help_text}</span> : null}
+      </label>
+    );
+  };
 
   return (
     <aside className="pm-claude-right" aria-label="Context sidebar">
@@ -211,6 +330,7 @@ export default function PMIntakeRightSidebar(props: Props) {
 
       <section className="pm-chain-card">
         <h2 className="pm-section-title">Public task templates</h2>
+        {taskPacksError ? <p className="alert alert-warning">{taskPacksError}</p> : null}
         <div className="pm-settings-grid">
           <label className="pm-field">
             <span className="pm-field-label">Template</span>
@@ -220,94 +340,27 @@ export default function PMIntakeRightSidebar(props: Props) {
               className="pm-input"
               aria-label="Public task template"
             >
-              <option value="news_digest">news_digest</option>
-              <option value="topic_brief">topic_brief</option>
-              <option value="page_brief">page_brief</option>
-              <option value="general">general</option>
+              {taskPacksLoading ? <option value={taskTemplate}>Loading task packs...</option> : null}
+              {taskPacks.map((pack) => (
+                <option key={pack.pack_id} value={pack.task_template}>
+                  {pack.ui_hint?.default_label || pack.task_template}
+                </option>
+              ))}
+              <option value={GENERAL_TASK_TEMPLATE}>{GENERAL_TASK_TEMPLATE}</option>
             </Select>
           </label>
-          {taskTemplate === "news_digest" || taskTemplate === "topic_brief" ? (
-            <>
-              <label className="pm-field">
-                <span className="pm-field-label">Topic</span>
-                <Input
-                  variant="unstyled"
-                  value={newsDigestTopic}
-                  onChange={(event) => onNewsDigestTopicChange(event.target.value)}
-                  className="pm-input"
-                  aria-label="news digest topic"
-                  placeholder="e.g. Seattle tech and AI"
-                />
-              </label>
-              <label className="pm-field">
-                <span className="pm-field-label">Time Range</span>
-                <Select
-                  value={newsDigestTimeRange}
-                  onChange={(event) => onNewsDigestTimeRangeChange(event.target.value as NewsDigestTimeRange)}
-                  className="pm-input"
-                  aria-label="news digest time range"
-                >
-                  <option value="24h">24h</option>
-                  <option value="7d">7d</option>
-                  <option value="30d">30d</option>
-                </Select>
-              </label>
-              <label className="pm-field">
-                <span className="pm-field-label">Max Results</span>
-                <Input
-                  variant="unstyled"
-                  type="number"
-                  min={1}
-                  max={10}
-                  value={newsDigestMaxResults}
-                  onChange={(event) => onNewsDigestMaxResultsChange(event.target.value)}
-                  className="pm-input"
-                  aria-label="news digest max results"
-                />
-              </label>
-              {taskTemplate === "news_digest" ? (
-                <label className="pm-field">
-                  <span className="pm-field-label">Sources</span>
-                  <Textarea
-                    variant="unstyled"
-                    value={newsDigestSources}
-                    onChange={(event) => onNewsDigestSourcesChange(event.target.value)}
-                    rows={4}
-                    className="pm-input pm-input-multiline"
-                    aria-label="news digest sources"
-                    placeholder={"One source per line, e.g.\ntheverge.com\ntechcrunch.com"}
-                  />
-                </label>
+          {selectedTaskPack ? (
+            <div className="pm-field">
+              <span className="pm-field-label">Pack summary</span>
+              <p className="muted">
+                {selectedTaskPack.description}
+              </p>
+              {selectedTaskPack.evidence_contract?.primary_report ? (
+                <p className="muted">Primary report: {selectedTaskPack.evidence_contract.primary_report}</p>
               ) : null}
-            </>
+            </div>
           ) : null}
-          {taskTemplate === "page_brief" ? (
-            <>
-              <label className="pm-field">
-                <span className="pm-field-label">URL</span>
-                <Input
-                  variant="unstyled"
-                  value={pageBriefUrl}
-                  onChange={(event) => onPageBriefUrlChange(event.target.value)}
-                  className="pm-input"
-                  aria-label="page brief url"
-                  placeholder="https://example.com"
-                />
-              </label>
-              <label className="pm-field">
-                <span className="pm-field-label">Focus</span>
-                <Textarea
-                  variant="unstyled"
-                  value={pageBriefFocus}
-                  onChange={(event) => onPageBriefFocusChange(event.target.value)}
-                  rows={3}
-                  className="pm-input pm-input-multiline"
-                  aria-label="page brief focus"
-                  placeholder="Summarize the page for a first-time reader."
-                />
-              </label>
-            </>
-          ) : null}
+          {selectedTaskPack ? selectedTaskPack.input_fields.map((field) => renderTaskPackField(field)) : null}
         </div>
         <p className="muted">
           Public paths default to public, read-only, no-login sources. Advanced browser policy stays in the operator area instead of the default entrypoint.
@@ -385,10 +438,70 @@ export default function PMIntakeRightSidebar(props: Props) {
           <Button variant="ghost" disabled={chatFlowBusy || !hasIntakeId} onClick={() => onAnswer()}>
             Generate plan
           </Button>
+          <Button variant="secondary" disabled={chatFlowBusy || executionPlanPreviewBusy} onClick={() => onPreview()}>
+            {executionPlanPreviewBusy ? "Building Flight Plan..." : "Preview Flight Plan"}
+          </Button>
           <Button variant="default" disabled={chatFlowBusy || !hasIntakeId} onClick={() => onRun()}>
             Start execution
           </Button>
         </div>
+        {executionPlanPreviewError ? (
+          <p className="alert alert-danger" role="alert">
+            {executionPlanPreviewError}
+          </p>
+        ) : null}
+        {executionPlanPreview ? (
+          <section className="pm-chain-card" aria-label="Flight Plan preview">
+            <h3 className="pm-section-title">Flight Plan</h3>
+            <div className="mono">{executionPlanPreview.summary}</div>
+            <div className="pm-runtime-grid">
+              <div className="pm-runtime-row">
+                <span className="pm-runtime-key">Owner</span>
+                <code className="pm-runtime-val">{executionPlanPreview.assigned_role || "-"}</code>
+              </div>
+              <div className="pm-runtime-row">
+                <span className="pm-runtime-key">Approval</span>
+                <code className="pm-runtime-val">
+                  {executionPlanPreview.requires_human_approval ? "Manual approval likely" : "No manual approval expected"}
+                </code>
+              </div>
+              <div className="pm-runtime-row">
+                <span className="pm-runtime-key">Reports</span>
+                <code className="pm-runtime-val">{executionPlanPreview.predicted_reports.length}</code>
+              </div>
+              <div className="pm-runtime-row">
+                <span className="pm-runtime-key">Artifacts</span>
+                <code className="pm-runtime-val">{executionPlanPreview.predicted_artifacts.length}</code>
+              </div>
+            </div>
+            {executionPlanPreview.questions.length > 0 ? (
+              <>
+                <strong>Clarifiers still open</strong>
+                <ul className="pm-question-list">
+                  {executionPlanPreview.questions.map((question, index) => (
+                    <li key={`${question}-${index}`}>{question}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+            {executionPlanPreview.warnings.length > 0 ? (
+              <>
+                <strong>Warnings</strong>
+                <ul className="pm-question-list">
+                  {executionPlanPreview.warnings.map((warning, index) => (
+                    <li key={`${warning}-${index}`}>{warning}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+            <details>
+              <summary className="pm-details-summary">Predicted reports and contract preview</summary>
+              <div className="mono">reports: {executionPlanPreview.predicted_reports.join(", ") || "-"}</div>
+              <div className="mono">artifacts: {executionPlanPreview.predicted_artifacts.join(", ") || "-"}</div>
+              <pre className="mono pm-code-block">{JSON.stringify(executionPlanPreview.contract_preview, null, 2)}</pre>
+            </details>
+          </section>
+        ) : null}
         {plan && <pre className="mono pm-code-block">{JSON.stringify(plan, null, 2)}</pre>}
         {taskChain && <pre className="mono pm-code-block">{JSON.stringify(taskChain, null, 2)}</pre>}
       </details>

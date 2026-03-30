@@ -365,6 +365,9 @@ export default function GodModePanel() {
                 <code className="mono">{String(item.run_id || "-")}</code>
                 <Badge variant="warning">{String(item.status || "-")}</Badge>
               </div>
+              {item.approval_pack && typeof item.approval_pack === "object" ? (
+                <p className="mono muted">{String((item.approval_pack as Record<string, unknown>).summary || "")}</p>
+              ) : null}
               {Array.isArray(item.reason) && item.reason.length > 0 && (
                 <div className="god-mode-detail">
                   <span className="god-mode-detail-label">Reason</span>

@@ -9,22 +9,28 @@ import { WorktreesPage } from "./WorktreesPage";
 vi.mock("../lib/api", () => ({
   fetchAgents: vi.fn(),
   fetchAgentStatus: vi.fn(),
+  fetchQueue: vi.fn(),
   fetchLocks: vi.fn(),
   fetchWorkflows: vi.fn(),
   fetchWorktrees: vi.fn(),
+  runNextQueue: vi.fn(),
 }));
 
 import {
   fetchAgents,
   fetchAgentStatus,
+  fetchQueue,
   fetchLocks,
   fetchWorkflows,
   fetchWorktrees,
+  runNextQueue,
 } from "../lib/api";
 
 describe("coverage sprint F: low-branch pages", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(fetchQueue).mockResolvedValue([] as any);
+    vi.mocked(runNextQueue).mockResolvedValue({ ok: false, reason: "queue empty" } as any);
   });
 
   it("covers AgentsPage non-empty, refresh to empty, and error branch", async () => {
@@ -42,17 +48,17 @@ describe("coverage sprint F: low-branch pages", () => {
       .mockResolvedValueOnce({ machines: [] } as any);
 
     render(<AgentsPage />);
-    expect(screen.getByRole("button", { name: "刷新中..." })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /刷新中\.\.\.|Refreshing\.\.\./ })).toBeDisabled();
     resolveFirstAgents({ agents: [{ agent_id: "a-1", role: "TL", type: "worker" }] } as FirstAgentsPayload);
-    expect(await screen.findByText("活跃状态机")).toBeInTheDocument();
-    expect(screen.getByText("注册代理 (1)")).toBeInTheDocument();
+    expect(await screen.findByText(/活跃状态机|Active State Machines/)).toBeInTheDocument();
+    expect(screen.getByText(/注册代理 \(1\)|Registered Agents \(1\)/)).toBeInTheDocument();
     expect(screen.getByText("run-12345678")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
-    expect(await screen.findByText("暂无注册代理")).toBeInTheDocument();
-    expect(screen.queryByText("活跃状态机")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
+    expect(await screen.findByText(/暂无注册代理|No agents are registered yet/)).toBeInTheDocument();
+    expect(screen.queryByText(/活跃状态机|Active state machines/)).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     const errorBanner = await screen.findByRole("alert");
     expect(errorBanner).toHaveTextContent("agents boom");
   });
@@ -72,10 +78,10 @@ describe("coverage sprint F: low-branch pages", () => {
     expect(screen.getByText("agent-2")).toBeInTheDocument();
     expect(screen.getByText("-")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
-    expect(await screen.findByText("暂无锁记录")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
+    expect(await screen.findByText(/暂无锁记录|No lock records yet/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     expect(await screen.findByText("lock-failed")).toBeInTheDocument();
   });
 
@@ -90,11 +96,11 @@ describe("coverage sprint F: low-branch pages", () => {
     render(<WorktreesPage />);
     expect(await screen.findByText("/repo/wt-1")).toBeInTheDocument();
     expect(screen.getByText("abcdef123456")).toBeInTheDocument();
-    expect(screen.getByText("已锁定")).toBeInTheDocument();
+    expect(screen.getAllByText(/已锁定|Locked/).length).toBeGreaterThan(0);
     expect(screen.getByText("1234567890ab")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
-    expect(await screen.findByText("暂无工作树")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
+    expect(await screen.findByText(/暂无工作树|No worktrees yet/)).toBeInTheDocument();
   });
 
   it("covers WorkflowsPage navigation, namespace/runs fallback, empty and error branches", async () => {
@@ -108,12 +114,12 @@ describe("coverage sprint F: low-branch pages", () => {
     const workflowLink = await screen.findByRole("button", { name: "wf-1" });
     fireEvent.click(workflowLink);
     expect(onNavigate).toHaveBeenCalledWith("wf-1");
-    expect(screen.getByText("0")).toBeInTheDocument();
+    expect(screen.getAllByText("0").length).toBeGreaterThan(0);
 
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
-    expect(await screen.findByText("暂无工作流")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
+    expect(await screen.findByText(/暂无工作流|No workflows yet/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "刷新" }));
+    fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => {
       expect(screen.getByText("workflows down")).toBeInTheDocument();
     });

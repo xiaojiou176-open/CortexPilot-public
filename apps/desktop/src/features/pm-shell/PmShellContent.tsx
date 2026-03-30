@@ -8,6 +8,7 @@ import { NodeDetailDrawer } from "../../components/chain/NodeDetailDrawer";
 import { DiffReviewModal } from "../../components/review/DiffReviewModal";
 import { ContextDrawer } from "../../components/layout/ContextDrawer";
 import type { DesktopAlert, DesktopSessionSummary } from "../../lib/api";
+import type { ExecutionPlanReport, TaskPackManifest } from "../../lib/types";
 import type { OverviewMetric } from "../../hooks/useDesktopData";
 import type { ChainNodeData, ChatMessage, LayoutMode, Workspace } from "../../lib/desktopUi";
 
@@ -36,8 +37,20 @@ type PmShellContentProps = {
   creatingFirstSession: boolean;
   firstSessionBootstrapError: string;
   firstSessionAllowedPath: string;
+  taskPacks: TaskPackManifest[];
+  taskPacksLoading: boolean;
+  taskPacksError: string;
+  taskTemplate: string;
+  setTaskTemplate: React.Dispatch<React.SetStateAction<string>>;
+  selectedTaskPack: TaskPackManifest | null;
+  taskPackFieldValues: Record<string, string>;
+  setTaskPackFieldValue: (fieldId: string, value: string) => void;
+  executionPlanPreview?: ExecutionPlanReport | null;
+  executionPlanPreviewLoading?: boolean;
+  executionPlanPreviewError?: string;
   onCreateFirstSession: () => void;
   onOpenSessionFallback: () => void;
+  onPreviewFirstSession?: () => void;
   chooseDecision: (messageId: string, embedId: string, optionId: string) => void;
   recoverableDraft: { key: string; value: string } | null;
   restoreDraft: () => void;
@@ -119,8 +132,20 @@ export function PmShellContent({
   creatingFirstSession,
   firstSessionBootstrapError,
   firstSessionAllowedPath,
+  taskPacks,
+  taskPacksLoading,
+  taskPacksError,
+  taskTemplate,
+  setTaskTemplate,
+  selectedTaskPack,
+  taskPackFieldValues,
+  setTaskPackFieldValue,
+  executionPlanPreview = null,
+  executionPlanPreviewLoading = false,
+  executionPlanPreviewError = "",
   onCreateFirstSession,
   onOpenSessionFallback,
+  onPreviewFirstSession = () => {},
   chooseDecision,
   recoverableDraft,
   restoreDraft,
@@ -263,8 +288,20 @@ export function PmShellContent({
           creatingFirstSession={creatingFirstSession}
           firstSessionBootstrapError={firstSessionBootstrapError}
           firstSessionAllowedPath={firstSessionAllowedPath}
+          taskPacks={taskPacks}
+          taskPacksLoading={taskPacksLoading}
+          taskPacksError={taskPacksError}
+          taskTemplate={taskTemplate}
+          onTaskTemplateChange={setTaskTemplate}
+          selectedTaskPack={selectedTaskPack}
+          taskPackFieldValues={taskPackFieldValues}
+          onTaskPackFieldChange={setTaskPackFieldValue}
+          executionPlanPreview={executionPlanPreview}
+          executionPlanPreviewLoading={executionPlanPreviewLoading}
+          executionPlanPreviewError={executionPlanPreviewError}
           onCreateFirstSession={onCreateFirstSession}
           onOpenSessionFallback={onOpenSessionFallback}
+          onPreviewFirstSession={onPreviewFirstSession}
           chooseDecision={chooseDecision}
           recoverableDraft={recoverableDraft}
           restoreDraft={restoreDraft}

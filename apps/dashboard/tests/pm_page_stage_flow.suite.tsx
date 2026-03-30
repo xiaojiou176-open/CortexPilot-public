@@ -16,7 +16,9 @@ vi.mock("../lib/api", () => ({
   fetchPmSession: vi.fn(),
   fetchPmSessionEvents: vi.fn(),
   fetchPmSessions: vi.fn(),
+  fetchTaskPacks: vi.fn(),
   postPmSessionMessage: vi.fn(),
+  previewIntake: vi.fn(),
   runIntake: vi.fn(),
 }));
 
@@ -30,6 +32,7 @@ import {
   fetchPmSession,
   fetchPmSessionEvents,
   fetchPmSessions,
+  fetchTaskPacks,
   postPmSessionMessage,
   runIntake,
 } from "../lib/api";
@@ -42,6 +45,7 @@ describe("pm page stage flow", () => {
   const mockFetchPmSessions = vi.mocked(fetchPmSessions);
   const mockFetchPmSessionEvents = vi.mocked(fetchPmSessionEvents);
   const mockFetchPmSession = vi.mocked(fetchPmSession);
+  const mockFetchTaskPacks = vi.mocked(fetchTaskPacks);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -85,6 +89,21 @@ describe("pm page stage flow", () => {
     });
     mockRunIntake.mockResolvedValue({ run_id: "run-1" });
     mockPostPmSessionMessage.mockResolvedValue({ ok: true });
+    mockFetchTaskPacks.mockResolvedValue([
+      {
+        pack_id: "news_digest",
+        version: "v1",
+        title: "Public News Digest",
+        description: "Public, read-only digest over recent sources for one topic.",
+        visibility: "public",
+        entry_mode: "pm_intake",
+        task_template: "news_digest",
+        input_fields: [
+          { field_id: "topic", label: "Topic", control: "text", required: true, default_value: "Seattle tech and AI" },
+        ],
+        ui_hint: { surface_group: "public_task_templates", default_label: "Public news digest" },
+      },
+    ] as never);
   });
 
   it("switches discover -> clarify -> execute in primary stage action", async () => {
@@ -254,10 +273,14 @@ describe("pm intake component branches", () => {
       chatFlowBusy: false,
       onCreate: vi.fn(),
       onAnswer: vi.fn(),
+      onPreview: vi.fn(),
       onRun: vi.fn(),
       hasIntakeId: true,
       plan: { stage: "ready" },
       taskChain: { chain: "ok" },
+      executionPlanPreview: null,
+      executionPlanPreviewBusy: false,
+      executionPlanPreviewError: "",
       chainPanelRef: { current: null },
       ...overrides,
     };

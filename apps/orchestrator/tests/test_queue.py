@@ -1,6 +1,7 @@
 import hashlib
 import json
 from pathlib import Path
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -74,3 +75,28 @@ def test_queue_enqueue_and_claim(tmp_path: Path, monkeypatch: pytest.MonkeyPatch
     store.mark_done(contract["task_id"], run_id="run-1", status="SUCCESS")
     items = store.list_items()
     assert items[-1].get("status") == "SUCCESS"
+
+
+def test_queue_store_respects_priority_and_schedule(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+
+    store = QueueStore()
+    contract_path = tmp_path / "contract.json"
+    contract_path.write_text(json.dumps(_valid_contract()), encoding="utf-8")
+    future_ts = (datetime.now(timezone.utc) + timedelta(hours=2)).isoformat()
+    breached_ts = (datetime.now(timezone.utc) - timedelta(minutes=5)).isoformat()
+
+    store.enqueue(contract_path, "task-low", owner="agent-1", metadata={"priority": 1})
+    store.enqueue(contract_path, "task-high", owner="agent-1", metadata={"priority": 9})
+    store.enqueue(contract_path, "task-future", owner="agent-1", metadata={"priority": 20, "scheduled_at": future_ts})
+    store.enqueue(contract_path, "task-breached", owner="agent-1", metadata={"priority": 3, "deadline_at": breached_ts})
+
+    next_item = store.next_pending()
+    assert next_item is not None
+    assert next_item["task_id"] == "task-high"
+
+    items = {item["task_id"]: item for item in store.list_items()}
+    assert items["task-future"]["eligible"] is False
+    assert items["task-future"]["sla_state"] == "scheduled"
+    assert items["task-breached"]["sla_state"] == "breached"

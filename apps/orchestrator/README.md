@@ -5,6 +5,7 @@
 ## What It Owns
 
 - task intake and contract compilation
+- intake preview and execution-plan prediction
 - execution, review, replay, and evidence flows
 - API and CLI entrypoints
 - gate enforcement and runtime state
@@ -49,6 +50,29 @@ bash scripts/run_orchestrator_cli.sh --help
 - PM intake responses only emit `task_template` / `template_payload` when those
   fields are actually present, keeping the response payload aligned with the
   schema contract used by API and intake coverage tests.
+- PM intake preview now emits an `execution_plan_report` advisory object through
+  `/api/pm/intake/preview`, so operators can inspect the compiled contract
+  shape, predicted reports/artifacts, and likely approval boundary before
+  starting execution.
+- PM task packs are now registry-driven from `contracts/packs/*.json`; the
+  orchestrator normalizes `template_payload`, derives objective/search queries,
+  and returns pack metadata through `/api/pm/task-packs`.
+- Queue operations now expose `/api/queue`, `/api/queue/from-run/{run_id}`, and
+  `/api/queue/run-next`, so the control plane can queue an existing run
+  contract with `priority`, `scheduled_at`, and `deadline_at`, then derive
+  queue/SLA state before execution starts.
+- Pending approval views now synthesize an `approval_pack` summary from run
+  events plus manifest metadata instead of exposing only the raw
+  `HUMAN_APPROVAL_REQUIRED` payload.
+- Successful public task slices now synthesize a `proof_pack` summary from the
+  primary result report and evidence refs, so proof-oriented runs expose an
+  operator-readable success pack without relying on release docs alone.
+- Replay flows now persist both `replay_report.json` and
+  `run_compare_report.json`, so Run Detail surfaces can show compare summaries
+  without re-deriving them client-side.
+- Workflow reads now persist a governed `workflow_case` snapshot under
+  `.runtime-cache/cortexpilot/workflow-cases/`, so case metadata is not rebuilt
+  from PM session bindings on every page load alone.
 
 ## Mainline CI Notes
 

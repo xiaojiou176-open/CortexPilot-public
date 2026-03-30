@@ -22,6 +22,8 @@ Do **not** read it as:
 - Provide run, workflow, session, and review visualization for CortexPilot Command Tower
   orchestration output.
 - Surface operator-facing status, artifacts, and control points for the web.
+- Surface intake preview, approval summaries, and run diagnostics as
+  operator-readable decision objects rather than raw payloads alone.
 
 ## Why This Module Exists
 
@@ -35,6 +37,15 @@ finished consumer product.
 - Input: API responses from the orchestrator backend.
 - Output: operational UI views for runs, events, contracts, reports, and
   command surfaces.
+
+## High-value operator surfaces
+
+- PM workspace: registry-driven task-pack selection plus `execution_plan_report`
+  preview before execution starts.
+- Workflow views: workflow-case summaries derived from run manifests and PM
+  session bindings, now with queue/SLA read surfaces.
+- Run Detail: incident packs, approval summaries, and replay compare reports as
+  operator-readable decision objects.
 
 ## Strongest Signals
 

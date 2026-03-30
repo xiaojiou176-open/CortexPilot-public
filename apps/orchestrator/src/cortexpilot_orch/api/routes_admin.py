@@ -130,15 +130,51 @@ def collect_pending_approvals(
         if not required_events or not _is_pending_after_latest_required(events):
             continue
         latest = required_events[-1]
-        context = latest.get("context") if isinstance(latest.get("context"), dict) else {}
+        context = latest.get("context") if isinstance(latest.get("context"), dict) else latest.get("meta") if isinstance(latest.get("meta"), dict) else {}
+        manifest_path = run_dir / "manifest.json"
+        contract_path = run_dir / "contract.json"
+        try:
+            manifest_payload = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
+        except json.JSONDecodeError:
+            manifest_payload = {}
+        try:
+            contract_payload = json.loads(contract_path.read_text(encoding="utf-8")) if contract_path.exists() else {}
+        except json.JSONDecodeError:
+            contract_payload = {}
+        task_id = str((manifest_payload or {}).get("task_id") or (contract_payload or {}).get("task_id") or "").strip()
+        failure_reason = str((manifest_payload or {}).get("failure_reason") or "").strip()
+        reasons = [str(item).strip() for item in context.get("reason", []) if str(item).strip()] if isinstance(context.get("reason"), list) else []
+        actions = [str(item).strip() for item in context.get("actions", []) if str(item).strip()] if isinstance(context.get("actions"), list) else []
+        verify_steps = [str(item).strip() for item in context.get("verify_steps", []) if str(item).strip()] if isinstance(context.get("verify_steps"), list) else []
+        resume_step = str(context.get("resume_step") or "").strip()
+        summary_parts = [f"Run {run_id} is waiting for human approval."]
+        if failure_reason:
+            summary_parts.append(f"Failure reason: {failure_reason}.")
+        if resume_step:
+            summary_parts.append(f"Resume at: {resume_step}.")
+        approval_pack = {
+            "report_type": "approval_pack",
+            "run_id": run_id,
+            "status": "pending",
+            "summary": " ".join(summary_parts).strip(),
+            "task_id": task_id,
+            "failure_reason": failure_reason,
+            "reasons": reasons,
+            "actions": actions,
+            "verify_steps": verify_steps,
+            "resume_step": resume_step,
+        }
         pending.append(
             {
                 "run_id": run_id,
                 "status": "pending",
-                "reason": context.get("reason", []),
-                "actions": context.get("actions", []),
-                "verify_steps": context.get("verify_steps", []),
-                "resume_step": context.get("resume_step", ""),
+                "task_id": task_id,
+                "failure_reason": failure_reason,
+                "reason": reasons,
+                "actions": actions,
+                "verify_steps": verify_steps,
+                "resume_step": resume_step,
+                "approval_pack": approval_pack,
             }
         )
     return pending

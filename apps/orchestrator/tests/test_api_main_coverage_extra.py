@@ -90,10 +90,12 @@ def test_api_misc_collections_and_pm_wrappers(tmp_path: Path, monkeypatch) -> No
 
     # PM wrappers should dispatch to base handlers.
     monkeypatch.setattr(api_main, "create_intake", lambda payload: {"ok": True, "kind": "create", "payload": payload})
+    monkeypatch.setattr(api_main, "list_task_packs", lambda: [{"pack_id": "news_digest"}])
     monkeypatch.setattr(api_main, "answer_intake", lambda intake_id, payload: {"ok": True, "kind": "answer", "intake_id": intake_id, "payload": payload})
     monkeypatch.setattr(api_main, "run_intake", lambda intake_id, payload=None: {"ok": True, "kind": "run", "intake_id": intake_id, "payload": payload})
 
     assert client.post("/api/pm/intake", json={"objective": "x"}).json()["kind"] == "create"
+    assert client.get("/api/pm/task-packs").json()[0]["pack_id"] == "news_digest"
     assert client.post("/api/pm/intake/i1/answer", json={"answers": ["a"]}).json()["kind"] == "answer"
     assert client.post("/api/pm/intake/i1/run", json={"mock": True}).json()["kind"] == "run"
 

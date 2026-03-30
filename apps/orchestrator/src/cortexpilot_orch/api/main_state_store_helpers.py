@@ -5,6 +5,8 @@ import json
 import logging
 from pathlib import Path
 from typing import Any, Callable
+from cortexpilot_orch.services.session_index_service import SessionIndexService
+from cortexpilot_orch.store.workflow_case_store import WorkflowCaseStore
 
 
 _logger = logging.getLogger(__name__)
@@ -173,8 +175,53 @@ def read_events_incremental(
     return items, next_offset
 
 
-def collect_workflows(*, runs_root: Path) -> dict[str, dict]:
+def _session_case_metadata(runtime_root: Path) -> dict[str, list[dict[str, Any]]]:
+    service = SessionIndexService(runtime_root)
+    by_run: dict[str, list[dict[str, Any]]] = {}
+    for pm_session_id in service.list_session_ids():
+        intake, response, intake_events = service.read_session_files(pm_session_id)
+        bindings = service.derive_bindings(pm_session_id, response, intake_events)
+        objective = ""
+        if isinstance(intake.get("objective"), str) and intake.get("objective", "").strip():
+            objective = intake.get("objective", "").strip()
+        elif isinstance(response.get("plan"), dict):
+            spec = str((response.get("plan") or {}).get("spec") or "").strip()
+            if spec:
+                objective = spec
+        owner_pm = ""
+        if isinstance(intake.get("owner_pm"), str) and intake.get("owner_pm", "").strip():
+            owner_pm = intake.get("owner_pm", "").strip()
+        else:
+            owner_agent = intake.get("owner_agent") if isinstance(intake.get("owner_agent"), dict) else {}
+            if str(owner_agent.get("role") or "").strip().upper() == "PM":
+                owner_pm = str(owner_agent.get("agent_id") or "").strip()
+        project_key = ""
+        for key in ["project_key", "project", "repo", "workspace"]:
+            value = intake.get(key)
+            if isinstance(value, str) and value.strip():
+                project_key = value.strip()
+                break
+        metadata = {
+            "pm_session_id": pm_session_id,
+            "objective": objective,
+            "owner_pm": owner_pm,
+            "project_key": project_key,
+        }
+        for binding in bindings:
+            by_run.setdefault(binding.run_id, []).append(metadata)
+    return by_run
+
+
+def collect_workflows(
+    *,
+    runs_root: Path,
+    runtime_root: Path | None = None,
+    read_events_fn: Callable[[str], list[dict]] | None = None,
+) -> dict[str, dict]:
     workflows: dict[str, dict] = {}
+    resolved_runtime_root = runtime_root or runs_root.parent
+    case_store = WorkflowCaseStore(resolved_runtime_root / "workflow-cases")
+    session_meta_by_run = _session_case_metadata(resolved_runtime_root)
     for run_dir in sorted(runs_root.glob("*")):
         manifest_path = run_dir / "manifest.json"
         if not manifest_path.exists():
@@ -196,8 +243,19 @@ def collect_workflows(*, runs_root: Path) -> dict[str, dict]:
                 "task_queue": workflow.get("task_queue", ""),
                 "namespace": workflow.get("namespace", ""),
                 "status": workflow.get("status", ""),
+                "verdict": "",
+                "summary": "",
+                "objective": "",
+                "owner_pm": "",
+                "project_key": "",
+                "pm_session_ids": [],
+                "case_source": "derived",
+                "case_updated_at": "",
                 "runs": [],
                 "_latest_ts": datetime.min.replace(tzinfo=timezone.utc),
+                "_has_failure": False,
+                "_has_running": False,
+                "_has_pending_approval": False,
             },
         )
         created_raw = manifest.get("created_at") or manifest.get("start_ts")
@@ -217,12 +275,81 @@ def collect_workflows(*, runs_root: Path) -> dict[str, dict]:
                 "created_at": manifest.get("created_at") or manifest.get("start_ts"),
             }
         )
+        current_run_id = str(manifest.get("run_id") or run_dir.name).strip()
+        for metadata in session_meta_by_run.get(current_run_id, []):
+            session_id = str(metadata.get("pm_session_id") or "").strip()
+            if session_id and session_id not in entry["pm_session_ids"]:
+                entry["pm_session_ids"].append(session_id)
+            if not entry["objective"] and str(metadata.get("objective") or "").strip():
+                entry["objective"] = str(metadata.get("objective") or "").strip()
+            if not entry["owner_pm"] and str(metadata.get("owner_pm") or "").strip():
+                entry["owner_pm"] = str(metadata.get("owner_pm") or "").strip()
+            if not entry["project_key"] and str(metadata.get("project_key") or "").strip():
+                entry["project_key"] = str(metadata.get("project_key") or "").strip()
         status = workflow.get("status")
         if isinstance(status, str) and status.strip() and created_at >= entry["_latest_ts"]:
             entry["status"] = status
             entry["task_queue"] = workflow.get("task_queue", entry["task_queue"])
             entry["namespace"] = workflow.get("namespace", entry["namespace"])
             entry["_latest_ts"] = created_at
+        status_upper = str(manifest.get("status") or "").strip().upper()
+        if status_upper in {"FAILURE", "FAILED", "ERROR", "REJECTED", "CANCELLED"}:
+            entry["_has_failure"] = True
+        if status_upper in {"RUNNING", "PENDING", "QUEUED", "IN_PROGRESS"}:
+            entry["_has_running"] = True
+        if callable(read_events_fn):
+            events = read_events_fn(current_run_id)
+            last_required_index: int | None = None
+            for index, event in enumerate(events):
+                if isinstance(event, dict) and str(event.get("event") or "").upper() == "HUMAN_APPROVAL_REQUIRED":
+                    last_required_index = index
+            if last_required_index is not None:
+                completed = False
+                for event in events[last_required_index + 1 :]:
+                    if isinstance(event, dict) and str(event.get("event") or "").upper() == "HUMAN_APPROVAL_COMPLETED":
+                        completed = True
+                        break
+                if not completed:
+                    entry["_has_pending_approval"] = True
     for entry in workflows.values():
+        if entry.pop("_has_pending_approval", False):
+            entry["verdict"] = "awaiting_approval"
+        elif entry.pop("_has_failure", False):
+            entry["verdict"] = "attention_required"
+        elif entry.pop("_has_running", False):
+            entry["verdict"] = "active"
+        else:
+            entry["verdict"] = "healthy"
+        objective = str(entry.get("objective") or "").strip()
+        if objective:
+            entry["summary"] = objective
+        elif entry["verdict"] == "awaiting_approval":
+            entry["summary"] = "At least one linked run is waiting for human approval."
+        elif entry["verdict"] == "attention_required":
+            entry["summary"] = "At least one linked run failed and needs operator attention."
+        elif entry["verdict"] == "active":
+            entry["summary"] = "Workflow case is still active and linked runs are moving."
+        else:
+            entry["summary"] = "Workflow case is healthy."
+        persisted = case_store.read(str(entry.get("workflow_id") or ""))
+        for key in ["objective", "owner_pm", "project_key", "summary", "verdict"]:
+            if not entry.get(key) and str(persisted.get(key) or "").strip():
+                entry[key] = str(persisted.get(key) or "").strip()
+        merged_case = {
+            "workflow_id": entry["workflow_id"],
+            "namespace": entry.get("namespace", ""),
+            "task_queue": entry.get("task_queue", ""),
+            "status": entry.get("status", ""),
+            "objective": entry.get("objective", ""),
+            "owner_pm": entry.get("owner_pm", ""),
+            "project_key": entry.get("project_key", ""),
+            "verdict": entry.get("verdict", ""),
+            "summary": entry.get("summary", ""),
+            "pm_session_ids": list(entry.get("pm_session_ids") or []),
+            "run_ids": [str(run.get("run_id") or "") for run in entry.get("runs", []) if str(run.get("run_id") or "").strip()],
+        }
+        persisted_case = case_store.write(str(entry["workflow_id"]), merged_case)
+        entry["case_source"] = str(persisted_case.get("case_source") or "persisted")
+        entry["case_updated_at"] = str(persisted_case.get("updated_at") or "")
         entry.pop("_latest_ts", None)
     return workflows

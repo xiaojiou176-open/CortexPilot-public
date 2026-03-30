@@ -89,18 +89,11 @@ export default function PMIntakeFeature() {
         questions={state.questions}
         taskTemplate={state.taskTemplate}
         onTaskTemplateChange={state.setTaskTemplate}
-        newsDigestTopic={state.newsDigestTopic}
-        onNewsDigestTopicChange={state.setNewsDigestTopic}
-        newsDigestSources={state.newsDigestSources}
-        onNewsDigestSourcesChange={state.setNewsDigestSources}
-        newsDigestTimeRange={state.newsDigestTimeRange}
-        onNewsDigestTimeRangeChange={state.setNewsDigestTimeRange}
-        newsDigestMaxResults={state.newsDigestMaxResults}
-        onNewsDigestMaxResultsChange={state.setNewsDigestMaxResults}
-        pageBriefUrl={state.pageBriefUrl}
-        onPageBriefUrlChange={state.setPageBriefUrl}
-        pageBriefFocus={state.pageBriefFocus}
-        onPageBriefFocusChange={state.setPageBriefFocus}
+        taskPacks={state.taskPacks}
+        taskPacksLoading={state.taskPacksLoading}
+        taskPacksError={state.taskPacksError}
+        taskPackFieldValues={state.taskPackFieldValues}
+        onTaskPackFieldChange={state.setTaskPackFieldValue}
         requesterRole={state.requesterRole}
         onRequesterRoleChange={state.setRequesterRole}
         browserPreset={state.browserPreset}
@@ -120,10 +113,14 @@ export default function PMIntakeFeature() {
         chatFlowBusy={state.chatFlowBusy}
         onCreate={() => void actions.handleCreate()}
         onAnswer={() => void actions.handleAnswer()}
+        onPreview={() => void actions.handlePreview()}
         onRun={() => void actions.handleRun()}
         hasIntakeId={Boolean(state.intakeId)}
         plan={state.plan}
         taskChain={state.taskChain}
+        executionPlanPreview={state.executionPlanPreview}
+        executionPlanPreviewBusy={state.executionPlanPreviewBusy}
+        executionPlanPreviewError={state.executionPlanPreviewError}
         chainPanelRef={state.chainPanelRef}
       />
     </main>

@@ -17,6 +17,20 @@ from tooling.search_pipeline import build_evidence_bundle
 _logger = logging.getLogger(__name__)
 
 
+class _NoOpQueueStore:
+    def list_items(self) -> list[dict[str, Any]]:
+        return []
+
+    def enqueue(self, *_args: Any, **_kwargs: Any) -> dict[str, Any]:
+        return {}
+
+    def claim_next(self, **_kwargs: Any) -> dict[str, Any] | None:
+        return None
+
+    def mark_done(self, *_args: Any, **_kwargs: Any) -> None:
+        return None
+
+
 def build_runs_handlers(
     *,
     runs_root_fn: Callable[[], Path],
@@ -25,6 +39,7 @@ def build_runs_handlers(
     select_baseline_by_window_fn: Callable[[str, dict], str | None],
     last_event_ts_fn: Callable[[str], str],
     collect_workflows_fn: Callable[[], dict[str, dict]],
+    queue_store_cls: Callable[[], Any] = _NoOpQueueStore,
     read_events_fn: Callable[[str], list[dict]],
     filter_events_fn: Callable[..., list[dict]],
     event_cursor_value_fn: Callable[[dict[str, Any]], str],
@@ -50,6 +65,7 @@ def build_runs_handlers(
     list_policies_fn: Callable[[], dict],
     list_locks_fn: Callable[[], list[dict]],
     list_worktrees_fn: Callable[[], list[dict]],
+    read_manifest_status_fn: Callable[[str], str] = lambda _run_id: "UNKNOWN",
     read_events_incremental_fn: Callable[..., tuple[list[dict[str, Any]], int]] | None = None,
 ) -> dict[str, Callable[..., Any]]:
     def _read_events_light(run_dir: Path) -> list[dict[str, Any]]:
@@ -213,6 +229,117 @@ def build_runs_handlers(
             return {"outcome_type": "in_progress", "outcome_label_zh": "In progress"}
         return {"outcome_type": "unknown", "outcome_label_zh": "Unknown"}
 
+    def _has_pending_approval(events: list[dict[str, Any]]) -> bool:
+        last_required_index: int | None = None
+        for index, event in enumerate(events):
+            if isinstance(event, dict) and str(event.get("event") or "").upper() == "HUMAN_APPROVAL_REQUIRED":
+                last_required_index = index
+        if last_required_index is None:
+            return False
+        for event in events[last_required_index + 1 :]:
+            if isinstance(event, dict) and str(event.get("event") or "").upper() == "HUMAN_APPROVAL_COMPLETED":
+                return False
+        return True
+
+    def _build_incident_pack(run_id: str, manifest: dict[str, Any], events: list[dict[str, Any]]) -> dict[str, Any] | None:
+        status = str(manifest.get("status") or "").strip()
+        failure_attrs = _infer_failure_fields(status=status, manifest=manifest, events=events)
+        failure_reason = str(manifest.get("failure_reason") or "").strip()
+        pending_approval = _has_pending_approval(events)
+        failure_class = str(failure_attrs.get("failure_class") or "").strip()
+        if not failure_class and not pending_approval and str(status).upper() not in {"FAILURE", "FAILED", "ERROR", "REJECTED"}:
+            return None
+
+        blocking_events: list[str] = []
+        for event in reversed(events):
+            event_name = str(event.get("event") or event.get("event_type") or "").strip()
+            if not event_name:
+                continue
+            if event_name in {
+                "HUMAN_APPROVAL_REQUIRED",
+                "HUMAN_APPROVAL_TIMEOUT",
+                "DIFF_GATE_REJECTED",
+                "DIFF_GATE_RESULT",
+                "ROLLBACK_APPLIED",
+                "GATE_FAILED",
+                "POLICY_VIOLATION",
+            }:
+                blocking_events.append(event_name)
+            if len(blocking_events) >= 3:
+                break
+
+        if pending_approval:
+            summary = "This run is waiting for human approval before execution can continue."
+            next_action = "Open the manual approvals surface, review the required steps, and approve the run when the blocking checks are complete."
+        elif failure_class == "gate":
+            summary = failure_reason or "This run was blocked by a governance gate."
+            next_action = str(failure_attrs.get("action_hint_zh") or "Review the blocking gate and rerun after fixing the violation.")
+        else:
+            summary = failure_reason or str(failure_attrs.get("failure_summary_zh") or "This run failed without an explicit summary.")
+            next_action = str(failure_attrs.get("action_hint_zh") or "Review events, reports, and logs to identify the root cause before retrying.")
+
+        return {
+            "report_type": "incident_pack",
+            "run_id": run_id,
+            "status": status,
+            "summary": summary,
+            "failure_class": "manual" if pending_approval and not failure_class else failure_class,
+            "failure_code": str(failure_attrs.get("failure_code") or ""),
+            "failure_stage": "approval" if pending_approval and not failure_attrs.get("failure_stage") else str(failure_attrs.get("failure_stage") or ""),
+            "failure_reason": failure_reason,
+            "root_event": "HUMAN_APPROVAL_REQUIRED" if pending_approval and not failure_attrs.get("root_event") else str(failure_attrs.get("root_event") or ""),
+            "next_action": next_action,
+            "blocking_events": blocking_events,
+        }
+
+    def _build_proof_pack(
+        run_id: str,
+        manifest: dict[str, Any],
+        reports: list[dict[str, Any]],
+    ) -> dict[str, Any] | None:
+        status = str(manifest.get("status") or "").strip().upper()
+        if status not in {"SUCCESS", "SUCCEEDED", "COMPLETED", "DONE"}:
+            return None
+
+        public_reports = [
+            ("news_digest_result.json", "news_digest"),
+            ("topic_brief_result.json", "topic_brief"),
+            ("page_brief_result.json", "page_brief"),
+        ]
+        report_lookup: dict[str, dict[str, Any]] = {}
+        for item in reports:
+            name = str(item.get("name") or "").strip()
+            data = item.get("data")
+            if name and isinstance(data, dict):
+                report_lookup[name] = data
+
+        for report_name, task_template in public_reports:
+            payload = report_lookup.get(report_name)
+            if not payload:
+                continue
+            result_status = str(payload.get("status") or "").strip().upper()
+            if result_status != "SUCCESS":
+                continue
+            summary = str(payload.get("summary") or "").strip()
+            evidence_refs = payload.get("evidence_refs") if isinstance(payload.get("evidence_refs"), dict) else {}
+            proof_ready = bool(evidence_refs)
+            return {
+                "report_type": "proof_pack",
+                "run_id": run_id,
+                "task_template": task_template,
+                "primary_report": report_name,
+                "summary": summary or "This public task slice completed successfully and produced reusable proof artifacts.",
+                "result_status": result_status,
+                "proof_ready": proof_ready,
+                "evidence_refs": evidence_refs,
+                "next_action": (
+                    "Review the primary report and evidence bundle before sharing the public proof output."
+                    if proof_ready
+                    else "Generate or refresh evidence artifacts before sharing this proof."
+                ),
+            }
+        return None
+
     def list_runs() -> list[dict]:
         runs: list[dict[str, Any]] = []
         for run_dir in runs_root_fn().glob("*"):
@@ -292,6 +419,61 @@ def build_runs_handlers(
 
         workflows.sort(key=_latest_ts, reverse=True)
         return workflows
+
+    def list_queue(workflow_id: str | None = None, status: str | None = None) -> list[dict[str, Any]]:
+        store = queue_store_cls()
+        items = store.list_items()
+        normalized_workflow = str(workflow_id or "").strip()
+        normalized_status = str(status or "").strip().upper()
+        filtered: list[dict[str, Any]] = []
+        for item in items:
+            if normalized_workflow and str(item.get("workflow_id") or "").strip() != normalized_workflow:
+                continue
+            if normalized_status and str(item.get("status") or "").strip().upper() != normalized_status:
+                continue
+            filtered.append(item)
+        return filtered
+
+    def enqueue_run_queue(run_id: str, payload: dict | None = None) -> dict[str, Any]:
+        run_dir = runs_root_fn() / run_id
+        manifest_path = run_dir / "manifest.json"
+        contract_path = run_dir / "contract.json"
+        if not manifest_path.exists() or not contract_path.exists():
+            raise HTTPException(status_code=404, detail=error_detail_fn("RUN_NOT_FOUND"))
+        manifest = _safe_load_json(manifest_path) or {}
+        contract = _safe_load_json(contract_path) or {}
+        owner_agent = contract.get("owner_agent") if isinstance(contract.get("owner_agent"), dict) else {}
+        workflow_meta = manifest.get("workflow") if isinstance(manifest.get("workflow"), dict) else {}
+        queue_options = payload if isinstance(payload, dict) else {}
+        task_id = str(contract.get("task_id") or manifest.get("task_id") or run_id).strip() or run_id
+        owner = str(owner_agent.get("agent_id") or manifest.get("owner_agent_id") or "").strip()
+        queue_item = queue_store_cls().enqueue(
+            contract_path.resolve(),
+            task_id,
+            owner=owner,
+            metadata={
+                "workflow_id": str(workflow_meta.get("workflow_id") or "").strip(),
+                "source_run_id": run_id,
+                "priority": queue_options.get("priority", 0),
+                "scheduled_at": queue_options.get("scheduled_at"),
+                "deadline_at": queue_options.get("deadline_at"),
+            },
+        )
+        return queue_item
+
+    def run_next_queue(payload: dict | None = None) -> dict[str, Any]:
+        options = payload if isinstance(payload, dict) else {}
+        mock_mode = bool(options.get("mock"))
+        store = queue_store_cls()
+        item = store.claim_next(run_id="")
+        if not item:
+            return {"ok": False, "reason": "queue empty"}
+        contract_path = Path(str(item.get("contract_path") or "")).resolve()
+        task_id = str(item.get("task_id") or "").strip() or "task"
+        run_id = orchestration_service_fn().execute_task(contract_path, mock_mode=mock_mode)
+        final_status = read_manifest_status_fn(run_id)
+        store.mark_done(task_id, run_id, final_status, queue_id=str(item.get("queue_id") or ""))
+        return {"ok": True, "run_id": run_id, "status": final_status, "queue_item": item}
 
     def get_workflow(workflow_id: str) -> dict:
         workflows = collect_workflows_fn()
@@ -446,24 +628,33 @@ def build_runs_handlers(
 
     def get_reports(run_id: str) -> list[dict]:
         reports_dir = runs_root_fn() / run_id / "reports"
-        if not reports_dir.exists():
-            return []
-        reports = []
-        for path in reports_dir.glob("*.json"):
-            try:
-                data = json_loads_fn(path.read_text(encoding="utf-8"))
-            except json_decode_error_cls:
-                data = {"raw": path.read_text(encoding="utf-8")}
-            except Exception as exc:
-                log_event_fn(
-                    "ERROR",
-                    "api",
-                    "REPORTS_READ_FAILED",
-                    run_id=run_id,
-                    meta={"request_id": current_request_id_fn(), "error": str(exc), "report": path.name},
-                )
-                raise HTTPException(status_code=500, detail=error_detail_fn("REPORTS_READ_FAILED")) from exc
-            reports.append({"name": path.name, "data": data})
+        reports: list[dict[str, Any]] = []
+        if reports_dir.exists():
+            for path in reports_dir.glob("*.json"):
+                try:
+                    data = json_loads_fn(path.read_text(encoding="utf-8"))
+                except json_decode_error_cls:
+                    data = {"raw": path.read_text(encoding="utf-8")}
+                except Exception as exc:
+                    log_event_fn(
+                        "ERROR",
+                        "api",
+                        "REPORTS_READ_FAILED",
+                        run_id=run_id,
+                        meta={"request_id": current_request_id_fn(), "error": str(exc), "report": path.name},
+                    )
+                    raise HTTPException(status_code=500, detail=error_detail_fn("REPORTS_READ_FAILED")) from exc
+                reports.append({"name": path.name, "data": data})
+
+        run_dir = runs_root_fn() / run_id
+        manifest_path = run_dir / "manifest.json"
+        manifest = _safe_load_json(manifest_path) if manifest_path.exists() else {}
+        incident_pack = _build_incident_pack(run_id, manifest or {}, read_events_fn(run_id))
+        if incident_pack is not None:
+            reports.append({"name": "incident_pack.json", "data": incident_pack})
+        proof_pack = _build_proof_pack(run_id, manifest or {}, reports)
+        if proof_pack is not None:
+            reports.append({"name": "proof_pack.json", "data": proof_pack})
         return reports
 
     def get_artifacts(run_id: str, name: str | None = None) -> dict:
@@ -616,6 +807,9 @@ def build_runs_handlers(
 
     return {
         "list_runs": list_runs,
+        "list_queue": list_queue,
+        "enqueue_run_queue": enqueue_run_queue,
+        "run_next_queue": run_next_queue,
         "list_workflows": list_workflows,
         "get_workflow": get_workflow,
         "get_run": get_run,

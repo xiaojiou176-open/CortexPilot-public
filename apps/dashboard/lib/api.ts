@@ -5,6 +5,7 @@ import type {
   CommandTowerAlertsPayload,
   CommandTowerOverviewPayload,
   ContractRecord,
+  ExecutionPlanReport,
   EventRecord,
   JsonValue,
   PmSessionConversationGraphPayload,
@@ -15,7 +16,9 @@ import type {
   ReportRecord,
   RunDetailPayload,
   RunSummary,
+  QueueItemRecord,
   ToolCallRecord,
+  TaskPackManifest,
   WorkflowDetailPayload,
   WorkflowRecord,
 } from "./types";
@@ -261,6 +264,18 @@ export async function fetchWorkflow(workflowId: string) {
   return delegateGetApi<WorkflowDetailPayload>(() => sharedDashboardApi.fetchWorkflow(workflowId));
 }
 
+export async function fetchQueue(workflowId?: string, status?: string) {
+  return delegateGetApi<QueueItemRecord[]>(() => sharedDashboardApi.fetchQueue(workflowId, status));
+}
+
+export async function enqueueRunQueue(runId: string, payload: Record<string, JsonValue> = {}) {
+  return delegateApi<Record<string, JsonValue>>(() => sharedDashboardApi.enqueueRunQueue(runId, payload));
+}
+
+export async function runNextQueue(payload: Record<string, JsonValue> = {}) {
+  return delegateApi<Record<string, JsonValue>>(() => sharedDashboardApi.runNextQueue(payload));
+}
+
 export type FetchPmSessionsOptions = RequestControlOptions & {
   status?: PmSessionStatus | PmSessionStatus[];
   ownerPm?: string;
@@ -378,8 +393,16 @@ export async function fetchCommandTowerAlerts(options: RequestControlOptions = {
   return delegateGetApi<CommandTowerAlertsPayload>(() => sharedDashboardApi.fetchCommandTowerAlerts(options));
 }
 
+export async function fetchTaskPacks() {
+  return delegateGetApi<TaskPackManifest[]>(() => sharedDashboardApi.fetchTaskPacks());
+}
+
 export async function createIntake(payload: Record<string, JsonValue>, options: RequestControlOptions = {}) {
   return delegateApi<Record<string, JsonValue>>(() => sharedDashboardApi.createIntake(payload, options));
+}
+
+export async function previewIntake(payload: Record<string, JsonValue>, options: RequestControlOptions = {}) {
+  return delegateApi<ExecutionPlanReport>(() => sharedDashboardApi.previewIntake(payload, options));
 }
 
 export async function answerIntake(

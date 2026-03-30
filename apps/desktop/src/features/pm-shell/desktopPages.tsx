@@ -7,6 +7,7 @@ export type DesktopPageKey =
   | "ct-session-detail"
   | "runs"
   | "run-detail"
+  | "run-compare"
   | "workflows"
   | "workflow-detail"
   | "events"
@@ -28,8 +29,9 @@ export const PAGE_TITLES: Partial<Record<DesktopPageKey, string>> = {
   "ct-session-detail": "Session View",
   runs: "Runs",
   "run-detail": "Run Detail",
-  workflows: "Workflows",
-  "workflow-detail": "Workflow Detail",
+  "run-compare": "Run Compare",
+  workflows: "Workflow Cases",
+  "workflow-detail": "Workflow Case Detail",
   events: "Event Stream",
   contracts: "Contracts",
   reviews: "Reviews",
@@ -58,6 +60,10 @@ const RunsPage = lazy(async () => {
 const RunDetailPage = lazy(async () => {
   const module = await import("../../pages/RunDetailPage");
   return { default: module.RunDetailPage };
+});
+const RunComparePage = lazy(async () => {
+  const module = await import("../../pages/RunComparePage");
+  return { default: module.RunComparePage };
 });
 const WorkflowsPage = lazy(async () => {
   const module = await import("../../pages/WorkflowsPage");
@@ -153,7 +159,9 @@ export function renderDesktopPage({
     case "runs":
       return <RunsPage onNavigateToRun={navigateToRun} />;
     case "run-detail":
-      return <RunDetailPage runId={detailRunId} onBack={() => setActivePage("runs")} />;
+      return <RunDetailPage runId={detailRunId} onBack={() => setActivePage("runs")} onOpenCompare={() => setActivePage("run-compare")} />;
+    case "run-compare":
+      return <RunComparePage runId={detailRunId} onBack={() => setActivePage("run-detail")} />;
     case "workflows":
       return <WorkflowsPage onNavigateToWorkflow={navigateToWorkflow} />;
     case "workflow-detail":

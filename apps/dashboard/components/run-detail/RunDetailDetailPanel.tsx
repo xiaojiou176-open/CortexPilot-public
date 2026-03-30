@@ -41,6 +41,9 @@ type RunDetailDetailPanelProps = {
   taskResult: unknown;
   workReport: unknown;
   evidenceReport: unknown;
+  incidentPack: unknown;
+  proofPack: unknown;
+  runCompareReport: unknown;
   availableRunsError: string;
   baselineRunId: string;
   onBaselineRunIdChange: (value: string) => void;
@@ -102,6 +105,9 @@ export default function RunDetailDetailPanel({
   taskResult,
   workReport,
   evidenceReport,
+  incidentPack,
+  proofPack,
+  runCompareReport,
   availableRunsError,
   baselineRunId,
   onBaselineRunIdChange,
@@ -302,6 +308,9 @@ export default function RunDetailDetailPanel({
           <ReportSnapshotSection title="Task result" data={toObject(taskResult)} />
           <ReportSnapshotSection title="Work report" data={toObject(workReport)} />
           <ReportSnapshotSection title="Evidence report" data={toObject(evidenceReport)} />
+          <ReportSnapshotSection title="Incident pack" data={toObject(incidentPack)} />
+          <ReportSnapshotSection title="Proof pack" data={toObject(proofPack)} />
+          <ReportSnapshotSection title="Run compare report" data={toObject(runCompareReport)} />
           <div className="run-detail-section">
             <strong data-testid="replay-controls-title">Replay controls</strong>
             {availableRunsLoading ? (
@@ -347,6 +356,11 @@ export default function RunDetailDetailPanel({
           <div className="run-detail-section">
             <strong>Replay report</strong>
             <p className="mono muted">{describeReportData(toObject(replayReport))}</p>
+            {Object.keys(toObject(runCompareReport)).length > 0 ? (
+              <div className="mono muted">
+                Compare summary: {JSON.stringify(toObject(runCompareReport).compare_summary || {}, null, 2)}
+              </div>
+            ) : null}
             {Object.keys(toObject(replayReport)).length > 0 ? (
               <details>
                 <summary className="mono">Expand JSON</summary>

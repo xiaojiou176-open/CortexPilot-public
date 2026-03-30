@@ -26,6 +26,16 @@ class ReleaseLocksPayload(BaseModel):
     paths: list[str]
 
 
+class QueueRunPayload(BaseModel):
+    priority: int = 0
+    scheduled_at: str | None = None
+    deadline_at: str | None = None
+
+
+class QueueRunNextPayload(BaseModel):
+    mock: bool = False
+
+
 def _route_deps_not_configured_http_error(exc: api_deps.RouteDepsNotConfiguredError, *, operation: str) -> HTTPException:
     return HTTPException(
         status_code=503,
@@ -87,6 +97,36 @@ def list_runs(
         return runs_deps.list_runs()
     except api_deps.RouteDepsNotConfiguredError as exc:
         raise _route_deps_not_configured_http_error(exc, operation="list_runs") from exc
+
+
+@router.get("/queue")
+def list_queue(
+    workflow_id: str | None = None,
+    status: str | None = None,
+    runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
+) -> list[dict[str, Any]]:
+    return runs_deps.list_queue(workflow_id=workflow_id, status=status)
+
+
+@router.post("/queue/from-run/{run_id}")
+def enqueue_run_queue(
+    run_id: str,
+    payload: QueueRunPayload,
+    request: Request,
+    runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
+) -> dict[str, Any]:
+    _enforce_mutation_rbac(request)
+    return runs_deps.enqueue_run_queue(_validated_run_id(run_id), payload.model_dump())
+
+
+@router.post("/queue/run-next")
+def run_next_queue(
+    payload: QueueRunNextPayload,
+    request: Request,
+    runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
+) -> dict[str, Any]:
+    _enforce_mutation_rbac(request)
+    return runs_deps.run_next_queue(payload.model_dump())
 
 
 @router.get("/workflows")

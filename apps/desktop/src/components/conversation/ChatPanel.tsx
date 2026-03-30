@@ -1,9 +1,15 @@
 import { lazy, Suspense, type RefObject } from "react";
 import { ArrowUp } from "lucide-react";
 import { Button } from "../ui/Button";
-import { Textarea } from "../ui/Input";
+import { Input, Select, Textarea } from "../ui/Input";
 import { OnboardingBanner } from "./OnboardingBanner";
 import { renderChatEmbed, type ChatMessage, type Workspace } from "../../lib/desktopUi";
+import {
+  GENERAL_TASK_TEMPLATE,
+  type ExecutionPlanReport,
+  type TaskPackFieldDefinition,
+  type TaskPackManifest,
+} from "../../lib/types";
 
 const LazyMarkdownMessage = lazy(async () => {
   const module = await import("./MarkdownMessage");
@@ -48,8 +54,20 @@ type ChatPanelProps = {
   creatingFirstSession: boolean;
   firstSessionBootstrapError: string;
   firstSessionAllowedPath: string;
+  taskPacks?: TaskPackManifest[];
+  taskPacksLoading?: boolean;
+  taskPacksError?: string;
+  taskTemplate?: string;
+  onTaskTemplateChange?: (value: string) => void;
+  selectedTaskPack?: TaskPackManifest | null;
+  taskPackFieldValues?: Record<string, string>;
+  onTaskPackFieldChange?: (fieldId: string, value: string) => void;
+  executionPlanPreview?: ExecutionPlanReport | null;
+  executionPlanPreviewLoading?: boolean;
+  executionPlanPreviewError?: string;
   onCreateFirstSession: () => void;
   onOpenSessionFallback: () => void;
+  onPreviewFirstSession?: () => void;
   chooseDecision: (messageId: string, embedId: string, optionId: string) => void;
   recoverableDraft: { key: string; value: string } | null;
   restoreDraft: () => void;
@@ -94,8 +112,20 @@ export function ChatPanel({
   creatingFirstSession,
   firstSessionBootstrapError,
   firstSessionAllowedPath,
+  taskPacks = [],
+  taskPacksLoading = false,
+  taskPacksError = "",
+  taskTemplate = GENERAL_TASK_TEMPLATE,
+  onTaskTemplateChange = () => {},
+  selectedTaskPack = null,
+  taskPackFieldValues = {},
+  onTaskPackFieldChange = () => {},
+  executionPlanPreview = null,
+  executionPlanPreviewLoading = false,
+  executionPlanPreviewError = "",
   onCreateFirstSession,
   onOpenSessionFallback,
+  onPreviewFirstSession,
   chooseDecision,
   recoverableDraft,
   restoreDraft,
@@ -138,6 +168,53 @@ export function ChatPanel({
     } else if (!activeSessionGenerating && !composerInput.trim()) {
       setComposerInput("/run");
     }
+  }
+
+  function renderTaskPackField(field: TaskPackFieldDefinition) {
+    const fieldValue = taskPackFieldValues[field.field_id] ?? "";
+    if (field.control === "textarea") {
+      return (
+        <label key={field.field_id} className="row-start-gap-2">
+          <span className="mono text-sm fw-500">{field.label}</span>
+          <Textarea
+            value={fieldValue}
+            onChange={(event) => onTaskPackFieldChange(field.field_id, event.target.value)}
+            rows={field.field_id === "sources" ? 4 : 3}
+            placeholder={field.placeholder}
+          />
+          {field.help_text ? <span className="shortcut-hint">{field.help_text}</span> : null}
+        </label>
+      );
+    }
+    if (field.control === "select") {
+      return (
+        <label key={field.field_id} className="row-start-gap-2">
+          <span className="mono text-sm fw-500">{field.label}</span>
+          <Select value={fieldValue} onChange={(event) => onTaskPackFieldChange(field.field_id, event.target.value)}>
+            {(field.options || []).map((option) => (
+              <option key={`${field.field_id}-${option.value}`} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </Select>
+          {field.help_text ? <span className="shortcut-hint">{field.help_text}</span> : null}
+        </label>
+      );
+    }
+    return (
+      <label key={field.field_id} className="row-start-gap-2">
+        <span className="mono text-sm fw-500">{field.label}</span>
+        <Input
+          type={field.control === "number" ? "number" : field.control === "url" ? "url" : "text"}
+          min={field.control === "number" ? field.min : undefined}
+          max={field.control === "number" ? field.max : undefined}
+          value={fieldValue}
+          onChange={(event) => onTaskPackFieldChange(field.field_id, event.target.value)}
+          placeholder={field.placeholder}
+        />
+        {field.help_text ? <span className="shortcut-hint">{field.help_text}</span> : null}
+      </label>
+    );
   }
 
   return (
@@ -196,14 +273,67 @@ export function ChatPanel({
           {!activeSessionId ? (
             <section className="workspace-empty" aria-label="First-session empty state">
               <h2>Create the first session in desktop before sending a request</h2>
-              <p>Desktop submits the smallest intake: <code>objective</code> + <code>allowed_paths</code>.</p>
+              <p>Desktop submits either the smallest intake (<code>objective</code> + <code>allowed_paths</code>) or a selected task-pack payload.</p>
               <p className="shortcut-hint">Default <code>allowed_paths</code>: <code>{firstSessionAllowedPath}</code></p>
+              {taskPacksError ? (
+                <p className="composer-state-note" role="alert">
+                  {taskPacksError}
+                </p>
+              ) : null}
+              <div className="row-start-gap-2">
+                <label className="row-start-gap-2">
+                  <span className="mono text-sm fw-500">Task pack</span>
+                  <Select
+                    value={taskTemplate}
+                    onChange={(event) => onTaskTemplateChange(event.target.value)}
+                    aria-label="Desktop task pack"
+                  >
+                    {taskPacksLoading ? <option value={taskTemplate}>Loading task packs...</option> : null}
+                    {taskPacks.map((pack) => (
+                      <option key={pack.pack_id} value={pack.task_template}>
+                        {pack.ui_hint?.default_label || pack.task_template}
+                      </option>
+                    ))}
+                    <option value={GENERAL_TASK_TEMPLATE}>{GENERAL_TASK_TEMPLATE}</option>
+                  </Select>
+                </label>
+                {selectedTaskPack ? (
+                  <>
+                    <p className="shortcut-hint">{selectedTaskPack.description}</p>
+                    {selectedTaskPack.evidence_contract?.primary_report ? (
+                      <p className="shortcut-hint">Primary report: {selectedTaskPack.evidence_contract.primary_report}</p>
+                    ) : null}
+                    <div className="stack-gap-3">
+                      {selectedTaskPack.input_fields.map((field) => renderTaskPackField(field))}
+                    </div>
+                  </>
+                ) : null}
+              </div>
               {firstSessionBootstrapError ? (
                 <p className="composer-state-note" role="alert" aria-live="assertive">
                   {firstSessionBootstrapError}
                 </p>
               ) : null}
+              {executionPlanPreviewError ? (
+                <p className="composer-state-note" role="alert" aria-live="assertive">
+                  {executionPlanPreviewError}
+                </p>
+              ) : null}
+              {executionPlanPreview ? (
+                <div className="stack-gap-2" aria-label="Desktop Flight Plan preview">
+                  <p className="shortcut-hint"><strong>Flight Plan:</strong> {executionPlanPreview.summary}</p>
+                  {executionPlanPreview.predicted_reports?.length ? (
+                    <p className="shortcut-hint">Predicted reports: {executionPlanPreview.predicted_reports.join(", ")}</p>
+                  ) : null}
+                  {executionPlanPreview.warnings?.length ? (
+                    <p className="shortcut-hint">Warnings: {executionPlanPreview.warnings.join(" | ")}</p>
+                  ) : null}
+                </div>
+              ) : null}
               <div className="quick-actions">
+                <Button variant="secondary" onClick={onPreviewFirstSession} disabled={isOffline || executionPlanPreviewLoading}>
+                  {executionPlanPreviewLoading ? "Previewing Flight Plan..." : "Preview Flight Plan"}
+                </Button>
                 <Button variant="primary" onClick={onCreateFirstSession} disabled={isOffline || creatingFirstSession}>
                   {creatingFirstSession ? "Creating the first session in desktop..." : "Create first session in desktop"}
                 </Button>

@@ -27,8 +27,10 @@ export declare const FRONTEND_API_CONTRACT: {
   readonly paths: {
     readonly commandTowerOverview: "/api/command-tower/overview";
     readonly commandTowerAlerts: "/api/command-tower/alerts";
+    readonly queue: "/api/queue";
     readonly pmSessions: "/api/pm/sessions";
     readonly pmSessionMessages: "/api/pm/sessions/{pm_session_id}/messages";
+    readonly workflows: "/api/workflows";
   };
 };
 export declare const PM_SESSION_SORT_OPTIONS: readonly ["updated_desc", "created_desc", "failed_desc", "blocked_desc"];

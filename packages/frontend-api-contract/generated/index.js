@@ -32,8 +32,10 @@ export const FRONTEND_API_CONTRACT = {
   "paths": {
     "commandTowerOverview": "/api/command-tower/overview",
     "commandTowerAlerts": "/api/command-tower/alerts",
+    "queue": "/api/queue",
     "pmSessions": "/api/pm/sessions",
-    "pmSessionMessages": "/api/pm/sessions/{pm_session_id}/messages"
+    "pmSessionMessages": "/api/pm/sessions/{pm_session_id}/messages",
+    "workflows": "/api/workflows"
   }
 };
 

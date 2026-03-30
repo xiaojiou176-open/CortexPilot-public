@@ -3,6 +3,7 @@ import {
   answerIntake,
   approveGodMode,
   createIntake,
+  fetchTaskPacks,
   fetchAgentStatus,
   fetchAgents,
   fetchAllEvents,
@@ -24,6 +25,7 @@ import {
   fetchPmSessionMetrics,
   fetchPmSessions,
   fetchPolicies,
+  fetchQueue,
   fetchReports,
   fetchRun,
   fetchRuns,
@@ -35,12 +37,14 @@ import {
   fetchWorkflow,
   fetchWorkflows,
   fetchWorktrees,
+  enqueueRunQueue,
   openEventsStream,
   postPmSessionMessage,
   promoteEvidence,
   rejectRun,
   replayRun,
   rollbackRun,
+  runNextQueue,
   runIntake,
   postDesktopPmMessage
 } from "./api";
@@ -89,6 +93,20 @@ describe("desktop api client", () => {
 
   it("fetches alerts payload", async () => {
     await expect(fetchDesktopAlerts()).resolves.toMatchObject({ alerts: [{ code: "A" }] });
+  });
+
+  it("fetches task packs payload", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: string | URL | Request) => {
+        const raw = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+        if (raw.includes("/api/pm/task-packs")) {
+          return jsonResponse([{ pack_id: "news_digest", task_template: "news_digest" }]);
+        }
+        return jsonResponse({}, 404);
+      }),
+    );
+    await expect(fetchTaskPacks()).resolves.toHaveLength(1);
   });
 
   it("throws on non-200 response", async () => {
@@ -491,8 +509,11 @@ describe("desktop api client", () => {
     await fetchPolicies();
     await fetchLocks();
     await fetchWorktrees();
+    await fetchQueue();
     await fetchWorkflows();
     await fetchWorkflow("wf/1");
+    await enqueueRunQueue("run/1", { priority: 3 });
+    await runNextQueue();
     await fetchPmSession("pm/1");
     await fetchPmSessionMetrics("pm/1");
     await fetchCommandTowerOverview();
@@ -505,6 +526,9 @@ describe("desktop api client", () => {
     );
     expect(urls.some((url) => url.includes("/api/runs/run%2F1/diff"))).toBe(true);
     expect(urls.some((url) => url.includes("/api/runs/run%2F1/artifacts?name=artifact%20with%20space"))).toBe(true);
+    expect(urls.some((url) => url.includes("/api/queue"))).toBe(true);
+    expect(urls.some((url) => url.includes("/api/queue/from-run/run%2F1"))).toBe(true);
+    expect(urls.some((url) => url.includes("/api/queue/run-next"))).toBe(true);
     expect(urls.some((url) => url.includes("/api/workflows/wf%2F1"))).toBe(true);
     expect(urls.some((url) => url.includes("/api/pm/sessions/pm%2F1"))).toBe(true);
     expect(urls.some((url) => url.includes("/api/pm/intake/intake%2F1/run"))).toBe(true);
