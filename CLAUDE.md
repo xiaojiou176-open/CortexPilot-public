@@ -54,6 +54,11 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   cleanup inventory consistency checks, and the rule that `~/.cache/cortexpilot`
   is the repo-external strong-related root while shared ecosystem layers stay
   observe-only
+- when workflow-case / proof-pack / compare / task-pack / queue-scheduling
+  contracts change, sync the root AI/docs entrypoints in the same patch; the
+  current examples are `.runtime-cache/cortexpilot/workflow-cases/`,
+  `proof_pack.json`, dedicated run-compare surfaces, desktop Flight Plan
+  preview, and timezone-safe queue scheduling inputs
 
 ## Key Commands
 

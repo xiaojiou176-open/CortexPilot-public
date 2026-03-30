@@ -6,6 +6,10 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- shipped workflow-case snapshots, proof packs, dedicated run-compare surfaces,
+  desktop Flight Plan preview, and timezone-safe queue scheduling inputs across
+  orchestrator/dashboard/desktop while syncing schema registry, runtime policy,
+  and repo-side verification coverage
 - closed the public hosted-first loop by moving sensitive verification lanes onto protected `workflow_dispatch` environments, aligning CI route validators/helpers with GitHub-hosted current truth, and syncing the root/module docs plus generated governance fragments with the live public collaboration contract
 - let self-hosted CI Docker lanes fall back to direct `bash scripts/docker_ci.sh ...`
   execution when passwordless sudo is unavailable, so `main` push jobs no
