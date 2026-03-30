@@ -295,13 +295,14 @@ Docker-heavy local CI residue now has its own operator lane:
 - `npm run docker:runtime:prune:aggressive`
 - `npm run docker:runtime:prune:aggressive:full`
 
-Use the Docker runtime lane for `cortexpilot-ci-core:local`, buildx cache, and
-stale builder/container residue. Keep `space:cleanup:wave*` focused on repo-
-local residue and the governed `~/.cache/cortexpilot` namespace. Aggressive
-cleanup skips images that still back running containers, and the `:full` variant
-adds repo-related named volume removal. The lane only applies cleanup to
-CortexPilot-owned images, containers, and repo-prefixed volumes; workstation-
-global Docker/cache totals remain audit-only observations.
+Use the Docker runtime lane for `cortexpilot-ci-core:local`,
+`cortexpilot-ci-desktop-native:local`, and stale repo container residue. Keep
+`space:cleanup:wave*` focused on repo-local residue and the governed
+`~/.cache/cortexpilot` namespace. Aggressive cleanup skips images that still
+back running containers, and the `:full` variant adds repo-related named volume
+removal. The lane only applies cleanup to CortexPilot-owned images, containers,
+and repo-prefixed volumes; workstation-global Docker/cache totals remain
+audit-only observations.
 When one closeout patch touches both dashboard and desktop packaging, expect the
 root AI/docs entrypoints and the module READMEs to move together so doc-sync
 gates can trace the maintenance decision end to end.

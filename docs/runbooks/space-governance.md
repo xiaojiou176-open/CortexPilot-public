@@ -55,9 +55,10 @@ npm run docker:runtime:prune:aggressive:full
 
 Current semantics:
 
-- `docker:runtime:audit` reports `cortexpilot-ci-core:local`, stopped
-  containers derived from that image, repo-related named volumes, and a
-  workstation-global Docker summary for observation only
+- `docker:runtime:audit` reports `cortexpilot-ci-core:local`,
+  `cortexpilot-ci-desktop-native:local`, stopped containers derived from those
+  images, repo-related named volumes, and a workstation-global Docker summary
+  for observation only
 - `docker:runtime:prune:rebuildable` removes stopped CortexPilot-owned
   containers only
 - `docker:runtime:prune:aggressive` extends rebuildable cleanup and may also
@@ -91,13 +92,15 @@ totals remain observation-only and are not apply targets for this lane.
   - `npm run docker:runtime:prune:aggressive`
   - `npm run docker:runtime:prune:aggressive:full`
 - Lane semantics:
-  - `audit` inventories CortexPilot-owned images, exited repo containers,
-    repo-related named volumes, and a workstation-global Docker summary that is
-    explicitly observation-only.
+  - `audit` inventories `cortexpilot-ci-core:local`,
+    `cortexpilot-ci-desktop-native:local`, exited repo containers, repo-related
+    named volumes, and a workstation-global Docker summary that is explicitly
+    observation-only.
   - `rebuildable` removes exited repo containers and keeps shared Docker/cache
     layers untouched.
-  - `aggressive` can additionally remove `cortexpilot-ci-core:local` when it is
-    not backing a running container.
+  - `aggressive` can additionally remove `cortexpilot-ci-core:local` and
+    `cortexpilot-ci-desktop-native:local` when they are not backing running
+    containers.
   - `aggressive:full` extends `aggressive` by also removing repo-related named
     volumes that match the configured prefix.
 - A blocked gate means stop.

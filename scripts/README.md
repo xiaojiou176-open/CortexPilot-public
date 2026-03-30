@@ -44,8 +44,9 @@ user's ambient Python environment.
   runners that can invoke Docker without an interactive sudo prompt.
 - `prune_docker_runtime.sh` is the dedicated Docker runtime lane helper for
   CortexPilot-owned local CI residue. It can remove stopped containers for the
-  canonical local CI images and optional repo-prefixed volumes, while keeping
-  workstation-global Docker/cache totals strictly observation-only.
+  canonical core and desktop-native local CI images plus optional repo-prefixed
+  volumes, while keeping workstation-global Docker/cache totals strictly
+  observation-only.
 - `e2e_external_web_probe.py` no longer persists `run_id` in its JSON status
   and report artifacts; its JSON writer helpers no longer accept `run_id` as an
   input, and probe receipts now persist epoch timing fields, stage/category

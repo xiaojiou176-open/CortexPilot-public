@@ -25,6 +25,7 @@ dry_run=0
 mode=""
 include_image=0
 include_volumes=0
+aggressive_requested=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -36,6 +37,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --aggressive)
       mode="aggressive"
+      aggressive_requested=1
       ;;
     --include-image)
       include_image=1
@@ -65,7 +67,7 @@ if [[ -z "$mode" ]]; then
   fi
 fi
 
-if [[ "$mode" != "aggressive" ]] && (( include_image == 1 || include_volumes == 1 )); then
+if (( aggressive_requested == 0 )) && (( include_image == 1 || include_volumes == 1 )); then
   echo "--include-image/--include-volumes require --aggressive" >&2
   exit 2
 fi
