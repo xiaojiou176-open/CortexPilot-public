@@ -9,6 +9,15 @@ import { Input } from "../components/ui/Input";
 
 type Props = { workflowId: string; onBack: () => void; onNavigateToRun: (runId: string) => void };
 
+function toUtcIsoOrEmpty(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "";
+  }
+  const parsed = new Date(trimmed);
+  return Number.isNaN(parsed.getTime()) ? "" : parsed.toISOString();
+}
+
 export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Props) {
   const [data, setData] = useState<WorkflowDetailPayload | null>(null);
   const [queueItems, setQueueItems] = useState<QueueItemRecord[]>([]);
@@ -49,10 +58,10 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
         payload.priority = priority;
       }
       if (queueScheduledAt.trim()) {
-        payload.scheduled_at = queueScheduledAt.trim();
+        payload.scheduled_at = toUtcIsoOrEmpty(queueScheduledAt);
       }
       if (queueDeadlineAt.trim()) {
-        payload.deadline_at = queueDeadlineAt.trim();
+        payload.deadline_at = toUtcIsoOrEmpty(queueDeadlineAt);
       }
       const result = await enqueueRunQueue(latestRunId, payload);
       setQueueNotice(`Queued ${String(result.task_id || latestRunId)}.`);

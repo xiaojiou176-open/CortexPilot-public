@@ -24,9 +24,12 @@ def _parse_iso_ts(raw: Any) -> datetime | None:
         return None
     try:
         normalized = value.replace("Z", "+00:00")
-        return datetime.fromisoformat(normalized)
+        parsed = datetime.fromisoformat(normalized)
     except ValueError:
         return None
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        return None
+    return parsed.astimezone(timezone.utc)
 
 
 def _coerce_priority(raw: Any) -> int:

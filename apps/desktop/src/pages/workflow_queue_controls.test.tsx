@@ -71,11 +71,14 @@ describe("workflow queue controls", () => {
     fireEvent.change(screen.getByLabelText("Queue deadline at"), { target: { value: "2026-03-30T13:00" } });
     fireEvent.click(screen.getByRole("button", { name: "Queue latest run contract" }));
     await waitFor(() => {
-      expect(enqueueRunQueue).toHaveBeenCalledWith("run-001", {
-        priority: 3,
-        scheduled_at: "2026-03-30T12:00",
-        deadline_at: "2026-03-30T13:00",
-      });
+      expect(enqueueRunQueue).toHaveBeenCalledWith(
+        "run-001",
+        expect.objectContaining({
+          priority: 3,
+          scheduled_at: expect.stringMatching(/Z$/),
+          deadline_at: expect.stringMatching(/Z$/),
+        }),
+      );
     });
     expect(await screen.findByText("Queued task-queue.")).toBeInTheDocument();
   });

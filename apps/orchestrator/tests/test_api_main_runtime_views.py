@@ -209,6 +209,40 @@ def test_api_queue_list_enqueue_and_run_next(tmp_path: Path, monkeypatch) -> Non
     assert run_next.json()["run_id"] == "run_from_queue"
 
 
+def test_api_queue_rejects_naive_schedule_input(tmp_path: Path, monkeypatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    runs_root = runtime_root / "runs"
+    monkeypatch.setenv("CORTEXPILOT_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+
+    run_dir = runs_root / "run_source"
+    _write_manifest(
+        run_dir,
+        {
+            "run_id": "run_source",
+            "task_id": "task_source",
+            "status": "SUCCESS",
+            "workflow": {"workflow_id": "wf-queue", "task_queue": "cortexpilot-orch", "namespace": "default", "status": "SUCCESS"},
+        },
+    )
+    _write_contract(
+        run_dir,
+        {
+            "task_id": "task_source",
+            "owner_agent": {"agent_id": "agent-1", "role": "WORKER"},
+            "allowed_paths": ["apps/dashboard"],
+        },
+    )
+
+    client = TestClient(api_main.app)
+    enqueue = client.post(
+        "/api/queue/from-run/run_source",
+        json={"priority": 5, "scheduled_at": "2026-03-30T12:00"},
+        headers={"x-cortexpilot-role": "OWNER"},
+    )
+    assert enqueue.status_code == 422
+
+
 def test_api_reports_include_proof_pack_for_successful_public_slice(tmp_path: Path, monkeypatch) -> None:
     runtime_root = tmp_path / "runtime"
     runs_root = runtime_root / "runs"

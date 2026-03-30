@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import logging
 import os
+from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from cortexpilot_orch.api import deps as api_deps
 from cortexpilot_orch.api import main_run_views_helpers
@@ -30,6 +31,23 @@ class QueueRunPayload(BaseModel):
     priority: int = 0
     scheduled_at: str | None = None
     deadline_at: str | None = None
+
+    @field_validator("scheduled_at", "deadline_at")
+    @classmethod
+    def _validate_aware_iso_ts(cls, value: str | None) -> str | None:
+        if value is None:
+            return value
+        text = value.strip()
+        if not text:
+            return None
+        normalized = text.replace("Z", "+00:00")
+        try:
+            parsed = datetime.fromisoformat(normalized)
+        except ValueError as exc:
+            raise ValueError("queue timestamps must be valid ISO-8601 strings") from exc
+        if parsed.tzinfo is None or parsed.utcoffset() is None:
+            raise ValueError("queue timestamps must include an explicit timezone offset or Z suffix")
+        return text
 
 
 class QueueRunNextPayload(BaseModel):

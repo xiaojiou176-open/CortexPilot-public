@@ -100,3 +100,23 @@ def test_queue_store_respects_priority_and_schedule(tmp_path: Path, monkeypatch:
     assert items["task-future"]["eligible"] is False
     assert items["task-future"]["sla_state"] == "scheduled"
     assert items["task-breached"]["sla_state"] == "breached"
+
+
+def test_queue_store_treats_naive_schedule_values_as_unset(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+
+    store = QueueStore()
+    contract_path = tmp_path / "contract.json"
+    contract_path.write_text(json.dumps(_valid_contract()), encoding="utf-8")
+
+    store.enqueue(
+        contract_path,
+        "task-naive",
+        owner="agent-1",
+        metadata={"scheduled_at": "2026-03-30T12:00", "deadline_at": "2026-03-30T13:00"},
+    )
+
+    item = store.list_items()[0]
+    assert item["eligible"] is True
+    assert item["sla_state"] == "on_track"
