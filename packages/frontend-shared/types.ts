@@ -167,7 +167,7 @@ export type OperatorCopilotBrief = {
   report_type: "operator_copilot_brief";
   generated_at: string;
   scope?: "run" | "workflow" | "flight_plan";
-  subject_id?: string;
+  subject_id: string;
   run_id?: string;
   workflow_id?: string;
   intake_id?: string;

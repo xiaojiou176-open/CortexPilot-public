@@ -50,12 +50,14 @@ export default function OperatorCopilotPanel({
     setLoading(true);
     setError("");
     try {
+      const workflowIdStr = String(workflowId || "").trim();
+      const runIdStr = String(runId || "").trim();
       const payload = await (
         onGenerate
           ? onGenerate()
-          : workflowId
-          ? fetchWorkflowCopilotBrief(String(workflowId || "").trim())
-          : fetchOperatorCopilotBrief(String(runId || "").trim())
+          : workflowIdStr
+          ? fetchWorkflowCopilotBrief(workflowIdStr)
+          : fetchOperatorCopilotBrief(runIdStr)
       );
       setBrief(payload);
     } catch (cause) {

@@ -500,6 +500,13 @@ def _rollback_run_handler(run_id: str) -> dict:
     return result
 
 
+def list_pending_approvals() -> list[dict]:
+    return routes_admin.collect_pending_approvals(
+        runs_root=_runs_root(),
+        read_events_fn=_read_events,
+    )
+
+
 _runs_handler_map = main_runs_handlers.build_runs_handlers(
     runs_root_fn=_runs_root,
     load_contract_fn=_load_contract,
@@ -515,7 +522,7 @@ _runs_handler_map = main_runs_handlers.build_runs_handlers(
     read_artifact_fn=_read_artifact_file,
     read_report_fn=_read_report_file,
     extract_search_queries_fn=_extract_search_queries,
-    list_pending_approvals_fn=lambda: list_pending_approvals(),
+    list_pending_approvals_fn=list_pending_approvals,
     promote_evidence_fn=_promote_evidence,
     orchestration_service_fn=lambda: _orchestration_service,
     load_config_fn=load_config,
@@ -700,13 +707,6 @@ main_pm_intake_helpers.configure_routes(
 )
 app.include_router(routes_pm.router)
 app.include_router(routes_intake.router)
-
-
-def list_pending_approvals() -> list[dict]:
-    return routes_admin.collect_pending_approvals(
-        runs_root=_runs_root(),
-        read_events_fn=_read_events,
-    )
 
 
 def approve_god_mode(payload: dict) -> dict:

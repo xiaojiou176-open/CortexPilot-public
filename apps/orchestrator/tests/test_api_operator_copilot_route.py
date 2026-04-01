@@ -69,6 +69,7 @@ def test_api_operator_copilot_brief_route_returns_grounded_brief(tmp_path: Path,
     assert response.status_code == 200
     payload = response.json()
     assert payload["report_type"] == "operator_copilot_brief"
+    assert payload["subject_id"] == "wf-operator"
     assert payload["run_id"] == "run_operator"
     assert payload["workflow_id"] == "wf-operator"
     assert payload["status"] == "OK"
@@ -128,20 +129,18 @@ def test_api_workflow_operator_copilot_brief_route_returns_grounded_brief(tmp_pa
     assert response.status_code == 200
     payload = response.json()
     assert payload["scope"] == "workflow"
+    assert payload["subject_id"] == "wf-operator"
     assert payload["workflow_id"] == "wf-operator"
     assert payload["status"] == "OK"
 
 
 def test_api_preview_intake_copilot_brief_route_returns_advisory_brief(monkeypatch) -> None:
     monkeypatch.setattr(
-        "cortexpilot_orch.services.operator_copilot._build_ai_brief",
+        "cortexpilot_orch.services.operator_copilot._build_ai_flight_plan_brief",
         lambda _prompt: {
             "summary": "The current Flight Plan is safe to review but still has one approval gate to confirm.",
-            "likely_cause": "Manual approval is the dominant pre-run risk gate.",
-            "compare_takeaway": "Search and approval triggers exist because this plan needs external evidence and a protected path.",
-            "proof_takeaway": "The plan already predicts reports and artifacts that should be reviewed before execution.",
-            "incident_takeaway": "The first likely failure point is a policy mismatch before execution starts.",
-            "queue_takeaway": "The scope boundary stays inside apps/dashboard.",
+            "risk_takeaway": "Manual approval is the main pre-run risk gate.",
+            "capability_takeaway": "Search and approval triggers exist because this plan needs external evidence and a protected execution path.",
             "approval_takeaway": "Manual approval is likely before completion.",
             "recommended_actions": ["Confirm the approval expectation before starting execution."],
             "top_risks": ["Manual approval likely"],
@@ -176,21 +175,19 @@ def test_api_preview_intake_copilot_brief_route_returns_advisory_brief(monkeypat
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["scope"] == "flight_plan"
-    assert payload["intake_id"] == "pm-1"
+    assert payload["report_type"] == "flight_plan_copilot_brief"
+    assert payload["risk_takeaway"] == "Manual approval is the main pre-run risk gate."
+    assert payload["capability_takeaway"].startswith("Search and approval triggers exist")
     assert payload["status"] == "OK"
 
 
 def test_api_preview_operator_copilot_brief_route_returns_advisory_brief(monkeypatch) -> None:
     monkeypatch.setattr(
-        "cortexpilot_orch.services.operator_copilot._build_ai_brief",
+        "cortexpilot_orch.services.operator_copilot._build_ai_flight_plan_brief",
         lambda _prompt: {
             "summary": "The Flight Plan is ready for review but still has one approval gate before execution.",
-            "likely_cause": "Manual approval is the main pre-run risk gate.",
-            "compare_takeaway": "Search and browser triggers exist because the plan needs evidence collection.",
-            "proof_takeaway": "Expected reports and artifacts are defined before execution starts.",
-            "incident_takeaway": "The first likely failure point is an approval or policy mismatch.",
-            "queue_takeaway": "The scope boundary stays narrow and should be confirmed first.",
+            "risk_takeaway": "Manual approval is the main pre-run risk gate.",
+            "capability_takeaway": "Search and browser triggers exist because the plan needs evidence collection.",
             "approval_takeaway": "A human should confirm approval posture before starting execution.",
             "recommended_actions": ["Confirm the highest-risk gate before the first run."],
             "top_risks": ["Manual approval likely"],
@@ -224,6 +221,7 @@ def test_api_preview_operator_copilot_brief_route_returns_advisory_brief(monkeyp
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["report_type"] == "operator_copilot_brief"
-    assert payload["scope"] == "flight_plan"
+    assert payload["report_type"] == "flight_plan_copilot_brief"
+    assert payload["risk_takeaway"] == "Manual approval is the main pre-run risk gate."
+    assert payload["capability_takeaway"].startswith("Search and browser triggers exist")
     assert payload["status"] == "OK"

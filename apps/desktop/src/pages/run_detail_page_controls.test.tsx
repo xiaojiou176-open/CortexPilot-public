@@ -231,6 +231,29 @@ describe("RunDetailPage p0 controls", () => {
     await waitFor(() => expect(replayRun).toHaveBeenCalledWith("run-001", undefined));
   }, 10000);
 
+  it("interprets compare summary via numeric counts instead of string matching", async () => {
+    const user = userEvent.setup();
+    vi.mocked(fetchReports).mockResolvedValueOnce([
+      {
+        name: "run_compare_report.json",
+        data: {
+          compare_summary: {
+            extra_count: 0,
+            missing_count: 0,
+            mismatched_count: 0,
+            note: "all clear",
+          },
+        },
+      },
+    ] as any);
+
+    render(<RunDetailPage runId="run-compare-clean" onBack={vi.fn()} />);
+
+    expect(await screen.findByRole("heading", { name: "run-001" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Replay compare/ }));
+    expect(await screen.findByText("The current run looks aligned with the selected baseline.")).toBeInTheDocument();
+  });
+
   it("covers error state retry/back controls", async () => {
     const user = userEvent.setup();
     const onBack = vi.fn();

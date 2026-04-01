@@ -386,7 +386,7 @@ def preview_intake_copilot_brief(
     error_detail_fn: Callable[[str], dict[str, str]],
     current_request_id_fn: Callable[[], str],
 ) -> dict:
-    from cortexpilot_orch.services.operator_copilot import generate_execution_plan_operator_copilot_brief
+    from cortexpilot_orch.services.operator_copilot import generate_execution_plan_copilot_brief
 
     try:
         preview_payload = payload
@@ -395,11 +395,8 @@ def preview_intake_copilot_brief(
         if not isinstance(preview_payload, dict):
             raise ValueError("`preview` must be an object")
         preview_payload = dict(preview_payload)
-        intake_id = ""
-        if isinstance(payload, dict):
-            intake_id = str(payload.get("intake_id") or "").strip()
         preview_payload.pop("intake_id", None)
-        return generate_execution_plan_operator_copilot_brief(preview_payload, intake_id=intake_id)
+        return generate_execution_plan_copilot_brief(preview_payload)
     except HTTPException:
         raise
     except ValueError as exc:

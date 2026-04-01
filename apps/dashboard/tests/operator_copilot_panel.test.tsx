@@ -3,10 +3,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../lib/api", () => ({
   fetchOperatorCopilotBrief: vi.fn(),
+  fetchWorkflowCopilotBrief: vi.fn(),
 }));
 
 import OperatorCopilotPanel from "../components/control-plane/OperatorCopilotPanel";
-import { fetchOperatorCopilotBrief } from "../lib/api";
+import { fetchOperatorCopilotBrief, fetchWorkflowCopilotBrief } from "../lib/api";
 
 describe("operator copilot panel", () => {
   beforeEach(() => {
@@ -46,5 +47,49 @@ describe("operator copilot panel", () => {
     expect(screen.getByText("The run is blocked by a governance gate and needs review.")).toBeInTheDocument();
     expect(screen.getByText("A diff gate rejection is the dominant blocker.")).toBeInTheDocument();
     expect(screen.getByText("Best next action")).toBeInTheDocument();
+  });
+
+  it("uses a trimmed workflow id before choosing the workflow brief path", async () => {
+    vi.mocked(fetchWorkflowCopilotBrief).mockResolvedValue({
+      report_type: "operator_copilot_brief",
+      generated_at: "2026-03-31T12:00:00Z",
+      run_id: "run-1",
+      workflow_id: "wf-1",
+      status: "OK",
+      summary: "Workflow summary",
+      likely_cause: "Workflow cause",
+      compare_takeaway: "Compare takeaway",
+      proof_takeaway: "Proof takeaway",
+      incident_takeaway: "Incident takeaway",
+      queue_takeaway: "Queue takeaway",
+      approval_takeaway: "Approval takeaway",
+      recommended_actions: ["Do the next thing."],
+      top_risks: ["One risk"],
+      questions_answered: ["One question"],
+      used_truth_surfaces: ["workflow case"],
+      limitations: ["Explain only"],
+      provider: "gemini",
+      model: "gemini-2.5-flash",
+    } as never);
+
+    render(<OperatorCopilotPanel runId="run-1" workflowId="  wf-1  " />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Generate operator brief" }));
+
+    await waitFor(() => {
+      expect(fetchWorkflowCopilotBrief).toHaveBeenCalledWith("wf-1");
+    });
+    expect(fetchOperatorCopilotBrief).not.toHaveBeenCalled();
+  });
+
+  it("falls back to the run brief when workflow id is only whitespace", async () => {
+    render(<OperatorCopilotPanel runId="run-1" workflowId="   " />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Generate operator brief" }));
+
+    await waitFor(() => {
+      expect(fetchOperatorCopilotBrief).toHaveBeenCalledWith("run-1");
+    });
+    expect(fetchWorkflowCopilotBrief).not.toHaveBeenCalled();
   });
 });

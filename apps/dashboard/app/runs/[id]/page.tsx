@@ -35,6 +35,7 @@ export default async function RunDetailPage({
   const incidentPack = asRecord(reportList.find((item) => item?.name === "incident_pack.json")?.data);
   const proofPack = asRecord(reportList.find((item) => item?.name === "proof_pack.json")?.data);
   const compareSummary = asRecord(asRecord(reportList.find((item) => item?.name === "run_compare_report.json")?.data).compare_summary);
+  const hasCompareSummary = Object.keys(compareSummary).length > 0;
   const compareDeltaCount =
     asNumber(compareSummary.mismatched_count) +
     asNumber(compareSummary.missing_count) +
@@ -66,19 +67,23 @@ export default async function RunDetailPage({
             ]}
           />
         ) : null}
-        {(Object.keys(incidentPack).length > 0 || Object.keys(proofPack).length > 0 || Object.keys(compareSummary).length > 0) ? (
+        {(Object.keys(incidentPack).length > 0 || Object.keys(proofPack).length > 0 || hasCompareSummary) ? (
           <div className="grid grid-3">
             <Card>
               <h3>Compare decision</h3>
               <p className="muted">
-                {Object.keys(compareSummary).length === 0
+                {!hasCompareSummary
                   ? "No structured compare report is attached yet."
                   : compareDeltaCount === 0
                   ? "Current run looks aligned with the selected baseline."
                   : "Compare found deltas that need operator review before you trust this run."}
               </p>
               <p className="mono">
-                Next step: {compareDeltaCount === 0 ? "Review proof and finalize the outcome." : "Open compare and decide whether to replay, investigate, or keep the run blocked."}
+                Next step: {!hasCompareSummary
+                  ? "Generate or refresh a compare report for this run."
+                  : compareDeltaCount === 0
+                  ? "Review proof and finalize the outcome."
+                  : "Open compare and decide whether to replay, investigate, or keep the run blocked."}
               </p>
             </Card>
             <Card>

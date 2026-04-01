@@ -23,8 +23,12 @@ export function statusLabel(status: string | undefined | null, locale: string | 
   return statusLabelFromCanonical(toCanonicalStatusFuzzy(status), normalizeUiLocale(locale));
 }
 
-export function statusLabelZh(status: string | undefined | null): string {
+export function statusLabelDefault(status: string | undefined | null): string {
   return statusLabel(status, DASHBOARD_DEFAULT_LOCALE);
+}
+
+export function statusLabelZh(status: string | undefined | null): string {
+  return statusLabel(status, "zh-CN");
 }
 
 export function statusVariant(status: string | undefined | null) {

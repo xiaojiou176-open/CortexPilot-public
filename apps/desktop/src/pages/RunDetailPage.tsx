@@ -41,8 +41,14 @@ type RunDetailPageProps = {
 };
 
 /* ─── helpers ─── */
+function asRecord(value: unknown): Record<string, JsonValue> {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, JsonValue>) : {};
+}
 function toArr<T>(v: T[] | undefined | null): T[] { return Array.isArray(v) ? v : []; }
 function toStr(v: unknown, fallback = "-"): string { return typeof v === "string" && v.trim() ? v.trim() : fallback; }
+function asNumber(value: JsonValue | undefined): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
 function eventDedupeKey(event: EventRecord): string {
   const maybeTrace = event.trace_id ?? "";
   const maybeTs = event.ts ?? "";
@@ -364,10 +370,15 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
   const evidenceReport = reports.find(r => r.name === "evidence_report.json")?.data;
   const incidentPack = reports.find(r => r.name === "incident_pack.json")?.data as Record<string, JsonValue> | undefined;
   const proofPack = reports.find(r => r.name === "proof_pack.json")?.data as Record<string, JsonValue> | undefined;
-  const runCompareReport = reports.find(r => r.name === "run_compare_report.json")?.data as Record<string, JsonValue> | undefined;
+  const runCompareReport = asRecord(reports.find(r => r.name === "run_compare_report.json")?.data);
+  const compareSummary = asRecord(runCompareReport.compare_summary);
   const chainReport = reports.find(r => r.name === "chain_report.json")?.data;
   const workReport = reports.find(r => r.name === "work_report.json")?.data;
   const taskResult = reports.find(r => r.name === "task_result.json")?.data;
+  const compareSummaryDeltaCount =
+    asNumber(compareSummary.mismatched_count) +
+    asNumber(compareSummary.missing_count) +
+    asNumber(compareSummary.extra_count);
   const traceId = toStr(run.manifest?.trace_id, toStr(run.manifest?.trace?.trace_id));
   const workflowId = toStr(run.manifest?.workflow?.workflow_id);
   const isTerminal = isTerminalStatus(run.status);
@@ -747,16 +758,14 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
                 <div className="collapsible-body"><pre>{JSON.stringify(replayResult, null, 2)}</pre></div>
               </details>
             )}
-            {runCompareReport?.compare_summary && (
+            {Object.keys(compareSummary).length > 0 && (
               <div className="grid-2">
                 <Card>
                   <CardHeader><CardTitle>Compare decision</CardTitle></CardHeader>
                   <CardBody>
                     <div className="stack-gap-2">
                       <p className="muted">
-                        {JSON.stringify(runCompareReport.compare_summary).includes("\"mismatched_count\":0") &&
-                        JSON.stringify(runCompareReport.compare_summary).includes("\"missing_count\":0") &&
-                        JSON.stringify(runCompareReport.compare_summary).includes("\"extra_count\":0")
+                        {compareSummaryDeltaCount === 0
                           ? "The current run looks aligned with the selected baseline."
                           : "Compare found at least one delta, so this run still needs operator review."}
                       </p>
@@ -776,13 +785,13 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
                 </Card>
               </div>
             )}
-            {runCompareReport?.compare_summary && (
+            {Object.keys(compareSummary).length > 0 && (
               <details className="collapsible" open>
                 <summary>Compare summary</summary>
-                <div className="collapsible-body"><pre>{JSON.stringify(runCompareReport.compare_summary, null, 2)}</pre></div>
+                <div className="collapsible-body"><pre>{JSON.stringify(compareSummary, null, 2)}</pre></div>
               </details>
             )}
-            {runCompareReport?.compare_summary && (
+            {Object.keys(compareSummary).length > 0 && (
               <Button variant="secondary" onClick={onOpenCompare}>Open compare surface</Button>
             )}
             {proofPack && (

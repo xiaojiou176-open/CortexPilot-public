@@ -81,4 +81,23 @@ describe("run detail page copy", () => {
     expect(screen.getByText("Incident action")).toBeInTheDocument();
     expect(screen.getByText("Proof action")).toBeInTheDocument();
   });
+
+  it("prompts the operator to generate compare truth when compare summary is missing", async () => {
+    vi.mocked(fetchReports).mockResolvedValueOnce([
+      {
+        name: "incident_pack.json",
+        data: {
+          summary: "A blocking gate stopped the run.",
+          next_action: "Review the gate before replaying.",
+        },
+      },
+    ] as never[]);
+
+    render(await RunDetailPage({ params: Promise.resolve({ id: "run-4" }) }));
+
+    expect(screen.getByText("Compare decision")).toBeInTheDocument();
+    expect(screen.getByText("No structured compare report is attached yet.")).toBeInTheDocument();
+    expect(screen.getByText("Next step: Generate or refresh a compare report for this run.")).toBeInTheDocument();
+    expect(screen.getByText("Incident action")).toBeInTheDocument();
+  });
 });

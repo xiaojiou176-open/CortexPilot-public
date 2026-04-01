@@ -33,8 +33,6 @@ const SORT_OPTIONS: Array<{ value: SortMode; label: string }> = [
   { value: "failed_desc", label: "Most failures" },
   { value: "blocked_desc", label: "Most blocked" },
 ];
-const FOCUS_OPTIONS: FocusMode[] = ["all", "high_risk", "blocked", "running"];
-
 /* ─── helpers ─── */
 function statusLabel(status: string): string {
   const normalized = status.trim().toLowerCase();
