@@ -37,6 +37,13 @@
         a useful builder surface across three layers.
       </p>
 
+      <h2>Choose the shortest truthful entrypoint</h2>
+      <ul>
+        <li>Start with the <a href="../mcp/">read-only MCP quickstart</a> when you want protocol-level inspection and frozen write-boundary context.</li>
+        <li>Start with the <a href="../api/">API and contract quickstart</a> when you want OpenAPI, route/type boundaries, and the thin client story.</li>
+        <li>Come back here when you are ready to choose which package layer to import into dashboard, desktop, or another frontend.</li>
+      </ul>
+
       <h2>What builders can do today</h2>
       <ul>
         <li>Call control-plane reads from the thin frontend API client.</li>
@@ -84,6 +91,13 @@ const client = createFrontendApiClient({
 
 const overview = await client.fetchCommandTowerOverview();
 const workflows = await client.fetchWorkflows();</code></pre>
+
+      <h2>Fast onboarding order</h2>
+      <ol>
+        <li>Read <a href="../mcp/">MCP quickstart</a> for the truthful read-only protocol boundary.</li>
+        <li>Read <a href="../api/">API and contract quickstart</a> for OpenAPI + type/package entrypoints.</li>
+        <li>Pick the package layer below only after you know whether you need protocol reads, HTTP reads, or shared UI substrate.</li>
+      </ol>
 
       <p>
         Want the surrounding product map instead of just the package entrypoints?

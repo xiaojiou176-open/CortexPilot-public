@@ -93,6 +93,14 @@ describe("dashboard home run-summary clarity", () => {
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/builders/"
     );
+    expect(screen.getByText("Read-only MCP quickstart").closest("a")).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/mcp/"
+    );
+    expect(screen.getByText("API and contract quickstart").closest("a")).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/api/"
+    );
     expect(screen.getAllByText("Public case gallery baseline").length).toBeGreaterThan(0);
     expect(screen.getByText("Live Workflow Case gallery")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open use-case guide" })).toHaveAttribute(
@@ -144,6 +152,14 @@ describe("dashboard home run-summary clarity", () => {
       "href",
       "https://docs.example/cortexpilot/builders/"
     );
+    expect(screen.getByText("Read-only MCP quickstart").closest("a")).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/mcp/"
+    );
+    expect(screen.getByText("API and contract quickstart").closest("a")).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/api/"
+    );
     expect(screen.getByRole("link", { name: "Open use-case guide" })).toHaveAttribute(
       "href",
       "https://docs.example/cortexpilot/use-cases/"
@@ -189,6 +205,8 @@ describe("dashboard home run-summary clarity", () => {
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/builders/"
     );
+    expect(screen.getAllByText("Read-only MCP quickstart").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("API and contract quickstart").length).toBeGreaterThan(0);
     expect(screen.getByText("显示四步首跑流程")).toBeInTheDocument();
   });
 
