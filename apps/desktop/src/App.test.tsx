@@ -724,9 +724,8 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(await screen.findByRole("button", { name: /指挥塔|Command Tower/ }));
-    const commandTowerHeadings = await screen.findAllByRole("heading", { name: /指挥塔|Command Tower/ });
-    expect(commandTowerHeadings.length).toBeGreaterThan(0);
+    const pageNavigation = await screen.findByRole("navigation", { name: /页面组导航|Page group navigation/ });
+    await user.click(within(pageNavigation).getByRole("button", { name: /指挥塔|Command Tower/ }));
     expect(await screen.findByRole("button", { name: /暂停自动更新|Pause auto-refresh/ })).toBeInTheDocument();
 
     fireEvent.keyDown(window, { key: "l", altKey: true, shiftKey: true });
