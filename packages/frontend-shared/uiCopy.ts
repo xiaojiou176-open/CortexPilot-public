@@ -115,6 +115,8 @@ export type UiCopy = {
       ecosystemCards: HomeCardCopy[];
       aiSurfacesTitle: string;
       aiSurfacesDescription: string;
+      aiSurfacesActionLabel: string;
+      aiSurfacesActionHref: string;
       aiSurfaceCards: HomeCardCopy[];
       builderTitle: string;
       builderDescription: string;
@@ -635,6 +637,8 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         aiSurfacesTitle: "AI surfaces in the real workflow",
         aiSurfacesDescription:
           "AI in CortexPilot is not a floating chat box. It already shows up as a pre-run advisor, a workflow-level explainer, and a run/compare operator brief.",
+        aiSurfacesActionLabel: "Open AI + MCP + API surfaces",
+        aiSurfacesActionHref: "https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/",
         aiSurfaceCards: [
           {
             badge: "Pre-run advisory",
@@ -1313,6 +1317,8 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         aiSurfacesTitle: "AI 功能已经进入主工作流",
         aiSurfacesDescription:
           "CortexPilot 里的 AI 不是漂浮聊天框。它已经分别出现在执行前建议、工作流解释，以及运行/对比的操作摘要里。",
+        aiSurfacesActionLabel: "打开 AI + MCP + API 页面",
+        aiSurfacesActionHref: "https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/",
         aiSurfaceCards: [
           {
             badge: "执行前建议",

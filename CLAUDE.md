@@ -111,6 +111,13 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `@cortexpilot/frontend-shared`, keep the root AI entrypoints aligned in the
   same patch; current examples include locale-aware desktop status labels,
   shared-copy Run Detail table/action chrome, and zh-CN regression coverage
+- when the next Phase 2 wave deepens public `MCP` / `API` discoverability,
+  keep this file, `AGENTS.md`, and the root/docs entrypoints aligned in the
+  same patch; current examples include `docs/mcp/index.html`,
+  `docs/api/index.html`, the dashboard-home AI CTA, and root navigation that
+  points readers toward read-only MCP and API quickstarts without implying
+  hosted/write-capable MCP
+  shared-copy Run Detail table/action chrome, and zh-CN regression coverage
 
 ## Key Commands
 

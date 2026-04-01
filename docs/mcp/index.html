@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CortexPilot | Read-only MCP quickstart</title>
+    <meta
+      name="description"
+      content="Read-only MCP quickstart for CortexPilot: what the current Model Context Protocol surface exposes, how it stays truthful, and where the frozen write boundary remains."
+    />
+    <meta
+      name="keywords"
+      content="CortexPilot, MCP, Model Context Protocol, read-only MCP, Codex MCP, Claude Code MCP, operator control plane"
+    />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/CortexPilot-public/mcp/" />
+    <meta property="og:title" content="CortexPilot | Read-only MCP quickstart" />
+    <meta
+      property="og:description"
+      content="Read-only MCP quickstart for CortexPilot across runs, Workflow Cases, approvals, compare, proof, and incident summaries."
+    />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/CortexPilot-public/mcp/" />
+    <meta property="og:type" content="article" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="CortexPilot | Read-only MCP quickstart" />
+    <meta
+      name="twitter:description"
+      content="Truthful read-only MCP quickstart for CortexPilot and the current frozen write boundary."
+    />
+  </head>
+  <body>
+    <main style="max-width:960px;margin:0 auto;padding:40px 20px;font:16px/1.7 system-ui,sans-serif;color:#17232c;">
+      <p>
+        <a href="../">Back to the public landing page</a>
+        · <a href="../ai-surfaces/">AI + MCP + API surfaces</a>
+        · <a href="../api/">API quickstart</a>
+        · <a href="../ecosystem/">Ecosystem map</a>
+      </p>
+
+      <h1>Read-only MCP quickstart</h1>
+      <p>
+        CortexPilot already exposes a real <strong>Model Context Protocol (MCP)</strong> surface, but the current contract is intentionally
+        <strong>read-only</strong>. This page exists so people searching for MCP, Codex, and Claude Code integrations can find the truthful
+        surface quickly instead of guessing from source files.
+      </p>
+
+      <h2>What the current MCP surface is for</h2>
+      <ul>
+        <li>inspect runs, Workflow Cases, approvals, compare outputs, proof packs, and incident summaries</li>
+        <li>return structured JSON that other tools and agents can consume safely</li>
+        <li>keep operator truth readable without creating a second control plane</li>
+      </ul>
+
+      <h2>What it does not do yet</h2>
+      <ul>
+        <li>no write-capable MCP mutations</li>
+        <li>no hosted operator account or managed login layer</li>
+        <li>no claim that MCP replaces the orchestration runtime itself</li>
+      </ul>
+
+      <h2>Where to read the current contract</h2>
+      <ul>
+        <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/apps/orchestrator/src/cortexpilot_orch/mcp_readonly_server.py">read-only MCP server implementation</a></li>
+        <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/apps/orchestrator/README.md">orchestrator README</a></li>
+        <li><a href="../ai-surfaces/">AI + MCP + API surfaces</a> for the broader product map</li>
+      </ul>
+
+      <h2>Why this matters for Codex and Claude Code workflows</h2>
+      <p>
+        MCP is the connective tissue that lets external tools inspect workflow truth without granting them control they do not yet have. That is
+        useful for teams running Codex-style or Claude Code-style operator loops, because you can keep evidence readable without pretending the
+        system is already a write-enabled MCP platform.
+      </p>
+    </main>
+  </body>
+</html>

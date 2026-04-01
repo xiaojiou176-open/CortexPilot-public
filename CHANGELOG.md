@@ -6,6 +6,10 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- opened the fifth Phase 2 wave by adding dedicated public `MCP` and `API`
+  quickstart entrypoints, wiring the dashboard AI section to the new discovery
+  hub, and strengthening keyword-facing discoverability around read-only MCP,
+  OpenAPI, contract-facing types, and Codex / Claude Code workflow surfaces
 - deepened the third Phase 2 wave by making the dashboard-home locale toggle
   drive the server-rendered home story via cookie-backed preference sync,
   extracting the narrative sections into `DashboardHomeStorySections`, and

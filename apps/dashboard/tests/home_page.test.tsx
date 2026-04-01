@@ -76,6 +76,10 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByText("Proof state: official public baseline")).toBeInTheDocument();
     expect(screen.getByText("Works with today's coding-agent ecosystem")).toBeInTheDocument();
     expect(screen.getByText("AI surfaces in the real workflow")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open AI + MCP + API surfaces" })).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/"
+    );
     expect(screen.getByText("@cortexpilot/frontend-api-client")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open ecosystem map" })).toHaveAttribute(
       "href",
@@ -112,6 +116,7 @@ describe("dashboard home run-summary clarity", () => {
     expect(zh.publicAdvantageCards).toHaveLength(en.publicAdvantageCards.length);
     expect(zh.caseGalleryBaselineCards).toHaveLength(en.caseGalleryBaselineCards.length);
     expect(zh.firstTaskGuideSteps).toHaveLength(en.firstTaskGuideSteps.length);
+    expect(en.aiSurfacesActionHref).toBe("https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/");
     expect(en.publicTemplatesActionHref).toBe("/pm");
     expect(zh.liveCaseGalleryActionHref).toBe("/workflows");
     expect(en.optionalApprovalStep.href).toBe("/god-mode");
@@ -145,6 +150,10 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByRole("link", { name: "启动首个任务" })).toHaveAttribute("href", "/pm");
     expect(screen.getByText("与当前 coding-agent 生态的关系")).toBeInTheDocument();
     expect(screen.getByText("AI 功能已经进入主工作流")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "打开 AI + MCP + API 页面" })).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/"
+    );
     expect(screen.getByRole("link", { name: "打开 builder 快速入口" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/builders/"

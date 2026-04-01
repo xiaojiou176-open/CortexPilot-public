@@ -171,6 +171,11 @@ export default function DashboardHomeStorySections({
             </h2>
             <p>{homePhase2Copy.aiSurfacesDescription}</p>
           </div>
+          <nav aria-label="AI surfaces actions">
+            <Button asChild variant="secondary">
+              <Link href={homePhase2Copy.aiSurfacesActionHref}>{homePhase2Copy.aiSurfacesActionLabel}</Link>
+            </Button>
+          </nav>
         </div>
         <div className="quick-grid">
           {homePhase2Copy.aiSurfaceCards.map((item) => (
