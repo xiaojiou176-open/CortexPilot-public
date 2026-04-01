@@ -26,7 +26,7 @@ function readCssBundle(entryPath: string, visited: Set<string> = new Set()): str
 }
 
 test("renders run list items", () => {
-  const expectedTime = new Date("2026-02-02T00:00:00Z").toLocaleString("zh-CN", {
+  const expectedTime = new Date("2026-02-02T00:00:00Z").toLocaleString("en", {
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
@@ -44,6 +44,27 @@ test("renders run list items", () => {
   expect(within(row).getByRole("link", { name: "run-001" })).toHaveAttribute("href", "/runs/run-001");
   expect(within(row).getByText("Task: task-001")).toBeInTheDocument();
   expect(within(row).getByText("Completed")).toBeInTheDocument();
+  expect(within(row).getByText(expectedTime)).toBeInTheDocument();
+});
+
+test("supports explicit zh-CN rendering through locale-aware props", () => {
+  const expectedTime = new Date("2026-02-02T00:00:00Z").toLocaleString("zh-CN", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  render(
+    <RunList
+      locale="zh-CN"
+      runs={[
+        { run_id: "run-zh", task_id: "task-zh", status: "done", created_at: "2026-02-02T00:00:00Z" },
+      ]}
+    />
+  );
+
+  const row = screen.getByRole("row", { name: /run-zh/i });
+  expect(within(row).getByText("已完成")).toBeInTheDocument();
   expect(within(row).getByText(expectedTime)).toBeInTheDocument();
 });
 

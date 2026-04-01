@@ -1,12 +1,14 @@
 import {
   badgeClassFromVariant,
+  formatUiDateTime,
   type StatusVariant,
-  stageCtaZhFromCanonical,
-  stageLabelZhFromCanonical,
+  type UiLocale,
+  stageCtaFromCanonical,
+  stageLabelFromCanonical,
   stageVariantFromCanonical,
-  statusCtaZhFromCanonical,
+  statusCtaFromCanonical,
+  statusLabelFromCanonical,
   statusDotClassFromVariant,
-  statusLabelZhFromCanonical,
   statusVariantFromCanonical,
   toCanonicalStage,
   toCanonicalStatusStrict,
@@ -14,6 +16,7 @@ import {
 } from "@cortexpilot/frontend-shared/statusPresentation";
 
 export type RunOutcomeSemantic = "gate_blocked" | "environment_error" | "manual_pending" | "functional_failure" | "unknown";
+export const DESKTOP_DEFAULT_LOCALE: UiLocale = "en";
 
 const CJK_PATTERN = /[\u3400-\u9fff]/u;
 
@@ -146,7 +149,7 @@ export function outcomeActionHintZh(
 }
 
 export function statusLabelZh(status: string | undefined | null): string {
-  return statusLabelZhFromCanonical(toCanonicalStatusStrict(status));
+  return statusLabelFromCanonical(toCanonicalStatusStrict(status), DESKTOP_DEFAULT_LOCALE);
 }
 
 export function statusVariant(status: string | undefined | null) {
@@ -166,7 +169,7 @@ export function badgeClass(status: string | undefined | null): string {
 }
 
 export function stageLabelZh(stage: string | undefined | null): string {
-  return stageLabelZhFromCanonical(toCanonicalStage(stage));
+  return stageLabelFromCanonical(toCanonicalStage(stage), DESKTOP_DEFAULT_LOCALE);
 }
 
 export function stageVariant(stage: string | undefined | null) {
@@ -174,9 +177,17 @@ export function stageVariant(stage: string | undefined | null) {
 }
 
 export function statusCtaZh(status: string | undefined | null): string {
-  return statusCtaZhFromCanonical(toCanonicalStatusStrict(status));
+  return statusCtaFromCanonical(toCanonicalStatusStrict(status), DESKTOP_DEFAULT_LOCALE);
 }
 
 export function stageCtaZh(stage: string | undefined | null): string {
-  return stageCtaZhFromCanonical(toCanonicalStage(stage));
+  return stageCtaFromCanonical(toCanonicalStage(stage), DESKTOP_DEFAULT_LOCALE);
+}
+
+export function formatDesktopDateTime(
+  value: string | undefined | null,
+  locale: string | undefined | null = DESKTOP_DEFAULT_LOCALE,
+  options?: Intl.DateTimeFormatOptions,
+): string {
+  return formatUiDateTime(value, locale, options);
 }

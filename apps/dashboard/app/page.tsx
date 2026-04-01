@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Button, type ButtonVariant } from "../components/ui/button";
 import { Badge, type BadgeVariant } from "../components/ui/badge";
 import { Card } from "../components/ui/card";
-import { fetchRuns } from "../lib/api";
+import { fetchRuns, fetchWorkflows } from "../lib/api";
 import { safeLoad } from "../lib/serverPageData";
 
 const CJK_TEXT_RE = /[\u3400-\u9fff]/;
@@ -95,11 +95,18 @@ const FIRST_LOOP_STEPS = [
     desc: "Open Command Tower and confirm the run is advancing instead of getting stuck.",
   },
   {
-    href: "/runs",
+    href: "/workflows",
     prefetch: true,
     step: "Step 3",
-    title: "Inspect the outcome (evidence and replay)",
-    desc: "Open the run ledger to inspect status, evidence, and replay state.",
+    title: "Confirm the Workflow Case",
+    desc: "Open Workflow Cases to confirm the durable case record, queue posture, and linked runs.",
+  },
+  {
+    href: "/runs",
+    prefetch: true,
+    step: "Step 4",
+    title: "Inspect Proof & Replay",
+    desc: "Open the run ledger to inspect status, evidence, compare state, and replay state.",
   },
 ];
 
@@ -113,11 +120,94 @@ const OPTIONAL_APPROVAL_STEP = {
 
 const PUBLIC_TASK_TEMPLATES = [
   {
-    href: "/pm",
-    badge: "Public template",
+    href: "/pm?template=news_digest",
+    badge: "Release-proven first run",
     title: "news_digest",
     desc: "Generate a news summary around one topic from public sources while keeping the evidence auditable.",
+    bestFor: "Use when you want the fastest proof-oriented public path.",
+    example: "Seattle tech and AI + 3 source domains + 24h",
+    proof: "Proof state: official public baseline",
     fields: ["topic", "sources[]", "time_range", "max_results"],
+  },
+  {
+    href: "/pm?template=topic_brief",
+    badge: "Public showcase",
+    title: "topic_brief",
+    desc: "Open a bounded topic brief as a read-only workflow case with search-backed proof.",
+    bestFor: "Use when you want a narrow brief around one topic and a recent time window.",
+    example: "Seattle tech and AI + 7d + 5 results",
+    proof: "Proof state: public, but not yet release-proven",
+    fields: ["topic", "time_range", "max_results"],
+  },
+  {
+    href: "/pm?template=page_brief",
+    badge: "Public showcase",
+    title: "page_brief",
+    desc: "Capture one URL as a read-only workflow case with browser-backed evidence.",
+    bestFor: "Use when one page matters more than a whole search topic.",
+    example: "https://example.com + focused summary request",
+    proof: "Proof state: browser-backed showcase path",
+    fields: ["url", "focus"],
+  },
+];
+
+const PUBLIC_ADVANTAGES = [
+  {
+    href: "/runs",
+    title: "Proof before promotion",
+    desc: "Every first-run case still lands on evidence, compare, and replay before you trust the output.",
+  },
+  {
+    href: "/runs",
+    title: "AI operator brief",
+    desc: "Run Detail and Run Compare now explain what changed, why it matters, and the next operator step.",
+  },
+  {
+    href: "/workflows",
+    title: "Share-ready Workflow Cases",
+    desc: "Workflow Cases are now moving toward reusable assets instead of staying trapped as one-off detail pages.",
+  },
+];
+
+const PUBLIC_CASE_GALLERY_BASELINE = [
+  {
+    href: "/pm?template=news_digest",
+    title: "News digest gallery card",
+    desc: "Release-proven case archetype for a proof-first public recap.",
+    evidence: "Primary report: news_digest_result.json",
+    shareMode: "Share mode: proof-first recap",
+  },
+  {
+    href: "/pm?template=topic_brief",
+    title: "Topic brief gallery card",
+    desc: "Public showcase case archetype for a narrow, search-backed brief.",
+    evidence: "Primary report: topic_brief_result.json",
+    shareMode: "Share mode: research recap",
+  },
+  {
+    href: "/pm?template=page_brief",
+    title: "Page brief gallery card",
+    desc: "Browser-backed case archetype for one URL and one focused brief.",
+    evidence: "Primary report: page_brief_result.json",
+    shareMode: "Share mode: source-page review",
+  },
+];
+
+const PRODUCT_SPINE = [
+  {
+    href: "/command-tower",
+    title: "Command Tower",
+    desc: "Watch governed AI agents and MCP-driven work move through one operator surface.",
+  },
+  {
+    href: "/workflows",
+    title: "Workflow Cases",
+    desc: "Track the case record that ties request, queue, verdict, proof, and linked runs together.",
+  },
+  {
+    href: "/runs",
+    title: "Proof & Replay",
+    desc: "Inspect evidence bundles, compare reruns, and replay failures before you trust the result.",
   },
 ];
 
@@ -196,9 +286,12 @@ function compactTaskId(value: string | undefined): string {
 
 export default async function Home() {
   const { data: runs, warning } = await safeLoad(fetchRuns, [], "run list");
+  const { data: workflows, warning: workflowsWarning } = await safeLoad(fetchWorkflows, [], "workflow list");
   const latestRuns = Array.isArray(runs) ? runs.slice(0, 12) : [];
+  const latestWorkflows = Array.isArray(workflows) ? workflows.slice(0, 3) : [];
   const latestRun = latestRuns[0];
   const hasDegradedRunsData = Boolean(warning);
+  const hasDegradedWorkflowData = Boolean(workflowsWarning);
   const latestFailure = latestRuns.find((run) =>
     ["FAILED", "FAILURE", "ERROR"].includes(String(run.status || "").toUpperCase())
   );
@@ -310,11 +403,11 @@ export default async function Home() {
         <div className="section-header">
           <div>
             <h1 id="dashboard-home-title" className="page-title">
-              Create and run AI tasks
+              Command Tower for Codex and Claude Code workflows
             </h1>
             <p className="page-subtitle">
-              The default public path is simple: create a task, watch progress, and inspect results.
-              Governance and evidence surfaces remain available, but they no longer define the first screen.
+              Start one workflow case, watch Command Tower, then inspect Proof &amp; Replay.
+              CortexPilot keeps Codex and Claude Code work, MCP tools, evidence, and replay on one governed operator path.
             </p>
           </div>
           <nav aria-label="Home primary actions">
@@ -330,13 +423,32 @@ export default async function Home() {
         </div>
       </header>
 
+      <section className="app-section" aria-labelledby="dashboard-product-spine-title">
+        <div className="section-header">
+          <div>
+            <h2 id="dashboard-product-spine-title" className="section-title">
+              Product spine
+            </h2>
+            <p>Keep the first screen aligned around the three product words: Command Tower, Workflow Cases, and Proof &amp; Replay.</p>
+          </div>
+        </div>
+        <div className="quick-grid">
+          {PRODUCT_SPINE.map((item) => (
+            <Link key={item.title} href={item.href} className="quick-card">
+              <span className="quick-card-title">{item.title}</span>
+              <span className="quick-card-desc">{item.desc}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <section className="app-section" aria-labelledby="dashboard-public-templates-title">
         <div className="section-header">
           <div>
             <h2 id="dashboard-public-templates-title" className="section-title">
-              Public task templates
+              Three public first-run cases
             </h2>
-            <p>Start with one public slice. The current default template is the public, read-only, no-login `news_digest` flow.</p>
+            <p>Start with one public, read-only workflow case. `news_digest` is the official first public baseline; `topic_brief` and `page_brief` are showcase paths from the same front door.</p>
           </div>
           <nav aria-label="Public task template actions">
             <Button asChild variant="secondary">
@@ -350,23 +462,132 @@ export default async function Home() {
               <span className="quick-card-desc">{item.badge}</span>
               <span className="quick-card-title">{item.title}</span>
               <span className="quick-card-desc">{item.desc}</span>
+              <span className="cell-sub mono">Best for: {item.bestFor}</span>
+              <span className="cell-sub mono">Try with: {item.example}</span>
+              <span className="cell-sub mono">{item.proof}</span>
               <span className="cell-sub mono">{item.fields.join(" · ")}</span>
             </Link>
           ))}
         </div>
       </section>
 
+      <section className="app-section" aria-labelledby="dashboard-public-differentiators-title">
+        <div className="section-header">
+          <div>
+            <h2 id="dashboard-public-differentiators-title" className="section-title">
+              Why the first run is credible
+            </h2>
+            <p>Prompt 5 keeps the public story anchored on proof, replay, read-only MCP access, and explainable operator review instead of generic AI claims.</p>
+          </div>
+        </div>
+        <div className="quick-grid">
+          {PUBLIC_ADVANTAGES.map((item) => (
+            <Link key={item.title} href={item.href} className="quick-card">
+              <span className="quick-card-title">{item.title}</span>
+              <span className="quick-card-desc">{item.desc}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="app-section" aria-labelledby="dashboard-case-gallery-title">
+        <div className="section-header">
+          <div>
+            <h2 id="dashboard-case-gallery-title" className="section-title">
+              Public case gallery baseline
+            </h2>
+            <p>These cards stay grounded in the tracked public packs and their evidence contracts. They are gallery-ready archetypes, not invented showcase data.</p>
+          </div>
+          <nav aria-label="Public case gallery actions">
+            <Button asChild variant="secondary">
+              <Link href="/workflows">Open Workflow Cases</Link>
+            </Button>
+          </nav>
+        </div>
+        <div className="quick-grid">
+          {PUBLIC_CASE_GALLERY_BASELINE.map((item) => (
+            <Link key={item.title} href={item.href} className="quick-card">
+              <span className="quick-card-title">{item.title}</span>
+              <span className="quick-card-desc">{item.desc}</span>
+              <span className="cell-sub mono">{item.evidence}</span>
+              <span className="cell-sub mono">{item.shareMode}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="app-section" aria-labelledby="dashboard-case-gallery-title">
+        <div className="section-header">
+          <div>
+            <h2 id="dashboard-case-gallery-title" className="section-title">
+              Public case gallery baseline
+            </h2>
+            <p>Use real Workflow Cases as lightweight showcase assets. This baseline links to live case detail and share-ready recap instead of inventing demo-only gallery data.</p>
+          </div>
+          <nav aria-label="Case gallery actions">
+            <Button asChild variant="secondary">
+              <Link href="/workflows">Open Workflow Cases</Link>
+            </Button>
+          </nav>
+        </div>
+        {hasDegradedWorkflowData ? (
+          <Card>
+            <p className="muted">Workflow gallery data is temporarily degraded. Use the workflow list directly until the gallery snapshot refreshes.</p>
+            <p className="mono muted">{String(workflowsWarning || "").trim() || "Workflow list is temporarily unavailable."}</p>
+          </Card>
+        ) : latestWorkflows.length === 0 ? (
+          <Card>
+            <p className="muted">No Workflow Case is available for gallery mode yet. Start from PM, then return here to reuse the share-ready case path as a showcase asset.</p>
+          </Card>
+        ) : (
+          <div className="quick-grid">
+            {latestWorkflows.map((workflow) => {
+              const workflowId = String(workflow.workflow_id || "").trim();
+              const workflowSummary = firstEnglishText(workflow.summary, workflow.objective) || "No workflow summary is attached yet.";
+              const runCount = Array.isArray(workflow.runs) ? workflow.runs.length : Array.isArray(workflow.run_ids) ? workflow.run_ids.length : 0;
+              return (
+                <Card key={workflowId || workflowSummary}>
+                  <div className="stack-gap-2">
+                    <div className="toolbar">
+                      <Badge variant="default">Workflow Case</Badge>
+                      <Badge>{statusLabelEn(workflow.status)}</Badge>
+                    </div>
+                    <h3 className="quick-card-title">{workflowId || "Workflow case"}</h3>
+                    <p className="quick-card-desc">{workflowSummary}</p>
+                    <p className="cell-sub mono">Verdict: {String(workflow.verdict || "-")}</p>
+                    <p className="cell-sub mono">Owner: {String(workflow.owner_pm || "-")} · Project: {String(workflow.project_key || "-")}</p>
+                    <p className="cell-sub mono">Run mappings: {runCount}</p>
+                    <div className="toolbar">
+                      {workflowId ? (
+                        <Button asChild variant="secondary">
+                          <Link href={`/workflows/${encodeURIComponent(workflowId)}`}>Open case</Link>
+                        </Button>
+                      ) : null}
+                      {workflowId ? (
+                        <Button asChild variant="ghost">
+                          <Link href={`/workflows/${encodeURIComponent(workflowId)}/share`}>Open share-ready asset</Link>
+                        </Button>
+                      ) : null}
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
       {latestRuns.length === 0 ? (
-        <section className="app-section" aria-label="Start your first task in three steps">
+        <section className="app-section" aria-label="Start your first task in four steps">
           <div className="section-header">
             <div>
               <h2 className="section-title">First-task guide (expandable)</h2>
-              <p>Start with the request, then watch progress, then inspect the result. It stays collapsed by default to keep the first screen quiet.</p>
+              <p>Start with the request, watch Command Tower, confirm the Workflow Case, then inspect Proof &amp; Replay. It stays collapsed by default to keep the first screen quiet.</p>
             </div>
           </div>
           <Card asChild>
             <details data-testid="home-onboarding-details">
-              <summary className="quick-card-title">Show the three-step first-task flow</summary>
+              <summary className="quick-card-title">Show the four-step first-task flow</summary>
               <div className="quick-grid mt-2">
                 {FIRST_LOOP_STEPS.map((step) => (
                   <Link key={step.href} href={step.href} prefetch={step.prefetch} className="quick-card">
@@ -527,13 +748,13 @@ export default async function Home() {
         <div className="quick-grid">
           <Link href="/command-tower" className="quick-card">
             <span className="quick-card-desc">Advanced</span>
-            <span className="quick-card-title">Task progress monitor</span>
+            <span className="quick-card-title">Command Tower</span>
             <span className="quick-card-desc">Watch sessions, alerts, and pipeline health.</span>
           </Link>
           <Link href="/runs" className="quick-card">
             <span className="quick-card-desc">Operator</span>
-            <span className="quick-card-title">Run ledger</span>
-            <span className="quick-card-desc">Inspect run details, replay, rollback, and reject actions.</span>
+            <span className="quick-card-title">Proof &amp; Replay</span>
+            <span className="quick-card-desc">Inspect run details, compare reruns, replay evidence, and review governed actions.</span>
           </Link>
           <Link href="/god-mode" className="quick-card">
             <span className="quick-card-desc">Governance</span>

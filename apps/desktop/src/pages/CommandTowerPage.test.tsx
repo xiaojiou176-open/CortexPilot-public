@@ -318,12 +318,10 @@ describe("CommandTowerPage", () => {
     fireEvent.keyDown(window, { altKey: true, shiftKey: true, key: "4" });
     expect(await screen.findByText("Focus: running.")).toBeInTheDocument();
 
-    const resumeButtons = screen.getAllByRole("button", { name: /^Resume/ });
-    await user.click(resumeButtons[resumeButtons.length - 1]);
-    expect(await screen.findByText("Pause")).toBeInTheDocument();
-    const pauseButtons = screen.getAllByRole("button", { name: /^Pause/ });
-    await user.click(pauseButtons[pauseButtons.length - 1]);
-    expect(await screen.findByText("Resume")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Resume auto-refresh" }));
+    expect(await screen.findByRole("button", { name: "Pause auto-refresh" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Pause auto-refresh" }));
+    expect(await screen.findByRole("button", { name: "Resume auto-refresh" })).toBeInTheDocument();
 
     const quickCopyButtons = screen.getAllByRole("button", { name: /^Copy/ });
     const quickCopy = quickCopyButtons[quickCopyButtons.length - 1];

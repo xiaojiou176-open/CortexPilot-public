@@ -217,10 +217,14 @@ def collect_workflows(
     runs_root: Path,
     runtime_root: Path | None = None,
     read_events_fn: Callable[[str], list[dict]] | None = None,
+    persist_case_snapshot: bool = True,
 ) -> dict[str, dict]:
     workflows: dict[str, dict] = {}
     resolved_runtime_root = runtime_root or runs_root.parent
-    case_store = WorkflowCaseStore(resolved_runtime_root / "workflow-cases")
+    case_store = WorkflowCaseStore(
+        resolved_runtime_root / "workflow-cases",
+        ensure_storage=persist_case_snapshot,
+    )
     session_meta_by_run = _session_case_metadata(resolved_runtime_root)
     for run_dir in sorted(runs_root.glob("*")):
         manifest_path = run_dir / "manifest.json"
@@ -348,8 +352,12 @@ def collect_workflows(
             "pm_session_ids": list(entry.get("pm_session_ids") or []),
             "run_ids": [str(run.get("run_id") or "") for run in entry.get("runs", []) if str(run.get("run_id") or "").strip()],
         }
-        persisted_case = case_store.write(str(entry["workflow_id"]), merged_case)
-        entry["case_source"] = str(persisted_case.get("case_source") or "persisted")
-        entry["case_updated_at"] = str(persisted_case.get("updated_at") or "")
+        if persist_case_snapshot:
+            persisted_case = case_store.write(str(entry["workflow_id"]), merged_case)
+            entry["case_source"] = str(persisted_case.get("case_source") or "persisted")
+            entry["case_updated_at"] = str(persisted_case.get("updated_at") or "")
+        else:
+            entry["case_source"] = str(persisted.get("case_source") or "derived")
+            entry["case_updated_at"] = str(persisted.get("updated_at") or "")
         entry.pop("_latest_ts", None)
     return workflows

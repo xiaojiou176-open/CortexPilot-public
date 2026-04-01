@@ -139,7 +139,7 @@ describe("desktop p0 misc controls", () => {
     const user = userEvent.setup();
     render(<ChangeGatesPage />);
 
-    expect(await screen.findByRole("heading", { name: /变更门禁|Change Gates/ })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /变更门禁|Diff gate/ })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /查看 Diff|View diff/ }));
     await waitFor(() => expect(fetchDiff).toHaveBeenCalledWith("run-001"));
     await user.click(screen.getByRole("button", { name: /隐藏 Diff|Hide diff/ }));
@@ -152,7 +152,7 @@ describe("desktop p0 misc controls", () => {
   it("covers GodMode cancel controls in confirm modal", async () => {
     const user = userEvent.setup();
     render(<GodModePage />);
-    expect(await screen.findByRole("heading", { name: /快速审批|Fast Approval/ })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /快速审批|Quick approval/ })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /批准执行|Approve execution/ }));
 
     await user.click(screen.getByRole("button", { name: /取消|Cancel/ }));
@@ -170,7 +170,8 @@ describe("desktop p0 misc controls", () => {
     expect(screen.getByText(/首次使用建议先走一遍单主流程|follow the primary path/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /主步骤 1 · 发需求|Step 1 · Brief PM/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /主步骤 2 · 看进度|Step 2 · Watch progress/ })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /主步骤 3 · 核结果|Step 3 · Verify outcomes/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /主步骤 3 · 看案例|Step 3 · Review Workflow Cases/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /主步骤 4 · 核证据|Step 4 · Verify Proof & Replay/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /审批确认（仅有待确认项时）|Approval checkpoint/ })).toBeInTheDocument();
     expect(screen.getByText(/点进 Run 详情|Open Run detail/)).toBeInTheDocument();
     expect(screen.getByText(/还没有运行记录|No runs yet/)).toBeInTheDocument();
@@ -179,7 +180,9 @@ describe("desktop p0 misc controls", () => {
     expect(onNavigate).toHaveBeenCalledWith("pm");
     await user.click(screen.getByRole("button", { name: /主步骤 2 · 看进度|Step 2 · Watch progress/ }));
     expect(onNavigate).toHaveBeenCalledWith("command-tower");
-    await user.click(screen.getByRole("button", { name: /主步骤 3 · 核结果|Step 3 · Verify outcomes/ }));
+    await user.click(screen.getByRole("button", { name: /主步骤 3 · 看案例|Step 3 · Review Workflow Cases/ }));
+    expect(onNavigate).toHaveBeenCalledWith("workflows");
+    await user.click(screen.getByRole("button", { name: /主步骤 4 · 核证据|Step 4 · Verify Proof & Replay/ }));
     expect(onNavigate).toHaveBeenCalledWith("runs");
     await user.click(screen.getByRole("button", { name: /审批确认（仅有待确认项时）|Approval checkpoint/ }));
     expect(onNavigate).toHaveBeenCalledWith("god-mode");

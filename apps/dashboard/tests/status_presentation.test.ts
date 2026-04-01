@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  formatDashboardDateTime,
   badgeClass,
+  statusLabel,
   knownOutcomeTypeLabelZh,
   outcomeTypeLabelZh,
   stageCtaZh,
@@ -25,6 +27,40 @@ describe("statusLabelZh", () => {
   it("returns fallback for unknown values", () => {
     expect(statusLabelZh("")).toBe("Unknown");
     expect(statusLabelZh("new_state")).toBe("Unknown");
+  });
+});
+
+describe("locale-aware presentation foundation", () => {
+  it("supports explicit zh-CN labels without changing English-first defaults", () => {
+    expect(statusLabel("success")).toBe("Completed");
+    expect(statusLabel("success", "zh-CN")).toBe("已完成");
+    expect(statusLabel("running", "zh-CN")).toBe("运行中");
+  });
+
+  it("formats dashboard timestamps with locale-aware defaults", () => {
+    const timestamp = "2026-02-02T00:00:00Z";
+    expect(formatDashboardDateTime(timestamp, "en", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })).toBe(new Date(timestamp).toLocaleString("en", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }));
+    expect(formatDashboardDateTime(timestamp, "zh-CN", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })).toBe(new Date(timestamp).toLocaleString("zh-CN", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }));
   });
 });
 

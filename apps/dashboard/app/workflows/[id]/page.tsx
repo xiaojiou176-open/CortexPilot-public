@@ -4,8 +4,11 @@ import type { BadgeVariant } from "../../../components/ui/badge";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import { Card } from "../../../components/ui/card";
+import ControlPlaneStatusCallout from "../../../components/control-plane/ControlPlaneStatusCallout";
+import WorkflowOperatorCopilotPanel from "../../../components/control-plane/WorkflowOperatorCopilotPanel";
 import { fetchQueue, fetchWorkflow } from "../../../lib/api";
 import { safeLoad } from "../../../lib/serverPageData";
+import WorkflowQueueMutationControls from "../WorkflowQueueMutationControls";
 
 function statusLabelEn(status: string | undefined): string {
   const normalized = String(status || "").trim().toLowerCase();
@@ -66,6 +69,16 @@ function workflowRunRowKey(run: Record<string, unknown>, index: number): string 
   ].join(":");
 }
 
+function resolveLatestRunId(runs: Array<Record<string, unknown>>): string {
+  const sortedRuns = [...runs];
+  sortedRuns.sort((left, right) => {
+    const leftTs = Date.parse(String(left.created_at || ""));
+    const rightTs = Date.parse(String(right.created_at || ""));
+    return (Number.isFinite(rightTs) ? rightTs : 0) - (Number.isFinite(leftTs) ? leftTs : 0);
+  });
+  return String(sortedRuns[0]?.run_id || "").trim();
+}
+
 export default async function WorkflowDetailPage({
   params,
 }: {
@@ -94,6 +107,15 @@ export default async function WorkflowDetailPage({
   const workflowUpdatedAt = String(workflowMeta["updated_at"] || workflowMeta["created_at"] || "-");
   const workflowRisk = isWorkflowAtRisk(workflow.status);
   const riskLabel = workflowRisk ? "High-risk state" : "Normal state";
+  const latestRunId = resolveLatestRunId(runs);
+  const eligibleQueueCount = queueItems.filter((item) => {
+    if (item.eligible === true || String(item.eligible || "").toLowerCase() === "true") {
+      return true;
+    }
+    const status = String(item.status || "").toUpperCase();
+    const queueState = String(item.queue_state || "").toLowerCase();
+    return status === "PENDING" && (queueState === "" || queueState === "eligible");
+  }).length;
 
   if (warning) {
     return (
@@ -101,20 +123,24 @@ export default async function WorkflowDetailPage({
         <header className="app-section">
           <div className="section-header">
             <div>
-              <h1 id="workflow-detail-title">Workflow detail</h1>
-              <p>Confirm the workflow case status, linked runs, and whether governance actions should pause.</p>
+              <h1 id="workflow-detail-title">Workflow Case Detail</h1>
+              <p>Confirm the case status, linked runs, queue posture, and whether governance actions should pause.</p>
             </div>
             <Badge className="mono">{workflowId}</Badge>
           </div>
         </header>
         <section className="app-section" aria-label="Workflow degraded state">
-          <Card>
-            <div className="empty-state-stack" role="alert" aria-live="assertive">
-              <strong>Workflow detail is in read-only degraded mode</strong>
-              <span className="muted">{warning}</span>
-              <span className="mono muted">The current data is incomplete, so approval, rollback, replay, and similar governance actions stay disabled by default.</span>
-            </div>
-          </Card>
+          <ControlPlaneStatusCallout
+            title="Workflow Case is in read-only degraded mode"
+            summary={warning}
+            nextAction="Use the visible case identity, event timeline, and run mapping for diagnosis only. Wait for the data path to recover before taking approval, rollback, replay, or queue actions."
+            tone="warning"
+            badgeLabel="Read-only"
+            actions={[
+              { href: `/workflows/${encodeURIComponent(workflowId)}`, label: "Retry load" },
+              { href: "/workflows", label: "Back to workflow list" },
+            ]}
+          />
           <div className="grid grid-3">
             <Card>
               <h3>Identity snapshot (degraded)</h3>
@@ -166,12 +192,15 @@ export default async function WorkflowDetailPage({
       <header className="app-section">
         <div className="section-header">
           <div>
-            <h1 id="workflow-detail-title">Workflow detail</h1>
-            <p>Classify risk first, then confirm the case summary, run mapping, and event timeline before taking governance action.</p>
+            <h1 id="workflow-detail-title">Workflow Case detail</h1>
+            <p>Classify risk first, then confirm the case summary, run mapping, queue posture, and event timeline before taking governance action.</p>
           </div>
           <div className="toolbar" role="group" aria-label="Workflow risk summary">
             <Badge className="mono">{workflow.workflow_id || workflowId}</Badge>
             <Badge variant={workflowRiskBadgeVariant(workflow.status)}>{riskLabel}</Badge>
+            <Button asChild variant="secondary">
+              <Link href={`/workflows/${encodeURIComponent(workflowId)}/share`}>Open share-ready case asset</Link>
+            </Button>
           </div>
         </div>
       </header>
@@ -192,10 +221,24 @@ export default async function WorkflowDetailPage({
           <p className="cell-sub mono muted">Filter failed and rollback events first.</p>
         </article>
       </section>
+      <section className="app-section" aria-label="Workflow copilot">
+        <WorkflowOperatorCopilotPanel workflowId={workflowId} />
+      </section>
       <section className="app-section" aria-label="Workflow detail panels">
         <div className="grid grid-3">
           <Card>
-            <h3>Basics</h3>
+            <h3>Next recommended action</h3>
+            <div className="mono">
+              {queueItems.length > 0
+                ? "Queue already has pending work. The next high-value action is to run the next queued task from the web surface."
+                : latestRunId
+                ? "The next high-value action is to queue the latest run contract so this Workflow Case can move forward."
+                : "No run is available yet. Use PM intake to create or resume a run for this Workflow Case."}
+            </div>
+            <WorkflowQueueMutationControls latestRunId={latestRunId} queueCount={queueItems.length} eligibleCount={eligibleQueueCount} showQueueLatest disableRunNextWhenEmpty />
+          </Card>
+          <Card>
+            <h3>Case summary</h3>
             <div className="mono">workflow_id: {workflow.workflow_id || workflowId}</div>
             <div className="mono">Name: {workflowName}</div>
             <div className="mono">Status: {statusLabelEn(workflow.status)}</div>
@@ -206,6 +249,11 @@ export default async function WorkflowDetailPage({
             <div className="mono">Project: {String(workflowMeta["project_key"] || "-")}</div>
             <div className="mono">Verdict: {String(workflowMeta["verdict"] || "-")}</div>
             <div className="mono">Runs: {runs.length}</div>
+            <div className="toolbar mt-2">
+              <Button asChild variant="secondary">
+                <Link href={`/workflows/${encodeURIComponent(workflowId)}/share`}>Open share-ready case asset</Link>
+              </Button>
+            </div>
           </Card>
           <Card>
             <h3>Run mapping</h3>
@@ -234,7 +282,7 @@ export default async function WorkflowDetailPage({
                 </div>
               ))
             )}
-            <span className="mono muted">Queue mutations currently live in desktop and CLI operator flows.</span>
+            <span className="mono muted">The web surface can now advance the queue directly when an operator role is configured.</span>
           </Card>
         </div>
       </section>

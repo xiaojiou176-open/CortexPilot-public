@@ -57,6 +57,15 @@
       "listed_in_primary_navigation": true
     },
     {
+      "path": "docs/architecture/mcp-and-operator-copilot-v1.md",
+      "kind": "reference",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
       "path": "docs/runbooks/public-release-checklist.md",
       "kind": "runbook",
       "status": "active",

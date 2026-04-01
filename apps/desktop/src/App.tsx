@@ -1,6 +1,12 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FolderGit2, GitBranch } from "lucide-react";
 import { Toaster, toast } from "sonner";
+import { getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
+import {
+  detectPreferredUiLocale,
+  persistPreferredUiLocale,
+  toggleUiLocale,
+} from "@cortexpilot/frontend-shared/uiLocale";
 import { Button } from "./components/ui/Button";
 import { AppSidebar } from "./components/layout/AppSidebar";
 import { useDesktopData } from "./hooks/useDesktopData";
@@ -37,7 +43,7 @@ import {
   isAbortRequestError,
   isTimeoutRequestError,
 } from "./features/pm-shell/constants";
-import { PAGE_TITLES, renderDesktopPage, type DesktopPageKey } from "./features/pm-shell/desktopPages";
+import { getDesktopPageTitle, renderDesktopPage, type DesktopPageKey } from "./features/pm-shell/desktopPages";
 import { previewIntake } from "./lib/api";
 import {
   buildComposerPlaceholder,
@@ -95,6 +101,7 @@ function App() {
   const [executionPlanPreview, setExecutionPlanPreview] = useState<ExecutionPlanReport | null>(null);
   const [executionPlanPreviewLoading, setExecutionPlanPreviewLoading] = useState(false);
   const [executionPlanPreviewError, setExecutionPlanPreviewError] = useState("");
+  const [uiLocale, setUiLocale] = useState<UiLocale>("en");
 
   const phaseTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pendingRequestRef = useRef<{ requestId: number; sessionId: string; controller: AbortController } | null>(null);
@@ -149,6 +156,10 @@ function App() {
     setOnboardingVisible(window.localStorage.getItem(ONBOARDING_STORAGE_KEY) !== "1");
   }, []);
 
+  useEffect(() => {
+    setUiLocale(detectPreferredUiLocale());
+  }, []);
+
   useEffect(() => { const t = window.setInterval(() => setNowMs(Date.now()), 60_000); return () => window.clearInterval(t); }, []);
   useEffect(() => {
     if (isChainPopout) {
@@ -180,6 +191,7 @@ function App() {
   }, [soundEnabled]);
 
   const workspace = useMemo(() => WORKSPACES.find((w) => w.id === activeWorkspaceId) ?? null, [activeWorkspaceId]);
+  const uiCopy = useMemo(() => getUiCopy(uiLocale), [uiLocale]);
   const selectedTaskPack = useMemo(() => findTaskPackByTemplate(taskPacks, taskTemplate), [taskPacks, taskTemplate]);
   const taskPackFieldValues = taskPackFieldValuesByTemplate[taskTemplate] || {};
   const activeDraftKey = useMemo(() => (!workspace || !activeSessionId) ? "" : draftStorageKey(workspace.id, activeSessionId), [workspace, activeSessionId]);
@@ -749,7 +761,7 @@ function App() {
   // Chain popout mode
   if (isChainPopout) {
     return (
-      <main className="app-body" aria-label="CortexPilot Command Tower desktop shell">
+      <main className="app-body" aria-label={uiCopy.desktop.shellAriaLabel}>
         <Toaster position="bottom-right" visibleToasts={3} closeButton />
         <PmShellContent {...pmShellProps} isChainPopout />
       </main>
@@ -759,30 +771,45 @@ function App() {
   const shouldHoldNonPmPage = activePage !== "pm" && !nonPmStylesReady;
 
   return (
-    <main className="app-body" aria-label="CortexPilot Command Tower desktop shell">
+    <main className="app-body" aria-label={uiCopy.desktop.shellAriaLabel}>
       <a className="skip-link" href="#desktop-main-content">
-        Skip to main content
+        {uiCopy.desktop.skipToMainContent}
       </a>
       <Toaster position="bottom-right" visibleToasts={3} closeButton />
       <div className="app-shell">
-        <AppSidebar activePage={activePage} onNavigate={navigate} />
+        <AppSidebar activePage={activePage} onNavigate={navigate} locale={uiLocale} />
         <div className="app-main">
           <header className="topbar" data-tauri-drag-region>
-            <h1 className="topbar-title">{PAGE_TITLES[activePage] || "CortexPilot Command Tower"}</h1>
-            <div className="workspace-picker no-drag" role="group" aria-label="Workspace picker">
-              <Button variant="secondary" className="workspace-trigger" onClick={cycleWorkspace}><FolderGit2 size={14} aria-hidden="true" />{workspace ? workspace.repo : "Select workspace"}</Button>
+            <h1 className="topbar-title">{getDesktopPageTitle(activePage, uiLocale)}</h1>
+            <div className="workspace-picker no-drag" role="group" aria-label={uiCopy.desktop.workspacePickerLabel}>
+              <Button variant="secondary" className="workspace-trigger" onClick={cycleWorkspace}><FolderGit2 size={14} aria-hidden="true" />{workspace ? workspace.repo : uiCopy.desktop.selectWorkspace}</Button>
               <Button variant="ghost" className="workspace-trigger" onClick={cycleBranch}><GitBranch size={14} aria-hidden="true" />{workspace ? workspace.branch : "-"}</Button>
+              <Button
+                variant="ghost"
+                className="workspace-trigger"
+                aria-label={uiCopy.desktop.localeToggleAriaLabel}
+                onClick={() => {
+                  setUiLocale((previous) => {
+                    const next = toggleUiLocale(previous);
+                    persistPreferredUiLocale(next);
+                    return next;
+                  });
+                }}
+              >
+                {uiCopy.desktop.localeToggleButtonLabel}
+              </Button>
             </div>
           </header>
           <div className="app-page-content" id="desktop-main-content">
             {shouldHoldNonPmPage ? (
               <section className="chat-panel" aria-label="Page styles loading">
-                <p className="shortcut-hint">Loading page styles...</p>
+                <p className="shortcut-hint">{uiCopy.desktop.loadingPageStyles}</p>
               </section>
             ) : (
-              <Suspense fallback={<section className="api-card"><p>Loading page...</p></section>}>
+              <Suspense fallback={<section className="api-card"><p>{uiCopy.desktop.loadingPage}</p></section>}>
                 {renderDesktopPage({
                   activePage,
+                  uiLocale,
                   pmPageContent,
                   detailRunId,
                   detailWorkflowId,

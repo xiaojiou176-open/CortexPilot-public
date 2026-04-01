@@ -41,11 +41,12 @@ def _coerce_priority(raw: Any) -> int:
 
 
 class QueueStore:
-    def __init__(self, queue_path: Path | None = None) -> None:
+    def __init__(self, queue_path: Path | None = None, *, ensure_storage: bool = True) -> None:
         runtime_root = Path(os.getenv("CORTEXPILOT_RUNTIME_ROOT", ".runtime-cache/cortexpilot"))
         self._queue_path = queue_path or (runtime_root / "queue.jsonl")
-        self._queue_path.parent.mkdir(parents=True, exist_ok=True)
-        self._queue_path.touch(exist_ok=True)
+        if ensure_storage:
+            self._queue_path.parent.mkdir(parents=True, exist_ok=True)
+            self._queue_path.touch(exist_ok=True)
 
     def _append(self, payload: dict[str, Any]) -> dict[str, Any]:
         data = dict(payload)
@@ -137,6 +138,8 @@ class QueueStore:
         return order, state
 
     def _load_state(self) -> tuple[list[str], dict[str, dict[str, Any]]]:
+        if not self._queue_path.exists():
+            return [], {}
         return self._load_state_from_lines(self._queue_path.read_text(encoding="utf-8").splitlines())
 
     def _queue_item_view(self, item: dict[str, Any]) -> dict[str, Any]:

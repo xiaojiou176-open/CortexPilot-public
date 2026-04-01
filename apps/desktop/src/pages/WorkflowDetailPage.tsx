@@ -1,11 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 import type { QueueItemRecord, WorkflowDetailPayload } from "../lib/types";
-import { enqueueRunQueue, fetchQueue, fetchWorkflow, runNextQueue } from "../lib/api";
+import { enqueueRunQueue, fetchQueue, fetchWorkflow, fetchWorkflowCopilotBrief, runNextQueue } from "../lib/api";
 import { statusLabelZh, statusVariant } from "../lib/statusPresentation";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { Card, CardBody, CardHeader, CardTitle } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
+import { DesktopCopilotPanel } from "../components/copilot/DesktopCopilotPanel";
+
+const WORKFLOW_COPILOT_QUESTIONS = [
+  "What is the most important workflow case risk right now?",
+  "What is the queue and SLA posture for this workflow case?",
+  "What is the biggest gap between the latest run and the current workflow state?",
+  "What should the operator do first to move this workflow case forward?",
+  "Which truth surfaces are still missing or partial?",
+];
 
 type Props = { workflowId: string; onBack: () => void; onNavigateToRun: (runId: string) => void };
 
@@ -42,6 +51,12 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
   if (error) return <div className="content"><div className="alert alert-danger">{error}</div><Button onClick={onBack}>Back</Button></div>;
   if (!data) return null;
   const workflowData = data;
+  const recommendedAction =
+    queueItems.length > 0
+      ? "Queued work already exists. The next high-value action is to run the next queued task and watch the case move."
+      : workflowData.runs.length > 0
+      ? "No queued work exists yet. Queue the latest run contract to move this Workflow Case into SLA tracking."
+      : "No run is available yet. Start or resume a run before you queue this Workflow Case.";
 
   function resolveLatestRunId(): string {
     const runs = [...workflowData.runs];
@@ -129,7 +144,29 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
         <Button variant="secondary" onClick={() => void handleRunNextQueue()} disabled={queueBusy}>{queueBusy ? "Running..." : "Run next queued task"}</Button>
       </div>
       {queueNotice ? <div className="alert alert-warning">{queueNotice}</div> : null}
+      <div className="mb-4">
+        <DesktopCopilotPanel
+          title="Workflow Case copilot"
+          intro="Generate one bounded workflow brief grounded in workflow status, queue posture, the latest linked run, proof, compare, incident, and approval truth."
+          buttonLabel="Explain this workflow case"
+          questionSet={WORKFLOW_COPILOT_QUESTIONS}
+          takeawaysHeading="Latest run gap, proof, and truth coverage"
+          postureHeading="Queue, SLA, and approval posture"
+          loadBrief={() => fetchWorkflowCopilotBrief(workflowId)}
+        />
+      </div>
       <div className="grid-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Next Operator Action</CardTitle>
+          </CardHeader>
+          <CardBody>
+            <div className="stack-gap-2">
+              <div className="mono">{recommendedAction}</div>
+              <div className="muted">Workflow Cases should be operated as case records, not as detached run rows.</div>
+            </div>
+          </CardBody>
+        </Card>
         <Card>
           <CardHeader>
             <CardTitle>Workflow Case Summary</CardTitle>

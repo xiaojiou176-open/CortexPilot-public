@@ -1,7 +1,9 @@
 import { lazy, Suspense, type RefObject } from "react";
 import { ArrowUp } from "lucide-react";
+import { previewFlightPlanCopilotBrief } from "../../lib/api";
 import { Button } from "../ui/Button";
 import { Input, Select, Textarea } from "../ui/Input";
+import { DesktopFlightPlanCopilotPanel } from "../copilot/DesktopFlightPlanCopilotPanel";
 import { OnboardingBanner } from "./OnboardingBanner";
 import { renderChatEmbed, type ChatMessage, type Workspace } from "../../lib/desktopUi";
 import {
@@ -27,6 +29,31 @@ function shouldRenderMarkdown(content: string): boolean {
     /(^|\n)\|.+\|/.test(content) ||
     /(\*\*[^*]+\*\*|__[^_]+__)/.test(content)
   );
+}
+
+function compactPreviewList(values: string[], limit = 3): string {
+  const filtered = values.map((value) => value.trim()).filter(Boolean);
+  if (filtered.length === 0) {
+    return "-";
+  }
+  if (filtered.length <= limit) {
+    return filtered.join(", ");
+  }
+  return `${filtered.slice(0, limit).join(", ")} +${filtered.length - limit} more`;
+}
+
+function summarizeFlightPlanTriggers(report: ExecutionPlanReport): string {
+  const triggers: string[] = [];
+  if (report.search_queries.length > 0) {
+    triggers.push(`Search (${report.search_queries.length})`);
+  }
+  if (report.task_template === "page_brief" || report.browser_policy_preset === "custom" || Boolean(report.effective_browser_policy)) {
+    triggers.push("Browser");
+  }
+  if (report.requires_human_approval) {
+    triggers.push("Manual approval");
+  }
+  return triggers.length > 0 ? triggers.join(", ") : "No extra capability trigger predicted.";
 }
 
 type ChatPanelProps = {
@@ -322,12 +349,30 @@ export function ChatPanel({
               {executionPlanPreview ? (
                 <div className="stack-gap-2" aria-label="Desktop Flight Plan preview">
                   <p className="shortcut-hint"><strong>Flight Plan:</strong> {executionPlanPreview.summary}</p>
-                  {executionPlanPreview.predicted_reports?.length ? (
-                    <p className="shortcut-hint">Predicted reports: {executionPlanPreview.predicted_reports.join(", ")}</p>
-                  ) : null}
+                  <p className="shortcut-hint">
+                    <strong>Checklist:</strong> {executionPlanPreview.objective}
+                  </p>
+                  <p className="shortcut-hint">
+                    Scope boundary: {executionPlanPreview.allowed_paths.length} allowed path entries, starting with {compactPreviewList(executionPlanPreview.allowed_paths)}
+                  </p>
+                  <p className="shortcut-hint">
+                    Expected outputs: reports {compactPreviewList(executionPlanPreview.predicted_reports)}; artifacts {compactPreviewList(executionPlanPreview.predicted_artifacts)}
+                  </p>
+                  <p className="shortcut-hint">
+                    Approval risk: {executionPlanPreview.requires_human_approval ? "Manual approval likely." : "No manual approval expected."}
+                  </p>
+                  <p className="shortcut-hint">
+                    Capability triggers: {summarizeFlightPlanTriggers(executionPlanPreview)}
+                  </p>
                   {executionPlanPreview.warnings?.length ? (
-                    <p className="shortcut-hint">Warnings: {executionPlanPreview.warnings.join(" | ")}</p>
+                    <p className="shortcut-hint">Risk gates: {executionPlanPreview.warnings.join(" | ")}</p>
                   ) : null}
+                  <DesktopFlightPlanCopilotPanel
+                    title="Flight Plan copilot"
+                    intro="Generate one advisory-only pre-run brief grounded in the current Flight Plan preview, expected outputs, capability triggers, and risk gates."
+                    buttonLabel="Explain this Flight Plan"
+                    loadBrief={() => previewFlightPlanCopilotBrief(executionPlanPreview, activeSessionId)}
+                  />
                 </div>
               ) : null}
               <div className="quick-actions">

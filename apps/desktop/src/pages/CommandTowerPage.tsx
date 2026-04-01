@@ -1,4 +1,5 @@
 import { type KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 import type { DesktopWorkMode } from "@cortexpilot/frontend-api-contract/ui-flow";
 import type {
   CommandTowerOverviewPayload,
@@ -32,12 +33,7 @@ const SORT_OPTIONS: Array<{ value: SortMode; label: string }> = [
   { value: "failed_desc", label: "Most failures" },
   { value: "blocked_desc", label: "Most blocked" },
 ];
-const FOCUS_OPTIONS: Array<{ value: FocusMode; label: string }> = [
-  { value: "all", label: "All" },
-  { value: "high_risk", label: "High risk" },
-  { value: "blocked", label: "Blocked" },
-  { value: "running", label: "Running" },
-];
+const FOCUS_OPTIONS: FocusMode[] = ["all", "high_risk", "blocked", "running"];
 
 /* ─── helpers ─── */
 function statusLabel(status: string): string {
@@ -58,11 +54,6 @@ function liveBadgeVariant(mode: LiveMode): BadgeVariant {
   if (mode === "backoff") return "failed";
   return "running";
 }
-function liveBadgeText(mode: LiveMode): string {
-  if (mode === "paused") return "Paused";
-  if (mode === "backoff") return "Backoff";
-  return "Live refresh";
-}
 function alertsStatusBadgeVariant(status: CommandTowerAlertsPayload["status"]): BadgeVariant {
   if (status === "critical") return "failed";
   if (status === "degraded") return "warning";
@@ -71,11 +62,28 @@ function alertsStatusBadgeVariant(status: CommandTowerAlertsPayload["status"]): 
 function sectionBadgeVariant(status: SectionFetchStatus): BadgeVariant {
   return status === "ok" ? "success" : "failed";
 }
-function sectionLabel(status: SectionFetchStatus): string {
-  return status === "ok" ? "Healthy" : "Issue";
-}
-
-export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?: (sessionId: string) => void }) {
+export function CommandTowerPage({
+  onNavigateToSession,
+  locale = DEFAULT_UI_LOCALE,
+}: {
+  onNavigateToSession?: (sessionId: string) => void;
+  locale?: UiLocale;
+}) {
+  const commandTowerCopy = getUiCopy(locale).desktop.commandTower;
+  const liveBadgeTextResolved = (mode: LiveMode) =>
+    mode === "paused"
+      ? commandTowerCopy.badges.paused
+      : mode === "backoff"
+        ? commandTowerCopy.badges.backoff
+        : commandTowerCopy.badges.liveRefresh;
+  const sectionStatusText = (status: SectionFetchStatus) =>
+    status === "ok" ? commandTowerCopy.sectionLabels.healthy : commandTowerCopy.sectionLabels.issue;
+  const focusOptions = [
+    { value: "all" as const, label: commandTowerCopy.focusLabels.all },
+    { value: "high_risk" as const, label: commandTowerCopy.focusLabels.highRisk },
+    { value: "blocked" as const, label: commandTowerCopy.focusLabels.blocked },
+    { value: "running" as const, label: commandTowerCopy.focusLabels.running },
+  ];
   const workMode: DesktopWorkMode = "execute";
   /* ─── core data ─── */
   const [overview, setOverview] = useState<CommandTowerOverviewPayload | null>(null);
@@ -287,10 +295,10 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
       else if (key === "c") { e.preventDefault(); void copyCurrentViewLink(); }
       else if (key === "f") { e.preventDefault(); projectInputRef.current?.focus(); setActionFeedback("Focused the project key input."); }
       else if (key === "d") { e.preventDefault(); setDrawerCollapsed((p) => { setActionFeedback(!p ? "Collapsed the right drawer." : "Expanded the right drawer."); return !p; }); }
-      else if (key === "1") { e.preventDefault(); setFocusMode("all"); setActionFeedback("Focus: all."); }
-      else if (key === "2") { e.preventDefault(); setFocusMode("high_risk"); setActionFeedback("Focus: high risk."); }
-      else if (key === "3") { e.preventDefault(); setFocusMode("blocked"); setActionFeedback("Focus: blocked."); }
-      else if (key === "4") { e.preventDefault(); setFocusMode("running"); setActionFeedback("Focus: running."); }
+      else if (key === "1") { e.preventDefault(); setFocusMode("all"); setActionFeedback(`Focus: ${commandTowerCopy.focusLabels.all.toLowerCase()}.`); }
+      else if (key === "2") { e.preventDefault(); setFocusMode("high_risk"); setActionFeedback(`Focus: ${commandTowerCopy.focusLabels.highRisk.toLowerCase()}.`); }
+      else if (key === "3") { e.preventDefault(); setFocusMode("blocked"); setActionFeedback(`Focus: ${commandTowerCopy.focusLabels.blocked.toLowerCase()}.`); }
+      else if (key === "4") { e.preventDefault(); setFocusMode("running"); setActionFeedback(`Focus: ${commandTowerCopy.focusLabels.running.toLowerCase()}.`); }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -336,14 +344,14 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
     return sessions;
   }, [focusMode, sessions]);
 
-  const focusLabel = FOCUS_OPTIONS.find((o) => o.value === focusMode)?.label || "All";
+  const focusLabel = focusOptions.find((o) => o.value === focusMode)?.label || commandTowerCopy.focusLabels.all;
 
   const refreshHealth = useMemo(() => {
     const ok = Object.values(sectionStatus).filter((v) => v === "ok").length;
-    if (ok === 3 && !errorMessage) return { label: "Full refresh succeeded", variant: "success" as const };
-    if (ok === 0) return { label: "Full pipeline refresh failed", variant: "failed" as const };
-    return { label: `Partial refresh succeeded (${ok}/3)`, variant: "warning" as const };
-  }, [errorMessage, sectionStatus]);
+    if (ok === 3 && !errorMessage) return { label: commandTowerCopy.refreshHealth.fullSuccess, variant: "success" as const };
+    if (ok === 0) return { label: commandTowerCopy.refreshHealth.fullFailure, variant: "failed" as const };
+    return { label: commandTowerCopy.refreshHealth.partialSuccess(ok), variant: "warning" as const };
+  }, [commandTowerCopy.refreshHealth, errorMessage, sectionStatus]);
 
   const freshness = useMemo(() => {
     if (!lastSuccessfulUpdated) return "No successful refresh recorded yet";
@@ -368,7 +376,7 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
   if (loading) return (
     <div className="content">
       <div className="section-header">
-        <div><h1 className="page-title">Command Tower</h1><p className="page-subtitle">Live session monitoring, alert review, and control-plane health.</p></div>
+        <div><h1 className="page-title">{commandTowerCopy.title}</h1><p className="page-subtitle">Loading live session monitoring and operator context...</p></div>
       </div>
       <div className="skeleton-stack-lg">
         <div className="stats-grid"><div className="skeleton skeleton-card" /><div className="skeleton skeleton-card" /><div className="skeleton skeleton-card" /><div className="skeleton skeleton-card" /></div>
@@ -384,29 +392,29 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
       {/* ─── Header ─── */}
       <div className="section-header">
         <div>
-          <h1 className="page-title">Command Tower</h1>
-          <p className="page-subtitle">Desktop stays focused on execution and operator decisions; deeper governance analysis moves to the web view.</p>
-          <p className="mono muted text-xs">Current mode: {workMode}</p>
+          <h1 className="page-title">{commandTowerCopy.title}</h1>
+          <p className="page-subtitle">{commandTowerCopy.subtitle}</p>
+          <p className="mono muted text-xs">{commandTowerCopy.currentModePrefix} {workMode}</p>
         </div>
         <div className="ct-header-badges">
-          <Badge variant={liveBadgeVariant(liveMode)}>{liveBadgeText(liveMode)}</Badge>
-          <Badge variant={alertsStatusBadgeVariant(alertsStatus)}>{"SLO: "}{alertsStatus}</Badge>
+          <Badge variant={liveBadgeVariant(liveMode)}>{liveBadgeTextResolved(liveMode)}</Badge>
+          <Badge variant={alertsStatusBadgeVariant(alertsStatus)}>{commandTowerCopy.badges.sloPrefix}{alertsStatus}</Badge>
         </div>
       </div>
 
       {/* ─── Action Bar ─── */}
       <div className="ct-action-bar">
         <Button variant="primary" onClick={refreshNow} disabled={isRefreshing}>
-          {isRefreshing ? "Refreshing..." : "Refresh progress"}
+          {isRefreshing ? commandTowerCopy.actions.refreshing : commandTowerCopy.actions.refreshProgress}
         </Button>
         <Button onClick={() => setLiveEnabled((p) => !p)}>
-          {liveEnabled ? "Pause auto-refresh" : "Resume auto-refresh"}
+          {liveEnabled ? commandTowerCopy.actions.pauseAutoRefresh : commandTowerCopy.actions.resumeAutoRefresh}
         </Button>
         <Button onClick={openPrimarySession} disabled={sessions.length === 0}>
-          Resume work
+          {commandTowerCopy.actions.resumeWork}
         </Button>
         <Button variant="ghost" onClick={openWebAnalysis}>
-          Open web deep analysis
+          {commandTowerCopy.actions.openWebDeepAnalysis}
         </Button>
       </div>
 
@@ -417,16 +425,16 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
         </div>
       )}
       <div className="row-gap-2">
-        <span className="muted text-xs">Advanced operator detail stays collapsed by default so the first screen remains action-focused.</span>
+        <span className="muted text-xs">{commandTowerCopy.collapsedHint}</span>
         <Button variant="ghost" onClick={() => setAdvancedMode((p) => !p)} aria-expanded={advancedMode}>
-          {advancedMode ? "Hide advanced detail" : "Show advanced detail"}
+          {advancedMode ? commandTowerCopy.actions.hideAdvancedDetail : commandTowerCopy.actions.showAdvancedDetail}
         </Button>
       </div>
       <section className="ct-web-handoff" aria-label="Web analysis handoff">
         <p>
-          Desktop owns the execution loop: refresh, pause, enter a session, and make operator decisions. For long-list analysis or complex filtering, use the
+          {commandTowerCopy.webHandoffIntro}{" "}
           <Button variant="ghost" onClick={openWebAnalysis}>
-            web analysis view
+            {commandTowerCopy.webAnalysisView}
           </Button>
           .
         </p>
@@ -434,10 +442,10 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
 
       {overview && (
         <div className="stats-grid">
-          <article className="metric-card"><p className="metric-label">Total sessions</p><p className="metric-value">{overview.total_sessions}</p></article>
-          <article className="metric-card"><p className="metric-label">Active</p><p className="metric-value metric-value--primary">{overview.active_sessions}</p></article>
-          <article className="metric-card"><p className="metric-label">Failed</p><p className="metric-value metric-value--danger">{overview.failed_sessions}</p></article>
-          <article className="metric-card"><p className="metric-label">Blocked</p><p className="metric-value metric-value--warning">{overview.blocked_sessions}</p></article>
+          <article className="metric-card"><p className="metric-label">{commandTowerCopy.metrics.totalSessions}</p><p className="metric-value">{overview.total_sessions}</p></article>
+          <article className="metric-card"><p className="metric-label">{commandTowerCopy.metrics.active}</p><p className="metric-value metric-value--primary">{overview.active_sessions}</p></article>
+          <article className="metric-card"><p className="metric-label">{commandTowerCopy.metrics.failed}</p><p className="metric-value metric-value--danger">{overview.failed_sessions}</p></article>
+          <article className="metric-card"><p className="metric-label">{commandTowerCopy.metrics.blocked}</p><p className="metric-value metric-value--warning">{overview.blocked_sessions}</p></article>
         </div>
       )}
       <p className="mono muted" role="status" aria-live="polite">
@@ -450,14 +458,14 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
       <Card className="ct-filter-card">
         <div className="row-between">
           <div>
-            <h3 className="card-title-reset text-base fw-600">Filters</h3>
-            <p className="ct-filter-hint">Filters only affect the session list and can be combined with focus mode.</p>
+            <h3 className="card-title-reset text-base fw-600">{commandTowerCopy.filterTitle}</h3>
+            <p className="ct-filter-hint">{commandTowerCopy.filterHint}</p>
           </div>
-          {draftChanged && <Badge variant="warning">Draft not applied</Badge>}
+          {draftChanged && <Badge variant="warning">{commandTowerCopy.draftNotApplied}</Badge>}
         </div>
         <div className="ct-filter-controls">
-          <fieldset className="ct-filter-fieldset" aria-label="Status filters">
-            <legend className="ct-filter-legend">Status</legend>
+          <fieldset className="ct-filter-fieldset" aria-label={commandTowerCopy.statusLegend}>
+            <legend className="ct-filter-legend">{commandTowerCopy.statusLegend}</legend>
             {STATUS_OPTIONS.map((st) => (
               <label key={st} className="ct-filter-check">
                 <input type="checkbox" checked={draftStatuses.includes(st)} onChange={() => toggleDraftStatus(st)} />
@@ -466,25 +474,25 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
             ))}
           </fieldset>
           <label className="ct-filter-group">
-            <span className="ct-filter-label">Project key</span>
+            <span className="ct-filter-label">{commandTowerCopy.projectKey}</span>
             <Input ref={projectInputRef} className="ct-filter-input" value={draftProjectKey} onChange={(e) => setDraftProjectKey(e.target.value)} onKeyDown={handleFilterKeyDown} placeholder="cortexpilot" />
           </label>
           <label className="ct-filter-group ct-filter-group-sort">
-            <span className="ct-filter-label">Sort</span>
+            <span className="ct-filter-label">{commandTowerCopy.sort}</span>
             <Select className="ct-filter-input" value={draftSort} onChange={(e) => setDraftSort(e.target.value as SortMode)} onKeyDown={handleFilterKeyDown}>
               {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </Select>
           </label>
           <div className="row-gap-2">
-            <Button variant="primary" onClick={applyFilters} disabled={!draftChanged}>Apply</Button>
-            <Button variant="ghost" onClick={resetFilters}>Reset</Button>
+            <Button variant="primary" onClick={applyFilters} disabled={!draftChanged}>{commandTowerCopy.apply}</Button>
+            <Button variant="ghost" onClick={resetFilters}>{commandTowerCopy.reset}</Button>
           </div>
         </div>
       </Card>
 
       {/* ─── Focus View ─── */}
       <div role="group" aria-label="Focus view switcher" className="ct-focus-group">
-        {FOCUS_OPTIONS.map((opt) => (
+        {focusOptions.map((opt) => (
           <Button key={opt.value} variant={focusMode === opt.value ? "primary" : "ghost"} aria-pressed={focusMode === opt.value} onClick={() => setFocusMode(opt.value)}>
             {opt.label}
             {opt.value === "all" && <span className="ct-focus-count">{sessionsSummary.total}</span>}
@@ -499,9 +507,9 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
       <div className="ct-health-bar" role="status" aria-live="polite">
         <Badge variant={refreshHealth.variant}>{refreshHealth.label}</Badge>
         <Badge variant="success">{freshness}</Badge>
-        <Badge variant={sectionBadgeVariant(sectionStatus.overview)}>{"Overview "}{sectionLabel(sectionStatus.overview)}</Badge>
-        <Badge variant={sectionBadgeVariant(sectionStatus.sessions)}>{"Sessions "}{sectionLabel(sectionStatus.sessions)}</Badge>
-        <Badge variant={sectionBadgeVariant(sectionStatus.alerts)}>{"Alerts "}{sectionLabel(sectionStatus.alerts)}</Badge>
+        <Badge variant={sectionBadgeVariant(sectionStatus.overview)}>{commandTowerCopy.sectionLabels.overview} {sectionStatusText(sectionStatus.overview)}</Badge>
+        <Badge variant={sectionBadgeVariant(sectionStatus.sessions)}>{commandTowerCopy.sectionLabels.sessions} {sectionStatusText(sectionStatus.sessions)}</Badge>
+        <Badge variant={sectionBadgeVariant(sectionStatus.alerts)}>{commandTowerCopy.sectionLabels.alerts} {sectionStatusText(sectionStatus.alerts)}</Badge>
       </div>
 
       {/* ─── Error Banner ─── */}
@@ -509,15 +517,15 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
         <div className="alert alert-danger ct-error-banner" role="alert">
           <div className="stack-gap-2">
             <div className="row-gap-2">
-              <Badge variant="failed">Issue</Badge>
+              <Badge variant="failed">{commandTowerCopy.errorIssueBadge}</Badge>
               <span className="mono text-xs">{errorMessage}</span>
             </div>
-            <p className="muted text-xs">Recommended action: retry the refresh first. If it keeps failing, inspect network reachability and backend availability.</p>
+            <p className="muted text-xs">{commandTowerCopy.errorRecommendedAction}</p>
             <div className="row-gap-2">
               <Button variant="primary" onClick={refreshNow} disabled={isRefreshing}>
-                {isRefreshing ? "Retrying..." : "Retry refresh"}
+                {isRefreshing ? commandTowerCopy.retrying : commandTowerCopy.retryRefresh}
               </Button>
-              <Button variant="ghost" onClick={() => setLiveEnabled(false)}>Pause live triage</Button>
+              <Button variant="ghost" onClick={() => setLiveEnabled(false)}>{commandTowerCopy.pauseLiveTriage}</Button>
             </div>
           </div>
         </div>
@@ -525,10 +533,10 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
 
       {/* ─── Filter / Focus Empty States ─── */}
       {sessions.length === 0 && hasAppliedFilters && (
-        <div className="empty-state-stack"><p className="text-secondary">No sessions match the current filters.</p><Button onClick={resetFilters}>Reset filters</Button></div>
+        <div className="empty-state-stack"><p className="text-secondary">{commandTowerCopy.noSessionsForFilters}</p><Button onClick={resetFilters}>{commandTowerCopy.reset}</Button></div>
       )}
       {visibleSessions.length === 0 && sessions.length > 0 && focusMode !== "all" && (
-        <div className="empty-state-stack"><p className="text-secondary">No sessions match the current focus mode.</p><Button onClick={() => setFocusMode("all")}>View all</Button></div>
+        <div className="empty-state-stack"><p className="text-secondary">{commandTowerCopy.noSessionsForFocus}</p><Button onClick={() => setFocusMode("all")}>{commandTowerCopy.viewAll}</Button></div>
       )}
 
       {/* ─── Main Layout: Sessions + Drawer ─── */}
@@ -539,17 +547,17 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
           <div className="app-section">
             <div className="section-header">
               <div>
-                <h2 className="section-title">Session board</h2>
+                <h2 className="section-title">{commandTowerCopy.sessionBoardTitle}</h2>
                 <p className="ct-session-count">{"Showing "}{visibleSessions.length}{" / "}{sessionsSummary.total}{" sessions"}</p>
               </div>
               <Badge>{focusLabel}</Badge>
             </div>
             {visibleSessions.length === 0 ? (
               <div className="empty-state-stack">
-                <p className="muted">No sessions yet.</p>
+                <p className="muted">{commandTowerCopy.noSessionsYet}</p>
                 <div className="row-gap-2">
                   <Button variant="primary" onClick={refreshNow} disabled={isRefreshing}>
-                    {isRefreshing ? "Refreshing..." : "Refresh now"}
+                    {isRefreshing ? commandTowerCopy.actions.refreshing : commandTowerCopy.refreshNow}
                   </Button>
                   <Button
                     variant="ghost"
@@ -558,7 +566,7 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
                       resetFilters();
                     }}
                   >
-                    View all sessions
+                    {commandTowerCopy.viewAllSessions}
                   </Button>
                 </div>
               </div>
@@ -626,63 +634,63 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
 
         {/* ─── Drawer Panel ─── */}
         {!drawerCollapsed && (
-          <aside className="ct-drawer-panel" role="complementary" aria-label="Command Tower context drawer">
+          <aside className="ct-drawer-panel" role="complementary" aria-label={commandTowerCopy.drawer.ariaLabel}>
             <div className="ct-drawer-header">
-              <span className="ct-drawer-title">Context</span>
-              <Button variant="ghost" className="ct-drawer-close-btn" onClick={() => setDrawerCollapsed(true)} aria-label="Close drawer">
+              <span className="ct-drawer-title">{commandTowerCopy.drawer.title}</span>
+              <Button variant="ghost" className="ct-drawer-close-btn" onClick={() => setDrawerCollapsed(true)} aria-label={commandTowerCopy.drawer.close}>
                 {"x"}
               </Button>
             </div>
 
             {/* Status row */}
             <div className="ct-drawer-status-row">
-              <Badge variant={liveBadgeVariant(liveMode)}>{liveBadgeText(liveMode)}</Badge>
+              <Badge variant={liveBadgeVariant(liveMode)}>{liveBadgeTextResolved(liveMode)}</Badge>
               <Badge variant={alertsStatusBadgeVariant(alertsStatus)}>{alertsStatus}</Badge>
               <Badge variant={refreshHealth.variant}>{refreshHealth.label}</Badge>
             </div>
 
             {/* Quick actions */}
             <div className="ct-drawer-section">
-              <h4 className="ct-drawer-title-xs">Quick actions</h4>
+              <h4 className="ct-drawer-title-xs">{commandTowerCopy.drawer.quickActions}</h4>
               <div className="ct-drawer-mini-actions">
-                <Button className="ct-drawer-mini-btn" onClick={refreshNow} disabled={isRefreshing}>{isRefreshing ? "..." : "Refresh"} <kbd className="ct-kbd-mini">Alt+Shift+R</kbd></Button>
-                <Button className="ct-drawer-mini-btn" onClick={() => setLiveEnabled((p) => !p)}>{liveEnabled ? "Pause" : "Resume"} <kbd className="ct-kbd-mini">Alt+Shift+L</kbd></Button>
-                <Button className="ct-drawer-mini-btn" onClick={exportFailedSessions}>Export <kbd className="ct-kbd-mini">Alt+Shift+E</kbd></Button>
-                <Button className="ct-drawer-mini-btn" onClick={() => void copyCurrentViewLink()}>Copy <kbd className="ct-kbd-mini">Alt+Shift+C</kbd></Button>
+                <Button className="ct-drawer-mini-btn" onClick={refreshNow} disabled={isRefreshing}>{isRefreshing ? "..." : commandTowerCopy.refreshNow} <kbd className="ct-kbd-mini">Alt+Shift+R</kbd></Button>
+                <Button className="ct-drawer-mini-btn" onClick={() => setLiveEnabled((p) => !p)}>{liveEnabled ? commandTowerCopy.drawer.paused : commandTowerCopy.drawer.running} <kbd className="ct-kbd-mini">Alt+Shift+L</kbd></Button>
+                <Button className="ct-drawer-mini-btn" onClick={exportFailedSessions}>{commandTowerCopy.drawer.export} <kbd className="ct-kbd-mini">Alt+Shift+E</kbd></Button>
+                <Button className="ct-drawer-mini-btn" onClick={() => void copyCurrentViewLink()}>{commandTowerCopy.drawer.copy} <kbd className="ct-kbd-mini">Alt+Shift+C</kbd></Button>
               </div>
             </div>
 
             {/* Health */}
             <div className="ct-drawer-section">
-              <h4 className="ct-drawer-title-xs">Health</h4>
+              <h4 className="ct-drawer-title-xs">{commandTowerCopy.drawer.health}</h4>
               <div className="ct-drawer-health-list">
                 <div className="ct-drawer-health-row">
-                  <span className="muted">Live engine</span>
-                  <Badge variant={liveBadgeVariant(liveMode)}>{liveEnabled ? "RUNNING" : "PAUSED"}</Badge>
+                  <span className="muted">{commandTowerCopy.badges.liveRefresh}</span>
+                  <Badge variant={liveBadgeVariant(liveMode)}>{liveEnabled ? commandTowerCopy.drawer.running : commandTowerCopy.drawer.paused}</Badge>
                 </div>
                 <div className="ct-drawer-health-row">
-                  <span className="muted">SLO health</span>
+                  <span className="muted">{commandTowerCopy.badges.sloPrefix.trim()}</span>
                   <Badge variant={alertsStatusBadgeVariant(alertsStatus)}>{alertsStatus.toUpperCase()}</Badge>
                 </div>
                 <div className="ct-drawer-health-row">
-                  <span className="muted">Focus hits</span>
+                  <span className="muted">{commandTowerCopy.drawer.focusHits}</span>
                   <Badge variant="success">{focusLabel} ({visibleSessions.length}/{sessionsSummary.total})</Badge>
                 </div>
                 <div className="ct-drawer-health-row">
-                  <span className="muted">Filter state</span>
-                  <Badge variant={hasAppliedFilters ? "running" : "warning"}>{hasAppliedFilters ? `${appliedFilterCount} applied` : "ALL"}</Badge>
+                  <span className="muted">{commandTowerCopy.drawer.filterState}</span>
+                  <Badge variant={hasAppliedFilters ? "running" : "warning"}>{hasAppliedFilters ? `${appliedFilterCount} ${commandTowerCopy.apply.toLowerCase()}` : commandTowerCopy.drawer.allFilters}</Badge>
                 </div>
               </div>
               <div className="ct-drawer-tags">
-                <Badge variant={sectionBadgeVariant(sectionStatus.overview)}>{"Overview "}{sectionLabel(sectionStatus.overview)}</Badge>
-                <Badge variant={sectionBadgeVariant(sectionStatus.sessions)}>{"Sessions "}{sectionLabel(sectionStatus.sessions)}</Badge>
-                <Badge variant={sectionBadgeVariant(sectionStatus.alerts)}>{"Alerts "}{sectionLabel(sectionStatus.alerts)}</Badge>
+                <Badge variant={sectionBadgeVariant(sectionStatus.overview)}>{commandTowerCopy.sectionLabels.overview} {sectionStatusText(sectionStatus.overview)}</Badge>
+                <Badge variant={sectionBadgeVariant(sectionStatus.sessions)}>{commandTowerCopy.sectionLabels.sessions} {sectionStatusText(sectionStatus.sessions)}</Badge>
+                <Badge variant={sectionBadgeVariant(sectionStatus.alerts)}>{commandTowerCopy.sectionLabels.alerts} {sectionStatusText(sectionStatus.alerts)}</Badge>
               </div>
             </div>
 
             {/* Inspection prompts */}
             <div className="ct-drawer-section">
-              <h4 className="ct-drawer-title-xs">Inspection prompts</h4>
+              <h4 className="ct-drawer-title-xs">{commandTowerCopy.drawer.inspectionPrompts}</h4>
               <ul className="ct-drawer-prompt-list">
                 {drawerPrompts.map((p) => (
                   <li key={p} className="ct-drawer-prompt-item">{p}</li>
@@ -693,14 +701,14 @@ export function CommandTowerPage({ onNavigateToSession }: { onNavigateToSession?
             {/* Alerts */}
             <div className="ct-drawer-section">
               <div className="row-between">
-                <h4 className="ct-drawer-title-xs">Alerts</h4>
-                <Badge>{alertsSeverity.critical > 0 ? `${alertsSeverity.critical} critical` : `${alerts.length} records`}</Badge>
+                <h4 className="ct-drawer-title-xs">{commandTowerCopy.drawer.alerts}</h4>
+                <Badge>{alertsSeverity.critical > 0 ? commandTowerCopy.drawer.criticalCount(alertsSeverity.critical) : commandTowerCopy.drawer.records(alerts.length)}</Badge>
               </div>
               {alerts.length === 0 ? (
                 <div className="empty-state-stack">
-                  <p className="ct-empty-hint">System healthy. No alerts right now.</p>
+                  <p className="ct-empty-hint">{commandTowerCopy.drawer.noAlerts}</p>
                   <Button variant="ghost" onClick={refreshNow} disabled={isRefreshing}>
-                    {isRefreshing ? "Refreshing..." : "Review alert state"}
+                    {isRefreshing ? commandTowerCopy.actions.refreshing : commandTowerCopy.drawer.reviewAlertState}
                   </Button>
                 </div>
               ) : (

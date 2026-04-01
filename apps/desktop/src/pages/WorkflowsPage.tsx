@@ -61,7 +61,7 @@ export function WorkflowsPage({ onNavigateToWorkflow }: WorkflowsPageProps) {
   return (
     <div className="content">
       <div className="section-header">
-        <div><h1 className="page-title">Workflow Cases</h1><p className="page-subtitle">Review workflow cases, linked runs, and the current operating verdict.</p></div>
+        <div><h1 className="page-title">Workflow Cases</h1><p className="page-subtitle">Review the case record that ties queue posture, linked runs, and the current operating verdict together.</p></div>
         <div className="row-gap-2">
           <Button onClick={load}>Refresh</Button>
           <Button variant="secondary" onClick={() => void handleRunNextQueue()} disabled={queueActionBusy}>
@@ -74,7 +74,7 @@ export function WorkflowsPage({ onNavigateToWorkflow }: WorkflowsPageProps) {
       {loading ? (
         <div className="skeleton-stack-lg"><div className="skeleton skeleton-row" /><div className="skeleton skeleton-row" /></div>
       ) : workflows.length === 0 ? (
-        <div className="empty-state-stack"><p className="muted">No workflows yet</p></div>
+        <div className="empty-state-stack"><p className="muted">No workflow cases yet</p></div>
       ) : (
         <Card>
           <table className="run-table">

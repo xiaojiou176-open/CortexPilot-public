@@ -6,7 +6,9 @@ import type {
   ContractRecord,
   ExecutionPlanReport,
   EventRecord,
+  FlightPlanCopilotBrief,
   JsonValue,
+  OperatorCopilotBrief,
   PmSessionConversationGraphPayload,
   PmSessionDetailPayload,
   PmSessionMetricsPayload,
@@ -49,6 +51,23 @@ function normalizeAbortTimeoutError(error: unknown): Error {
 
 function dynamicFetch(input: string | URL | Request, init?: RequestInit): Promise<Response> {
   return globalThis.fetch(input, init);
+}
+
+async function desktopPostJson<T>(path: string, payload: Record<string, JsonValue>, errorLabel: string): Promise<T> {
+  const token = resolveDesktopApiToken();
+  const response = await dynamicFetch(`${resolveDesktopApiBase()}${path}`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
+    },
+    credentials: "same-origin",
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error(`${errorLabel}: ${response.status}`);
+  }
+  return (await response.json()) as T;
 }
 
 class DynamicEventSource {
@@ -124,6 +143,16 @@ export async function rejectRun(runId: string) {
 
 export async function replayRun(runId: string, baselineRunId?: string) {
   return withNormalizedError(() => desktopApiClient.replayRun(runId, baselineRunId) as Promise<Record<string, JsonValue>>);
+}
+
+export async function fetchOperatorCopilotBrief(runId: string) {
+  return withNormalizedError(() =>
+    desktopPostJson<OperatorCopilotBrief>(
+      `/api/runs/${encodeURIComponent(runId)}/copilot-brief`,
+      {},
+      "Operator copilot failed",
+    ),
+  );
 }
 
 export async function fetchToolCalls(runId: string) {
@@ -271,6 +300,16 @@ export async function runIntake(intakeId: string, payload: Record<string, JsonVa
   return withNormalizedError(() => desktopApiClient.runIntake(intakeId, payload, options) as Promise<Record<string, JsonValue>>);
 }
 
+export async function fetchWorkflowOperatorCopilotBrief(workflowId: string) {
+  return withNormalizedError(() =>
+    desktopPostJson<OperatorCopilotBrief>(
+      `/api/workflows/${encodeURIComponent(workflowId)}/copilot-brief`,
+      {},
+      "Workflow copilot failed",
+    ),
+  );
+}
+
 /* ─── PM Session Messages ─── */
 export async function postPmSessionMessage(pmSessionId: string, payload: Record<string, JsonValue>, options: RequestControlOptions = {}) {
   return withNormalizedError(
@@ -285,6 +324,27 @@ export async function fetchPendingApprovals() {
 
 export async function approveGodMode(runId: string) {
   return withNormalizedError(() => desktopApiClient.approveGodMode(runId) as Promise<Record<string, JsonValue>>);
+}
+
+export async function fetchWorkflowCopilotBrief(workflowId: string) {
+  return fetchWorkflowOperatorCopilotBrief(workflowId);
+}
+
+export async function fetchFlightPlanCopilotBrief(executionPlanPreview: ExecutionPlanReport) {
+  return withNormalizedError(() =>
+    desktopPostJson<FlightPlanCopilotBrief>(
+      "/api/intake/preview/copilot-brief",
+      executionPlanPreview as unknown as Record<string, JsonValue>,
+      "Flight Plan copilot failed",
+    ),
+  );
+}
+
+export async function previewFlightPlanCopilotBrief(
+  executionPlanPreview: ExecutionPlanReport,
+  _intakeId = "",
+) {
+  return fetchFlightPlanCopilotBrief(executionPlanPreview);
 }
 
 /* ─── Legacy aliases (used by useDesktopData) ─── */

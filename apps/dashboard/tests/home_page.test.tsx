@@ -13,39 +13,50 @@ vi.mock("next/link", () => ({
 
 vi.mock("../lib/api", () => ({
   fetchRuns: vi.fn(),
+  fetchWorkflows: vi.fn(),
 }));
 
 import Home from "../app/page";
 import RunsPage from "../app/runs/page";
 import RootLayout from "../app/layout";
-import { fetchRuns } from "../lib/api";
+import { fetchRuns, fetchWorkflows } from "../lib/api";
 
 describe("dashboard home run-summary clarity", () => {
   const mockFetchRuns = vi.mocked(fetchRuns);
+  const mockFetchWorkflows = vi.mocked(fetchWorkflows);
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockFetchRuns.mockResolvedValue([]);
+    mockFetchWorkflows.mockResolvedValue([]);
   });
 
   it("renders first-run CTA and onboarding guidance when no runs", async () => {
     render(await Home());
 
-    expect(screen.getByRole("heading", { name: "Create and run AI tasks" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Command Tower for Codex and Claude Code workflows" })).toBeInTheDocument();
     expect(
-      screen.getByText(/The default public path is simple: create a task, watch progress, and inspect results\./)
+      screen.getByText(/Start one workflow case, watch Command Tower, then inspect Proof & Replay\./)
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start first task" })).toHaveAttribute("href", "/pm");
+    expect(screen.getAllByRole("link", { name: /Workflow Cases/ })[0]).toHaveAttribute("href", "/workflows");
 
-    const firstLoop = screen.getByLabelText("Start your first task in three steps");
+    const firstLoop = screen.getByLabelText("Start your first task in four steps");
     expect(within(firstLoop).getByRole("link", { name: /Describe the request \(goal \+ acceptance\)/ })).toHaveAttribute("href", "/pm");
     expect(within(firstLoop).getByRole("link", { name: /Watch live progress \(confirm it is moving\)/ })).toHaveAttribute("href", "/command-tower");
-    expect(within(firstLoop).getByRole("link", { name: /Inspect the outcome \(evidence and replay\)/ })).toHaveAttribute("href", "/runs");
+    expect(within(firstLoop).getByRole("link", { name: /Confirm the Workflow Case/ })).toHaveAttribute("href", "/workflows");
+    expect(within(firstLoop).getByRole("link", { name: /Inspect Proof & Replay/ })).toHaveAttribute("href", "/runs");
     expect(screen.getByRole("link", { name: /Approval checkpoint \(only when review is required\)/ })).toHaveAttribute("href", "/god-mode");
 
-    expect(within(firstLoop).getAllByText(/Step\s[1-3]/)).toHaveLength(3);
-    expect(within(firstLoop).getByText(/Start with the request, then watch progress, then inspect the result\./)).toBeInTheDocument();
+    expect(within(firstLoop).getAllByText(/Step\s[1-4]/)).toHaveLength(4);
+    expect(within(firstLoop).getByText(/Start with the request, watch Command Tower, confirm the Workflow Case, then inspect Proof & Replay\./)).toBeInTheDocument();
     expect(screen.getByText(/Each entry keeps the task ID, failure clue, and next operator action visible\./)).toBeInTheDocument();
+    expect(screen.getByText("Release-proven first run")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: /news_digest/i })[0]).toHaveAttribute("href", "/pm?template=news_digest");
+    expect(screen.getByText("Proof state: official public baseline")).toBeInTheDocument();
+    expect(screen.getAllByText("Public case gallery baseline").length).toBeGreaterThan(0);
+    expect(screen.getByText("News digest gallery card")).toBeInTheDocument();
+    expect(screen.getByText("Primary report: news_digest_result.json")).toBeInTheDocument();
     expect(screen.getByText("Risk summary")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Governance entry: open runs" })).toHaveAttribute("href", "/runs");
     expect(screen.getByText("Stable: no recent failed runs (0%)")).toHaveClass("badge--success");
@@ -67,7 +78,7 @@ describe("dashboard home run-summary clarity", () => {
     render(await Home());
     expect(screen.getByRole("link", { name: "Start new task" })).toHaveAttribute("href", "/pm");
     expect(screen.queryByRole("link", { name: "Start first task" })).not.toBeInTheDocument();
-    expect(screen.queryByLabelText("Start your first task in three steps")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Start your first task in four steps")).not.toBeInTheDocument();
   });
 
   it("maps latest failure category to semantic label and provides governance link", async () => {
@@ -235,9 +246,9 @@ describe("dashboard home run-summary clarity", () => {
 
     expect(markup).toContain('lang="en"');
     expect(markup).toContain("Skip to dashboard content");
-    expect(markup).toContain('aria-label="Primary navigation"');
-    expect(markup).toContain("AI agent governance control plane");
-    expect(markup).toContain("Operations console");
+    expect(markup).toContain('aria-label="Dashboard navigation"');
+    expect(markup).toContain("Command Tower · Workflow Cases · Proof &amp; Replay");
+    expect(markup).toContain("Operator control plane");
     expect(markup).toContain('aria-label="Platform status overview"');
     expect(markup).toContain("Governance view");
     expect(markup).toContain("Live verification required");

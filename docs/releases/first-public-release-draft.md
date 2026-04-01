@@ -1,15 +1,14 @@
-# CortexPilot v0.1.0-alpha.1 - repo-side first public release draft
+# CortexPilot v0.1.0-alpha.1 - first public release baseline
 
-This file is the repo-side draft source for the first public GitHub Release. It
-is not the live release page itself, and future edits to this file do not
-retroactively prove that the published release notes were updated.
+This file is the tracked source for the first public GitHub Release notes.
 
-This draft is the first public storefront baseline for CortexPilot.
+This release is the first public storefront baseline for CortexPilot.
 
 ## Why this release matters
 
-CortexPilot is not just an agent demo repository. It is a governed AI task
-orchestration control plane with evidence, replay, and operator visibility.
+CortexPilot is not just an agent demo repository. It is a command tower for
+Codex and Claude Code workflows with evidence, replay, Workflow Cases, and
+operator visibility.
 
 This release makes that story much clearer on the public surface.
 
@@ -21,6 +20,8 @@ This release makes that story much clearer on the public surface.
 - split the first-success quickstart from contributor onboarding
 - added release and storefront runbooks for future maintenance
 - clarified the repo-side proof contract for the first public release bundle
+- added a repo-local read-only MCP server entry for control-plane reads
+- added an explain-only operator brief on dashboard Run Detail and Run Compare
 
 ## What to look at first
 
@@ -36,7 +37,7 @@ happy-path baseline for proof-oriented copy and future benchmark publication.
 
 ## Present Repo-Side Proof
 
-- release notes draft exists in this file
+- release notes source exists in this file
 - README and storefront docs exist and are aligned to the current public story
 - tracked explainer assets and limited-scope captures exist in
   `docs/assets/storefront/`
@@ -44,16 +45,20 @@ happy-path baseline for proof-oriented copy and future benchmark publication.
   `docs/releases/assets/news-digest-healthy-proof-2026-03-27.md`
 - a tracked single-run public baseline now exists in
   `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md`
+- repo-side Prompt 4 now also includes read-only MCP and operator-brief docs in
+  `docs/architecture/mcp-and-operator-copilot-v1.md`
 
 ## Live Publication State
 
-- GitHub social preview still needs to be configured in repository settings
+- GitHub social preview still needs to be confirmed in repository settings
 - GitHub Discussions are enabled on the live repository
-- the live GitHub Release is now
+- the live GitHub Release is
   `https://github.com/xiaojiou176-open/CortexPilot-public/releases/tag/v0.1.0-alpha.1`
 - no broader multi-round benchmark artifact is published yet
-- GitHub Pages is enabled from `/docs`, and the live site is now
+- GitHub Pages is enabled from `/docs`, and the live site is
   `https://xiaojiou176-open.github.io/CortexPilot-public/`
+- the live release body now follows the current Pages URL and the updated
+  `Codex / Claude Code` command-tower positioning
 
 ## Verification
 

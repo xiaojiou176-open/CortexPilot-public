@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import CommandTowerHomeLiveClient from "./CommandTowerHomeLiveClient";
+import ControlPlaneStatusCallout from "../../components/control-plane/ControlPlaneStatusCallout";
 import { fetchCommandTowerOverview, fetchPmSessions } from "../../lib/api";
 import { safeLoad } from "../../lib/serverPageData";
 import type { CommandTowerOverviewPayload, PmSessionSummary } from "../../lib/types";
@@ -46,20 +47,31 @@ async function CommandTowerHomeSection() {
   return (
     <>
       {warning && !hasLiveData ? (
-        <div className="alert alert-warning" role="status" aria-live="polite">
-          <p>Live overview is unavailable right now. Reload first; if it still fails, inspect runs or start a new task.</p>
-          <div className="toolbar toolbar--mt" role="group" aria-label="Live overview fallback actions">
-            <Link className="run-link" href="/command-tower">
-              Reload Command Tower
-            </Link>
-            <Link className="run-link" href="/runs">
-              View runs
-            </Link>
-            <Link className="run-link" href="/pm">
-              Start from PM
-            </Link>
-          </div>
-        </div>
+        <ControlPlaneStatusCallout
+          title="Command Tower live overview is unavailable"
+          summary={warning}
+          nextAction="Reload first. If live data is still missing, inspect runs for the latest verified state or start from PM to rebuild the active path."
+          tone="warning"
+          badgeLabel="Live data missing"
+          actions={[
+            { href: "/command-tower", label: "Reload Command Tower" },
+            { href: "/runs", label: "View runs" },
+            { href: "/pm", label: "Start from PM" },
+          ]}
+        />
+      ) : null}
+      {warning && hasLiveData ? (
+        <ControlPlaneStatusCallout
+          title="Command Tower is running with partial truth"
+          summary={warning}
+          nextAction="Use the visible overview as a partial snapshot only. Confirm runs or Workflow Cases directly before taking approval, rollback, or release decisions."
+          tone="warning"
+          badgeLabel="Partial context"
+          actions={[
+            { href: "/runs", label: "Open runs" },
+            { href: "/workflows", label: "Open Workflow Cases" },
+          ]}
+        />
       ) : null}
       <section aria-label="Command Tower live overview" aria-describedby="command-tower-page-subtitle">
         <CommandTowerHomeLiveClient initialOverview={overview} initialSessions={sessions} />

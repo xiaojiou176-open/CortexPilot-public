@@ -5,7 +5,7 @@ import { fetchDiffGate, fetchDiff, mutationExecutionCapability, rejectRun, rollb
 import DiffViewer from "./DiffViewer";
 import Link from "next/link";
 import { sanitizeUiError, uiErrorDetail } from "../lib/uiError";
-import { statusLabelZh } from "../lib/statusPresentation";
+import { formatDashboardDateTime, statusLabel } from "../lib/statusPresentation";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
@@ -36,11 +36,12 @@ type ExpandedDiffState = {
 };
 
 function formatLocalTime(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return "--";
-  }
-  return date.toLocaleTimeString("zh-CN", { hour12: false });
+  return formatDashboardDateTime(iso, "en", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
 }
 
 function toTestIdSegment(value: string): string {
@@ -369,9 +370,12 @@ export default function DiffGatePanel() {
     return (
       <Card data-testid="diff-gate-error-state">
         <div className="alert alert-danger" role="alert">
-          <strong>Failed to load pending review records:</strong>
+          <strong>Diff Gate truth is currently unavailable:</strong>
           <span>{loadError}</span>
         </div>
+        <p className="mono muted">
+          This is a data-availability problem, not evidence that all changes already passed review.
+        </p>
         <div className="toolbar">
           <Button
             variant="default"
@@ -392,6 +396,9 @@ export default function DiffGatePanel() {
   return (
     <div className="grid" data-testid="diff-gate-panel">
       <Card>
+        <p className="mono muted">
+          Diff Gate separates read-only review, gate-blocked changes, and missing truth. Do not treat an empty or degraded view as approval.
+        </p>
         <p className="mono muted" role="status" aria-live="polite" data-testid="diff-gate-list-status">
           {listStatus || `Pending review records: ${items.length}; showing ${visibleItems.length}.`}
         </p>
@@ -437,9 +444,10 @@ export default function DiffGatePanel() {
           </div>
         </div>
         {!hasMutationRole ? (
-          <p className="mono muted diff-gate-role-tip" role="status" data-testid="diff-gate-role-tip">
-            {roleGateReason}
-          </p>
+          <div className="alert alert-warning diff-gate-role-tip" role="status" data-testid="diff-gate-role-tip">
+            <strong>Diff Gate is in read-only mode.</strong>
+            <span>{roleGateReason}</span>
+          </div>
         ) : null}
         <div className="toolbar mt-2">
           <Button
@@ -501,7 +509,7 @@ export default function DiffGatePanel() {
         {visibleItems.map((item, index) => {
           const runId = String(item.run_id || "");
           const rowKey = runId ? `${runId}-${index}` : `unknown-${index}`;
-          const statusText = statusLabelZh(String(item.status || ""));
+          const statusText = statusLabel(String(item.status || ""), "en");
           const expandedDiff = expanded[runId];
           const hasDiff = Boolean(expandedDiff);
           const rowBusy = Boolean(actionLoading[runId] || diffLoading[runId]);

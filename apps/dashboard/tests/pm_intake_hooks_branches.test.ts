@@ -3,6 +3,8 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { usePMIntakeView } from "../app/pm/hooks/usePMIntakeView";
 import { usePMIntakeActions } from "../app/pm/hooks/usePMIntakeActions";
 import { usePMIntakeData } from "../app/pm/hooks/usePMIntakeData";
+import { buildTaskPackFieldStateForPack } from "../lib/types";
+import type { TaskPackManifest } from "../lib/types";
 import {
   answerIntake,
   createIntake,
@@ -186,6 +188,47 @@ describe("pm intake view hook branches", () => {
     });
     expect(setChatStickToBottom).toHaveBeenCalledWith(false);
     expect(setChatStickToBottom).toHaveBeenCalledWith(true);
+  });
+
+  it("preselects the public task template from the URL query string", async () => {
+    window.history.replaceState({}, "", "/pm?template=page_brief");
+    const setTaskTemplate = vi.fn();
+    const setTaskPackFieldValuesByTemplate = vi.fn();
+    const setChatNotice = vi.fn();
+    const pageBriefPack: TaskPackManifest = {
+      pack_id: "page_brief",
+      version: "v1",
+      title: "Public Page Brief",
+      description: "Public, read-only page brief for a single URL.",
+      visibility: "public",
+      entry_mode: "pm_intake",
+      task_template: "page_brief",
+      input_fields: [
+        { field_id: "url", label: "Page URL", control: "url", required: true, placeholder: "https://example.com" },
+      ],
+      ui_hint: { surface_group: "public_task_templates", default_label: "Public page brief" },
+    };
+
+    const state = createViewState({
+      taskPacks: [pageBriefPack],
+      setTaskTemplate,
+      setTaskPackFieldValuesByTemplate,
+      setChatNotice,
+    });
+    const actions = createViewActions();
+
+    renderHook(() => usePMIntakeView(state as never, actions as never));
+
+    await waitFor(() => {
+      expect(setTaskTemplate).toHaveBeenCalledWith("page_brief");
+      expect(setTaskPackFieldValuesByTemplate).toHaveBeenCalled();
+    });
+
+    const updater = setTaskPackFieldValuesByTemplate.mock.calls[0][0] as (previous: Record<string, Record<string, string>>) => Record<string, Record<string, string>>;
+    expect(updater({})).toEqual({
+      page_brief: buildTaskPackFieldStateForPack(pageBriefPack, {}),
+    });
+    expect(setChatNotice).toHaveBeenCalledWith("Loaded the page_brief public example. Preview the Flight Plan or send it as-is.");
   });
 });
 

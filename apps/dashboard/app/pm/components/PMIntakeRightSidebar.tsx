@@ -1,5 +1,6 @@
 import type { RefObject } from "react";
 import PmStageContextPanel from "../../../components/pm/PmStageContextPanel";
+import FlightPlanCopilotPanel from "../../../components/control-plane/FlightPlanCopilotPanel";
 import { GENERAL_TASK_TEMPLATE, findTaskPackByTemplate, type TaskPackFieldDefinition } from "../../../lib/types";
 import { statusVariant } from "../../../lib/statusPresentation";
 import { Badge } from "../../../components/ui/badge";
@@ -68,6 +69,51 @@ type Props = {
   executionPlanPreviewError: string;
   chainPanelRef: RefObject<HTMLElement | null>;
 };
+
+function compactList(values: string[], limit = 3): string {
+  const filtered = values.map((value) => value.trim()).filter(Boolean);
+  if (filtered.length === 0) {
+    return "-";
+  }
+  if (filtered.length <= limit) {
+    return filtered.join(", ");
+  }
+  return `${filtered.slice(0, limit).join(", ")} +${filtered.length - limit} more`;
+}
+
+function summarizeAcceptanceChecks(report: ExecutionPlanReport): string {
+  const checks = report.acceptance_tests
+    .map((item, index) => {
+      const record = (typeof item === "object" && item ? item : {}) as Record<string, unknown>;
+      const label =
+        (typeof record.name === "string" && record.name.trim()) ||
+        (typeof record.cmd === "string" && record.cmd.trim()) ||
+        (typeof record.command === "string" && record.command.trim()) ||
+        `check ${index + 1}`;
+      return label;
+    })
+    .filter(Boolean);
+  return compactList(checks);
+}
+
+function summarizeCapabilityTriggers(report: ExecutionPlanReport): string[] {
+  const triggers: string[] = [];
+  if (report.search_queries.length > 0) {
+    triggers.push(`Search (${report.search_queries.length} query${report.search_queries.length === 1 ? "" : "ies"})`);
+  }
+  if (
+    report.task_template === "page_brief" ||
+    report.browser_policy_preset === "custom" ||
+    Boolean(report.effective_browser_policy) ||
+    report.predicted_artifacts.some((item) => item.toLowerCase().includes("browser"))
+  ) {
+    triggers.push("Browser");
+  }
+  if (report.requires_human_approval) {
+    triggers.push("Manual approval");
+  }
+  return triggers;
+}
 
 export default function PMIntakeRightSidebar(props: Props) {
   const {
@@ -229,6 +275,12 @@ export default function PMIntakeRightSidebar(props: Props) {
       </label>
     );
   };
+
+  const flightPlanCapabilityTriggers = executionPlanPreview ? summarizeCapabilityTriggers(executionPlanPreview) : [];
+  const flightPlanAllowedPaths = executionPlanPreview ? compactList(executionPlanPreview.allowed_paths) : "-";
+  const flightPlanPredictedReports = executionPlanPreview ? compactList(executionPlanPreview.predicted_reports) : "-";
+  const flightPlanPredictedArtifacts = executionPlanPreview ? compactList(executionPlanPreview.predicted_artifacts) : "-";
+  const flightPlanAcceptanceChecks = executionPlanPreview ? summarizeAcceptanceChecks(executionPlanPreview) : "-";
 
   return (
     <aside className="pm-claude-right" aria-label="Context sidebar">
@@ -453,6 +505,10 @@ export default function PMIntakeRightSidebar(props: Props) {
         {executionPlanPreview ? (
           <section className="pm-chain-card" aria-label="Flight Plan preview">
             <h3 className="pm-section-title">Flight Plan</h3>
+            <p className="muted">
+              Advisory only: use this checklist to understand the planned contract and gates before starting execution.
+              The run bundle becomes the truth source only after execution actually starts.
+            </p>
             <div className="mono">{executionPlanPreview.summary}</div>
             <div className="pm-runtime-grid">
               <div className="pm-runtime-row">
@@ -474,6 +530,29 @@ export default function PMIntakeRightSidebar(props: Props) {
                 <code className="pm-runtime-val">{executionPlanPreview.predicted_artifacts.length}</code>
               </div>
             </div>
+            <div className="stack-gap-2">
+              <div>
+                <strong>Sign-off checklist</strong>
+                <ul className="pm-question-list">
+                  <li>Contract summary: {executionPlanPreview.objective}</li>
+                  <li>Scope boundary: {executionPlanPreview.allowed_paths.length} allowed path entries, starting with {flightPlanAllowedPaths}</li>
+                  <li>Acceptance checks: {flightPlanAcceptanceChecks}</li>
+                  <li>Expected outputs: reports {flightPlanPredictedReports}; artifacts {flightPlanPredictedArtifacts}</li>
+                  <li>Approval risk: {executionPlanPreview.requires_human_approval ? "Manual approval is likely before completion." : "No manual approval is expected on the current plan."}</li>
+                  <li>Capability triggers: {flightPlanCapabilityTriggers.length > 0 ? flightPlanCapabilityTriggers.join(", ") : "No extra tool trigger is predicted."}</li>
+                </ul>
+              </div>
+              {executionPlanPreview.notes.length > 0 ? (
+                <div>
+                  <strong>Operator notes</strong>
+                  <ul className="pm-question-list">
+                    {executionPlanPreview.notes.map((note, index) => (
+                      <li key={`${note}-${index}`}>{note}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
             {executionPlanPreview.questions.length > 0 ? (
               <>
                 <strong>Clarifiers still open</strong>
@@ -486,7 +565,7 @@ export default function PMIntakeRightSidebar(props: Props) {
             ) : null}
             {executionPlanPreview.warnings.length > 0 ? (
               <>
-                <strong>Warnings</strong>
+                <strong>Risk gates</strong>
                 <ul className="pm-question-list">
                   {executionPlanPreview.warnings.map((warning, index) => (
                     <li key={`${warning}-${index}`}>{warning}</li>
@@ -495,15 +574,33 @@ export default function PMIntakeRightSidebar(props: Props) {
               </>
             ) : null}
             <details>
-              <summary className="pm-details-summary">Predicted reports and contract preview</summary>
-              <div className="mono">reports: {executionPlanPreview.predicted_reports.join(", ") || "-"}</div>
-              <div className="mono">artifacts: {executionPlanPreview.predicted_artifacts.join(", ") || "-"}</div>
-              <pre className="mono pm-code-block">{JSON.stringify(executionPlanPreview.contract_preview, null, 2)}</pre>
+              <summary className="pm-details-summary">Contract preview excerpts</summary>
+              <div className="mono">allowed paths: {flightPlanAllowedPaths}</div>
+              <div className="mono">acceptance checks: {flightPlanAcceptanceChecks}</div>
+              <div className="mono">reports: {flightPlanPredictedReports}</div>
+              <div className="mono">artifacts: {flightPlanPredictedArtifacts}</div>
+              <div className="mono">
+                assigned agent: {executionPlanPreview.contract_preview.assigned_agent?.role || executionPlanPreview.assigned_role || "-"}
+              </div>
+              <div className="mono">
+                owner agent: {executionPlanPreview.contract_preview.owner_agent?.role || "-"}
+              </div>
             </details>
+            <FlightPlanCopilotPanel
+              preview={executionPlanPreview}
+              title="Flight Plan copilot"
+              intro="Generate one advisory-only brief grounded in the current execution plan preview. This explains pre-run risk and expected proof surfaces; it does not replace run truth."
+              buttonLabel="Explain this Flight Plan"
+            />
           </section>
         ) : null}
-        {plan && <pre className="mono pm-code-block">{JSON.stringify(plan, null, 2)}</pre>}
-        {taskChain && <pre className="mono pm-code-block">{JSON.stringify(taskChain, null, 2)}</pre>}
+        {plan || taskChain ? (
+          <details>
+            <summary className="pm-details-summary">Advanced planning payloads</summary>
+            {plan ? <pre className="mono pm-code-block">{JSON.stringify(plan, null, 2)}</pre> : null}
+            {taskChain ? <pre className="mono pm-code-block">{JSON.stringify(taskChain, null, 2)}</pre> : null}
+          </details>
+        ) : null}
       </details>
     </aside>
   );

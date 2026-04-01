@@ -1,6 +1,8 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const mockRefresh = vi.fn();
 
 vi.mock("next/link", () => ({
   default: ({ href, children, ...props }: { href: string; children: ReactNode }) => (
@@ -10,9 +12,17 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: mockRefresh }),
+}));
+
 vi.mock("../lib/api", () => ({
+  enqueueRunQueue: vi.fn(),
   fetchQueue: vi.fn(),
+  fetchWorkflowCopilotBrief: vi.fn(),
   fetchWorkflow: vi.fn(),
+  mutationExecutionCapability: vi.fn(),
+  runNextQueue: vi.fn(),
 }));
 
 vi.mock("../lib/serverPageData", () => ({
@@ -20,12 +30,13 @@ vi.mock("../lib/serverPageData", () => ({
 }));
 
 import WorkflowDetailPage from "../app/workflows/[id]/page";
-import { fetchQueue, fetchWorkflow } from "../lib/api";
+import { enqueueRunQueue, fetchQueue, fetchWorkflow, fetchWorkflowCopilotBrief, mutationExecutionCapability, runNextQueue } from "../lib/api";
 import { safeLoad } from "../lib/serverPageData";
 
 describe("workflow detail page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockRefresh.mockReset();
     vi.mocked(safeLoad).mockImplementation(
       async (loader: () => Promise<unknown>, fallback: unknown, label: string) => {
         try {
@@ -53,6 +64,32 @@ describe("workflow detail page", () => {
       events: [],
     } as never);
     vi.mocked(fetchQueue).mockResolvedValue([] as never);
+    vi.mocked(fetchWorkflowCopilotBrief).mockResolvedValue({
+      report_type: "operator_copilot_brief",
+      generated_at: "2026-03-31T12:00:00Z",
+      scope: "workflow",
+      subject_id: "wf-1",
+      workflow_id: "wf-1",
+      run_id: "run/1",
+      status: "OK",
+      summary: "The workflow case is blocked by its latest linked run.",
+      likely_cause: "The latest run is still blocked by a gate.",
+      compare_takeaway: "The latest run still differs from its baseline.",
+      proof_takeaway: "Proof is present but not final yet.",
+      incident_takeaway: "One truth surface still needs review.",
+      queue_takeaway: "Queue posture is stable.",
+      approval_takeaway: "No approval blocker is attached.",
+      recommended_actions: ["Review the latest linked run."],
+      top_risks: ["Latest run gap"],
+      questions_answered: [],
+      used_truth_surfaces: [],
+      limitations: [],
+      provider: "gemini",
+      model: "gemini-2.5-flash",
+    } as never);
+    vi.mocked(runNextQueue).mockResolvedValue({ ok: true, run_id: "run-queued-1" } as never);
+    vi.mocked(enqueueRunQueue).mockResolvedValue({ ok: true, task_id: "task-queue" } as never);
+    vi.mocked(mutationExecutionCapability).mockReturnValue({ executable: true, operatorRole: "TECH_LEAD" } as never);
   });
 
   it("falls back to raw id when route id is malformed percent-encoding", async () => {
@@ -72,6 +109,12 @@ describe("workflow detail page", () => {
     render(view);
     expect(screen.getByRole("link", { name: "run/1" })).toHaveAttribute("href", "/runs/run%2F1");
     expect(screen.getAllByText("Normal state").length).toBeGreaterThan(0);
+    expect(screen.getByText("Next recommended action")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Open share-ready case asset" })[0]).toHaveAttribute("href", "/workflows/wf-1/share");
+    expect(screen.getByRole("button", { name: "Queue latest run contract" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Run next queued task" })).toBeInTheDocument();
+    expect(screen.getByText("Workflow Case copilot")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Explain this workflow case" })).toBeInTheDocument();
   });
 
   it("decodes valid encoded route id before fetching workflow", async () => {
@@ -92,14 +135,14 @@ describe("workflow detail page", () => {
     });
     render(view);
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Workflow detail is temporarily unavailable. Try again later.");
-    expect(screen.getByText("Workflow detail is in read-only degraded mode")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Workflow detail is temporarily unavailable. Try again later.");
+    expect(screen.getByText("Workflow Case is in read-only degraded mode")).toBeInTheDocument();
     expect(screen.getByText("Identity snapshot (degraded)")).toBeInTheDocument();
     expect(screen.getByText("Run mapping samples (degraded)")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Governance entry (disabled in degraded mode)" })).toBeDisabled();
     expect(screen.getByText("workflow_id: wf-fallback")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Retry load" })).toHaveAttribute("href", "/workflows/wf-fallback");
-    expect(screen.getByRole("link", { name: "Back to workflow list" })).toHaveAttribute("href", "/workflows");
+    expect(screen.getAllByRole("link", { name: "Retry load" })[0]).toHaveAttribute("href", "/workflows/wf-fallback");
+    expect(screen.getAllByRole("link", { name: "Back to workflow list" })[0]).toHaveAttribute("href", "/workflows");
 
     consoleSpy.mockRestore();
   });
@@ -186,7 +229,7 @@ describe("workflow detail page", () => {
     });
     render(view);
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Workflow detail is temporarily unavailable. Try again later.");
+    expect(screen.getByRole("status")).toHaveTextContent("Workflow detail is temporarily unavailable. Try again later.");
     expect(screen.getByText("run-warning-1 / Running / 2026-03-09T10:01:00Z")).toBeInTheDocument();
   });
 
@@ -224,5 +267,30 @@ describe("workflow detail page", () => {
     const runLink = screen.getByRole("link", { name: "run-created-at" });
     expect(runLink.parentElement).toHaveTextContent("Running");
     expect(runLink.parentElement).toHaveTextContent("2026-03-09T10:06:00Z");
+  });
+
+  it("executes queue mutations from the web workflow case detail", async () => {
+    const view = await WorkflowDetailPage({
+      params: Promise.resolve({ id: "wf-1" }),
+    });
+    render(view);
+
+    expect(screen.getByText(/The next high-value action is to queue the latest run contract so this Workflow Case can move forward\./)).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Queue priority"), { target: { value: "3" } });
+    fireEvent.change(screen.getByLabelText("Queue scheduled at"), { target: { value: "2026-03-30T12:00" } });
+    fireEvent.change(screen.getByLabelText("Queue deadline at"), { target: { value: "2026-03-30T13:00" } });
+    fireEvent.click(screen.getByRole("button", { name: "Queue latest run contract" }));
+
+    await waitFor(() => {
+      expect(enqueueRunQueue).toHaveBeenCalledWith(
+        "run/1",
+        expect.objectContaining({
+          priority: 3,
+          scheduled_at: expect.stringMatching(/Z$/),
+          deadline_at: expect.stringMatching(/Z$/),
+        }),
+      );
+    });
+    expect(await screen.findByText("Queued task-queue. Refreshing the workflow view...")).toBeInTheDocument();
   });
 });

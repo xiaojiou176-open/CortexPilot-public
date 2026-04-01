@@ -37,35 +37,69 @@ const STATUS_ALIASES = {
     warning: "blocked",
     working: "running",
 };
-const STATUS_LABELS = {
-    archived: "Archived",
-    blocked: "Blocked",
-    cancelled: "Cancelled",
-    completed: "Completed",
-    failed: "Failed",
-    healthy: "Healthy",
-    idle: "Idle",
-    info: "Info",
-    paused: "Paused",
-    pending: "Pending",
-    running: "Running",
+const STATUS_LABELS_BY_LOCALE = {
+    en: {
+        archived: "Archived",
+        blocked: "Blocked",
+        cancelled: "Cancelled",
+        completed: "Completed",
+        failed: "Failed",
+        healthy: "Healthy",
+        idle: "Idle",
+        info: "Info",
+        paused: "Paused",
+        pending: "Pending",
+        running: "Running",
+    },
+    "zh-CN": {
+        archived: "已归档",
+        blocked: "已阻塞",
+        cancelled: "已取消",
+        completed: "已完成",
+        failed: "失败",
+        healthy: "健康",
+        idle: "空闲",
+        info: "信息",
+        paused: "已暂停",
+        pending: "待处理",
+        running: "运行中",
+    },
 };
-const OUTCOME_TYPE_LABELS = {
-    blocked: "Blocked",
-    env: "Environment issue",
-    environment_error: "Environment issue",
-    gate: "Gate blocked",
-    gate_blocked: "Gate blocked",
-    manual: "Manual confirmation required",
-    manual_pending: "Manual confirmation required",
-    denied: "Denied by policy",
-    error: "Execution error",
-    failure: "Execution failed",
-    functional_failure: "Functional failure",
-    product: "Functional failure",
-    success: "Completed successfully",
-    timeout: "Timed out",
-    unknown: "Failure pending confirmation",
+const OUTCOME_TYPE_LABELS_BY_LOCALE = {
+    en: {
+        blocked: "Blocked",
+        env: "Environment issue",
+        environment_error: "Environment issue",
+        gate: "Gate blocked",
+        gate_blocked: "Gate blocked",
+        manual: "Manual confirmation required",
+        manual_pending: "Manual confirmation required",
+        denied: "Denied by policy",
+        error: "Execution error",
+        failure: "Execution failed",
+        functional_failure: "Functional failure",
+        product: "Functional failure",
+        success: "Completed successfully",
+        timeout: "Timed out",
+        unknown: "Failure pending confirmation",
+    },
+    "zh-CN": {
+        blocked: "已阻塞",
+        env: "环境异常",
+        environment_error: "环境异常",
+        gate: "Gate 被阻塞",
+        gate_blocked: "Gate 被阻塞",
+        manual: "需要人工确认",
+        manual_pending: "需要人工确认",
+        denied: "被策略拒绝",
+        error: "执行异常",
+        failure: "执行失败",
+        functional_failure: "功能失败",
+        product: "功能失败",
+        success: "已成功完成",
+        timeout: "执行超时",
+        unknown: "失败原因待确认",
+    },
 };
 const STAGE_ALIASES = {
     analysis: "discover",
@@ -92,37 +126,108 @@ const STAGE_ALIASES = {
     todo: "intake",
     verify: "verify",
 };
-const STAGE_LABELS = {
-    discover: "Discovery",
-    done: "Done",
-    execute: "Execution",
-    intake: "Intake",
-    plan: "Planning",
-    release: "Release",
-    verify: "Verification",
+const STAGE_LABELS_BY_LOCALE = {
+    en: {
+        discover: "Discovery",
+        done: "Done",
+        execute: "Execution",
+        intake: "Intake",
+        plan: "Planning",
+        release: "Release",
+        verify: "Verification",
+    },
+    "zh-CN": {
+        discover: "发现",
+        done: "完成",
+        execute: "执行",
+        intake: "接单",
+        plan: "规划",
+        release: "发布",
+        verify: "验证",
+    },
 };
-const CTA_BY_STATUS = {
-    archived: "View archive",
-    blocked: "Resolve blocker",
-    cancelled: "View details",
-    completed: "View result",
-    failed: "Review failure and retry",
-    healthy: "View details",
-    idle: "Start run",
-    info: "View details",
-    paused: "Resume run",
-    pending: "Start run",
-    running: "View progress",
+const CTA_BY_STATUS_BY_LOCALE = {
+    en: {
+        archived: "View archive",
+        blocked: "Resolve blocker",
+        cancelled: "View details",
+        completed: "View result",
+        failed: "Review failure and retry",
+        healthy: "View details",
+        idle: "Start run",
+        info: "View details",
+        paused: "Resume run",
+        pending: "Start run",
+        running: "View progress",
+    },
+    "zh-CN": {
+        archived: "查看归档",
+        blocked: "处理阻塞",
+        cancelled: "查看详情",
+        completed: "查看结果",
+        failed: "复盘失败并重试",
+        healthy: "查看详情",
+        idle: "启动运行",
+        info: "查看详情",
+        paused: "恢复运行",
+        pending: "启动运行",
+        running: "查看进度",
+    },
 };
-const CTA_BY_STAGE = {
-    discover: "Refine requirements",
-    done: "View result",
-    execute: "View progress",
-    intake: "Start intake",
-    plan: "Confirm plan",
-    release: "Start release",
-    verify: "Handle review",
+const CTA_BY_STAGE_BY_LOCALE = {
+    en: {
+        discover: "Refine requirements",
+        done: "View result",
+        execute: "View progress",
+        intake: "Start intake",
+        plan: "Confirm plan",
+        release: "Start release",
+        verify: "Handle review",
+    },
+    "zh-CN": {
+        discover: "补充需求",
+        done: "查看结果",
+        execute: "查看进度",
+        intake: "开始接单",
+        plan: "确认方案",
+        release: "开始发布",
+        verify: "处理审查",
+    },
 };
+const UNKNOWN_LABEL_BY_LOCALE = {
+    en: "Unknown",
+    "zh-CN": "未知",
+};
+const UNKNOWN_STAGE_BY_LOCALE = {
+    en: "Unknown stage",
+    "zh-CN": "未知阶段",
+};
+const VIEW_DETAILS_BY_LOCALE = {
+    en: "View details",
+    "zh-CN": "查看详情",
+};
+const UNCLASSIFIED_BY_LOCALE = {
+    en: "Unclassified",
+    "zh-CN": "未分类",
+};
+export function normalizeUiLocale(locale) {
+    const token = typeof locale === "string" ? locale.trim().toLowerCase() : "";
+    if (token.startsWith("zh")) {
+        return "zh-CN";
+    }
+    return "en";
+}
+export function formatUiDateTime(value, locale = "en", options) {
+    const raw = String(value || "").trim();
+    if (!raw || raw === "-") {
+        return "-";
+    }
+    const parsed = new Date(raw);
+    if (Number.isNaN(parsed.getTime())) {
+        return raw;
+    }
+    return parsed.toLocaleString(normalizeUiLocale(locale), options);
+}
 export function toCanonicalToken(value) {
     if (!value)
         return undefined;
@@ -176,19 +281,30 @@ export function toCanonicalStage(stage) {
         return undefined;
     return STAGE_ALIASES[token];
 }
-export function knownOutcomeTypeLabelZh(outcomeType) {
+export function knownOutcomeTypeLabel(outcomeType, locale = "en") {
     const token = toCanonicalToken(outcomeType);
     if (!token)
         return undefined;
-    return OUTCOME_TYPE_LABELS[token];
+    return OUTCOME_TYPE_LABELS_BY_LOCALE[normalizeUiLocale(locale)][token];
+}
+export function knownOutcomeTypeLabelZh(outcomeType) {
+    return knownOutcomeTypeLabel(outcomeType, "en");
+}
+export function outcomeTypeLabel(outcomeType, locale = "en") {
+    const resolvedLocale = normalizeUiLocale(locale);
+    return knownOutcomeTypeLabel(outcomeType, resolvedLocale) || UNCLASSIFIED_BY_LOCALE[resolvedLocale];
 }
 export function outcomeTypeLabelZh(outcomeType) {
-    return knownOutcomeTypeLabelZh(outcomeType) || "Unclassified";
+    return outcomeTypeLabel(outcomeType, "en");
+}
+export function statusLabelFromCanonical(canonical, locale = "en") {
+    const resolvedLocale = normalizeUiLocale(locale);
+    if (!canonical)
+        return UNKNOWN_LABEL_BY_LOCALE[resolvedLocale];
+    return STATUS_LABELS_BY_LOCALE[resolvedLocale][canonical] || UNKNOWN_LABEL_BY_LOCALE[resolvedLocale];
 }
 export function statusLabelZhFromCanonical(canonical) {
-    if (!canonical)
-        return "Unknown";
-    return STATUS_LABELS[canonical] || "Unknown";
+    return statusLabelFromCanonical(canonical, "en");
 }
 export function statusVariantFromCanonical(canonical) {
     if (canonical === "completed" || canonical === "healthy")
@@ -223,10 +339,14 @@ export function badgeClassFromVariant(variant) {
         return "badge badge--warning";
     return "badge";
 }
-export function stageLabelZhFromCanonical(canonical) {
+export function stageLabelFromCanonical(canonical, locale = "en") {
+    const resolvedLocale = normalizeUiLocale(locale);
     if (!canonical)
-        return "Unknown stage";
-    return STAGE_LABELS[canonical] || "Unknown stage";
+        return UNKNOWN_STAGE_BY_LOCALE[resolvedLocale];
+    return STAGE_LABELS_BY_LOCALE[resolvedLocale][canonical] || UNKNOWN_STAGE_BY_LOCALE[resolvedLocale];
+}
+export function stageLabelZhFromCanonical(canonical) {
+    return stageLabelFromCanonical(canonical, "en");
 }
 export function stageVariantFromCanonical(canonical) {
     if (canonical === "intake" || canonical === "plan")
@@ -239,13 +359,21 @@ export function stageVariantFromCanonical(canonical) {
         return "done";
     return "default";
 }
-export function statusCtaZhFromCanonical(canonical) {
+export function statusCtaFromCanonical(canonical, locale = "en") {
+    const resolvedLocale = normalizeUiLocale(locale);
     if (!canonical)
-        return "View details";
-    return CTA_BY_STATUS[canonical] || "View details";
+        return VIEW_DETAILS_BY_LOCALE[resolvedLocale];
+    return CTA_BY_STATUS_BY_LOCALE[resolvedLocale][canonical] || VIEW_DETAILS_BY_LOCALE[resolvedLocale];
+}
+export function statusCtaZhFromCanonical(canonical) {
+    return statusCtaFromCanonical(canonical, "en");
+}
+export function stageCtaFromCanonical(canonical, locale = "en") {
+    const resolvedLocale = normalizeUiLocale(locale);
+    if (!canonical)
+        return VIEW_DETAILS_BY_LOCALE[resolvedLocale];
+    return CTA_BY_STAGE_BY_LOCALE[resolvedLocale][canonical] || VIEW_DETAILS_BY_LOCALE[resolvedLocale];
 }
 export function stageCtaZhFromCanonical(canonical) {
-    if (!canonical)
-        return "View details";
-    return CTA_BY_STAGE[canonical] || "View details";
+    return stageCtaFromCanonical(canonical, "en");
 }

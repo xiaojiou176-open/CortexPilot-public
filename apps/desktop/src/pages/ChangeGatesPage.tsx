@@ -41,8 +41,11 @@ export function ChangeGatesPage() {
   return (
     <div className="content">
       <div className="section-header">
-        <div><h1 className="page-title">Change Gates</h1><p className="page-subtitle">Diff Gate: change review and rollback control</p></div>
+        <div><h1 className="page-title">Diff gate</h1><p className="page-subtitle">Diff Gate: change review and rollback control</p></div>
         <Button onClick={load} disabled={loading}>Refresh</Button>
+      </div>
+      <div className="alert alert-warning">
+        This surface separates gate-blocked changes, missing review truth, and operator actions. An empty list is not proof that every historical change already passed.
       </div>
 
       {error && <div className="alert alert-danger">{error}</div>}
@@ -50,7 +53,7 @@ export function ChangeGatesPage() {
       {loading ? (
         <div className="skeleton-stack-lg"><div className="skeleton skeleton-card-tall" /><div className="skeleton skeleton-card-tall" /></div>
       ) : gates.length === 0 ? (
-        <div className="empty-state-stack"><p className="muted">No Diff Gate records are waiting for review. All changes already passed, or no submission exists yet.</p></div>
+        <div className="empty-state-stack"><p className="muted">No Diff Gate records are waiting for review right now. That means no current pending review record is loaded, not that every historical change is already approved.</p></div>
       ) : (
         <div className="diff-gate-list">
           {gates.map((gate, i) => {

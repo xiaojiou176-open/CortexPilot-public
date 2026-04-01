@@ -34,6 +34,12 @@ function chunkDesktopVendors(id: string): string | undefined {
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      "@cortexpilot/frontend-shared/uiCopy": path.resolve(process.cwd(), "../../packages/frontend-shared/uiCopy.ts"),
+      "@cortexpilot/frontend-shared/uiLocale": path.resolve(process.cwd(), "../../packages/frontend-shared/uiLocale.ts"),
+    },
+  },
   build: {
     // Keep debuggability without exposing full source maps by default.
     sourcemap: process.env.CORTEXPILOT_DESKTOP_SOURCEMAP === "full" ? true : "hidden",

@@ -41,6 +41,7 @@ class RunsRouteDeps:
     run_next_queue: AnyHandler
     list_workflows: AnyHandler
     get_workflow: AnyHandler
+    get_workflow_operator_copilot_brief: AnyHandler
     get_run: AnyHandler
     get_events: AnyHandler
     stream_events: AnyHandler
@@ -48,6 +49,7 @@ class RunsRouteDeps:
     get_reports: AnyHandler
     get_artifacts: AnyHandler
     get_search: AnyHandler
+    get_operator_copilot_brief: AnyHandler
     promote_evidence: AnyHandler
     rollback_run: AnyHandler
     reject_run: AnyHandler
@@ -125,6 +127,7 @@ def build_runs_route_deps_from_mapping(mapping: Mapping[str, Any]) -> RunsRouteD
         run_next_queue=_bind_handler(mapping, "run_next_queue", "runs"),
         list_workflows=_bind_handler(mapping, "list_workflows", "runs"),
         get_workflow=_bind_handler(mapping, "get_workflow", "runs"),
+        get_workflow_operator_copilot_brief=_bind_handler(mapping, "get_workflow_operator_copilot_brief", "runs"),
         get_run=_bind_handler(mapping, "get_run", "runs"),
         get_events=_bind_handler(mapping, "get_events", "runs"),
         stream_events=_bind_handler(mapping, "stream_events", "runs"),
@@ -132,6 +135,7 @@ def build_runs_route_deps_from_mapping(mapping: Mapping[str, Any]) -> RunsRouteD
         get_reports=_bind_handler(mapping, "get_reports", "runs"),
         get_artifacts=_bind_handler(mapping, "get_artifacts", "runs"),
         get_search=_bind_handler(mapping, "get_search", "runs"),
+        get_operator_copilot_brief=_bind_handler(mapping, "get_operator_copilot_brief", "runs"),
         promote_evidence=_bind_handler(mapping, "promote_evidence", "runs"),
         rollback_run=_bind_handler(mapping, "rollback_run", "runs"),
         reject_run=_bind_handler(mapping, "reject_run", "runs"),
