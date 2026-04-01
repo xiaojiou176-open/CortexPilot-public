@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CortexPilot | Builder quickstart</title>
+    <meta
+      name="description"
+      content="Builder quickstart for CortexPilot: current client entrypoints, contract-facing types, and shared presentation substrate for dashboard and desktop consumers."
+    />
+  </head>
+  <body>
+    <main style="max-width:960px;margin:0 auto;padding:40px 20px;font:16px/1.6 system-ui,sans-serif;color:#17232c;">
+      <p><a href="../">Back to the public landing page</a></p>
+      <h1>Builder quickstart</h1>
+      <p>
+        CortexPilot is not a full SDK platform today, but it does already expose
+        a useful builder surface across three layers.
+      </p>
+
+      <h2>1. Frontend API client</h2>
+      <p>
+        Start with <code>@cortexpilot/frontend-api-client</code> when you want
+        ready-to-call helpers for runs, Workflow Cases, approvals, and
+        command-tower reads.
+      </p>
+      <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md">Open package README</a></p>
+
+      <h2>2. Frontend API contract</h2>
+      <p>
+        Use <code>@cortexpilot/frontend-api-contract</code> when you want the
+        generated contract-facing type boundary and route/query names without
+        importing backend modules.
+      </p>
+      <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/index.d.ts">Open generated contract types</a></p>
+
+      <h2>3. Shared frontend substrate</h2>
+      <p>
+        Use <code>@cortexpilot/frontend-shared</code> for brand copy, locale,
+        status presentation, and frontend-only shared types.
+      </p>
+      <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md">Open shared README</a></p>
+
+      <h2>Minimal example</h2>
+      <pre><code>import { createFrontendApiClient } from "@cortexpilot/frontend-api-client";
+
+const client = createFrontendApiClient({
+  baseUrl: "http://localhost:8000",
+});
+
+const overview = await client.fetchCommandTowerOverview();
+const workflows = await client.fetchWorkflows();</code></pre>
+    </main>
+  </body>
+</html>

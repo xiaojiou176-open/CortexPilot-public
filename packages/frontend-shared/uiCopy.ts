@@ -44,10 +44,30 @@ type DesktopLabels = {
   sessionView: string;
 };
 
+type HomeCardCopy = {
+  badge?: string;
+  title: string;
+  desc: string;
+};
+
 export type UiCopy = {
   brandTitle: string;
   brandSubtitle: string;
   dashboard: {
+    homePhase2: {
+      heroTitle: string;
+      heroSubtitle: string;
+      ecosystemTitle: string;
+      ecosystemDescription: string;
+      ecosystemAction: string;
+      ecosystemCards: HomeCardCopy[];
+      aiSurfacesTitle: string;
+      aiSurfacesDescription: string;
+      aiSurfaceCards: HomeCardCopy[];
+      builderTitle: string;
+      builderDescription: string;
+      builderCards: HomeCardCopy[];
+    };
     skipToMainContent: string;
     navigationAriaLabel: string;
     topbarTitle: string;
@@ -320,6 +340,77 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
     brandTitle: "CortexPilot",
     brandSubtitle: "Command Tower · Workflow Cases · Proof & Replay",
     dashboard: {
+      homePhase2: {
+        heroTitle: "Command Tower for Codex and Claude Code workflows",
+        heroSubtitle:
+          "Start one workflow case, watch Command Tower, then inspect Proof & Replay. CortexPilot keeps Codex and Claude Code work, MCP tools, evidence, and replay on one governed operator path.",
+        ecosystemTitle: "Works with today's coding-agent ecosystem",
+        ecosystemDescription:
+          "Keep the front door anchored on Codex, Claude Code, and read-only MCP. Mention OpenHands and comparison-only tools in the ecosystem layer, not in the hero.",
+        ecosystemAction: "Open ecosystem map",
+        ecosystemCards: [
+          {
+            badge: "Primary workflow binding",
+            title: "Codex workflows",
+            desc: "Use CortexPilot when Codex-driven work needs one command tower, one case record, and one replayable proof path.",
+          },
+          {
+            badge: "Primary workflow binding",
+            title: "Claude Code workflows",
+            desc: "The same operator surface works for Claude Code-style coding loops that need governed visibility, approvals, and evidence before promotion.",
+          },
+          {
+            badge: "Protocol surface",
+            title: "Read-only MCP",
+            desc: "MCP is a real protocol surface here, but the current boundary is read-only. External tools can inspect truth without mutating it.",
+          },
+          {
+            badge: "Adjacent ecosystem",
+            title: "OpenHands and comparison layer",
+            desc: "OpenHands belongs in the broader ecosystem layer, while OpenCode stays comparison-only and OpenClaw stays out of the main front door.",
+          },
+        ],
+        aiSurfacesTitle: "AI surfaces in the real workflow",
+        aiSurfacesDescription:
+          "AI in CortexPilot is not a floating chat box. It already shows up as a pre-run advisor, a workflow-level explainer, and a run/compare operator brief.",
+        aiSurfaceCards: [
+          {
+            badge: "Pre-run advisory",
+            title: "Flight Plan copilot",
+            desc: "PM intake can preview one bounded pre-run brief before execution starts, so approval and evidence expectations are visible early.",
+          },
+          {
+            badge: "Workflow-level AI",
+            title: "Workflow copilot",
+            desc: "Workflow Cases already expose a workflow-scoped brief that explains queue posture, latest run context, and next operator action.",
+          },
+          {
+            badge: "Run-time AI",
+            title: "Run and compare operator brief",
+            desc: "Run Detail and compare surfaces can already explain deltas, proof, incident context, and the next action without pretending to execute recovery.",
+          },
+        ],
+        builderTitle: "Builder entrypoints",
+        builderDescription:
+          "This is not a full SDK platform, but the client, contract, and shared presentation layers are now documented as real builder surfaces.",
+        builderCards: [
+          {
+            badge: "Thin client surface",
+            title: "@cortexpilot/frontend-api-client",
+            desc: "Use the dashboard, desktop, and web client entry points when you want runs, Workflow Cases, approvals, and Command Tower reads from one import boundary.",
+          },
+          {
+            badge: "Contract-facing",
+            title: "@cortexpilot/frontend-api-contract",
+            desc: "Use the generated contract-facing types and route/query names when you need stable API imports without backend modules.",
+          },
+          {
+            badge: "Presentation substrate",
+            title: "@cortexpilot/frontend-shared",
+            desc: "Use the shared brand copy, locale helpers, status presentation, and frontend-only types instead of rebuilding those surfaces per app.",
+          },
+        ],
+      },
       skipToMainContent: "Skip to dashboard content",
       navigationAriaLabel: "Dashboard navigation",
       topbarTitle: "Operator control plane",
@@ -648,6 +739,77 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
     brandTitle: "CortexPilot",
     brandSubtitle: "指挥塔 · 工作流案例 · 证明与回放",
     dashboard: {
+      homePhase2: {
+        heroTitle: "面向 Codex 和 Claude Code 工作流的指挥塔",
+        heroSubtitle:
+          "先启动一个工作流案例，再观察指挥塔，最后核对证明与回放。CortexPilot 把 Codex / Claude Code 工作、MCP 工具、证据和回放放进同一条受治理的操作路径。",
+        ecosystemTitle: "与当前 coding-agent 生态的关系",
+        ecosystemDescription:
+          "前门继续以 Codex、Claude Code 和只读 MCP 为主轴。OpenHands 和 comparison-only 工具只放在生态层，不放进 hero。",
+        ecosystemAction: "打开生态地图",
+        ecosystemCards: [
+          {
+            badge: "主工作流绑定",
+            title: "Codex 工作流",
+            desc: "当 Codex 驱动的工作需要统一指挥塔、案例记录和可回放证明路径时，就该由 CortexPilot 承接。",
+          },
+          {
+            badge: "主工作流绑定",
+            title: "Claude Code 工作流",
+            desc: "同一套操作面也适用于 Claude Code 风格的编码循环，重点在于治理可见性、审批和证据。",
+          },
+          {
+            badge: "协议层",
+            title: "只读 MCP",
+            desc: "这里的 MCP 是真实协议面，但当前边界仍然是只读。外部工具可以读取真相，不能修改真相。",
+          },
+          {
+            badge: "相邻生态",
+            title: "OpenHands 与 comparison 层",
+            desc: "OpenHands 留在更广的生态层；OpenCode 维持 comparison-only，OpenClaw 继续不进主前门。",
+          },
+        ],
+        aiSurfacesTitle: "AI 功能已经进入主工作流",
+        aiSurfacesDescription:
+          "CortexPilot 里的 AI 不是漂浮聊天框。它已经分别出现在执行前建议、工作流解释，以及运行/对比的操作摘要里。",
+        aiSurfaceCards: [
+          {
+            badge: "执行前建议",
+            title: "Flight Plan 副驾驶",
+            desc: "PM intake 现在可以在执行前先生成一份有边界的建议摘要，让审批和证据预期更早可见。",
+          },
+          {
+            badge: "工作流级 AI",
+            title: "Workflow 副驾驶",
+            desc: "Workflow Case 已经能给出工作流级别的解释，覆盖队列姿态、最新 run 上下文和下一步操作。",
+          },
+          {
+            badge: "运行时 AI",
+            title: "Run / Compare 操作摘要",
+            desc: "Run Detail 和 compare 面已经能解释差异、证明、incident 上下文和下一步动作，而不假装自己在执行恢复。",
+          },
+        ],
+        builderTitle: "Builder 入口",
+        builderDescription:
+          "这还不是完整 SDK 平台，但 client、contract 和 shared presentation 层已经是可讲、可接入的 builder surface。",
+        builderCards: [
+          {
+            badge: "薄客户端",
+            title: "@cortexpilot/frontend-api-client",
+            desc: "当你想从一个导入边界里拿到 runs、Workflow Cases、approvals 和 Command Tower 读取能力时，就从这里开始。",
+          },
+          {
+            badge: "契约层",
+            title: "@cortexpilot/frontend-api-contract",
+            desc: "当你需要稳定的 API 类型和 route/query 名称，而不想直接导入后端模块时，用这个包。",
+          },
+          {
+            badge: "表现层 substrate",
+            title: "@cortexpilot/frontend-shared",
+            desc: "品牌 copy、locale helper、status presentation 和 frontend-only types 已经集中到这一层，而不是散落在各 app 里。",
+          },
+        ],
+      },
       skipToMainContent: "跳到控制台主内容",
       navigationAriaLabel: "控制台导航",
       topbarTitle: "操作控制平面",

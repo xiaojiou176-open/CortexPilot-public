@@ -55,12 +55,21 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getAllByRole("link", { name: /news_digest/i })[0]).toHaveAttribute("href", "/pm?template=news_digest");
     expect(screen.getByText("Proof state: official public baseline")).toBeInTheDocument();
     expect(screen.getByText("Works with today's coding-agent ecosystem")).toBeInTheDocument();
+    expect(screen.getByText("AI surfaces in the real workflow")).toBeInTheDocument();
     expect(screen.getByText("@cortexpilot/frontend-api-client")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open ecosystem map" })).toHaveAttribute(
       "href",
-      "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/architecture/ecosystem-and-builder-surfaces-v1.md"
+      "https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/"
+    );
+    expect(screen.getByRole("link", { name: "Open builder quickstart" })).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/builders/"
     );
     expect(screen.getAllByText("Public case gallery baseline").length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: "Open use-case guide" })).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/"
+    );
     expect(screen.getByText("News digest gallery card")).toBeInTheDocument();
     expect(screen.getByText("Primary report: news_digest_result.json")).toBeInTheDocument();
     expect(screen.getByText("Risk summary")).toBeInTheDocument();
