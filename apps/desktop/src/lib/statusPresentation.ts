@@ -97,10 +97,40 @@ export function outcomeSemanticLabelZh(
   failureClass?: string | undefined | null,
   failureCode?: string | undefined | null,
 ): string {
-  const explicit = toPublicCopy(outcomeLabelZh);
-  if (explicit) return explicit;
+  return outcomeSemanticLabel(
+    outcomeType,
+    outcomeLabelZh,
+    status,
+    DESKTOP_DEFAULT_LOCALE,
+    failureClass,
+    failureCode,
+  );
+}
+
+export function outcomeSemanticLabel(
+  outcomeType: string | undefined | null,
+  outcomeLabel: string | undefined | null,
+  status: string | undefined | null,
+  locale: UiLocale = DESKTOP_DEFAULT_LOCALE,
+  failureClass?: string | undefined | null,
+  failureCode?: string | undefined | null,
+): string {
+  const resolvedLocale = locale || DESKTOP_DEFAULT_LOCALE;
+  const explicit = typeof outcomeLabel === "string" ? outcomeLabel.trim() : "";
+  if (explicit) {
+    if (resolvedLocale === "zh-CN" || !CJK_PATTERN.test(explicit)) {
+      return explicit;
+    }
+  }
 
   const semantic = outcomeSemantic(outcomeType, status, failureClass, failureCode);
+  if (resolvedLocale === "zh-CN") {
+    if (semantic === "gate_blocked") return "Gate 被阻塞";
+    if (semantic === "environment_error") return "环境异常";
+    if (semantic === "manual_pending") return "需要人工确认";
+    if (semantic === "functional_failure") return "功能失败";
+    return "状态待确认";
+  }
   if (semantic === "gate_blocked") return "Gate blocked";
   if (semantic === "environment_error") return "Environment issue";
   if (semantic === "manual_pending") return "Manual confirmation required";
@@ -138,9 +168,39 @@ export function outcomeActionHintZh(
   failureClass?: string | undefined | null,
   failureCode?: string | undefined | null,
 ): string {
-  const explicit = toPublicCopy(actionHintZh);
-  if (explicit) return explicit;
+  return outcomeActionHint(
+    actionHintZh,
+    outcomeType,
+    status,
+    DESKTOP_DEFAULT_LOCALE,
+    failureClass,
+    failureCode,
+  );
+}
+
+export function outcomeActionHint(
+  actionHint: string | undefined | null,
+  outcomeType: string | undefined | null,
+  status: string | undefined | null,
+  locale: UiLocale = DESKTOP_DEFAULT_LOCALE,
+  failureClass?: string | undefined | null,
+  failureCode?: string | undefined | null,
+): string {
+  const resolvedLocale = locale || DESKTOP_DEFAULT_LOCALE;
+  const explicit = typeof actionHint === "string" ? actionHint.trim() : "";
+  if (explicit) {
+    if (resolvedLocale === "zh-CN" || !CJK_PATTERN.test(explicit)) {
+      return explicit;
+    }
+  }
   const semantic = outcomeSemantic(outcomeType, status, failureClass, failureCode);
+  if (resolvedLocale === "zh-CN") {
+    if (semantic === "gate_blocked") return "先处理 Gate，再重试。";
+    if (semantic === "environment_error") return "先检查环境和依赖，再重试。";
+    if (semantic === "manual_pending") return "先完成人工确认，再继续。";
+    if (semantic === "functional_failure") return "先修复功能问题，再重试。";
+    return "先查看详情，再继续排查。";
+  }
   if (semantic === "gate_blocked") return "Adjust the gate and retry";
   if (semantic === "environment_error") return "Check the environment and dependencies, then retry";
   if (semantic === "manual_pending") return "Complete manual confirmation before continuing";
@@ -149,7 +209,14 @@ export function outcomeActionHintZh(
 }
 
 export function statusLabelZh(status: string | undefined | null): string {
-  return statusLabelFromCanonical(toCanonicalStatusStrict(status), DESKTOP_DEFAULT_LOCALE);
+  return statusLabelDesktop(status, DESKTOP_DEFAULT_LOCALE);
+}
+
+export function statusLabelDesktop(
+  status: string | undefined | null,
+  locale: UiLocale = DESKTOP_DEFAULT_LOCALE,
+): string {
+  return statusLabelFromCanonical(toCanonicalStatusStrict(status), locale);
 }
 
 export function statusVariant(status: string | undefined | null) {
