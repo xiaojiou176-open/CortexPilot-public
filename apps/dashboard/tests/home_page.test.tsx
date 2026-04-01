@@ -37,6 +37,8 @@ import DashboardShellChrome from "../components/DashboardShellChrome";
 import { fetchRuns, fetchWorkflows } from "../lib/api";
 import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
 
+const ORIGINAL_PUBLIC_DOCS_BASE_URL = process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL;
+
 describe("dashboard home run-summary clarity", () => {
   const mockFetchRuns = vi.mocked(fetchRuns);
   const mockFetchWorkflows = vi.mocked(fetchWorkflows);
@@ -49,6 +51,8 @@ describe("dashboard home run-summary clarity", () => {
       get: () => undefined,
       toString: () => "",
     });
+    if (ORIGINAL_PUBLIC_DOCS_BASE_URL === undefined) delete process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL;
+    else process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL = ORIGINAL_PUBLIC_DOCS_BASE_URL;
   });
 
   it("renders first-run CTA and onboarding guidance when no runs", async () => {
@@ -116,11 +120,38 @@ describe("dashboard home run-summary clarity", () => {
     expect(zh.publicAdvantageCards).toHaveLength(en.publicAdvantageCards.length);
     expect(zh.caseGalleryBaselineCards).toHaveLength(en.caseGalleryBaselineCards.length);
     expect(zh.firstTaskGuideSteps).toHaveLength(en.firstTaskGuideSteps.length);
-    expect(en.aiSurfacesActionHref).toBe("https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/");
+    expect(en.aiSurfacesActionHref).toBe("/ai-surfaces/");
     expect(en.publicTemplatesActionHref).toBe("/pm");
     expect(zh.liveCaseGalleryActionHref).toBe("/workflows");
     expect(en.optionalApprovalStep.href).toBe("/god-mode");
-    expect(zh.builderQuickstartCtaHref).toBe("https://xiaojiou176-open.github.io/CortexPilot-public/builders/");
+    expect(zh.builderQuickstartCtaHref).toBe("/builders/");
+  });
+
+  it("routes public docs CTAs through the configured docs base", async () => {
+    process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL = "https://docs.example/cortexpilot/";
+
+    render(await Home());
+
+    expect(screen.getByRole("link", { name: "Open AI + MCP + API surfaces" })).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/ai-surfaces/"
+    );
+    expect(screen.getByRole("link", { name: "Open ecosystem map" })).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/ecosystem/"
+    );
+    expect(screen.getByRole("link", { name: "Open builder quickstart" })).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/builders/"
+    );
+    expect(screen.getByRole("link", { name: "Open use-case guide" })).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/use-cases/"
+    );
+    expect(screen.getByText("OpenHands and comparison layer").closest("a")).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/ecosystem/"
+    );
   });
 
   it("switches CTA wording once run history exists", async () => {

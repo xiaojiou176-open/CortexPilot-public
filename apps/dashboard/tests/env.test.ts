@@ -5,10 +5,13 @@ import {
   resolveDashboardApiBase,
   resolveDashboardOperatorRoleEnv,
   resolveDashboardPmCopyVariantEnv,
+  resolveDashboardPublicDocsBaseUrl,
+  resolveDashboardPublicDocsHref,
 } from "../lib/env";
 
 const ORIGINAL_API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 const ORIGINAL_CORTEXPILOT_API_BASE = process.env.NEXT_PUBLIC_CORTEXPILOT_API_BASE;
+const ORIGINAL_CORTEXPILOT_PUBLIC_DOCS_BASE_URL = process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL;
 const ORIGINAL_CORTEXPILOT_OPERATOR_ROLE = process.env.NEXT_PUBLIC_CORTEXPILOT_OPERATOR_ROLE;
 const ORIGINAL_PM_COPY_VARIANT = process.env.NEXT_PUBLIC_PM_COPY_VARIANT;
 
@@ -18,6 +21,9 @@ function restoreEnv(): void {
 
   if (ORIGINAL_CORTEXPILOT_API_BASE === undefined) delete process.env.NEXT_PUBLIC_CORTEXPILOT_API_BASE;
   else process.env.NEXT_PUBLIC_CORTEXPILOT_API_BASE = ORIGINAL_CORTEXPILOT_API_BASE;
+
+  if (ORIGINAL_CORTEXPILOT_PUBLIC_DOCS_BASE_URL === undefined) delete process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL;
+  else process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL = ORIGINAL_CORTEXPILOT_PUBLIC_DOCS_BASE_URL;
 
   if (ORIGINAL_CORTEXPILOT_OPERATOR_ROLE === undefined) delete process.env.NEXT_PUBLIC_CORTEXPILOT_OPERATOR_ROLE;
   else process.env.NEXT_PUBLIC_CORTEXPILOT_OPERATOR_ROLE = ORIGINAL_CORTEXPILOT_OPERATOR_ROLE;
@@ -74,6 +80,38 @@ describe("dashboard env helpers", () => {
     process.env.NEXT_PUBLIC_PM_COPY_VARIANT = " b ";
 
     expect(resolveDashboardPmCopyVariantEnv()).toBe("b");
+  });
+
+  it("uses the default public docs base when the env override is absent", () => {
+    delete process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL;
+
+    expect(resolveDashboardPublicDocsBaseUrl()).toBe("https://xiaojiou176-open.github.io/CortexPilot-public");
+    expect(resolveDashboardPublicDocsHref("/ai-surfaces/")).toBe(
+      "https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/"
+    );
+  });
+
+  it("uses a configured public docs base and trims trailing slashes", () => {
+    process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL = " https://docs.example/cortexpilot/// ";
+
+    expect(resolveDashboardPublicDocsBaseUrl()).toBe("https://docs.example/cortexpilot");
+    expect(resolveDashboardPublicDocsHref("/builders/")).toBe("https://docs.example/cortexpilot/builders/");
+  });
+
+  it("allows same-origin public docs routes when the override is slash", () => {
+    process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL = "/";
+
+    expect(resolveDashboardPublicDocsBaseUrl()).toBe("");
+    expect(resolveDashboardPublicDocsHref("/mcp/")).toBe("/mcp/");
+  });
+
+  it("leaves non-public-docs href values untouched", () => {
+    process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL = "https://docs.example/cortexpilot";
+
+    expect(resolveDashboardPublicDocsHref("/pm")).toBe("/pm");
+    expect(resolveDashboardPublicDocsHref("https://github.com/xiaojiou176-open/CortexPilot-public")).toBe(
+      "https://github.com/xiaojiou176-open/CortexPilot-public"
+    );
   });
 
   it("uses NEXT_PUBLIC_CORTEXPILOT_OPERATOR_ROLE and normalizes casing", () => {

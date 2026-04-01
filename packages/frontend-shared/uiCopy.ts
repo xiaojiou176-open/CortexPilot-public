@@ -604,7 +604,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         ecosystemDescription:
           "Keep the front door anchored on Codex, Claude Code, and read-only MCP. Mention OpenHands and comparison-only tools in the ecosystem layer, not in the hero.",
         ecosystemAction: "Open ecosystem map",
-        ecosystemActionHref: "https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/",
+        ecosystemActionHref: "/ecosystem/",
         ecosystemCards: [
           {
             badge: "Primary workflow binding",
@@ -631,14 +631,14 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
             badge: "Adjacent ecosystem",
             title: "OpenHands and comparison layer",
             desc: "OpenHands belongs in the broader ecosystem layer, while OpenCode stays comparison-only and OpenClaw stays out of the main front door.",
-            href: "https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/",
+            href: "/ecosystem/",
           },
         ],
         aiSurfacesTitle: "AI surfaces in the real workflow",
         aiSurfacesDescription:
           "AI in CortexPilot is not a floating chat box. It already shows up as a pre-run advisor, a workflow-level explainer, and a run/compare operator brief.",
         aiSurfacesActionLabel: "Open AI + MCP + API surfaces",
-        aiSurfacesActionHref: "https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/",
+        aiSurfacesActionHref: "/ai-surfaces/",
         aiSurfaceCards: [
           {
             badge: "Pre-run advisory",
@@ -666,7 +666,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         builderDescription:
           "This is not a full SDK platform, but the client, contract, and shared presentation layers are now documented as real builder surfaces.",
         builderQuickstartCtaLabel: "Open builder quickstart",
-        builderQuickstartCtaHref: "https://xiaojiou176-open.github.io/CortexPilot-public/builders/",
+        builderQuickstartCtaHref: "/builders/",
         builderCards: [
           {
             badge: "Thin client surface",
@@ -714,7 +714,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           },
         ],
         caseGalleryGuideCtaLabel: "Open use-case guide",
-        caseGalleryGuideHref: "https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/",
+        caseGalleryGuideHref: "/use-cases/",
         liveCaseGalleryTitle: "Live Workflow Case gallery",
         liveCaseGalleryDescription:
           "Use real Workflow Cases as lightweight showcase assets. This baseline links to live case detail and share-ready recap instead of inventing demo-only gallery data.",
@@ -1284,7 +1284,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         ecosystemDescription:
           "前门继续以 Codex、Claude Code 和只读 MCP 为主轴。OpenHands 和 comparison-only 工具只放在生态层，不放进 hero。",
         ecosystemAction: "打开生态地图",
-        ecosystemActionHref: "https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/",
+        ecosystemActionHref: "/ecosystem/",
         ecosystemCards: [
           {
             badge: "主工作流绑定",
@@ -1311,14 +1311,14 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
             badge: "相邻生态",
             title: "OpenHands 与 comparison 层",
             desc: "OpenHands 留在更广的生态层；OpenCode 维持 comparison-only，OpenClaw 继续不进主前门。",
-            href: "https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/",
+            href: "/ecosystem/",
           },
         ],
         aiSurfacesTitle: "AI 功能已经进入主工作流",
         aiSurfacesDescription:
           "CortexPilot 里的 AI 不是漂浮聊天框。它已经分别出现在执行前建议、工作流解释，以及运行/对比的操作摘要里。",
         aiSurfacesActionLabel: "打开 AI + MCP + API 页面",
-        aiSurfacesActionHref: "https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/",
+        aiSurfacesActionHref: "/ai-surfaces/",
         aiSurfaceCards: [
           {
             badge: "执行前建议",
@@ -1346,7 +1346,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         builderDescription:
           "这还不是完整 SDK 平台，但 client、contract 和 shared presentation 层已经是可讲、可接入的 builder surface。",
         builderQuickstartCtaLabel: "打开 builder 快速入口",
-        builderQuickstartCtaHref: "https://xiaojiou176-open.github.io/CortexPilot-public/builders/",
+        builderQuickstartCtaHref: "/builders/",
         builderCards: [
           {
             badge: "薄客户端",
@@ -1394,7 +1394,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           },
         ],
         caseGalleryGuideCtaLabel: "打开 use-case 指南",
-        caseGalleryGuideHref: "https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/",
+        caseGalleryGuideHref: "/use-cases/",
         liveCaseGalleryTitle: "真实 Workflow Case 画廊",
         liveCaseGalleryDescription:
           "把真实 Workflow Cases 作为轻量 showcase asset 来使用。这里会直接链接 live case detail 和可分享 recap，而不是伪造 demo-only 画廊数据。",
