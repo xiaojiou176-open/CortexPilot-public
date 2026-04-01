@@ -1,7 +1,10 @@
 import { render, screen, within } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const { mockCookies } = vi.hoisted(() => ({
+  mockCookies: vi.fn(),
+}));
 
 vi.mock("next/link", () => ({
   default: ({ href, children, prefetch: _prefetch, ...props }: { href: string; children: ReactNode; prefetch?: boolean }) => (
@@ -16,10 +19,23 @@ vi.mock("../lib/api", () => ({
   fetchWorkflows: vi.fn(),
 }));
 
+vi.mock("next/headers", () => ({
+  cookies: mockCookies,
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    refresh: vi.fn(),
+  }),
+  usePathname: () => "/",
+}));
+
 import Home from "../app/page";
 import RunsPage from "../app/runs/page";
-import RootLayout from "../app/layout";
+import { metadata } from "../app/layout";
+import DashboardShellChrome from "../components/DashboardShellChrome";
 import { fetchRuns, fetchWorkflows } from "../lib/api";
+import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
 
 describe("dashboard home run-summary clarity", () => {
   const mockFetchRuns = vi.mocked(fetchRuns);
@@ -29,6 +45,10 @@ describe("dashboard home run-summary clarity", () => {
     vi.clearAllMocks();
     mockFetchRuns.mockResolvedValue([]);
     mockFetchWorkflows.mockResolvedValue([]);
+    mockCookies.mockResolvedValue({
+      get: () => undefined,
+      toString: () => "",
+    });
   });
 
   it("renders first-run CTA and onboarding guidance when no runs", async () => {
@@ -66,6 +86,7 @@ describe("dashboard home run-summary clarity", () => {
       "https://xiaojiou176-open.github.io/CortexPilot-public/builders/"
     );
     expect(screen.getAllByText("Public case gallery baseline").length).toBeGreaterThan(0);
+    expect(screen.getByText("Live Workflow Case gallery")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open use-case guide" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/"
@@ -81,6 +102,22 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.queryByRole("link", { name: "Quick approval" })).not.toBeInTheDocument();
   }, 30000);
 
+  it("keeps the shared home copy contract aligned across locales", () => {
+    const en = getUiCopy("en").dashboard.homePhase2;
+    const zh = getUiCopy("zh-CN").dashboard.homePhase2;
+
+    expect(en.productSpineCards).toHaveLength(3);
+    expect(zh.productSpineCards).toHaveLength(en.productSpineCards.length);
+    expect(zh.publicTemplateCards).toHaveLength(en.publicTemplateCards.length);
+    expect(zh.publicAdvantageCards).toHaveLength(en.publicAdvantageCards.length);
+    expect(zh.caseGalleryBaselineCards).toHaveLength(en.caseGalleryBaselineCards.length);
+    expect(zh.firstTaskGuideSteps).toHaveLength(en.firstTaskGuideSteps.length);
+    expect(en.publicTemplatesActionHref).toBe("/pm");
+    expect(zh.liveCaseGalleryActionHref).toBe("/workflows");
+    expect(en.optionalApprovalStep.href).toBe("/god-mode");
+    expect(zh.builderQuickstartCtaHref).toBe("https://xiaojiou176-open.github.io/CortexPilot-public/builders/");
+  });
+
   it("switches CTA wording once run history exists", async () => {
     mockFetchRuns.mockResolvedValueOnce([
       {
@@ -94,6 +131,25 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByRole("link", { name: "Start new task" })).toHaveAttribute("href", "/pm");
     expect(screen.queryByRole("link", { name: "Start first task" })).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Start your first task in four steps")).not.toBeInTheDocument();
+  });
+
+  it("renders zh-CN home copy when the locale cookie requests it", async () => {
+    mockCookies.mockResolvedValue({
+      get: (name: string) => (name === "cortexpilot.ui.locale" ? { value: "zh-CN" } : undefined),
+      toString: () => "cortexpilot.ui.locale=zh-CN",
+    });
+
+    render(await Home());
+
+    expect(screen.getByRole("heading", { name: "面向 Codex 和 Claude Code 工作流的指挥塔" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "启动首个任务" })).toHaveAttribute("href", "/pm");
+    expect(screen.getByText("与当前 coding-agent 生态的关系")).toBeInTheDocument();
+    expect(screen.getByText("AI 功能已经进入主工作流")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "打开 builder 快速入口" })).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/builders/"
+    );
+    expect(screen.getByText("显示四步首跑流程")).toBeInTheDocument();
   });
 
   it("maps latest failure category to semantic label and provides governance link", async () => {
@@ -253,20 +309,22 @@ describe("dashboard home run-summary clarity", () => {
   });
 
   it("renders the public shell with English-first layout metadata and chrome copy", () => {
-    const markup = renderToStaticMarkup(
-      RootLayout({
-        children: <div>content</div>,
-      })
+    expect(metadata.title).toBe("CortexPilot | AI Work Command Tower for Codex, Claude Code, and MCP");
+    expect(metadata.description).toContain("Model Context Protocol (MCP)-readable proof and replay");
+
+    render(
+      <DashboardShellChrome>
+        <div>content</div>
+      </DashboardShellChrome>
     );
 
-    expect(markup).toContain('lang="en"');
-    expect(markup).toContain("Skip to dashboard content");
-    expect(markup).toContain('aria-label="Dashboard navigation"');
-    expect(markup).toContain("Command Tower · Workflow Cases · Proof &amp; Replay");
-    expect(markup).toContain("Operator control plane");
-    expect(markup).toContain('aria-label="Platform status overview"');
-    expect(markup).toContain("Governance view");
-    expect(markup).toContain("Live verification required");
-    expect(markup).toContain("Page-level status");
+    expect(screen.getByRole("link", { name: "Skip to dashboard content" })).toHaveAttribute("href", "#dashboard-content");
+    expect(screen.getAllByLabelText("Dashboard navigation").length).toBeGreaterThan(0);
+    expect(screen.getByText("Command Tower · Workflow Cases · Proof & Replay")).toBeInTheDocument();
+    expect(screen.getByText("Operator control plane")).toBeInTheDocument();
+    expect(screen.getByLabelText("Platform status overview")).toBeInTheDocument();
+    expect(screen.getByText("Governance view")).toBeInTheDocument();
+    expect(screen.getByText("Live verification required")).toBeInTheDocument();
+    expect(screen.getByText("Page-level status")).toBeInTheDocument();
   });
 });

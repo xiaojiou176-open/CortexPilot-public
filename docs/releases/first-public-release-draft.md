@@ -22,6 +22,7 @@ This release makes that story much clearer on the public surface.
 - clarified the repo-side proof contract for the first public release bundle
 - added a repo-local read-only MCP server entry for control-plane reads
 - added an explain-only operator brief on dashboard Run Detail and Run Compare
+- added dedicated public Pages entrypoints for ecosystem, builder, use-case, and AI/MCP/API discovery
 
 ## What to look at first
 

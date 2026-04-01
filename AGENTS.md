@@ -118,6 +118,26 @@ Work in CortexPilot as a contract-first engineering agent:
   hero/ecosystem/AI/builder copy into the shared locale substrate, sync the
   root AI/docs entrypoints in the same patch so doc-sync gates can trace the
   new discoverability surfaces without guessing
+- when a follow-up Phase 2 wave adds a public `AI + MCP + API` hub or makes
+  the dashboard-home locale toggle drive server-rendered copy through
+  cookie-backed preference sync, update the root AI/docs entrypoints and
+  release-facing docs in the same patch so doc-sync gates can trace both the
+  discoverability layer and the locale-contract change; current examples
+  include `docs/ai-surfaces/index.html`, the extracted
+  `apps/dashboard/components/DashboardHomeStorySections.tsx` narrative surface,
+  and the AI Work Command Tower wording shared by the dashboard metadata and
+  the public Pages front door
+- when that same wave also extracts dashboard-home story sections into a
+  dedicated shared-copy component, keep this root guide, `CLAUDE.md`, and
+  `CHANGELOG.md` aligned in the same patch so quick-feedback gates can trace
+  the new locale-aware rendering path instead of guessing from page-local code
+- keep the root wording aligned when the dashboard home starts mixing
+  cookie-backed locale SSR with client-side locale refresh, because that split
+  is easy to miss in page-only diffs
+- the current concrete examples are `docs/ai-surfaces/index.html`,
+  `apps/dashboard/components/DashboardHomeStorySections.tsx`,
+  `packages/frontend-shared/uiLocale.ts`, and dashboard metadata that now says
+  "AI Work Command Tower for Codex, Claude Code, and MCP"
 
 ## Local Overrides
 

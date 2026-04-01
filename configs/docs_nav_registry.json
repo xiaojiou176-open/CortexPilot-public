@@ -156,6 +156,15 @@
       "listed_in_primary_navigation": false
     },
     {
+      "path": "docs/ai-surfaces/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    },
+    {
       "path": "docs/governance/doc-drift-map.json",
       "kind": "policy",
       "status": "active",

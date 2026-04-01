@@ -1,7 +1,7 @@
 # CortexPilot
 
-Command Tower for Codex and Claude Code workflows with MCP-readable proof,
-replay, and Workflow Cases.
+AI Work Command Tower for Codex and Claude Code workflows with Model Context
+Protocol (MCP)-readable proof, replay, and Workflow Cases.
 
 CortexPilot is a contract-first orchestration repo for Codex / Claude Code
 teams that want one operator surface, one governed run path, and one
@@ -9,7 +9,7 @@ replayable evidence trail instead of scattered agents, logs, and scripts.
 
 CortexPilot is a contract-first multi-agent orchestration repository.
 
-CortexPilot is an AI agent command tower built around three product words:
+CortexPilot is an AI Work Command Tower built around three product words:
 **Command Tower**, **Workflow Cases**, and **Proof & Replay**.
 
 The current public story speaks first to Codex / Claude Code teams and second
@@ -20,7 +20,7 @@ service.
 The product name stays **CortexPilot**. If `cortexpilot.ai` is later claimed,
 treat it as a marketing/front-door domain, not as a product rename.
 
-[Quickstart](#quickstart) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [Ecosystem Map](https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/) · [Builder Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/) · [Use Cases](https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/) · [Client Entry Points](packages/frontend-api-client/README.md) · [Spec](docs/specs/00_SPEC.md) · [Releases](https://github.com/xiaojiou176-open/CortexPilot-public/releases)
+[Quickstart](#quickstart) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [Ecosystem Map](https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/) · [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/) · [Builder Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/) · [Use Cases](https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/) · [Client Entry Points](packages/frontend-api-client/README.md) · [Spec](docs/specs/00_SPEC.md) · [Releases](https://github.com/xiaojiou176-open/CortexPilot-public/releases)
 
 ![CortexPilot studio preview card](docs/assets/storefront/cortexpilot-studio-preview.svg)
 

@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 import {
   detectPreferredUiLocale,
+  readPreferredUiLocaleCookie,
   persistPreferredUiLocale,
   toggleUiLocale,
 } from "@cortexpilot/frontend-shared/uiLocale";
@@ -18,11 +20,18 @@ type DashboardShellChromeProps = {
 };
 
 export default function DashboardShellChrome({ children }: DashboardShellChromeProps) {
+  const router = useRouter();
   const [locale, setLocale] = useState<UiLocale>(DEFAULT_UI_LOCALE);
 
   useEffect(() => {
-    setLocale(detectPreferredUiLocale());
-  }, []);
+    const detected = detectPreferredUiLocale();
+    const cookieLocale = readPreferredUiLocaleCookie(document.cookie);
+    setLocale(detected);
+    if (cookieLocale !== detected) {
+      persistPreferredUiLocale(detected);
+      router.refresh();
+    }
+  }, [router]);
 
   const uiCopy = useMemo(() => getUiCopy(locale), [locale]);
 
@@ -56,6 +65,7 @@ export default function DashboardShellChrome({ children }: DashboardShellChromeP
                   setLocale((previous) => {
                     const next = toggleUiLocale(previous);
                     persistPreferredUiLocale(next);
+                    router.refresh();
                     return next;
                   });
                 }}

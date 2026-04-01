@@ -78,6 +78,26 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   hero/ecosystem/AI/builder copy into the shared locale substrate, sync the
   root AI/docs entrypoints in the same patch so doc-sync gates can trace the
   new discoverability surfaces without guessing
+- when a follow-up Phase 2 wave adds new public discoverability hubs such as
+  `/ai-surfaces/` or makes the dashboard-home locale toggle drive
+  server-rendered copy through cookie-backed preference sync, update the root
+  AI/docs entrypoints and release-facing docs in the same patch so doc-sync
+  gates can follow both the public wording and the locale-contract change;
+  current examples include `docs/ai-surfaces/index.html`, the extracted
+  `apps/dashboard/components/DashboardHomeStorySections.tsx` narrative layer,
+  and the AI Work Command Tower wording now shared by the dashboard metadata
+  and the public Pages landing copy
+- when that wave also moves the dashboard-home story into a dedicated
+  shared-copy component, keep this file, `AGENTS.md`, and `CHANGELOG.md`
+  aligned in the same patch so quick-feedback gates can trace the locale-aware
+  rendering path instead of inferring it from page-local literals
+- keep the root wording aligned when the dashboard home mixes cookie-backed
+  locale SSR with client-side locale refresh, because that split is easy to
+  miss when only the page diff is inspected
+- the current concrete examples are `docs/ai-surfaces/index.html`,
+  `apps/dashboard/components/DashboardHomeStorySections.tsx`,
+  `packages/frontend-shared/uiLocale.ts`, and dashboard metadata that now says
+  "AI Work Command Tower for Codex, Claude Code, and MCP"
 
 ## Key Commands
 

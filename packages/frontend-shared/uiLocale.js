@@ -1,5 +1,6 @@
 export const UI_LOCALE_STORAGE_KEY = "cortexpilot.ui.locale";
 export const DEFAULT_UI_LOCALE = "en";
+export const UI_LOCALE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 
 export function normalizeUiLocale(value) {
   const normalized = String(value || "").trim().toLowerCase();
@@ -23,11 +24,28 @@ export function detectPreferredUiLocale() {
   return DEFAULT_UI_LOCALE;
 }
 
+export function readPreferredUiLocaleCookie(cookieHeader) {
+  const rawHeader = String(cookieHeader || "").trim();
+  if (!rawHeader) {
+    return DEFAULT_UI_LOCALE;
+  }
+  const segments = rawHeader.split(";").map((segment) => segment.trim());
+  for (const segment of segments) {
+    if (!segment.startsWith(`${UI_LOCALE_STORAGE_KEY}=`)) {
+      continue;
+    }
+    return normalizeUiLocale(segment.slice(UI_LOCALE_STORAGE_KEY.length + 1));
+  }
+  return DEFAULT_UI_LOCALE;
+}
+
 export function persistPreferredUiLocale(locale) {
   if (typeof window === "undefined") {
     return;
   }
   window.localStorage.setItem(UI_LOCALE_STORAGE_KEY, locale);
+  document.cookie =
+    `${UI_LOCALE_STORAGE_KEY}=${locale}; Path=/; Max-Age=${UI_LOCALE_COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
 }
 
 export function toggleUiLocale(locale) {

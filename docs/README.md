@@ -48,6 +48,7 @@ navigation set.
 8. [builders/index.html](builders/index.html)
 9. [ecosystem/index.html](ecosystem/index.html)
 10. [use-cases/index.html](use-cases/index.html)
+11. [ai-surfaces/index.html](ai-surfaces/index.html)
 
 ## What Each File Is For
 
@@ -67,6 +68,7 @@ navigation set.
 - `docs/builders/index.html`: public builder quickstart hub for current client/contract/shared entrypoints
 - `docs/ecosystem/index.html`: public ecosystem positioning page for Codex / Claude Code / MCP plus adjacent comparison layers
 - `docs/use-cases/index.html`: public first-run, proof, and share-ready asset guide
+- `docs/ai-surfaces/index.html`: public AI operator / read-only MCP / API entrypoint map for truthful discoverability
 
 ## Public CI Contract
 
