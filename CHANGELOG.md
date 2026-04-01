@@ -8,9 +8,11 @@ All notable changes to this repository will be documented in this file.
 
 - deepened the third Phase 2 wave by making the dashboard-home locale toggle
   drive the server-rendered home story via cookie-backed preference sync,
-  extracting the narrative sections into a dedicated shared-copy component, and
+  extracting the narrative sections into `DashboardHomeStorySections`, and
   adding a public `AI + MCP + API` Pages entrypoint plus stronger
-  ecosystem/builder/use-case SEO metadata
+  ecosystem/builder/use-case SEO metadata and dashboard metadata wording around
+  the AI Work Command Tower / Codex / Claude Code / MCP front door while
+  syncing the root AI entrypoint files with the same discoverability contract
 - deepened the second Phase 2 wave by moving the newest dashboard home
   ecosystem/AI/builder hero surfaces into shared home copy, adding dedicated
   public Pages sub-entrypoints for ecosystem/builders/use-cases, and wiring the
