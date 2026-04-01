@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
+import { resolveDashboardPublicDocsHref } from "../lib/env";
 import { Button, type ButtonVariant } from "./ui/button";
 import { Card } from "./ui/card";
 import { useDashboardLocale } from "./DashboardLocaleContext";
@@ -27,6 +28,7 @@ export default function DashboardHomeStorySections({
   const resolvedUiCopy =
     dashboardLocale === DEFAULT_UI_LOCALE && locale !== DEFAULT_UI_LOCALE ? getUiCopy(locale) : uiCopy;
   const homePhase2Copy = resolvedUiCopy.dashboard.homePhase2;
+  const resolveHomeHref = (href: string) => resolveDashboardPublicDocsHref(href);
 
   const primaryActionLabel = hasRunHistory
     ? homePhase2Copy.startNewTaskLabel
@@ -60,11 +62,11 @@ export default function DashboardHomeStorySections({
           </div>
           <nav aria-label="Home primary actions">
             <Button asChild variant="default">
-              <Link href="/pm" prefetch>{primaryActionLabel}</Link>
+              <Link href={resolveHomeHref("/pm")} prefetch>{primaryActionLabel}</Link>
             </Button>
             {topSecondaryAction ? (
               <Button asChild variant={topSecondaryAction.variant}>
-                <Link href={topSecondaryAction.href}>{topSecondaryAction.label}</Link>
+                <Link href={resolveHomeHref(topSecondaryAction.href)}>{topSecondaryAction.label}</Link>
               </Button>
             ) : null}
           </nav>
@@ -82,7 +84,7 @@ export default function DashboardHomeStorySections({
         </div>
         <div className="quick-grid">
           {homePhase2Copy.productSpineCards.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card">
+            <Link key={item.title} href={resolveHomeHref(item.href)} className="quick-card">
               <span className="quick-card-title">{item.title}</span>
               <span className="quick-card-desc">{item.desc}</span>
             </Link>
@@ -100,13 +102,15 @@ export default function DashboardHomeStorySections({
           </div>
           <nav aria-label="Public task template actions">
             <Button asChild variant="secondary">
-              <Link href={homePhase2Copy.publicTemplatesActionHref}>{homePhase2Copy.publicTemplatesActionLabel}</Link>
+              <Link href={resolveHomeHref(homePhase2Copy.publicTemplatesActionHref)}>
+                {homePhase2Copy.publicTemplatesActionLabel}
+              </Link>
             </Button>
           </nav>
         </div>
         <div className="quick-grid">
           {homePhase2Copy.publicTemplateCards.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card">
+            <Link key={item.title} href={resolveHomeHref(item.href)} className="quick-card">
               <span className="quick-card-desc">{item.badge}</span>
               <span className="quick-card-title">{item.title}</span>
               <span className="quick-card-desc">{item.desc}</span>
@@ -130,7 +134,7 @@ export default function DashboardHomeStorySections({
         </div>
         <div className="quick-grid">
           {homePhase2Copy.publicAdvantageCards.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card">
+            <Link key={item.title} href={resolveHomeHref(item.href)} className="quick-card">
               <span className="quick-card-title">{item.title}</span>
               <span className="quick-card-desc">{item.desc}</span>
             </Link>
@@ -148,18 +152,21 @@ export default function DashboardHomeStorySections({
           </div>
           <nav aria-label="Ecosystem actions">
             <Button asChild variant="secondary">
-              <Link href={homePhase2Copy.ecosystemActionHref}>{homePhase2Copy.ecosystemAction}</Link>
+              <Link href={resolveHomeHref(homePhase2Copy.ecosystemActionHref)}>{homePhase2Copy.ecosystemAction}</Link>
             </Button>
           </nav>
         </div>
         <div className="quick-grid">
-          {homePhase2Copy.ecosystemCards.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card" prefetch={item.prefetch ?? item.href.startsWith("/")}>
-              <span className="quick-card-desc">{item.badge}</span>
-              <span className="quick-card-title">{item.title}</span>
-              <span className="quick-card-desc">{item.desc}</span>
-            </Link>
-          ))}
+          {homePhase2Copy.ecosystemCards.map((item) => {
+            const href = resolveHomeHref(item.href);
+            return (
+              <Link key={item.title} href={href} className="quick-card" prefetch={item.prefetch ?? href.startsWith("/")}>
+                <span className="quick-card-desc">{item.badge}</span>
+                <span className="quick-card-title">{item.title}</span>
+                <span className="quick-card-desc">{item.desc}</span>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -171,15 +178,23 @@ export default function DashboardHomeStorySections({
             </h2>
             <p>{homePhase2Copy.aiSurfacesDescription}</p>
           </div>
+          <nav aria-label="AI surfaces actions">
+            <Button asChild variant="secondary">
+              <Link href={resolveHomeHref(homePhase2Copy.aiSurfacesActionHref)}>{homePhase2Copy.aiSurfacesActionLabel}</Link>
+            </Button>
+          </nav>
         </div>
         <div className="quick-grid">
-          {homePhase2Copy.aiSurfaceCards.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card" prefetch={item.prefetch ?? item.href.startsWith("/")}>
-              <span className="quick-card-desc">{item.badge}</span>
-              <span className="quick-card-title">{item.title}</span>
-              <span className="quick-card-desc">{item.desc}</span>
-            </Link>
-          ))}
+          {homePhase2Copy.aiSurfaceCards.map((item) => {
+            const href = resolveHomeHref(item.href);
+            return (
+              <Link key={item.title} href={href} className="quick-card" prefetch={item.prefetch ?? href.startsWith("/")}>
+                <span className="quick-card-desc">{item.badge}</span>
+                <span className="quick-card-title">{item.title}</span>
+                <span className="quick-card-desc">{item.desc}</span>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -193,18 +208,23 @@ export default function DashboardHomeStorySections({
           </div>
           <nav aria-label="Builder quickstart actions">
             <Button asChild variant="secondary">
-              <Link href={homePhase2Copy.builderQuickstartCtaHref}>{homePhase2Copy.builderQuickstartCtaLabel}</Link>
+              <Link href={resolveHomeHref(homePhase2Copy.builderQuickstartCtaHref)}>
+                {homePhase2Copy.builderQuickstartCtaLabel}
+              </Link>
             </Button>
           </nav>
         </div>
         <div className="quick-grid">
-          {homePhase2Copy.builderCards.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card" prefetch={item.prefetch ?? false}>
-              <span className="quick-card-desc">{item.badge}</span>
-              <span className="quick-card-title">{item.title}</span>
-              <span className="quick-card-desc">{item.desc}</span>
-            </Link>
-          ))}
+          {homePhase2Copy.builderCards.map((item) => {
+            const href = resolveHomeHref(item.href);
+            return (
+              <Link key={item.title} href={href} className="quick-card" prefetch={item.prefetch ?? false}>
+                <span className="quick-card-desc">{item.badge}</span>
+                <span className="quick-card-title">{item.title}</span>
+                <span className="quick-card-desc">{item.desc}</span>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -218,13 +238,15 @@ export default function DashboardHomeStorySections({
           </div>
           <nav aria-label="Public case gallery actions">
             <Button asChild variant="secondary">
-              <Link href={homePhase2Copy.caseGalleryGuideHref}>{homePhase2Copy.caseGalleryGuideCtaLabel}</Link>
+              <Link href={resolveHomeHref(homePhase2Copy.caseGalleryGuideHref)}>
+                {homePhase2Copy.caseGalleryGuideCtaLabel}
+              </Link>
             </Button>
           </nav>
         </div>
         <div className="quick-grid">
           {homePhase2Copy.caseGalleryBaselineCards.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card">
+            <Link key={item.title} href={resolveHomeHref(item.href)} className="quick-card">
               <span className="quick-card-title">{item.title}</span>
               <span className="quick-card-desc">{item.desc}</span>
               <span className="cell-sub mono">{item.evidence}</span>
@@ -247,7 +269,7 @@ export default function DashboardHomeStorySections({
               <summary className="quick-card-title">{homePhase2Copy.firstTaskGuideSummary}</summary>
               <div className="quick-grid mt-2">
                 {homePhase2Copy.firstTaskGuideSteps.map((step) => (
-                  <Link key={step.href} href={step.href} prefetch={step.prefetch} className="quick-card">
+                  <Link key={step.href} href={resolveHomeHref(step.href)} prefetch={step.prefetch} className="quick-card">
                     <span className="quick-card-desc">{step.step}</span>
                     <span className="quick-card-title">{step.title}</span>
                     <span className="quick-card-desc">{step.desc}</span>
@@ -256,7 +278,7 @@ export default function DashboardHomeStorySections({
               </div>
               <div className="quick-grid mt-2" aria-label="Optional approval step">
                 <Link
-                  href={homePhase2Copy.optionalApprovalStep.href}
+                  href={resolveHomeHref(homePhase2Copy.optionalApprovalStep.href)}
                   prefetch={homePhase2Copy.optionalApprovalStep.prefetch}
                   className="quick-card"
                 >

@@ -149,6 +149,11 @@ Work in CortexPilot as a contract-first engineering agent:
   `@cortexpilot/frontend-shared`, keep the root AI entrypoints aligned in the
   same patch; current examples include locale-aware desktop status labels,
   shared-copy Run Detail table/action chrome, and zh-CN regression coverage
+- when the next Phase 2 wave deepens public `MCP` / `API` discoverability,
+  sync the root AI/docs entrypoints in the same patch; current examples include
+  `docs/mcp/index.html`, `docs/api/index.html`, the dashboard-home AI section
+  CTA, and root navigation that points readers toward read-only MCP and API
+  quickstarts without implying hosted/write-capable MCP
 
 ## Local Overrides
 

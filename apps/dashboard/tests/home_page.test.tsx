@@ -37,6 +37,8 @@ import DashboardShellChrome from "../components/DashboardShellChrome";
 import { fetchRuns, fetchWorkflows } from "../lib/api";
 import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
 
+const ORIGINAL_PUBLIC_DOCS_BASE_URL = process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL;
+
 describe("dashboard home run-summary clarity", () => {
   const mockFetchRuns = vi.mocked(fetchRuns);
   const mockFetchWorkflows = vi.mocked(fetchWorkflows);
@@ -49,6 +51,8 @@ describe("dashboard home run-summary clarity", () => {
       get: () => undefined,
       toString: () => "",
     });
+    if (ORIGINAL_PUBLIC_DOCS_BASE_URL === undefined) delete process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL;
+    else process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL = ORIGINAL_PUBLIC_DOCS_BASE_URL;
   });
 
   it("renders first-run CTA and onboarding guidance when no runs", async () => {
@@ -76,6 +80,10 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByText("Proof state: official public baseline")).toBeInTheDocument();
     expect(screen.getByText("Works with today's coding-agent ecosystem")).toBeInTheDocument();
     expect(screen.getByText("AI surfaces in the real workflow")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open AI + MCP + API surfaces" })).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/"
+    );
     expect(screen.getByText("@cortexpilot/frontend-api-client")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open ecosystem map" })).toHaveAttribute(
       "href",
@@ -112,10 +120,38 @@ describe("dashboard home run-summary clarity", () => {
     expect(zh.publicAdvantageCards).toHaveLength(en.publicAdvantageCards.length);
     expect(zh.caseGalleryBaselineCards).toHaveLength(en.caseGalleryBaselineCards.length);
     expect(zh.firstTaskGuideSteps).toHaveLength(en.firstTaskGuideSteps.length);
+    expect(en.aiSurfacesActionHref).toBe("/ai-surfaces/");
     expect(en.publicTemplatesActionHref).toBe("/pm");
     expect(zh.liveCaseGalleryActionHref).toBe("/workflows");
     expect(en.optionalApprovalStep.href).toBe("/god-mode");
-    expect(zh.builderQuickstartCtaHref).toBe("https://xiaojiou176-open.github.io/CortexPilot-public/builders/");
+    expect(zh.builderQuickstartCtaHref).toBe("/builders/");
+  });
+
+  it("routes public docs CTAs through the configured docs base", async () => {
+    process.env.NEXT_PUBLIC_CORTEXPILOT_PUBLIC_DOCS_BASE_URL = "https://docs.example/cortexpilot/";
+
+    render(await Home());
+
+    expect(screen.getByRole("link", { name: "Open AI + MCP + API surfaces" })).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/ai-surfaces/"
+    );
+    expect(screen.getByRole("link", { name: "Open ecosystem map" })).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/ecosystem/"
+    );
+    expect(screen.getByRole("link", { name: "Open builder quickstart" })).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/builders/"
+    );
+    expect(screen.getByRole("link", { name: "Open use-case guide" })).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/use-cases/"
+    );
+    expect(screen.getByText("OpenHands and comparison layer").closest("a")).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/ecosystem/"
+    );
   });
 
   it("switches CTA wording once run history exists", async () => {
@@ -145,6 +181,10 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByRole("link", { name: "启动首个任务" })).toHaveAttribute("href", "/pm");
     expect(screen.getByText("与当前 coding-agent 生态的关系")).toBeInTheDocument();
     expect(screen.getByText("AI 功能已经进入主工作流")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "打开 AI + MCP + API 页面" })).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/"
+    );
     expect(screen.getByRole("link", { name: "打开 builder 快速入口" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/builders/"

@@ -49,6 +49,8 @@ navigation set.
 9. [ecosystem/index.html](ecosystem/index.html)
 10. [use-cases/index.html](use-cases/index.html)
 11. [ai-surfaces/index.html](ai-surfaces/index.html)
+12. [mcp/index.html](mcp/index.html)
+13. [api/index.html](api/index.html)
 
 ## What Each File Is For
 
@@ -69,6 +71,8 @@ navigation set.
 - `docs/ecosystem/index.html`: public ecosystem positioning page for Codex / Claude Code / MCP plus adjacent comparison layers
 - `docs/use-cases/index.html`: public first-run, proof, and share-ready asset guide
 - `docs/ai-surfaces/index.html`: public AI operator / read-only MCP / API entrypoint map for truthful discoverability
+- `docs/mcp/index.html`: public read-only MCP quickstart page for truthful protocol discovery
+- `docs/api/index.html`: public API / contract quickstart page for OpenAPI, frontend client, and contract-facing types
 - `apps/desktop/README.md`: desktop-owned module note for operator-surface locale/status hardening when desktop wording contracts change
 
 ## Public CI Contract
