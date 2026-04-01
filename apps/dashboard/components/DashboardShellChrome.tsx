@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 import {
   detectPreferredUiLocale,
+  readPreferredUiLocaleCookie,
   persistPreferredUiLocale,
   toggleUiLocale,
 } from "@cortexpilot/frontend-shared/uiLocale";
@@ -23,8 +24,14 @@ export default function DashboardShellChrome({ children }: DashboardShellChromeP
   const [locale, setLocale] = useState<UiLocale>(DEFAULT_UI_LOCALE);
 
   useEffect(() => {
-    setLocale(detectPreferredUiLocale());
-  }, []);
+    const detected = detectPreferredUiLocale();
+    const cookieLocale = readPreferredUiLocaleCookie(document.cookie);
+    setLocale(detected);
+    if (cookieLocale !== detected) {
+      persistPreferredUiLocale(detected);
+      router.refresh();
+    }
+  }, [router]);
 
   const uiCopy = useMemo(() => getUiCopy(locale), [locale]);
 

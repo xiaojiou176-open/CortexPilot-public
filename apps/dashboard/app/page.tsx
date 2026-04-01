@@ -7,7 +7,7 @@ import DashboardHomeStorySections from "../components/DashboardHomeStorySections
 import { fetchRuns, fetchWorkflows } from "../lib/api";
 import { safeLoad } from "../lib/serverPageData";
 import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
-import { readPreferredUiLocaleCookie } from "@cortexpilot/frontend-shared/uiLocale";
+import { normalizeUiLocale, readPreferredUiLocaleCookie, UI_LOCALE_STORAGE_KEY } from "@cortexpilot/frontend-shared/uiLocale";
 
 const CJK_TEXT_RE = /[\u3400-\u9fff]/;
 
@@ -157,7 +157,11 @@ function compactTaskId(value: string | undefined): string {
 }
 
 export default async function Home() {
-  const locale = readPreferredUiLocaleCookie((await cookies()).toString());
+  const cookieStore = await cookies();
+  const cookieValue =
+    typeof cookieStore.get === "function" ? cookieStore.get(UI_LOCALE_STORAGE_KEY)?.value : undefined;
+  const locale =
+    cookieValue != null ? normalizeUiLocale(cookieValue) : readPreferredUiLocaleCookie(cookieStore.toString());
   const homePhase2Copy = getUiCopy(locale).dashboard.homePhase2;
   const { data: runs, warning } = await safeLoad(fetchRuns, [], "run list");
   const { data: workflows, warning: workflowsWarning } = await safeLoad(fetchWorkflows, [], "workflow list");

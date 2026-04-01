@@ -6,43 +6,6 @@ import { Button, type ButtonVariant } from "./ui/button";
 import { Card } from "./ui/card";
 import { useDashboardLocale } from "./DashboardLocaleContext";
 
-const ECOSYSTEM_BINDING_HREFS = [
-  "/command-tower",
-  "/command-tower",
-  "/runs",
-  "https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/",
-] as const;
-
-const AI_SURFACE_HREFS = [
-  "/pm",
-  "/workflows",
-  "/runs",
-] as const;
-
-const BUILDER_ENTRYPOINT_HREFS = [
-  "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md",
-  "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/index.d.ts",
-  "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md",
-] as const;
-
-function zipCardsWithHrefs<T extends { badge?: string; title: string; desc: string }>(
-  cards: T[],
-  hrefs: readonly string[],
-  context: string,
-): Array<T & { href: string }> {
-  if (cards.length !== hrefs.length) {
-    throw new Error(
-      `Length mismatch for homePhase2.${context} (${cards.length}) and ${context} hrefs (${hrefs.length}). ` +
-        "Check that the locale card copy and href lists have the same length and ordering.",
-    );
-  }
-
-  return cards.map((item, index) => ({
-    ...item,
-    href: hrefs[index],
-  }));
-}
-
 type DashboardHomeStorySectionsProps = {
   failedCount: number;
   failureRate: number;
@@ -64,22 +27,6 @@ export default function DashboardHomeStorySections({
   const resolvedUiCopy =
     dashboardLocale === DEFAULT_UI_LOCALE && locale !== DEFAULT_UI_LOCALE ? getUiCopy(locale) : uiCopy;
   const homePhase2Copy = resolvedUiCopy.dashboard.homePhase2;
-
-  const ecosystemBindings = zipCardsWithHrefs(
-    homePhase2Copy.ecosystemCards,
-    ECOSYSTEM_BINDING_HREFS,
-    "ecosystemCards",
-  );
-  const aiSurfaceCards = zipCardsWithHrefs(
-    homePhase2Copy.aiSurfaceCards,
-    AI_SURFACE_HREFS,
-    "aiSurfaceCards",
-  );
-  const builderEntrypoints = zipCardsWithHrefs(
-    homePhase2Copy.builderCards,
-    BUILDER_ENTRYPOINT_HREFS,
-    "builderCards",
-  );
 
   const primaryActionLabel = hasRunHistory
     ? homePhase2Copy.startNewTaskLabel
@@ -206,8 +153,8 @@ export default function DashboardHomeStorySections({
           </nav>
         </div>
         <div className="quick-grid">
-          {ecosystemBindings.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card" prefetch={item.href.startsWith("/")}>
+          {homePhase2Copy.ecosystemCards.map((item) => (
+            <Link key={item.title} href={item.href} className="quick-card" prefetch={item.prefetch ?? item.href.startsWith("/")}>
               <span className="quick-card-desc">{item.badge}</span>
               <span className="quick-card-title">{item.title}</span>
               <span className="quick-card-desc">{item.desc}</span>
@@ -226,8 +173,8 @@ export default function DashboardHomeStorySections({
           </div>
         </div>
         <div className="quick-grid">
-          {aiSurfaceCards.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card" prefetch={item.href.startsWith("/")}>
+          {homePhase2Copy.aiSurfaceCards.map((item) => (
+            <Link key={item.title} href={item.href} className="quick-card" prefetch={item.prefetch ?? item.href.startsWith("/")}>
               <span className="quick-card-desc">{item.badge}</span>
               <span className="quick-card-title">{item.title}</span>
               <span className="quick-card-desc">{item.desc}</span>
@@ -251,8 +198,8 @@ export default function DashboardHomeStorySections({
           </nav>
         </div>
         <div className="quick-grid">
-          {builderEntrypoints.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card" prefetch={false}>
+          {homePhase2Copy.builderCards.map((item) => (
+            <Link key={item.title} href={item.href} className="quick-card" prefetch={item.prefetch ?? false}>
               <span className="quick-card-desc">{item.badge}</span>
               <span className="quick-card-title">{item.title}</span>
               <span className="quick-card-desc">{item.desc}</span>

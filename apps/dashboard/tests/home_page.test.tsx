@@ -46,6 +46,7 @@ describe("dashboard home run-summary clarity", () => {
     mockFetchRuns.mockResolvedValue([]);
     mockFetchWorkflows.mockResolvedValue([]);
     mockCookies.mockResolvedValue({
+      get: () => undefined,
       toString: () => "",
     });
   });
@@ -134,6 +135,7 @@ describe("dashboard home run-summary clarity", () => {
 
   it("renders zh-CN home copy when the locale cookie requests it", async () => {
     mockCookies.mockResolvedValue({
+      get: (name: string) => (name === "cortexpilot.ui.locale" ? { value: "zh-CN" } : undefined),
       toString: () => "cortexpilot.ui.locale=zh-CN",
     });
 
