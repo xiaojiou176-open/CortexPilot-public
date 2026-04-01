@@ -33,7 +33,7 @@
         <a href="../">Back to the public landing page</a>
         · <a href="../ai-surfaces/">AI + MCP + API surfaces</a>
         · <a href="../builders/">Builder quickstart</a>
-        · <a href="../mcp/">MCP quickstart</a>
+        · <a href="../mcp/">read-only MCP quickstart</a>
       </p>
 
       <h1>API and contract quickstart</h1>
@@ -41,6 +41,13 @@
         CortexPilot is not a full SDK platform today, but it already exposes a useful API and contract edge for dashboard, desktop, and
         custom frontend consumers. This page is the shortest truthful map.
       </p>
+
+      <h2>Choose the shortest starting point</h2>
+      <ul>
+        <li>Stay on this page when you want the HTTP contract, thin client story, and contract-facing type boundary.</li>
+        <li>Jump to the <a href="../mcp/">read-only MCP quickstart</a> when you need the protocol boundary first and package details later.</li>
+        <li>Jump to the <a href="../builders/">builder quickstart</a> when you are ready to choose the package surface for a frontend integration.</li>
+      </ul>
 
       <h2>1. OpenAPI document</h2>
       <p>
@@ -72,6 +79,14 @@
         <li>read-oriented integration story, not a hosted operator service</li>
         <li>best read alongside the <a href="../mcp/">read-only MCP quickstart</a> and the <a href="../ai-surfaces/">AI + MCP + API map</a></li>
       </ul>
+
+      <h2>Minimal onboarding order</h2>
+      <ol>
+        <li>Read the OpenAPI document if you need the raw HTTP contract.</li>
+        <li>Use the thin client package when you want convenience helpers over that contract.</li>
+        <li>Use contract-facing types when you want typed route/query boundaries without importing backend modules.</li>
+        <li>Pair the result with the <a href="../builders/">builder quickstart</a> so package-level adoption stays aligned with the current MCP/API story.</li>
+      </ol>
     </main>
   </body>
 </html>

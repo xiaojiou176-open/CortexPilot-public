@@ -46,6 +46,10 @@ finished consumer product.
   session bindings, now with queue/SLA read surfaces.
 - Run Detail: incident packs, approval summaries, and replay compare reports as
   operator-readable decision objects.
+- Builder/public discovery: the home builder section now surfaces direct
+  `Read-only MCP quickstart` and `API and contract quickstart` entry cards so
+  operators can jump from the web control surface into the truthful public
+  onboarding ladder before diving into package-level docs.
 
 ## Strongest Signals
 

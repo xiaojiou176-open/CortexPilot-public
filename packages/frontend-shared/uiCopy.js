@@ -155,10 +155,22 @@ const UI_COPY = {
         ],
         builderTitle: "Builder entrypoints",
         builderDescription:
-          "This is not a full SDK platform, but the client, contract, and shared presentation layers are now documented as real builder surfaces.",
+          "This is not a full SDK platform, but the builder entrypoints now include the read-only MCP quickstart, the API and contract quickstart, and the package-level client/shared surfaces.",
         builderQuickstartCtaLabel: "Open builder quickstart",
         builderQuickstartCtaHref: "/builders/",
         builderCards: [
+          {
+            badge: "Protocol quickstart",
+            title: "Read-only MCP quickstart",
+            desc: "Start here when you want the smallest truthful map for Codex and Claude Code workflow inspection before you read package internals.",
+            href: "/mcp/",
+          },
+          {
+            badge: "API quickstart",
+            title: "API and contract quickstart",
+            desc: "Start here when you want OpenAPI, contract-facing types, and the thin client entrypoint before you pick a package surface.",
+            href: "/api/",
+          },
           {
             badge: "Thin client surface",
             title: "@cortexpilot/frontend-api-client",
@@ -828,10 +840,22 @@ const UI_COPY = {
         ],
         builderTitle: "Builder 入口",
         builderDescription:
-          "这还不是完整 SDK 平台，但 client、contract 和 shared presentation 层已经是可讲、可接入的 builder surface。",
+          "这还不是完整 SDK 平台，但 builder 入口现在已经同时覆盖 read-only MCP quickstart、API and contract quickstart，以及 package 级 client/shared surface。",
         builderQuickstartCtaLabel: "打开 builder 快速入口",
         builderQuickstartCtaHref: "/builders/",
         builderCards: [
+          {
+            badge: "协议快速入口",
+            title: "Read-only MCP quickstart",
+            desc: "如果你想先拿到一张最短、最真实的 MCP 地图，再回头看 package 细节，就从这里开始。",
+            href: "/mcp/",
+          },
+          {
+            badge: "API 快速入口",
+            title: "API and contract quickstart",
+            desc: "如果你想先看 OpenAPI、contract-facing types 和 thin client 入口，再决定接哪一层，就从这里开始。",
+            href: "/api/",
+          },
           {
             badge: "薄客户端",
             title: "@cortexpilot/frontend-api-client",
