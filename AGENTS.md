@@ -131,6 +131,9 @@ Work in CortexPilot as a contract-first engineering agent:
   dedicated shared-copy component, keep this root guide, `CLAUDE.md`, and
   `CHANGELOG.md` aligned in the same patch so quick-feedback gates can trace
   the new locale-aware rendering path instead of guessing from page-local code
+- keep the root wording aligned when the dashboard home starts mixing
+  cookie-backed locale SSR with client-side locale refresh, because that split
+  is easy to miss in page-only diffs
 - the current concrete examples are `docs/ai-surfaces/index.html`,
   `apps/dashboard/components/DashboardHomeStorySections.tsx`,
   `packages/frontend-shared/uiLocale.ts`, and dashboard metadata that now says
