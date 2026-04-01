@@ -690,12 +690,29 @@ def has_non_test_typescript_change(prefix: str) -> bool:
 
 dashboard_ts_requires_tsc = has_non_test_typescript_change("apps/dashboard/")
 desktop_ts_requires_tsc = has_non_test_typescript_change("apps/desktop/")
+ci_slice = str(os.environ.get("CORTEXPILOT_CI_SLICE") or "").strip()
+
+
+def should_ignore_tsc_skip(detector_name: str, status: str) -> bool:
+    if status != "skipped:node_modules_missing":
+        return False
+    return ci_slice == "policy-and-security" and detector_name in {"tsc-dashboard", "tsc-desktop"}
+
+
 detector_health_gaps: List[str] = []
 if any(ext in present_exts for ext in {".py"}) and detector_status.get("vulture", "").startswith("skipped:"):
     detector_health_gaps.append(f"vulture:{detector_status['vulture']}")
-if dashboard_ts_requires_tsc and detector_status.get("tsc-dashboard", "").startswith("skipped:"):
+if (
+    dashboard_ts_requires_tsc
+    and detector_status.get("tsc-dashboard", "").startswith("skipped:")
+    and not should_ignore_tsc_skip("tsc-dashboard", detector_status["tsc-dashboard"])
+):
     detector_health_gaps.append(f"tsc-dashboard:{detector_status['tsc-dashboard']}")
-if desktop_ts_requires_tsc and detector_status.get("tsc-desktop", "").startswith("skipped:"):
+if (
+    desktop_ts_requires_tsc
+    and detector_status.get("tsc-desktop", "").startswith("skipped:")
+    and not should_ignore_tsc_skip("tsc-desktop", detector_status["tsc-desktop"])
+):
     detector_health_gaps.append(f"tsc-desktop:{detector_status['tsc-desktop']}")
 if any(ext in present_exts for ext in {".sh", ".bash", ".zsh"}) and detector_status.get("shellcheck", "").startswith("skipped:"):
     detector_health_gaps.append(f"shellcheck:{detector_status['shellcheck']}")
