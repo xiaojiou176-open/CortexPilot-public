@@ -407,7 +407,8 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
           <Button
             variant={liveEnabled && !isTerminal ? "primary" : "ghost"}
             onClick={() => setLiveEnabled(p => !p)}
-            title={liveEnabled ? runDetailCopy.liveTogglePauseTitle : runDetailCopy.liveToggleResumeTitle}
+            title={liveEnabled && !isTerminal ? runDetailCopy.liveTogglePauseTitle : runDetailCopy.liveToggleResumeTitle}
+            disabled={isTerminal}
           >
             {liveEnabled && !isTerminal ? runDetailCopy.liveModeActive : runDetailCopy.liveModePaused}
           </Button>
