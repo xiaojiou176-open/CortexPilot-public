@@ -1,9 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { createRef } from "react";
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("../lib/api", () => ({
+  fetchFlightPlanCopilotBrief: vi.fn(),
+  previewFlightPlanCopilotBrief: vi.fn(),
+}));
+
 import PMIntakeCenterPanel from "../app/pm/components/PMIntakeCenterPanel";
 import PMIntakeRightSidebar from "../app/pm/components/PMIntakeRightSidebar";
 import type { ChainNode, ChatItem } from "../app/pm/components/PMIntakeFeature.shared";
+import { previewFlightPlanCopilotBrief } from "../lib/api";
 
 function createJourneyContext(stage: "discover" | "clarify" | "execute" | "verify" = "discover") {
   return {
@@ -287,5 +294,68 @@ describe("pm intake right sidebar component branches", () => {
     expect(onCreate).toHaveBeenCalledTimes(1);
     expect(onAnswer).toHaveBeenCalledTimes(1);
     expect(onRun).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders Flight Plan as a sign-off checklist instead of raw JSON only", () => {
+    vi.mocked(previewFlightPlanCopilotBrief).mockResolvedValue({
+      report_type: "operator_copilot_brief",
+      generated_at: "2026-03-31T12:00:00Z",
+      scope: "flight_plan",
+      subject_id: "pm-1",
+      intake_id: "pm-1",
+      status: "OK",
+      summary: "The current Flight Plan is safe to review but still has one approval gate to confirm.",
+      likely_cause: "Manual approval is the dominant pre-run risk gate.",
+      compare_takeaway: "Search and approval triggers exist because this plan needs external evidence and a protected execution path.",
+      proof_takeaway: "The plan already predicts reports and artifacts that should be reviewed before execution.",
+      incident_takeaway: "The first likely failure point is a policy mismatch before execution starts.",
+      queue_takeaway: "The scope boundary is narrow and stays inside apps/dashboard.",
+      approval_takeaway: "Manual approval is likely before completion.",
+      recommended_actions: ["Confirm the approval expectation before starting execution."],
+      top_risks: ["Manual approval likely"],
+      questions_answered: [],
+      used_truth_surfaces: [],
+      limitations: [],
+      provider: "gemini",
+      model: "gemini-2.5-flash",
+    } as never);
+    render(
+      <PMIntakeRightSidebar
+        {...createSidebarProps({
+          executionPlanPreview: {
+            report_type: "execution_plan_report",
+            generated_at: "2026-03-31T12:00:00Z",
+            objective: "Queue the latest workflow case run",
+            summary: "The next run will operate inside apps/dashboard and publish queue-side evidence.",
+            questions: [],
+            warnings: ["Manual approval may be required"],
+            notes: ["This preview is advisory and not run truth."],
+            assigned_role: "TECH_LEAD",
+            allowed_paths: ["apps/dashboard", "apps/orchestrator/src"],
+            acceptance_tests: [{ cmd: "pnpm --dir apps/dashboard test:target tests/workflows_queue_page.test.tsx" }],
+            search_queries: ["workflow queue mutation"],
+            predicted_reports: ["task_result.json", "review_report.json"],
+            predicted_artifacts: ["queue.jsonl", "patch.diff"],
+            requires_human_approval: true,
+            contract_preview: {
+              assigned_agent: { role: "WORKER", agent_id: "agent-1" },
+              owner_agent: { role: "TECH_LEAD", agent_id: "agent-2" },
+            },
+          },
+        })}
+      />,
+    );
+
+    expect(screen.getByText(/Advisory only: use this checklist to understand the planned contract and gates before starting execution/i)).toBeInTheDocument();
+    expect(screen.getByText("Flight Plan copilot")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Explain this Flight Plan" })).toBeInTheDocument();
+    expect(screen.getByText("Sign-off checklist")).toBeInTheDocument();
+    expect(screen.getByText(/Contract summary: Queue the latest workflow case run/)).toBeInTheDocument();
+    expect(screen.getByText(/Acceptance checks:/)).toBeInTheDocument();
+    expect(screen.getByText(/Capability triggers: Search \(1 query\), Manual approval/)).toBeInTheDocument();
+    expect(screen.getByText("Operator notes")).toBeInTheDocument();
+    expect(screen.getByText("Risk gates")).toBeInTheDocument();
+    expect(screen.getByText("Contract preview excerpts")).toBeInTheDocument();
+    expect(screen.getByText("Advanced planning payloads")).toBeInTheDocument();
   });
 });

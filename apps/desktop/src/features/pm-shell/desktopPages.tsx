@@ -1,4 +1,5 @@
 import { lazy, type ReactElement } from "react";
+import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 
 export type DesktopPageKey =
   | "overview"
@@ -22,28 +23,57 @@ export type DesktopPageKey =
   | "search"
   | "change-gates";
 
+const uiCopy = getUiCopy(DEFAULT_UI_LOCALE);
+
 export const PAGE_TITLES: Partial<Record<DesktopPageKey, string>> = {
-  overview: "Task Overview",
-  pm: "New Task",
-  "command-tower": "Task Progress",
-  "ct-session-detail": "Session View",
-  runs: "Runs",
-  "run-detail": "Run Detail",
-  "run-compare": "Run Compare",
-  workflows: "Workflow Cases",
-  "workflow-detail": "Workflow Case Detail",
-  events: "Event Stream",
-  contracts: "Contracts",
-  reviews: "Reviews",
-  tests: "Tests",
-  policies: "Policies",
-  agents: "Agents",
-  locks: "Locks",
-  worktrees: "Worktrees",
-  "god-mode": "Fast Approval",
-  search: "Recent Results",
-  "change-gates": "Change Gates",
+  overview: uiCopy.desktop.labels.overview,
+  pm: uiCopy.desktop.labels.pmIntake,
+  "command-tower": uiCopy.desktop.labels.commandTower,
+  "ct-session-detail": uiCopy.desktop.labels.sessionView,
+  runs: uiCopy.desktop.labels.runs,
+  "run-detail": uiCopy.desktop.labels.runDetail,
+  "run-compare": uiCopy.desktop.labels.runCompare,
+  workflows: uiCopy.desktop.labels.workflowCases,
+  "workflow-detail": uiCopy.desktop.labels.workflowCaseDetail,
+  events: uiCopy.desktop.labels.events,
+  contracts: uiCopy.desktop.labels.contracts,
+  reviews: uiCopy.desktop.labels.reviews,
+  tests: uiCopy.desktop.labels.tests,
+  policies: uiCopy.desktop.labels.policies,
+  agents: uiCopy.desktop.labels.agents,
+  locks: uiCopy.desktop.labels.locks,
+  worktrees: uiCopy.desktop.labels.worktrees,
+  "god-mode": uiCopy.desktop.labels.quickApproval,
+  search: uiCopy.desktop.labels.search,
+  "change-gates": uiCopy.desktop.labels.diffGate,
 };
+
+export function getDesktopPageTitle(page: DesktopPageKey, locale: UiLocale): string {
+  const localized = getUiCopy(locale).desktop.labels;
+  const titles: Partial<Record<DesktopPageKey, string>> = {
+    overview: localized.overview,
+    pm: localized.pmIntake,
+    "command-tower": localized.commandTower,
+    "ct-session-detail": localized.sessionView,
+    runs: localized.runs,
+    "run-detail": localized.runDetail,
+    "run-compare": localized.runCompare,
+    workflows: localized.workflowCases,
+    "workflow-detail": localized.workflowCaseDetail,
+    events: localized.events,
+    contracts: localized.contracts,
+    reviews: localized.reviews,
+    tests: localized.tests,
+    policies: localized.policies,
+    agents: localized.agents,
+    locks: localized.locks,
+    worktrees: localized.worktrees,
+    "god-mode": localized.quickApproval,
+    search: localized.search,
+    "change-gates": localized.diffGate,
+  };
+  return titles[page] || "CortexPilot Command Tower";
+}
 
 const OverviewPage = lazy(async () => {
   const module = await import("../../pages/OverviewPage");
@@ -124,6 +154,7 @@ const CTSessionDetailPage = lazy(async () => {
 
 type RenderDesktopPageArgs = {
   activePage: DesktopPageKey;
+  uiLocale: UiLocale;
   pmPageContent: ReactElement;
   detailRunId: string;
   detailWorkflowId: string;
@@ -137,6 +168,7 @@ type RenderDesktopPageArgs = {
 
 export function renderDesktopPage({
   activePage,
+  uiLocale,
   pmPageContent,
   detailRunId,
   detailWorkflowId,
@@ -149,17 +181,17 @@ export function renderDesktopPage({
 }: RenderDesktopPageArgs): ReactElement {
   switch (activePage) {
     case "overview":
-      return <OverviewPage onNavigate={navigate} onNavigateToRun={navigateToRun} />;
+      return <OverviewPage onNavigate={navigate} onNavigateToRun={navigateToRun} locale={uiLocale} />;
     case "pm":
       return pmPageContent;
     case "command-tower":
-      return <CommandTowerPage onNavigateToSession={navigateToSession} />;
+      return <CommandTowerPage onNavigateToSession={navigateToSession} locale={uiLocale} />;
     case "ct-session-detail":
       return <CTSessionDetailPage sessionId={detailSessionId} onBack={() => setActivePage("command-tower")} />;
     case "runs":
       return <RunsPage onNavigateToRun={navigateToRun} />;
     case "run-detail":
-      return <RunDetailPage runId={detailRunId} onBack={() => setActivePage("runs")} onOpenCompare={() => setActivePage("run-compare")} />;
+      return <RunDetailPage runId={detailRunId} onBack={() => setActivePage("runs")} onOpenCompare={() => setActivePage("run-compare")} locale={uiLocale} />;
     case "run-compare":
       return <RunComparePage runId={detailRunId} onBack={() => setActivePage("run-detail")} />;
     case "workflows":
@@ -189,12 +221,12 @@ export function renderDesktopPage({
     case "worktrees":
       return <WorktreesPage />;
     case "god-mode":
-      return <GodModePage />;
+      return <GodModePage locale={uiLocale} />;
     case "search":
       return <SearchPage />;
     case "change-gates":
       return <ChangeGatesPage />;
     default:
-      return <OverviewPage onNavigate={navigate} onNavigateToRun={navigateToRun} />;
+      return <OverviewPage onNavigate={navigate} onNavigateToRun={navigateToRun} locale={uiLocale} />;
   }
 }

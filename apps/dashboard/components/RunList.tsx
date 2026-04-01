@@ -3,8 +3,10 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import {
+  type UiLocale,
+  formatDashboardDateTime,
   statusDotClass,
-  statusLabelZh,
+  statusLabel,
   statusVariant,
 } from "../lib/statusPresentation";
 import type { RunSummary } from "../lib/types";
@@ -15,16 +17,10 @@ function formatRole(role: unknown, agentId: unknown): string {
   return agentText ? `${roleText} (${agentText})` : roleText;
 }
 
-function formatTime(value: string): string {
-  const raw = String(value || "").trim();
-  if (!raw || raw === "-") {
-    return "-";
-  }
-  const parsed = new Date(raw);
-  if (Number.isNaN(parsed.getTime())) {
-    return raw;
-  }
-  return parsed.toLocaleString("zh-CN", {
+type RunListLocale = UiLocale;
+
+function formatTime(value: string, locale: RunListLocale): string {
+  return formatDashboardDateTime(value, locale, {
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
@@ -32,7 +28,7 @@ function formatTime(value: string): string {
   });
 }
 
-export default function RunList({ runs }: { runs: RunSummary[] }) {
+export default function RunList({ runs, locale = "en" }: { runs: RunSummary[]; locale?: RunListLocale }) {
   if (!runs || runs.length === 0) {
     return (
       <Card>
@@ -66,7 +62,7 @@ export default function RunList({ runs }: { runs: RunSummary[] }) {
             const runIdText = hasRunId ? runId : "unknown-run";
             const runIdDisplay = runIdText.length > 12 ? `${runIdText.slice(0, 12)}...` : runIdText;
             const taskId = typeof run?.task_id === "string" && run.task_id.trim() ? run.task_id : "-";
-            const statusText = statusLabelZh(run?.status);
+            const statusText = statusLabel(run?.status, locale);
             const workflowText = run.workflow_status || "-";
             const startTimeText = run.created_at || run.start_ts || "-";
             const ownerText = formatRole(run.owner_role, run.owner_agent_id);
@@ -122,7 +118,7 @@ export default function RunList({ runs }: { runs: RunSummary[] }) {
                   ) : null}
                 </td>
                 <td>
-                  <span className="mono">{formatTime(lastEventText !== "-" ? lastEventText : startTimeText)}</span>
+                  <span className="mono">{formatTime(lastEventText !== "-" ? lastEventText : startTimeText, locale)}</span>
                   <span className="cell-sub mono muted">{workflowText}</span>
                 </td>
               </tr>

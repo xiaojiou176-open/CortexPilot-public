@@ -500,6 +500,13 @@ def _rollback_run_handler(run_id: str) -> dict:
     return result
 
 
+def list_pending_approvals() -> list[dict]:
+    return routes_admin.collect_pending_approvals(
+        runs_root=_runs_root(),
+        read_events_fn=_read_events,
+    )
+
+
 _runs_handler_map = main_runs_handlers.build_runs_handlers(
     runs_root_fn=_runs_root,
     load_contract_fn=_load_contract,
@@ -515,6 +522,7 @@ _runs_handler_map = main_runs_handlers.build_runs_handlers(
     read_artifact_fn=_read_artifact_file,
     read_report_fn=_read_report_file,
     extract_search_queries_fn=_extract_search_queries,
+    list_pending_approvals_fn=list_pending_approvals,
     promote_evidence_fn=_promote_evidence,
     orchestration_service_fn=lambda: _orchestration_service,
     load_config_fn=load_config,
@@ -577,6 +585,8 @@ get_diff = _runs_handler_map["get_diff"]
 get_reports = _runs_handler_map["get_reports"]
 get_artifacts = _runs_handler_map["get_artifacts"]
 get_search = _runs_handler_map["get_search"]
+get_operator_copilot_brief = _runs_handler_map["get_operator_copilot_brief"]
+get_workflow_operator_copilot_brief = _runs_handler_map["get_workflow_operator_copilot_brief"]
 promote_evidence = _runs_handler_map["promote_evidence"]
 replay_run = _runs_handler_map["replay_run"]
 verify_run = _runs_handler_map["verify_run"]
@@ -660,6 +670,14 @@ def preview_intake(payload: dict) -> dict:
     )
 
 
+def preview_intake_copilot_brief(payload: dict) -> dict:
+    return main_pm_intake_helpers.preview_intake_copilot_brief(
+        payload,
+        error_detail_fn=_error_detail,
+        current_request_id_fn=_current_request_id,
+    )
+
+
 def answer_intake(intake_id: str, payload: dict) -> dict:
     return main_pm_intake_helpers.answer_intake(intake_id, payload, intake_service_cls=IntakeService, error_detail_fn=_error_detail, current_request_id_fn=_current_request_id)
 
@@ -683,18 +701,12 @@ main_pm_intake_helpers.configure_routes(
     get_intake_accessor=lambda: get_intake,
     create_intake_accessor=lambda: create_intake,
     preview_intake_accessor=lambda: preview_intake,
+    preview_intake_copilot_brief_accessor=lambda: preview_intake_copilot_brief,
     answer_intake_accessor=lambda: answer_intake,
     run_intake_accessor=lambda: run_intake,
 )
 app.include_router(routes_pm.router)
 app.include_router(routes_intake.router)
-
-
-def list_pending_approvals() -> list[dict]:
-    return routes_admin.collect_pending_approvals(
-        runs_root=_runs_root(),
-        read_events_fn=_read_events,
-    )
 
 
 def approve_god_mode(payload: dict) -> dict:

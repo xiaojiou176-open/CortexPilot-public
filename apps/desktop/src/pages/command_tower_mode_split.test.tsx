@@ -73,19 +73,19 @@ describe("desktop command tower mode split", () => {
 
   it("shows execution-first and web-first governance navigation grouping", () => {
     render(<AppSidebar activePage="pm" onNavigate={vi.fn()} />);
-    expect(screen.getByRole("heading", { name: "执行主路径" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "治理分析（Web优先）" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Primary" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Governance" })).toBeInTheDocument();
   });
 
   it("keeps desktop command tower execution-first and provides web deep-analysis handoff", async () => {
     const onNavigateToSession = vi.fn();
     render(<CommandTowerPage onNavigateToSession={onNavigateToSession} />);
-    expect(await screen.findByRole("heading", { name: "指挥塔" })).toBeInTheDocument();
-    const handoff = await screen.findByRole("button", { name: "打开 Web 深度分析" });
+    expect(await screen.findByRole("heading", { name: "Command Tower" })).toBeInTheDocument();
+    const handoff = await screen.findByRole("button", { name: "Open web deep analysis" });
     fireEvent.click(handoff);
     expect(window.open).toHaveBeenCalledTimes(1);
-    fireEvent.click(await screen.findByRole("button", { name: "展开专家信息" }));
-    const sessionRow = await screen.findByRole("button", { name: /打开会话 pm-1/ });
+    fireEvent.click(await screen.findByRole("button", { name: "Show advanced detail" }));
+    const sessionRow = await screen.findByRole("button", { name: /Open session pm-1/ });
     fireEvent.keyDown(sessionRow, { key: "Enter" });
     expect(onNavigateToSession).toHaveBeenCalledWith("pm-1");
   });
@@ -93,8 +93,8 @@ describe("desktop command tower mode split", () => {
   it("supports keyboard activation for session rows with Space key", async () => {
     const onNavigateToSession = vi.fn();
     render(<CommandTowerPage onNavigateToSession={onNavigateToSession} />);
-    fireEvent.click(await screen.findByRole("button", { name: "展开专家信息" }));
-    const sessionRow = await screen.findByRole("button", { name: /打开会话 pm-1/ });
+    fireEvent.click(await screen.findByRole("button", { name: "Show advanced detail" }));
+    const sessionRow = await screen.findByRole("button", { name: /Open session pm-1/ });
     fireEvent.keyDown(sessionRow, { key: " " });
     expect(onNavigateToSession).toHaveBeenCalledWith("pm-1");
   });
@@ -102,9 +102,9 @@ describe("desktop command tower mode split", () => {
   it("supports web deep-analysis handoff from session detail page", async () => {
     render(<CTSessionDetailPage sessionId="pm-1" onBack={vi.fn()} />);
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "会话透视" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Session detail" })).toBeInTheDocument();
     });
-    fireEvent.click(await screen.findByRole("button", { name: "打开 Web 会话分析" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Open web session analysis" }));
     expect(window.open).toHaveBeenCalledTimes(1);
   });
 
@@ -127,7 +127,7 @@ describe("desktop command tower mode split", () => {
     render(<CTSessionDetailPage sessionId="pm-1" onBack={vi.fn()} />);
 
     await waitFor(() => {
-      expect(screen.getByText("降级")).toBeInTheDocument();
+      expect(screen.getByText("Partial refresh degraded (1/4 failed)")).toBeInTheDocument();
     });
   });
 
@@ -139,12 +139,12 @@ describe("desktop command tower mode split", () => {
 
     render(<CTSessionDetailPage sessionId="pm-1" onBack={vi.fn()} />);
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: "会话透视" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Session detail" })).toBeInTheDocument();
     });
 
     const eventButtons = await screen.findAllByTestId("ct-session-event-button");
     expect(eventButtons[0]).toHaveTextContent("LATEST_EVENT");
-    expect(eventButtons[0]).toHaveAttribute("aria-label", "查看事件详情 LATEST_EVENT");
+    expect(eventButtons[0]).toHaveAttribute("aria-label", "View event details LATEST_EVENT");
 
     fireEvent.click(eventButtons[0]);
     expect(eventButtons[0]).toHaveAttribute("aria-expanded", "true");

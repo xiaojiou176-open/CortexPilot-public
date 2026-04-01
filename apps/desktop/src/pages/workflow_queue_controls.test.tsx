@@ -7,12 +7,13 @@ import { WorkflowsPage } from "./WorkflowsPage";
 vi.mock("../lib/api", () => ({
   enqueueRunQueue: vi.fn(),
   fetchQueue: vi.fn(),
+  fetchWorkflowCopilotBrief: vi.fn(),
   fetchWorkflow: vi.fn(),
   fetchWorkflows: vi.fn(),
   runNextQueue: vi.fn(),
 }));
 
-import { enqueueRunQueue, fetchQueue, fetchWorkflow, fetchWorkflows, runNextQueue } from "../lib/api";
+import { enqueueRunQueue, fetchQueue, fetchWorkflow, fetchWorkflowCopilotBrief, fetchWorkflows, runNextQueue } from "../lib/api";
 
 describe("workflow queue controls", () => {
   beforeEach(() => {
@@ -44,6 +45,29 @@ describe("workflow queue controls", () => {
         sla_state: "at_risk",
       },
     ] as never);
+    vi.mocked(fetchWorkflowCopilotBrief).mockResolvedValue({
+      report_type: "operator_copilot_brief",
+      generated_at: "2026-03-31T12:00:00Z",
+      scope: "workflow",
+      subject_id: "wf-queue",
+      workflow_id: "wf-queue",
+      run_id: "run-001",
+      status: "OK",
+      summary: "The workflow case is ready for queue review.",
+      likely_cause: "Queue posture is the main operator focus.",
+      compare_takeaway: "The latest run still needs operator review.",
+      proof_takeaway: "Proof exists but should be reviewed before sharing.",
+      incident_takeaway: "One workflow truth surface still needs review.",
+      queue_takeaway: "One eligible queue item is ready.",
+      approval_takeaway: "No approval blocker is attached.",
+      recommended_actions: ["Run the next queued task."],
+      top_risks: ["Queue backlog"],
+      questions_answered: [],
+      used_truth_surfaces: [],
+      limitations: [],
+      provider: "gemini",
+      model: "gemini-2.5-flash",
+    } as never);
     vi.mocked(enqueueRunQueue).mockResolvedValue({ ok: true, task_id: "task-queue" } as never);
     vi.mocked(runNextQueue).mockResolvedValue({ ok: true, run_id: "run-queued-1" } as never);
   });
@@ -63,6 +87,10 @@ describe("workflow queue controls", () => {
   it("queues latest run contract from workflow detail and shows queue rows", async () => {
     render(<WorkflowDetailPage workflowId="wf-queue" onBack={vi.fn()} onNavigateToRun={vi.fn()} />);
 
+    expect(await screen.findByText("Next Operator Action")).toBeInTheDocument();
+    expect(screen.getByText("Workflow Case copilot")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Explain this workflow case" })).toBeInTheDocument();
+    expect(screen.getByText(/Queued work already exists\. The next high-value action is to run the next queued task and watch the case move\./)).toBeInTheDocument();
     expect(await screen.findByText("Queue / SLA (1)")).toBeInTheDocument();
     expect(screen.getByText("priority 5 / sla at_risk")).toBeInTheDocument();
 

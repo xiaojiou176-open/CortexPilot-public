@@ -38,6 +38,7 @@ vi.mock("../lib/api", () => ({
   fetchPmSessionConversationGraph: vi.fn(),
   fetchPmSessionMetrics: vi.fn(),
   postPmSessionMessage: vi.fn(),
+  previewFlightPlanCopilotBrief: vi.fn(),
   openEventsStream: vi.fn(() => ({ close: vi.fn() })),
   fetchDiffGate: vi.fn(),
   fetchContracts: vi.fn(),
@@ -66,6 +67,7 @@ import {
   fetchPmSessionEvents,
   fetchPmSessionConversationGraph,
   fetchPmSessionMetrics,
+  previewFlightPlanCopilotBrief,
   fetchDiffGate,
   fetchContracts,
   fetchAllEvents,
@@ -176,6 +178,28 @@ describe("desktop p1 controls", () => {
     vi.mocked(fetchWorkflows).mockResolvedValue([] as any);
     vi.mocked(fetchWorktrees).mockResolvedValue([] as any);
     vi.mocked(fetchRuns).mockResolvedValue([] as any);
+    vi.mocked(previewFlightPlanCopilotBrief).mockResolvedValue({
+      report_type: "operator_copilot_brief",
+      generated_at: "2026-03-31T12:00:00Z",
+      scope: "flight_plan",
+      subject_id: "pm-1",
+      intake_id: "pm-1",
+      status: "OK",
+      summary: "The plan is bounded but still needs one final human review on scope and approval risk.",
+      likely_cause: "Manual approval posture and scope boundary are the main pre-run gates.",
+      compare_takeaway: "Capability triggers show why this plan needs search and approval review before the first run.",
+      proof_takeaway: "Expected reports and artifacts are defined before execution starts.",
+      incident_takeaway: "Warnings mark the first places where execution could fail.",
+      queue_takeaway: "Scope and assigned role are aligned with the previewed plan.",
+      approval_takeaway: "Manual approval is likely before execution finishes.",
+      recommended_actions: ["Confirm the highest-risk gate before starting execution."],
+      top_risks: ["Manual approval likely"],
+      questions_answered: [],
+      used_truth_surfaces: [],
+      limitations: [],
+      provider: "gemini",
+      model: "gemini-2.5-flash",
+    } as any);
   });
 
   it("covers ChatPanel refresh and NodeDetailDrawer raw toggle controls", async () => {
@@ -250,6 +274,84 @@ describe("desktop p1 controls", () => {
     expect(onToggleRaw).toHaveBeenCalled();
   });
 
+  it("renders Flight Plan copilot in desktop preview mode", async () => {
+    const onPreviewFirstSession = vi.fn();
+
+    render(
+      <ChatPanel
+        onboardingVisible={false}
+        dismissOnboarding={vi.fn()}
+        isOffline={false}
+        liveError=""
+        workspace={{ id: "w1", repo: "cortexpilot-core", branch: "main", path: ".", activeAgents: 1 }}
+        activeSessionId=""
+        activeSessionGenerating={false}
+        phaseText="phase"
+        refreshNow={vi.fn()}
+        drawerVisible={false}
+        drawerPinned={false}
+        setDrawerVisible={vi.fn()}
+        setDrawerPinned={vi.fn()}
+        activeTimeline={[]}
+        chatThreadRef={{ current: null }}
+        streamingText=""
+        reportActions={{}}
+        creatingFirstSession={false}
+        firstSessionBootstrapError=""
+        firstSessionAllowedPath="."
+        executionPlanPreview={{
+          report_type: "execution_plan_report",
+          generated_at: "2026-03-31T12:00:00Z",
+          objective: "Queue the next workflow case run safely.",
+          summary: "Preview the next governed run before execution starts.",
+          questions: [],
+          warnings: ["Manual approval may be required"],
+          notes: ["Preview only; run truth starts after execution."],
+          assigned_role: "TECH_LEAD",
+          allowed_paths: ["apps/dashboard", "apps/orchestrator/src"],
+          acceptance_tests: [{ cmd: "pnpm --dir apps/dashboard test:target tests/workflow_detail_page.test.tsx" }],
+          search_queries: ["workflow queue posture"],
+          predicted_reports: ["task_result.json"],
+          predicted_artifacts: ["patch.diff"],
+          requires_human_approval: true,
+          contract_preview: {},
+        }}
+        executionPlanPreviewLoading={false}
+        executionPlanPreviewError=""
+        onCreateFirstSession={vi.fn()}
+        onOpenSessionFallback={vi.fn()}
+        onPreviewFirstSession={onPreviewFirstSession}
+        chooseDecision={vi.fn()}
+        recoverableDraft={null}
+        restoreDraft={vi.fn()}
+        discardDraft={vi.fn()}
+        composerRef={{ current: null }}
+        composerInput=""
+        setComposerInput={vi.fn()}
+        onComposerEnterSend={vi.fn()}
+        composerPlaceholder="placeholder"
+        composerLength={0}
+        composerMaxChars={4000}
+        composerOverLimit={false}
+        canSend={false}
+        sendDisabledReason="请输入消息后发送"
+        starterPrompts={[]}
+        onApplyStarterPrompt={vi.fn()}
+        hasActiveGeneration={false}
+        stopGeneration={vi.fn()}
+        isUserNearBottom={true}
+        unreadCount={0}
+        onBackToBottom={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Flight Plan copilot")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Explain this Flight Plan" }));
+    await waitFor(() => {
+      expect(previewFlightPlanCopilotBrief).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it("covers command tower and ct-session p1 controls", async () => {
     const onBack = vi.fn();
     const onNavigateToSession = vi.fn();
@@ -286,7 +388,7 @@ describe("desktop p1 controls", () => {
     agents.unmount();
 
     const changeGates = render(<ChangeGatesPage />);
-    expect(await screen.findByRole("heading", { name: /变更门禁|Change Gates/ })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /变更门禁|Diff gate/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchDiffGate).toHaveBeenCalledTimes(2));
     changeGates.unmount();
@@ -298,13 +400,13 @@ describe("desktop p1 controls", () => {
     contracts.unmount();
 
     const events = render(<EventsPage />);
-    expect(await screen.findByRole("heading", { name: /事件流|Event Stream/ })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /事件流|Events/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchAllEvents).toHaveBeenCalledTimes(2));
     events.unmount();
 
     const godMode = render(<GodModePage />);
-    expect(await screen.findByRole("heading", { name: /快速审批|Fast Approval/ })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /快速审批|Quick approval/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchPendingApprovals).toHaveBeenCalledTimes(2));
     godMode.unmount();

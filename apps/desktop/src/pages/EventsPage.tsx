@@ -28,7 +28,7 @@ export function EventsPage() {
   return (
     <div className="content">
       <div className="section-header">
-        <div><h1 className="page-title">Event Stream</h1><p className="page-subtitle">Global event timeline. Expand a row to inspect the payload.</p></div>
+        <div><h1 className="page-title">Events</h1><p className="page-subtitle">Global event timeline. Expand a row to inspect the payload.</p></div>
         <Button onClick={load}>Refresh</Button>
       </div>
       {error && <div className="alert alert-danger">{error}</div>}

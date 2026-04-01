@@ -22,6 +22,7 @@ vi.mock("../lib/api", () => ({
   fetchEvents: vi.fn(),
   fetchDiff: vi.fn(),
   fetchReports: vi.fn(),
+  fetchOperatorCopilotBrief: vi.fn(),
   fetchToolCalls: vi.fn(),
   fetchChainSpec: vi.fn(),
   fetchAgentStatus: vi.fn(),
@@ -46,6 +47,7 @@ import {
   fetchEvents,
   fetchDiff,
   fetchReports,
+  fetchOperatorCopilotBrief,
   fetchToolCalls,
   fetchChainSpec,
   fetchAgentStatus,
@@ -119,6 +121,29 @@ describe("RunDetailPage p0 controls", () => {
     ] as any);
     vi.mocked(fetchDiff).mockResolvedValue({ diff: "" } as any);
     vi.mocked(fetchReports).mockResolvedValue([] as any);
+    vi.mocked(fetchOperatorCopilotBrief).mockResolvedValue({
+      report_type: "operator_copilot_brief",
+      generated_at: "2026-03-31T12:00:00Z",
+      scope: "run",
+      subject_id: "run-001",
+      run_id: "run-001",
+      workflow_id: "wf-1",
+      status: "OK",
+      summary: "The run is blocked by a review gate.",
+      likely_cause: "A gate still needs operator review.",
+      compare_takeaway: "Compare still shows one delta.",
+      proof_takeaway: "Proof exists but should not be promoted yet.",
+      incident_takeaway: "Incident context points to a governance block.",
+      queue_takeaway: "Queue posture is stable.",
+      approval_takeaway: "No extra approval is attached right now.",
+      recommended_actions: ["Review the gate first."],
+      top_risks: ["Gate still open"],
+      questions_answered: [],
+      used_truth_surfaces: [],
+      limitations: [],
+      provider: "gemini",
+      model: "gemini-2.5-flash",
+    } as any);
     vi.mocked(fetchToolCalls).mockResolvedValue({ data: [] } as any);
     vi.mocked(fetchChainSpec).mockResolvedValue({ data: null } as any);
     vi.mocked(fetchAgentStatus).mockResolvedValue({ agents: [] } as any);
@@ -132,10 +157,32 @@ describe("RunDetailPage p0 controls", () => {
   it("covers action bar, live toggle, tabs, replay, event row expand and refresh affordances", async () => {
     const user = userEvent.setup();
     const onBack = vi.fn();
+    vi.mocked(fetchReports).mockResolvedValue([
+      {
+        name: "run_compare_report.json",
+        data: {
+          compare_summary: {
+            mismatched_count: 0,
+            missing_count: 0,
+            extra_count: 0,
+          },
+        },
+      },
+      {
+        name: "proof_pack.json",
+        data: {
+          summary: "Proof artifacts are ready.",
+        },
+      },
+    ] as any);
     render(<RunDetailPage runId="run-001" onBack={onBack} />);
 
     expect(await screen.findByRole("heading", { name: "run-001" })).toBeInTheDocument();
-    expect(openEventsStream).toHaveBeenCalledWith("run-001", { tail: true });
+    expect(screen.getByText("AI operator copilot")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Generate operator brief" })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(openEventsStream).toHaveBeenCalledWith("run-001", { tail: true });
+    });
     expect(fetchEvents).toHaveBeenCalledTimes(1);
     const stream = streamState.stream;
     expect(stream?.close).toBeTypeOf("function");
@@ -175,12 +222,37 @@ describe("RunDetailPage p0 controls", () => {
     await user.click(screen.getByRole("button", { name: /Chain flow/ }));
     await user.click(screen.getByRole("button", { name: /Contract policy/ }));
     await user.click(screen.getByRole("button", { name: /Replay compare/ }));
+    expect(await screen.findByText("Compare decision")).toBeInTheDocument();
+    expect(screen.getByText("Action context")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Promote evidence" }));
     await waitFor(() => expect(promoteEvidence).toHaveBeenCalledWith("run-001"));
     await user.click(screen.getByRole("button", { name: "Run replay" }));
     await waitFor(() => expect(replayRun).toHaveBeenCalledWith("run-001", undefined));
   }, 10000);
+
+  it("interprets compare summary via numeric counts instead of string matching", async () => {
+    const user = userEvent.setup();
+    vi.mocked(fetchReports).mockResolvedValueOnce([
+      {
+        name: "run_compare_report.json",
+        data: {
+          compare_summary: {
+            extra_count: 0,
+            missing_count: 0,
+            mismatched_count: 0,
+            note: "all clear",
+          },
+        },
+      },
+    ] as any);
+
+    render(<RunDetailPage runId="run-compare-clean" onBack={vi.fn()} />);
+
+    expect(await screen.findByRole("heading", { name: "run-001" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Replay compare/ }));
+    expect(await screen.findByText("The current run looks aligned with the selected baseline.")).toBeInTheDocument();
+  });
 
   it("covers error state retry/back controls", async () => {
     const user = userEvent.setup();

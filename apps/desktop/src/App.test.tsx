@@ -104,7 +104,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
   }
 
   async function navigateToPmEntry(user?: ReturnType<typeof userEvent.setup>) {
-    const pmEntry = await screen.findByRole("button", { name: /PM 入口|New Task/ });
+    const pmEntry = await screen.findByRole("button", { name: /PM 入口|PM intake/ });
     if (user) {
       await user.click(pmEntry);
     } else {
@@ -147,7 +147,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
     expect(screen.getByLabelText(/对话面板|Conversation panel/)).toBeInTheDocument();
     expect(screen.getByLabelText(/会话工具栏|Session toolbar/)).toBeInTheDocument();
     expect(screen.getByLabelText(/会话消息|Session messages/)).toBeInTheDocument();
-    expect(await screen.findByRole("button", { name: /Task Progress|活跃会话/ })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: /Command Tower|活跃会话/ })).toBeInTheDocument();
     const chainPanels = await screen.findAllByLabelText(/Command Chain 面板|Command Chain panel/);
     expect(chainPanels.length).toBeGreaterThan(0);
   });
@@ -172,6 +172,18 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
     const payload = JSON.parse(String(messageCall?.[1]?.body || "{}")) as Record<string, unknown>;
     expect(payload.message).toBe("请修复桌面端 UI 协议偏差");
     expect(payload.content).toBeUndefined();
+  });
+
+  it("toggles desktop chrome locale and persists the preference", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await navigateToPmEntry(user);
+
+    await user.click(screen.getByRole("button", { name: "Switch to Chinese" }));
+
+    expectTopbarTitle("PM 入口");
+    expect(screen.getByRole("button", { name: "检索" })).toBeInTheDocument();
+    expect(window.localStorage.getItem("cortexpilot.ui.locale")).toBe("zh-CN");
   });
 
   it("prevents duplicate send on rapid double click", async () => {
@@ -712,7 +724,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(await screen.findByRole("button", { name: /指挥塔|Task Progress/ }));
+    await user.click(await screen.findByRole("button", { name: /指挥塔|Command Tower/ }));
     const commandTowerHeadings = await screen.findAllByRole("heading", { name: /指挥塔|Command Tower/ });
     expect(commandTowerHeadings.length).toBeGreaterThan(0);
     expect(await screen.findByRole("button", { name: /暂停自动更新|Pause auto-refresh/ })).toBeInTheDocument();
@@ -728,7 +740,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(await screen.findByRole("button", { name: /指挥塔|Task Progress/ }));
+    await user.click(await screen.findByRole("button", { name: /指挥塔|Command Tower/ }));
     await user.click(await screen.findByRole("button", { name: /继续处理|Resume work/ }));
     expect(await screen.findByRole("heading", { name: /会话透视|Session detail/ })).toBeInTheDocument();
     expect(await screen.findByRole("button", { name: /暂停实时|Pause live/ })).toBeInTheDocument();
@@ -803,7 +815,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
   it("advances first-run CTA from first prompt to /run template", async () => {
     const user = userEvent.setup();
     render(<App />);
-    await user.click(screen.getByRole("button", { name: /PM 入口|New Task/ }));
+    await user.click(screen.getByRole("button", { name: /PM 入口|PM intake/ }));
     await expectActiveSession("pm-live-1");
 
     await user.click(await screen.findByRole("button", { name: /第1步：先发一句需求|Step 1: send the first request|Step 0: create the first session/ }));
@@ -822,7 +834,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /指挥塔|Task Progress/ }));
+    await user.click(screen.getByRole("button", { name: /指挥塔|Command Tower/ }));
     await screen.findByText(/Desktop 聚焦执行动作与异常裁决；治理分析默认转到 Web 深度视图。|Desktop stays focused on execution and operator decisions/);
 
     expect(screen.getByRole("button", { name: /更新进展|Refresh progress/ })).toBeInTheDocument();
@@ -836,8 +848,8 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
 
     const routeCases = [
       { nav: /运行记录|Runs/, title: "Runs" },
-      { nav: /工作流|Workflows/, title: "Workflow Cases" },
-      { nav: /事件流|Event Stream/, title: "Event Stream" },
+      { nav: /工作流|Workflow Cases|Workflows/, title: "Workflow Cases" },
+      { nav: /事件流|Events/, title: "Events" },
       { nav: /合约|Contracts/, title: "Contracts" },
       { nav: /评审|Reviews/, title: "Reviews" },
       { nav: /测试|Tests/, title: "Tests" },
@@ -859,7 +871,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /指挥塔|Task Progress/ }));
+    await user.click(screen.getByRole("button", { name: /指挥塔|Command Tower/ }));
     await user.click(await screen.findByRole("button", { name: /继续处理|Resume work/ }));
 
     await waitFor(() => {
@@ -962,7 +974,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /工作流|Workflows/ }));
+    await user.click(screen.getByRole("button", { name: /工作流|Workflow Cases|Workflows/ }));
     await user.click(await screen.findByRole("button", { name: "wf-target-001" }));
     await waitFor(() => {
       expectTopbarTitle("Workflow Case Detail");
@@ -1431,13 +1443,13 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
     expect(await screen.findByLabelText(/继续对话|Continue the conversation/)).toBeInTheDocument();
 
     fireEvent.keyDown(window, { key: "3", altKey: true });
-    expect(await screen.findByRole("heading", { name: /变更门禁|Change Gates/ })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /变更门禁|Diff gate/ })).toBeInTheDocument();
 
     fireEvent.keyDown(window, { key: "k", metaKey: true });
-    if (!screen.queryByRole("heading", { name: /检索|Recent Results/ })) {
+    if (!screen.queryByRole("heading", { name: /检索|Search/ })) {
       fireEvent.keyDown(window, { key: "k", ctrlKey: true });
     }
-    expect(await screen.findByRole("heading", { name: /检索|Recent Results/ })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: /检索|Search/ })).toBeInTheDocument();
 
     fireEvent.keyDown(window, { key: ".", metaKey: true });
     if (document.activeElement?.getAttribute("id") !== "desktop-chat-input") {
@@ -1576,8 +1588,8 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole("button", { name: /快速审批|Fast Approval/ }));
-    expect(await screen.findByRole("heading", { name: /快速审批|Fast Approval/ })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /快速审批|Quick approval/ }));
+    expect(await screen.findByRole("heading", { name: /快速审批|Quick approval/ })).toBeInTheDocument();
   });
 
   it("renders chain popout mode when query flag is present", async () => {

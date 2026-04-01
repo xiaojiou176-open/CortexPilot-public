@@ -2,6 +2,12 @@
 
 This repository keeps its public documentation intentionally small.
 
+The product spine stays stable across the docs entrypoints:
+
+- **Command Tower** for live operator visibility
+- **Workflow Cases** for the case-level operating record
+- **Proof & Replay** for evidence, compare, and replay review
+
 `docs/index.html` is the current tracked GitHub Pages landing source for the
 public docs surface. `docs/README.md` remains the repo-side documentation
 summary for contributors and maintainers.
@@ -25,6 +31,7 @@ These are the active registered docs that stay in the primary docs navigation.
 3. [specs/00_SPEC.md](specs/00_SPEC.md)
 4. [runbooks/onboarding-30min.md](runbooks/onboarding-30min.md)
 5. [runbooks/space-governance.md](runbooks/space-governance.md)
+6. [architecture/mcp-and-operator-copilot-v1.md](architecture/mcp-and-operator-copilot-v1.md)
 
 ## Supplemental Registered Docs
 
@@ -45,6 +52,7 @@ navigation set.
 - `docs/specs/00_SPEC.md`: active product and contract baseline
 - `docs/runbooks/onboarding-30min.md`: shortest contributor handoff path
 - `docs/runbooks/space-governance.md`: disk-space audit, gating, and cleanup workflow
+- `docs/architecture/mcp-and-operator-copilot-v1.md`: Prompt 4 baseline for the read-only MCP node and run-scoped operator copilot
 - `docs/runbooks/public-release-checklist.md`: user-facing GitHub release preparation checklist
 - `docs/runbooks/storefront-share-kit.md`: tracked punchline and sharing kit for storefront work
 - `docs/runbooks/github-storefront-manual-steps.md`: exact GitHub UI values and manual storefront steps

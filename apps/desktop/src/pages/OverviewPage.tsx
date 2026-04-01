@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 import type { RunSummary, EventRecord } from "../lib/types";
 import type { CommandTowerOverviewPayload } from "../lib/types";
 import { fetchRuns, fetchAllEvents, fetchCommandTowerOverview } from "../lib/api";
-import { statusLabelZh, badgeClass, statusDotClass } from "../lib/statusPresentation";
+import { badgeClass, formatDesktopDateTime, statusDotClass } from "../lib/statusPresentation";
 import type { DesktopPageKey } from "../App";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
@@ -32,38 +33,53 @@ const IconBolt = () => (
   </svg>
 );
 
-function statusLabel(status: string | undefined): string {
+function statusLabel(status: string | undefined, locale: UiLocale): string {
   const normalized = (status || "").trim().toLowerCase();
-  const labels: Record<string, string> = {
-    active: "Active",
-    archived: "Archived",
-    blocked: "Blocked",
-    done: "Done",
-    error: "Error",
-    failed: "Failed",
-    paused: "Paused",
-    rejected: "Rejected",
-    running: "Running",
-    success: "Success",
+  const labels: Record<UiLocale, Record<string, string>> = {
+    en: {
+      active: "Active",
+      archived: "Archived",
+      blocked: "Blocked",
+      done: "Done",
+      error: "Error",
+      failed: "Failed",
+      paused: "Paused",
+      rejected: "Rejected",
+      running: "Running",
+      success: "Success",
+    },
+    "zh-CN": {
+      active: "活跃",
+      archived: "已归档",
+      blocked: "已阻塞",
+      done: "完成",
+      error: "错误",
+      failed: "失败",
+      paused: "已暂停",
+      rejected: "已拒绝",
+      running: "运行中",
+      success: "成功",
+    },
   };
-  return labels[normalized] || statusLabelZh(status || "");
+  return labels[locale][normalized] || (locale === "zh-CN" ? "未知" : "Unknown");
 }
 
-function formatDateTime(value: string | undefined): string {
-  if (!value) return "-";
-  return new Date(value).toLocaleString("en-US");
+function formatDateTime(value: string | undefined, locale: UiLocale): string {
+  return formatDesktopDateTime(value, locale);
 }
 
 type OverviewPageProps = {
   onNavigate: (page: DesktopPageKey) => void;
   onNavigateToRun: (runId: string) => void;
+  locale?: UiLocale;
 };
 
-export function OverviewPage({ onNavigate, onNavigateToRun }: OverviewPageProps) {
+export function OverviewPage({ onNavigate, onNavigateToRun, locale = "en" }: OverviewPageProps) {
   const [overview, setOverview] = useState<CommandTowerOverviewPayload | null>(null);
   const [runs, setRuns] = useState<RunSummary[]>([]);
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const overviewCopy = getUiCopy(locale).desktop.overview;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -84,16 +100,17 @@ export function OverviewPage({ onNavigate, onNavigateToRun }: OverviewPageProps)
   useEffect(() => { void load(); }, [load]);
 
   const metrics = [
-    { label: "Total sessions", value: overview?.total_sessions ?? "-", variant: "" },
-    { label: "Active now", value: overview?.active_sessions ?? "-", variant: "metric-value--primary" },
-    { label: "Failure ratio", value: overview?.failed_ratio != null ? `${(overview.failed_ratio * 100).toFixed(1)}%` : "-", variant: overview && overview.failed_ratio > 0.1 ? "metric-value--danger" : "metric-value--success" },
-    { label: "Blocked queue", value: overview?.blocked_sessions ?? "-", variant: overview && (overview.blocked_sessions ?? 0) > 0 ? "metric-value--danger" : "" },
+    { label: overviewCopy.metricLabels.totalSessions, value: overview?.total_sessions ?? "-", variant: "" },
+    { label: overviewCopy.metricLabels.activeNow, value: overview?.active_sessions ?? "-", variant: "metric-value--primary" },
+    { label: overviewCopy.metricLabels.failureRatio, value: overview?.failed_ratio != null ? `${(overview.failed_ratio * 100).toFixed(1)}%` : "-", variant: overview && overview.failed_ratio > 0.1 ? "metric-value--danger" : "metric-value--success" },
+    { label: overviewCopy.metricLabels.blockedQueue, value: overview?.blocked_sessions ?? "-", variant: overview && (overview.blocked_sessions ?? 0) > 0 ? "metric-value--danger" : "" },
   ];
 
   const quickActions: { label: string; desc: string; page: DesktopPageKey; icon: ReactNode }[] = [
-    { label: "Step 1 · Brief PM", desc: "Start at the PM entrypoint, state the goal and acceptance criteria, and let the system open the session.", page: "pm", icon: <IconChat /> },
-    { label: "Step 2 · Watch progress", desc: "Use Command Tower to monitor session state, alerts, and pipeline health.", page: "command-tower", icon: <IconTower /> },
-    { label: "Step 3 · Verify outcomes", desc: "Open runs to inspect status, evidence chain, and replay results.", page: "runs", icon: <IconRuns /> },
+    { label: overviewCopy.quickActions.step1Label, desc: overviewCopy.quickActions.step1Desc, page: "pm", icon: <IconChat /> },
+    { label: overviewCopy.quickActions.step2Label, desc: overviewCopy.quickActions.step2Desc, page: "command-tower", icon: <IconTower /> },
+    { label: overviewCopy.quickActions.step3Label, desc: overviewCopy.quickActions.step3Desc, page: "workflows", icon: <IconRuns /> },
+    { label: overviewCopy.quickActions.step4Label, desc: overviewCopy.quickActions.step4Desc, page: "runs", icon: <IconBolt /> },
   ];
 
   const runningRuns = runs.filter((run) => (run.status || "").toLowerCase() === "running");
@@ -118,19 +135,19 @@ export function OverviewPage({ onNavigate, onNavigateToRun }: OverviewPageProps)
     {
       title: "Running now",
       value: runningRuns.length,
-      hint: runningRuns.length > 0 ? 'Open "Runs" to follow the active work.' : 'No tasks are running right now. Start a new one from the PM entrypoint.',
+      hint: runningRuns.length > 0 ? overviewCopy.progressCards.runningNowHint : overviewCopy.progressCards.runningNowEmpty,
       variant: "metric-value--primary",
     },
     {
-      title: "Needs attention",
+      title: overviewCopy.progressCards.needsAttention,
       value: failedRuns.length,
-      hint: failedRuns.length > 0 ? "Prioritize the affected Run detail and decide whether to rollback, reject, or replay." : "No failed tasks are currently visible.",
+      hint: failedRuns.length > 0 ? overviewCopy.progressCards.needsAttentionHint : overviewCopy.progressCards.needsAttentionEmpty,
       variant: failedRuns.length > 0 ? "metric-value--danger" : "metric-value--success",
     },
     {
-      title: "Risk events",
+      title: overviewCopy.progressCards.riskEvents,
       value: blockedEvents.length,
-      hint: blockedEvents.length > 0 ? "Inspect the event stream to locate the blocking root cause." : "Recent events do not show warning signals.",
+      hint: blockedEvents.length > 0 ? overviewCopy.progressCards.riskEventsHint : overviewCopy.progressCards.riskEventsEmpty,
       variant: blockedEvents.length > 0 ? "metric-value--danger" : "metric-value--success",
     },
   ];
@@ -138,14 +155,14 @@ export function OverviewPage({ onNavigate, onNavigateToRun }: OverviewPageProps)
   const recentExceptions = [
     ...failedRuns.map((run) => ({
       key: `run-${run.run_id}`,
-      time: formatDateTime(run.created_at),
+      time: formatDateTime(run.created_at, locale),
       title: `Task ${run.task_id} requires attention`,
-      detail: `Run ${run.run_id.slice(0, 12)} · ${statusLabel(run.status)}`,
+      detail: `Run ${run.run_id.slice(0, 12)} · ${statusLabel(run.status, locale)}`,
       runId: run.run_id,
     })),
     ...blockedEvents.slice(0, 6).map((evt, index) => ({
       key: `evt-${evt.ts || index}`,
-      time: formatDateTime(evt.ts),
+      time: formatDateTime(evt.ts, locale),
       title: `${evt.event || evt.event_type || "Operator event"}`,
       detail: `Level ${evt.level || "-"} · Run ${(evt.run_id || evt._run_id || "-").toString().slice(0, 12)}`,
       runId: (evt.run_id || evt._run_id || "").toString(),
@@ -157,14 +174,14 @@ export function OverviewPage({ onNavigate, onNavigateToRun }: OverviewPageProps)
       {/* Header */}
       <header className="section-header">
         <div>
-          <h1 id="overview-title" className="page-title">Operator overview</h1>
-          <p className="page-subtitle">For a first pass, follow the primary path: submit one request, complete the run, then verify the outcome. Only open approvals when the flow asks for one.</p>
+          <h1 id="overview-title" className="page-title">{overviewCopy.title}</h1>
+          <p className="page-subtitle">{overviewCopy.subtitle}</p>
         </div>
-        <Button onClick={load} aria-label="Refresh data">Refresh</Button>
+        <Button onClick={load} aria-label={overviewCopy.refreshData}>{overviewCopy.refreshData}</Button>
       </header>
 
       {/* Metrics */}
-      <section className="app-section" aria-label="Overview metrics">
+      <section className="app-section" aria-label={overviewCopy.metricsAriaLabel}>
         {loading ? (
           <div className="stats-grid">
             <div className="skeleton skeleton-card" />
@@ -186,7 +203,7 @@ export function OverviewPage({ onNavigate, onNavigateToRun }: OverviewPageProps)
 
       {/* Main actions */}
       <section className="app-section" aria-label="Primary actions">
-        <h2 className="section-title">Primary actions</h2>
+        <h2 className="section-title">{overviewCopy.primaryActionsTitle}</h2>
         <div className="quick-grid">
           {quickActions.map((a) => (
             <Button
@@ -208,16 +225,16 @@ export function OverviewPage({ onNavigate, onNavigateToRun }: OverviewPageProps)
             onClick={() => onNavigate("god-mode")}
           >
             <div className="quick-card-icon"><IconBolt /></div>
-            <span className="quick-card-desc">Optional step</span>
-            <span className="quick-card-title">Approval checkpoint</span>
-            <span className="quick-card-desc">Use the approval workspace only when the flow pauses for human confirmation.</span>
+            <span className="quick-card-desc">{overviewCopy.optionalStepLabel}</span>
+            <span className="quick-card-title">{overviewCopy.approvalCheckpoint}</span>
+            <span className="quick-card-desc">{overviewCopy.approvalCheckpointDesc}</span>
           </Button>
         </div>
       </section>
 
       {/* Current progress */}
       <section className="app-section" aria-labelledby="progress-title">
-        <h2 id="progress-title" className="section-title">Current progress</h2>
+        <h2 id="progress-title" className="section-title">{overviewCopy.currentProgressTitle}</h2>
         <div className="stats-grid">
           {progressCards.map((card) => (
             <article key={card.title} className="metric-card">
@@ -233,21 +250,21 @@ export function OverviewPage({ onNavigate, onNavigateToRun }: OverviewPageProps)
       <section className="app-section" aria-labelledby="recent-runs-title">
         <div className="section-header">
           <div>
-            <h2 id="recent-runs-title" className="section-title">Recent runs</h2>
+            <h2 id="recent-runs-title" className="section-title">{overviewCopy.recentRunsTitle}</h2>
             <p className="overview-runs-hint">
-              {"Open Run detail from here to review evidence and resolve outcomes."}
+              {overviewCopy.recentRunsHint}
             </p>
-            <p className="muted text-xs">No runs yet. Start your first request from the PM entrypoint.</p>
+            <p className="muted text-xs">{overviewCopy.noRunsYet}</p>
           </div>
-          <Button onClick={() => onNavigate("runs")}>View all runs</Button>
+          <Button onClick={() => onNavigate("runs")}>{overviewCopy.viewAllRuns}</Button>
         </div>
         {runs.length === 0 ? (
-          <div className="empty-state-stack"><p className="muted">No runs yet. Start your first request from the PM entrypoint.</p></div>
+          <div className="empty-state-stack"><p className="muted">{overviewCopy.noRunsYet}</p></div>
         ) : (
           <Card className="table-card">
             <table className="run-table">
               <thead>
-                <tr><th>Run ID</th><th>Task ID</th><th>Status</th><th>Created at</th></tr>
+                <tr><th>{overviewCopy.tableHeaders.runId}</th><th>{overviewCopy.tableHeaders.taskId}</th><th>{overviewCopy.tableHeaders.status}</th><th>{overviewCopy.tableHeaders.createdAt}</th></tr>
               </thead>
               <tbody>
                 {runs.map((run) => (
@@ -266,10 +283,10 @@ export function OverviewPage({ onNavigate, onNavigateToRun }: OverviewPageProps)
                     <td>
                       <span className="status-inline">
                         <span className={statusDotClass(run.status)} />
-                        <Badge className={badgeClass(run.status)}>{statusLabel(run.status)}</Badge>
+                        <Badge className={badgeClass(run.status)}>{statusLabel(run.status, locale)}</Badge>
                       </span>
                     </td>
-                    <td className="muted">{formatDateTime(run.created_at)}</td>
+                    <td className="muted">{formatDateTime(run.created_at, locale)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -281,16 +298,16 @@ export function OverviewPage({ onNavigate, onNavigateToRun }: OverviewPageProps)
       {/* Recent Events */}
       <section className="app-section" aria-labelledby="recent-events-title">
         <div className="section-header">
-          <h2 id="recent-events-title" className="section-title">Recent exceptions</h2>
-          <Button variant="ghost" onClick={() => onNavigate("events")}>View all exceptions</Button>
+          <h2 id="recent-events-title" className="section-title">{overviewCopy.recentEventsTitle}</h2>
+          <Button variant="ghost" onClick={() => onNavigate("events")}>{overviewCopy.viewAllExceptions}</Button>
         </div>
         {recentExceptions.length === 0 ? (
-          <div className="empty-state-stack"><p className="muted">No exception signals yet. Failed runs and risk events will appear here after tasks start running.</p></div>
+          <div className="empty-state-stack"><p className="muted">{overviewCopy.noExceptionsYet}</p></div>
         ) : (
           <Card className="table-card">
             <table className="run-table">
               <thead>
-                <tr><th>Time</th><th>Exception</th><th>Details</th><th>Action</th></tr>
+                <tr><th>{overviewCopy.tableHeaders.time}</th><th>{overviewCopy.tableHeaders.exception}</th><th>{overviewCopy.tableHeaders.details}</th><th>{overviewCopy.tableHeaders.action}</th></tr>
               </thead>
               <tbody>
                 {recentExceptions.map((entry) => (
@@ -301,10 +318,10 @@ export function OverviewPage({ onNavigate, onNavigateToRun }: OverviewPageProps)
                     <td>
                       {entry.runId ? (
                         <Button variant="ghost" onClick={() => onNavigateToRun(entry.runId)}>
-                          View Run
+                          {overviewCopy.viewRun}
                         </Button>
                       ) : (
-                        <span className="muted">Open event stream</span>
+                        <span className="muted">{overviewCopy.openEventStream}</span>
                       )}
                     </td>
                   </tr>

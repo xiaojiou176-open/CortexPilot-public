@@ -9,10 +9,11 @@ from cortexpilot_orch.store.run_store_primitives import now_ts, safe_component, 
 
 
 class WorkflowCaseStore:
-    def __init__(self, root: Path | None = None) -> None:
+    def __init__(self, root: Path | None = None, *, ensure_storage: bool = True) -> None:
         cfg = load_config()
         self._root = root or (cfg.runtime_root / "workflow-cases")
-        self._root.mkdir(parents=True, exist_ok=True)
+        if ensure_storage:
+            self._root.mkdir(parents=True, exist_ok=True)
 
     def _case_dir(self, workflow_id: str) -> Path:
         case_id = safe_component(workflow_id, "workflow_id")

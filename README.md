@@ -1,13 +1,24 @@
 # CortexPilot
 
-Run governed AI tasks, inspect evidence bundles, and replay failures without
-guessing.
+Command Tower for Codex and Claude Code workflows with MCP-readable proof,
+replay, and Workflow Cases.
 
-CortexPilot is a contract-first orchestration repo for teams that want one
-operator surface, one governed run path, and one replayable evidence trail
-instead of scattered agents, logs, and scripts.
+CortexPilot is a contract-first orchestration repo for Codex / Claude Code
+teams that want one operator surface, one governed run path, and one
+replayable evidence trail instead of scattered agents, logs, and scripts.
 
 CortexPilot is a contract-first multi-agent orchestration repository.
+
+CortexPilot is an AI agent command tower built around three product words:
+**Command Tower**, **Workflow Cases**, and **Proof & Replay**.
+
+The current public story speaks first to Codex / Claude Code teams and second
+to broader AI ops / platform teams. The front door should ride the heat around
+those ecosystems without pretending CortexPilot is already a hosted operator
+service.
+
+The product name stays **CortexPilot**. If `cortexpilot.ai` is later claimed,
+treat it as a marketing/front-door domain, not as a product rename.
 
 [Quickstart](#quickstart) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [Spec](docs/specs/00_SPEC.md) · [Releases](https://github.com/xiaojiou176-open/CortexPilot-public/releases)
 
@@ -15,8 +26,9 @@ CortexPilot is a contract-first multi-agent orchestration repository.
 
 ![CortexPilot command tower flow](docs/assets/storefront/hero-command-tower.svg)
 
-The default public loop is simple: **send one request, watch the run move
-through Command Tower, then inspect the evidence bundle and replay path**.
+The default public loop is simple: **start one workflow case, watch it move
+through Command Tower, then inspect Proof & Replay before you trust the
+outcome**.
 
 ## First Practical Win
 
@@ -35,14 +47,14 @@ release, new task templates, and storefront updates.
 ## Why CortexPilot Exists
 
 Most agent demos stop at "the model replied." CortexPilot is built for the next
-question: **can we inspect what happened, review what changed, and rerun it
-without guessing?**
+question: **can we inspect what happened, review what changed, classify the
+workflow case, and rerun it without guessing?**
 
 This repository combines:
 
-- **Governed execution**: contracts and gates stay explicit instead of hiding in prompt glue
-- **Evidence-first runs**: outputs are paired with run artifacts, reports, and review surfaces
-- **Replay and re-exec**: inspect failures, compare reruns, and keep the chain auditable
+- **Command Tower**: one operator surface for governed AI agents, MCP tools, and live run visibility
+- **Workflow Cases**: one stable operating record that ties request, queue, verdict, and linked runs together
+- **Proof & Replay**: one place to inspect evidence bundles, compare reruns, and replay failures without guessing
 - **Operator surfaces**: use the web dashboard or desktop shell to watch and control the same system
 
 ## Quickstart
@@ -71,7 +83,7 @@ What you should see:
 
 - create a task from the PM surface
 - watch status move in Command Tower
-- inspect runs, reports, and evidence from the run list
+- confirm the Workflow Case state, then inspect runs, reports, and evidence from the run list
 
 If you want the full reproducible containerized setup instead of the shortest
 host path, use:
@@ -91,8 +103,9 @@ If the first success path fails, go here next:
 The clearest way to understand CortexPilot is:
 
 1. **PM**: describe the task and acceptance target
-2. **Command Tower**: confirm the run is moving and not stuck
-3. **Runs / Evidence**: inspect reports, diffs, artifacts, and replay state
+2. **Workflow Case**: confirm the case identity, queue state, and operating verdict
+3. **Command Tower**: confirm the run is moving and not stuck
+4. **Proof & Replay**: inspect reports, diffs, artifacts, compare state, and replay state
 
 That flow already exists in the dashboard app and is the public story this
 repository should be judged on.
@@ -105,6 +118,11 @@ repository should be judged on.
   related evidence is manual or historical only and excluded from the default
   closeout and governance receipt path
 - Windows desktop is not part of the current public support contract
+- the repo-local MCP surface is currently **read-only only**; write-capable MCP
+  remains gated and is not part of the current public/product contract
+- CortexPilot is still **not** a hosted operator service; `cortexpilot.ai`
+  should be treated as a marketing/holding domain until the public contract,
+  support boundary, and live surface materially change
 
 ## Public CI Safety Model
 
@@ -133,8 +151,14 @@ The intentionally supported public task slices are:
 - `topic_brief`
 - `page_brief`
 
-The current guided dashboard entry is `news_digest`, while the broader public
-contract surface still includes `topic_brief` and `page_brief`.
+The current dashboard front door now surfaces all three public cases, while
+`news_digest` remains the most release-proven proof-oriented first run.
+
+| Public case | Best for | Example input | Proof state |
+| --- | --- | --- | --- |
+| `news_digest` | the fastest proof-oriented public first run | one topic + 3 public domains + `24h` | **official first public baseline** |
+| `topic_brief` | a narrow topic brief with search-backed evidence | one topic + `7d` + max results | public showcase, not yet equally release-proven |
+| `page_brief` | one URL with browser-backed evidence | one URL + one focused summary request | public showcase, browser-backed path |
 
 For the first public release bundle, `news_digest` is the only official
 proof-oriented first-run baseline. `topic_brief` and `page_brief` remain part
@@ -155,9 +179,29 @@ CortexPilot is a strong fit if you are building or evaluating:
 CortexPilot is not the right choice if you want:
 
 - a polished hosted SaaS product
+- write-capable agent control-plane mutations through MCP today
 - a generic browser automation grab-bag
 - a minimal single-file agent script with no governance overhead
 - a broad-market no-ops-required end-user application
+
+## Current Boundary Decisions
+
+The current stage freeze keeps two high-risk directions explicitly constrained:
+
+- **Write-capable MCP** remains **Later**.
+- The public repo ships a **read-only MCP** surface only.
+- Internal mutation APIs and approval flows exist, but they are not yet
+  exposed as an agent-facing write surface.
+- If this is ever reopened, the smallest safe move is one owner-only,
+  manual-only, default-off queue mutation pilot with explicit audit evidence.
+
+- **Hosted operator surface** remains **No-Go**.
+- `cortexpilot.ai` is still a weak marketing/holding domain, not a production
+  front door.
+- The current public contract still describes CortexPilot as source code plus
+  operator/demo surfaces, not as a hosted service.
+- Reopen hosted only if the public boundary, support contract, privacy/security
+  wording, and live front door materially change together.
 
 ## Repository Surfaces
 
@@ -197,6 +241,9 @@ Recent operator-surface upgrades now include:
 - persisted `workflow case` snapshots under `.runtime-cache/cortexpilot/workflow-cases/`
 - derived `proof_pack.json` reports for successful public task slices
 - a dedicated run-compare surface alongside the existing Run Detail replay area
+- a repo-local `mcp-readonly-server` entry for read-only runs/workflows/queue/approval/diff-gate/report access
+- an AI operator copilot brief on dashboard Run Detail and Run Compare, grounded in compare/proof/incident/workflow truth
+- a share-ready Workflow Case asset path in the dashboard for read-only recap, export, and handoff
 - desktop-first Flight Plan preview before creating the first PM session
 - queue scheduling inputs (`priority`, `scheduled_at`, `deadline_at`) with
   timezone-safe API validation
@@ -262,8 +309,9 @@ Tower regression surface, and orchestrator intake responses only emit
 API/schema coverage and the live contract stay aligned.
 Mainline CI now keeps policy snapshots, stage logs, and the orchestrator
 coverage JSON under `.runtime-cache/test_output/ci/`, and the Python
-dependency audit downgrades only the explicitly tracked upstream-unfixed
-`pygments` advisory through `configs/pip_audit_ignored_advisories.json`.
+dependency audit now pins `pygments==2.20.0`, so
+`configs/pip_audit_ignored_advisories.json` is empty again instead of carrying
+an upstream-unfixed downgrade for that package.
 Upstream governance evidence now reuses only fully fresh smoke receipts; if
 strict lanes do not already have the required upstream receipt bundle, the
 governance manifest refresh falls back to `scripts/verify_upstream_slices.py --mode smoke`
@@ -348,7 +396,8 @@ than a finished hosted product.
 
 ### Where should I look first if I only want the main path?
 
-Start with the PM surface, then Command Tower, then Runs and evidence.
+Start with the PM surface, then Command Tower, then Workflow Cases, then Proof
+& Replay.
 
 ### Do I need the full desktop shell to evaluate the repository?
 

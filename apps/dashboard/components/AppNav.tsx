@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactElement } from "react";
+import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 import { Badge } from "./ui/badge";
 
 type NavItem = {
@@ -16,34 +17,37 @@ type NavSection = {
   items: NavItem[];
 };
 
-const NAV_SECTIONS: NavSection[] = [
-  {
-    title: "Primary",
-    items: [
-      { href: "/", label: "Overview", icon: "grid" },
-      { href: "/pm", label: "PM intake", icon: "message" },
-      { href: "/command-tower", label: "Command Tower", icon: "tower" },
-      { href: "/runs", label: "Runs", icon: "play" },
-      { href: "/god-mode", label: "Quick approval", icon: "zap" },
-    ],
-  },
-  {
-    title: "Advanced",
-    items: [
-      { href: "/search", label: "Search", icon: "search" },
-      { href: "/agents", label: "Agents", icon: "bot" },
-      { href: "/workflows", label: "Workflows", icon: "workflow" },
-      { href: "/events", label: "Events", icon: "activity" },
-      { href: "/reviews", label: "Reviews", icon: "check" },
-      { href: "/diff-gate", label: "Diff gate", icon: "shield" },
-      { href: "/tests", label: "Tests", icon: "test" },
-      { href: "/contracts", label: "Contracts", icon: "file" },
-      { href: "/policies", label: "Policies", icon: "lock" },
-      { href: "/locks", label: "Locks", icon: "key" },
-      { href: "/worktrees", label: "Worktrees", icon: "tree" },
-    ],
-  },
-];
+function buildNavSections(locale: UiLocale): NavSection[] {
+  const uiCopy = getUiCopy(locale);
+  return [
+    {
+      title: uiCopy.dashboard.sectionPrimary,
+      items: [
+        { href: "/", label: uiCopy.dashboard.labels.overview, icon: "grid" },
+        { href: "/pm", label: uiCopy.dashboard.labels.pmIntake, icon: "message" },
+        { href: "/command-tower", label: uiCopy.dashboard.labels.commandTower, icon: "tower" },
+        { href: "/runs", label: uiCopy.dashboard.labels.runs, icon: "play" },
+        { href: "/god-mode", label: uiCopy.dashboard.labels.quickApproval, icon: "zap" },
+      ],
+    },
+    {
+      title: uiCopy.dashboard.sectionAdvanced,
+      items: [
+        { href: "/search", label: uiCopy.dashboard.labels.search, icon: "search" },
+        { href: "/agents", label: uiCopy.dashboard.labels.agents, icon: "bot" },
+        { href: "/workflows", label: uiCopy.dashboard.labels.workflowCases, icon: "workflow" },
+        { href: "/events", label: uiCopy.dashboard.labels.events, icon: "activity" },
+        { href: "/reviews", label: uiCopy.dashboard.labels.reviews, icon: "check" },
+        { href: "/diff-gate", label: uiCopy.dashboard.labels.diffGate, icon: "shield" },
+        { href: "/tests", label: uiCopy.dashboard.labels.tests, icon: "test" },
+        { href: "/contracts", label: uiCopy.dashboard.labels.contracts, icon: "file" },
+        { href: "/policies", label: uiCopy.dashboard.labels.policies, icon: "lock" },
+        { href: "/locks", label: uiCopy.dashboard.labels.locks, icon: "key" },
+        { href: "/worktrees", label: uiCopy.dashboard.labels.worktrees, icon: "tree" },
+      ],
+    },
+  ];
+}
 
 const ICON_MAP: Record<string, ReactElement> = {
   grid: (
@@ -151,21 +155,27 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export default function AppNav() {
+type AppNavProps = {
+  locale?: UiLocale;
+};
+
+export default function AppNav({ locale = DEFAULT_UI_LOCALE }: AppNavProps) {
   const pathname = usePathname() || "/";
+  const uiCopy = getUiCopy(locale);
+  const navSections = buildNavSections(locale);
 
   return (
-    <nav className="sidebar-nav" aria-label="Dashboard navigation">
-      {NAV_SECTIONS.map((section) => (
+    <nav className="sidebar-nav" aria-label={uiCopy.dashboard.navigationAriaLabel}>
+      {navSections.map((section) => (
         <section key={section.title} className="sidebar-section">
-          {section.title === "Advanced" ? (
+          {section.title === uiCopy.dashboard.sectionAdvanced ? (
             <details
               className="sidebar-section-details"
               open={section.items.some((item) => isActive(pathname, item.href))}
             >
               <summary className="sidebar-section-summary">
-                <span className="sidebar-section-title">Advanced</span>
-                <Badge>Low-frequency tools {section.items.length}</Badge>
+                <span className="sidebar-section-title">{section.title}</span>
+                <Badge>{uiCopy.dashboard.lowFrequencyToolsLabel} {section.items.length}</Badge>
               </summary>
               <ul className="sidebar-list">
                 {section.items.map((item) => {

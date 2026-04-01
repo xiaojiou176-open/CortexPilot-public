@@ -18,6 +18,7 @@ from cortexpilot_orch.api.main import app as api_app
 from cortexpilot_orch.contract.compiler import compile_plan
 from cortexpilot_orch.contract.validator import ContractValidator
 from cortexpilot_orch.config import load_config
+from cortexpilot_orch.mcp_readonly_server import serve_readonly_mcp
 from cortexpilot_orch.planning.coverage_chain import (
     DEFAULT_COVERAGE_JSON,
     build_coverage_self_heal_chain,
@@ -499,6 +500,11 @@ def temporal_worker() -> None:
 @app.command()
 def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
     cli_command_helpers.serve_api(api_app=api_app, uvicorn_module=uvicorn, host=host, port=port)
+
+
+@app.command("mcp-readonly-server")
+def mcp_readonly_server() -> None:
+    serve_readonly_mcp()
 
 
 if __name__ == "__main__":

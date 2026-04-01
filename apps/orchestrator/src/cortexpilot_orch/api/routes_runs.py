@@ -160,6 +160,15 @@ def get_workflow(
     return runs_deps.get_workflow(workflow_id)
 
 
+@router.post("/workflows/{workflow_id}/copilot-brief")
+def get_workflow_operator_copilot_brief(
+    workflow_id: str,
+    payload: dict[str, Any] | None = None,
+    runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
+) -> dict[str, Any]:
+    return runs_deps.get_workflow_operator_copilot_brief(workflow_id, payload or {})
+
+
 @router.get("/runs/{run_id}")
 def get_run(
     run_id: str,
@@ -230,6 +239,15 @@ def get_search(
     runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
 ) -> dict[str, Any]:
     return runs_deps.get_search(_validated_run_id(run_id))
+
+
+@router.post("/runs/{run_id}/copilot-brief")
+def get_operator_copilot_brief(
+    run_id: str,
+    payload: dict[str, Any] | None = None,
+    runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
+) -> dict[str, Any]:
+    return runs_deps.get_operator_copilot_brief(_validated_run_id(run_id), payload or {})
 
 
 @router.post("/runs/{run_id}/evidence/promote")

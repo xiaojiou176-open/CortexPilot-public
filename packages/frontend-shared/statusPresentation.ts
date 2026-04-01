@@ -1,5 +1,6 @@
 export type StatusVariant = "success" | "failed" | "running" | "warning" | "default";
 export type StageVariant = "todo" | "active" | "verify" | "done" | "default";
+export type UiLocale = "en" | "zh-CN";
 
 const STATUS_ALIASES: Record<string, string> = {
   active: "running",
@@ -41,36 +42,70 @@ const STATUS_ALIASES: Record<string, string> = {
   working: "running",
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  archived: "Archived",
-  blocked: "Blocked",
-  cancelled: "Cancelled",
-  completed: "Completed",
-  failed: "Failed",
-  healthy: "Healthy",
-  idle: "Idle",
-  info: "Info",
-  paused: "Paused",
-  pending: "Pending",
-  running: "Running",
+const STATUS_LABELS_BY_LOCALE: Record<UiLocale, Record<string, string>> = {
+  en: {
+    archived: "Archived",
+    blocked: "Blocked",
+    cancelled: "Cancelled",
+    completed: "Completed",
+    failed: "Failed",
+    healthy: "Healthy",
+    idle: "Idle",
+    info: "Info",
+    paused: "Paused",
+    pending: "Pending",
+    running: "Running",
+  },
+  "zh-CN": {
+    archived: "已归档",
+    blocked: "已阻塞",
+    cancelled: "已取消",
+    completed: "已完成",
+    failed: "失败",
+    healthy: "健康",
+    idle: "空闲",
+    info: "信息",
+    paused: "已暂停",
+    pending: "待处理",
+    running: "运行中",
+  },
 };
 
-const OUTCOME_TYPE_LABELS: Record<string, string> = {
-  blocked: "Blocked",
-  env: "Environment issue",
-  environment_error: "Environment issue",
-  gate: "Gate blocked",
-  gate_blocked: "Gate blocked",
-  manual: "Manual confirmation required",
-  manual_pending: "Manual confirmation required",
-  denied: "Denied by policy",
-  error: "Execution error",
-  failure: "Execution failed",
-  functional_failure: "Functional failure",
-  product: "Functional failure",
-  success: "Completed successfully",
-  timeout: "Timed out",
-  unknown: "Failure pending confirmation",
+const OUTCOME_TYPE_LABELS_BY_LOCALE: Record<UiLocale, Record<string, string>> = {
+  en: {
+    blocked: "Blocked",
+    env: "Environment issue",
+    environment_error: "Environment issue",
+    gate: "Gate blocked",
+    gate_blocked: "Gate blocked",
+    manual: "Manual confirmation required",
+    manual_pending: "Manual confirmation required",
+    denied: "Denied by policy",
+    error: "Execution error",
+    failure: "Execution failed",
+    functional_failure: "Functional failure",
+    product: "Functional failure",
+    success: "Completed successfully",
+    timeout: "Timed out",
+    unknown: "Failure pending confirmation",
+  },
+  "zh-CN": {
+    blocked: "已阻塞",
+    env: "环境异常",
+    environment_error: "环境异常",
+    gate: "Gate 被阻塞",
+    gate_blocked: "Gate 被阻塞",
+    manual: "需要人工确认",
+    manual_pending: "需要人工确认",
+    denied: "被策略拒绝",
+    error: "执行异常",
+    failure: "执行失败",
+    functional_failure: "功能失败",
+    product: "功能失败",
+    success: "已成功完成",
+    timeout: "执行超时",
+    unknown: "失败原因待确认",
+  },
 };
 
 const STAGE_ALIASES: Record<string, string> = {
@@ -99,39 +134,120 @@ const STAGE_ALIASES: Record<string, string> = {
   verify: "verify",
 };
 
-const STAGE_LABELS: Record<string, string> = {
-  discover: "Discovery",
-  done: "Done",
-  execute: "Execution",
-  intake: "Intake",
-  plan: "Planning",
-  release: "Release",
-  verify: "Verification",
+const STAGE_LABELS_BY_LOCALE: Record<UiLocale, Record<string, string>> = {
+  en: {
+    discover: "Discovery",
+    done: "Done",
+    execute: "Execution",
+    intake: "Intake",
+    plan: "Planning",
+    release: "Release",
+    verify: "Verification",
+  },
+  "zh-CN": {
+    discover: "发现",
+    done: "完成",
+    execute: "执行",
+    intake: "接单",
+    plan: "规划",
+    release: "发布",
+    verify: "验证",
+  },
 };
 
-const CTA_BY_STATUS: Record<string, string> = {
-  archived: "View archive",
-  blocked: "Resolve blocker",
-  cancelled: "View details",
-  completed: "View result",
-  failed: "Review failure and retry",
-  healthy: "View details",
-  idle: "Start run",
-  info: "View details",
-  paused: "Resume run",
-  pending: "Start run",
-  running: "View progress",
+const CTA_BY_STATUS_BY_LOCALE: Record<UiLocale, Record<string, string>> = {
+  en: {
+    archived: "View archive",
+    blocked: "Resolve blocker",
+    cancelled: "View details",
+    completed: "View result",
+    failed: "Review failure and retry",
+    healthy: "View details",
+    idle: "Start run",
+    info: "View details",
+    paused: "Resume run",
+    pending: "Start run",
+    running: "View progress",
+  },
+  "zh-CN": {
+    archived: "查看归档",
+    blocked: "处理阻塞",
+    cancelled: "查看详情",
+    completed: "查看结果",
+    failed: "复盘失败并重试",
+    healthy: "查看详情",
+    idle: "启动运行",
+    info: "查看详情",
+    paused: "恢复运行",
+    pending: "启动运行",
+    running: "查看进度",
+  },
 };
 
-const CTA_BY_STAGE: Record<string, string> = {
-  discover: "Refine requirements",
-  done: "View result",
-  execute: "View progress",
-  intake: "Start intake",
-  plan: "Confirm plan",
-  release: "Start release",
-  verify: "Handle review",
+const CTA_BY_STAGE_BY_LOCALE: Record<UiLocale, Record<string, string>> = {
+  en: {
+    discover: "Refine requirements",
+    done: "View result",
+    execute: "View progress",
+    intake: "Start intake",
+    plan: "Confirm plan",
+    release: "Start release",
+    verify: "Handle review",
+  },
+  "zh-CN": {
+    discover: "补充需求",
+    done: "查看结果",
+    execute: "查看进度",
+    intake: "开始接单",
+    plan: "确认方案",
+    release: "开始发布",
+    verify: "处理审查",
+  },
 };
+
+const UNKNOWN_LABEL_BY_LOCALE: Record<UiLocale, string> = {
+  en: "Unknown",
+  "zh-CN": "未知",
+};
+
+const UNKNOWN_STAGE_BY_LOCALE: Record<UiLocale, string> = {
+  en: "Unknown stage",
+  "zh-CN": "未知阶段",
+};
+
+const VIEW_DETAILS_BY_LOCALE: Record<UiLocale, string> = {
+  en: "View details",
+  "zh-CN": "查看详情",
+};
+
+const UNCLASSIFIED_BY_LOCALE: Record<UiLocale, string> = {
+  en: "Unclassified",
+  "zh-CN": "未分类",
+};
+
+export function normalizeUiLocale(locale: string | undefined | null): UiLocale {
+  const token = typeof locale === "string" ? locale.trim().toLowerCase() : "";
+  if (token.startsWith("zh")) {
+    return "zh-CN";
+  }
+  return "en";
+}
+
+export function formatUiDateTime(
+  value: string | undefined | null,
+  locale: string | undefined | null = "en",
+  options?: Intl.DateTimeFormatOptions,
+): string {
+  const raw = String(value || "").trim();
+  if (!raw || raw === "-") {
+    return "-";
+  }
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) {
+    return raw;
+  }
+  return parsed.toLocaleString(normalizeUiLocale(locale), options);
+}
 
 export function toCanonicalToken(value: string | undefined | null): string | undefined {
   if (!value) return undefined;
@@ -185,19 +301,45 @@ export function toCanonicalStage(stage: string | undefined | null): string | und
   return STAGE_ALIASES[token];
 }
 
-export function knownOutcomeTypeLabelZh(outcomeType: string | undefined | null): string | undefined {
+export function knownOutcomeTypeLabel(
+  outcomeType: string | undefined | null,
+  locale: string | undefined | null = "en",
+): string | undefined {
   const token = toCanonicalToken(outcomeType);
   if (!token) return undefined;
-  return OUTCOME_TYPE_LABELS[token];
+  return OUTCOME_TYPE_LABELS_BY_LOCALE[normalizeUiLocale(locale)][token];
 }
 
+// Legacy compatibility helper: public UI is now English-first by default.
+export function knownOutcomeTypeLabelZh(outcomeType: string | undefined | null): string | undefined {
+  return knownOutcomeTypeLabel(outcomeType, "en");
+}
+
+export function outcomeTypeLabel(
+  outcomeType: string | undefined | null,
+  locale: string | undefined | null = "en",
+): string {
+  const resolvedLocale = normalizeUiLocale(locale);
+  return knownOutcomeTypeLabel(outcomeType, resolvedLocale) || UNCLASSIFIED_BY_LOCALE[resolvedLocale];
+}
+
+// Legacy compatibility helper: public UI is now English-first by default.
 export function outcomeTypeLabelZh(outcomeType: string | undefined | null): string {
-  return knownOutcomeTypeLabelZh(outcomeType) || "Unclassified";
+  return outcomeTypeLabel(outcomeType, "en");
 }
 
+export function statusLabelFromCanonical(
+  canonical: string | undefined,
+  locale: string | undefined | null = "en",
+): string {
+  const resolvedLocale = normalizeUiLocale(locale);
+  if (!canonical) return UNKNOWN_LABEL_BY_LOCALE[resolvedLocale];
+  return STATUS_LABELS_BY_LOCALE[resolvedLocale][canonical] || UNKNOWN_LABEL_BY_LOCALE[resolvedLocale];
+}
+
+// Legacy compatibility helper: public UI is now English-first by default.
 export function statusLabelZhFromCanonical(canonical: string | undefined): string {
-  if (!canonical) return "Unknown";
-  return STATUS_LABELS[canonical] || "Unknown";
+  return statusLabelFromCanonical(canonical, "en");
 }
 
 export function statusVariantFromCanonical(canonical: string | undefined): StatusVariant {
@@ -224,9 +366,18 @@ export function badgeClassFromVariant(variant: StatusVariant): string {
   return "badge";
 }
 
+export function stageLabelFromCanonical(
+  canonical: string | undefined,
+  locale: string | undefined | null = "en",
+): string {
+  const resolvedLocale = normalizeUiLocale(locale);
+  if (!canonical) return UNKNOWN_STAGE_BY_LOCALE[resolvedLocale];
+  return STAGE_LABELS_BY_LOCALE[resolvedLocale][canonical] || UNKNOWN_STAGE_BY_LOCALE[resolvedLocale];
+}
+
+// Legacy compatibility helper: public UI is now English-first by default.
 export function stageLabelZhFromCanonical(canonical: string | undefined): string {
-  if (!canonical) return "Unknown stage";
-  return STAGE_LABELS[canonical] || "Unknown stage";
+  return stageLabelFromCanonical(canonical, "en");
 }
 
 export function stageVariantFromCanonical(canonical: string | undefined): StageVariant {
@@ -237,12 +388,30 @@ export function stageVariantFromCanonical(canonical: string | undefined): StageV
   return "default";
 }
 
-export function statusCtaZhFromCanonical(canonical: string | undefined): string {
-  if (!canonical) return "View details";
-  return CTA_BY_STATUS[canonical] || "View details";
+export function statusCtaFromCanonical(
+  canonical: string | undefined,
+  locale: string | undefined | null = "en",
+): string {
+  const resolvedLocale = normalizeUiLocale(locale);
+  if (!canonical) return VIEW_DETAILS_BY_LOCALE[resolvedLocale];
+  return CTA_BY_STATUS_BY_LOCALE[resolvedLocale][canonical] || VIEW_DETAILS_BY_LOCALE[resolvedLocale];
 }
 
+// Legacy compatibility helper: public UI is now English-first by default.
+export function statusCtaZhFromCanonical(canonical: string | undefined): string {
+  return statusCtaFromCanonical(canonical, "en");
+}
+
+export function stageCtaFromCanonical(
+  canonical: string | undefined,
+  locale: string | undefined | null = "en",
+): string {
+  const resolvedLocale = normalizeUiLocale(locale);
+  if (!canonical) return VIEW_DETAILS_BY_LOCALE[resolvedLocale];
+  return CTA_BY_STAGE_BY_LOCALE[resolvedLocale][canonical] || VIEW_DETAILS_BY_LOCALE[resolvedLocale];
+}
+
+// Legacy compatibility helper: public UI is now English-first by default.
 export function stageCtaZhFromCanonical(canonical: string | undefined): string {
-  if (!canonical) return "View details";
-  return CTA_BY_STAGE[canonical] || "View details";
+  return stageCtaFromCanonical(canonical, "en");
 }

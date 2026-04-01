@@ -67,6 +67,11 @@ def preview_intake(payload: dict, request: Request) -> dict:
     return _require_handler(request, "preview_intake", operation="preview_intake")(payload)
 
 
+@router.post("/intake/preview/copilot-brief")
+def preview_intake_copilot_brief(payload: dict, request: Request) -> dict:
+    return _require_handler(request, "preview_intake_copilot_brief", operation="preview_intake_copilot_brief")(payload)
+
+
 @router.post("/intake/{intake_id}/answers")
 def answer_intake(intake_id: str, payload: dict, request: Request) -> dict:
     return _require_handler(request, "answer_intake", operation="answer_intake")(intake_id, payload)
@@ -90,6 +95,11 @@ def pm_list_task_packs(request: Request) -> list[dict]:
 @router.post("/pm/intake/preview")
 def pm_preview_intake(payload: dict, request: Request) -> dict:
     return _require_handler(request, "preview_intake", operation="pm_preview_intake")(payload)
+
+
+@router.post("/pm/intake/preview/copilot-brief")
+def pm_preview_intake_copilot_brief(payload: dict, request: Request) -> dict:
+    return _require_handler(request, "preview_intake_copilot_brief", operation="pm_preview_intake_copilot_brief")(payload)
 
 
 @router.post("/pm/intake/{intake_id}/answer")

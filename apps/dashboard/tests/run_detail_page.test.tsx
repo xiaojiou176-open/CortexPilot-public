@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("../lib/api", () => ({
   fetchDiff: vi.fn(),
   fetchEvents: vi.fn(),
+  fetchOperatorCopilotBrief: vi.fn(),
   fetchReports: vi.fn(),
   fetchRun: vi.fn(),
 }));
@@ -29,6 +30,8 @@ describe("run detail page copy", () => {
 
     expect(screen.getByTestId("run-detail-title")).toHaveTextContent("Run detail");
     expect(screen.getByText("Follow one run across status, event evidence, and replay comparison.")).toBeInTheDocument();
+    expect(screen.getByText("AI operator copilot")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Generate operator brief" })).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-stub")).toHaveTextContent("run-1");
   });
 
@@ -40,5 +43,61 @@ describe("run detail page copy", () => {
 
     expect(screen.getByRole("status")).toHaveTextContent("Run events is temporarily unavailable. Try again later.");
     consoleSpy.mockRestore();
+  });
+
+  it("renders decision cards when compare, incident, and proof packs are present", async () => {
+    vi.mocked(fetchReports).mockResolvedValueOnce([
+      {
+        name: "run_compare_report.json",
+        data: {
+          compare_summary: {
+            mismatched_count: 1,
+            missing_count: 0,
+            extra_count: 0,
+            failed_report_checks_count: 0,
+          },
+        },
+      },
+      {
+        name: "incident_pack.json",
+        data: {
+          summary: "A blocking gate stopped the run.",
+          next_action: "Review the gate before replaying.",
+        },
+      },
+      {
+        name: "proof_pack.json",
+        data: {
+          summary: "Proof artifacts are ready.",
+          next_action: "Review the proof bundle before sharing.",
+        },
+      },
+    ] as never[]);
+
+    render(await RunDetailPage({ params: Promise.resolve({ id: "run-3" }) }));
+
+    expect(screen.getByText("Compare decision")).toBeInTheDocument();
+    expect(screen.getByText(/Compare found deltas that need operator review/i)).toBeInTheDocument();
+    expect(screen.getByText("Incident action")).toBeInTheDocument();
+    expect(screen.getByText("Proof action")).toBeInTheDocument();
+  });
+
+  it("prompts the operator to generate compare truth when compare summary is missing", async () => {
+    vi.mocked(fetchReports).mockResolvedValueOnce([
+      {
+        name: "incident_pack.json",
+        data: {
+          summary: "A blocking gate stopped the run.",
+          next_action: "Review the gate before replaying.",
+        },
+      },
+    ] as never[]);
+
+    render(await RunDetailPage({ params: Promise.resolve({ id: "run-4" }) }));
+
+    expect(screen.getByText("Compare decision")).toBeInTheDocument();
+    expect(screen.getByText("No structured compare report is attached yet.")).toBeInTheDocument();
+    expect(screen.getByText("Next step: Generate or refresh a compare report for this run.")).toBeInTheDocument();
+    expect(screen.getByText("Incident action")).toBeInTheDocument();
   });
 });

@@ -219,6 +219,14 @@ describe("command tower ui surfaces", () => {
     expect(screen.getByRole("link", { name: "Overview" })).not.toHaveAttribute("aria-current");
   });
 
+  it("supports zh-CN dashboard navigation copy when locale is provided", () => {
+    render(<AppNav locale="zh-CN" />);
+
+    expect(screen.getByRole("navigation", { name: "控制台导航" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "指挥塔" })).toBeInTheDocument();
+    expect(screen.getByText(/低频工具\s*11/)).toBeInTheDocument();
+  });
+
   it("renders empty conversation graph state", () => {
     render(
       <ConversationGraph

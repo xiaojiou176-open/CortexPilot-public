@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  formatDashboardDateTime,
   badgeClass,
+  statusLabel,
+  statusLabelDefault,
   knownOutcomeTypeLabelZh,
   outcomeTypeLabelZh,
   stageCtaZh,
@@ -8,23 +11,58 @@ import {
   stageVariant,
   statusCtaZh,
   statusDotClass,
-  statusLabelZh,
   statusVariant,
+  statusLabelZh,
 } from "../lib/statusPresentation";
 
-describe("statusLabelZh", () => {
-  it("maps common states to canonical English labels", () => {
-    expect(statusLabelZh("success")).toBe("Completed");
-    expect(statusLabelZh("running")).toBe("Running");
-    expect(statusLabelZh("blocked")).toBe("Blocked");
-    expect(statusLabelZh("failed")).toBe("Failed");
-    expect(statusLabelZh("paused")).toBe("Paused");
-    expect(statusLabelZh("archived")).toBe("Archived");
+describe("statusLabelDefault", () => {
+  it("maps common states to canonical default-locale labels", () => {
+    expect(statusLabelDefault("success")).toBe("Completed");
+    expect(statusLabelDefault("running")).toBe("Running");
+    expect(statusLabelDefault("blocked")).toBe("Blocked");
+    expect(statusLabelDefault("failed")).toBe("Failed");
+    expect(statusLabelDefault("paused")).toBe("Paused");
+    expect(statusLabelDefault("archived")).toBe("Archived");
   });
 
   it("returns fallback for unknown values", () => {
-    expect(statusLabelZh("")).toBe("Unknown");
-    expect(statusLabelZh("new_state")).toBe("Unknown");
+    expect(statusLabelDefault("")).toBe("Unknown");
+    expect(statusLabelDefault("new_state")).toBe("Unknown");
+  });
+});
+
+describe("locale-aware presentation foundation", () => {
+  it("supports explicit locale labels without changing English-first defaults", () => {
+    expect(statusLabel("success")).toBe("Completed");
+    expect(statusLabelZh("success")).toBe("已完成");
+    expect(statusLabel("success", "zh-CN")).toBe("已完成");
+    expect(statusLabel("running", "zh-CN")).toBe("运行中");
+  });
+
+  it("formats dashboard timestamps with locale-aware defaults", () => {
+    const timestamp = "2026-02-02T00:00:00Z";
+    expect(formatDashboardDateTime(timestamp, "en", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })).toBe(new Date(timestamp).toLocaleString("en", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }));
+    expect(formatDashboardDateTime(timestamp, "zh-CN", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })).toBe(new Date(timestamp).toLocaleString("zh-CN", {
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }));
   });
 });
 

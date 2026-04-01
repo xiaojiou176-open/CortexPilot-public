@@ -162,6 +162,7 @@ def configure_routes(
     answer_intake_accessor: Callable[[], Callable[[str, dict], dict]],
     run_intake_accessor: Callable[[], Callable[[str, dict | None], dict]],
     preview_intake_accessor: Callable[[], Callable[[dict], dict]] | None = None,
+    preview_intake_copilot_brief_accessor: Callable[[], Callable[[dict], dict]] | None = None,
 ) -> None:
     app.state.routes_pm_handlers = {
         "list_pm_sessions": lambda request, status, status_filters, owner_pm, project_key, sort, limit, offset: list_pm_sessions_accessor()(
@@ -187,6 +188,7 @@ def configure_routes(
         "get_intake": lambda intake_id: get_intake_accessor()(intake_id),
         "create_intake": lambda payload: create_intake_accessor()(payload),
         "preview_intake": lambda payload: (preview_intake_accessor or create_intake_accessor)()(payload),
+        "preview_intake_copilot_brief": lambda payload: (preview_intake_copilot_brief_accessor or preview_intake_accessor or create_intake_accessor)()(payload),
         "answer_intake": lambda intake_id, payload: answer_intake_accessor()(intake_id, payload),
         "run_intake": lambda intake_id, payload=None: run_intake_accessor()(intake_id, payload),
     }
@@ -373,6 +375,44 @@ def preview_intake(
             "ERROR",
             "api",
             "INTAKE_PREVIEW_FAILED",
+            meta={"request_id": current_request_id_fn(), "error": str(exc)},
+        )
+        raise HTTPException(status_code=500, detail=error_detail_fn("INTAKE_PREVIEW_FAILED")) from exc
+
+
+def preview_intake_copilot_brief(
+    payload: dict,
+    *,
+    error_detail_fn: Callable[[str], dict[str, str]],
+    current_request_id_fn: Callable[[], str],
+) -> dict:
+    from cortexpilot_orch.services.operator_copilot import generate_execution_plan_copilot_brief
+
+    try:
+        preview_payload = payload
+        if isinstance(payload, dict) and isinstance(payload.get("preview"), dict):
+            preview_payload = payload.get("preview")  # type: ignore[assignment]
+        if not isinstance(preview_payload, dict):
+            raise ValueError("`preview` must be an object")
+        preview_payload = dict(preview_payload)
+        preview_payload.pop("intake_id", None)
+        return generate_execution_plan_copilot_brief(preview_payload)
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        log_event(
+            "WARN",
+            "api",
+            "INTAKE_PREVIEW_COPILOT_FAILED",
+            meta={"request_id": current_request_id_fn(), "error": str(exc)},
+        )
+        detail = {**error_detail_fn("INTAKE_PREVIEW_FAILED"), "reason": str(exc)}
+        raise HTTPException(status_code=400, detail=detail) from exc
+    except Exception as exc:  # noqa: BLE001
+        log_event(
+            "ERROR",
+            "api",
+            "INTAKE_PREVIEW_COPILOT_FAILED",
             meta={"request_id": current_request_id_fn(), "error": str(exc)},
         )
         raise HTTPException(status_code=500, detail=error_detail_fn("INTAKE_PREVIEW_FAILED")) from exc

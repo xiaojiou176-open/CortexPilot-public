@@ -37,6 +37,12 @@ if (coverageEnabled) {
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      "@cortexpilot/frontend-shared/uiCopy": path.resolve(process.cwd(), "../../packages/frontend-shared/uiCopy.ts"),
+      "@cortexpilot/frontend-shared/uiLocale": path.resolve(process.cwd(), "../../packages/frontend-shared/uiLocale.ts"),
+    },
+  },
   test: {
     environment: "jsdom",
     setupFiles: "./tests/setup.ts",

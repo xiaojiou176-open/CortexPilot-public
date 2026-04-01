@@ -47,6 +47,7 @@ def build_runs_handlers(
     read_artifact_fn: Callable[[str, str], object | None],
     read_report_fn: Callable[[str, str], object | None],
     extract_search_queries_fn: Callable[[dict], list[str]],
+    list_pending_approvals_fn: Callable[[], list[dict[str, Any]]] = lambda: [],
     promote_evidence_fn: Callable[[str, dict[str, Any]], dict[str, Any]],
     orchestration_service_fn: Callable[[], Any],
     load_config_fn: Callable[[], Any],
@@ -702,6 +703,40 @@ def build_runs_handlers(
             read_report_fn=read_report_fn,
         )
 
+    def get_operator_copilot_brief(run_id: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+        from cortexpilot_orch.services.operator_copilot import generate_run_operator_copilot_brief
+
+        _ = payload
+        run_id = str(run_id).strip()
+        if not run_id:
+            raise HTTPException(status_code=404, detail=error_detail_fn("RUN_NOT_FOUND"))
+        return generate_run_operator_copilot_brief(
+            run_id,
+            get_run_fn=get_run,
+            get_reports_fn=get_reports,
+            get_workflow_fn=get_workflow,
+            list_queue_fn=list_queue,
+            list_pending_approvals_fn=list_pending_approvals_fn,
+            list_diff_gate_fn=list_diff_gate_fn,
+        )
+
+    def get_workflow_operator_copilot_brief(workflow_id: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
+        from cortexpilot_orch.services.operator_copilot import generate_workflow_operator_copilot_brief
+
+        _ = payload
+        workflow_id = str(workflow_id).strip()
+        if not workflow_id:
+            raise HTTPException(status_code=404, detail=error_detail_fn("WORKFLOW_NOT_FOUND"))
+        return generate_workflow_operator_copilot_brief(
+            workflow_id,
+            get_workflow_fn=get_workflow,
+            get_run_fn=get_run,
+            get_reports_fn=get_reports,
+            list_queue_fn=list_queue,
+            list_pending_approvals_fn=list_pending_approvals_fn,
+            list_diff_gate_fn=list_diff_gate_fn,
+        )
+
     def promote_evidence(run_id: str) -> dict:
         run_dir = runs_root_fn() / run_id
         if not run_dir.exists():
@@ -812,6 +847,7 @@ def build_runs_handlers(
         "run_next_queue": run_next_queue,
         "list_workflows": list_workflows,
         "get_workflow": get_workflow,
+        "get_workflow_operator_copilot_brief": get_workflow_operator_copilot_brief,
         "get_run": get_run,
         "get_events": get_events,
         "stream_events": stream_events,
@@ -819,6 +855,7 @@ def build_runs_handlers(
         "get_reports": get_reports,
         "get_artifacts": get_artifacts,
         "get_search": get_search,
+        "get_operator_copilot_brief": get_operator_copilot_brief,
         "promote_evidence": promote_evidence,
         "replay_run": replay_run,
         "verify_run": verify_run,

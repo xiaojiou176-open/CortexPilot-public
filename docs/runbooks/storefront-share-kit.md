@@ -8,13 +8,14 @@ surfaces, but they should not be presented as equally release-proven yet.
 
 ## Punchline
 
-Governed AI task orchestration with evidence, replay, and operator visibility.
+Command Tower for Codex and Claude Code workflows with Workflow Cases, proof,
+replay, read-only MCP access, and explainable operator guidance.
 
 ## 10-Second Story
 
 1. Start a task from PM.
 2. Watch it move through Command Tower.
-3. Open the run and inspect evidence or replay.
+3. Open the Workflow Case and inspect proof, replay, or the operator brief.
 
 ## Current Tracked Assets
 
@@ -55,6 +56,8 @@ Governed AI task orchestration with evidence, replay, and operator visibility.
 
 - why governed runs matter after “the agent replied”
 - how evidence + replay changes debugging and review
+- how read-only MCP access turns CortexPilot into a node other tools can inspect
+- how the operator brief explains failures without pretending to execute recovery
 - why CortexPilot is a control plane, not a generic agent demo
 - anchor first-look copy on the `news_digest` path when referring to a public
   first run

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 import type { DesktopPageKey } from "../../App";
 import { Button } from "../ui/Button";
 
@@ -12,40 +13,6 @@ type NavSection = {
   title: string;
   items: NavItem[];
 };
-
-const NAV_SECTIONS: NavSection[] = [
-  {
-    title: "Primary Path",
-    items: [
-      { page: "pm", label: "New Task", icon: "message" },
-      { page: "search", label: "Recent Results", icon: "search" },
-      { page: "command-tower", label: "Task Progress", icon: "tower" },
-    ],
-  },
-  {
-    title: "Advanced Actions",
-    items: [
-      { page: "overview", label: "Task Overview", icon: "grid" },
-      { page: "runs", label: "Runs", icon: "play" },
-      { page: "workflows", label: "Workflows", icon: "workflow" },
-      { page: "god-mode", label: "Fast Approval", icon: "zap" },
-    ],
-  },
-  {
-    title: "Operator / Governance",
-    items: [
-      { page: "events", label: "Event Stream", icon: "activity" },
-      { page: "agents", label: "Agents", icon: "bot" },
-      { page: "reviews", label: "Reviews", icon: "check" },
-      { page: "change-gates", label: "Change Gates", icon: "shield" },
-      { page: "tests", label: "Tests", icon: "test" },
-      { page: "contracts", label: "Contracts", icon: "file" },
-      { page: "policies", label: "Policies", icon: "lock" },
-      { page: "locks", label: "Locks", icon: "key" },
-      { page: "worktrees", label: "Worktrees", icon: "tree" },
-    ],
-  },
-];
 
 const ICON_MAP: Record<string, ReactNode> = {
   grid: (
@@ -151,9 +118,45 @@ const ICON_MAP: Record<string, ReactNode> = {
 type AppSidebarProps = {
   activePage: DesktopPageKey;
   onNavigate: (page: DesktopPageKey) => void;
+  locale?: UiLocale;
 };
 
-export function AppSidebar({ activePage, onNavigate }: AppSidebarProps) {
+export function AppSidebar({ activePage, onNavigate, locale = DEFAULT_UI_LOCALE }: AppSidebarProps) {
+  const uiCopy = getUiCopy(locale);
+  const navSections: NavSection[] = [
+    {
+      title: uiCopy.desktop.sectionPrimary,
+      items: [
+        { page: "pm", label: uiCopy.desktop.labels.pmIntake, icon: "message" },
+        { page: "search", label: uiCopy.desktop.labels.search, icon: "search" },
+        { page: "command-tower", label: uiCopy.desktop.labels.commandTower, icon: "tower" },
+      ],
+    },
+    {
+      title: uiCopy.desktop.sectionAdvanced,
+      items: [
+        { page: "overview", label: uiCopy.desktop.labels.overview, icon: "grid" },
+        { page: "runs", label: uiCopy.desktop.labels.runs, icon: "play" },
+        { page: "workflows", label: uiCopy.desktop.labels.workflowCases, icon: "workflow" },
+        { page: "god-mode", label: uiCopy.desktop.labels.quickApproval, icon: "zap" },
+      ],
+    },
+    {
+      title: uiCopy.desktop.sectionGovernance,
+      items: [
+        { page: "events", label: uiCopy.desktop.labels.events, icon: "activity" },
+        { page: "agents", label: uiCopy.desktop.labels.agents, icon: "bot" },
+        { page: "reviews", label: uiCopy.desktop.labels.reviews, icon: "check" },
+        { page: "change-gates", label: uiCopy.desktop.labels.diffGate, icon: "shield" },
+        { page: "tests", label: uiCopy.desktop.labels.tests, icon: "test" },
+        { page: "contracts", label: uiCopy.desktop.labels.contracts, icon: "file" },
+        { page: "policies", label: uiCopy.desktop.labels.policies, icon: "lock" },
+        { page: "locks", label: uiCopy.desktop.labels.locks, icon: "key" },
+        { page: "worktrees", label: uiCopy.desktop.labels.worktrees, icon: "tree" },
+      ],
+    },
+  ];
+
   return (
     <aside className="sidebar" aria-label="Application navigation">
       <div className="sidebar-brand">
@@ -163,12 +166,12 @@ export function AppSidebar({ activePage, onNavigate }: AppSidebarProps) {
           className="brand-link sidebar-brand-reset"
           onClick={() => onNavigate("pm")}
         >
-          CortexPilot Command Tower
+          {uiCopy.brandTitle}
         </Button>
-        <p className="sidebar-subtitle">Local-first task execution product</p>
+        <p className="sidebar-subtitle">{uiCopy.brandSubtitle}</p>
       </div>
       <nav className="sidebar-nav" aria-label="Page group navigation">
-        {NAV_SECTIONS.map((section) => (
+        {navSections.map((section) => (
           <section key={section.title} className="sidebar-section">
             <h2 className="sidebar-section-title">{section.title}</h2>
             <ul className="sidebar-list">

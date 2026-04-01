@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { buildTaskPackFieldStateForPack, findTaskPackByTemplate } from "../../../lib/types";
 import { resolvePmJourneyContext } from "../../../lib/pmStageResolver";
 import { usePMLayoutShortcuts } from "./usePMLayoutShortcuts";
@@ -67,6 +67,7 @@ export function usePMIntakeView(state: PMIntakeDataState, actions: PMIntakeActio
     () => sessionHistory.find((item) => item.pm_session_id === intakeId) || null,
     [sessionHistory, intakeId],
   );
+  const preferredTemplateAppliedRef = useRef(false);
 
   const headerHint = useMemo(
     () => resolveHeaderHint({ workspaceBound, intakeId, questionsLength: questions.length, runId }),
@@ -204,6 +205,30 @@ export function usePMIntakeView(state: PMIntakeDataState, actions: PMIntakeActio
     setChatError,
     setChatNotice,
   ]);
+
+  useEffect(() => {
+    if (preferredTemplateAppliedRef.current || typeof window === "undefined") {
+      return;
+    }
+    const preferredTemplate = new URLSearchParams(window.location.search).get("template");
+    if (!preferredTemplate) {
+      return;
+    }
+    const preferredPack = findTaskPackByTemplate(taskPacks, preferredTemplate);
+    if (!preferredPack) {
+      return;
+    }
+    preferredTemplateAppliedRef.current = true;
+    setTaskTemplate(preferredPack.task_template);
+    setTaskPackFieldValuesByTemplate((previous) => ({
+      ...previous,
+      [preferredPack.task_template]: buildTaskPackFieldStateForPack(
+        preferredPack,
+        previous[preferredPack.task_template] || {},
+      ),
+    }));
+    setChatNotice(`Loaded the ${preferredPack.task_template} public example. Preview the Flight Plan or send it as-is.`);
+  }, [taskPacks, setTaskTemplate, setTaskPackFieldValuesByTemplate, setChatNotice]);
 
   const handlePrimaryStageAction = useCallback(() => {
     chatInputRef.current?.focus();

@@ -31,11 +31,11 @@ describe("GodModePage", () => {
     const user = userEvent.setup();
     render(<GodModePage />);
 
-    expect(await screen.findByText("queue unavailable")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "刷新" }));
+    expect(await screen.findByText(/queue unavailable/i)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Refresh" }));
 
     await waitFor(() => {
-      expect(screen.queryByText("queue unavailable")).not.toBeInTheDocument();
+      expect(screen.queryByText(/queue unavailable/i)).not.toBeInTheDocument();
     });
     expect(fetchPendingApprovals).toHaveBeenCalledTimes(2);
   });
@@ -48,12 +48,12 @@ describe("GodModePage", () => {
     const user = userEvent.setup();
     render(<GodModePage />);
 
-    const openButton = await screen.findByRole("button", { name: "批准执行" });
+    const openButton = await screen.findByRole("button", { name: "Approve execution" });
     openButton.focus();
     await user.click(openButton);
 
-    const cancelButton = screen.getByRole("button", { name: "取消" });
-    const confirmButton = screen.getByRole("button", { name: "确认批准" });
+    const cancelButton = screen.getByRole("button", { name: "Cancel" });
+    const confirmButton = screen.getByRole("button", { name: "Confirm approval" });
 
     expect(cancelButton).toHaveFocus();
     await user.keyboard("{Tab}");
@@ -62,22 +62,22 @@ describe("GodModePage", () => {
     expect(cancelButton).toHaveFocus();
 
     await user.keyboard("{Escape}");
-    expect(screen.queryByRole("dialog", { name: "审批确认弹窗" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "Approval confirmation dialog" })).not.toBeInTheDocument();
     expect(openButton).toHaveFocus();
 
     await user.click(openButton);
-    await user.click(screen.getByRole("button", { name: "取消" }));
-    expect(screen.queryByRole("dialog", { name: "审批确认弹窗" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.queryByRole("dialog", { name: "Approval confirmation dialog" })).not.toBeInTheDocument();
     expect(openButton).toHaveFocus();
 
     await user.click(openButton);
-    await user.click(screen.getByRole("button", { name: "确认批准" }));
+    await user.click(screen.getByRole("button", { name: "Confirm approval" }));
 
     await waitFor(() => {
       expect(approveGodMode).toHaveBeenCalledWith("run-001");
-      expect(toast.success).toHaveBeenCalledWith("已批准 run-001");
+      expect(toast.success).toHaveBeenCalledWith("Approved run-001");
     });
-    expect(screen.queryByRole("dialog", { name: "审批确认弹窗" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "Approval confirmation dialog" })).not.toBeInTheDocument();
   });
 
   it("surfaces approve error in confirm flow", async () => {
@@ -87,8 +87,8 @@ describe("GodModePage", () => {
     const user = userEvent.setup();
     render(<GodModePage />);
 
-    await user.click(await screen.findByRole("button", { name: "批准执行" }));
-    await user.click(screen.getByRole("button", { name: "确认批准" }));
+    await user.click(await screen.findByRole("button", { name: "Approve execution" }));
+    await user.click(screen.getByRole("button", { name: "Confirm approval" }));
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith("approve failed");
@@ -109,12 +109,12 @@ describe("GodModePage", () => {
 
     await waitFor(() => {
       expect(approveGodMode).toHaveBeenCalledWith("run-manual");
-      expect(screen.getByText("已批准 run-manual")).toBeInTheDocument();
+      expect(screen.getByText("Approved run-manual")).toBeInTheDocument();
     });
     expect(input).toHaveValue("");
 
     await user.type(input, "run-manual-fail");
-    await user.click(screen.getByRole("button", { name: "批准" }));
+    await user.click(screen.getByRole("button", { name: "Approve" }));
 
     await waitFor(() => {
       expect(approveGodMode).toHaveBeenCalledWith("run-manual-fail");

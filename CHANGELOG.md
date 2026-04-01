@@ -6,6 +6,18 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- closed the Version B command-tower packaging lane by aligning the public
+  front door around Codex, Claude Code, MCP-readable runs, Workflow Cases, and
+  Proof & Replay while syncing the repo description, release wording, Pages
+  source, AI entrypoints, and orchestrator topic docs with the same contract
+- landed the shared locale/copy substrate across the dashboard shell, desktop
+  shell, desktop overview/run detail/command-tower surfaces, and the
+  associated status/CTA helpers so English-first public copy and `zh-CN`
+  operator rendering now flow through one reusable path instead of scattered
+  literals
+- added the read-only MCP and bounded operator-copilot surfaces across the
+  orchestrator, dashboard, desktop, and docs entrypoints, plus a dashboard vs
+  desktop operator-surface parity artifact to guide follow-up closeout slices
 - shipped workflow-case snapshots, proof packs, dedicated run-compare surfaces,
   desktop Flight Plan preview, and timezone-safe queue scheduling inputs across
   orchestrator/dashboard/desktop while syncing schema registry, runtime policy,
@@ -46,6 +58,7 @@ All notable changes to this repository will be documented in this file.
 - aligned remaining dashboard regression tests with the live English-first PM and Command Tower copy instead of legacy Chinese labels
 - filtered secret-scan history noise down to a narrow set of known synthetic placeholder findings and removed the live embedded-credential sample from the external web probe tests
 - added a machine-readable Python audit ignore contract for unfixed upstream advisories and taught the dependency gate to downgrade only those entries when `pip-audit` reports no fix version
+- promoted `pygments` to `2.20.0` inside the orchestrator lock input, regenerated `apps/orchestrator/uv.lock`, and emptied the stale `pip_audit_ignored_advisories.json` entry now that a patched release exists
 - taught `install_dashboard_deps.sh` to recover from `ERR_PNPM_ENOSPC` by retrying with a workspace-local pnpm store and hardlink imports on self-hosted `main` validation lanes
 - taught `install_desktop_deps.sh` to recover from `ERR_PNPM_ENOSPC` with the same workspace-local retry strategy, while scoping hardlink imports to the recovery attempt and using per-attempt workspace retry stores
 - taught `scripts/docker_ci.sh` to retry Docker daemon prechecks with bounded backoff so transient self-hosted socket refusal no longer fail-closes CI at the first probe

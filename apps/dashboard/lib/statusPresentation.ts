@@ -1,20 +1,34 @@
 import {
   badgeClassFromVariant,
-  stageCtaZhFromCanonical,
-  stageLabelZhFromCanonical,
+  formatUiDateTime,
+  type UiLocale,
+  normalizeUiLocale,
+  stageCtaFromCanonical,
+  stageLabelFromCanonical,
   stageVariantFromCanonical,
-  statusCtaZhFromCanonical,
+  statusCtaFromCanonical,
+  statusLabelFromCanonical,
   statusDotClassFromVariant,
-  statusLabelZhFromCanonical,
   statusVariantFromCanonical,
   toCanonicalStage,
   toCanonicalStatusFuzzy,
 } from "@cortexpilot/frontend-shared/statusPresentation";
 
 export { knownOutcomeTypeLabelZh, outcomeTypeLabelZh } from "@cortexpilot/frontend-shared/statusPresentation";
+export type { UiLocale } from "@cortexpilot/frontend-shared/statusPresentation";
+
+export const DASHBOARD_DEFAULT_LOCALE: UiLocale = "en";
+
+export function statusLabel(status: string | undefined | null, locale: string | undefined | null = DASHBOARD_DEFAULT_LOCALE): string {
+  return statusLabelFromCanonical(toCanonicalStatusFuzzy(status), normalizeUiLocale(locale));
+}
+
+export function statusLabelDefault(status: string | undefined | null): string {
+  return statusLabel(status, DASHBOARD_DEFAULT_LOCALE);
+}
 
 export function statusLabelZh(status: string | undefined | null): string {
-  return statusLabelZhFromCanonical(toCanonicalStatusFuzzy(status));
+  return statusLabel(status, "zh-CN");
 }
 
 export function statusVariant(status: string | undefined | null) {
@@ -30,7 +44,7 @@ export function badgeClass(status: string | undefined | null): string {
 }
 
 export function stageLabelZh(stage: string | undefined | null): string {
-  return stageLabelZhFromCanonical(toCanonicalStage(stage));
+  return stageLabelFromCanonical(toCanonicalStage(stage), DASHBOARD_DEFAULT_LOCALE);
 }
 
 export function stageVariant(stage: string | undefined | null) {
@@ -38,9 +52,17 @@ export function stageVariant(stage: string | undefined | null) {
 }
 
 export function statusCtaZh(status: string | undefined | null): string {
-  return statusCtaZhFromCanonical(toCanonicalStatusFuzzy(status));
+  return statusCtaFromCanonical(toCanonicalStatusFuzzy(status), DASHBOARD_DEFAULT_LOCALE);
 }
 
 export function stageCtaZh(stage: string | undefined | null): string {
-  return stageCtaZhFromCanonical(toCanonicalStage(stage));
+  return stageCtaFromCanonical(toCanonicalStage(stage), DASHBOARD_DEFAULT_LOCALE);
+}
+
+export function formatDashboardDateTime(
+  value: string | undefined | null,
+  locale: string | undefined | null = DASHBOARD_DEFAULT_LOCALE,
+  options?: Intl.DateTimeFormatOptions,
+): string {
+  return formatUiDateTime(value, locale, options);
 }

@@ -6,6 +6,18 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
+    "baseUrl": ".",
+    "paths": {
+      "@cortexpilot/frontend-shared/uiCopy": [
+        "../../packages/frontend-shared/uiCopy.ts"
+      ],
+      "@cortexpilot/frontend-shared/uiLocale": [
+        "../../packages/frontend-shared/uiLocale.ts"
+      ],
+      "@cortexpilot/frontend-shared/types": [
+        "../../packages/frontend-shared/types.ts"
+      ]
+    },
     "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
     "isolatedModules": true,

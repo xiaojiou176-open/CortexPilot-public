@@ -1,12 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { JsonValue } from "../lib/types";
-import { fetchPendingApprovals, approveGodMode } from "../lib/api";
 import { toast } from "sonner";
-import { Button } from "../components/ui/Button";
+import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
+import type { JsonValue } from "../lib/types";
+import { approveGodMode, fetchPendingApprovals } from "../lib/api";
 import { Badge } from "../components/ui/Badge";
+import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 
-export function GodModePage() {
+type GodModePageProps = {
+  locale?: UiLocale;
+};
+
+export function GodModePage({ locale = DEFAULT_UI_LOCALE }: GodModePageProps) {
+  const approvalCopy = getUiCopy(locale).desktop.approval;
   const [pending, setPending] = useState<Array<Record<string, JsonValue>>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -20,25 +26,51 @@ export function GodModePage() {
   const confirmTriggerRef = useRef<HTMLElement | null>(null);
 
   const load = useCallback(async () => {
-    setLoading(true); setError("");
-    try { const data = await fetchPendingApprovals(); setPending(Array.isArray(data) ? data : []); }
-    catch (err) { setError(err instanceof Error ? err.message : String(err)); } finally { setLoading(false); }
+    setLoading(true);
+    setError("");
+    try {
+      const data = await fetchPendingApprovals();
+      setPending(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
   }, []);
-  useEffect(() => { void load(); }, [load]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   async function handleApprove(runId: string) {
-    setActionBusy(true); setConfirmRunId(null);
-    try { await approveGodMode(runId); toast.success(`Approved ${runId}`); void load(); }
-    catch (err) { toast.error(err instanceof Error ? err.message : String(err)); }
-    finally { setActionBusy(false); }
+    setActionBusy(true);
+    setConfirmRunId(null);
+    try {
+      await approveGodMode(runId);
+      toast.success(approvalCopy.approvedToast(runId));
+      void load();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    } finally {
+      setActionBusy(false);
+    }
   }
 
   async function handleManualApprove() {
     if (!manualRunId.trim()) return;
-    setActionBusy(true); setManualStatus(null);
-    try { await approveGodMode(manualRunId.trim()); setManualStatus({ ok: true, msg: `Approved ${manualRunId.trim()}` }); setManualRunId(""); void load(); }
-    catch (err) { setManualStatus({ ok: false, msg: err instanceof Error ? err.message : String(err) }); }
-    finally { setActionBusy(false); }
+    setActionBusy(true);
+    setManualStatus(null);
+    try {
+      const trimmedRunId = manualRunId.trim();
+      await approveGodMode(trimmedRunId);
+      setManualStatus({ ok: true, msg: approvalCopy.approvedToast(trimmedRunId) });
+      setManualRunId("");
+      void load();
+    } catch (err) {
+      setManualStatus({ ok: false, msg: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setActionBusy(false);
+    }
   }
 
   function openConfirmDialog(runId: string) {
@@ -141,12 +173,32 @@ export function GodModePage() {
 
   return (
     <div className="content">
-      <div className="section-header"><div><h2 className="page-title">Fast Approval</h2><p className="page-subtitle">God Mode: CRITICAL runs waiting for manual approval</p></div><Button onClick={load}>Refresh</Button></div>
-      {error && <div className="alert alert-danger">{error}</div>}
+      <div className="section-header">
+        <div>
+          <h2 className="page-title">{approvalCopy.pageTitle}</h2>
+          <p className="page-subtitle">{approvalCopy.pageSubtitle}</p>
+        </div>
+        <Button onClick={load}>{approvalCopy.refresh}</Button>
+      </div>
+      <div className="alert alert-warning">
+        {approvalCopy.warningBanner}
+      </div>
+      {error && <div className="alert alert-danger">Pending approvals queue is temporarily unavailable: {error}</div>}
 
       <div className="god-mode-panel">
-        <div className="god-mode-header"><h2>Approval Queue</h2><Badge variant="warning">{pending.length} pending</Badge></div>
-        {loading ? <div className="skeleton-stack"><div className="skeleton skeleton-card-tall" /></div> : pending.length === 0 ? <div className="empty-state-stack"><p className="muted">No runs are waiting for approval</p></div> : (
+        <div className="god-mode-header">
+          <h2>{approvalCopy.queueTitle}</h2>
+          <Badge variant="warning">{approvalCopy.pendingBadge(pending.length)}</Badge>
+        </div>
+        {loading ? (
+          <div className="skeleton-stack">
+            <div className="skeleton skeleton-card-tall" />
+          </div>
+        ) : pending.length === 0 ? (
+          <div className="empty-state-stack">
+            <p className="muted">{approvalCopy.noPendingText}</p>
+          </div>
+        ) : (
           <div className="god-mode-queue">
             {pending.map((item, i) => {
               const runId = String(item.run_id || "");
@@ -156,11 +208,36 @@ export function GodModePage() {
               const approvalSummary = approvalPack ? String(approvalPack.summary || "").trim() : "";
               return (
                 <div key={i} className="god-mode-item">
-                  <div className="god-mode-item-header"><code>{runId || `Task ${i + 1}`}</code><Badge variant="failed">CRITICAL</Badge></div>
-                  {approvalSummary ? <div className="god-mode-detail"><span className="god-mode-detail-label">Summary</span><span>{approvalSummary}</span></div> : null}
-                  {item.task_id && <div className="god-mode-detail"><span className="god-mode-detail-label">Task ID</span><span className="mono">{String(item.task_id)}</span></div>}
-                  {item.failure_reason && <div className="god-mode-detail"><span className="god-mode-detail-label">Failure reason</span><span className="cell-danger">{String(item.failure_reason)}</span></div>}
-                  <Button variant="primary" className="god-mode-approve-btn" disabled={actionBusy} onClick={() => openConfirmDialog(runId)}>Approve execution</Button>
+                  <div className="god-mode-item-header">
+                    <code>{runId || `Task ${i + 1}`}</code>
+                    <Badge variant="failed">{approvalCopy.criticalBadge}</Badge>
+                  </div>
+                  {approvalSummary ? (
+                    <div className="god-mode-detail">
+                      <span className="god-mode-detail-label">{approvalCopy.summaryLabel}</span>
+                      <span>{approvalSummary}</span>
+                    </div>
+                  ) : null}
+                  {item.task_id && (
+                    <div className="god-mode-detail">
+                      <span className="god-mode-detail-label">{approvalCopy.taskIdLabel}</span>
+                      <span className="mono">{String(item.task_id)}</span>
+                    </div>
+                  )}
+                  {item.failure_reason && (
+                    <div className="god-mode-detail">
+                      <span className="god-mode-detail-label">{approvalCopy.failureReasonLabel}</span>
+                      <span className="cell-danger">{String(item.failure_reason)}</span>
+                    </div>
+                  )}
+                  <Button
+                    variant="primary"
+                    className="god-mode-approve-btn"
+                    disabled={actionBusy}
+                    onClick={() => openConfirmDialog(runId)}
+                  >
+                    {approvalCopy.approveExecution}
+                  </Button>
                 </div>
               );
             })}
@@ -168,12 +245,23 @@ export function GodModePage() {
         )}
 
         <div className="god-mode-manual">
-          <h3 className="god-mode-manual-title">Manual Approval Input</h3>
-          <p className="god-mode-hint">Enter a Run ID to approve a task that is not currently listed in the queue</p>
+          <h3 className="god-mode-manual-title">{approvalCopy.manualInputTitle}</h3>
+          <p className="god-mode-hint">{approvalCopy.manualInputHint}</p>
           <div className="god-mode-input-row">
-            <label htmlFor={manualRunIdInputId} className="sr-only">Run ID</label>
-            <Input id={manualRunIdInputId} name="run_id" placeholder="Enter Run ID" value={manualRunId} onChange={(e) => setManualRunId(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void handleManualApprove(); }} />
-            <Button variant="primary" disabled={actionBusy || !manualRunId.trim()} onClick={handleManualApprove}>Approve</Button>
+            <label htmlFor={manualRunIdInputId} className="sr-only">{approvalCopy.runIdLabel}</label>
+            <Input
+              id={manualRunIdInputId}
+              name="run_id"
+              placeholder={approvalCopy.runIdPlaceholder}
+              value={manualRunId}
+              onChange={(e) => setManualRunId(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") void handleManualApprove();
+              }}
+            />
+            <Button variant="primary" disabled={actionBusy || !manualRunId.trim()} onClick={handleManualApprove}>
+              {approvalCopy.approve}
+            </Button>
           </div>
           {manualStatus && <div className={`god-mode-status ${manualStatus.ok ? "" : "is-error"}`}>{manualStatus.msg}</div>}
         </div>
@@ -184,15 +272,24 @@ export function GodModePage() {
           <Button
             variant="unstyled"
             className="god-mode-confirm-backdrop"
-            aria-label="Close approval confirmation dialog"
+            aria-label={approvalCopy.closeConfirmDialogAriaLabel}
             onClick={closeConfirmDialog}
           />
-          <div className="god-mode-confirm-card" role="dialog" aria-modal="true" aria-label="Approval confirmation dialog" ref={confirmDialogRef} tabIndex={-1}>
-            <h3>Confirm approval</h3>
-            <p>Approve run <strong className="mono">{confirmRunId}</strong>? This action cannot be undone.</p>
+          <div
+            className="god-mode-confirm-card"
+            role="dialog"
+            aria-modal="true"
+            aria-label={approvalCopy.confirmDialogAriaLabel}
+            ref={confirmDialogRef}
+            tabIndex={-1}
+          >
+            <h3>{approvalCopy.confirmTitle}</h3>
+            <p>{approvalCopy.confirmDescription(confirmRunId)}</p>
             <div className="god-mode-confirm-actions">
-              <Button ref={confirmCancelButtonRef} onClick={closeConfirmDialog}>Cancel</Button>
-              <Button variant="primary" disabled={actionBusy} onClick={() => handleApprove(confirmRunId)}>Confirm approval</Button>
+              <Button ref={confirmCancelButtonRef} onClick={closeConfirmDialog}>{approvalCopy.cancel}</Button>
+              <Button variant="primary" disabled={actionBusy} onClick={() => handleApprove(confirmRunId)}>
+                {approvalCopy.confirmApproval}
+              </Button>
             </div>
           </div>
         </div>

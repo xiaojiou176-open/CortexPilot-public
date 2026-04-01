@@ -4,6 +4,7 @@ import { Badge } from "../../components/ui/badge";
 import { Card } from "../../components/ui/card";
 import { fetchQueue, fetchWorkflows } from "../../lib/api";
 import { safeLoad } from "../../lib/serverPageData";
+import WorkflowQueueMutationControls from "./WorkflowQueueMutationControls";
 
 function statusLabelEn(status: string | undefined): string {
   const normalized = String(status || "").trim().toLowerCase();
@@ -40,25 +41,64 @@ export default async function WorkflowsPage() {
     }
     queueByWorkflow.set(workflowId, [...(queueByWorkflow.get(workflowId) || []), item]);
   }
+  const eligibleQueueCount = queueItems.filter((item) => {
+    if (Boolean(item.eligible) || String(item.queue_state || "") === "eligible") {
+      return true;
+    }
+    const status = String(item.status || "").toUpperCase();
+    return status === "PENDING";
+  }).length;
+  const atRiskQueueCount = queueItems.filter((item) => {
+    const state = String(item.sla_state || "").toLowerCase();
+    return state === "at_risk" || state === "breached";
+  }).length;
+  const queuedWorkflowCount = new Set(
+    queueItems.map((item) => String(item.workflow_id || "").trim()).filter(Boolean),
+  ).size;
+  const recommendedActionText =
+    eligibleQueueCount > 0
+      ? "Run the next queued task to move the active Workflow Case chain forward."
+      : queueItems.length > 0
+      ? "Review queue timing and SLA state, then dispatch when the next case becomes eligible."
+      : workflows.length > 0
+      ? "Open a Workflow Case and queue the latest run contract to start the next operator loop."
+      : "Create the first Workflow Case from PM intake, then return here to dispatch queued work.";
 
   return (
     <main className="grid" aria-labelledby="workflows-page-title">
       <header className="app-section">
         <div className="section-header">
           <div>
-            <h1 id="workflows-page-title" className="page-title">Workflows</h1>
-            <p className="page-subtitle">Review workflow cases, linked runs, and the latest operating verdict from one page.</p>
+            <h1 id="workflows-page-title" className="page-title">Workflow Cases</h1>
+            <p className="page-subtitle">Workflow Cases are the operating record tying queue, linked runs, verdict, and later Proof &amp; Replay decisions to the same objective.</p>
           </div>
           <Badge>{workflows.length} workflows / {queueItems.length} queue items</Badge>
         </div>
+        <WorkflowQueueMutationControls queueCount={queueItems.length} eligibleCount={eligibleQueueCount} compact />
       </header>
+      <section className="stats-grid" aria-label="Workflow Case operator summary">
+        <article className="metric-card">
+          <p className="metric-label">Workflow Cases</p>
+          <p className="metric-value">{workflows.length}</p>
+          <p className="cell-sub mono muted">Cases with queued work: {queuedWorkflowCount}</p>
+        </article>
+        <article className="metric-card">
+          <p className="metric-label">Queue / SLA</p>
+          <p className="metric-value">{queueItems.length}</p>
+          <p className="cell-sub mono muted">Eligible now: {eligibleQueueCount} / at risk: {atRiskQueueCount}</p>
+        </article>
+        <article className="metric-card">
+          <p className="metric-label">Next recommended action</p>
+          <p className="cell-sub mono muted">{recommendedActionText}</p>
+        </article>
+      </section>
       <section className="app-section" aria-label="Workflow list">
         {warning ? <p className="alert alert-warning" role="status">{warning}</p> : null}
         {workflows.length === 0 ? (
           <Card>
             <div className="empty-state-stack">
-              <span className="muted">No workflows yet</span>
-              <span className="mono muted">A workflow case is created automatically on first execution.</span>
+              <span className="muted">No workflow cases yet</span>
+              <span className="mono muted">A Workflow Case is opened automatically on first execution.</span>
             </div>
           </Card>
         ) : (

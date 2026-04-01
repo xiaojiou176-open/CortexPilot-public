@@ -3,23 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { approveGodMode, fetchPendingApprovals, mutationExecutionCapability } from "../lib/api";
 import { sanitizeUiError, uiErrorDetail } from "../lib/uiError";
+import { useDashboardLocale } from "./DashboardLocaleContext";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import Link from "next/link";
+import { formatDashboardDateTime } from "../lib/statusPresentation";
 
 type QueueUiState = "loading" | "error" | "pending" | "idle";
-
-function formatLocalTime(iso: string | null): string {
-  if (!iso) {
-    return "--";
-  }
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) {
-    return "--";
-  }
-  return date.toLocaleTimeString("zh-CN", { hour12: false });
-}
 
 function inferQueueUiState(pendingLoading: boolean, pendingError: string | null, pendingCount: number): QueueUiState {
   if (pendingLoading) return "loading";
@@ -28,16 +19,25 @@ function inferQueueUiState(pendingLoading: boolean, pendingError: string | null,
   return "idle";
 }
 
-function queueBadgeMeta(state: QueueUiState, pendingCount: number): { variant: "running" | "failed" | "warning" | "success"; text: string } {
+function queueBadgeMeta(
+  state: QueueUiState,
+  pendingCount: number,
+  text: {
+    loading: string;
+    error: string;
+    idle: string;
+    pending: (count: number) => string;
+  },
+): { variant: "running" | "failed" | "warning" | "success"; text: string } {
   switch (state) {
     case "loading":
-      return { variant: "running", text: "Refreshing" };
+      return { variant: "running", text: text.loading };
     case "error":
-      return { variant: "failed", text: "Load failed" };
+      return { variant: "failed", text: text.error };
     case "pending":
-      return { variant: "warning", text: `${pendingCount} pending approvals` };
+      return { variant: "warning", text: text.pending(pendingCount) };
     default:
-      return { variant: "success", text: "No pending items" };
+      return { variant: "success", text: text.idle };
   }
 }
 
@@ -47,6 +47,8 @@ function isAuthRelatedError(errorText: string): boolean {
 }
 
 export default function GodModePanel() {
+  const { locale, uiCopy } = useDashboardLocale();
+  const approvalCopy = uiCopy.dashboard.approval;
   const [runId, setRunId] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [statusTone, setStatusTone] = useState<"success" | "error" | "info">("info");
@@ -67,7 +69,12 @@ export default function GodModePanel() {
   const hasMutationRole = mutationCapability.executable;
   const roleGateReason = hasMutationRole ? "" : "NEXT_PUBLIC_CORTEXPILOT_OPERATOR_ROLE is not configured. Approval actions are disabled.";
   const queueState = inferQueueUiState(pendingLoading, pendingError, pending.length);
-  const queueBadge = queueBadgeMeta(queueState, pending.length);
+  const queueBadge = queueBadgeMeta(queueState, pending.length, {
+    loading: approvalCopy.queueLoadingBadge,
+    error: approvalCopy.queueLoadFailedBadge,
+    idle: approvalCopy.queueIdleBadge,
+    pending: approvalCopy.queuePendingBadge,
+  });
   const hasPendingLoadError = Boolean(pendingError);
   const pendingErrorIsAuth = pendingError ? isAuthRelatedError(pendingError) : false;
 
@@ -79,7 +86,7 @@ export default function GodModePanel() {
     setPendingLastAttemptAt(attemptAt);
     if (!preserveStatus) {
       setStatusTone("info");
-      setStatus(trigger === "retry" ? "Retrying pending approvals queue..." : "Refreshing pending approvals queue...");
+      setStatus(trigger === "retry" ? approvalCopy.statusRetryingQueue : approvalCopy.statusRefreshingQueue);
     }
     try {
       const items = await fetchPendingApprovals();
@@ -88,7 +95,7 @@ export default function GodModePanel() {
       setPendingLastSuccessAt(new Date().toISOString());
       if (!preserveStatus) {
         setStatusTone("success");
-        setStatus(`Pending approvals queue refreshed. ${Array.isArray(items) ? items.length : 0} item(s).`);
+        setStatus(approvalCopy.statusQueueRefreshed(Array.isArray(items) ? items.length : 0));
       }
     } catch (err: unknown) {
       console.error(`[god-mode] load-pending failed: ${uiErrorDetail(err)}`);
@@ -98,19 +105,11 @@ export default function GodModePanel() {
       setPending([]);
       if (!preserveStatus) {
         setStatusTone("error");
-        if (trigger === "retry") {
-          setStatus(
-            isAuthError
-              ? `Retry failed: ${normalizedError}. Confirm permissions or sign in again before retrying.`
-              : `Retry failed: ${normalizedError}.`,
-          );
-        } else {
-          setStatus(
-            isAuthError
-              ? `Pending approvals queue refresh failed: ${normalizedError}. Confirm permissions or sign in again before retrying.`
-              : "Pending approvals queue refresh failed. Resolve the error and retry.",
-          );
-        }
+        setStatus(
+          trigger === "retry"
+            ? approvalCopy.statusRetryFailed(normalizedError, isAuthError)
+            : approvalCopy.statusRefreshFailed(normalizedError, isAuthError),
+        );
       }
     } finally {
       setPendingLoading(false);
@@ -130,21 +129,21 @@ export default function GodModePanel() {
     const targetRunId = runId.trim();
     if (!targetRunId) {
       setStatusTone("error");
-      setStatus("Enter run_id before approving.");
+      setStatus(approvalCopy.statusEnterRunId);
       return;
     }
     setManualApproving(true);
     setStatusTone("info");
-    setStatus("Submitting approval...");
+    setStatus(approvalCopy.statusSubmittingApproval);
     try {
       await approveGodMode(targetRunId);
       setStatusTone("success");
-      setStatus("Approved.");
+      setStatus(approvalCopy.statusApproved);
       await loadPending({ preserveStatus: true });
     } catch (err: unknown) {
       console.error(`[god-mode] approve failed: ${uiErrorDetail(err)}`);
       setStatusTone("error");
-      setStatus(`Failed: ${sanitizeUiError(err, "Approval failed")}`);
+      setStatus(approvalCopy.statusFailed(sanitizeUiError(err, "Approval failed")));
     } finally {
       setManualApproving(false);
     }
@@ -270,16 +269,16 @@ export default function GodModePanel() {
     setRunId(targetRunId);
     setApprovingRunId(targetRunId);
     setStatusTone("info");
-    setStatus("Submitting approval...");
+    setStatus(approvalCopy.statusSubmittingApproval);
     try {
       await approveGodMode(targetRunId);
       setStatusTone("success");
-      setStatus("Approved.");
+      setStatus(approvalCopy.statusApproved);
       await loadPending({ preserveStatus: true });
     } catch (err: unknown) {
       console.error(`[god-mode] approve-item failed: ${uiErrorDetail(err)}`);
       setStatusTone("error");
-      setStatus(`Failed: ${sanitizeUiError(err, "Approval failed")}`);
+      setStatus(approvalCopy.statusFailed(sanitizeUiError(err, "Approval failed")));
     } finally {
       setApprovingRunId(null);
     }
@@ -288,17 +287,20 @@ export default function GodModePanel() {
   return (
     <section className="god-mode-panel" aria-labelledby="god-mode-title">
       <header className="god-mode-header">
-        <h2 id="god-mode-title">God Mode</h2>
+        <h2 id="god-mode-title">{approvalCopy.panelTitle}</h2>
         <Badge variant={queueBadge.variant} data-testid="god-mode-queue-badge">
           {queueBadge.text}
         </Badge>
       </header>
-      <div className="god-mode-detail" role="group" aria-label="Approval role configuration">
-        <span className="god-mode-detail-label">Operator role</span>
+      <p className="mono muted">
+        {approvalCopy.panelIntro}
+      </p>
+      <div className="god-mode-detail" role="group" aria-label={approvalCopy.roleConfigurationAriaLabel}>
+        <span className="god-mode-detail-label">{approvalCopy.operatorRoleLabel}</span>
         <div className="god-mode-input-row">
           <Input
-            value={normalizedRole || "Not configured"}
-            aria-label="Operator role"
+            value={normalizedRole || approvalCopy.operatorRoleUnconfigured}
+            aria-label={approvalCopy.operatorRoleLabel}
             data-testid="god-mode-role-select"
             readOnly
           />
@@ -308,26 +310,29 @@ export default function GodModePanel() {
             disabled={pendingLoading}
             data-testid="god-mode-refresh-pending"
           >
-            {pendingLoading ? "Refreshing..." : "Refresh pending approvals"}
+            {pendingLoading ? approvalCopy.refreshingPending : approvalCopy.refreshPending}
           </Button>
         </div>
         <span className="mono muted" data-testid="god-mode-last-success-at">
-          Last successful refresh: {formatLocalTime(pendingLastSuccessAt)}
+          {approvalCopy.lastSuccessfulRefreshPrefix} {formatDashboardDateTime(pendingLastSuccessAt, locale, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })}
         </span>
         {!hasMutationRole ? (
-          <span className="mono muted" data-testid="god-mode-role-tip">{roleGateReason}</span>
+          <div className="alert alert-warning" data-testid="god-mode-role-tip">
+            <strong>{approvalCopy.actionsDisabledTitle}</strong>
+            <span>{roleGateReason}</span>
+          </div>
         ) : null}
       </div>
 
       {hasPendingLoadError && (
         <div className="god-mode-detail" role="alert" aria-live="assertive">
           <div className="grid">
-            <span className="god-mode-detail-label">{pendingError}</span>
+            <span className="god-mode-detail-label">{approvalCopy.pendingTruthUnavailable(String(pendingError || ""))}</span>
             <span className="mono muted">
-              Recovery tip: confirm the login state and approval role before retrying.
+              {approvalCopy.recoveryTip}
             </span>
             <span className="mono muted" data-testid="god-mode-last-attempt-at">
-              Last attempt: {formatLocalTime(pendingLastAttemptAt)}
+              {approvalCopy.lastAttemptPrefix} {formatDashboardDateTime(pendingLastAttemptAt, locale, { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false })}
             </span>
           </div>
           <div className="toolbar mt-2">
@@ -337,14 +342,14 @@ export default function GodModePanel() {
               disabled={pendingLoading}
               data-testid="god-mode-retry-pending"
             >
-              {pendingLoading ? "Retrying..." : "Retry fetch"}
+              {pendingLoading ? approvalCopy.retryingFetch : approvalCopy.retryFetch}
             </Button>
             <Button asChild variant="secondary">
-              <Link href="/pm">Open PM session to inspect connection</Link>
+              <Link href="/pm">{approvalCopy.inspectConnection}</Link>
             </Button>
             {pendingErrorIsAuth ? (
               <Button asChild variant="ghost">
-                <Link href="/command-tower">Open Command Tower to verify auth state</Link>
+                <Link href="/command-tower">{approvalCopy.verifyAuthState}</Link>
               </Button>
             ) : null}
           </div>
@@ -353,12 +358,12 @@ export default function GodModePanel() {
 
       {pendingLoading ? (
         <div className="mono muted" role="status" aria-live="polite" data-testid="god-mode-loading-state">
-          Loading pending approvals...
+          {approvalCopy.loadingPending}
         </div>
       ) : null}
 
       {pending.length > 0 && (
-        <div className="god-mode-queue" role="list" aria-label="Pending approvals queue">
+        <div className="god-mode-queue" role="list" aria-label={approvalCopy.pendingQueueAriaLabel}>
           {pending.map((item) => (
             <article key={String(item.run_id || "")} className="god-mode-item" role="listitem">
               <div className="god-mode-item-header">
@@ -370,7 +375,7 @@ export default function GodModePanel() {
               ) : null}
               {Array.isArray(item.reason) && item.reason.length > 0 && (
                 <div className="god-mode-detail">
-                  <span className="god-mode-detail-label">Reason</span>
+                  <span className="god-mode-detail-label">{approvalCopy.reasonLabel}</span>
                   <ul className="god-mode-detail-list">
                     {item.reason.map((r, i) => <li key={i}>{String(r)}</li>)}
                   </ul>
@@ -378,7 +383,7 @@ export default function GodModePanel() {
               )}
               {Array.isArray(item.actions) && item.actions.length > 0 && (
                 <div className="god-mode-detail">
-                  <span className="god-mode-detail-label">Required action</span>
+                  <span className="god-mode-detail-label">{approvalCopy.requiredActionLabel}</span>
                   <ul className="god-mode-detail-list">
                     {item.actions.map((a, i) => <li key={i}>{String(a)}</li>)}
                   </ul>
@@ -386,7 +391,7 @@ export default function GodModePanel() {
               )}
               {item.resume_step && (
                 <p className="god-mode-resume">
-                  Resume at: <code>{String(item.resume_step)}</code>
+                  {approvalCopy.resumeAtLabel}: <code>{String(item.resume_step)}</code>
                 </p>
               )}
               <Button
@@ -395,7 +400,7 @@ export default function GodModePanel() {
                 onClick={(event) => requestApproveItem(String(item.run_id), event.currentTarget)}
                 disabled={!hasMutationRole || pendingLoading || approvingRunId === String(item.run_id)}
               >
-                {approvingRunId === String(item.run_id) ? "Approving..." : "I am done, continue"}
+                {approvingRunId === String(item.run_id) ? approvalCopy.continuingButton : approvalCopy.continueButton}
               </Button>
             </article>
           ))}
@@ -404,22 +409,22 @@ export default function GodModePanel() {
 
       <div className="god-mode-manual">
         <p className="god-mode-hint">
-          When the event stream shows HUMAN_APPROVAL_REQUIRED, paste the run_id and approve it. The action will be written to the event log.
+          {approvalCopy.manualHint}
         </p>
         <label className="sr-only" htmlFor="god-mode-run-id">
-          Run ID
+          {approvalCopy.runIdLabel}
         </label>
         <div className="god-mode-input-row">
           <Input
             id="god-mode-run-id"
             name="run_id"
-            placeholder="Paste run_id..."
+            placeholder={approvalCopy.runIdPlaceholder}
             value={runId}
             onChange={(e) => setRunId(e.target.value)}
-            aria-label="Run ID"
+            aria-label={approvalCopy.runIdLabel}
           />
           <Button variant="default" onClick={handleApprove} disabled={!runId.trim() || !hasMutationRole || manualApproving}>
-            {manualApproving ? "Approving..." : "Approve"}
+            {manualApproving ? approvalCopy.approvingButton : approvalCopy.approveButton}
           </Button>
         </div>
       </div>
@@ -437,13 +442,13 @@ export default function GodModePanel() {
       {confirmTarget && (
         <div className="god-mode-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="god-mode-confirm-title">
           <div className="god-mode-confirm-card" ref={confirmDialogRef} tabIndex={-1}>
-            <h3 id="god-mode-confirm-title">Confirm approval</h3>
+            <h3 id="god-mode-confirm-title">{approvalCopy.confirmTitle}</h3>
             <p>
-              Approve <code className="mono">{confirmTarget}</code> to continue execution? This action writes to the event log and cannot be undone.
+              {approvalCopy.confirmDescription(confirmTarget)}
             </p>
             <div className="god-mode-confirm-actions">
-              <Button variant="ghost" ref={confirmCancelButtonRef} onClick={cancelConfirm}>Cancel</Button>
-              <Button variant="default" onClick={confirmApproveItem}>Confirm approval</Button>
+              <Button variant="ghost" ref={confirmCancelButtonRef} onClick={cancelConfirm}>{approvalCopy.cancel}</Button>
+              <Button variant="default" onClick={confirmApproveItem}>{approvalCopy.confirmApproval}</Button>
             </div>
           </div>
         </div>

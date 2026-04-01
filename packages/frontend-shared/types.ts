@@ -163,6 +163,48 @@ export type ExecutionPlanReport = {
   contract_preview: RunContract;
 };
 
+export type OperatorCopilotBrief = {
+  report_type: "operator_copilot_brief";
+  generated_at: string;
+  scope?: "run" | "workflow" | "flight_plan";
+  subject_id: string;
+  run_id?: string;
+  workflow_id?: string;
+  intake_id?: string;
+  status: "OK" | "UNAVAILABLE";
+  summary: string;
+  likely_cause: string;
+  compare_takeaway: string;
+  proof_takeaway: string;
+  incident_takeaway: string;
+  queue_takeaway: string;
+  approval_takeaway: string;
+  recommended_actions: string[];
+  top_risks: string[];
+  questions_answered: string[];
+  used_truth_surfaces: string[];
+  limitations: string[];
+  provider: string;
+  model: string;
+};
+
+export type FlightPlanCopilotBrief = {
+  report_type: "flight_plan_copilot_brief";
+  generated_at: string;
+  status: "OK" | "UNAVAILABLE";
+  summary: string;
+  risk_takeaway: string;
+  capability_takeaway: string;
+  approval_takeaway: string;
+  recommended_actions: string[];
+  top_risks: string[];
+  questions_answered: string[];
+  used_truth_surfaces: string[];
+  limitations: string[];
+  provider: string;
+  model: string;
+};
+
 export type RunManifest = {
   failure_reason?: string;
   versions?: { contracts_schema?: string; orchestrator?: string };

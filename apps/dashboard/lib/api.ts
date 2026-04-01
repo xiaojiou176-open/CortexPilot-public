@@ -8,6 +8,7 @@ import type {
   ExecutionPlanReport,
   EventRecord,
   JsonValue,
+  OperatorCopilotBrief,
   PmSessionConversationGraphPayload,
   PmSessionDetailPayload,
   PmSessionMetricsPayload,
@@ -451,4 +452,41 @@ export async function fetchChainSpec(runId: string) {
 
 export async function replayRun(runId: string, baselineRunId?: string) {
   return delegateApi<Record<string, JsonValue>>(() => sharedDashboardApi.replayRun(runId, baselineRunId));
+}
+
+export async function fetchOperatorCopilotBrief(runId: string) {
+  return delegateApi<OperatorCopilotBrief>(() =>
+    sharedDashboardHttp.postJson(`/api/runs/${encodeURIComponent(runId)}/copilot-brief`, {}, "Operator copilot failed"),
+  );
+}
+
+export async function fetchWorkflowCopilotBrief(workflowId: string) {
+  return delegateApi<OperatorCopilotBrief>(() =>
+    sharedDashboardHttp.postJson(
+      `/api/workflows/${encodeURIComponent(workflowId)}/copilot-brief`,
+      {},
+      "Workflow copilot failed",
+    ),
+  );
+}
+
+export async function fetchFlightPlanCopilotBrief(preview: ExecutionPlanReport, intakeId = "") {
+  return delegateApi<OperatorCopilotBrief>(() =>
+    sharedDashboardHttp.postJson(
+      "/api/pm/intake/preview/copilot-brief",
+      {
+        ...(preview as Record<string, JsonValue>),
+        intake_id: intakeId,
+      },
+      "Flight Plan copilot failed",
+    ),
+  );
+}
+
+export const fetchWorkflowOperatorCopilotBrief = fetchWorkflowCopilotBrief;
+export function previewFlightPlanCopilotBrief(
+  executionPlanPreview: ExecutionPlanReport,
+  intakeId = "",
+) {
+  return fetchFlightPlanCopilotBrief(executionPlanPreview, intakeId);
 }

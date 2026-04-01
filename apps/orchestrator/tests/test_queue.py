@@ -187,3 +187,54 @@ def test_queue_store_fails_closed_without_fcntl(tmp_path: Path, monkeypatch: pyt
 
     with pytest.raises(RuntimeError):
         store.enqueue(contract_path, "task-lockless", owner="agent-1")
+
+
+def test_queue_store_without_storage_returns_empty_state(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    queue_path = runtime_root / "missing" / "queue.jsonl"
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+
+    store = QueueStore(queue_path=queue_path, ensure_storage=False)
+
+    assert store.next_pending() is None
+    assert store.list_items() == []
+
+
+def test_queue_store_claim_next_reuses_queue_id_and_returns_none_when_empty(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runtime_root = tmp_path / "runtime"
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+
+    store = QueueStore()
+    contract_path = tmp_path / "contract.json"
+    contract_path.write_text(json.dumps(_valid_contract()), encoding="utf-8")
+
+    store.enqueue(contract_path, "task-claim", owner="agent-1", metadata={"queue_id": "queue-claim", "priority": 3})
+
+    claimed = store.claim_next(run_id="run-claim")
+    assert claimed is not None
+    assert claimed["task_id"] == "task-claim"
+    assert claimed["queue_id"] == "queue-claim"
+    assert claimed["status"] == "CLAIMED"
+    assert store.claim_next(run_id="run-claim-2") is None
+
+
+def test_queue_store_markers_keep_explicit_queue_id(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+
+    store = QueueStore()
+    contract_path = tmp_path / "contract.json"
+    contract_path.write_text(json.dumps(_valid_contract()), encoding="utf-8")
+
+    store.enqueue(contract_path, "task-markers", owner="agent-1")
+
+    claimed = store.mark_claimed("task-markers", run_id="run-markers", queue_id="queue-markers")
+    done = store.mark_done("task-markers", run_id="run-markers", status="SUCCESS", queue_id="queue-markers")
+
+    assert claimed["queue_id"] == "queue-markers"
+    assert done["queue_id"] == "queue-markers"
+    items = {item["task_id"]: item for item in store.list_items()}
+    assert items["task-markers"]["queue_id"] == "queue-markers"

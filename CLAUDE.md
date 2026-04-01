@@ -61,6 +61,12 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   current examples are `.runtime-cache/cortexpilot/workflow-cases/`,
   `proof_pack.json`, dedicated run-compare surfaces, desktop Flight Plan
   preview, and timezone-safe queue scheduling inputs
+- when Version B closeout work changes the public front door, shared locale
+  substrate, read-only MCP exposure, or operator-copilot surfaces, sync
+  `README.md`, `docs/index.html`, `docs/releases/first-public-release-draft.md`,
+  `apps/orchestrator/README.md`, and the root AI entrypoints in the same patch
+  so doc-drift and doc-sync gates keep following the live Command Tower /
+  Workflow Cases / Proof & Replay contract
 
 ## Key Commands
 

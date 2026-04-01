@@ -1,8 +1,9 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 import type { RunDetailPayload, EventRecord, ReportRecord, ToolCallRecord, JsonValue, RunSummary } from "../lib/types";
 import {
   fetchRun, fetchEvents, fetchDiff, fetchReports, fetchToolCalls, fetchChainSpec,
-  fetchAgentStatus, fetchRuns, rollbackRun, rejectRun, replayRun, promoteEvidence,
+  fetchAgentStatus, fetchRuns, rollbackRun, rejectRun, replayRun, promoteEvidence, fetchOperatorCopilotBrief,
   type EventsStream,
   openEventsStream,
 } from "../lib/api";
@@ -21,6 +22,14 @@ import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { Card, CardBody, CardHeader, CardTitle } from "../components/ui/Card";
 import { Select } from "../components/ui/Input";
+import { DesktopCopilotPanel } from "../components/copilot/DesktopCopilotPanel";
+
+const RUN_COPILOT_QUESTIONS = [
+  "Why did this run fail or get blocked?",
+  "What changed compared with the baseline?",
+  "What is the next operator action?",
+  "Where is the workflow or queue risk right now?",
+];
 
 type RunDetailTab = "events" | "diff" | "reports" | "tools" | "chain" | "contract" | "replay";
 
@@ -28,11 +37,18 @@ type RunDetailPageProps = {
   runId: string;
   onBack: () => void;
   onOpenCompare?: () => void;
+  locale?: UiLocale;
 };
 
 /* ─── helpers ─── */
+function asRecord(value: unknown): Record<string, JsonValue> {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, JsonValue>) : {};
+}
 function toArr<T>(v: T[] | undefined | null): T[] { return Array.isArray(v) ? v : []; }
 function toStr(v: unknown, fallback = "-"): string { return typeof v === "string" && v.trim() ? v.trim() : fallback; }
+function asNumber(value: JsonValue | undefined): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
 function eventDedupeKey(event: EventRecord): string {
   const maybeTrace = event.trace_id ?? "";
   const maybeTs = event.ts ?? "";
@@ -103,7 +119,8 @@ function statusLabel(status: string): string {
   return labels[normalized] || statusLabelZh(status);
 }
 
-export function RunDetailPage({ runId, onBack, onOpenCompare = () => {} }: RunDetailPageProps) {
+export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale = DEFAULT_UI_LOCALE }: RunDetailPageProps) {
+  const runDetailCopy = getUiCopy(locale).desktop.runDetail;
   const [run, setRun] = useState<RunDetailPayload | null>(null);
   const [events, setEvents] = useState<EventRecord[]>([]);
   const [diff, setDiff] = useState("");
@@ -324,24 +341,24 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {} }: RunDe
     <div className="content">
       <div className="alert alert-danger">
         <div className="stack-gap-2">
-          <p>Run detail failed to load: {error}</p>
-          <p className="muted text-xs">Next step: retry loading first. If it still fails, return to the list and open the run again.</p>
+          <p>{runDetailCopy.loadErrorPrefix} {error}</p>
+          <p className="muted text-xs">{runDetailCopy.loadErrorNextStep}</p>
         </div>
       </div>
       <div className="row-gap-2">
-        <Button variant="primary" onClick={() => void load()}>Retry load</Button>
-        <Button onClick={onBack}>Back to list</Button>
+        <Button variant="primary" onClick={() => void load()}>{runDetailCopy.retryLoad}</Button>
+        <Button onClick={onBack}>{runDetailCopy.backToList}</Button>
       </div>
     </div>
   );
   if (!run) return (
     <div className="content">
       <div className="empty-state-stack">
-        <p className="muted">No detail payload is available for this run yet.</p>
-        <p className="muted text-xs">Next step: retry loading first. If it still fails, return to the list and select the run again.</p>
+        <p className="muted">{runDetailCopy.noDetailPayload}</p>
+        <p className="muted text-xs">{runDetailCopy.noDetailNextStep}</p>
         <div className="row-gap-2">
-          <Button variant="primary" onClick={() => void load()}>Retry load</Button>
-          <Button onClick={onBack}>Back to list</Button>
+          <Button variant="primary" onClick={() => void load()}>{runDetailCopy.retryLoad}</Button>
+          <Button onClick={onBack}>{runDetailCopy.backToList}</Button>
         </div>
       </div>
     </div>
@@ -351,11 +368,17 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {} }: RunDe
   const testReport = reports.find(r => r.name === "test_report.json")?.data;
   const reviewReport = reports.find(r => r.name === "review_report.json")?.data;
   const evidenceReport = reports.find(r => r.name === "evidence_report.json")?.data;
+  const incidentPack = reports.find(r => r.name === "incident_pack.json")?.data as Record<string, JsonValue> | undefined;
   const proofPack = reports.find(r => r.name === "proof_pack.json")?.data as Record<string, JsonValue> | undefined;
-  const runCompareReport = reports.find(r => r.name === "run_compare_report.json")?.data as Record<string, JsonValue> | undefined;
+  const runCompareReport = asRecord(reports.find(r => r.name === "run_compare_report.json")?.data);
+  const compareSummary = asRecord(runCompareReport.compare_summary);
   const chainReport = reports.find(r => r.name === "chain_report.json")?.data;
   const workReport = reports.find(r => r.name === "work_report.json")?.data;
   const taskResult = reports.find(r => r.name === "task_result.json")?.data;
+  const compareSummaryDeltaCount =
+    asNumber(compareSummary.mismatched_count) +
+    asNumber(compareSummary.missing_count) +
+    asNumber(compareSummary.extra_count);
   const traceId = toStr(run.manifest?.trace_id, toStr(run.manifest?.trace?.trace_id));
   const workflowId = toStr(run.manifest?.workflow?.workflow_id);
   const isTerminal = isTerminalStatus(run.status);
@@ -407,7 +430,7 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {} }: RunDe
       {/* Header */}
       <div className="section-header">
         <div>
-          <Button variant="ghost" className="mb-2" onClick={onBack}>Back to list</Button>
+          <Button variant="ghost" className="mb-2" onClick={onBack}>{runDetailCopy.backToList}</Button>
           <h1 className="page-title mono run-detail-title">{run.run_id}</h1>
           <p className="page-subtitle">Task {run.task_id}</p>
         </div>
@@ -422,14 +445,24 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {} }: RunDe
       {/* Pending approvals alert */}
       {pendingApprovals.length > 0 && (
         <div className="alert alert-danger mb-4">
-          This run is waiting for human approval ({pendingApprovals.length} item(s)). Next step: complete the approval before continuing.
+          {runDetailCopy.pendingApprovalWithCount(pendingApprovals.length)}
         </div>
       )}
       {semanticType === "manual_pending" && pendingApprovals.length === 0 && (
         <div className="alert alert-danger mb-4">
-          This run is marked as awaiting human approval. Next step: complete the approval before continuing.
+          {runDetailCopy.pendingApprovalWithoutCount}
         </div>
       )}
+
+      <div className="mb-5">
+        <DesktopCopilotPanel
+          title={runDetailCopy.operatorCopilotTitle}
+          intro={runDetailCopy.operatorCopilotIntro}
+          buttonLabel={runDetailCopy.operatorCopilotButton}
+          questionSet={RUN_COPILOT_QUESTIONS}
+          loadBrief={() => fetchOperatorCopilotBrief(runId)}
+        />
+      </div>
 
       {/* Summary cards row */}
       <div className="grid-3 mb-5">
@@ -725,13 +758,40 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {} }: RunDe
                 <div className="collapsible-body"><pre>{JSON.stringify(replayResult, null, 2)}</pre></div>
               </details>
             )}
-            {runCompareReport?.compare_summary && (
+            {Object.keys(compareSummary).length > 0 && (
+              <div className="grid-2">
+                <Card>
+                  <CardHeader><CardTitle>Compare decision</CardTitle></CardHeader>
+                  <CardBody>
+                    <div className="stack-gap-2">
+                      <p className="muted">
+                        {compareSummaryDeltaCount === 0
+                          ? "The current run looks aligned with the selected baseline."
+                          : "Compare found at least one delta, so this run still needs operator review."}
+                      </p>
+                      <p className="muted text-sm">Next step: review compare, proof, and incident context before deciding to replay, approve, or keep the run blocked.</p>
+                    </div>
+                  </CardBody>
+                </Card>
+                <Card>
+                  <CardHeader><CardTitle>Action context</CardTitle></CardHeader>
+                  <CardBody>
+                    {incidentPack?.summary ? <p className="muted">Incident: {String(incidentPack.summary)}</p> : null}
+                    {proofPack?.summary ? <p className="muted">Proof: {String(proofPack.summary)}</p> : null}
+                    {!incidentPack?.summary && !proofPack?.summary ? (
+                      <p className="muted">No proof or incident pack is attached yet. Continue from the reports below.</p>
+                    ) : null}
+                  </CardBody>
+                </Card>
+              </div>
+            )}
+            {Object.keys(compareSummary).length > 0 && (
               <details className="collapsible" open>
                 <summary>Compare summary</summary>
-                <div className="collapsible-body"><pre>{JSON.stringify(runCompareReport.compare_summary, null, 2)}</pre></div>
+                <div className="collapsible-body"><pre>{JSON.stringify(compareSummary, null, 2)}</pre></div>
               </details>
             )}
-            {runCompareReport?.compare_summary && (
+            {Object.keys(compareSummary).length > 0 && (
               <Button variant="secondary" onClick={onOpenCompare}>Open compare surface</Button>
             )}
             {proofPack && (
