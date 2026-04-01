@@ -78,6 +78,11 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   hero/ecosystem/AI/builder copy into the shared locale substrate, sync the
   root AI/docs entrypoints in the same patch so doc-sync gates can trace the
   new discoverability surfaces without guessing
+- when a follow-up Phase 2 wave adds new public discoverability hubs such as
+  `/ai-surfaces/` or makes the dashboard-home locale toggle drive
+  server-rendered copy through cookie-backed preference sync, update the root
+  AI/docs entrypoints and release-facing docs in the same patch so doc-sync
+  gates can follow both the public wording and the locale-contract change
 
 ## Key Commands
 

@@ -6,6 +6,11 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- deepened the third Phase 2 wave by making the dashboard-home locale toggle
+  drive the server-rendered home story via cookie-backed preference sync,
+  extracting the narrative sections into a dedicated shared-copy component, and
+  adding a public `AI + MCP + API` Pages entrypoint plus stronger
+  ecosystem/builder/use-case SEO metadata
 - deepened the second Phase 2 wave by moving the newest dashboard home
   ecosystem/AI/builder hero surfaces into shared home copy, adding dedicated
   public Pages sub-entrypoints for ecosystem/builders/use-cases, and wiring the
