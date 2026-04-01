@@ -60,13 +60,18 @@ export type UiCopy = {
       ecosystemTitle: string;
       ecosystemDescription: string;
       ecosystemAction: string;
+      ecosystemActionHref: string;
       ecosystemCards: HomeCardCopy[];
       aiSurfacesTitle: string;
       aiSurfacesDescription: string;
       aiSurfaceCards: HomeCardCopy[];
       builderTitle: string;
       builderDescription: string;
+      builderQuickstartCtaLabel: string;
+      builderQuickstartCtaHref: string;
       builderCards: HomeCardCopy[];
+      caseGalleryGuideCtaLabel: string;
+      caseGalleryGuideHref: string;
     };
     skipToMainContent: string;
     navigationAriaLabel: string;
@@ -348,6 +353,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         ecosystemDescription:
           "Keep the front door anchored on Codex, Claude Code, and read-only MCP. Mention OpenHands and comparison-only tools in the ecosystem layer, not in the hero.",
         ecosystemAction: "Open ecosystem map",
+        ecosystemActionHref: "https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/",
         ecosystemCards: [
           {
             badge: "Primary workflow binding",
@@ -393,6 +399,8 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         builderTitle: "Builder entrypoints",
         builderDescription:
           "This is not a full SDK platform, but the client, contract, and shared presentation layers are now documented as real builder surfaces.",
+        builderQuickstartCtaLabel: "Open builder quickstart",
+        builderQuickstartCtaHref: "https://xiaojiou176-open.github.io/CortexPilot-public/builders/",
         builderCards: [
           {
             badge: "Thin client surface",
@@ -410,6 +418,8 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
             desc: "Use the shared brand copy, locale helpers, status presentation, and frontend-only types instead of rebuilding those surfaces per app.",
           },
         ],
+        caseGalleryGuideCtaLabel: "Open use-case guide",
+        caseGalleryGuideHref: "https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/",
       },
       skipToMainContent: "Skip to dashboard content",
       navigationAriaLabel: "Dashboard navigation",
@@ -747,6 +757,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         ecosystemDescription:
           "前门继续以 Codex、Claude Code 和只读 MCP 为主轴。OpenHands 和 comparison-only 工具只放在生态层，不放进 hero。",
         ecosystemAction: "打开生态地图",
+        ecosystemActionHref: "https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/",
         ecosystemCards: [
           {
             badge: "主工作流绑定",
@@ -792,6 +803,8 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         builderTitle: "Builder 入口",
         builderDescription:
           "这还不是完整 SDK 平台，但 client、contract 和 shared presentation 层已经是可讲、可接入的 builder surface。",
+        builderQuickstartCtaLabel: "打开 builder 快速入口",
+        builderQuickstartCtaHref: "https://xiaojiou176-open.github.io/CortexPilot-public/builders/",
         builderCards: [
           {
             badge: "薄客户端",
@@ -809,6 +822,8 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
             desc: "品牌 copy、locale helper、status presentation 和 frontend-only types 已经集中到这一层，而不是散落在各 app 里。",
           },
         ],
+        caseGalleryGuideCtaLabel: "打开 use-case 指南",
+        caseGalleryGuideHref: "https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/",
       },
       skipToMainContent: "跳到控制台主内容",
       navigationAriaLabel: "控制台导航",

@@ -304,6 +304,23 @@ function compactTaskId(value: string | undefined): string {
   return raw.length <= 16 ? raw : `${raw.slice(0, 8)}...${raw.slice(-4)}`;
 }
 
+function zipCardsWithHrefs<T extends { badge?: string; title: string; desc: string }>(
+  cards: readonly T[],
+  hrefs: readonly string[],
+  context: string,
+): Array<T & { href: string }> {
+  if (cards.length !== hrefs.length) {
+    throw new Error(
+      `Length mismatch for homePhase2Copy.${context} (${cards.length}) and ${context} hrefs (${hrefs.length}).`,
+    );
+  }
+
+  return cards.map((item, index) => ({
+    ...item,
+    href: hrefs[index],
+  }));
+}
+
 export default async function Home() {
   const homePhase2Copy = getUiCopy(DEFAULT_UI_LOCALE).dashboard.homePhase2;
   const { data: runs, warning } = await safeLoad(fetchRuns, [], "run list");
@@ -417,18 +434,21 @@ export default async function Home() {
       : "metric-value--success";
   const warningText =
     firstEnglishText(warning) || "The run list is temporarily unavailable. Try again soon.";
-  const ecosystemBindings = homePhase2Copy.ecosystemCards.map((item, index) => ({
-    ...item,
-    href: ECOSYSTEM_BINDING_HREFS[index],
-  }));
-  const aiSurfaceCards = homePhase2Copy.aiSurfaceCards.map((item, index) => ({
-    ...item,
-    href: AI_SURFACE_HREFS[index],
-  }));
-  const builderEntrypoints = homePhase2Copy.builderCards.map((item, index) => ({
-    ...item,
-    href: BUILDER_ENTRYPOINT_HREFS[index],
-  }));
+  const ecosystemBindings = zipCardsWithHrefs(
+    homePhase2Copy.ecosystemCards,
+    ECOSYSTEM_BINDING_HREFS,
+    "ecosystemCards",
+  );
+  const aiSurfaceCards = zipCardsWithHrefs(
+    homePhase2Copy.aiSurfaceCards,
+    AI_SURFACE_HREFS,
+    "aiSurfaceCards",
+  );
+  const builderEntrypoints = zipCardsWithHrefs(
+    homePhase2Copy.builderCards,
+    BUILDER_ENTRYPOINT_HREFS,
+    "builderCards",
+  );
 
   return (
     <main className="grid" aria-labelledby="dashboard-home-title">
@@ -532,7 +552,7 @@ export default async function Home() {
           </div>
           <nav aria-label="Ecosystem actions">
             <Button asChild variant="secondary">
-              <Link href="https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/">
+              <Link href={homePhase2Copy.ecosystemActionHref}>
                 {homePhase2Copy.ecosystemAction}
               </Link>
             </Button>
@@ -579,8 +599,8 @@ export default async function Home() {
           </div>
           <nav aria-label="Builder quickstart actions">
             <Button asChild variant="secondary">
-              <Link href="https://xiaojiou176-open.github.io/CortexPilot-public/builders/">
-                Open builder quickstart
+              <Link href={homePhase2Copy.builderQuickstartCtaHref}>
+                {homePhase2Copy.builderQuickstartCtaLabel}
               </Link>
             </Button>
           </nav>
@@ -596,17 +616,17 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="app-section" aria-labelledby="dashboard-case-gallery-title">
+      <section className="app-section" aria-labelledby="dashboard-case-gallery-baseline-title">
         <div className="section-header">
           <div>
-            <h2 id="dashboard-case-gallery-title" className="section-title">
+            <h2 id="dashboard-case-gallery-baseline-title" className="section-title">
               Public case gallery baseline
             </h2>
             <p>These cards stay grounded in the tracked public packs and their evidence contracts. They are gallery-ready archetypes, not invented showcase data.</p>
           </div>
           <nav aria-label="Public case gallery actions">
             <Button asChild variant="secondary">
-              <Link href="https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/">Open use-case guide</Link>
+              <Link href={homePhase2Copy.caseGalleryGuideHref}>{homePhase2Copy.caseGalleryGuideCtaLabel}</Link>
             </Button>
           </nav>
         </div>
@@ -622,10 +642,10 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="app-section" aria-labelledby="dashboard-case-gallery-title">
+      <section className="app-section" aria-labelledby="dashboard-case-gallery-live-title">
         <div className="section-header">
           <div>
-            <h2 id="dashboard-case-gallery-title" className="section-title">
+            <h2 id="dashboard-case-gallery-live-title" className="section-title">
               Public case gallery baseline
             </h2>
             <p>Use real Workflow Cases as lightweight showcase assets. This baseline links to live case detail and share-ready recap instead of inventing demo-only gallery data.</p>
