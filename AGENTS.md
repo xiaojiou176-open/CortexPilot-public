@@ -113,6 +113,11 @@ Work in CortexPilot as a contract-first engineering agent:
   package-facing `frontend-api-client` / `frontend-shared` READMEs, and the
   dashboard home/docs landing sections that explain Codex / Claude Code /
   read-only MCP plus the first-run -> proof -> share loop
+- when a later Phase 2 wave adds dedicated public sub-entrypoints (for example
+  `/ecosystem/`, `/builders/`, `/use-cases/`) or moves additional dashboard home
+  hero/ecosystem/AI/builder copy into the shared locale substrate, sync the
+  root AI/docs entrypoints in the same patch so doc-sync gates can trace the
+  new discoverability surfaces without guessing
 
 ## Local Overrides
 
