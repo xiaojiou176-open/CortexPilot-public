@@ -92,8 +92,9 @@ bash scripts/run_orchestrator_cli.sh --help
 
 - The orchestrator Python lock surface now carries explicit security pins for
   `cryptography`, `pyasn1`, `pyjwt`, and `requests`, and the default dependency
-  gate treats the remaining upstream-unfixed `pygments` advisory as
-  advisory-only through `configs/pip_audit_ignored_advisories.json`.
+  gate now also pins `pygments==2.20.0`, which lets
+  `configs/pip_audit_ignored_advisories.json` stay empty again instead of
+  carrying a stale upstream-unfixed downgrade.
 - CI policy snapshots, policy/core stage logs, and the orchestrator coverage
   JSON now live under `.runtime-cache/test_output/ci/`, which keeps retention
   reports free of root-level `test_output` residue during `main` push

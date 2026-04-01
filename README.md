@@ -309,8 +309,9 @@ Tower regression surface, and orchestrator intake responses only emit
 API/schema coverage and the live contract stay aligned.
 Mainline CI now keeps policy snapshots, stage logs, and the orchestrator
 coverage JSON under `.runtime-cache/test_output/ci/`, and the Python
-dependency audit downgrades only the explicitly tracked upstream-unfixed
-`pygments` advisory through `configs/pip_audit_ignored_advisories.json`.
+dependency audit now pins `pygments==2.20.0`, so
+`configs/pip_audit_ignored_advisories.json` is empty again instead of carrying
+an upstream-unfixed downgrade for that package.
 Upstream governance evidence now reuses only fully fresh smoke receipts; if
 strict lanes do not already have the required upstream receipt bundle, the
 governance manifest refresh falls back to `scripts/verify_upstream_slices.py --mode smoke`
