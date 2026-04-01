@@ -15,6 +15,10 @@ All notable changes to this repository will be documented in this file.
   syncing the root AI entrypoint files with the same discoverability contract;
   the same wave now also records the locale-aware rendering path explicitly in
   the root AI guidance so quick-feedback gates can trace the shared-copy split
+- opened the fourth Phase 2 wave by hardening desktop `Run Detail` /
+  `Overview` operator surfaces onto the shared locale/status substrate,
+  replacing the remaining high-frequency page-local strings with shared copy,
+  and adding zh-CN regression coverage for desktop operator pages
 - deepened the second Phase 2 wave by moving the newest dashboard home
   ecosystem/AI/builder hero surfaces into shared home copy, adding dedicated
   public Pages sub-entrypoints for ecosystem/builders/use-cases, and wiring the

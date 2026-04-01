@@ -4,7 +4,7 @@ import { getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 import type { RunSummary, EventRecord } from "../lib/types";
 import type { CommandTowerOverviewPayload } from "../lib/types";
 import { fetchRuns, fetchAllEvents, fetchCommandTowerOverview } from "../lib/api";
-import { badgeClass, formatDesktopDateTime, statusDotClass } from "../lib/statusPresentation";
+import { badgeClass, formatDesktopDateTime, statusDotClass, statusLabelDesktop } from "../lib/statusPresentation";
 import type { DesktopPageKey } from "../App";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
@@ -32,37 +32,6 @@ const IconBolt = () => (
     <path d="M9 1L3 9h5l-1 6 6-8H8l1-6z" />
   </svg>
 );
-
-function statusLabel(status: string | undefined, locale: UiLocale): string {
-  const normalized = (status || "").trim().toLowerCase();
-  const labels: Record<UiLocale, Record<string, string>> = {
-    en: {
-      active: "Active",
-      archived: "Archived",
-      blocked: "Blocked",
-      done: "Done",
-      error: "Error",
-      failed: "Failed",
-      paused: "Paused",
-      rejected: "Rejected",
-      running: "Running",
-      success: "Success",
-    },
-    "zh-CN": {
-      active: "活跃",
-      archived: "已归档",
-      blocked: "已阻塞",
-      done: "完成",
-      error: "错误",
-      failed: "失败",
-      paused: "已暂停",
-      rejected: "已拒绝",
-      running: "运行中",
-      success: "成功",
-    },
-  };
-  return labels[locale][normalized] || (locale === "zh-CN" ? "未知" : "Unknown");
-}
 
 function formatDateTime(value: string | undefined, locale: UiLocale): string {
   return formatDesktopDateTime(value, locale);
@@ -133,7 +102,7 @@ export function OverviewPage({ onNavigate, onNavigateToRun, locale = "en" }: Ove
 
   const progressCards = [
     {
-      title: "Running now",
+      title: overviewCopy.runningNowTitle,
       value: runningRuns.length,
       hint: runningRuns.length > 0 ? overviewCopy.progressCards.runningNowHint : overviewCopy.progressCards.runningNowEmpty,
       variant: "metric-value--primary",
@@ -156,15 +125,15 @@ export function OverviewPage({ onNavigate, onNavigateToRun, locale = "en" }: Ove
     ...failedRuns.map((run) => ({
       key: `run-${run.run_id}`,
       time: formatDateTime(run.created_at, locale),
-      title: `Task ${run.task_id} requires attention`,
-      detail: `Run ${run.run_id.slice(0, 12)} · ${statusLabel(run.status, locale)}`,
+      title: overviewCopy.recentExceptionTaskRequiresAttention(run.task_id),
+      detail: `${overviewCopy.recentExceptionRunPrefix} ${run.run_id.slice(0, 12)} · ${statusLabelDesktop(run.status, locale)}`,
       runId: run.run_id,
     })),
     ...blockedEvents.slice(0, 6).map((evt, index) => ({
       key: `evt-${evt.ts || index}`,
       time: formatDateTime(evt.ts, locale),
-      title: `${evt.event || evt.event_type || "Operator event"}`,
-      detail: `Level ${evt.level || "-"} · Run ${(evt.run_id || evt._run_id || "-").toString().slice(0, 12)}`,
+      title: `${evt.event || evt.event_type || overviewCopy.recentExceptionOperatorEventFallback}`,
+      detail: `${overviewCopy.recentExceptionLevelPrefix} ${evt.level || "-"} · ${overviewCopy.recentExceptionRunPrefix} ${(evt.run_id || evt._run_id || "-").toString().slice(0, 12)}`,
       runId: (evt.run_id || evt._run_id || "").toString(),
     })),
   ].slice(0, 8);
@@ -202,7 +171,7 @@ export function OverviewPage({ onNavigate, onNavigateToRun, locale = "en" }: Ove
       </section>
 
       {/* Main actions */}
-      <section className="app-section" aria-label="Primary actions">
+      <section className="app-section" aria-label={overviewCopy.primaryActionsTitle}>
         <h2 className="section-title">{overviewCopy.primaryActionsTitle}</h2>
         <div className="quick-grid">
           {quickActions.map((a) => (
@@ -218,7 +187,7 @@ export function OverviewPage({ onNavigate, onNavigateToRun, locale = "en" }: Ove
             </Button>
           ))}
         </div>
-        <div className="quick-grid" aria-label="Optional approval step">
+        <div className="quick-grid" aria-label={overviewCopy.optionalStepLabel}>
           <Button
             unstyled
             className="quick-card"
@@ -283,7 +252,7 @@ export function OverviewPage({ onNavigate, onNavigateToRun, locale = "en" }: Ove
                     <td>
                       <span className="status-inline">
                         <span className={statusDotClass(run.status)} />
-                        <Badge className={badgeClass(run.status)}>{statusLabel(run.status, locale)}</Badge>
+                        <Badge className={badgeClass(run.status)}>{statusLabelDesktop(run.status, locale)}</Badge>
                       </span>
                     </td>
                     <td className="muted">{formatDateTime(run.created_at, locale)}</td>

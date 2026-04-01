@@ -40,3 +40,12 @@ npm --prefix apps/desktop run tauri:dev
   state, queue scheduling inputs (`priority`, `scheduled_at`, `deadline_at`),
   and a dedicated Run Compare page so operator triage is not limited to the
   dashboard.
+- High-frequency desktop operator surfaces now keep their `Run Detail` /
+  `Overview` chrome closer to the shared locale and status-presentation
+  substrate. Current examples include run-detail tabs, replay/compare empty
+  states, action-bar copy, and locale-aware recent-exception labels in the
+  Overview page.
+- Desktop `Run Detail` and `Overview` now keep their high-frequency operator
+  copy on the shared `@cortexpilot/frontend-shared/uiCopy` contract and route
+  status labels through shared status-presentation helpers, so `en` / `zh-CN`
+  operator rendering does not depend on page-local literal maps.

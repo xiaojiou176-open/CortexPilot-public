@@ -111,6 +111,60 @@ describe("overview + policies low-branch coverage", () => {
     expect(within(exceptionsSection).getByText("Open event stream")).toBeInTheDocument();
   });
 
+  it("renders locale-aware overview labels when zh-CN is requested", async () => {
+    const onNavigate = vi.fn();
+    const onNavigateToRun = vi.fn();
+
+    vi.mocked(fetchCommandTowerOverview).mockResolvedValue({
+      total_sessions: 2,
+      active_sessions: 1,
+      failed_ratio: 0,
+      blocked_sessions: 0,
+    } as any);
+    vi.mocked(fetchRuns).mockResolvedValue([
+      { run_id: "run-zh-001", task_id: "task-zh", status: "failed", created_at: "2026-03-01T00:00:00Z" },
+    ] as any);
+    vi.mocked(fetchAllEvents).mockResolvedValue([
+      { event: "BLOCKED_STEP", level: "WARN", _run_id: "evt-run-zh", ts: "2026-03-01T03:00:00Z" },
+    ] as any);
+
+    render(<OverviewPage onNavigate={onNavigate} onNavigateToRun={onNavigateToRun} locale="zh-CN" />);
+
+    expect(await screen.findByRole("heading", { name: "新手起步" })).toBeInTheDocument();
+    expect(screen.getByText("主步骤")).toBeInTheDocument();
+    expect(screen.getByText("当前进展")).toBeInTheDocument();
+    expect(screen.getAllByText("运行中").length).toBeGreaterThan(0);
+    expect(screen.getByText("最近异常")).toBeInTheDocument();
+    expect(screen.getByText("任务 task-zh 需要关注")).toBeInTheDocument();
+    expect(screen.getByText("级别 WARN · Run evt-run-zh")).toBeInTheDocument();
+  });
+
+  it("renders zh-CN overview copy and locale-aware recent exception labels", async () => {
+    const onNavigate = vi.fn();
+    const onNavigateToRun = vi.fn();
+
+    vi.mocked(fetchCommandTowerOverview).mockResolvedValue({
+      total_sessions: 3,
+      active_sessions: 1,
+      failed_ratio: 0.1,
+      blocked_sessions: 0,
+    } as any);
+    vi.mocked(fetchRuns).mockResolvedValue([
+      { run_id: "run-zh-001", task_id: "task-zh", status: "failed", created_at: "2026-03-01T01:00:00Z" },
+    ] as any);
+    vi.mocked(fetchAllEvents).mockResolvedValue([
+      { event_type: "BLOCKED_STEP", level: "WARN", _run_id: "evt-run-zh", ts: "2026-03-01T03:00:00Z" },
+    ] as any);
+
+    render(<OverviewPage onNavigate={onNavigate} onNavigateToRun={onNavigateToRun} locale="zh-CN" />);
+
+    expect(await screen.findByRole("heading", { name: "新手起步" })).toBeInTheDocument();
+    expect(screen.getByText("运行中")).toBeInTheDocument();
+    expect(screen.getByText("任务 task-zh 需要关注")).toBeInTheDocument();
+    expect(screen.getByText(/级别 WARN · Run evt-run-zh/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "查看全部运行" })).toBeInTheDocument();
+  });
+
   it("covers PoliciesPage data rendering branches and refresh after non-Error failure", async () => {
     let resolvePolicies: ((value: any) => void) | null = null;
     vi.mocked(fetchPolicies)

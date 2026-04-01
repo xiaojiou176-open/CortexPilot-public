@@ -12,6 +12,10 @@ CortexPilot is a contract-first multi-agent orchestration repository.
 CortexPilot is an AI Work Command Tower built around three product words:
 **Command Tower**, **Workflow Cases**, and **Proof & Replay**.
 
+The desktop operator surfaces are also being pulled onto the same shared copy
+and shared status-presentation substrate, so `Run Detail` and `Overview` do
+not drift back into page-local wording contracts.
+
 The current public story speaks first to Codex / Claude Code teams and second
 to broader AI ops / platform teams. The front door should ride the heat around
 those ecosystems without pretending CortexPilot is already a hosted operator

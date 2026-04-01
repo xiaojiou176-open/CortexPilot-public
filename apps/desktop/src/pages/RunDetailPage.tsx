@@ -9,13 +9,14 @@ import {
 } from "../lib/api";
 import { sanitizeUiError, uiErrorDetail } from "../lib/uiError";
 import {
-  statusLabelZh,
+  statusLabelDesktop,
   badgeVariant,
   statusDotClass,
-  outcomeSemanticLabelZh,
+  outcomeSemanticLabel,
   outcomeSemanticBadgeVariant,
-  outcomeActionHintZh,
+  outcomeActionHint,
   outcomeSemantic,
+  formatDesktopDateTime,
 } from "../lib/statusPresentation";
 import { toast } from "sonner";
 import { Button } from "../components/ui/Button";
@@ -98,25 +99,6 @@ function isTerminalStatus(status: unknown): boolean {
 function isTerminalEvent(event: EventRecord): boolean {
   const name = typeof event.event === "string" ? event.event : event.event_type;
   return typeof name === "string" && TERMINAL_EVENT_NAMES.has(name.toUpperCase());
-}
-
-function statusLabel(status: string): string {
-  const normalized = status.trim().toLowerCase();
-  const labels: Record<string, string> = {
-    archived: "Archived",
-    blocked: "Blocked",
-    cancelled: "Cancelled",
-    completed: "Completed",
-    done: "Done",
-    error: "Error",
-    failed: "Failed",
-    paused: "Paused",
-    rejected: "Rejected",
-    running: "Running",
-    stopped: "Stopped",
-    success: "Success",
-  };
-  return labels[normalized] || statusLabelZh(status);
 }
 
 export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale = DEFAULT_UI_LOCALE }: RunDetailPageProps) {
@@ -384,45 +366,31 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
   const isTerminal = isTerminalStatus(run.status);
   const pendingApprovals = events.filter(ev => (ev.event || "").toUpperCase() === "HUMAN_APPROVAL_REQUIRED");
   const semanticType = outcomeSemantic(run.outcome_type, run.status, run.failure_class, run.failure_code);
-  const outcomeSemanticText = ({
-    action_required: "Action required",
-    blocked: "Blocked",
-    completed: "Completed",
-    failed: "Failed",
-    manual_pending: "Awaiting approval",
-    running: "Running",
-    unknown: "Needs review",
-  } as Record<string, string>)[semanticType] || outcomeSemanticLabelZh(
+  const outcomeSemanticText = outcomeSemanticLabel(
     run.outcome_type,
     run.outcome_label_zh,
     run.status,
+    locale,
     run.failure_class,
     run.failure_code,
   );
-  const actionHintText = ({
-    action_required: "Inspect failure details and choose the next operator action.",
-    blocked: "Resolve the blocker before moving the run forward.",
-    completed: "Validate the evidence and archive or hand off the result.",
-    failed: "Review the failure details, then decide whether to rollback, reject, or replay.",
-    manual_pending: "Complete the required approval before continuing.",
-    running: "Keep monitoring live progress and refresh when needed.",
-    unknown: "Review the reports and timeline to determine the next action.",
-  } as Record<string, string>)[semanticType] || outcomeActionHintZh(
+  const actionHintText = outcomeActionHint(
     run.action_hint_zh,
     run.outcome_type,
     run.status,
+    locale,
     run.failure_class,
     run.failure_code,
   );
 
   const tabs: { key: RunDetailTab; label: string }[] = [
-    { key: "events", label: `Event timeline (${events.length})` },
-    { key: "diff", label: "Change diff" },
-    { key: "reports", label: `Reports (${reports.length})` },
-    { key: "tools", label: `Tool calls (${toolCalls.length})` },
-    { key: "chain", label: "Chain flow" },
-    { key: "contract", label: "Contract policy" },
-    { key: "replay", label: "Replay compare" },
+    { key: "events", label: runDetailCopy.tabs.events(events.length) },
+    { key: "diff", label: runDetailCopy.tabs.diff },
+    { key: "reports", label: runDetailCopy.tabs.reports(reports.length) },
+    { key: "tools", label: runDetailCopy.tabs.tools(toolCalls.length) },
+    { key: "chain", label: runDetailCopy.tabs.chain },
+    { key: "contract", label: runDetailCopy.tabs.contract },
+    { key: "replay", label: runDetailCopy.tabs.replay },
   ];
 
   return (
@@ -432,12 +400,17 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
         <div>
           <Button variant="ghost" className="mb-2" onClick={onBack}>{runDetailCopy.backToList}</Button>
           <h1 className="page-title mono run-detail-title">{run.run_id}</h1>
-          <p className="page-subtitle">Task {run.task_id}</p>
+          <p className="page-subtitle">{runDetailCopy.taskLabelPrefix} {run.task_id}</p>
         </div>
         <div className="row-start-gap-2">
-          <Badge variant={badgeVariant(run.status)}>{statusLabel(run.status)}</Badge>
-          <Button variant={liveEnabled && !isTerminal ? "primary" : "ghost"} onClick={() => setLiveEnabled(p => !p)} title={liveEnabled ? "Pause live updates" : "Resume live updates"}>
-            {liveEnabled && !isTerminal ? "LIVE" : "PAUSED"}
+          <Badge variant={badgeVariant(run.status)}>{statusLabelDesktop(run.status, locale)}</Badge>
+          <Button
+            variant={liveEnabled && !isTerminal ? "primary" : "ghost"}
+            onClick={() => setLiveEnabled(p => !p)}
+            title={liveEnabled && !isTerminal ? runDetailCopy.liveTogglePauseTitle : runDetailCopy.liveToggleResumeTitle}
+            disabled={isTerminal}
+          >
+            {liveEnabled && !isTerminal ? runDetailCopy.liveModeActive : runDetailCopy.liveModePaused}
           </Button>
         </div>
       </div>
@@ -468,35 +441,35 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
       <div className="grid-3 mb-5">
         {/* Status + Contract card */}
         <Card>
-          <CardHeader><CardTitle className="card-title-reset">Run overview</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="card-title-reset">{runDetailCopy.summaryCards.overviewTitle}</CardTitle></CardHeader>
           <CardBody>
             <div className="data-list">
-              <div className="data-list-row"><span className="data-list-label">Run ID</span><span className="data-list-value mono">{run.run_id}</span></div>
-              <div className="data-list-row"><span className="data-list-label">Task ID</span><span className="data-list-value">{run.task_id}</span></div>
-              <div className="data-list-row"><span className="data-list-label">Status</span><span className="data-list-value"><span className="status-inline"><span className={statusDotClass(run.status)} /><Badge variant={badgeVariant(run.status)}>{statusLabel(run.status)}</Badge></span></span></div>
-              <div className="data-list-row"><span className="data-list-label">Execution semantic</span><span className="data-list-value"><Badge variant={outcomeSemanticBadgeVariant(run.outcome_type, run.status, run.failure_class, run.failure_code)}>{outcomeSemanticText}</Badge></span></div>
-              {run.failure_code && <div className="data-list-row"><span className="data-list-label">Failure code</span><span className="data-list-value mono">{run.failure_code}</span></div>}
-              {run.failure_summary_zh && <div className="data-list-row"><span className="data-list-label">Failure summary</span><span className="data-list-value cell-danger">{run.failure_summary_zh}</span></div>}
-              <div className="data-list-row"><span className="data-list-label">Next action</span><span className="data-list-value">{actionHintText}</span></div>
-              <div className="data-list-row"><span className="data-list-label">Current owner</span><span className="data-list-value mono">{toStr(run.owner_agent_id)} ({toStr(run.owner_role)})</span></div>
-              <div className="data-list-row"><span className="data-list-label">Assigned execution</span><span className="data-list-value mono">{toStr(run.assigned_agent_id)} ({toStr(run.assigned_role)})</span></div>
-              <div className="data-list-row"><span className="data-list-label">Created at</span><span className="data-list-value">{run.created_at ? new Date(run.created_at).toLocaleString("en-US") : "-"}</span></div>
-              {traceId !== "-" && <div className="data-list-row"><span className="data-list-label">Trace ID</span><span className="data-list-value mono">{traceId}</span></div>}
-              {workflowId !== "-" && <div className="data-list-row"><span className="data-list-label">Workflow</span><span className="data-list-value mono">{workflowId}</span></div>}
-              {run.failure_reason && <div className="data-list-row"><span className="data-list-label">Failure reason</span><span className="data-list-value cell-danger">{run.failure_reason}</span></div>}
+              <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.runId}</span><span className="data-list-value mono">{run.run_id}</span></div>
+              <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.taskId}</span><span className="data-list-value">{run.task_id}</span></div>
+              <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.status}</span><span className="data-list-value"><span className="status-inline"><span className={statusDotClass(run.status)} /><Badge variant={badgeVariant(run.status)}>{statusLabelDesktop(run.status, locale)}</Badge></span></span></div>
+              <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.executionSemantic}</span><span className="data-list-value"><Badge variant={outcomeSemanticBadgeVariant(run.outcome_type, run.status, run.failure_class, run.failure_code)}>{outcomeSemanticText}</Badge></span></div>
+              {run.failure_code && <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.failureCode}</span><span className="data-list-value mono">{run.failure_code}</span></div>}
+              {run.failure_summary_zh && <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.failureSummary}</span><span className="data-list-value cell-danger">{run.failure_summary_zh}</span></div>}
+              <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.nextAction}</span><span className="data-list-value">{actionHintText}</span></div>
+              <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.currentOwner}</span><span className="data-list-value mono">{toStr(run.owner_agent_id)} ({toStr(run.owner_role)})</span></div>
+              <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.assignedExecution}</span><span className="data-list-value mono">{toStr(run.assigned_agent_id)} ({toStr(run.assigned_role)})</span></div>
+              <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.createdAt}</span><span className="data-list-value">{formatDesktopDateTime(run.created_at, locale)}</span></div>
+              {traceId !== "-" && <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.traceId}</span><span className="data-list-value mono">{traceId}</span></div>}
+              {workflowId !== "-" && <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.workflow}</span><span className="data-list-value mono">{workflowId}</span></div>}
+              {run.failure_reason && <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.failureReason}</span><span className="data-list-value cell-danger">{run.failure_reason}</span></div>}
             </div>
           </CardBody>
         </Card>
 
         {/* Agent status card */}
         <Card>
-          <CardHeader><CardTitle className="card-title-reset">Execution roles</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="card-title-reset">{runDetailCopy.summaryCards.executionRolesTitle}</CardTitle></CardHeader>
           <CardBody>
             {agentStatus.length === 0 ? (
               <div className="empty-state-stack">
-                <p className="muted">No execution role status is available yet.</p>
-                <p className="muted text-xs">Next step: use Retry fetch to request a fresh payload.</p>
-                <Button onClick={() => void load()}>Retry fetch</Button>
+                <p className="muted">{runDetailCopy.emptyStates.noExecutionRoleStatus}</p>
+                <p className="muted text-xs">{runDetailCopy.emptyStates.executionRolesNextStep}</p>
+                <Button onClick={() => void load()}>{runDetailCopy.emptyStates.retryFetch}</Button>
               </div>
             ) : (
               <div className="data-list">
@@ -508,7 +481,7 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
                       <span className="data-list-value">
                         <span className="status-inline">
                           <span className={statusDotClass(agentStatusText)} />
-                          <Badge variant={badgeVariant(agentStatusText)}>{statusLabel(agentStatusText)}</Badge>
+                          <Badge variant={badgeVariant(agentStatusText)}>{statusLabelDesktop(agentStatusText, locale)}</Badge>
                         </span>
                         {typeof agent.agent_id === "string" && (
                           <span className="mono muted ml-2 text-xs">
@@ -526,7 +499,7 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
 
         {/* Evidence hashes card */}
         <Card>
-          <CardHeader><CardTitle className="card-title-reset">Evidence and traceability</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="card-title-reset">{runDetailCopy.summaryCards.evidenceTitle}</CardTitle></CardHeader>
           <CardBody>
             {run.manifest?.evidence_hashes ? (
               <div className="data-list">
@@ -539,13 +512,13 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
               </div>
             ) : (
               <div className="empty-state-stack">
-                <p className="muted">No evidence summary is available yet.</p>
-                <p className="muted text-xs">Next step: refresh the payload and try again.</p>
-                <Button onClick={() => void load()}>Refresh data</Button>
+                <p className="muted">{runDetailCopy.emptyStates.noEvidenceSummary}</p>
+                <p className="muted text-xs">{runDetailCopy.emptyStates.evidenceNextStep}</p>
+                <Button onClick={() => void load()}>{runDetailCopy.emptyStates.refreshData}</Button>
               </div>
             )}
             <div className="mt-3 row-gap-2">
-              <Button className="text-xs" disabled={actionBusy} onClick={() => handleAction("promote")}>Promote evidence</Button>
+              <Button className="text-xs" disabled={actionBusy} onClick={() => handleAction("promote")}>{runDetailCopy.actionBar.promoteEvidence}</Button>
             </div>
           </CardBody>
         </Card>
@@ -553,9 +526,9 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
 
       {/* Actions bar */}
       <div className="row-gap-2 mb-4">
-        <Button variant="secondary" disabled={actionBusy} onClick={() => handleAction("rollback")}>Rollback</Button>
-        <Button variant="destructive" disabled={actionBusy} onClick={() => handleAction("reject")}>Reject</Button>
-        <Button disabled={actionBusy} onClick={load}>Refresh</Button>
+        <Button variant="secondary" disabled={actionBusy} onClick={() => handleAction("rollback")}>{runDetailCopy.actionBar.rollback}</Button>
+        <Button variant="destructive" disabled={actionBusy} onClick={() => handleAction("reject")}>{runDetailCopy.actionBar.reject}</Button>
+        <Button disabled={actionBusy} onClick={load}>{runDetailCopy.actionBar.refresh}</Button>
       </div>
 
       {/* Tabs */}
@@ -572,20 +545,20 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
         <Card className="table-card">
           {events.length === 0 ? (
             <div className="empty-state-stack">
-              <p className="muted">No events are available yet.</p>
-              <p className="muted text-xs">Next step: refresh events and request a fresh payload.</p>
-              <Button onClick={() => void load()}>Refresh events</Button>
+              <p className="muted">{runDetailCopy.emptyStates.noEvents}</p>
+              <p className="muted text-xs">{runDetailCopy.emptyStates.eventsNextStep}</p>
+              <Button onClick={() => void load()}>{runDetailCopy.emptyStates.refreshEvents}</Button>
             </div>
           ) : (
             <table className="run-table">
-              <thead><tr><th>Time</th><th>Event</th><th>Level</th><th>Task ID</th></tr></thead>
+              <thead><tr><th>{runDetailCopy.tableHeaders.time}</th><th>{runDetailCopy.tableHeaders.event}</th><th>{runDetailCopy.tableHeaders.level}</th><th>{runDetailCopy.tableHeaders.taskId}</th></tr></thead>
               <tbody>
                 {events.map((evt, i) => (
                   <Fragment key={`${evt.ts}-${i}`}>
                     <tr
                       className={evt.context ? "clickable-row" : ""}
                     >
-                      <td className="muted">{evt.ts ? new Date(evt.ts).toLocaleString("en-US") : "-"}</td>
+                      <td className="muted">{formatDesktopDateTime(evt.ts, locale)}</td>
                       <td className="cell-primary">
                         {evt.context ? (
                           <Button
@@ -621,17 +594,17 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
             <pre className="pre-scroll-500">{diff}</pre>
           ) : (
             <div className="empty-state-stack">
-              <p className="muted">No diff content is available yet.</p>
-              <p className="muted text-xs">Next step: retry loading. If it stays empty, return to Event timeline and inspect execution progress there.</p>
+              <p className="muted">{runDetailCopy.emptyStates.noDiff}</p>
+              <p className="muted text-xs">{runDetailCopy.emptyStates.diffNextStep}</p>
               <div className="row-gap-2">
-                <Button onClick={() => void load()}>Retry load</Button>
-                <Button variant="ghost" onClick={() => setActiveTab("events")}>Back to Event timeline</Button>
+                <Button onClick={() => void load()}>{runDetailCopy.retryLoad}</Button>
+                <Button variant="ghost" onClick={() => setActiveTab("events")}>{runDetailCopy.emptyStates.backToEventTimeline}</Button>
               </div>
             </div>
           )}
           {run.allowed_paths && run.allowed_paths.length > 0 && (
             <div className="p-3-4 border-top-subtle">
-              <span className="muted text-xs fw-500">Allowed paths: </span>
+              <span className="muted text-xs fw-500">{runDetailCopy.fieldLabels.allowedPaths}: </span>
               <span className="chip-list inline-flex">
                 {run.allowed_paths.map((p) => <span key={p} className="chip">{p}</span>)}
               </span>
@@ -645,9 +618,9 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
         <Card>
           {reports.length === 0 ? (
             <div className="empty-state-stack">
-              <p className="muted">No reports are available yet.</p>
-              <p className="muted text-xs">Next step: refresh reports and request a fresh payload.</p>
-              <Button onClick={() => void load()}>Refresh reports</Button>
+              <p className="muted">{runDetailCopy.emptyStates.noReports}</p>
+              <p className="muted text-xs">{runDetailCopy.emptyStates.reportsNextStep}</p>
+              <Button onClick={() => void load()}>{runDetailCopy.emptyStates.refreshReports}</Button>
             </div>
           ) : (
             <div className="stack-gap-3 p-3">
@@ -667,18 +640,18 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
         <Card className="table-card">
           {toolCalls.length === 0 ? (
             <div className="empty-state-stack">
-              <p className="muted">No tool-call records are available yet.</p>
-              <p className="muted text-xs">Next step: refresh tool calls and request a fresh payload.</p>
-              <Button onClick={() => void load()}>Refresh tool calls</Button>
+              <p className="muted">{runDetailCopy.emptyStates.noToolCalls}</p>
+              <p className="muted text-xs">{runDetailCopy.emptyStates.toolCallsNextStep}</p>
+              <Button onClick={() => void load()}>{runDetailCopy.emptyStates.refreshToolCalls}</Button>
             </div>
           ) : (
             <table className="run-table">
-              <thead><tr><th>Tool</th><th>Status</th><th>Task ID</th><th>Duration</th><th>Error</th></tr></thead>
+              <thead><tr><th>{runDetailCopy.tableHeaders.tool}</th><th>{runDetailCopy.tableHeaders.status}</th><th>{runDetailCopy.tableHeaders.taskId}</th><th>{runDetailCopy.tableHeaders.duration}</th><th>{runDetailCopy.tableHeaders.error}</th></tr></thead>
               <tbody>
                 {toolCalls.map((tc, i) => (
                   <tr key={i} className={tc.status === "error" ? "session-row--failed" : ""}>
                     <td className="cell-primary mono">{tc.tool || "-"}</td>
-                    <td><Badge variant={badgeVariant(tc.status)}>{statusLabel(tc.status || "")}</Badge></td>
+                    <td><Badge variant={badgeVariant(tc.status)}>{statusLabelDesktop(tc.status || "", locale)}</Badge></td>
                     <td className="mono muted">{tc.task_id || "-"}</td>
                     <td className="muted">{tc.duration_ms != null ? `${tc.duration_ms}ms` : "-"}</td>
                     <td className={tc.error ? "cell-danger" : "muted"}>{tc.error || "-"}</td>
@@ -697,22 +670,22 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
             <div className="stack-gap-3 p-3">
               {chainSpec && (
                 <details className="collapsible" open>
-                  <summary>Chain Spec (chain.json)</summary>
+                  <summary>{runDetailCopy.emptyStates.chainSpecTitle}</summary>
                   <div className="collapsible-body"><pre>{JSON.stringify(chainSpec, null, 2)}</pre></div>
                 </details>
               )}
               {chainReport && (
                 <details className="collapsible">
-                  <summary>Chain Report</summary>
+                  <summary>{runDetailCopy.emptyStates.chainReportTitle}</summary>
                   <div className="collapsible-body"><pre>{JSON.stringify(chainReport, null, 2)}</pre></div>
                 </details>
               )}
             </div>
           ) : (
             <div className="empty-state-stack">
-              <p className="muted">No chain-flow content is available yet.</p>
-              <p className="muted text-xs">Next step: refresh chain flow and request a fresh payload.</p>
-              <Button onClick={() => void load()}>Refresh chain flow</Button>
+              <p className="muted">{runDetailCopy.emptyStates.noChainFlow}</p>
+              <p className="muted text-xs">{runDetailCopy.emptyStates.chainNextStep}</p>
+              <Button onClick={() => void load()}>{runDetailCopy.emptyStates.refreshChain}</Button>
             </div>
           )}
         </Card>
@@ -725,9 +698,9 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
             <pre>{JSON.stringify(run.contract, null, 2)}</pre>
           ) : (
             <div className="empty-state-stack">
-              <p className="muted">No contract snapshot is available yet.</p>
-              <p className="muted text-xs">Next step: refresh contract data and request a fresh payload.</p>
-              <Button onClick={() => void load()}>Refresh contract</Button>
+              <p className="muted">{runDetailCopy.emptyStates.noContractSnapshot}</p>
+              <p className="muted text-xs">{runDetailCopy.emptyStates.contractNextStep}</p>
+              <Button onClick={() => void load()}>{runDetailCopy.emptyStates.refreshContract}</Button>
             </div>
           )}
         </Card>
@@ -738,48 +711,48 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
         <Card>
           <CardBody className="stack-gap-4">
             <div>
-              <h3 className="card-title-reset text-base mb-2">Replay compare</h3>
-              <p className="muted text-sm">Choose a baseline run to compare evidence-chain differences.</p>
+              <h3 className="card-title-reset text-base mb-2">{runDetailCopy.emptyStates.replayTitle}</h3>
+              <p className="muted text-sm">{runDetailCopy.emptyStates.replayDescription}</p>
             </div>
             <div className="row-start-gap-2">
               <Select className="flex-1 input-max-400" value={baselineRunId} onChange={(e) => setBaselineRunId(e.target.value)}>
-                <option value="">Select a baseline run...</option>
+                <option value="">{runDetailCopy.emptyStates.selectBaselineRun}</option>
                 {availableRuns.filter(r => r.run_id !== runId).map(r => (
-                  <option key={r.run_id} value={r.run_id}>{r.run_id.slice(0, 12)} - {r.task_id} ({statusLabel(r.status)})</option>
+                  <option key={r.run_id} value={r.run_id}>{r.run_id.slice(0, 12)} - {r.task_id} ({statusLabelDesktop(r.status, locale)})</option>
                 ))}
               </Select>
               <Button variant="primary" disabled={actionBusy} onClick={() => handleAction("replay")}>
-                Run replay
+                {runDetailCopy.emptyStates.runReplay}
               </Button>
             </div>
             {replayResult && (
               <details className="collapsible" open>
-                <summary>Replay result</summary>
+                <summary>{runDetailCopy.emptyStates.replayResult}</summary>
                 <div className="collapsible-body"><pre>{JSON.stringify(replayResult, null, 2)}</pre></div>
               </details>
             )}
             {Object.keys(compareSummary).length > 0 && (
               <div className="grid-2">
                 <Card>
-                  <CardHeader><CardTitle>Compare decision</CardTitle></CardHeader>
+                  <CardHeader><CardTitle>{runDetailCopy.emptyStates.compareDecisionTitle}</CardTitle></CardHeader>
                   <CardBody>
                     <div className="stack-gap-2">
                       <p className="muted">
                         {compareSummaryDeltaCount === 0
-                          ? "The current run looks aligned with the selected baseline."
-                          : "Compare found at least one delta, so this run still needs operator review."}
+                          ? runDetailCopy.emptyStates.compareAligned
+                          : runDetailCopy.emptyStates.compareNeedsReview}
                       </p>
-                      <p className="muted text-sm">Next step: review compare, proof, and incident context before deciding to replay, approve, or keep the run blocked.</p>
+                      <p className="muted text-sm">{runDetailCopy.emptyStates.compareNextStep}</p>
                     </div>
                   </CardBody>
                 </Card>
                 <Card>
-                  <CardHeader><CardTitle>Action context</CardTitle></CardHeader>
+                  <CardHeader><CardTitle>{runDetailCopy.emptyStates.actionContextTitle}</CardTitle></CardHeader>
                   <CardBody>
-                    {incidentPack?.summary ? <p className="muted">Incident: {String(incidentPack.summary)}</p> : null}
-                    {proofPack?.summary ? <p className="muted">Proof: {String(proofPack.summary)}</p> : null}
+                    {incidentPack?.summary ? <p className="muted">{runDetailCopy.emptyStates.incidentPrefix} {String(incidentPack.summary)}</p> : null}
+                    {proofPack?.summary ? <p className="muted">{runDetailCopy.emptyStates.proofPrefix} {String(proofPack.summary)}</p> : null}
                     {!incidentPack?.summary && !proofPack?.summary ? (
-                      <p className="muted">No proof or incident pack is attached yet. Continue from the reports below.</p>
+                      <p className="muted">{runDetailCopy.emptyStates.noProofIncident}</p>
                     ) : null}
                   </CardBody>
                 </Card>
@@ -787,27 +760,27 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
             )}
             {Object.keys(compareSummary).length > 0 && (
               <details className="collapsible" open>
-                <summary>Compare summary</summary>
+                <summary>{runDetailCopy.emptyStates.compareSummaryTitle}</summary>
                 <div className="collapsible-body"><pre>{JSON.stringify(compareSummary, null, 2)}</pre></div>
               </details>
             )}
             {Object.keys(compareSummary).length > 0 && (
-              <Button variant="secondary" onClick={onOpenCompare}>Open compare surface</Button>
+              <Button variant="secondary" onClick={onOpenCompare}>{runDetailCopy.emptyStates.openCompareSurface}</Button>
             )}
             {proofPack && (
               <details className="collapsible" open>
-                <summary>Proof pack</summary>
+                <summary>{runDetailCopy.emptyStates.proofPackTitle}</summary>
                 <div className="collapsible-body"><pre>{JSON.stringify(proofPack, null, 2)}</pre></div>
               </details>
             )}
             {/* Key reports for quick reference */}
             {(testReport || reviewReport || evidenceReport || workReport || taskResult) && (
               <div>
-                <h4 className="card-title-reset text-sm muted mb-2">Related reports</h4>
+                <h4 className="card-title-reset text-sm muted mb-2">{runDetailCopy.emptyStates.relatedReportsTitle}</h4>
                 <div className="stack-gap-2">
-                  {testReport && <details className="collapsible"><summary>test_report.json</summary><div className="collapsible-body"><pre>{JSON.stringify(testReport, null, 2)}</pre></div></details>}
-                  {reviewReport && <details className="collapsible"><summary>review_report.json</summary><div className="collapsible-body"><pre>{JSON.stringify(reviewReport, null, 2)}</pre></div></details>}
-                  {evidenceReport && <details className="collapsible"><summary>evidence_report.json</summary><div className="collapsible-body"><pre>{JSON.stringify(evidenceReport, null, 2)}</pre></div></details>}
+                  {testReport && <details className="collapsible"><summary>{runDetailCopy.emptyStates.testReportTitle}</summary><div className="collapsible-body"><pre>{JSON.stringify(testReport, null, 2)}</pre></div></details>}
+                  {reviewReport && <details className="collapsible"><summary>{runDetailCopy.emptyStates.reviewReportTitle}</summary><div className="collapsible-body"><pre>{JSON.stringify(reviewReport, null, 2)}</pre></div></details>}
+                  {evidenceReport && <details className="collapsible"><summary>{runDetailCopy.emptyStates.evidenceReportTitle}</summary><div className="collapsible-body"><pre>{JSON.stringify(evidenceReport, null, 2)}</pre></div></details>}
                 </div>
               </div>
             )}

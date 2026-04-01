@@ -254,6 +254,18 @@ describe("RunDetailPage p0 controls", () => {
     expect(await screen.findByText("The current run looks aligned with the selected baseline.")).toBeInTheDocument();
   });
 
+  it("renders locale-aware operator labels on run detail when zh-CN is requested", async () => {
+    render(<RunDetailPage runId="run-zh" onBack={vi.fn()} locale="zh-CN" />);
+
+    expect(await screen.findByText("AI 操作员副驾驶")).toBeInTheDocument();
+    expect(screen.getByText("Run 总览")).toBeInTheDocument();
+    expect(screen.getByText("执行角色")).toBeInTheDocument();
+    expect(screen.getByText("证据与可追溯性")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "运行中" })).toHaveAttribute("title", "暂停实时更新");
+    expect(screen.getByRole("button", { name: /事件时间线（1）/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "回放对比" })).toBeInTheDocument();
+  });
+
   it("covers error state retry/back controls", async () => {
     const user = userEvent.setup();
     const onBack = vi.fn();
@@ -360,6 +372,22 @@ describe("RunDetailPage p0 controls", () => {
       await screen.findByText("This run is marked as awaiting human approval. Next step: complete the approval before continuing."),
     ).toBeInTheDocument();
     expect(screen.queryByText(/人工待处理/)).not.toBeInTheDocument();
+  });
+
+  it("renders shared zh-CN operator copy for high-value run detail surfaces", async () => {
+    render(<RunDetailPage runId="run-zh" onBack={vi.fn()} locale="zh-CN" />);
+
+    expect(await screen.findByRole("heading", { name: "run-001" })).toBeInTheDocument();
+    expect(screen.getByText("任务 task-001")).toBeInTheDocument();
+    expect(screen.getByText("AI 操作员副驾驶")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "生成操作摘要" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "运行中" })).toHaveAttribute("title", "暂停实时更新");
+    expect(screen.getByRole("button", { name: /事件时间线（1）/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "回放对比" })).toBeInTheDocument();
+    expect(screen.getByText("Run 总览")).toBeInTheDocument();
+    expect(screen.getByText("执行角色")).toBeInTheDocument();
+    expect(screen.getByText("证据与可追溯性")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "提升为证据" })).toBeInTheDocument();
   });
 
   it("keeps live updates paused for terminal runs", async () => {
