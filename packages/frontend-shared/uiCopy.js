@@ -5,6 +5,236 @@ const UI_COPY = {
     brandTitle: "CortexPilot",
     brandSubtitle: "Command Tower · Workflow Cases · Proof & Replay",
     dashboard: {
+      homePhase2: {
+        heroTitle: "Command Tower for Codex and Claude Code workflows",
+        heroSubtitle:
+          "Start one workflow case, watch Command Tower, then inspect Proof & Replay. CortexPilot keeps Codex and Claude Code work, MCP tools, evidence, and replay on one governed operator path.",
+        startFirstTaskLabel: "Start first task",
+        startNewTaskLabel: "Start new task",
+        viewLatestRunsLabel: "View latest runs",
+        investigateHighRiskFailuresLabel: "Investigate high-risk failures",
+        handleLatestFailureLabel: "Handle latest failure",
+        productSpineTitle: "Product spine",
+        productSpineDescription:
+          "Keep the first screen aligned around the three product words: Command Tower, Workflow Cases, and Proof & Replay.",
+        productSpineCards: [
+          {
+            href: "/command-tower",
+            title: "Command Tower",
+            desc: "Watch governed AI agents and MCP-driven work move through one operator surface.",
+          },
+          {
+            href: "/workflows",
+            title: "Workflow Cases",
+            desc: "Track the case record that ties request, queue, verdict, proof, and linked runs together.",
+          },
+          {
+            href: "/runs",
+            title: "Proof & Replay",
+            desc: "Inspect evidence bundles, compare reruns, and replay failures before you trust the result.",
+          },
+        ],
+        publicTemplatesTitle: "Three public first-run cases",
+        publicTemplatesDescription:
+          "Start with one public, read-only workflow case. `news_digest` is the official first public baseline; `topic_brief` and `page_brief` are showcase paths from the same front door.",
+        publicTemplatesActionLabel: "Open task creation",
+        publicTemplatesActionHref: "/pm",
+        publicTemplateCards: [
+          {
+            href: "/pm?template=news_digest",
+            badge: "Release-proven first run",
+            title: "news_digest",
+            desc: "Generate a news summary around one topic from public sources while keeping the evidence auditable.",
+            bestFor: "Use when you want the fastest proof-oriented public path.",
+            example: "Seattle tech and AI + 3 source domains + 24h",
+            proof: "Proof state: official public baseline",
+            fields: ["topic", "sources[]", "time_range", "max_results"],
+          },
+          {
+            href: "/pm?template=topic_brief",
+            badge: "Public showcase",
+            title: "topic_brief",
+            desc: "Open a bounded topic brief as a read-only workflow case with search-backed proof.",
+            bestFor: "Use when you want a narrow brief around one topic and a recent time window.",
+            example: "Seattle tech and AI + 7d + 5 results",
+            proof: "Proof state: public, but not yet release-proven",
+            fields: ["topic", "time_range", "max_results"],
+          },
+          {
+            href: "/pm?template=page_brief",
+            badge: "Public showcase",
+            title: "page_brief",
+            desc: "Capture one URL as a read-only workflow case with browser-backed evidence.",
+            bestFor: "Use when one page matters more than a whole search topic.",
+            example: "https://example.com + focused summary request",
+            proof: "Proof state: browser-backed showcase path",
+            fields: ["url", "focus"],
+          },
+        ],
+        publicAdvantagesTitle: "Why the first run is credible",
+        publicAdvantagesDescription:
+          "Prompt 5 keeps the public story anchored on proof, replay, read-only MCP access, and explainable operator review instead of generic AI claims.",
+        publicAdvantageCards: [
+          {
+            href: "/runs",
+            title: "Proof before promotion",
+            desc: "Every first-run case still lands on evidence, compare, and replay before you trust the output.",
+          },
+          {
+            href: "/runs",
+            title: "AI operator brief",
+            desc: "Run Detail and Run Compare now explain what changed, why it matters, and the next operator step.",
+          },
+          {
+            href: "/workflows",
+            title: "Share-ready Workflow Cases",
+            desc: "Workflow Cases are now moving toward reusable assets instead of staying trapped as one-off detail pages.",
+          },
+        ],
+        ecosystemTitle: "Works with today's coding-agent ecosystem",
+        ecosystemDescription:
+          "Keep the front door anchored on Codex, Claude Code, and read-only MCP. Mention OpenHands and comparison-only tools in the ecosystem layer, not in the hero.",
+        ecosystemAction: "Open ecosystem map",
+        ecosystemActionHref: "https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/",
+        ecosystemCards: [
+          {
+            badge: "Primary workflow binding",
+            title: "Codex workflows",
+            desc: "Use CortexPilot when Codex-driven work needs one command tower, one case record, and one replayable proof path.",
+          },
+          {
+            badge: "Primary workflow binding",
+            title: "Claude Code workflows",
+            desc: "The same operator surface works for Claude Code-style coding loops that need governed visibility, approvals, and evidence before promotion.",
+          },
+          {
+            badge: "Protocol surface",
+            title: "Read-only MCP",
+            desc: "MCP is a real protocol surface here, but the current boundary is read-only. External tools can inspect truth without mutating it.",
+          },
+          {
+            badge: "Adjacent ecosystem",
+            title: "OpenHands and comparison layer",
+            desc: "OpenHands belongs in the broader ecosystem layer, while OpenCode stays comparison-only and OpenClaw stays out of the main front door.",
+          },
+        ],
+        aiSurfacesTitle: "AI surfaces in the real workflow",
+        aiSurfacesDescription:
+          "AI in CortexPilot is not a floating chat box. It already shows up as a pre-run advisor, a workflow-level explainer, and a run/compare operator brief.",
+        aiSurfaceCards: [
+          {
+            badge: "Pre-run advisory",
+            title: "Flight Plan copilot",
+            desc: "PM intake can preview one bounded pre-run brief before execution starts, so approval and evidence expectations are visible early.",
+          },
+          {
+            badge: "Workflow-level AI",
+            title: "Workflow copilot",
+            desc: "Workflow Cases already expose a workflow-scoped brief that explains queue posture, latest run context, and next operator action.",
+          },
+          {
+            badge: "Run-time AI",
+            title: "Run and compare operator brief",
+            desc: "Run Detail and compare surfaces can already explain deltas, proof, incident context, and the next action without pretending to execute recovery.",
+          },
+        ],
+        builderTitle: "Builder entrypoints",
+        builderDescription:
+          "This is not a full SDK platform, but the client, contract, and shared presentation layers are now documented as real builder surfaces.",
+        builderQuickstartCtaLabel: "Open builder quickstart",
+        builderQuickstartCtaHref: "https://xiaojiou176-open.github.io/CortexPilot-public/builders/",
+        builderCards: [
+          {
+            badge: "Thin client surface",
+            title: "@cortexpilot/frontend-api-client",
+            desc: "Use the dashboard, desktop, and web client entry points when you want runs, Workflow Cases, approvals, and Command Tower reads from one import boundary.",
+          },
+          {
+            badge: "Contract-facing",
+            title: "@cortexpilot/frontend-api-contract",
+            desc: "Use the generated contract-facing types and route/query names when you need stable API imports without backend modules.",
+          },
+          {
+            badge: "Presentation substrate",
+            title: "@cortexpilot/frontend-shared",
+            desc: "Use the shared brand copy, locale helpers, status presentation, and frontend-only types instead of rebuilding those surfaces per app.",
+          },
+        ],
+        caseGalleryBaselineTitle: "Public case gallery baseline",
+        caseGalleryBaselineDescription:
+          "These cards stay grounded in the tracked public packs and their evidence contracts. They are gallery-ready archetypes, not invented showcase data.",
+        caseGalleryBaselineCards: [
+          {
+            href: "/pm?template=news_digest",
+            title: "News digest gallery card",
+            desc: "Release-proven case archetype for a proof-first public recap.",
+            evidence: "Primary report: news_digest_result.json",
+            shareMode: "Share mode: proof-first recap",
+          },
+          {
+            href: "/pm?template=topic_brief",
+            title: "Topic brief gallery card",
+            desc: "Public showcase case archetype for a narrow, search-backed brief.",
+            evidence: "Primary report: topic_brief_result.json",
+            shareMode: "Share mode: research recap",
+          },
+          {
+            href: "/pm?template=page_brief",
+            title: "Page brief gallery card",
+            desc: "Browser-backed case archetype for one URL and one focused brief.",
+            evidence: "Primary report: page_brief_result.json",
+            shareMode: "Share mode: source-page review",
+          },
+        ],
+        caseGalleryGuideCtaLabel: "Open use-case guide",
+        caseGalleryGuideHref: "https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/",
+        liveCaseGalleryTitle: "Live Workflow Case gallery",
+        liveCaseGalleryDescription:
+          "Use real Workflow Cases as lightweight showcase assets. This baseline links to live case detail and share-ready recap instead of inventing demo-only gallery data.",
+        liveCaseGalleryActionLabel: "Open Workflow Cases",
+        liveCaseGalleryActionHref: "/workflows",
+        firstTaskGuideTitle: "First-task guide (expandable)",
+        firstTaskGuideDescription:
+          "Start with the request, watch Command Tower, confirm the Workflow Case, then inspect Proof & Replay. It stays collapsed by default to keep the first screen quiet.",
+        firstTaskGuideSummary: "Show the four-step first-task flow",
+        firstTaskGuideSteps: [
+          {
+            href: "/pm",
+            prefetch: true,
+            step: "Step 1",
+            title: "Describe the request (goal + acceptance)",
+            desc: "State the goal and acceptance target in one sentence, then let the system open the session.",
+          },
+          {
+            href: "/command-tower",
+            prefetch: false,
+            step: "Step 2",
+            title: "Watch live progress (confirm it is moving)",
+            desc: "Open Command Tower and confirm the run is advancing instead of getting stuck.",
+          },
+          {
+            href: "/workflows",
+            prefetch: true,
+            step: "Step 3",
+            title: "Confirm the Workflow Case",
+            desc: "Open Workflow Cases to confirm the durable case record, queue posture, and linked runs.",
+          },
+          {
+            href: "/runs",
+            prefetch: true,
+            step: "Step 4",
+            title: "Inspect Proof & Replay",
+            desc: "Open the run ledger to inspect status, evidence, compare state, and replay state.",
+          },
+        ],
+        optionalApprovalStep: {
+          href: "/god-mode",
+          prefetch: true,
+          step: "Optional",
+          title: "Approval checkpoint (only when review is required)",
+          desc: "Use Quick approval to confirm the blocked step and complete the final release.",
+        },
+      },
       skipToMainContent: "Skip to dashboard content",
       navigationAriaLabel: "Dashboard navigation",
       topbarTitle: "Operator control plane",
@@ -326,6 +556,236 @@ const UI_COPY = {
     brandTitle: "CortexPilot",
     brandSubtitle: "指挥塔 · 工作流案例 · 证明与回放",
     dashboard: {
+      homePhase2: {
+        heroTitle: "面向 Codex 和 Claude Code 工作流的指挥塔",
+        heroSubtitle:
+          "先启动一个工作流案例，再观察指挥塔，最后核对证明与回放。CortexPilot 把 Codex / Claude Code 工作、MCP 工具、证据和回放放进同一条受治理的操作路径。",
+        startFirstTaskLabel: "启动首个任务",
+        startNewTaskLabel: "启动新任务",
+        viewLatestRunsLabel: "查看最近 runs",
+        investigateHighRiskFailuresLabel: "排查高风险失败",
+        handleLatestFailureLabel: "处理最近失败",
+        productSpineTitle: "产品主脊柱",
+        productSpineDescription:
+          "让首页始终围绕三个产品词：Command Tower、Workflow Cases 和 Proof & Replay。",
+        productSpineCards: [
+          {
+            href: "/command-tower",
+            title: "Command Tower",
+            desc: "在一个操作面里观察受治理的 AI agent 和 MCP 驱动工作如何前进。",
+          },
+          {
+            href: "/workflows",
+            title: "Workflow Cases",
+            desc: "把请求、队列、判定、证明和关联 runs 绑定到同一个案例记录里。",
+          },
+          {
+            href: "/runs",
+            title: "Proof & Replay",
+            desc: "在真正信任结果前，先检查证据包、对比重跑和失败回放。",
+          },
+        ],
+        publicTemplatesTitle: "三个公开首跑 use case",
+        publicTemplatesDescription:
+          "从一个公开、只读的 workflow case 开始。`news_digest` 是官方首个公开基线；`topic_brief` 和 `page_brief` 是同一前门下的展示路径。",
+        publicTemplatesActionLabel: "打开任务创建",
+        publicTemplatesActionHref: "/pm",
+        publicTemplateCards: [
+          {
+            href: "/pm?template=news_digest",
+            badge: "已发布验证的首跑",
+            title: "news_digest",
+            desc: "围绕一个主题生成新闻摘要，同时保留可审计的证据链。",
+            bestFor: "适合最快证明导向的公开路径。",
+            example: "Seattle tech and AI + 3 个来源域名 + 24h",
+            proof: "Proof 状态：官方公开基线",
+            fields: ["topic", "sources[]", "time_range", "max_results"],
+          },
+          {
+            href: "/pm?template=topic_brief",
+            badge: "公开展示",
+            title: "topic_brief",
+            desc: "把一个有边界的话题简报做成只读 workflow case，并附带搜索证据。",
+            bestFor: "适合围绕一个主题和最近时间窗做窄范围简报。",
+            example: "Seattle tech and AI + 7d + 5 results",
+            proof: "Proof 状态：公开，但尚未作为发布级基线",
+            fields: ["topic", "time_range", "max_results"],
+          },
+          {
+            href: "/pm?template=page_brief",
+            badge: "公开展示",
+            title: "page_brief",
+            desc: "围绕单个 URL 和浏览器证据生成只读 workflow case。",
+            bestFor: "适合单页比整段主题更重要的情况。",
+            example: "https://example.com + focused summary request",
+            proof: "Proof 状态：浏览器证据展示路径",
+            fields: ["url", "focus"],
+          },
+        ],
+        publicAdvantagesTitle: "为什么首跑仍然可信",
+        publicAdvantagesDescription:
+          "Prompt 5 把公开叙事继续锚定在 proof、replay、只读 MCP 访问和可解释的 operator review，而不是泛泛 AI 口号。",
+        publicAdvantageCards: [
+          {
+            href: "/runs",
+            title: "先有证明，再谈推进",
+            desc: "每个首跑 case 都会先落到 evidence、compare 和 replay，再谈是否可信。",
+          },
+          {
+            href: "/runs",
+            title: "AI operator 摘要",
+            desc: "Run Detail 和 Run Compare 已经能解释变化点、影响，以及下一步 operator 动作。",
+          },
+          {
+            href: "/workflows",
+            title: "可分享的 Workflow Cases",
+            desc: "Workflow Cases 正在变成可复用资产，而不是只停留在一次性详情页里。",
+          },
+        ],
+        ecosystemTitle: "与当前 coding-agent 生态的关系",
+        ecosystemDescription:
+          "前门继续以 Codex、Claude Code 和只读 MCP 为主轴。OpenHands 和 comparison-only 工具只放在生态层，不放进 hero。",
+        ecosystemAction: "打开生态地图",
+        ecosystemActionHref: "https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/",
+        ecosystemCards: [
+          {
+            badge: "主工作流绑定",
+            title: "Codex 工作流",
+            desc: "当 Codex 驱动的工作需要统一指挥塔、案例记录和可回放证明路径时，就该由 CortexPilot 承接。",
+          },
+          {
+            badge: "主工作流绑定",
+            title: "Claude Code 工作流",
+            desc: "同一套操作面也适用于 Claude Code 风格的编码循环，重点在于治理可见性、审批和证据。",
+          },
+          {
+            badge: "协议层",
+            title: "只读 MCP",
+            desc: "这里的 MCP 是真实协议面，但当前边界仍然是只读。外部工具可以读取真相，不能修改真相。",
+          },
+          {
+            badge: "相邻生态",
+            title: "OpenHands 与 comparison 层",
+            desc: "OpenHands 留在更广的生态层；OpenCode 维持 comparison-only，OpenClaw 继续不进主前门。",
+          },
+        ],
+        aiSurfacesTitle: "AI 功能已经进入主工作流",
+        aiSurfacesDescription:
+          "CortexPilot 里的 AI 不是漂浮聊天框。它已经分别出现在执行前建议、工作流解释，以及运行/对比的操作摘要里。",
+        aiSurfaceCards: [
+          {
+            badge: "执行前建议",
+            title: "Flight Plan 副驾驶",
+            desc: "PM intake 现在可以在执行前先生成一份有边界的建议摘要，让审批和证据预期更早可见。",
+          },
+          {
+            badge: "工作流级 AI",
+            title: "Workflow 副驾驶",
+            desc: "Workflow Case 已经能给出工作流级别的解释，覆盖队列姿态、最新 run 上下文和下一步操作。",
+          },
+          {
+            badge: "运行时 AI",
+            title: "Run / Compare 操作摘要",
+            desc: "Run Detail 和 compare 面已经能解释差异、证明、incident 上下文和下一步动作，而不假装自己在执行恢复。",
+          },
+        ],
+        builderTitle: "Builder 入口",
+        builderDescription:
+          "这还不是完整 SDK 平台，但 client、contract 和 shared presentation 层已经是可讲、可接入的 builder surface。",
+        builderQuickstartCtaLabel: "打开 builder 快速入口",
+        builderQuickstartCtaHref: "https://xiaojiou176-open.github.io/CortexPilot-public/builders/",
+        builderCards: [
+          {
+            badge: "薄客户端",
+            title: "@cortexpilot/frontend-api-client",
+            desc: "当你想从一个导入边界里拿到 runs、Workflow Cases、approvals 和 Command Tower 读取能力时，就从这里开始。",
+          },
+          {
+            badge: "契约层",
+            title: "@cortexpilot/frontend-api-contract",
+            desc: "当你需要稳定的 API 类型和 route/query 名称，而不想直接导入后端模块时，用这个包。",
+          },
+          {
+            badge: "表现层 substrate",
+            title: "@cortexpilot/frontend-shared",
+            desc: "品牌 copy、locale helper、status presentation 和 frontend-only types 已经集中到这一层，而不是散落在各 app 里。",
+          },
+        ],
+        caseGalleryBaselineTitle: "公开案例画廊基线",
+        caseGalleryBaselineDescription:
+          "这些卡片继续锚定在已跟踪的公开包和证据契约上。它们是可进入画廊的案例原型，不是凭空编出来的展示数据。",
+        caseGalleryBaselineCards: [
+          {
+            href: "/pm?template=news_digest",
+            title: "News digest 画廊卡片",
+            desc: "用于 proof-first 公开 recap 的发布级案例原型。",
+            evidence: "主报告：news_digest_result.json",
+            shareMode: "分享模式：proof-first recap",
+          },
+          {
+            href: "/pm?template=topic_brief",
+            title: "Topic brief 画廊卡片",
+            desc: "用于窄范围、搜索证据驱动简报的公开展示原型。",
+            evidence: "主报告：topic_brief_result.json",
+            shareMode: "分享模式：research recap",
+          },
+          {
+            href: "/pm?template=page_brief",
+            title: "Page brief 画廊卡片",
+            desc: "用于单页聚焦简报的浏览器证据原型。",
+            evidence: "主报告：page_brief_result.json",
+            shareMode: "分享模式：source-page review",
+          },
+        ],
+        caseGalleryGuideCtaLabel: "打开 use-case 指南",
+        caseGalleryGuideHref: "https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/",
+        liveCaseGalleryTitle: "真实 Workflow Case 画廊",
+        liveCaseGalleryDescription:
+          "把真实 Workflow Cases 作为轻量 showcase asset 来使用。这里会直接链接 live case detail 和可分享 recap，而不是伪造 demo-only 画廊数据。",
+        liveCaseGalleryActionLabel: "打开 Workflow Cases",
+        liveCaseGalleryActionHref: "/workflows",
+        firstTaskGuideTitle: "首个任务指南（可展开）",
+        firstTaskGuideDescription:
+          "从请求开始，观察 Command Tower，确认 Workflow Case，再检查 Proof & Replay。默认折叠，避免首屏过吵。",
+        firstTaskGuideSummary: "显示四步首跑流程",
+        firstTaskGuideSteps: [
+          {
+            href: "/pm",
+            prefetch: true,
+            step: "第 1 步",
+            title: "描述请求（目标 + 验收）",
+            desc: "用一句话说清楚目标和验收标准，然后让系统打开 session。",
+          },
+          {
+            href: "/command-tower",
+            prefetch: false,
+            step: "第 2 步",
+            title: "观察实时进展（确认它在前进）",
+            desc: "打开 Command Tower，确认 run 在推进而不是卡住。",
+          },
+          {
+            href: "/workflows",
+            prefetch: true,
+            step: "第 3 步",
+            title: "确认 Workflow Case",
+            desc: "打开 Workflow Cases，确认持久案例记录、队列姿态和关联 runs。",
+          },
+          {
+            href: "/runs",
+            prefetch: true,
+            step: "第 4 步",
+            title: "检查 Proof & Replay",
+            desc: "打开 run 台账，检查状态、证据、compare 状态和 replay 状态。",
+          },
+        ],
+        optionalApprovalStep: {
+          href: "/god-mode",
+          prefetch: true,
+          step: "可选",
+          title: "审批检查点（仅在需要 review 时）",
+          desc: "用 Quick approval 确认被阻塞步骤，并完成最后放行。",
+        },
+      },
       skipToMainContent: "跳到控制台主内容",
       navigationAriaLabel: "控制台导航",
       topbarTitle: "操作控制平面",

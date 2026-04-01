@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 import {
@@ -18,6 +19,7 @@ type DashboardShellChromeProps = {
 };
 
 export default function DashboardShellChrome({ children }: DashboardShellChromeProps) {
+  const router = useRouter();
   const [locale, setLocale] = useState<UiLocale>(DEFAULT_UI_LOCALE);
 
   useEffect(() => {
@@ -56,6 +58,7 @@ export default function DashboardShellChrome({ children }: DashboardShellChromeP
                   setLocale((previous) => {
                     const next = toggleUiLocale(previous);
                     persistPreferredUiLocale(next);
+                    router.refresh();
                     return next;
                   });
                 }}

@@ -8,15 +8,42 @@
       name="description"
       content="Builder quickstart for CortexPilot: current client entrypoints, contract-facing types, and shared presentation substrate for dashboard and desktop consumers."
     />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/CortexPilot-public/builders/" />
+    <meta property="og:title" content="CortexPilot | Builder quickstart" />
+    <meta
+      property="og:description"
+      content="Builder quickstart for the current CortexPilot API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
+    />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/CortexPilot-public/builders/" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="CortexPilot | Builder quickstart" />
+    <meta
+      name="twitter:description"
+      content="Current builder entrypoints for the CortexPilot API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
+    />
   </head>
   <body>
     <main style="max-width:960px;margin:0 auto;padding:40px 20px;font:16px/1.6 system-ui,sans-serif;color:#17232c;">
-      <p><a href="../">Back to the public landing page</a></p>
+      <p>
+        <a href="../">Back to the public landing page</a>
+        · <a href="../ai-surfaces/">AI + MCP + API surfaces</a>
+        · <a href="../ecosystem/">Ecosystem map</a>
+        · <a href="../use-cases/">Use cases</a>
+      </p>
       <h1>Builder quickstart</h1>
       <p>
         CortexPilot is not a full SDK platform today, but it does already expose
         a useful builder surface across three layers.
       </p>
+
+      <h2>What builders can do today</h2>
+      <ul>
+        <li>Call control-plane reads from the thin frontend API client.</li>
+        <li>Reuse generated contract-facing types without importing backend modules.</li>
+        <li>Share locale, status-presentation, and UI copy substrate across dashboard and desktop consumers.</li>
+        <li>Compose those surfaces with the existing read-only MCP story instead of inventing a second integration contract.</li>
+      </ul>
 
       <h2>1. Frontend API client</h2>
       <p>
@@ -41,6 +68,13 @@
       </p>
       <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md">Open shared README</a></p>
 
+      <h2>Current boundaries</h2>
+      <ul>
+        <li>This is a builder entrypoint layer, not a hosted operator product.</li>
+        <li>The MCP story is real, but the current public boundary stays read-only.</li>
+        <li>The package surface is useful today, but it should not be described as a complete SDK platform.</li>
+      </ul>
+
       <h2>Minimal example</h2>
       <pre><code>import { createFrontendApiClient } from "@cortexpilot/frontend-api-client";
 
@@ -50,6 +84,13 @@ const client = createFrontendApiClient({
 
 const overview = await client.fetchCommandTowerOverview();
 const workflows = await client.fetchWorkflows();</code></pre>
+
+      <p>
+        Want the surrounding product map instead of just the package entrypoints?
+        Visit the <a href="../ecosystem/">ecosystem map</a>, the
+        <a href="../ai-surfaces/">AI + MCP + API surface guide</a>, or the
+        <a href="../use-cases/">use-case guide</a>.
+      </p>
     </main>
   </body>
 </html>

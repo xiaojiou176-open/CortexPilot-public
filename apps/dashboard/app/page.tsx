@@ -1,10 +1,13 @@
 import Link from "next/link";
-import { Button, type ButtonVariant } from "../components/ui/button";
+import { cookies } from "next/headers";
+import { Button } from "../components/ui/button";
 import { Badge, type BadgeVariant } from "../components/ui/badge";
 import { Card } from "../components/ui/card";
+import DashboardHomeStorySections from "../components/DashboardHomeStorySections";
 import { fetchRuns, fetchWorkflows } from "../lib/api";
 import { safeLoad } from "../lib/serverPageData";
-import { DEFAULT_UI_LOCALE, getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
+import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
+import { readPreferredUiLocaleCookie } from "@cortexpilot/frontend-shared/uiLocale";
 
 const CJK_TEXT_RE = /[\u3400-\u9fff]/;
 
@@ -80,157 +83,6 @@ const OUTCOME_LABELS_EN: Record<string, string> = {
   unknown: "Failure awaiting classification",
 };
 
-const FIRST_LOOP_STEPS = [
-  {
-    href: "/pm",
-    prefetch: true,
-    step: "Step 1",
-    title: "Describe the request (goal + acceptance)",
-    desc: "State the goal and acceptance target in one sentence, then let the system open the session.",
-  },
-  {
-    href: "/command-tower",
-    prefetch: false,
-    step: "Step 2",
-    title: "Watch live progress (confirm it is moving)",
-    desc: "Open Command Tower and confirm the run is advancing instead of getting stuck.",
-  },
-  {
-    href: "/workflows",
-    prefetch: true,
-    step: "Step 3",
-    title: "Confirm the Workflow Case",
-    desc: "Open Workflow Cases to confirm the durable case record, queue posture, and linked runs.",
-  },
-  {
-    href: "/runs",
-    prefetch: true,
-    step: "Step 4",
-    title: "Inspect Proof & Replay",
-    desc: "Open the run ledger to inspect status, evidence, compare state, and replay state.",
-  },
-];
-
-const OPTIONAL_APPROVAL_STEP = {
-  href: "/god-mode",
-  prefetch: true,
-  step: "Optional",
-  title: "Approval checkpoint (only when review is required)",
-  desc: "Use Quick approval to confirm the blocked step and complete the final release.",
-};
-
-const PUBLIC_TASK_TEMPLATES = [
-  {
-    href: "/pm?template=news_digest",
-    badge: "Release-proven first run",
-    title: "news_digest",
-    desc: "Generate a news summary around one topic from public sources while keeping the evidence auditable.",
-    bestFor: "Use when you want the fastest proof-oriented public path.",
-    example: "Seattle tech and AI + 3 source domains + 24h",
-    proof: "Proof state: official public baseline",
-    fields: ["topic", "sources[]", "time_range", "max_results"],
-  },
-  {
-    href: "/pm?template=topic_brief",
-    badge: "Public showcase",
-    title: "topic_brief",
-    desc: "Open a bounded topic brief as a read-only workflow case with search-backed proof.",
-    bestFor: "Use when you want a narrow brief around one topic and a recent time window.",
-    example: "Seattle tech and AI + 7d + 5 results",
-    proof: "Proof state: public, but not yet release-proven",
-    fields: ["topic", "time_range", "max_results"],
-  },
-  {
-    href: "/pm?template=page_brief",
-    badge: "Public showcase",
-    title: "page_brief",
-    desc: "Capture one URL as a read-only workflow case with browser-backed evidence.",
-    bestFor: "Use when one page matters more than a whole search topic.",
-    example: "https://example.com + focused summary request",
-    proof: "Proof state: browser-backed showcase path",
-    fields: ["url", "focus"],
-  },
-];
-
-const PUBLIC_ADVANTAGES = [
-  {
-    href: "/runs",
-    title: "Proof before promotion",
-    desc: "Every first-run case still lands on evidence, compare, and replay before you trust the output.",
-  },
-  {
-    href: "/runs",
-    title: "AI operator brief",
-    desc: "Run Detail and Run Compare now explain what changed, why it matters, and the next operator step.",
-  },
-  {
-    href: "/workflows",
-    title: "Share-ready Workflow Cases",
-    desc: "Workflow Cases are now moving toward reusable assets instead of staying trapped as one-off detail pages.",
-  },
-];
-
-const ECOSYSTEM_BINDING_HREFS = [
-  "/command-tower",
-  "/command-tower",
-  "/runs",
-  "https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/",
-] as const;
-
-const AI_SURFACE_HREFS = [
-  "/pm",
-  "/workflows",
-  "/runs",
-] as const;
-
-const BUILDER_ENTRYPOINT_HREFS = [
-  "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md",
-  "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/index.d.ts",
-  "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md",
-] as const;
-
-const PUBLIC_CASE_GALLERY_BASELINE = [
-  {
-    href: "/pm?template=news_digest",
-    title: "News digest gallery card",
-    desc: "Release-proven case archetype for a proof-first public recap.",
-    evidence: "Primary report: news_digest_result.json",
-    shareMode: "Share mode: proof-first recap",
-  },
-  {
-    href: "/pm?template=topic_brief",
-    title: "Topic brief gallery card",
-    desc: "Public showcase case archetype for a narrow, search-backed brief.",
-    evidence: "Primary report: topic_brief_result.json",
-    shareMode: "Share mode: research recap",
-  },
-  {
-    href: "/pm?template=page_brief",
-    title: "Page brief gallery card",
-    desc: "Browser-backed case archetype for one URL and one focused brief.",
-    evidence: "Primary report: page_brief_result.json",
-    shareMode: "Share mode: source-page review",
-  },
-];
-
-const PRODUCT_SPINE = [
-  {
-    href: "/command-tower",
-    title: "Command Tower",
-    desc: "Watch governed AI agents and MCP-driven work move through one operator surface.",
-  },
-  {
-    href: "/workflows",
-    title: "Workflow Cases",
-    desc: "Track the case record that ties request, queue, verdict, proof, and linked runs together.",
-  },
-  {
-    href: "/runs",
-    title: "Proof & Replay",
-    desc: "Inspect evidence bundles, compare reruns, and replay failures before you trust the result.",
-  },
-];
-
 function hasCjkText(value: string | undefined | null): boolean {
   return Boolean(value && CJK_TEXT_RE.test(value));
 }
@@ -304,25 +156,9 @@ function compactTaskId(value: string | undefined): string {
   return raw.length <= 16 ? raw : `${raw.slice(0, 8)}...${raw.slice(-4)}`;
 }
 
-function zipCardsWithHrefs<T extends { badge?: string; title: string; desc: string }>(
-  cards: readonly T[],
-  hrefs: readonly string[],
-  context: string,
-): Array<T & { href: string }> {
-  if (cards.length !== hrefs.length) {
-    throw new Error(
-      `Length mismatch for homePhase2Copy.${context} (${cards.length}) and ${context} hrefs (${hrefs.length}).`,
-    );
-  }
-
-  return cards.map((item, index) => ({
-    ...item,
-    href: hrefs[index],
-  }));
-}
-
 export default async function Home() {
-  const homePhase2Copy = getUiCopy(DEFAULT_UI_LOCALE).dashboard.homePhase2;
+  const locale = readPreferredUiLocaleCookie((await cookies()).toString());
+  const homePhase2Copy = getUiCopy(locale).dashboard.homePhase2;
   const { data: runs, warning } = await safeLoad(fetchRuns, [], "run list");
   const { data: workflows, warning: workflowsWarning } = await safeLoad(fetchWorkflows, [], "workflow list");
   const latestRuns = Array.isArray(runs) ? runs.slice(0, 12) : [];
@@ -386,7 +222,6 @@ export default async function Home() {
         : failedCount === 0
           ? "Stable: no recent failed runs"
           : "Controlled: a few failures exist, keep monitoring";
-  const primaryActionLabel = latestRuns.length > 0 ? "Start new task" : "Start first task";
   const latestFailureCategory =
     (latestFailure
       ? outcomeLabelEn(latestFailure.failure_class) ||
@@ -397,19 +232,6 @@ export default async function Home() {
   const latestFailureGovernanceLabel = latestFailure
     ? `Governance entry: ${latestFailureHint}`
     : "Governance entry: open runs";
-  const topSecondaryAction = failedCount > 0
-    ? {
-        href: failureRate >= 0.5 ? "/events" : latestFailureGovernanceHref,
-        label: failureRate >= 0.5 ? "Investigate high-risk failures" : "Handle latest failure",
-        variant: (failureRate >= 0.5 ? "warning" : "secondary") as ButtonVariant,
-      }
-    : latestRuns.length > 0
-      ? {
-          href: "/runs",
-          label: "View latest runs",
-          variant: "secondary" as ButtonVariant,
-        }
-      : null;
   const riskSummaryTitle =
     hasDegradedRunsData
       ? "Data degraded"
@@ -434,225 +256,31 @@ export default async function Home() {
       : "metric-value--success";
   const warningText =
     firstEnglishText(warning) || "The run list is temporarily unavailable. Try again soon.";
-  const ecosystemBindings = zipCardsWithHrefs(
-    homePhase2Copy.ecosystemCards,
-    ECOSYSTEM_BINDING_HREFS,
-    "ecosystemCards",
-  );
-  const aiSurfaceCards = zipCardsWithHrefs(
-    homePhase2Copy.aiSurfaceCards,
-    AI_SURFACE_HREFS,
-    "aiSurfaceCards",
-  );
-  const builderEntrypoints = zipCardsWithHrefs(
-    homePhase2Copy.builderCards,
-    BUILDER_ENTRYPOINT_HREFS,
-    "builderCards",
-  );
 
   return (
     <main className="grid" aria-labelledby="dashboard-home-title">
-      <header className="app-section">
-        <div className="section-header">
-          <div>
-            <h1 id="dashboard-home-title" className="page-title">
-              {homePhase2Copy.heroTitle}
-            </h1>
-            <p className="page-subtitle">
-              {homePhase2Copy.heroSubtitle}
-            </p>
-          </div>
-          <nav aria-label="Home primary actions">
-            <Button asChild variant="default">
-              <Link href="/pm" prefetch>{primaryActionLabel}</Link>
-            </Button>
-            {topSecondaryAction ? (
-              <Button asChild variant={topSecondaryAction.variant}>
-                <Link href={topSecondaryAction.href}>{topSecondaryAction.label}</Link>
-              </Button>
-            ) : null}
-          </nav>
-        </div>
-      </header>
-
-      <section className="app-section" aria-labelledby="dashboard-product-spine-title">
-        <div className="section-header">
-          <div>
-            <h2 id="dashboard-product-spine-title" className="section-title">
-              Product spine
-            </h2>
-            <p>Keep the first screen aligned around the three product words: Command Tower, Workflow Cases, and Proof &amp; Replay.</p>
-          </div>
-        </div>
-        <div className="quick-grid">
-          {PRODUCT_SPINE.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card">
-              <span className="quick-card-title">{item.title}</span>
-              <span className="quick-card-desc">{item.desc}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="app-section" aria-labelledby="dashboard-public-templates-title">
-        <div className="section-header">
-          <div>
-            <h2 id="dashboard-public-templates-title" className="section-title">
-              Three public first-run cases
-            </h2>
-            <p>Start with one public, read-only workflow case. `news_digest` is the official first public baseline; `topic_brief` and `page_brief` are showcase paths from the same front door.</p>
-          </div>
-          <nav aria-label="Public task template actions">
-            <Button asChild variant="secondary">
-              <Link href="/pm">Open task creation</Link>
-            </Button>
-          </nav>
-        </div>
-        <div className="quick-grid">
-          {PUBLIC_TASK_TEMPLATES.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card">
-              <span className="quick-card-desc">{item.badge}</span>
-              <span className="quick-card-title">{item.title}</span>
-              <span className="quick-card-desc">{item.desc}</span>
-              <span className="cell-sub mono">Best for: {item.bestFor}</span>
-              <span className="cell-sub mono">Try with: {item.example}</span>
-              <span className="cell-sub mono">{item.proof}</span>
-              <span className="cell-sub mono">{item.fields.join(" · ")}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="app-section" aria-labelledby="dashboard-public-differentiators-title">
-        <div className="section-header">
-          <div>
-            <h2 id="dashboard-public-differentiators-title" className="section-title">
-              Why the first run is credible
-            </h2>
-            <p>Prompt 5 keeps the public story anchored on proof, replay, read-only MCP access, and explainable operator review instead of generic AI claims.</p>
-          </div>
-        </div>
-        <div className="quick-grid">
-          {PUBLIC_ADVANTAGES.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card">
-              <span className="quick-card-title">{item.title}</span>
-              <span className="quick-card-desc">{item.desc}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="app-section" aria-labelledby="dashboard-ecosystem-title">
-        <div className="section-header">
-          <div>
-            <h2 id="dashboard-ecosystem-title" className="section-title">
-              {homePhase2Copy.ecosystemTitle}
-            </h2>
-            <p>{homePhase2Copy.ecosystemDescription}</p>
-          </div>
-          <nav aria-label="Ecosystem actions">
-            <Button asChild variant="secondary">
-              <Link href={homePhase2Copy.ecosystemActionHref}>
-                {homePhase2Copy.ecosystemAction}
-              </Link>
-            </Button>
-          </nav>
-        </div>
-        <div className="quick-grid">
-          {ecosystemBindings.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card" prefetch={item.href.startsWith("/")}>
-              <span className="quick-card-desc">{item.badge}</span>
-              <span className="quick-card-title">{item.title}</span>
-              <span className="quick-card-desc">{item.desc}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="app-section" aria-labelledby="dashboard-ai-surfaces-title">
-        <div className="section-header">
-          <div>
-            <h2 id="dashboard-ai-surfaces-title" className="section-title">
-              {homePhase2Copy.aiSurfacesTitle}
-            </h2>
-            <p>{homePhase2Copy.aiSurfacesDescription}</p>
-          </div>
-        </div>
-        <div className="quick-grid">
-          {aiSurfaceCards.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card" prefetch={item.href.startsWith("/")}>
-              <span className="quick-card-desc">{item.badge}</span>
-              <span className="quick-card-title">{item.title}</span>
-              <span className="quick-card-desc">{item.desc}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="app-section" aria-labelledby="dashboard-builder-entrypoints-title">
-        <div className="section-header">
-          <div>
-            <h2 id="dashboard-builder-entrypoints-title" className="section-title">
-              {homePhase2Copy.builderTitle}
-            </h2>
-            <p>{homePhase2Copy.builderDescription}</p>
-          </div>
-          <nav aria-label="Builder quickstart actions">
-            <Button asChild variant="secondary">
-              <Link href={homePhase2Copy.builderQuickstartCtaHref}>
-                {homePhase2Copy.builderQuickstartCtaLabel}
-              </Link>
-            </Button>
-          </nav>
-        </div>
-        <div className="quick-grid">
-          {builderEntrypoints.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card" prefetch={false}>
-              <span className="quick-card-desc">{item.badge}</span>
-              <span className="quick-card-title">{item.title}</span>
-              <span className="quick-card-desc">{item.desc}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="app-section" aria-labelledby="dashboard-case-gallery-baseline-title">
-        <div className="section-header">
-          <div>
-            <h2 id="dashboard-case-gallery-baseline-title" className="section-title">
-              Public case gallery baseline
-            </h2>
-            <p>These cards stay grounded in the tracked public packs and their evidence contracts. They are gallery-ready archetypes, not invented showcase data.</p>
-          </div>
-          <nav aria-label="Public case gallery actions">
-            <Button asChild variant="secondary">
-              <Link href={homePhase2Copy.caseGalleryGuideHref}>{homePhase2Copy.caseGalleryGuideCtaLabel}</Link>
-            </Button>
-          </nav>
-        </div>
-        <div className="quick-grid">
-          {PUBLIC_CASE_GALLERY_BASELINE.map((item) => (
-            <Link key={item.title} href={item.href} className="quick-card">
-              <span className="quick-card-title">{item.title}</span>
-              <span className="quick-card-desc">{item.desc}</span>
-              <span className="cell-sub mono">{item.evidence}</span>
-              <span className="cell-sub mono">{item.shareMode}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <DashboardHomeStorySections
+        failedCount={failedCount}
+        failureRate={failureRate}
+        hasRunHistory={hasRunHistory}
+        latestFailureGovernanceHref={latestFailureGovernanceHref}
+        locale={locale}
+        showFirstTaskGuide={!hasRunHistory}
+      />
 
       <section className="app-section" aria-labelledby="dashboard-case-gallery-live-title">
         <div className="section-header">
           <div>
             <h2 id="dashboard-case-gallery-live-title" className="section-title">
-              Public case gallery baseline
+              {homePhase2Copy.liveCaseGalleryTitle}
             </h2>
-            <p>Use real Workflow Cases as lightweight showcase assets. This baseline links to live case detail and share-ready recap instead of inventing demo-only gallery data.</p>
+            <p>{homePhase2Copy.liveCaseGalleryDescription}</p>
           </div>
           <nav aria-label="Case gallery actions">
             <Button asChild variant="secondary">
-              <Link href="/workflows">Open Workflow Cases</Link>
+              <Link href={homePhase2Copy.liveCaseGalleryActionHref}>
+                {homePhase2Copy.liveCaseGalleryActionLabel}
+              </Link>
             </Button>
           </nav>
         </div>
@@ -702,38 +330,6 @@ export default async function Home() {
           </div>
         )}
       </section>
-
-      {latestRuns.length === 0 ? (
-        <section className="app-section" aria-label="Start your first task in four steps">
-          <div className="section-header">
-            <div>
-              <h2 className="section-title">First-task guide (expandable)</h2>
-              <p>Start with the request, watch Command Tower, confirm the Workflow Case, then inspect Proof &amp; Replay. It stays collapsed by default to keep the first screen quiet.</p>
-            </div>
-          </div>
-          <Card asChild>
-            <details data-testid="home-onboarding-details">
-              <summary className="quick-card-title">Show the four-step first-task flow</summary>
-              <div className="quick-grid mt-2">
-                {FIRST_LOOP_STEPS.map((step) => (
-                  <Link key={step.href} href={step.href} prefetch={step.prefetch} className="quick-card">
-                    <span className="quick-card-desc">{step.step}</span>
-                    <span className="quick-card-title">{step.title}</span>
-                    <span className="quick-card-desc">{step.desc}</span>
-                  </Link>
-                ))}
-              </div>
-              <div className="quick-grid mt-2" aria-label="Optional approval step">
-                <Link href={OPTIONAL_APPROVAL_STEP.href} prefetch={OPTIONAL_APPROVAL_STEP.prefetch} className="quick-card">
-                  <span className="quick-card-desc">{OPTIONAL_APPROVAL_STEP.step}</span>
-                  <span className="quick-card-title">{OPTIONAL_APPROVAL_STEP.title}</span>
-                  <span className="quick-card-desc">{OPTIONAL_APPROVAL_STEP.desc}</span>
-                </Link>
-              </div>
-            </details>
-          </Card>
-        </section>
-      ) : null}
 
       <section className="app-section" aria-label="Risk and status summary">
         {warning ? (

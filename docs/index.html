@@ -3,32 +3,55 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CortexPilot | Command Tower for Codex and Claude Code workflows</title>
+    <title>CortexPilot | AI Work Command Tower for Codex, Claude Code, and MCP</title>
     <meta
       name="description"
-      content="CortexPilot is the command tower for Codex and Claude Code workflows with MCP-readable runs, Workflow Cases, proof and replay, and explainable operator guidance."
+      content="CortexPilot is the AI Work Command Tower for Codex and Claude Code workflows with Model Context Protocol (MCP)-readable runs, Workflow Cases, proof and replay, and explainable operator guidance."
     />
-    <meta property="og:title" content="CortexPilot | Command Tower for Codex and Claude Code workflows" />
+    <meta
+      name="keywords"
+      content="CortexPilot, Codex, Claude Code, MCP, Model Context Protocol, AI workflow, command tower, Workflow Cases, proof and replay, operator copilot"
+    />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/CortexPilot-public/" />
+    <meta property="og:title" content="CortexPilot | AI Work Command Tower for Codex, Claude Code, and MCP" />
     <meta
       property="og:description"
-      content="Command Tower for Codex and Claude Code workflows with public first-run cases, governed agents, MCP-readable runs, proof, replay, and operator visibility."
+      content="AI Work Command Tower for Codex and Claude Code workflows with public first-run cases, governed agents, Model Context Protocol (MCP)-readable runs, proof, replay, and operator visibility."
     />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/CortexPilot-public/" />
     <meta property="og:image" content="./assets/storefront/social-preview-1280x640.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="CortexPilot | Command Tower for Codex and Claude Code workflows" />
+    <meta name="twitter:title" content="CortexPilot | AI Work Command Tower for Codex, Claude Code, and MCP" />
     <meta
       name="twitter:description"
-      content="Command Tower for Codex and Claude Code workflows with public first-run cases, governed agents, MCP-readable runs, proof, replay, and operator visibility."
+      content="AI Work Command Tower for Codex and Claude Code workflows with public first-run cases, governed agents, Model Context Protocol (MCP)-readable runs, proof, replay, and operator visibility."
     />
     <meta name="twitter:image" content="./assets/storefront/social-preview-1280x640.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "CortexPilot",
+        "url": "https://xiaojiou176-open.github.io/CortexPilot-public/",
+        "description": "AI Work Command Tower for Codex and Claude Code workflows with read-only Model Context Protocol (MCP), Workflow Cases, proof and replay, and explainable operator guidance.",
+        "keywords": [
+          "Codex",
+          "Claude Code",
+          "MCP",
+          "AI workflow",
+          "command tower",
+          "operator copilot"
+        ]
+      }
+    </script>
     <style>
       :root {
         --bg: #f5f0e8;
         --paper: #fffaf2;
         --ink: #17232c;
         --muted: #4f616e;
-        --accent: #cb7349;
+        --accent: #9f4c26;
         --accent-dark: #234056;
         --line: #d8ccbb;
       }
@@ -187,6 +210,7 @@
         <div class="actions">
           <a class="primary" href="https://github.com/xiaojiou176-open/CortexPilot-public">Open repository home</a>
           <a class="secondary" href="https://github.com/xiaojiou176-open/CortexPilot-public/releases">See public releases</a>
+          <a class="secondary" href="./ai-surfaces/">See AI + MCP + API surfaces</a>
           <a class="secondary" href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/README.md">Read docs map</a>
           <a class="secondary" href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/architecture/runtime-topology.md">See runtime topology</a>
         </div>
@@ -330,6 +354,32 @@
             <p>Run Detail and compare surfaces already explain deltas, proof, incident context, and the next action without pretending to execute recovery.</p>
           </article>
         </div>
+        <p class="caption">
+          Open the combined product surface at
+          <a href="./ai-surfaces/">AI + MCP + API surfaces</a>
+          if you want the truthful map for operator copilot, read-only MCP, and builder entrypoints in one page.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>AI, MCP, and API surfaces</h2>
+        <div class="grid">
+          <article class="grid-card">
+            <h3>Explain-only operator copilot</h3>
+            <p>Flight Plan, workflow, run detail, and compare surfaces already reuse the same bounded operator brief instead of inventing a second truth source.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Read-only MCP node</h3>
+            <p>The current MCP surface is real and useful for structured control-plane reads, but it stays read-only and does not mutate runs, approvals, or queue state.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Thin API and contract layers</h3>
+            <p>The frontend API client and contract package already provide a documented integration edge for dashboard, desktop, and future web consumers.</p>
+          </article>
+        </div>
+        <p class="caption">
+          This is the truthful “works today” layer for AI operator guidance, MCP inspection, and frontend API integration. It is not a hosted service and not a full SDK platform.
+        </p>
       </section>
 
       <section class="section">

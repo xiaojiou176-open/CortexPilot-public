@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CortexPilot | AI operator, MCP, and API surfaces</title>
+    <meta
+      name="description"
+      content="CortexPilot surfaces for Codex and Claude Code workflows: explain-only AI operator copilot, read-only MCP, thin frontend API client, contract-facing types, and current builder entrypoints."
+    />
+    <meta
+      name="keywords"
+      content="CortexPilot, Codex, Claude Code, MCP, Model Context Protocol, AI operator copilot, frontend API client, workflow automation"
+    />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/" />
+    <meta property="og:title" content="CortexPilot | AI operator, MCP, and API surfaces" />
+    <meta
+      property="og:description"
+      content="Explain-only AI operator copilot, read-only MCP, and current API entrypoints for Codex and Claude Code workflows in CortexPilot."
+    />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/" />
+    <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="CortexPilot | AI operator, MCP, and API surfaces" />
+    <meta
+      name="twitter:description"
+      content="Truthful product map for operator copilot, read-only MCP, and API entrypoints in CortexPilot."
+    />
+    <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "CortexPilot AI operator, MCP, and API surfaces",
+        "url": "https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/",
+        "description": "Truthful product map for explain-only operator copilot, read-only MCP, and current frontend API entrypoints."
+      }
+    </script>
+  </head>
+  <body>
+    <main style="max-width:960px;margin:0 auto;padding:40px 20px;font:16px/1.7 system-ui,sans-serif;color:#17232c;">
+      <p>
+        <a href="../">Back to the public landing page</a>
+        · <a href="../ecosystem/">Ecosystem map</a>
+        · <a href="../builders/">Builder quickstart</a>
+        · <a href="../use-cases/">Use cases</a>
+      </p>
+
+      <h1>AI operator, MCP, and API surfaces</h1>
+      <p>
+        CortexPilot already has real AI-facing and integration-facing product surfaces for
+        <strong>Codex</strong> and <strong>Claude Code</strong> workflows. This page exists to make those surfaces easier to
+        discover without overstating what they are.
+      </p>
+      <p>
+        Current boundary: these surfaces are <strong>not</strong> a hosted operator product, the shipped MCP node remains
+        <strong>read-only</strong>, and the frontend packages remain a <strong>thin client + contract + shared substrate</strong>
+        layer instead of a full SDK platform.
+      </p>
+
+      <h2>1. Explain-only AI operator copilot</h2>
+      <p>
+        CortexPilot already exposes a bounded AI operator brief on the workflow path instead of an unbounded floating chat box.
+        Today it shows up in three major places:
+      </p>
+      <ul>
+        <li><strong>Flight Plan preview</strong>: a pre-run advisory brief before execution starts</li>
+        <li><strong>Workflow copilot</strong>: a workflow-scoped explainer over queue posture, latest run context, and next action</li>
+        <li><strong>Run / compare brief</strong>: a run-scoped explainer over deltas, proof, incident context, and next operator step</li>
+      </ul>
+      <p>
+        Read the architecture baseline in
+        <a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/architecture/mcp-and-operator-copilot-v1.md">the MCP + operator copilot architecture note</a>.
+      </p>
+
+      <h2>2. Read-only MCP surface</h2>
+      <p>
+        CortexPilot ships a <strong>real read-only MCP node</strong> for control-plane reads. The current public contract is:
+      </p>
+      <ul>
+        <li>inspect runs, workflow cases, queue posture, approvals, compare, proof, and incident summaries</li>
+        <li>return structured JSON for agent/tool consumption</li>
+        <li>do <strong>not</strong> mutate queue items, approvals, provider state, or workflow truth</li>
+      </ul>
+      <p>
+        This keeps MCP useful for external inspection while staying honest about the current boundary.
+      </p>
+
+      <h2>3. Frontend API and contract entrypoints</h2>
+      <p>
+        CortexPilot also exposes a thin builder edge for frontend consumers that want the same routes and contracts the dashboard and desktop use today.
+      </p>
+      <ul>
+        <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md"><code>@cortexpilot/frontend-api-client</code></a>: thin JS/TS client helpers for runs, Workflow Cases, approvals, and command-tower reads</li>
+        <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/index.d.ts"><code>@cortexpilot/frontend-api-contract</code></a>: contract-facing route/query names and generated types</li>
+        <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md"><code>@cortexpilot/frontend-shared</code></a>: shared copy, locale, and status-presentation substrate for dashboard and desktop</li>
+      </ul>
+      <p>
+        For the machine-facing HTTP boundary, open
+        <a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/api/openapi.cortexpilot.json">the public OpenAPI document</a>.
+      </p>
+
+      <h2>4. What we can say truthfully</h2>
+      <ul>
+        <li><strong>Codex</strong>: CortexPilot is positioned for Codex workflows as an operator control plane, not as an official Codex product.</li>
+        <li><strong>Claude Code</strong>: CortexPilot is positioned for Claude Code workflows as the same governed command-tower path, not as an Anthropic-managed surface.</li>
+        <li><strong>MCP</strong>: the current protocol story is real, but it is <strong>read-only only</strong>.</li>
+        <li><strong>API / builder layer</strong>: current packages are useful integration entrypoints, but they are <strong>not yet a full SDK platform</strong>.</li>
+      </ul>
+
+      <h2>5. What stays explicitly out of scope</h2>
+      <ul>
+        <li>no hosted operator login surface</li>
+        <li>no write-capable MCP claim</li>
+        <li>no official partnership implication with OpenAI or Anthropic</li>
+        <li>no claim that the current packages replace the orchestration runtime</li>
+      </ul>
+    </main>
+  </body>
+</html>
