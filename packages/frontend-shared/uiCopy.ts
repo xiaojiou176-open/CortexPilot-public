@@ -664,7 +664,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         ],
         builderTitle: "Builder entrypoints",
         builderDescription:
-          "This is not a full SDK platform, but the builder entrypoints now include the read-only MCP quickstart, the API/contract quickstart, and the package-level client/shared surfaces.",
+          "This is not a full SDK platform, but the builder entrypoints now include the read-only MCP quickstart, the API and contract quickstart, and the package-level client/shared surfaces.",
         builderQuickstartCtaLabel: "Open builder quickstart",
         builderQuickstartCtaHref: "/builders/",
         builderCards: [
@@ -1356,7 +1356,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         ],
         builderTitle: "Builder 入口",
         builderDescription:
-          "这还不是完整 SDK 平台，但 builder 入口现在已经同时覆盖 read-only MCP quickstart、API/contract quickstart，以及 package 级 client/shared surface。",
+          "这还不是完整 SDK 平台，但 builder 入口现在已经同时覆盖 read-only MCP quickstart、API and contract quickstart，以及 package 级 client/shared surface。",
         builderQuickstartCtaLabel: "打开 builder 快速入口",
         builderQuickstartCtaHref: "/builders/",
         builderCards: [
