@@ -45,6 +45,9 @@ navigation set.
 5. [assets/storefront/demo-status.md](assets/storefront/demo-status.md)
 6. [assets/storefront/benchmark-methodology.md](assets/storefront/benchmark-methodology.md)
 7. [architecture/ecosystem-and-builder-surfaces-v1.md](architecture/ecosystem-and-builder-surfaces-v1.md)
+8. [builders/index.html](builders/index.html)
+9. [ecosystem/index.html](ecosystem/index.html)
+10. [use-cases/index.html](use-cases/index.html)
 
 ## What Each File Is For
 
@@ -61,6 +64,9 @@ navigation set.
 - `docs/assets/storefront/demo-status.md`: status ledger for tracked public demo and proof assets
 - `docs/assets/storefront/benchmark-methodology.md`: public benchmark evidence contract and wording boundary
 - `docs/architecture/ecosystem-and-builder-surfaces-v1.md`: ecosystem binding, first-run distribution loop, and current builder/client entry points
+- `docs/builders/index.html`: public builder quickstart hub for current client/contract/shared entrypoints
+- `docs/ecosystem/index.html`: public ecosystem positioning page for Codex / Claude Code / MCP plus adjacent comparison layers
+- `docs/use-cases/index.html`: public first-run, proof, and share-ready asset guide
 
 ## Public CI Contract
 

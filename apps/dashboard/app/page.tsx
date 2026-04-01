@@ -4,6 +4,7 @@ import { Badge, type BadgeVariant } from "../components/ui/badge";
 import { Card } from "../components/ui/card";
 import { fetchRuns, fetchWorkflows } from "../lib/api";
 import { safeLoad } from "../lib/serverPageData";
+import { DEFAULT_UI_LOCALE, getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
 
 const CJK_TEXT_RE = /[\u3400-\u9fff]/;
 
@@ -169,53 +170,24 @@ const PUBLIC_ADVANTAGES = [
   },
 ];
 
-const ECOSYSTEM_BINDINGS = [
-  {
-    href: "/command-tower",
-    badge: "Primary workflow binding",
-    title: "Codex workflows",
-    desc: "Use CortexPilot when Codex-driven work needs one command tower, one case record, and one replayable proof path.",
-  },
-  {
-    href: "/command-tower",
-    badge: "Primary workflow binding",
-    title: "Claude Code workflows",
-    desc: "The same operator surface works for Claude Code-style coding loops that need governed visibility, approvals, and evidence before promotion.",
-  },
-  {
-    href: "/runs",
-    badge: "Protocol surface",
-    title: "Read-only MCP",
-    desc: "MCP is a real protocol surface here, but the current boundary is read-only. External tools can inspect truth without mutating it.",
-  },
-  {
-    href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/architecture/ecosystem-and-builder-surfaces-v1.md",
-    badge: "Adjacent ecosystem",
-    title: "OpenHands and comparison layer",
-    desc: "OpenHands belongs in the broader ecosystem layer, while OpenCode stays comparison-only and OpenClaw stays out of the main front door.",
-  },
-];
+const ECOSYSTEM_BINDING_HREFS = [
+  "/command-tower",
+  "/command-tower",
+  "/runs",
+  "https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/",
+] as const;
 
-const BUILDER_ENTRYPOINTS = [
-  {
-    href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md",
-    badge: "Thin client surface",
-    title: "@cortexpilot/frontend-api-client",
-    desc: "Use the dashboard/desktop/web client entry points when you want runs, Workflow Cases, approvals, and Command Tower reads from one import boundary.",
-  },
-  {
-    href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/README.md",
-    badge: "Contract-facing",
-    title: "@cortexpilot/frontend-api-contract",
-    desc: "Use the generated contract-facing types and route/query names when you need stable API imports without backend modules.",
-  },
-  {
-    href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md",
-    badge: "Presentation substrate",
-    title: "@cortexpilot/frontend-shared",
-    desc: "Use the shared brand copy, locale helpers, status presentation, and frontend-only types instead of rebuilding those surfaces per app.",
-  },
-];
+const AI_SURFACE_HREFS = [
+  "/pm",
+  "/workflows",
+  "/runs",
+] as const;
+
+const BUILDER_ENTRYPOINT_HREFS = [
+  "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md",
+  "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/index.d.ts",
+  "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md",
+] as const;
 
 const PUBLIC_CASE_GALLERY_BASELINE = [
   {
@@ -332,7 +304,25 @@ function compactTaskId(value: string | undefined): string {
   return raw.length <= 16 ? raw : `${raw.slice(0, 8)}...${raw.slice(-4)}`;
 }
 
+function zipCardsWithHrefs<T extends { badge?: string; title: string; desc: string }>(
+  cards: readonly T[],
+  hrefs: readonly string[],
+  context: string,
+): Array<T & { href: string }> {
+  if (cards.length !== hrefs.length) {
+    throw new Error(
+      `Length mismatch for homePhase2Copy.${context} (${cards.length}) and ${context} hrefs (${hrefs.length}).`,
+    );
+  }
+
+  return cards.map((item, index) => ({
+    ...item,
+    href: hrefs[index],
+  }));
+}
+
 export default async function Home() {
+  const homePhase2Copy = getUiCopy(DEFAULT_UI_LOCALE).dashboard.homePhase2;
   const { data: runs, warning } = await safeLoad(fetchRuns, [], "run list");
   const { data: workflows, warning: workflowsWarning } = await safeLoad(fetchWorkflows, [], "workflow list");
   const latestRuns = Array.isArray(runs) ? runs.slice(0, 12) : [];
@@ -444,6 +434,21 @@ export default async function Home() {
       : "metric-value--success";
   const warningText =
     firstEnglishText(warning) || "The run list is temporarily unavailable. Try again soon.";
+  const ecosystemBindings = zipCardsWithHrefs(
+    homePhase2Copy.ecosystemCards,
+    ECOSYSTEM_BINDING_HREFS,
+    "ecosystemCards",
+  );
+  const aiSurfaceCards = zipCardsWithHrefs(
+    homePhase2Copy.aiSurfaceCards,
+    AI_SURFACE_HREFS,
+    "aiSurfaceCards",
+  );
+  const builderEntrypoints = zipCardsWithHrefs(
+    homePhase2Copy.builderCards,
+    BUILDER_ENTRYPOINT_HREFS,
+    "builderCards",
+  );
 
   return (
     <main className="grid" aria-labelledby="dashboard-home-title">
@@ -451,11 +456,10 @@ export default async function Home() {
         <div className="section-header">
           <div>
             <h1 id="dashboard-home-title" className="page-title">
-              Command Tower for Codex and Claude Code workflows
+              {homePhase2Copy.heroTitle}
             </h1>
             <p className="page-subtitle">
-              Start one workflow case, watch Command Tower, then inspect Proof &amp; Replay.
-              CortexPilot keeps Codex and Claude Code work, MCP tools, evidence, and replay on one governed operator path.
+              {homePhase2Copy.heroSubtitle}
             </p>
           </div>
           <nav aria-label="Home primary actions">
@@ -542,20 +546,40 @@ export default async function Home() {
         <div className="section-header">
           <div>
             <h2 id="dashboard-ecosystem-title" className="section-title">
-              Works with today's coding-agent ecosystem
+              {homePhase2Copy.ecosystemTitle}
             </h2>
-            <p>Keep the front door anchored on Codex, Claude Code, and read-only MCP. Mention OpenHands and comparison-only tools in the ecosystem layer, not in the hero.</p>
+            <p>{homePhase2Copy.ecosystemDescription}</p>
           </div>
           <nav aria-label="Ecosystem actions">
             <Button asChild variant="secondary">
-              <Link href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/architecture/ecosystem-and-builder-surfaces-v1.md">
-                Open ecosystem map
+              <Link href={homePhase2Copy.ecosystemActionHref}>
+                {homePhase2Copy.ecosystemAction}
               </Link>
             </Button>
           </nav>
         </div>
         <div className="quick-grid">
-          {ECOSYSTEM_BINDINGS.map((item) => (
+          {ecosystemBindings.map((item) => (
+            <Link key={item.title} href={item.href} className="quick-card" prefetch={item.href.startsWith("/")}>
+              <span className="quick-card-desc">{item.badge}</span>
+              <span className="quick-card-title">{item.title}</span>
+              <span className="quick-card-desc">{item.desc}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="app-section" aria-labelledby="dashboard-ai-surfaces-title">
+        <div className="section-header">
+          <div>
+            <h2 id="dashboard-ai-surfaces-title" className="section-title">
+              {homePhase2Copy.aiSurfacesTitle}
+            </h2>
+            <p>{homePhase2Copy.aiSurfacesDescription}</p>
+          </div>
+        </div>
+        <div className="quick-grid">
+          {aiSurfaceCards.map((item) => (
             <Link key={item.title} href={item.href} className="quick-card" prefetch={item.href.startsWith("/")}>
               <span className="quick-card-desc">{item.badge}</span>
               <span className="quick-card-title">{item.title}</span>
@@ -569,13 +593,20 @@ export default async function Home() {
         <div className="section-header">
           <div>
             <h2 id="dashboard-builder-entrypoints-title" className="section-title">
-              Builder entrypoints
+              {homePhase2Copy.builderTitle}
             </h2>
-            <p>Phase 2 keeps the product truth honest: this is not a full SDK platform, but the client, contract, and shared presentation layers are now documented as real builder surfaces.</p>
+            <p>{homePhase2Copy.builderDescription}</p>
           </div>
+          <nav aria-label="Builder quickstart actions">
+            <Button asChild variant="secondary">
+              <Link href={homePhase2Copy.builderQuickstartCtaHref}>
+                {homePhase2Copy.builderQuickstartCtaLabel}
+              </Link>
+            </Button>
+          </nav>
         </div>
         <div className="quick-grid">
-          {BUILDER_ENTRYPOINTS.map((item) => (
+          {builderEntrypoints.map((item) => (
             <Link key={item.title} href={item.href} className="quick-card" prefetch={false}>
               <span className="quick-card-desc">{item.badge}</span>
               <span className="quick-card-title">{item.title}</span>
@@ -585,17 +616,17 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="app-section" aria-labelledby="dashboard-case-gallery-title">
+      <section className="app-section" aria-labelledby="dashboard-case-gallery-baseline-title">
         <div className="section-header">
           <div>
-            <h2 id="dashboard-case-gallery-title" className="section-title">
+            <h2 id="dashboard-case-gallery-baseline-title" className="section-title">
               Public case gallery baseline
             </h2>
             <p>These cards stay grounded in the tracked public packs and their evidence contracts. They are gallery-ready archetypes, not invented showcase data.</p>
           </div>
           <nav aria-label="Public case gallery actions">
             <Button asChild variant="secondary">
-              <Link href="/workflows">Open Workflow Cases</Link>
+              <Link href={homePhase2Copy.caseGalleryGuideHref}>{homePhase2Copy.caseGalleryGuideCtaLabel}</Link>
             </Button>
           </nav>
         </div>
@@ -611,10 +642,10 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="app-section" aria-labelledby="dashboard-case-gallery-title">
+      <section className="app-section" aria-labelledby="dashboard-case-gallery-live-title">
         <div className="section-header">
           <div>
-            <h2 id="dashboard-case-gallery-title" className="section-title">
+            <h2 id="dashboard-case-gallery-live-title" className="section-title">
               Public case gallery baseline
             </h2>
             <p>Use real Workflow Cases as lightweight showcase assets. This baseline links to live case detail and share-ready recap instead of inventing demo-only gallery data.</p>

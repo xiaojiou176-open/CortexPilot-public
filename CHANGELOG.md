@@ -6,6 +6,11 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- deepened the second Phase 2 wave by moving the newest dashboard home
+  ecosystem/AI/builder hero surfaces into shared home copy, adding dedicated
+  public Pages sub-entrypoints for ecosystem/builders/use-cases, and wiring the
+  root/docs/dashboard entrypoints toward those discoverability surfaces instead
+  of only pointing at blob-level references
 - opened the first Phase 2 ecosystem/distribution wave by adding an
   ecosystem-and-builder surface map, package-facing client/shared READMEs, and
   dashboard/docs landing sections that explain Codex / Claude Code / read-only

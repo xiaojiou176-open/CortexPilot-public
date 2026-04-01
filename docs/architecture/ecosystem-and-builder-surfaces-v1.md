@@ -45,6 +45,18 @@ The strongest public distribution loop today is:
 That makes CortexPilot easier to explain, review, and circulate without
 pretending it is already a hosted product.
 
+## AI surfaces already in the main flow
+
+The current repo already exposes three concrete AI assist surfaces:
+
+- **Flight Plan copilot**: a bounded pre-run advisory brief before execution
+- **Workflow copilot**: a workflow-scoped brief grounded in queue posture,
+  latest run context, and next operator action
+- **Run / compare operator brief**: a run-scoped brief grounded in compare,
+  proof, incident, approval, and queue truth
+
+These are real product surfaces, not generic floating chat panels.
+
 ## Builder entry points
 
 Use these three layers together:
@@ -54,6 +66,17 @@ Use these three layers together:
 | `@cortexpilot/frontend-api-client` | thin JS/TS client helpers for dashboard/desktop/web consumers | `packages/frontend-api-client/README.md` |
 | `@cortexpilot/frontend-api-contract` | generated contract-facing types and route/query names | `packages/frontend-api-contract/index.d.ts` |
 | `@cortexpilot/frontend-shared` | shared UI copy, locale, status, and frontend-only presentation helpers | `packages/frontend-shared/README.md` |
+
+## Builder quickstart
+
+1. Import `createFrontendApiClient` or a dashboard/desktop-specific variant
+2. Point it at the current API base URL
+3. Read runs, Workflow Cases, approvals, and command-tower overviews from the
+   same client boundary
+4. Use `@cortexpilot/frontend-api-contract` for generated contract-facing
+   imports
+5. Use `@cortexpilot/frontend-shared` for copy, locale, and presentation
+   helpers instead of rebuilding those layers per app
 
 ## Minimal builder example
 
