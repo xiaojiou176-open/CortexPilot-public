@@ -20,7 +20,7 @@ service.
 The product name stays **CortexPilot**. If `cortexpilot.ai` is later claimed,
 treat it as a marketing/front-door domain, not as a product rename.
 
-[Quickstart](#quickstart) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [Spec](docs/specs/00_SPEC.md) · [Releases](https://github.com/xiaojiou176-open/CortexPilot-public/releases)
+[Quickstart](#quickstart) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [Ecosystem & Builder Surfaces](docs/architecture/ecosystem-and-builder-surfaces-v1.md) · [Client Entry Points](packages/frontend-api-client/README.md) · [Spec](docs/specs/00_SPEC.md) · [Releases](https://github.com/xiaojiou176-open/CortexPilot-public/releases)
 
 ![CortexPilot studio preview card](docs/assets/storefront/cortexpilot-studio-preview.svg)
 
@@ -164,6 +164,46 @@ For the first public release bundle, `news_digest` is the only official
 proof-oriented first-run baseline. `topic_brief` and `page_brief` remain part
 of the broader public surface, but they should not be described as equally
 release-proven until they have their own healthy proof and benchmark artifacts.
+
+## Works With Today
+
+Use these names as ecosystem anchors, not as co-brands or partnership claims.
+
+- **Codex**: primary workflow audience; CortexPilot is built for governed
+  Codex-style coding runs that need cases, approvals, and replayable proof.
+- **Claude Code**: primary workflow audience alongside Codex; the same
+  Command Tower / Workflow Case / Proof & Replay spine applies.
+- **MCP**: the current product truth is a **read-only MCP surface** for runs,
+  workflows, queue posture, approvals, and proof-oriented reads.
+- **OpenHands**: adjacent ecosystem mention only; use it in body-copy
+  comparison or “broader agent stacks” language, not in the hero.
+- **OpenCode**: comparison-only and transition-sensitive; do not use it as a
+  primary front-door anchor.
+- **OpenClaw**: different product category; keep it out of the current front
+  door.
+
+## First Run To Proof To Share
+
+The strongest public loop is now:
+
+1. Start one of the three public first-run cases.
+2. Confirm the result in **Command Tower**, **Workflow Cases**, and
+   **Proof & Replay**.
+3. Reuse the Workflow Case as a **share-ready recap asset** instead of keeping
+   it trapped inside a single operator page.
+
+That turns CortexPilot from “a repo you can run” into “a repo you can show,
+review, and hand off.”
+
+## Builder Entry Points
+
+These are the current public-facing entry points for teams that want to build
+around CortexPilot without pretending a full SDK platform already exists:
+
+- [packages/frontend-api-client/README.md](packages/frontend-api-client/README.md): thin JavaScript/TypeScript client entry points for dashboard, desktop, and web surfaces.
+- [packages/frontend-api-contract/index.d.ts](packages/frontend-api-contract/index.d.ts): generated contract surface and stable import boundary for API-facing types.
+- [packages/frontend-shared/README.md](packages/frontend-shared/README.md): shared UI copy, locale, status, and frontend-only presentation helpers.
+- [docs/architecture/ecosystem-and-builder-surfaces-v1.md](docs/architecture/ecosystem-and-builder-surfaces-v1.md): the human-readable map that explains how Codex / Claude Code / MCP / public packs / share-ready Workflow Cases fit together.
 
 ## Best Fit
 
