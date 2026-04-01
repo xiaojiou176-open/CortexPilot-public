@@ -138,6 +138,12 @@ Work in CortexPilot as a contract-first engineering agent:
   `apps/dashboard/components/DashboardHomeStorySections.tsx`,
   `packages/frontend-shared/uiLocale.ts`, and dashboard metadata that now says
   "AI Work Command Tower for Codex, Claude Code, and MCP"
+- when the next Phase 2 wave hardens desktop `Run Detail` / `Overview`
+  operator wording through the shared locale and shared status-presentation
+  substrate, sync the root AI/docs entrypoints in the same patch; current
+  examples include `apps/desktop/README.md`,
+  `packages/frontend-shared/uiCopy.ts`, and the locale-aware desktop tests for
+  `RunDetailPage` / `OverviewPage`
 - when a later Phase 2 wave hardens desktop `Run Detail` / `Overview`
   operator-surface locale coverage or moves more desktop strings onto
   `@cortexpilot/frontend-shared`, keep the root AI entrypoints aligned in the

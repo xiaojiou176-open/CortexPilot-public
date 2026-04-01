@@ -69,6 +69,7 @@ navigation set.
 - `docs/ecosystem/index.html`: public ecosystem positioning page for Codex / Claude Code / MCP plus adjacent comparison layers
 - `docs/use-cases/index.html`: public first-run, proof, and share-ready asset guide
 - `docs/ai-surfaces/index.html`: public AI operator / read-only MCP / API entrypoint map for truthful discoverability
+- `apps/desktop/README.md`: desktop-owned module note for operator-surface locale/status hardening when desktop wording contracts change
 
 ## Public CI Contract
 

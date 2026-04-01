@@ -98,6 +98,14 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `apps/dashboard/components/DashboardHomeStorySections.tsx`,
   `packages/frontend-shared/uiLocale.ts`, and dashboard metadata that now says
   "AI Work Command Tower for Codex, Claude Code, and MCP"
+- when the next Phase 2 wave hardens desktop `Run Detail` / `Overview`
+  operator wording through the shared locale and shared status-presentation
+  substrate, keep this file, `AGENTS.md`, and the desktop/module docs aligned
+  in the same patch; current examples include `apps/desktop/README.md`,
+  `packages/frontend-shared/uiCopy.ts`, and locale-aware desktop tests for
+  `RunDetailPage` / `OverviewPage`
+  `packages/frontend-shared/uiLocale.ts`, and dashboard metadata that now says
+  "AI Work Command Tower for Codex, Claude Code, and MCP"
 - when a later Phase 2 wave hardens desktop `Run Detail` / `Overview`
   operator-surface locale coverage or moves more desktop strings onto
   `@cortexpilot/frontend-shared`, keep the root AI entrypoints aligned in the
