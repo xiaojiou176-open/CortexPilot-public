@@ -6,6 +6,18 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- closed the Version B command-tower packaging lane by aligning the public
+  front door around Codex, Claude Code, MCP-readable runs, Workflow Cases, and
+  Proof & Replay while syncing the repo description, release wording, Pages
+  source, AI entrypoints, and orchestrator topic docs with the same contract
+- landed the shared locale/copy substrate across the dashboard shell, desktop
+  shell, desktop overview/run detail/command-tower surfaces, and the
+  associated status/CTA helpers so English-first public copy and `zh-CN`
+  operator rendering now flow through one reusable path instead of scattered
+  literals
+- added the read-only MCP and bounded operator-copilot surfaces across the
+  orchestrator, dashboard, desktop, and docs entrypoints, plus a dashboard vs
+  desktop operator-surface parity artifact to guide follow-up closeout slices
 - shipped workflow-case snapshots, proof packs, dedicated run-compare surfaces,
   desktop Flight Plan preview, and timezone-safe queue scheduling inputs across
   orchestrator/dashboard/desktop while syncing schema registry, runtime policy,
