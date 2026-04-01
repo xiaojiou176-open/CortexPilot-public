@@ -44,6 +44,7 @@ navigation set.
 4. [releases/first-public-release-draft.md](releases/first-public-release-draft.md)
 5. [assets/storefront/demo-status.md](assets/storefront/demo-status.md)
 6. [assets/storefront/benchmark-methodology.md](assets/storefront/benchmark-methodology.md)
+7. [architecture/ecosystem-and-builder-surfaces-v1.md](architecture/ecosystem-and-builder-surfaces-v1.md)
 
 ## What Each File Is For
 
@@ -59,6 +60,7 @@ navigation set.
 - `docs/releases/first-public-release-draft.md`: repo-side draft source for the first public GitHub Release
 - `docs/assets/storefront/demo-status.md`: status ledger for tracked public demo and proof assets
 - `docs/assets/storefront/benchmark-methodology.md`: public benchmark evidence contract and wording boundary
+- `docs/architecture/ecosystem-and-builder-surfaces-v1.md`: ecosystem binding, first-run distribution loop, and current builder/client entry points
 
 ## Public CI Contract
 

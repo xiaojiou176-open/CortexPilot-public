@@ -107,6 +107,12 @@ Work in CortexPilot as a contract-first engineering agent:
   `apps/orchestrator/README.md`, and the root AI entrypoints in the same patch
   so doc-drift and doc-sync gates can trace the same Command Tower / Workflow
   Cases / Proof & Replay contract
+- when ecosystem-binding, builder-entrypoint, or distribution-facing surfaces
+  change, sync the root AI/docs entrypoints in the same patch; current examples
+  include `docs/architecture/ecosystem-and-builder-surfaces-v1.md`, the
+  package-facing `frontend-api-client` / `frontend-shared` READMEs, and the
+  dashboard home/docs landing sections that explain Codex / Claude Code /
+  read-only MCP plus the first-run -> proof -> share loop
 
 ## Local Overrides
 

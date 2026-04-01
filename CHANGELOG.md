@@ -6,6 +6,11 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- opened the first Phase 2 ecosystem/distribution wave by adding an
+  ecosystem-and-builder surface map, package-facing client/shared READMEs, and
+  dashboard/docs landing sections that explain Codex / Claude Code / read-only
+  MCP plus the first-run -> proof -> share loop without overclaiming a full
+  SDK platform or reopening hosted/write-capable MCP
 - closed the Version B command-tower packaging lane by aligning the public
   front door around Codex, Claude Code, MCP-readable runs, Workflow Cases, and
   Proof & Replay while syncing the repo description, release wording, Pages

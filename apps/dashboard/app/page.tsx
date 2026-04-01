@@ -169,6 +169,54 @@ const PUBLIC_ADVANTAGES = [
   },
 ];
 
+const ECOSYSTEM_BINDINGS = [
+  {
+    href: "/command-tower",
+    badge: "Primary workflow binding",
+    title: "Codex workflows",
+    desc: "Use CortexPilot when Codex-driven work needs one command tower, one case record, and one replayable proof path.",
+  },
+  {
+    href: "/command-tower",
+    badge: "Primary workflow binding",
+    title: "Claude Code workflows",
+    desc: "The same operator surface works for Claude Code-style coding loops that need governed visibility, approvals, and evidence before promotion.",
+  },
+  {
+    href: "/runs",
+    badge: "Protocol surface",
+    title: "Read-only MCP",
+    desc: "MCP is a real protocol surface here, but the current boundary is read-only. External tools can inspect truth without mutating it.",
+  },
+  {
+    href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/architecture/ecosystem-and-builder-surfaces-v1.md",
+    badge: "Adjacent ecosystem",
+    title: "OpenHands and comparison layer",
+    desc: "OpenHands belongs in the broader ecosystem layer, while OpenCode stays comparison-only and OpenClaw stays out of the main front door.",
+  },
+];
+
+const BUILDER_ENTRYPOINTS = [
+  {
+    href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md",
+    badge: "Thin client surface",
+    title: "@cortexpilot/frontend-api-client",
+    desc: "Use the dashboard/desktop/web client entry points when you want runs, Workflow Cases, approvals, and Command Tower reads from one import boundary.",
+  },
+  {
+    href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/README.md",
+    badge: "Contract-facing",
+    title: "@cortexpilot/frontend-api-contract",
+    desc: "Use the generated contract-facing types and route/query names when you need stable API imports without backend modules.",
+  },
+  {
+    href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md",
+    badge: "Presentation substrate",
+    title: "@cortexpilot/frontend-shared",
+    desc: "Use the shared brand copy, locale helpers, status presentation, and frontend-only types instead of rebuilding those surfaces per app.",
+  },
+];
+
 const PUBLIC_CASE_GALLERY_BASELINE = [
   {
     href: "/pm?template=news_digest",
@@ -483,6 +531,53 @@ export default async function Home() {
         <div className="quick-grid">
           {PUBLIC_ADVANTAGES.map((item) => (
             <Link key={item.title} href={item.href} className="quick-card">
+              <span className="quick-card-title">{item.title}</span>
+              <span className="quick-card-desc">{item.desc}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="app-section" aria-labelledby="dashboard-ecosystem-title">
+        <div className="section-header">
+          <div>
+            <h2 id="dashboard-ecosystem-title" className="section-title">
+              Works with today's coding-agent ecosystem
+            </h2>
+            <p>Keep the front door anchored on Codex, Claude Code, and read-only MCP. Mention OpenHands and comparison-only tools in the ecosystem layer, not in the hero.</p>
+          </div>
+          <nav aria-label="Ecosystem actions">
+            <Button asChild variant="secondary">
+              <Link href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/architecture/ecosystem-and-builder-surfaces-v1.md">
+                Open ecosystem map
+              </Link>
+            </Button>
+          </nav>
+        </div>
+        <div className="quick-grid">
+          {ECOSYSTEM_BINDINGS.map((item) => (
+            <Link key={item.title} href={item.href} className="quick-card" prefetch={item.href.startsWith("/")}>
+              <span className="quick-card-desc">{item.badge}</span>
+              <span className="quick-card-title">{item.title}</span>
+              <span className="quick-card-desc">{item.desc}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="app-section" aria-labelledby="dashboard-builder-entrypoints-title">
+        <div className="section-header">
+          <div>
+            <h2 id="dashboard-builder-entrypoints-title" className="section-title">
+              Builder entrypoints
+            </h2>
+            <p>Phase 2 keeps the product truth honest: this is not a full SDK platform, but the client, contract, and shared presentation layers are now documented as real builder surfaces.</p>
+          </div>
+        </div>
+        <div className="quick-grid">
+          {BUILDER_ENTRYPOINTS.map((item) => (
+            <Link key={item.title} href={item.href} className="quick-card" prefetch={false}>
+              <span className="quick-card-desc">{item.badge}</span>
               <span className="quick-card-title">{item.title}</span>
               <span className="quick-card-desc">{item.desc}</span>
             </Link>

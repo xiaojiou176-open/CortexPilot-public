@@ -120,6 +120,15 @@
       "listed_in_primary_navigation": false
     },
     {
+      "path": "docs/architecture/ecosystem-and-builder-surfaces-v1.md",
+      "kind": "reference",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    },
+    {
       "path": "docs/governance/doc-drift-map.json",
       "kind": "policy",
       "status": "active",

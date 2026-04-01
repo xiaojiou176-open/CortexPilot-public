@@ -287,6 +287,53 @@
           </article>
         </div>
       </section>
+
+      <section class="section">
+        <h2>Works with today's coding-agent ecosystem</h2>
+        <div class="grid">
+          <article class="grid-card">
+            <h3>Codex workflows</h3>
+            <p>Use CortexPilot when a Codex-driven workflow needs one command tower, one case record, and one replayable proof path.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Claude Code workflows</h3>
+            <p>The same operator surface works for Claude Code-style coding loops that need governed visibility, approvals, and evidence before promotion.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Read-only MCP surface</h3>
+            <p>MCP is a real protocol surface here, but the current boundary is intentionally read-only. External tools can inspect truth; they cannot mutate it.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Adjacent ecosystem</h3>
+            <p>OpenHands belongs in the broader ecosystem layer, while OpenCode stays comparison-only. OpenClaw is a different product category and stays out of the main front door.</p>
+          </article>
+        </div>
+        <p class="caption">
+          Read the current ecosystem and builder map in
+          <a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/architecture/ecosystem-and-builder-surfaces-v1.md">ecosystem-and-builder-surfaces-v1.md</a>.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>Builder entrypoints</h2>
+        <div class="grid">
+          <article class="grid-card">
+            <h3>Frontend API client</h3>
+            <p>A thin client layer for dashboard, desktop, and web consumers that need runs, Workflow Cases, command-tower overviews, and PM intake routes.</p>
+            <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md">Open package README</a></p>
+          </article>
+          <article class="grid-card">
+            <h3>API contract surface</h3>
+            <p>Use the generated contract package when you want the current API-facing type boundary without importing backend modules directly.</p>
+            <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/index.d.ts">Open contract types</a></p>
+          </article>
+          <article class="grid-card">
+            <h3>Shared UI substrate</h3>
+            <p>Brand copy, locale helpers, status presentation, and frontend-only shared types already live in one place instead of staying trapped inside the dashboard or desktop shells.</p>
+            <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md">Open shared README</a></p>
+          </article>
+        </div>
+      </section>
     </main>
   </body>
 </html>

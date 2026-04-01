@@ -67,6 +67,12 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `apps/orchestrator/README.md`, and the root AI entrypoints in the same patch
   so doc-drift and doc-sync gates keep following the live Command Tower /
   Workflow Cases / Proof & Replay contract
+- when ecosystem-binding, builder-entrypoint, or distribution-facing surfaces
+  change, sync the root AI/docs entrypoints in the same patch; current examples
+  include `docs/architecture/ecosystem-and-builder-surfaces-v1.md`, the
+  package-facing `frontend-api-client` / `frontend-shared` READMEs, and the
+  dashboard home/docs landing sections that explain Codex / Claude Code /
+  read-only MCP plus the first-run -> proof -> share loop
 
 ## Key Commands
 
