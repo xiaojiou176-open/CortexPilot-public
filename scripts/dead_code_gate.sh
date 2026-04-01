@@ -691,12 +691,15 @@ def has_non_test_typescript_change(prefix: str) -> bool:
 dashboard_ts_requires_tsc = has_non_test_typescript_change("apps/dashboard/")
 desktop_ts_requires_tsc = has_non_test_typescript_change("apps/desktop/")
 ci_slice = str(os.environ.get("CORTEXPILOT_CI_SLICE") or "").strip()
+ci_route_id = str(os.environ.get("CORTEXPILOT_CI_ROUTE_ID") or "").strip()
 
 
 def should_ignore_tsc_skip(detector_name: str, status: str) -> bool:
     if status != "skipped:node_modules_missing":
         return False
-    return ci_slice == "policy-and-security" and detector_name in {"tsc-dashboard", "tsc-desktop"}
+    if detector_name not in {"tsc-dashboard", "tsc-desktop"}:
+        return False
+    return ci_slice == "policy-and-security" or ci_route_id in {"trusted_pr", "untrusted_pr"}
 
 
 detector_health_gaps: List[str] = []
