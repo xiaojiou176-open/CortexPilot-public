@@ -267,3 +267,11 @@ def test_compile_plan_rejects_missing_mcp_bundle_fragment(monkeypatch, tmp_path:
 
     with pytest.raises(ValueError, match="role_contract.mcp_bundle_ref"):
         compile_plan(_plan_base())
+
+
+def test_validate_contract_rejects_non_allowlisted_mcp_bundle_fragment() -> None:
+    contract = compile_plan(_plan_base())
+    contract["role_contract"]["mcp_bundle_ref"] = "schemas/agent_registry.v1.json#/title"
+
+    with pytest.raises(ValueError, match="fragment source must be allowlisted"):
+        ContractValidator().validate_contract(contract)

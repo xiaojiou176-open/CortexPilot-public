@@ -34,6 +34,10 @@ _PLAN_STAGE_MARKERS = {
 }
 _TRIVIAL_TEST_COMMANDS = {"true", ":"}
 _FRAGMENT_REF_LABEL_SUFFIXES = ("mcp_bundle_ref", "skills_bundle_ref")
+_FRAGMENT_REF_MAX_BYTES = 256 * 1024
+_FRAGMENT_REF_ALLOWED_PATHS = {
+    "role_contract.mcp_bundle_ref": {"policies/agent_registry.json"},
+}
 _ROLE_SELECTOR_RE = re.compile(r"^(?P<name>[A-Za-z0-9_:-]+)\(role=(?P<role>[A-Za-z0-9_:-]+)\)$")
 
 
@@ -348,6 +352,20 @@ def _validate_ref_path(raw: Any, label: str) -> None:
         raise ValueError(f"Contract validation failed: {label} fragments not allowed")
     if not fragment:
         raise ValueError(f"Contract validation failed: {label} fragment missing")
+    normalized_path = _normalize_allowed_path(path_text)
+    allowed_paths = _FRAGMENT_REF_ALLOWED_PATHS.get(label)
+    if not allowed_paths or normalized_path not in allowed_paths:
+        raise ValueError(
+            f"Contract validation failed: {label} fragment source must be allowlisted"
+        )
+    try:
+        file_size = candidate.stat().st_size
+    except OSError as exc:
+        raise ValueError(f"Contract validation failed: {label} unreadable: {path_text}") from exc
+    if file_size > _FRAGMENT_REF_MAX_BYTES:
+        raise ValueError(
+            f"Contract validation failed: {label} fragment source too large: {path_text}"
+        )
     try:
         payload = json.loads(candidate.read_text(encoding="utf-8"))
     except OSError as exc:
