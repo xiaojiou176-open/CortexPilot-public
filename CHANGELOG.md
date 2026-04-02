@@ -14,6 +14,9 @@ All notable changes to this repository will be documented in this file.
   hardening plus an advisory `role_binding_summary` on PM-facing
   `run_intake(...)` responses so bundle/runtime state is easier to read without
   presenting that helper surface as execution authority
+- deepened Prompt 5 by adding a stable `role_binding_read_model` on run detail
+  and read-only MCP surfaces plus resolved MCP tool-set visibility, while
+  keeping the execution authority anchored to the task contract itself
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

@@ -1,5 +1,7 @@
 import json
 
+from cortexpilot_orch.contract.compiler import build_role_binding_summary, sync_role_contract
+from cortexpilot_orch.scheduler import scheduler_bridge_contract
 from cortexpilot_orch.scheduler import scheduler_bridge_runtime as bridge_runtime
 from cortexpilot_orch.scheduler import scheduler_bridge_finalize as bridge_finalize
 from cortexpilot_orch.store.run_store import RunStore
@@ -114,3 +116,42 @@ def test_finalize_run_manifest_schema_failure_updates_manifest_status(tmp_path) 
     written = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert written["status"] == "FAILURE"
     assert "manifest schema invalid" in written["failure_reason"]
+
+
+def test_persist_contract_state_writes_role_binding_summary_to_manifest(tmp_path) -> None:
+    store = RunStore(runs_root=tmp_path / "runs")
+    run_id = store.create_run("task-role-binding-summary")
+    contract = {
+        "assigned_agent": {"role": "SEARCHER", "agent_id": "agent-1", "codex_thread_id": ""},
+        "tool_permissions": {
+            "filesystem": "read-only",
+            "shell": "deny",
+            "network": "allow",
+            "mcp_tools": ["codex"],
+        },
+        "mcp_tool_set": ["codex"],
+        "runtime_options": {"runner": "codex", "provider": "cliproxyapi"},
+        "handoff_chain": {"roles": [], "max_handoffs": 0},
+    }
+    sync_role_contract(contract)
+    manifest = {
+        "run_id": run_id,
+        "task_id": "task-role-binding-summary",
+        "status": "RUNNING",
+        "repo": {},
+    }
+
+    scheduler_bridge_contract.persist_contract_state(
+        store=store,
+        run_id=run_id,
+        task_id="task-role-binding-summary",
+        contract=contract,
+        manifest=manifest,
+        hash_contract_fn=lambda _contract: "0" * 64,
+        write_manifest_fn=lambda store_obj, rid, data: store_obj.write_manifest(rid, data),
+        write_contract_signature_fn=lambda *_args, **_kwargs: (None, None),
+        now_ts_fn=lambda: "2026-04-02T19:20:00Z",
+    )
+
+    written = json.loads((store._runs_root / run_id / "manifest.json").read_text(encoding="utf-8"))
+    assert written["role_binding_summary"] == build_role_binding_summary(contract)

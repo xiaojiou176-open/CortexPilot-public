@@ -94,8 +94,9 @@ Work in CortexPilot as a contract-first engineering agent:
   `configs/env_direct_read_allowlist.json`
 - when Prompt 4-style binding/read-surface work extends those role-contract
   surfaces, keep the root AI/docs entrypoints aligned in the same patch;
-  current examples include advisory `role_binding_summary` in PM-facing
-  `run_intake(...)` responses plus registry-backed SEARCHER/RESEARCHER
+  current examples include contract-derived `role_binding_summary` in
+  PM-facing `run_intake(...)` responses plus the same summary persisted into
+  run manifests, alongside registry-backed SEARCHER/RESEARCHER
   `mcp_bundle_ref` hardening in `policies/agent_registry.json`
 - when CI maintenance changes the Python dependency audit contract or the
   tracked runtime report namespaces, sync the root AI/docs entrypoints in the

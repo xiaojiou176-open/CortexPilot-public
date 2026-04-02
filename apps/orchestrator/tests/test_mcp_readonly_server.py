@@ -124,7 +124,19 @@ def test_mcp_readonly_server_cli_supports_runs_reports_and_keeps_read_only(tmp_p
             },
         },
     )
-    _write_contract(run_dir, {"task_id": "task_alpha", "allowed_paths": ["apps/dashboard"]})
+    _write_contract(
+        run_dir,
+        {
+            "task_id": "task_alpha",
+            "allowed_paths": ["apps/dashboard"],
+            "role_contract": {
+                "skills_bundle_ref": None,
+                "mcp_bundle_ref": "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools",
+                "runtime_binding": {"runner": "agents", "provider": "cliproxyapi", "model": "gpt-5.4"},
+                "resolved_mcp_tool_set": ["search-01-tavily"],
+            },
+        },
+    )
     _write_events(
         run_dir,
         [
@@ -177,12 +189,14 @@ def test_mcp_readonly_server_cli_supports_runs_reports_and_keeps_read_only(tmp_p
                 "jsonrpc": "2.0",
                 "id": 3,
                 "method": "tools/call",
-                "params": {"name": "get_run_reports", "arguments": {"run_id": "run_alpha"}},
+                "params": {"name": "get_run", "arguments": {"run_id": "run_alpha"}},
             },
         )
-        reports_response = stream.read_until_id(3, 15.0)
-        reports = reports_response["result"]["structuredContent"]["reports"]
-        assert any(item["name"] == "run_compare_report.json" for item in reports)
+        run_response = stream.read_until_id(3, 15.0)
+        role_binding = run_response["result"]["structuredContent"]["run"]["role_binding_read_model"]
+        assert role_binding["authority"] == "contract-derived-read-model"
+        assert role_binding["execution_authority"] == "task_contract"
+        assert role_binding["mcp_bundle_ref"]["resolved_mcp_tool_set"] == ["search-01-tavily"]
 
         send_json(
             proc,
@@ -190,11 +204,12 @@ def test_mcp_readonly_server_cli_supports_runs_reports_and_keeps_read_only(tmp_p
                 "jsonrpc": "2.0",
                 "id": 4,
                 "method": "tools/call",
-                "params": {"name": "get_workflow", "arguments": {"workflow_id": "wf-alpha"}},
+                "params": {"name": "get_run_reports", "arguments": {"run_id": "run_alpha"}},
             },
         )
-        workflow_response = stream.read_until_id(4, 15.0)
-        assert workflow_response["result"]["structuredContent"]["workflow_detail"]["workflow"]["workflow_id"] == "wf-alpha"
+        reports_response = stream.read_until_id(4, 15.0)
+        reports = reports_response["result"]["structuredContent"]["reports"]
+        assert any(item["name"] == "run_compare_report.json" for item in reports)
 
         send_json(
             proc,
@@ -202,10 +217,22 @@ def test_mcp_readonly_server_cli_supports_runs_reports_and_keeps_read_only(tmp_p
                 "jsonrpc": "2.0",
                 "id": 5,
                 "method": "tools/call",
+                "params": {"name": "get_workflow", "arguments": {"workflow_id": "wf-alpha"}},
+            },
+        )
+        workflow_response = stream.read_until_id(5, 15.0)
+        assert workflow_response["result"]["structuredContent"]["workflow_detail"]["workflow"]["workflow_id"] == "wf-alpha"
+
+        send_json(
+            proc,
+            {
+                "jsonrpc": "2.0",
+                "id": 6,
+                "method": "tools/call",
                 "params": {"name": "list_queue", "arguments": {}},
             },
         )
-        queue_response = stream.read_until_id(5, 15.0)
+        queue_response = stream.read_until_id(6, 15.0)
         assert queue_response["result"]["structuredContent"]["queue"] == []
     finally:
         _terminate_subprocess(proc)

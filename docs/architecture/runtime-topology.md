@@ -28,6 +28,9 @@ flowchart LR
 - The same intake preview now carries a `role_contract_summary` when available,
   so the assigned-role binding (prompt ref / MCP bundle / runtime binding /
   fail-closed posture) is inspectable before execution starts.
+- The same role-binding read model now persists into `manifest.json` as
+  `role_binding_summary`, so post-run/read-only surfaces can inspect the same
+  bundle/runtime state without promoting that summary into execution authority.
 - Pack registry truth lives under `contracts/packs/`; dashboard and desktop
   intake surfaces consume that metadata, while runtime execution keeps the real
   output truth under run bundles.

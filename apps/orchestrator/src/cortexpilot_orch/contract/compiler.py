@@ -231,6 +231,88 @@ def _runtime_binding(contract: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _binding_summary_status(ref: str | None) -> str:
+    if not ref:
+        return "unresolved"
+    if ref.startswith("policies/agent_registry.json#"):
+        return "registry-backed"
+    return "resolved"
+
+
+def _runtime_binding_sources(contract: dict[str, Any], runtime_binding: dict[str, Any]) -> dict[str, str]:
+    runtime_options = contract.get("runtime_options") if isinstance(contract.get("runtime_options"), dict) else {}
+    runner = str(runtime_options.get("runner") or "").strip()
+    provider = str(runtime_options.get("provider") or "").strip()
+    model = str(runtime_binding.get("model") or "").strip()
+    role_runtime_binding = (
+        contract.get("role_contract", {}).get("runtime_binding")
+        if isinstance(contract.get("role_contract"), dict)
+        and isinstance(contract.get("role_contract", {}).get("runtime_binding"), dict)
+        else {}
+    )
+    return {
+        "runner": "runtime_options.runner"
+        if runner
+        else ("role_contract.runtime_binding.runner" if role_runtime_binding.get("runner") else "unresolved"),
+        "provider": "runtime_options.provider"
+        if provider
+        else ("role_contract.runtime_binding.provider" if role_runtime_binding.get("provider") else "unresolved"),
+        "model": "env.CORTEXPILOT_CODEX_MODEL"
+        if os.getenv("CORTEXPILOT_CODEX_MODEL", "").strip()
+        else (
+            "env.CORTEXPILOT_PROVIDER_MODEL"
+            if os.getenv("CORTEXPILOT_PROVIDER_MODEL", "").strip()
+            else ("role_contract.runtime_binding.model" if model else "unresolved")
+        ),
+    }
+
+
+def _runtime_binding_status(runtime_binding: dict[str, Any]) -> str:
+    populated = [value for value in runtime_binding.values() if str(value or "").strip()]
+    if not populated:
+        return "unresolved"
+    if len(populated) == len(runtime_binding):
+        return "contract-derived"
+    return "partially-resolved"
+
+
+def build_role_binding_summary(contract: dict[str, Any]) -> dict[str, Any]:
+    role_contract = contract.get("role_contract") if isinstance(contract.get("role_contract"), dict) else {}
+    if not role_contract:
+        role_contract = _build_role_contract(contract, _load_agent_registry())
+    skills_bundle_ref = _normalize_optional_ref(role_contract.get("skills_bundle_ref"))
+    mcp_bundle_ref = _normalize_optional_ref(role_contract.get("mcp_bundle_ref"))
+    resolved_mcp_tools = _normalize_string_list(role_contract.get("resolved_mcp_tool_set"))
+    runtime_binding_raw = role_contract.get("runtime_binding") if isinstance(role_contract.get("runtime_binding"), dict) else {}
+    runtime_binding = {
+        "runner": _normalize_optional_ref(runtime_binding_raw.get("runner")),
+        "provider": _normalize_optional_ref(runtime_binding_raw.get("provider")),
+        "model": _normalize_optional_ref(runtime_binding_raw.get("model")),
+    }
+    return {
+        "authority": "contract-derived-read-model",
+        "source": "derived from compiled role_contract and runtime inputs; not an execution authority surface",
+        "execution_authority": "task_contract",
+        "skills_bundle_ref": {
+            "status": _binding_summary_status(skills_bundle_ref),
+            "ref": skills_bundle_ref,
+            "validation": "fail-closed",
+        },
+        "mcp_bundle_ref": {
+            "status": _binding_summary_status(mcp_bundle_ref),
+            "ref": mcp_bundle_ref,
+            "resolved_mcp_tool_set": resolved_mcp_tools,
+            "validation": "fail-closed",
+        },
+        "runtime_binding": {
+            "status": _runtime_binding_status(runtime_binding),
+            "authority_scope": "contract-derived-read-model",
+            "source": _runtime_binding_sources(contract, runtime_binding),
+            "summary": runtime_binding,
+        },
+    }
+
+
 def _build_role_contract(contract: dict[str, Any], registry: dict[str, Any] | None) -> dict[str, Any]:
     assigned_agent = contract.get("assigned_agent") if isinstance(contract.get("assigned_agent"), dict) else {}
     role = str(assigned_agent.get("role") or "WORKER").strip().upper() or "WORKER"

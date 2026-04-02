@@ -185,6 +185,183 @@
         }
       }
     },
+    "role_binding_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authority",
+        "source",
+        "execution_authority",
+        "skills_bundle_ref",
+        "mcp_bundle_ref",
+        "runtime_binding"
+      ],
+      "properties": {
+        "authority": {
+          "type": "string",
+          "enum": [
+            "contract-derived-read-model"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "execution_authority": {
+          "type": "string",
+          "enum": [
+            "task_contract"
+          ]
+        },
+        "skills_bundle_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "ref",
+            "validation"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "unresolved",
+                "resolved",
+                "registry-backed"
+              ]
+            },
+            "ref": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "validation": {
+              "type": "string",
+              "enum": [
+                "fail-closed"
+              ]
+            }
+          }
+        },
+        "mcp_bundle_ref": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "ref",
+            "resolved_mcp_tool_set",
+            "validation"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "unresolved",
+                "resolved",
+                "registry-backed"
+              ]
+            },
+            "ref": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "resolved_mcp_tool_set": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "validation": {
+              "type": "string",
+              "enum": [
+                "fail-closed"
+              ]
+            }
+          }
+        },
+        "runtime_binding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "authority_scope",
+            "source",
+            "summary"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "unresolved",
+                "partially-resolved",
+                "contract-derived"
+              ]
+            },
+            "authority_scope": {
+              "type": "string",
+              "enum": [
+                "contract-derived-read-model"
+              ]
+            },
+            "source": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "runner",
+                "provider",
+                "model"
+              ],
+              "properties": {
+                "runner": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "model": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "summary": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "runner",
+                "provider",
+                "model"
+              ],
+              "properties": {
+                "runner": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "provider": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "model": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "tasks": {
       "type": "array",
       "minItems": 1,
@@ -364,6 +541,30 @@
             "SUCCESS",
             "FAILURE"
           ]
+        }
+      }
+    },
+    "observability": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "has_otel": {
+          "type": "boolean"
+        },
+        "otlp_endpoint": {
+          "type": "string"
+        },
+        "otlp_protocol": {
+          "type": "string"
+        },
+        "console_enabled": {
+          "type": "boolean"
+        },
+        "required": {
+          "type": "boolean"
         }
       }
     },

@@ -264,6 +264,13 @@
 - Intake preview should expose a `role_contract_summary` when available so the
   preview surface and the final execution contract describe the same resolved
   role.
+- When available, the Orchestrator may also emit a contract-derived
+  `role_binding_summary` read model in PM intake responses and run manifests so
+  bundle/runtime state stays inspectable after execution without becoming a
+  second execution authority source.
+- Read-only run surfaces may project that same contract-derived binding view as
+  `role_binding_read_model`, but those projections remain read models layered
+  on top of the task contract rather than replacement execution authority.
 
 ### 6.2 Output-Side Contracts (Results / Reports)
 

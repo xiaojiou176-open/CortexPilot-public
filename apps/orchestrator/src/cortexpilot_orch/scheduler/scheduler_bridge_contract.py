@@ -4,6 +4,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from cortexpilot_orch.contract.compiler import build_role_binding_summary
 from cortexpilot_orch.store.run_store import RunStore
 
 
@@ -158,6 +159,7 @@ def persist_contract_state(
         integrity = manifest.get("integrity") if isinstance(manifest.get("integrity"), dict) else {}
         integrity["contract_sha256"] = hash_contract_fn(contract)
         manifest["integrity"] = integrity
+        manifest["role_binding_summary"] = build_role_binding_summary(contract)
         if mark_failure_manifest:
             manifest["status"] = "FAILURE"
             manifest["failure_reason"] = failure_reason
