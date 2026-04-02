@@ -10,6 +10,7 @@ import pytest
 from fastapi import FastAPI, HTTPException
 
 from cortexpilot_orch.api import main_pm_intake_helpers as helpers
+from cortexpilot_orch.contract.compiler import build_role_binding_summary
 from cortexpilot_orch.store.run_store import RunStore
 
 
@@ -375,19 +376,7 @@ def test_run_intake_error_branches_and_success(monkeypatch, tmp_path: Path) -> N
     assert result["run_id"] == "run-ok"
     assert result["strict_acceptance"] is False
     expected_role_contract = observed_contract["role_contract"]
-    assert result["role_binding_summary"] == {
-        "authority": "advisory",
-        "source": "derived from role_contract after sync_role_contract; not a runtime authority surface",
-        "skills_bundle_ref": {"status": "unresolved", "ref": expected_role_contract["skills_bundle_ref"]},
-        "mcp_bundle_ref": {
-            "status": "registry-backed" if expected_role_contract["mcp_bundle_ref"] else "unresolved",
-            "ref": expected_role_contract["mcp_bundle_ref"],
-        },
-        "runtime_binding": {
-            "status": "advisory",
-            "summary": expected_role_contract["runtime_binding"],
-        },
-    }
+    assert result["role_binding_summary"] == build_role_binding_summary(observed_contract)
     assert observed_contract["runtime_options"]["runner"] == "app_server"
     assert observed_contract["runtime_options"]["strict_acceptance"] is False
     assert observed_contract["runtime_options"]["provider"] == "cliproxyapi"
@@ -467,15 +456,7 @@ def test_run_intake_strips_intake_only_template_fields_before_execution(monkeypa
     assert result["ok"] is True
     assert result["run_id"] == "run-template-ok"
     expected_role_contract = observed_contract["role_contract"]
-    assert result["role_binding_summary"]["skills_bundle_ref"] == {"status": "unresolved", "ref": None}
-    assert result["role_binding_summary"]["mcp_bundle_ref"] == {
-        "status": "registry-backed" if expected_role_contract["mcp_bundle_ref"] else "unresolved",
-        "ref": expected_role_contract["mcp_bundle_ref"],
-    }
-    assert result["role_binding_summary"]["runtime_binding"] == {
-        "status": "advisory",
-        "summary": expected_role_contract["runtime_binding"],
-    }
+    assert result["role_binding_summary"] == build_role_binding_summary(observed_contract)
     assert "task_template" not in observed_contract
     assert "template_payload" not in observed_contract
     assert observed_contract["browser_policy"] == {"profile_mode": "ephemeral"}
@@ -483,8 +464,9 @@ def test_run_intake_strips_intake_only_template_fields_before_execution(monkeypa
 
 
 def test_build_role_binding_summary_only_marks_registry_refs_as_registry_backed() -> None:
-    summary = helpers._build_role_binding_summary(
+    summary = build_role_binding_summary(
         {
+            "runtime_options": {"provider": "cliproxyapi"},
             "role_contract": {
                 "skills_bundle_ref": "bundles/skills.json#/worker",
                 "mcp_bundle_ref": "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools",
@@ -496,10 +478,24 @@ def test_build_role_binding_summary_only_marks_registry_refs_as_registry_backed(
     assert summary["skills_bundle_ref"] == {
         "status": "resolved",
         "ref": "bundles/skills.json#/worker",
+        "validation": "fail-closed",
     }
     assert summary["mcp_bundle_ref"] == {
         "status": "registry-backed",
         "ref": "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools",
+        "resolved_mcp_tool_set": [],
+        "validation": "fail-closed",
+    }
+    assert summary["execution_authority"] == "task_contract"
+    assert summary["runtime_binding"] == {
+        "status": "partially-resolved",
+        "authority_scope": "contract-derived-read-model",
+        "source": {
+            "runner": "unresolved",
+            "provider": "runtime_options.provider",
+            "model": "unresolved",
+        },
+        "summary": {"runner": None, "provider": "cliproxyapi", "model": None},
     }
 
 

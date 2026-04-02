@@ -71,9 +71,14 @@ bash scripts/run_orchestrator_cli.sh --help
 - intake preview now exposes `role_contract_summary` next to
   `contract_preview`, so operators can inspect the resolved role binding
   without reconstructing it from raw schema fields
-- `run_intake(...)` now also returns an advisory `role_binding_summary` read
-  surface so PM-facing helpers can disclose whether skills / MCP / runtime
-  bindings are resolved without presenting that summary as the runtime
+- `run_intake(...)` now returns a contract-derived `role_binding_summary` read
+  model, and the same summary is persisted into run manifests so PM-facing
+  helpers plus post-run surfaces can inspect the same bundle/runtime state
+  without treating that summary as execution authority
+- `get_run(...)` now also returns a stable `role_binding_read_model`, so run
+  detail and read-only MCP consumers can inspect persisted bundle/runtime state
+  without treating that read model as execution authority
+  from `contract.json` without upgrading that read surface into execution
   authority
 - role prompt refs now resolve from `policies/agents/codex/roles/` as the
   repository-owned prompt asset root when a worktree-local `codex/roles/`

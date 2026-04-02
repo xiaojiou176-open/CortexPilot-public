@@ -7,6 +7,8 @@ import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
 
+from cortexpilot_orch.contract.compiler import build_role_binding_summary
+
 from .helpers.api_main_test_io import (
     _output_schema_artifacts,
     _write_artifact,
@@ -37,7 +39,19 @@ def test_api_list_runs_and_get_run(tmp_path: Path, monkeypatch) -> None:
     (runs_root / "run_empty").mkdir(parents=True, exist_ok=True)
     _write_manifest(run_a, {"run_id": "run_a", "task_id": "task_a", "status": "SUCCESS", "created_at": (now - timedelta(minutes=5)).isoformat()})
     _write_manifest(run_b, {"run_id": "run_b", "task_id": "task_b", "status": "FAILURE", "created_at": now.isoformat()})
-    _write_contract(run_a, {"allowed_paths": ["README.md"], "task_id": "task_a"})
+    _write_contract(
+        run_a,
+        {
+            "allowed_paths": ["README.md"],
+            "task_id": "task_a",
+            "role_contract": {
+                "skills_bundle_ref": None,
+                "mcp_bundle_ref": "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools",
+                "runtime_binding": {"runner": "agents", "provider": "cliproxyapi", "model": "gpt-5.4"},
+                "resolved_mcp_tool_set": ["search-01-tavily"],
+            },
+        },
+    )
 
     client = TestClient(api_main.app)
     resp = client.get("/api/runs")
@@ -50,6 +64,7 @@ def test_api_list_runs_and_get_run(tmp_path: Path, monkeypatch) -> None:
     data = resp.json()
     assert data["run_id"] == "run_a"
     assert data["allowed_paths"] == ["README.md"]
+    assert data["role_binding_read_model"] == build_role_binding_summary(data["contract"])
 
     missing = client.get("/api/runs/missing")
     assert missing.status_code == 404

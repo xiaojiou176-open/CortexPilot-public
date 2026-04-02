@@ -11,6 +11,7 @@ from fastapi import HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 
 from cortexpilot_orch.api import search_payload_helpers
+from cortexpilot_orch.contract.compiler import build_role_binding_summary
 from tooling.search_pipeline import build_evidence_bundle
 
 
@@ -538,6 +539,7 @@ def build_runs_handlers(
             "allowed_paths": allowed_paths,
             "contract": normalized_contract,
             "manifest": manifest,
+            "role_binding_read_model": build_role_binding_summary(normalized_contract),
             **failure_attrs,
             **outcome,
         }

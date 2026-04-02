@@ -63,9 +63,13 @@ This repository combines:
 - **Role Contract preview**: intake planning can now expose a resolved role binding summary
   (prompt ref, MCP bundle ref, runtime binding, fail-closed posture) before execution starts,
   while handoff remains a summary/risk evidence surface instead of rewriting the task contract
-- **Role binding receipt**: PM-facing `run_intake(...)` responses can now expose an
-  advisory `role_binding_summary` so skills / MCP / runtime bindings are readable without
-  pretending that summary has execution authority
+- **Role binding receipt**: PM-facing `run_intake(...)` responses and run manifests now
+  carry a contract-derived `role_binding_summary`, so skills / MCP / runtime bindings stay
+  readable after execution without pretending that summary has execution authority
+- **Role binding read model**: run detail now also exposes a stable
+  `role_binding_read_model` so persisted bundle/runtime state is readable from
+  read-only surfaces without promoting that summary into execution authority
+  `contract.json` without promoting that read surface into execution authority
 
 ## Quickstart
 
