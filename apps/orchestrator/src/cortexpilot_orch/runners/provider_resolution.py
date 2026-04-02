@@ -9,6 +9,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Mapping
 from urllib.parse import urlparse
+from uuid import uuid4
 
 import httpx
 
@@ -126,6 +127,8 @@ class SwitchyardCompatClient:
             str(kwargs.get("model", "")).strip(),
             provider=self.provider,
         )
+        if system_text and lane == "web":
+            input_text = _prepend_system_instructions(system_text, input_text)
         output_text, response_id = await _invoke_switchyard_runtime(
             base_url=self.base_url,
             provider=target_provider,
@@ -134,6 +137,7 @@ class SwitchyardCompatClient:
             input_text=input_text,
             system_text=system_text,
             timeout=self.timeout,
+            max_retries=self.max_retries,
         )
         completion = _build_switchyard_chat_completion(
             model=str(kwargs.get("model", "")).strip() or target_model,
@@ -279,6 +283,16 @@ def _resolve_switchyard_target(model: str, *, provider: str | None = None) -> tu
     )
 
 
+def _prepend_system_instructions(system_text: str, input_text: str) -> str:
+    instructions = system_text.strip()
+    body = input_text.strip()
+    if not instructions:
+        return body
+    if not body:
+        return f"System instructions:\n{instructions}"
+    return f"System instructions:\n{instructions}\n\nUser request:\n{body}"
+
+
 async def _invoke_switchyard_runtime(
     *,
     base_url: str,
@@ -288,6 +302,7 @@ async def _invoke_switchyard_runtime(
     input_text: str,
     system_text: str | None,
     timeout: float | None,
+    max_retries: int | None,
 ) -> tuple[str, str]:
     payload: dict[str, Any] = {
         "provider": provider,
@@ -299,12 +314,44 @@ async def _invoke_switchyard_runtime(
     if system_text and lane == "byok":
         payload["system"] = system_text
     timeout_value = timeout if timeout is not None else 180.0
-    async with httpx.AsyncClient(timeout=timeout_value) as client:
-        response = await client.post(base_url, json=payload)
-    try:
-        body = response.json()
-    except Exception:
-        body = {}
+    attempts = max(1, 1 + max(0, int(max_retries or 0)))
+    last_error: Exception | None = None
+    body: Mapping[str, Any] | dict[str, Any] = {}
+    response: httpx.Response | None = None
+    for attempt in range(attempts):
+        try:
+            async with httpx.AsyncClient(timeout=timeout_value) as client:
+                response = await client.post(base_url, json=payload)
+        except httpx.HTTPError as exc:
+            last_error = exc
+            if attempt + 1 >= attempts:
+                raise RuntimeError(
+                    f"Switchyard runtime invoke failed after {attempts} attempt(s): {exc}"
+                ) from exc
+            continue
+
+        try:
+            parsed = response.json()
+        except Exception:
+            parsed = {}
+        body = parsed if isinstance(parsed, Mapping) else {}
+
+        if response.status_code < 500:
+            break
+        error_message = "Switchyard runtime invoke failed."
+        error = body.get("error") if isinstance(body, Mapping) else None
+        if isinstance(error, Mapping):
+            error_message = str(error.get("message") or error_message)
+        if attempt + 1 >= attempts:
+            raise RuntimeError(
+                f"Switchyard runtime invoke failed with HTTP {response.status_code}: {error_message}"
+            )
+    if response is None:
+        if last_error is not None:
+            raise RuntimeError(
+                f"Switchyard runtime invoke failed after {attempts} attempt(s): {last_error}"
+            ) from last_error
+        raise RuntimeError("Switchyard runtime invoke failed before receiving a response.")
     if response.status_code >= 400:
         error_message = "Switchyard runtime invoke failed."
         if isinstance(body, Mapping):
@@ -319,7 +366,7 @@ async def _invoke_switchyard_runtime(
     output_text = str(body.get("outputText") or body.get("text") or "").strip()
     if not output_text:
         raise RuntimeError("Switchyard runtime invoke returned no output text.")
-    response_id = str(body.get("providerMessageId") or f"switchyard-{int(time.time())}")
+    response_id = str(body.get("providerMessageId") or f"switchyard-{uuid4()}")
     return output_text, response_id
 
 

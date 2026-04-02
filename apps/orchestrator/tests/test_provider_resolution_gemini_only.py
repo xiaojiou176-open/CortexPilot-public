@@ -651,7 +651,10 @@ def test_build_llm_compat_client_returns_switchyard_runtime_adapter(monkeypatch:
     completion = asyncio.run(
         client.chat.completions.create(
             model="chatgpt/gpt-4o",
-            messages=[{"role": "user", "content": "Return SWITCHYARD_OK"}],
+            messages=[
+                {"role": "system", "content": "Return the exact sentinel."},
+                {"role": "user", "content": "Return SWITCHYARD_OK"},
+            ],
         )
     )
 
@@ -659,12 +662,63 @@ def test_build_llm_compat_client_returns_switchyard_runtime_adapter(monkeypatch:
     assert captured["json"] == {
         "provider": "chatgpt",
         "model": "gpt-4o",
-        "input": "Return SWITCHYARD_OK",
+        "input": "System instructions:\nReturn the exact sentinel.\n\nUser request:\nReturn SWITCHYARD_OK",
         "lane": "web",
         "stream": False,
     }
     assert completion.id == "switchyard-msg-1"
     assert completion.choices[0].message.content == "SWITCHYARD_OK"
+
+
+def test_invoke_switchyard_runtime_retries_transient_5xx_and_generates_unique_fallback_id(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    responses = iter(
+        [
+            types.SimpleNamespace(
+                status_code=503,
+                json=lambda: {"error": {"message": "temporary outage"}},
+            ),
+            types.SimpleNamespace(
+                status_code=200,
+                json=lambda: {"outputText": "SWITCHYARD_OK"},
+            ),
+        ]
+    )
+    captured_calls: list[dict[str, object]] = []
+
+    class _FakeAsyncClient:
+        def __init__(self, timeout: float) -> None:
+            self.timeout = timeout
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb) -> None:
+            del exc_type, exc, tb
+
+        async def post(self, url: str, json: dict[str, object]):
+            captured_calls.append({"url": url, "json": json, "timeout": self.timeout})
+            return next(responses)
+
+    monkeypatch.setattr(provider_resolution_module.httpx, "AsyncClient", _FakeAsyncClient)
+
+    output_text, response_id = asyncio.run(
+        provider_resolution_module._invoke_switchyard_runtime(
+            base_url="http://127.0.0.1:4010/v1/runtime/invoke",
+            provider="chatgpt",
+            model="gpt-4o",
+            lane="web",
+            input_text="Return SWITCHYARD_OK",
+            system_text=None,
+            timeout=30.0,
+            max_retries=1,
+        )
+    )
+
+    assert len(captured_calls) == 2
+    assert output_text == "SWITCHYARD_OK"
+    assert response_id.startswith("switchyard-")
 
 
 def test_resolve_provider_credentials_reads_equilibrium_key_from_env(
