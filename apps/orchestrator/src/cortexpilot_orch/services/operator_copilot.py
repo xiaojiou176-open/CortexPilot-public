@@ -12,7 +12,8 @@ from cortexpilot_orch.runners.provider_resolution import (
     build_llm_compat_client,
     merge_provider_credentials,
     ProviderCredentials,
-    resolve_preferred_api_key,
+    resolve_compat_api_key,
+    resolve_compat_api_mode,
     resolve_provider_credentials,
     resolve_runtime_provider_from_env,
 )
@@ -277,14 +278,18 @@ def _build_ai_brief(prompt: str) -> dict[str, Any]:
         ),
         resolve_provider_credentials(),
     )
-    api_key = resolve_preferred_api_key(provider_credentials, provider)
+    base_url = str(getattr(runner_cfg, "agents_base_url", "") or "").strip() or None
+    api_key = resolve_compat_api_key(provider_credentials, provider, base_url=base_url)
     if not api_key:
         raise RuntimeError(f"missing LLM API key for provider `{provider}`")
-
-    base_url = str(getattr(runner_cfg, "agents_base_url", "") or "").strip() or None
-    compat_client = build_llm_compat_client(api_key=api_key, base_url=base_url)
+    compat_client = build_llm_compat_client(api_key=api_key, base_url=base_url, provider=provider)
     try:
-        set_default_openai_api(str(getattr(runner_cfg, "agents_api", "") or "responses"))
+        set_default_openai_api(
+            resolve_compat_api_mode(
+                str(getattr(runner_cfg, "agents_api", "") or "responses"),
+                base_url=base_url,
+            )
+        )
     except Exception:  # noqa: BLE001
         pass
     if callable(set_default_openai_client) and compat_client is not None:
@@ -349,14 +354,18 @@ def _build_ai_flight_plan_brief(prompt: str) -> dict[str, Any]:
         ),
         resolve_provider_credentials(),
     )
-    api_key = resolve_preferred_api_key(provider_credentials, provider)
+    base_url = str(getattr(runner_cfg, "agents_base_url", "") or "").strip() or None
+    api_key = resolve_compat_api_key(provider_credentials, provider, base_url=base_url)
     if not api_key:
         raise RuntimeError(f"missing LLM API key for provider `{provider}`")
-
-    base_url = str(getattr(runner_cfg, "agents_base_url", "") or "").strip() or None
-    compat_client = build_llm_compat_client(api_key=api_key, base_url=base_url)
+    compat_client = build_llm_compat_client(api_key=api_key, base_url=base_url, provider=provider)
     try:
-        set_default_openai_api(str(getattr(runner_cfg, "agents_api", "") or "responses"))
+        set_default_openai_api(
+            resolve_compat_api_mode(
+                str(getattr(runner_cfg, "agents_api", "") or "responses"),
+                base_url=base_url,
+            )
+        )
     except Exception:  # noqa: BLE001
         pass
     if callable(set_default_openai_client) and compat_client is not None:

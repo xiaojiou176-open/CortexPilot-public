@@ -238,3 +238,74 @@ def test_generate_execution_plan_copilot_brief_returns_structured_report(monkeyp
 
     assert report["report_type"] == "flight_plan_copilot_brief"
     assert report["status"] == "OK"
+
+
+def test_operator_copilot_switchyard_runtime_forces_chat_mode_and_placeholder_key(monkeypatch) -> None:
+    _install_agents_module(
+        monkeypatch,
+        final_output=json.dumps(
+            {
+                "summary": "Switchyard adapter works.",
+                "likely_cause": "No issue.",
+                "compare_takeaway": "Compare clean.",
+                "proof_takeaway": "Proof clean.",
+                "incident_takeaway": "No incident.",
+                "queue_takeaway": "Queue stable.",
+                "approval_takeaway": "No approval pending.",
+                "recommended_actions": ["Continue."],
+                "top_risks": [],
+                "limitations": [],
+            }
+        ),
+    )
+    records: dict[str, object] = {}
+
+    def _build_client(**kwargs):
+        records["client_kwargs"] = kwargs
+        return object()
+
+    agents_mod = sys.modules["agents"]
+    agents_mod.set_default_openai_api = lambda mode: records.setdefault("api_mode", mode)
+    agents_mod.set_default_openai_client = lambda client: records.setdefault("client", client)
+
+    monkeypatch.setattr(
+        "cortexpilot_orch.services.operator_copilot.get_runner_config",
+        lambda: types.SimpleNamespace(
+            agents_base_url="http://127.0.0.1:4010/v1/runtime/invoke",
+            agents_api="responses",
+            agents_model="chatgpt/gpt-4o",
+            gemini_api_key="",
+            openai_api_key="",
+            anthropic_api_key="",
+            equilibrium_api_key="",
+        ),
+    )
+    monkeypatch.setattr("cortexpilot_orch.services.operator_copilot.resolve_runtime_provider_from_env", lambda: "openai")
+    monkeypatch.setattr(
+        "cortexpilot_orch.services.operator_copilot.resolve_provider_credentials",
+        lambda: types.SimpleNamespace(gemini_api_key="", openai_api_key="", anthropic_api_key="", equilibrium_api_key=""),
+    )
+    monkeypatch.setattr("cortexpilot_orch.services.operator_copilot.build_llm_compat_client", _build_client)
+
+    report = generate_run_operator_copilot_brief(
+        "run-1",
+        get_run_fn=lambda _run_id: {
+            "run_id": "run-1",
+            "status": "FAILED",
+            "task_id": "task-1",
+            "manifest": {"workflow": {"workflow_id": "wf-1"}},
+        },
+        get_reports_fn=lambda _run_id: [],
+        get_workflow_fn=lambda _workflow_id: {"workflow": {"workflow_id": "wf-1", "status": "blocked", "objective": "Switchyard"}},
+        list_queue_fn=lambda **_kwargs: [],
+        list_pending_approvals_fn=lambda: [],
+        list_diff_gate_fn=lambda: [],
+    )
+
+    assert report["status"] == "OK"
+    assert records["api_mode"] == "chat_completions"
+    assert records["client_kwargs"] == {
+        "api_key": "switchyard-local",
+        "base_url": "http://127.0.0.1:4010/v1/runtime/invoke",
+        "provider": "openai",
+    }

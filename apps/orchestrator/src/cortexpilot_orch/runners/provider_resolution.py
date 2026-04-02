@@ -3,10 +3,15 @@ from __future__ import annotations
 import importlib
 import json
 import os
+import time
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Mapping
+from urllib.parse import urlparse
+from uuid import uuid4
+
+import httpx
 
 
 PROVIDER_UNSUPPORTED_ERROR = "PROVIDER_UNSUPPORTED"
@@ -40,6 +45,8 @@ _PROVIDER_DEFAULT_MODELS = {
 }
 _LITELLM_ENABLE_ENV_KEYS = ("CORTEXPILOT_PROVIDER_USE_LITELLM",)
 _REPO_ROOT = Path(__file__).resolve().parents[5]
+_SWITCHYARD_RUNTIME_INVOKE_PATH = "/v1/runtime/invoke"
+_SWITCHYARD_WEB_PROVIDERS = {"chatgpt", "gemini", "claude", "grok", "qwen"}
 
 
 class ProviderResolutionError(RuntimeError):
@@ -64,6 +71,354 @@ class LiteLLMCompatClient:
     base_url: str | None = None
     timeout: float | None = None
     max_retries: int | None = None
+
+
+class _SwitchyardChatCompletionStream:
+    def __init__(self, chunk: Any) -> None:
+        self._chunk = chunk
+
+    def __aiter__(self):
+        return self._stream()
+
+    async def _stream(self):
+        yield self._chunk
+
+
+class _SwitchyardChatCompletionsResource:
+    def __init__(self, client: "SwitchyardCompatClient") -> None:
+        self._client = client
+
+    async def create(self, **kwargs: Any) -> Any:
+        return await self._client.create_chat_completion(**kwargs)
+
+
+class _SwitchyardChatResource:
+    def __init__(self, client: "SwitchyardCompatClient") -> None:
+        self.completions = _SwitchyardChatCompletionsResource(client)
+
+
+class SwitchyardCompatClient:
+    def __init__(
+        self,
+        *,
+        api_key: str,
+        base_url: str,
+        provider: str | None = None,
+        timeout: float | None = None,
+        max_retries: int | None = None,
+    ) -> None:
+        self.api_key = api_key
+        self.base_url = base_url
+        self.provider = provider or ""
+        self.timeout = timeout
+        self.max_retries = max_retries
+        self.chat = _SwitchyardChatResource(self)
+
+    async def create_chat_completion(self, **kwargs: Any) -> Any:
+        stream = bool(kwargs.get("stream"))
+        tools = kwargs.get("tools")
+        if tools not in (None, [], (), ""):
+            raise RuntimeError(
+                "Switchyard runtime-first adapter does not support tool calling yet."
+            )
+
+        system_text, input_text = _switchyard_messages_to_prompt(kwargs.get("messages"))
+        target_provider, target_model, lane = _resolve_switchyard_target(
+            str(kwargs.get("model", "")).strip(),
+            provider=self.provider,
+        )
+        if system_text and lane == "web":
+            input_text = _prepend_system_instructions(system_text, input_text)
+        output_text, response_id = await _invoke_switchyard_runtime(
+            base_url=self.base_url,
+            provider=target_provider,
+            model=target_model,
+            lane=lane,
+            input_text=input_text,
+            system_text=system_text,
+            timeout=self.timeout,
+            max_retries=self.max_retries,
+        )
+        completion = _build_switchyard_chat_completion(
+            model=str(kwargs.get("model", "")).strip() or target_model,
+            output_text=output_text,
+            response_id=response_id,
+        )
+        if not stream:
+            return completion
+        return _SwitchyardChatCompletionStream(
+            _build_switchyard_chat_completion_chunk(
+                completion=completion,
+                output_text=output_text,
+            )
+        )
+
+
+def _is_switchyard_runtime_base_url(base_url: str | None) -> bool:
+    candidate = str(base_url or "").strip()
+    if not candidate:
+        return False
+    try:
+        parsed = urlparse(candidate)
+    except Exception:
+        return False
+    path = parsed.path.rstrip("/") or "/"
+    return path == _SWITCHYARD_RUNTIME_INVOKE_PATH
+
+
+def resolve_compat_api_mode(default_api: str | None, *, base_url: str | None = None) -> str:
+    if _is_switchyard_runtime_base_url(base_url):
+        return "chat_completions"
+    normalized = str(default_api or "").strip()
+    return normalized or "responses"
+
+
+def resolve_compat_api_key(
+    credentials: ProviderCredentials,
+    provider: str | None = None,
+    *,
+    base_url: str | None = None,
+) -> str:
+    preferred = resolve_preferred_api_key(credentials, provider)
+    if preferred:
+        return preferred
+    if _is_switchyard_runtime_base_url(base_url):
+        for candidate in (
+            credentials.openai_api_key,
+            credentials.gemini_api_key,
+            credentials.anthropic_api_key,
+            credentials.equilibrium_api_key,
+        ):
+            value = str(candidate or "").strip()
+            if value:
+                return value
+        return "switchyard-local"
+    return ""
+
+
+def _extract_message_text(content: Any) -> str:
+    if isinstance(content, str):
+        return content.strip()
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, str):
+                stripped = item.strip()
+                if stripped:
+                    parts.append(stripped)
+                continue
+            if isinstance(item, Mapping):
+                text = str(item.get("text") or "").strip()
+                if text:
+                    parts.append(text)
+        return "\n".join(parts).strip()
+    if isinstance(content, Mapping):
+        return str(content.get("text") or "").strip()
+    return ""
+
+
+def _switchyard_messages_to_prompt(messages: Any) -> tuple[str | None, str]:
+    if not isinstance(messages, list):
+        text = str(messages or "").strip()
+        return None, text
+
+    system_lines: list[str] = []
+    transcript_lines: list[str] = []
+    last_user_text = ""
+
+    for entry in messages:
+        if isinstance(entry, Mapping):
+            role = str(entry.get("role") or "").strip().lower()
+            content = _extract_message_text(entry.get("content"))
+        else:
+            role = str(getattr(entry, "role", "") or "").strip().lower()
+            content = _extract_message_text(getattr(entry, "content", ""))
+        if not content:
+            continue
+        if role == "system":
+            system_lines.append(content)
+            continue
+        if role == "user":
+            last_user_text = content
+        label = role or "user"
+        transcript_lines.append(f"{label}: {content}")
+
+    if last_user_text and len(transcript_lines) <= 1:
+        prompt = last_user_text
+    else:
+        prompt = "\n\n".join(transcript_lines).strip()
+    system_text = "\n\n".join(system_lines).strip() or None
+    return system_text, prompt
+
+
+def _resolve_switchyard_target(model: str, *, provider: str | None = None) -> tuple[str, str, str]:
+    raw_model = str(model or "").strip()
+    if "/" in raw_model:
+        candidate_provider, runtime_model = raw_model.split("/", 1)
+        normalized_provider = candidate_provider.strip().lower()
+        if normalized_provider in _SWITCHYARD_WEB_PROVIDERS and runtime_model.strip():
+            return normalized_provider, runtime_model.strip(), "web"
+
+    normalized_provider = str(provider or "").strip().lower()
+    if normalized_provider in {"openai", "anthropic", "gemini"}:
+        if not raw_model:
+            raise RuntimeError("Switchyard adapter requires a non-empty model name.")
+        return normalized_provider, raw_model, "byok"
+
+    lowered_model = raw_model.lower()
+    if lowered_model.startswith(("gpt-", "o1", "o3", "o4")):
+        return "chatgpt", raw_model, "web"
+    if lowered_model.startswith("gemini"):
+        return "gemini", raw_model, "web"
+    if lowered_model.startswith("claude"):
+        return "claude", raw_model, "web"
+    if lowered_model.startswith("grok"):
+        return "grok", raw_model, "web"
+    if lowered_model.startswith("qwen"):
+        return "qwen", raw_model, "web"
+
+    raise RuntimeError(
+        "Switchyard adapter could not infer a runtime provider. "
+        "Use `provider/model` for web providers or keep a supported runtime provider in CortexPilot config."
+    )
+
+
+def _prepend_system_instructions(system_text: str, input_text: str) -> str:
+    instructions = system_text.strip()
+    body = input_text.strip()
+    if not instructions:
+        return body
+    if not body:
+        return f"System instructions:\n{instructions}"
+    return f"System instructions:\n{instructions}\n\nUser request:\n{body}"
+
+
+async def _invoke_switchyard_runtime(
+    *,
+    base_url: str,
+    provider: str,
+    model: str,
+    lane: str,
+    input_text: str,
+    system_text: str | None,
+    timeout: float | None,
+    max_retries: int | None,
+) -> tuple[str, str]:
+    payload: dict[str, Any] = {
+        "provider": provider,
+        "model": model,
+        "input": input_text,
+        "lane": lane,
+        "stream": False,
+    }
+    if system_text and lane == "byok":
+        payload["system"] = system_text
+    timeout_value = timeout if timeout is not None else 180.0
+    attempts = max(1, 1 + max(0, int(max_retries or 0)))
+    last_error: Exception | None = None
+    body: Mapping[str, Any] | dict[str, Any] = {}
+    response: httpx.Response | None = None
+    for attempt in range(attempts):
+        try:
+            async with httpx.AsyncClient(timeout=timeout_value) as client:
+                response = await client.post(base_url, json=payload)
+        except httpx.HTTPError as exc:
+            last_error = exc
+            if attempt + 1 >= attempts:
+                raise RuntimeError(
+                    f"Switchyard runtime invoke failed after {attempts} attempt(s): {exc}"
+                ) from exc
+            continue
+
+        try:
+            parsed = response.json()
+        except Exception:
+            parsed = {}
+        body = parsed if isinstance(parsed, Mapping) else {}
+
+        if response.status_code < 500:
+            break
+        error_message = "Switchyard runtime invoke failed."
+        error = body.get("error") if isinstance(body, Mapping) else None
+        if isinstance(error, Mapping):
+            error_message = str(error.get("message") or error_message)
+        if attempt + 1 >= attempts:
+            raise RuntimeError(
+                f"Switchyard runtime invoke failed with HTTP {response.status_code}: {error_message}"
+            )
+    if response is None:
+        if last_error is not None:
+            raise RuntimeError(
+                f"Switchyard runtime invoke failed after {attempts} attempt(s): {last_error}"
+            ) from last_error
+        raise RuntimeError("Switchyard runtime invoke failed before receiving a response.")
+    if response.status_code >= 400:
+        error_message = "Switchyard runtime invoke failed."
+        if isinstance(body, Mapping):
+            error = body.get("error")
+            if isinstance(error, Mapping):
+                error_message = str(error.get("message") or error_message)
+        raise RuntimeError(
+            f"Switchyard runtime invoke failed with HTTP {response.status_code}: {error_message}"
+        )
+    if not isinstance(body, Mapping):
+        raise RuntimeError("Switchyard runtime returned a non-object JSON payload.")
+    output_text = str(body.get("outputText") or body.get("text") or "").strip()
+    if not output_text:
+        raise RuntimeError("Switchyard runtime invoke returned no output text.")
+    response_id = str(body.get("providerMessageId") or f"switchyard-{uuid4()}")
+    return output_text, response_id
+
+
+def _build_switchyard_chat_completion(*, model: str, output_text: str, response_id: str) -> Any:
+    openai_chat_module = importlib.import_module("openai.types.chat")
+    chat_completion_cls = getattr(openai_chat_module, "ChatCompletion")
+    return chat_completion_cls.model_validate(
+        {
+            "id": response_id,
+            "object": "chat.completion",
+            "created": int(time.time()),
+            "model": model,
+            "choices": [
+                {
+                    "index": 0,
+                    "finish_reason": "stop",
+                    "message": {
+                        "role": "assistant",
+                        "content": output_text,
+                    },
+                }
+            ],
+            "usage": {
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+            },
+        }
+    )
+
+
+def _build_switchyard_chat_completion_chunk(*, completion: Any, output_text: str) -> Any:
+    openai_chat_module = importlib.import_module("openai.types.chat")
+    chat_chunk_cls = getattr(openai_chat_module, "ChatCompletionChunk")
+    return chat_chunk_cls.model_validate(
+        {
+            "id": completion.id,
+            "object": "chat.completion.chunk",
+            "created": completion.created,
+            "model": completion.model,
+            "choices": [
+                {
+                    "index": 0,
+                    "delta": {
+                        "role": "assistant",
+                        "content": output_text,
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
+        }
+    )
 
 
 @lru_cache(maxsize=1)
@@ -258,7 +613,16 @@ def build_llm_compat_client(
     timeout: float | None = None,
     max_retries: int | None = None,
     env: Mapping[str, str] | None = None,
+    provider: str | None = None,
 ) -> Any | None:
+    if _is_switchyard_runtime_base_url(base_url):
+        return SwitchyardCompatClient(
+            api_key=api_key,
+            base_url=str(base_url),
+            provider=provider,
+            timeout=timeout,
+            max_retries=max_retries,
+        )
     if use_litellm_provider_path(env):
         litellm_client = _build_litellm_compat_client(
             api_key=api_key,

@@ -273,7 +273,7 @@ def test_intake_run_agent_accepts_gemini_api_key_as_equivalent_credential(monkey
     monkeypatch.setattr(
         intake,
         "build_llm_compat_client",
-        lambda api_key, base_url=None: captured.update(
+        lambda api_key, base_url=None, **_kwargs: captured.update(
             {"api_key": api_key, "base_url": base_url}
         ),
     )
@@ -285,6 +285,84 @@ def test_intake_run_agent_accepts_gemini_api_key_as_equivalent_credential(monkey
     assert result == {"questions": ["Q1"]}
     assert captured["api_key"] == "gemini-only-key"
     assert captured["base_url"] == _Cfg.agents_base_url
+
+
+def test_intake_run_agent_switchyard_runtime_forces_chat_mode_and_placeholder_key(monkeypatch) -> None:
+    class _Cfg:
+        agents_base_url = "http://127.0.0.1:4010/v1/runtime/invoke"
+        gemini_api_key = ""
+        openai_api_key = ""
+        anthropic_api_key = ""
+        equilibrium_api_key = ""
+        agents_api = "responses"
+        agents_model = "chatgpt/gpt-4o"
+
+    class DummyAgent:
+        def __init__(self, name: str, instructions: str, mcp_servers: list):
+            self.name = name
+            self.instructions = instructions
+            self.mcp_servers = mcp_servers
+
+    class DummyModelSettings:
+        def __init__(self, **kwargs) -> None:
+            self.kwargs = kwargs
+
+    class DummyRunConfig:
+        def __init__(self, **kwargs) -> None:
+            self.kwargs = kwargs
+
+    class DummyResult:
+        final_output = json.dumps({"questions": ["Q1"]})
+
+        async def stream_events(self):
+            return
+            yield
+
+    class DummyRunner:
+        @staticmethod
+        def run_streamed(agent, prompt, run_config):
+            del agent, prompt, run_config
+            return DummyResult()
+
+    records: dict[str, object] = {}
+
+    def _build_client(**kwargs):
+        records["client_kwargs"] = kwargs
+        return object()
+
+    agents_mod = types.ModuleType("agents")
+    agents_mod.Agent = DummyAgent
+    agents_mod.ModelSettings = DummyModelSettings
+    agents_mod.RunConfig = DummyRunConfig
+    agents_mod.Runner = DummyRunner
+    agents_mod.set_default_openai_api = lambda mode: records.setdefault("api_mode", mode)
+    agents_mod.set_default_openai_client = lambda client: records.setdefault("client", client)
+    monkeypatch.setitem(sys.modules, "agents", agents_mod)
+
+    monkeypatch.setattr(intake, "get_runner_config", lambda: _Cfg())
+    monkeypatch.setattr(intake, "resolve_runtime_provider_from_env", lambda: "openai")
+    monkeypatch.setattr(
+        intake,
+        "resolve_provider_credentials",
+        lambda: types.SimpleNamespace(
+            gemini_api_key="",
+            openai_api_key="",
+            anthropic_api_key="",
+            equilibrium_api_key="",
+        ),
+    )
+    monkeypatch.setattr(intake, "merge_provider_credentials", lambda primary, fallback: primary)
+    monkeypatch.setattr(intake, "build_llm_compat_client", _build_client)
+
+    result = intake._run_agent("prompt", "instructions")
+
+    assert result == {"questions": ["Q1"]}
+    assert records["api_mode"] == "chat_completions"
+    assert records["client_kwargs"] == {
+        "api_key": "switchyard-local",
+        "base_url": _Cfg.agents_base_url,
+        "provider": "openai",
+    }
 
 
 def test_intake_service_answer_and_build_contract(monkeypatch, tmp_path: Path) -> None:

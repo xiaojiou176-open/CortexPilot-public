@@ -64,6 +64,7 @@ def _install_fake_agents_sdk(monkeypatch: pytest.MonkeyPatch) -> None:
     agents_mod.ModelSettings = DummyModelSettings
     agents_mod.RunConfig = DummyRunConfig
     agents_mod.Runner = DummyRunner
+    agents_mod.set_default_openai_api = lambda _api: None
     agents_mod.set_default_openai_client = lambda _client: None
 
     mcp_mod = types.ModuleType("agents.mcp")
@@ -331,6 +332,52 @@ def test_execute_agents_contract_llm_client_setup_failed(
     assert result["reason"] == "agents sdk client setup failed"
     assert result["evidence"] == {"error": "client boom"}
     assert transcripts[0]["kind"] == "llm_compat_client_setup_failed"
+    assert flush_counter["count"] == 1
+
+
+def test_execute_agents_contract_switchyard_runtime_forces_chat_mode_and_placeholder_key(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _install_fake_agents_sdk(monkeypatch)
+    records: dict[str, object] = {}
+    agents_mod = sys.modules["agents"]
+    agents_mod.set_default_openai_api = lambda mode: records.setdefault("api_mode", mode)
+    agents_mod.set_default_openai_client = lambda client: records.setdefault("client", client)
+
+    store = _DummyStore()
+    module = _build_module(tmp_path)
+    module.get_runner_config = lambda: types.SimpleNamespace(
+        agents_base_url="http://127.0.0.1:4010/v1/runtime/invoke",
+        agents_api="responses",
+        gemini_api_key="",
+        openai_api_key="",
+        anthropic_api_key="",
+        equilibrium_api_key="",
+    )
+    contract = {"task_id": "task-1", "assigned_agent": {"role": "WORKER"}}
+    monkeypatch.setattr(execution_helpers, "resolve_runtime_provider_from_contract", lambda _contract: "openai")
+
+    def _build_client(**kwargs):
+        records["client_kwargs"] = kwargs
+        return object()
+
+    monkeypatch.setattr(execution_helpers, "build_llm_compat_client", _build_client)
+
+    result, transcripts, flush_counter = _invoke_execute(
+        module=module,
+        store=store,
+        contract=contract,
+        tmp_path=tmp_path,
+    )
+
+    assert result["status"] == "FAILED"
+    assert (
+        result["reason"]
+        == "Switchyard runtime-first adapter is not supported for agents_runner MCP tool execution yet."
+    )
+    assert result["evidence"] == {"base_url": "http://127.0.0.1:4010/v1/runtime/invoke"}
+    assert records == {}
+    assert transcripts[0]["kind"] == "switchyard_runtime_unsupported"
     assert flush_counter["count"] == 1
 
 

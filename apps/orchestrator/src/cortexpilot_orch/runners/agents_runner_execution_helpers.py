@@ -13,6 +13,7 @@ from cortexpilot_orch.runners.provider_resolution import (
     build_llm_compat_client,
     ProviderCredentials,
     ProviderResolutionError,
+    resolve_compat_api_mode,
     resolve_preferred_api_key,
     resolve_runtime_provider_from_contract,
 )
@@ -76,7 +77,6 @@ def _resolve_preferred_api_key_for_provider(
             equilibrium_key = str(getattr(credentials, "equilibrium_api_key", "") or "").strip()
             if equilibrium_key:
                 return equilibrium_key
-        return ""
 
     try:
         candidate = resolve_preferred_api_key(credentials, provider_name)  # type: ignore[call-arg]
@@ -99,6 +99,8 @@ def _resolve_preferred_api_key_for_provider(
         value = str(getattr(credentials, fallback_attr, "") or "").strip()
         if value:
             return value
+    if resolve_compat_api_mode("responses", base_url=base_url) == "chat_completions":
+        return "switchyard-local"
     return ""
 
 
@@ -211,6 +213,18 @@ def execute_agents_contract(
         record_transcript({"kind": "missing_api_key", "text": missing_message})
         flush_transcript()
         return failure_result(missing_message, None)
+    if resolve_compat_api_mode("responses", base_url=base_url) == "chat_completions":
+        record_transcript(
+            {
+                "kind": "switchyard_runtime_unsupported",
+                "text": "Switchyard runtime-first adapter is not supported for agents_runner MCP tool execution yet.",
+            }
+        )
+        flush_transcript()
+        return failure_result(
+            "Switchyard runtime-first adapter is not supported for agents_runner MCP tool execution yet.",
+            {"base_url": base_url},
+        )
 
     compat_client = None
     try:
@@ -227,6 +241,7 @@ def execute_agents_contract(
             base_url=base_url or None,
             timeout=llm_timeout_sec,
             max_retries=llm_client_retries,
+            provider=provider,
         )
     except Exception as exc:  # noqa: BLE001
         record_transcript({"kind": "llm_compat_client_setup_failed", "text": str(exc)})

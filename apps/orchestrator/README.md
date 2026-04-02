@@ -38,6 +38,30 @@ bash scripts/run_orchestrator_pytest.sh apps/orchestrator/tests -q
 bash scripts/run_orchestrator_cli.sh --help
 ```
 
+## Runtime Provider Compatibility Notes
+
+- `CORTEXPILOT_PROVIDER_BASE_URL` may point either at a normal OpenAI-compatible
+  `/v1` endpoint or at the Switchyard runtime-first surface
+  `/v1/runtime/invoke`.
+- When the base URL points at `Switchyard /v1/runtime/invoke`, the orchestrator
+  now forces the Agents SDK onto `chat_completions` instead of the default
+  `responses` path, because Switchyard is being consumed as a runtime-first
+  invoke surface rather than as a fake OpenAI-compatible gateway.
+- The current thin slice supports:
+  - standard BYOK routing when CortexPilot keeps a normal runtime provider such
+    as `gemini`, `openai`, or `anthropic`
+  - explicit web-provider routing when the model is written as
+    `provider/model`, for example `chatgpt/gpt-4o` or `claude/claude-3-5-sonnet`
+- the current runtime-first slice is limited to chat-style compatibility
+  surfaces such as intake planning and operator-copilot briefs; it is not a
+  generic replacement for every Agents runner path
+- The current Switchyard adapter is intentionally chat-only. It does **not**
+  expose tool-calling parity yet, so agent flows that require tool invocation
+  must keep using a provider path that already supports those semantics.
+- `agents_runner` therefore fails closed when `agents_base_url` points at
+  `Switchyard /v1/runtime/invoke`, because that path still implies MCP tool
+  execution semantics the adapter does not provide yet.
+
 ## Read-Only MCP + Copilot Notes
 
 - the repo-local MCP entry is `python -m cortexpilot_orch.cli mcp-readonly-server`
