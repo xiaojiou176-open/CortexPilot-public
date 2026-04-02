@@ -433,7 +433,6 @@ def _resolve_registry_fragment(payload: Any, fragment: str) -> Any:
             continue
         raise ValueError(f"fragment segment invalid: {token}")
     return current
->>>>>>> a79285bd (feat(orchestrator): add advisory role binding surface)
 
 
 def _validate_role_contract(payload: dict[str, Any]) -> None:
