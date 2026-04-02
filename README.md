@@ -60,6 +60,9 @@ This repository combines:
 - **Workflow Cases**: one stable operating record that ties request, queue, verdict, and linked runs together
 - **Proof & Replay**: one place to inspect evidence bundles, compare reruns, and replay failures without guessing
 - **Operator surfaces**: use the web dashboard or desktop shell to watch and control the same system
+- **Role Contract preview**: intake planning can now expose a resolved role binding summary
+  (prompt ref, MCP bundle ref, runtime binding, fail-closed posture) before execution starts,
+  while handoff remains a summary/risk evidence surface instead of rewriting the task contract
 
 ## Quickstart
 

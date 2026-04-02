@@ -43,6 +43,12 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   the Switchyard runtime-first `/v1/runtime/invoke` adapter, the forced
   `chat_completions` mode on chat-only intake/operator paths, and the
   fail-closed rule that keeps MCP tool execution on tool-capable providers
+- when role-contract / prompt-ref / handoff-summary semantics change the
+  orchestrator contract or preview surfaces, sync the root AI/docs entrypoints
+  in the same patch; current examples include resolved `role_contract`,
+  intake `role_contract_summary`, summary/risk-only handoff, and the
+  governance-backed metadata in `policies/agent_registry.json` plus
+  `configs/env_direct_read_allowlist.json`
 - when CI maintenance changes the Python dependency audit contract or the
   tracked runtime report namespaces, sync the root AI/docs entrypoints in the
   same patch; current examples include `.runtime-cache/test_output/ci/` and
