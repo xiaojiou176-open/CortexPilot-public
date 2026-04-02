@@ -6,6 +6,10 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- closed Prompt 3 by formalizing `Role Contract v1` across schema, policy,
+  compiler, validator, intake preview, and handoff summary surfaces while
+  syncing the root/orchestrator/docs entrypoints and env-read governance with
+  the same resolved role-binding contract
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

@@ -444,9 +444,9 @@ def test_agents_handoff_branch_matrix(monkeypatch) -> None:
 
     assert agents_handoff._handoff_chain_roles({"handoff_chain": {"enabled": False, "roles": []}}) == []
 
-    instr, payload = agents_handoff._parse_handoff_payload('{"instruction": "next"}')
-    assert instr == "next"
-    assert payload["instruction"] == "next"
+    payload, summary = agents_handoff._parse_handoff_payload('{"summary": "next", "risks": []}')
+    assert payload == {"summary": "next", "risks": []}
+    assert summary["summary"] == "next"
 
     bad1, err1 = agents_handoff._parse_handoff_payload("{")
     assert bad1 is None and "not json" in err1["error"]
@@ -454,8 +454,8 @@ def test_agents_handoff_branch_matrix(monkeypatch) -> None:
     bad2, err2 = agents_handoff._parse_handoff_payload("[]")
     assert bad2 is None and "not object" in err2["error"]
 
-    bad3, err3 = agents_handoff._parse_handoff_payload('{"instruction": "  "}')
-    assert bad3 is None and "missing instruction" in err3["error"]
+    bad3, err3 = agents_handoff._parse_handoff_payload('{"summary": "  ", "risks": []}')
+    assert bad3 is None and "missing summary" in err3["error"]
 
     monkeypatch.setenv("CORTEXPILOT_AGENTS_FORCE_HANDOFF", "true")
     assert agents_handoff._handoff_required({"owner_agent": {"role": "PM"}, "assigned_agent": {"role": "PM"}})

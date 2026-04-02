@@ -74,8 +74,8 @@ def test_bundle_normalization_and_rebalance() -> None:
         "BACKEND",
     )
     assert normalized["plan_type"] == "BACKEND"
-    assert normalized["assigned_agent"]["role"] == "WORKER"
-    assert normalized["owner_agent"]["role"] == "TECH_LEAD"
+    assert normalized["assigned_agent"]["role"] == "REVIEWER"
+    assert normalized["owner_agent"]["role"] == "PM"
     assert isinstance(normalized["spec"], str)
 
     with pytest.raises(ValueError, match="allowed_paths"):

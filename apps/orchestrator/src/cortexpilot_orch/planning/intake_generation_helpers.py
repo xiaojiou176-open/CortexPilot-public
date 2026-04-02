@@ -40,8 +40,14 @@ def build_plan_bundle_fallback(
     validator_factory: Callable[[], Any],
 ) -> dict[str, Any]:
     primary = generate_plan(payload, answers)
-    raw_plans = [clone_plan(primary, plan_type) for plan_type in plan_types]
     owner_agent = ensure_agent(payload.get("owner_agent"), default_tl)
+    raw_plans = [
+        {
+            **clone_plan(primary, plan_type),
+            "owner_agent": owner_agent,
+        }
+        for plan_type in plan_types
+    ]
     acceptance_tests = _coerce_acceptance_tests(payload.get("acceptance_tests"))
 
     plans = [
@@ -193,7 +199,7 @@ def generate_plan_bundle(
         "You are a Tech Lead. Produce a PlanBundle JSON that conforms to plan_bundle.v1.json. "
         "Return JSON only, no extra text. Each plan must include: plan_id, plan_type, spec, "
         "allowed_paths, acceptance_tests, tool_permissions, mcp_tool_set, owner_agent, assigned_agent, task_type. "
-        "Rules: assigned_agent.role must be WORKER; tool_permissions must be "
+        "Rules: assigned_agent.role must be an explicit registered execution role; tool_permissions must be "
         '{"filesystem":"workspace-write","shell":"never","network":"deny","mcp_tools":["codex"]}. '
         "All allowed_paths across plans must be mutually exclusive. "
         "Split the objective into parallel worker plans."

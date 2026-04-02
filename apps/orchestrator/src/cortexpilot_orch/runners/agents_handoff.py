@@ -82,24 +82,33 @@ def _handoff_chain_roles(contract: dict[str, Any]) -> list[str]:
 
 def _handoff_prompt(task_id: str, instruction: str) -> str:
     return (
-        "Generate a handoff instruction for the next agent. "
+        "Generate a structured handoff summary for the next agent. "
         "Return JSON only.\n\n"
         f"task_id={task_id}\n"
         f"original_instruction={instruction}"
     )
 
 
-def _parse_handoff_payload(payload_text: str) -> tuple[str, dict[str, Any]] | tuple[None, dict[str, Any]]:
+def _parse_handoff_payload(
+    payload_text: str,
+    *,
+    instruction_sha256: str | None = None,
+) -> tuple[dict[str, Any] | None, dict[str, Any]]:
     try:
         payload = json.loads(payload_text)
     except json.JSONDecodeError as exc:
         return None, {"error": f"handoff output not json: {exc}"}
     if not isinstance(payload, dict):
         return None, {"error": "handoff output not object"}
-    instruction = payload.get("instruction")
-    if not isinstance(instruction, str) or not instruction.strip():
-        return None, {"error": "handoff missing instruction"}
-    return instruction.strip(), payload
+    summary = payload.get("summary")
+    if not isinstance(summary, str) or not summary.strip():
+        return None, {"error": "handoff missing summary"}
+    risks = payload.get("risks")
+    if not isinstance(risks, list):
+        return None, {"error": "handoff missing risks"}
+    if instruction_sha256:
+        payload["instruction_sha256"] = instruction_sha256
+    return payload, payload
 
 
 def _handoff_required(contract: dict[str, Any]) -> bool:

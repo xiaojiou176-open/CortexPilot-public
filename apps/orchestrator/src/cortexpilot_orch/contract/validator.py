@@ -307,6 +307,110 @@ def _normalize_contract_payload(payload: dict[str, Any]) -> dict[str, Any]:
     return normalized
 
 
+def _validate_ref_path(raw: Any, label: str) -> None:
+    if raw is None:
+        return
+    if not isinstance(raw, str):
+        raise ValueError(f"Contract validation failed: {label} must be string or null")
+    value = raw.strip()
+    if not value:
+        raise ValueError(f"Contract validation failed: {label} invalid")
+    path_text = value.split("#", 1)[0].strip()
+    if not path_text:
+        raise ValueError(f"Contract validation failed: {label} invalid")
+    path = Path(path_text)
+    if path.is_absolute():
+        raise ValueError(f"Contract validation failed: {label} must be a repo-relative path")
+    repo_root = _REPO_ROOT.resolve()
+    candidate = (repo_root / path).resolve()
+    try:
+        common = os.path.commonpath([str(repo_root), str(candidate)])
+    except ValueError as exc:
+        raise ValueError(
+            f"Contract validation failed: {label} must stay within the repository"
+        ) from exc
+    if common != str(repo_root):
+        raise ValueError(
+            f"Contract validation failed: {label} must stay within the repository"
+        )
+    if not candidate.exists():
+        raise ValueError(f"Contract validation failed: {label} not found: {path_text}")
+    if not candidate.is_file():
+        raise ValueError(f"Contract validation failed: {label} must reference a file: {path_text}")
+
+
+def _validate_role_contract(payload: dict[str, Any]) -> None:
+    role_contract = payload.get("role_contract")
+    if role_contract is None:
+        return
+    if not isinstance(role_contract, dict):
+        raise ValueError("Contract validation failed: role_contract invalid")
+    assigned = payload.get("assigned_agent") if isinstance(payload.get("assigned_agent"), dict) else {}
+    identity = role_contract.get("identity") if isinstance(role_contract.get("identity"), dict) else {}
+    assigned_role = str(assigned.get("role") or "").strip().upper()
+    assigned_agent_id = str(assigned.get("agent_id") or "").strip()
+    if str(identity.get("role") or "").strip().upper() != assigned_role:
+        raise ValueError("Contract validation failed: role_contract.identity.role mismatch")
+    if str(identity.get("agent_id") or "").strip() != assigned_agent_id:
+        raise ValueError("Contract validation failed: role_contract.identity.agent_id mismatch")
+    _validate_ref_path(role_contract.get("system_prompt_ref"), "role_contract.system_prompt_ref")
+    skills_ref = role_contract.get("skills_bundle_ref")
+    if skills_ref is not None:
+        _validate_ref_path(skills_ref, "role_contract.skills_bundle_ref")
+    _validate_ref_path(role_contract.get("mcp_bundle_ref"), "role_contract.mcp_bundle_ref")
+    role_tool_permissions = role_contract.get("tool_permissions")
+    tool_permissions = payload.get("tool_permissions") if isinstance(payload.get("tool_permissions"), dict) else {}
+    if not isinstance(role_tool_permissions, dict):
+        raise ValueError("Contract validation failed: role_contract.tool_permissions invalid")
+    for key in ("filesystem", "shell", "network"):
+        if str(role_tool_permissions.get(key) or "").strip() != str(tool_permissions.get(key) or "").strip():
+            raise ValueError(f"Contract validation failed: role_contract.tool_permissions.{key} mismatch")
+    resolved_tools = role_contract.get("resolved_mcp_tool_set")
+    if not isinstance(resolved_tools, list):
+        raise ValueError("Contract validation failed: role_contract.resolved_mcp_tool_set invalid")
+    expected_tools = [
+        str(item).strip()
+        for item in payload.get("mcp_tool_set", [])
+        if isinstance(item, str) and item.strip()
+    ]
+    if resolved_tools != expected_tools:
+        raise ValueError("Contract validation failed: role_contract.resolved_mcp_tool_set mismatch")
+    runtime_binding = role_contract.get("runtime_binding")
+    runtime_options = payload.get("runtime_options") if isinstance(payload.get("runtime_options"), dict) else {}
+    if not isinstance(runtime_binding, dict):
+        raise ValueError("Contract validation failed: role_contract.runtime_binding invalid")
+    for key in ("runner", "provider"):
+        expected_value = str(runtime_options.get(key) or "").strip()
+        actual_value = str(runtime_binding.get(key) or "").strip()
+        if expected_value != actual_value:
+            if expected_value or actual_value:
+                raise ValueError(f"Contract validation failed: role_contract.runtime_binding.{key} mismatch")
+    handoff = role_contract.get("handoff")
+    chain = payload.get("handoff_chain") if isinstance(payload.get("handoff_chain"), dict) else {}
+    if not isinstance(handoff, dict):
+        raise ValueError("Contract validation failed: role_contract.handoff invalid")
+    actual_chain_roles = [
+        str(item).strip().upper()
+        for item in chain.get("roles", [])
+        if isinstance(item, str) and item.strip()
+    ]
+    summary_chain_roles = [
+        str(item).strip().upper()
+        for item in handoff.get("chain_roles", [])
+        if isinstance(item, str) and item.strip()
+    ]
+    if summary_chain_roles != actual_chain_roles:
+        raise ValueError("Contract validation failed: role_contract.handoff.chain_roles mismatch")
+    actual_max_handoffs = chain.get("max_handoffs")
+    summary_max_handoffs = handoff.get("max_handoffs")
+    if actual_max_handoffs is None:
+        if summary_max_handoffs is not None:
+            raise ValueError("Contract validation failed: role_contract.handoff.max_handoffs mismatch")
+    else:
+        if summary_max_handoffs != actual_max_handoffs:
+            raise ValueError("Contract validation failed: role_contract.handoff.max_handoffs mismatch")
+
+
 def _is_truthy(raw: str | None) -> bool:
     if raw is None:
         return False
@@ -540,6 +644,7 @@ class ContractValidator:
         registry = _load_agent_registry()
         _ensure_agent_in_registry(registry, payload.get("owner_agent"), "owner_agent")
         _ensure_agent_in_registry(registry, payload.get("assigned_agent"), "assigned_agent")
+        _validate_role_contract(payload)
 
         superpowers_gate = evaluate_superpowers_gate(payload)
         if superpowers_gate.get("required") and not superpowers_gate.get("ok"):

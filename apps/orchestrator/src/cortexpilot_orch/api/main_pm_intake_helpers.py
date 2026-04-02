@@ -15,6 +15,7 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from cortexpilot_orch.api import pm_session_aggregation
 from cortexpilot_orch.cli_runtime_helpers import runs_root as resolve_runs_root
 from cortexpilot_orch.config import load_config
+from cortexpilot_orch.contract.compiler import sync_role_contract
 from cortexpilot_orch.observability.logger import log_event
 from cortexpilot_orch.planning.intake import IntakeService
 from cortexpilot_orch.store.intake_store import IntakeStore
@@ -512,6 +513,7 @@ def run_intake(
     if runtime_provider:
         runtime_options["provider"] = runtime_provider
     contract["runtime_options"] = runtime_options
+    sync_role_contract(contract)
 
     cfg = load_config()
     contract_dir = cfg.runtime_contract_root / "tasks"

@@ -501,7 +501,6 @@ def test_handoff_chain_success_and_context_exit_path(monkeypatch, tmp_path: Path
     def _runner_cb(agent, _prompt, **_kwargs):
         if agent.name.startswith("CortexPilotHandoff_"):
             handoff_payload = {
-                "instruction": "Refined instruction for next role",
                 "summary": "handoff ok",
                 "risks": [],
             }

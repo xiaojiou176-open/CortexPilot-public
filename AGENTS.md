@@ -86,6 +86,12 @@ Work in CortexPilot as a contract-first engineering agent:
   `chat_completions` mode on chat-only intake/operator paths, and the explicit
   fail-closed rule for MCP tool execution that still requires a tool-capable
   provider path
+- when role-contract / prompt-ref / handoff-summary semantics change the
+  orchestrator contract or preview surfaces, sync the root AI/docs entrypoints
+  in the same patch; current examples include resolved `role_contract`,
+  intake `role_contract_summary`, summary/risk-only handoff, and the
+  governance-backed metadata in `policies/agent_registry.json` plus
+  `configs/env_direct_read_allowlist.json`
 - when CI maintenance changes the Python dependency audit contract or the
   tracked runtime report namespaces, sync the root AI/docs entrypoints in the
   same patch; current examples include `.runtime-cache/test_output/ci/` and

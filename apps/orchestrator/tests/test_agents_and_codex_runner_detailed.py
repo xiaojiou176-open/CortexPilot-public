@@ -387,7 +387,6 @@ def test_agents_runner_handoff_chain(monkeypatch, tmp_path: Path) -> None:
         def run_streamed(agent, prompt, **kwargs):
             if agent.name.startswith("CortexPilotHandoff_") or agent.name == "CortexPilotOwner":
                 payload = {
-                    "instruction": "handoff spec",
                     "summary": "handoff summary",
                     "risks": ["risk-1"],
                 }

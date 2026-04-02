@@ -245,6 +245,26 @@
   - Agents SDK must use Structured Outputs (`output_type` or equivalent)
 - **Fail-closed rule**: missing output-schema binding must reject execution immediately and emit `policy_violation` or `gate_failed`
 
+#### 6.1.4 Role Contract v1 (Resolved Role View)
+
+- The compiled task contract may carry a resolved `role_contract` object.
+- `role_contract` does **not** replace top-level contract fields; it is the
+  compiled, read-friendly view of:
+  - assigned role identity
+  - role purpose
+  - prompt ref / skills ref / MCP bundle ref
+  - runtime binding (`runner` / `provider` / `model`, when known)
+  - tool permissions
+  - handoff posture
+  - fail-closed conditions
+- The Orchestrator must keep `role_contract` consistent with the top-level
+  `assigned_agent`, `tool_permissions`, `mcp_tool_set`, `runtime_options`, and
+  `handoff_chain` fields. Drift between the resolved role view and the
+  authoritative top-level contract must fail closed.
+- Intake preview should expose a `role_contract_summary` when available so the
+  preview surface and the final execution contract describe the same resolved
+  role.
+
 ### 6.2 Output-Side Contracts (Results / Reports)
 
 > The Orchestrator may advance the state machine using structured outputs only. Natural-language parsing is forbidden.
@@ -260,6 +280,16 @@
 - **Hard rule**: when a task requires structured output, the role prompt must not include a natural-language delivery checklist. All delivery content must stay inside JSON fields.
 - **Output gate**: any non-JSON output, or any JSON output that fails the schema, must fail closed and must not reach the next state.
 - **Structured fallback**: if explanatory text is required, it must be written into `summary` or another explicit JSON field. Text outside the JSON payload is forbidden.
+
+#### 6.2.2 Handoff Summary Rule (Contract-Authoritative)
+
+- Handoff output may contain structured summary fields such as `summary` and
+  `risks`, but it must not replace or rewrite the task contract instruction.
+- The task contract remains the only legal instruction carrier across role
+  transitions.
+- If a handoff artifact is emitted, it is advisory evidence only; execution
+  continues from the contract-authoritative instruction, not from a free-text
+  rewritten instruction.
 
 ---
 
