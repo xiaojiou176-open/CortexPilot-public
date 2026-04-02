@@ -13,6 +13,7 @@ from cortexpilot_orch.runners.provider_resolution import (
     build_llm_compat_client,
     ProviderCredentials,
     ProviderResolutionError,
+    resolve_compat_api_mode,
     resolve_preferred_api_key,
     resolve_runtime_provider_from_contract,
 )
@@ -76,7 +77,6 @@ def _resolve_preferred_api_key_for_provider(
             equilibrium_key = str(getattr(credentials, "equilibrium_api_key", "") or "").strip()
             if equilibrium_key:
                 return equilibrium_key
-        return ""
 
     try:
         candidate = resolve_preferred_api_key(credentials, provider_name)  # type: ignore[call-arg]
@@ -99,6 +99,8 @@ def _resolve_preferred_api_key_for_provider(
         value = str(getattr(credentials, fallback_attr, "") or "").strip()
         if value:
             return value
+    if resolve_compat_api_mode("responses", base_url=base_url) == "chat_completions":
+        return "switchyard-local"
     return ""
 
 
@@ -227,11 +229,24 @@ def execute_agents_contract(
             base_url=base_url or None,
             timeout=llm_timeout_sec,
             max_retries=llm_client_retries,
+            provider=provider,
         )
     except Exception as exc:  # noqa: BLE001
         record_transcript({"kind": "llm_compat_client_setup_failed", "text": str(exc)})
         flush_transcript()
         return failure_result("agents sdk client setup failed", {"error": str(exc)})
+    try:
+        from agents import set_default_openai_api
+
+        if callable(set_default_openai_api):
+            set_default_openai_api(
+                resolve_compat_api_mode(
+                    str(getattr(runner_cfg, "agents_api", "") or "responses"),
+                    base_url=base_url,
+                )
+            )
+    except Exception:  # noqa: BLE001
+        pass
     if compat_client is not None:
         try:
             from agents import set_default_openai_client

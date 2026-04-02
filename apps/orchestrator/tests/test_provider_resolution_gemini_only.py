@@ -102,7 +102,7 @@ def test_intake_run_agent_accepts_three_provider_inputs(
     monkeypatch.setattr(
         intake,
         "build_llm_compat_client",
-        lambda api_key, base_url=None: captured.update(
+        lambda api_key, base_url=None, **_kwargs: captured.update(
             {
                 "api_key": str(api_key),
                 "base_url": str(base_url or ""),
@@ -543,6 +543,128 @@ def test_build_llm_compat_client_uses_openai_path_when_switch_disabled(monkeypat
     assert isinstance(client, _AsyncOpenAI)
     assert client.kwargs["api_key"] == "openai-key"
     assert client.kwargs["base_url"] == "https://api.example/v1"
+
+
+def test_resolve_compat_api_mode_forces_chat_completions_for_switchyard_runtime() -> None:
+    assert (
+        provider_resolution_module.resolve_compat_api_mode(
+            "responses",
+            base_url="http://127.0.0.1:4010/v1/runtime/invoke",
+        )
+        == "chat_completions"
+    )
+
+
+def test_resolve_compat_api_key_uses_placeholder_for_switchyard_runtime_without_keys() -> None:
+    credentials = _Creds()
+    assert (
+        provider_resolution_module.resolve_compat_api_key(
+            credentials,
+            "openai",
+            base_url="http://127.0.0.1:4010/v1/runtime/invoke",
+        )
+        == "switchyard-local"
+    )
+
+
+def test_build_llm_compat_client_returns_switchyard_runtime_adapter(monkeypatch: pytest.MonkeyPatch) -> None:
+    captured: dict[str, object] = {}
+
+    class _FakeMessage:
+        def __init__(self, payload: dict[str, object]) -> None:
+            self.role = str(payload.get("role") or "")
+            self.content = str(payload.get("content") or "")
+            self._payload = payload
+
+        def model_dump(self) -> dict[str, object]:
+            return dict(self._payload)
+
+    class _FakeChatCompletion:
+        def __init__(self, payload: dict[str, object]) -> None:
+            self.id = str(payload.get("id") or "")
+            self.created = int(payload.get("created") or 0)
+            self.model = str(payload.get("model") or "")
+            choice_payload = payload["choices"][0]  # type: ignore[index]
+            message = _FakeMessage(choice_payload["message"])  # type: ignore[index]
+            self.choices = [
+                types.SimpleNamespace(
+                    index=int(choice_payload.get("index", 0)),
+                    finish_reason=str(choice_payload.get("finish_reason") or ""),
+                    message=message,
+                    logprobs=None,
+                )
+            ]
+            self.usage = types.SimpleNamespace(
+                prompt_tokens=0,
+                completion_tokens=0,
+                total_tokens=0,
+                prompt_tokens_details=None,
+                completion_tokens_details=None,
+            )
+
+        @classmethod
+        def model_validate(cls, payload: dict[str, object]):
+            return cls(payload)
+
+    class _FakeChatModule:
+        ChatCompletion = _FakeChatCompletion
+
+    class _FakeResponse:
+        status_code = 200
+
+        def json(self) -> dict[str, str]:
+            return {
+                "outputText": "SWITCHYARD_OK",
+                "providerMessageId": "switchyard-msg-1",
+            }
+
+    class _FakeAsyncClient:
+        def __init__(self, timeout: float) -> None:
+            captured["timeout"] = timeout
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb) -> None:
+            del exc_type, exc, tb
+
+        async def post(self, url: str, json: dict[str, object]):
+            captured["url"] = url
+            captured["json"] = json
+            return _FakeResponse()
+
+    real_import_module = provider_resolution_module.importlib.import_module
+
+    def _import_module(name: str):
+        if name == "openai.types.chat":
+            return _FakeChatModule()
+        return real_import_module(name)
+
+    monkeypatch.setattr(provider_resolution_module.importlib, "import_module", _import_module)
+    monkeypatch.setattr(provider_resolution_module.httpx, "AsyncClient", _FakeAsyncClient)
+
+    client = build_llm_compat_client(
+        api_key="switchyard-local",
+        base_url="http://127.0.0.1:4010/v1/runtime/invoke",
+        provider="openai",
+    )
+    completion = asyncio.run(
+        client.chat.completions.create(
+            model="chatgpt/gpt-4o",
+            messages=[{"role": "user", "content": "Return SWITCHYARD_OK"}],
+        )
+    )
+
+    assert captured["url"] == "http://127.0.0.1:4010/v1/runtime/invoke"
+    assert captured["json"] == {
+        "provider": "chatgpt",
+        "model": "gpt-4o",
+        "input": "Return SWITCHYARD_OK",
+        "lane": "web",
+        "stream": False,
+    }
+    assert completion.id == "switchyard-msg-1"
+    assert completion.choices[0].message.content == "SWITCHYARD_OK"
 
 
 def test_resolve_provider_credentials_reads_equilibrium_key_from_env(

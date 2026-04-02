@@ -19,8 +19,9 @@ from cortexpilot_orch.runners.provider_resolution import (
     build_llm_compat_client,
     merge_provider_credentials,
     ProviderResolutionError,
-    resolve_preferred_api_key,
+    resolve_compat_api_mode,
     ProviderCredentials,
+    resolve_preferred_api_key,
     resolve_provider_credentials,
     resolve_runtime_provider_from_env,
 )
@@ -133,11 +134,9 @@ def _resolve_preferred_api_key_for_provider(
             if equilibrium_key:
                 return equilibrium_key
         if normalized == "gemini" and _is_local_base_url(base_url):
-            # Local OpenAI-compatible bridges may use equilibrium key as auth token.
             equilibrium_key = str(getattr(credentials, "equilibrium_api_key", "") or "").strip()
             if equilibrium_key:
                 return equilibrium_key
-        return ""
 
     try:
         candidate = resolve_preferred_api_key(credentials, provider_name)  # type: ignore[call-arg]
@@ -159,6 +158,8 @@ def _resolve_preferred_api_key_for_provider(
         value = str(getattr(credentials, fallback_attr, "") or "").strip()
         if value:
             return value
+    if resolve_compat_api_mode("responses", base_url=base_url) == "chat_completions":
+        return "switchyard-local"
     return ""
 
 
@@ -548,11 +549,20 @@ def _run_agent(prompt: str, instructions: str) -> dict[str, Any]:
     api_key = _resolve_preferred_api_key_for_provider(provider_credentials, provider, base_url=base_url)
     if not api_key:
         raise RuntimeError(_missing_llm_api_key_message(provider))
-    compat_client = build_llm_compat_client(api_key=api_key, base_url=base_url or None)
+    compat_client = build_llm_compat_client(
+        api_key=api_key,
+        base_url=base_url or None,
+        provider=provider,
+    )
     try:
         from agents import set_default_openai_api
 
-        set_default_openai_api(str(getattr(runner_cfg, "agents_api", "") or "responses"))
+        set_default_openai_api(
+            resolve_compat_api_mode(
+                str(getattr(runner_cfg, "agents_api", "") or "responses"),
+                base_url=base_url,
+            )
+        )
     except Exception:  # noqa: BLE001
         pass
     if compat_client is not None:
