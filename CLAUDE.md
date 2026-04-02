@@ -49,6 +49,11 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   intake `role_contract_summary`, summary/risk-only handoff, and the
   governance-backed metadata in `policies/agent_registry.json` plus
   `configs/env_direct_read_allowlist.json`
+- when Prompt 4-style binding/read-surface work extends those role-contract
+  surfaces, keep the root AI/docs entrypoints aligned in the same patch;
+  current examples include advisory `role_binding_summary` in PM-facing
+  `run_intake(...)` responses plus registry-backed SEARCHER/RESEARCHER
+  `mcp_bundle_ref` hardening in `policies/agent_registry.json`
 - when CI maintenance changes the Python dependency audit contract or the
   tracked runtime report namespaces, sync the root AI/docs entrypoints in the
   same patch; current examples include `.runtime-cache/test_output/ci/` and

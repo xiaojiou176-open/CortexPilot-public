@@ -118,6 +118,49 @@ def _strip_intake_only_contract_fields(contract: dict[str, Any]) -> dict[str, An
     return sanitized
 
 
+def _normalize_binding_ref(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip()
+    return normalized or None
+
+
+def _binding_summary_status(ref: str | None) -> str:
+    if not ref:
+        return "unresolved"
+    if ref.startswith("policies/agent_registry.json#"):
+        return "registry-backed"
+    return "resolved"
+
+
+def _build_role_binding_summary(contract: dict[str, Any]) -> dict[str, Any]:
+    role_contract = contract.get("role_contract") if isinstance(contract.get("role_contract"), dict) else {}
+    skills_bundle_ref = _normalize_binding_ref(role_contract.get("skills_bundle_ref"))
+    mcp_bundle_ref = _normalize_binding_ref(role_contract.get("mcp_bundle_ref"))
+    runtime_binding_raw = role_contract.get("runtime_binding") if isinstance(role_contract.get("runtime_binding"), dict) else {}
+    runtime_binding = {
+        "runner": _normalize_binding_ref(runtime_binding_raw.get("runner")),
+        "provider": _normalize_binding_ref(runtime_binding_raw.get("provider")),
+        "model": _normalize_binding_ref(runtime_binding_raw.get("model")),
+    }
+    return {
+        "authority": "advisory",
+        "source": "derived from role_contract after sync_role_contract; not a runtime authority surface",
+        "skills_bundle_ref": {
+            "status": _binding_summary_status(skills_bundle_ref),
+            "ref": skills_bundle_ref,
+        },
+        "mcp_bundle_ref": {
+            "status": _binding_summary_status(mcp_bundle_ref),
+            "ref": mcp_bundle_ref,
+        },
+        "runtime_binding": {
+            "status": "advisory",
+            "summary": runtime_binding,
+        },
+    }
+
+
 def configure_pm_session_aggregation(
     *,
     runs_root_fn: Callable[[], Path],
@@ -602,4 +645,5 @@ def run_intake(
         "run_id": run_id,
         "contract_path": str(contract_path),
         "strict_acceptance": bool(runtime_options.get("strict_acceptance", False)),
+        "role_binding_summary": _build_role_binding_summary(contract),
     }

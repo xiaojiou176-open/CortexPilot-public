@@ -288,6 +288,13 @@
         "sandbox": "workspace-write",
         "approval_policy": "never",
         "network": "allow"
+      },
+      "capabilities": {
+        "mcp_tools": [
+          "codex",
+          "search"
+        ],
+        "notes": "searcher requires codex plus search allowlist"
       }
     },
     {
@@ -298,6 +305,13 @@
         "sandbox": "workspace-write",
         "approval_policy": "never",
         "network": "allow"
+      },
+      "capabilities": {
+        "mcp_tools": [
+          "codex",
+          "search"
+        ],
+        "notes": "researcher requires codex plus search allowlist"
       }
     },
     {
