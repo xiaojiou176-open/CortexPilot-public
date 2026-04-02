@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -32,6 +33,7 @@ _PLAN_STAGE_MARKERS = {
     "\u8ba1\u5212",
 }
 _TRIVIAL_TEST_COMMANDS = {"true", ":"}
+_ROLE_SELECTOR_RE = re.compile(r"^(?P<name>[A-Za-z0-9_:-]+)\(role=(?P<role>[A-Za-z0-9_:-]+)\)$")
 
 
 def resolve_agent_registry_path(repo_root: Path | None = None) -> Path:
@@ -315,13 +317,105 @@ def _validate_ref_path(raw: Any, label: str) -> None:
     value = raw.strip()
     if not value:
         raise ValueError(f"Contract validation failed: {label} invalid")
-    path_text = value.split("#", 1)[0].strip()
+    path_text, fragment = (value.split("#", 1) + [""])[:2]
+    path_text = path_text.strip()
+    fragment = fragment.strip()
     if not path_text:
-        return
+        raise ValueError(f"Contract validation failed: {label} invalid")
     path = Path(path_text)
     candidate = path if path.is_absolute() else (_REPO_ROOT / path)
     if not candidate.exists():
         raise ValueError(f"Contract validation failed: {label} not found: {candidate}")
+    if "#" not in value:
+        return
+    if not fragment:
+        raise ValueError(f"Contract validation failed: {label} fragment missing")
+    try:
+        payload = json.loads(candidate.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(
+            f"Contract validation failed: {label} fragment requires json document"
+        ) from exc
+    try:
+        resolved = _resolve_ref_fragment(payload, fragment)
+    except ValueError as exc:
+        raise ValueError(
+            f"Contract validation failed: {label} fragment invalid: {fragment}"
+        ) from exc
+    if label.endswith("mcp_bundle_ref"):
+        if not isinstance(resolved, list) or not any(
+            isinstance(item, str) and item.strip() for item in resolved
+        ):
+            raise ValueError(
+                f"Contract validation failed: {label} must resolve to non-empty mcp_tools list"
+            )
+
+
+def _resolve_ref_fragment(payload: Any, fragment: str) -> Any:
+    if fragment.startswith("/"):
+        return _resolve_json_pointer(payload, fragment)
+    return _resolve_registry_fragment(payload, fragment)
+
+
+def _resolve_json_pointer(payload: Any, fragment: str) -> Any:
+    current = payload
+    for raw_part in fragment.lstrip("/").split("/"):
+        part = raw_part.replace("~1", "/").replace("~0", "~")
+        if isinstance(current, dict):
+            if part not in current:
+                raise ValueError(f"fragment segment missing: {part}")
+            current = current[part]
+            continue
+        if isinstance(current, list) and part.isdigit():
+            index = int(part)
+            if index >= len(current):
+                raise ValueError(f"fragment index out of range: {part}")
+            current = current[index]
+            continue
+        raise ValueError(f"fragment segment invalid: {part}")
+    return current
+
+
+def _resolve_registry_fragment(payload: Any, fragment: str) -> Any:
+    current = payload
+    for part in fragment.split("."):
+        token = part.strip()
+        if not token:
+            raise ValueError("fragment segment invalid")
+        selector = _ROLE_SELECTOR_RE.match(token)
+        if selector:
+            if not isinstance(current, dict):
+                raise ValueError(f"fragment selector parent invalid: {token}")
+            entries = current.get(selector.group("name"))
+            if not isinstance(entries, list):
+                raise ValueError(f"fragment selector target invalid: {token}")
+            role = selector.group("role").strip().upper()
+            matched = next(
+                (
+                    entry
+                    for entry in entries
+                    if isinstance(entry, dict)
+                    and str(entry.get("role") or "").strip().upper() == role
+                ),
+                None,
+            )
+            if matched is None:
+                raise ValueError(f"fragment selector missing role: {role}")
+            current = matched
+            continue
+        if isinstance(current, dict):
+            if token not in current:
+                raise ValueError(f"fragment segment missing: {token}")
+            current = current[token]
+            continue
+        if isinstance(current, list) and token.isdigit():
+            index = int(token)
+            if index >= len(current):
+                raise ValueError(f"fragment index out of range: {token}")
+            current = current[index]
+            continue
+        raise ValueError(f"fragment segment invalid: {token}")
+    return current
 
 
 def _validate_role_contract(payload: dict[str, Any]) -> None:

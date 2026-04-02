@@ -67,6 +67,10 @@ def _contract_base() -> dict:
     }
 
 
+def _registry_path() -> Path:
+    return Path(__file__).resolve().parents[3] / "policies" / "agent_registry.json"
+
+
 def test_compile_plan_text_errors() -> None:
     with pytest.raises(ValueError, match="invalid json"):
         compile_plan_text("{")
@@ -206,3 +210,26 @@ def test_compile_plan_uses_nontrivial_acceptance_default_when_missing() -> None:
     assert contract["acceptance_tests"] == [
         {"name": "repo_hygiene", "cmd": "bash scripts/check_repo_hygiene.sh", "must_pass": True}
     ]
+
+
+def test_compile_plan_searcher_role_contract_accepts_registry_backed_mcp_bundle() -> None:
+    plan = _plan_base()
+    plan["assigned_agent"] = {"role": "SEARCHER", "agent_id": "agent-1"}
+    contract = compile_plan(plan)
+    assert (
+        contract["role_contract"]["mcp_bundle_ref"]
+        == "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools"
+    )
+
+
+def test_compile_plan_rejects_missing_mcp_bundle_fragment(monkeypatch, tmp_path: Path) -> None:
+    registry = json.loads(_registry_path().read_text(encoding="utf-8"))
+    registry["role_contracts"]["WORKER"]["mcp_bundle_ref"] = (
+        "policies/agent_registry.json#agents(role=WORKER).capabilities.missing"
+    )
+    registry_path = tmp_path / "agent_registry.json"
+    registry_path.write_text(json.dumps(registry), encoding="utf-8")
+    monkeypatch.setenv("CORTEXPILOT_AGENT_REGISTRY", str(registry_path))
+
+    with pytest.raises(ValueError, match="role_contract.mcp_bundle_ref"):
+        compile_plan(_plan_base())
