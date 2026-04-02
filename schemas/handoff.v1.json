@@ -4,9 +4,12 @@
   "title": "AgentHandoff",
   "type": "object",
   "additionalProperties": false,
-  "required": ["instruction", "summary", "risks"],
+  "required": ["instruction_sha256", "summary", "risks"],
   "properties": {
-    "instruction": {"type": "string", "minLength": 1},
+    "instruction_sha256": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$"
+    },
     "summary": {"type": "string"},
     "risks": {"type": "array", "items": {"type": "string"}}
   }

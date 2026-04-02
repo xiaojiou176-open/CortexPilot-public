@@ -201,9 +201,8 @@ _handoff_chain_roles = agents_handoff._handoff_chain_roles
 def _handoff_instructions(owner_role: str, assigned_role: str) -> str:
     return (
         "You are the orchestrated handoff agent. "
-        "Convert the task into a single actionable instruction for the next agent. "
-        "Output JSON only with fields: instruction, summary, risks. "
-        "instruction must be a non-empty string. "
+        "Summarize the contract-authoritative handoff for the next agent without rewriting execution instructions. "
+        "Output JSON only with fields: summary and risks. "
         "summary is a one-sentence handoff note. "
         "risks is an array of short strings.\n\n"
         f"owner_role={owner_role}\n"

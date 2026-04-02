@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from cortexpilot_orch.contract.compiler import compile_plan
+from cortexpilot_orch.contract.compiler import compile_plan, sync_role_contract
 from cortexpilot_orch.contract.validator import ContractValidator
 from cortexpilot_orch.config import get_runner_config
 from cortexpilot_orch.scheduler import approval_flow
@@ -404,6 +404,117 @@ def _build_execution_plan_summary(
         f"{normalized_template} will compile into a {assigned_role.lower()}-owned execution contract for "
         f"'{objective}'. {approval_text}. Expected report surface: {len(predicted_reports)} item(s)."
     )
+
+
+def _apply_intake_contract_overrides(
+    contract: dict[str, Any],
+    intake_payload: dict[str, Any],
+    *,
+    intake_dir: Path | None = None,
+) -> dict[str, Any]:
+    owner_role = (
+        str(contract.get("owner_agent", {}).get("role", "")).strip().upper()
+        if isinstance(contract.get("owner_agent"), dict)
+        else ""
+    )
+    if owner_role == "PM":
+        contract["handoff_chain"] = {"enabled": True, "roles": ["PM", "TECH_LEAD", "WORKER"]}
+    task_template = intake_payload.get("task_template")
+    template_payload = intake_payload.get("template_payload")
+    if isinstance(task_template, str) and task_template.strip():
+        contract["task_template"] = task_template.strip()
+    if isinstance(template_payload, dict) and template_payload:
+        contract["template_payload"] = template_payload
+    browser_policy = intake_payload.get("browser_policy")
+    if isinstance(browser_policy, dict):
+        contract["browser_policy"] = _compact_browser_policy(browser_policy)
+    search_queries = intake_payload.get("search_queries")
+    if isinstance(task_template, str) and task_template.strip().lower() == _PAGE_BRIEF_TEMPLATE and intake_dir is not None:
+        browser_path = intake_dir / "browser_requests.json"
+        browser_payload: dict[str, Any] = {
+            "headless": True,
+            "task_template": _PAGE_BRIEF_TEMPLATE,
+            "template_payload": template_payload if isinstance(template_payload, dict) else {},
+            "tasks": [
+                {
+                    "url": str((template_payload or {}).get("url") or "").strip(),
+                    "script": PAGE_BRIEF_BROWSER_SCRIPT,
+                }
+            ],
+        }
+        browser_text = json.dumps(browser_payload, ensure_ascii=False, indent=2)
+        browser_path.write_text(browser_text, encoding="utf-8")
+        sha = _sha256_text(browser_text)
+        contract.setdefault("inputs", {})
+        artifacts = contract["inputs"].get("artifacts") if isinstance(contract["inputs"], dict) else []
+        if not isinstance(artifacts, list):
+            artifacts = []
+        contract["inputs"]["artifacts"] = artifacts
+        contract["inputs"]["artifacts"].append(
+            {
+                "name": "browser_requests.json",
+                "uri": str(browser_path),
+                "sha256": sha,
+            }
+        )
+        return sync_role_contract(contract)
+    if isinstance(search_queries, list) and search_queries:
+        if intake_dir is not None:
+            search_path = intake_dir / "search_requests.json"
+            payload: dict[str, Any] = {"queries": search_queries}
+            if isinstance(task_template, str) and task_template.strip():
+                payload["task_template"] = task_template.strip()
+            if isinstance(template_payload, dict) and template_payload:
+                payload["template_payload"] = template_payload
+            search_text = json.dumps(payload, ensure_ascii=False, indent=2)
+            search_path.write_text(search_text, encoding="utf-8")
+            sha = _sha256_text(search_text)
+            contract.setdefault("inputs", {})
+            artifacts = contract["inputs"].get("artifacts") if isinstance(contract["inputs"], dict) else []
+            if not isinstance(artifacts, list):
+                artifacts = []
+            contract["inputs"]["artifacts"] = artifacts
+            contract["inputs"]["artifacts"].append(
+                {
+                    "name": "search_requests.json",
+                    "uri": str(search_path),
+                    "sha256": sha,
+                }
+            )
+        assigned_agent = contract.get("assigned_agent") if isinstance(contract.get("assigned_agent"), dict) else {}
+        search_agent_id = str(assigned_agent.get("agent_id") or "agent-1").strip() or "agent-1"
+        owner_agent = contract.get("owner_agent") if isinstance(contract.get("owner_agent"), dict) else {}
+        if str(owner_agent.get("role") or "").strip().upper() == "PM":
+            contract["owner_agent"] = {
+                **owner_agent,
+                "role": "TECH_LEAD",
+                "agent_id": search_agent_id,
+            }
+        contract["assigned_agent"] = {
+            **assigned_agent,
+            "role": "SEARCHER",
+            "agent_id": search_agent_id,
+        }
+        tool_permissions = (
+            contract.get("tool_permissions") if isinstance(contract.get("tool_permissions"), dict) else {}
+        )
+        allowed_mcp_tools = tool_permissions.get("mcp_tools") if isinstance(tool_permissions.get("mcp_tools"), list) else []
+        normalized_mcp_tools = [str(item).strip() for item in allowed_mcp_tools if str(item).strip()]
+        if "codex" not in normalized_mcp_tools:
+            normalized_mcp_tools.append("codex")
+        if "search" not in normalized_mcp_tools:
+            normalized_mcp_tools.append("search")
+        contract["tool_permissions"] = {
+            **tool_permissions,
+            "network": "allow",
+            "mcp_tools": normalized_mcp_tools,
+        }
+        contract_mcp_tools = contract.get("mcp_tool_set") if isinstance(contract.get("mcp_tool_set"), list) else []
+        normalized_contract_mcp_tools = [str(item).strip() for item in contract_mcp_tools if str(item).strip()]
+        if "search" not in normalized_contract_mcp_tools:
+            normalized_contract_mcp_tools.append("search")
+        contract["mcp_tool_set"] = normalized_contract_mcp_tools
+    return sync_role_contract(contract)
 
 
 def _apply_task_template_defaults(payload: dict[str, Any]) -> dict[str, Any]:
@@ -812,7 +923,7 @@ class IntakeService:
         self._validator.validate_report(plan, "plan.schema.json")
         self._validator.validate_report(plan_bundle, "plan_bundle.v1.json")
         self._validator.validate_report(task_chain, "task_chain.v1.json")
-        contract_preview = compile_plan(plan)
+        contract_preview = _apply_intake_contract_overrides(compile_plan(plan), normalized_payload)
         task_template = str(normalized_payload.get("task_template") or "general").strip() or "general"
         search_queries = normalized_payload.get("search_queries")
         search_query_list = [str(item).strip() for item in search_queries if str(item).strip()] if isinstance(search_queries, list) else []
@@ -872,6 +983,7 @@ class IntakeService:
             "plan": plan,
             "plan_bundle": plan_bundle,
             "task_chain": task_chain,
+            "role_contract_summary": contract_preview.get("role_contract") if isinstance(contract_preview.get("role_contract"), dict) else {},
             "contract_preview": contract_preview,
         }
         self._validator.validate_report(response, "execution_plan_report.v1.json")
@@ -886,109 +998,12 @@ class IntakeService:
             return None
         contract = compile_plan(plan)
         intake = self._store.read_intake(intake_id)
-        owner_role = (
-            str(contract.get("owner_agent", {}).get("role", "")).strip().upper()
-            if isinstance(contract.get("owner_agent"), dict)
-            else ""
+        if not isinstance(intake, dict):
+            intake = {}
+        contract = _apply_intake_contract_overrides(
+            contract,
+            intake,
+            intake_dir=self._store._intake_dir(intake_id),
         )
-        if owner_role == "PM":
-            contract["handoff_chain"] = {"enabled": True, "roles": ["PM", "TECH_LEAD", "WORKER"]}
-        task_template = intake.get("task_template") if isinstance(intake, dict) else None
-        template_payload = intake.get("template_payload") if isinstance(intake, dict) else None
-        if isinstance(task_template, str) and task_template.strip():
-            contract["task_template"] = task_template.strip()
-        if isinstance(template_payload, dict) and template_payload:
-            contract["template_payload"] = template_payload
-        browser_policy = intake.get("browser_policy") if isinstance(intake, dict) else None
-        if isinstance(browser_policy, dict):
-            contract["browser_policy"] = _compact_browser_policy(browser_policy)
-        search_queries = intake.get("search_queries") if isinstance(intake, dict) else None
-        if isinstance(task_template, str) and task_template.strip().lower() == _PAGE_BRIEF_TEMPLATE:
-            intake_dir = self._store._intake_dir(intake_id)
-            browser_path = intake_dir / "browser_requests.json"
-            browser_payload: dict[str, Any] = {
-                "headless": True,
-                "task_template": _PAGE_BRIEF_TEMPLATE,
-                "template_payload": template_payload if isinstance(template_payload, dict) else {},
-                "tasks": [
-                    {
-                        "url": str((template_payload or {}).get("url") or "").strip(),
-                        "script": PAGE_BRIEF_BROWSER_SCRIPT,
-                    }
-                ],
-            }
-            browser_text = json.dumps(browser_payload, ensure_ascii=False, indent=2)
-            browser_path.write_text(browser_text, encoding="utf-8")
-            sha = _sha256_text(browser_text)
-            contract.setdefault("inputs", {})
-            artifacts = contract["inputs"].get("artifacts") if isinstance(contract["inputs"], dict) else []
-            if not isinstance(artifacts, list):
-                artifacts = []
-            contract["inputs"]["artifacts"] = artifacts
-            contract["inputs"]["artifacts"].append(
-                {
-                    "name": "browser_requests.json",
-                    "uri": str(browser_path),
-                    "sha256": sha,
-                }
-            )
-            return contract
-        if isinstance(search_queries, list) and search_queries:
-            intake_dir = self._store._intake_dir(intake_id)
-            search_path = intake_dir / "search_requests.json"
-            payload: dict[str, Any] = {"queries": search_queries}
-            if isinstance(task_template, str) and task_template.strip():
-                payload["task_template"] = task_template.strip()
-            if isinstance(template_payload, dict) and template_payload:
-                payload["template_payload"] = template_payload
-            search_text = json.dumps(payload, ensure_ascii=False, indent=2)
-            search_path.write_text(search_text, encoding="utf-8")
-            sha = _sha256_text(search_text)
-            contract.setdefault("inputs", {})
-            artifacts = contract["inputs"].get("artifacts") if isinstance(contract["inputs"], dict) else []
-            if not isinstance(artifacts, list):
-                artifacts = []
-            contract["inputs"]["artifacts"] = artifacts
-            contract["inputs"]["artifacts"].append(
-                {
-                    "name": "search_requests.json",
-                    "uri": str(search_path),
-                    "sha256": sha,
-                }
-            )
-            assigned_agent = (
-                contract.get("assigned_agent") if isinstance(contract.get("assigned_agent"), dict) else {}
-            )
-            search_agent_id = str(assigned_agent.get("agent_id") or "agent-1").strip() or "agent-1"
-            owner_agent = contract.get("owner_agent") if isinstance(contract.get("owner_agent"), dict) else {}
-            if str(owner_agent.get("role") or "").strip().upper() == "PM":
-                contract["owner_agent"] = {
-                    **owner_agent,
-                    "role": "TECH_LEAD",
-                    "agent_id": search_agent_id,
-                }
-            contract["assigned_agent"] = {
-                **assigned_agent,
-                "role": "SEARCHER",
-                "agent_id": search_agent_id,
-            }
-            tool_permissions = (
-                contract.get("tool_permissions") if isinstance(contract.get("tool_permissions"), dict) else {}
-            )
-            allowed_mcp_tools = tool_permissions.get("mcp_tools") if isinstance(tool_permissions.get("mcp_tools"), list) else []
-            normalized_mcp_tools = [str(item).strip() for item in allowed_mcp_tools if str(item).strip()]
-            if "codex" not in normalized_mcp_tools:
-                normalized_mcp_tools.append("codex")
-            if "search" not in normalized_mcp_tools:
-                normalized_mcp_tools.append("search")
-            contract["tool_permissions"] = {
-                **tool_permissions,
-                "network": "allow",
-                "mcp_tools": normalized_mcp_tools,
-            }
-            contract_mcp_tools = contract.get("mcp_tool_set") if isinstance(contract.get("mcp_tool_set"), list) else []
-            normalized_contract_mcp_tools = [str(item).strip() for item in contract_mcp_tools if str(item).strip()]
-            if "search" not in normalized_contract_mcp_tools:
-                normalized_contract_mcp_tools.append("search")
-            contract["mcp_tool_set"] = normalized_contract_mcp_tools
+        self._validator.validate_contract(contract)
         return contract

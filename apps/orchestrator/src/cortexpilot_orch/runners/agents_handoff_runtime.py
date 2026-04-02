@@ -46,6 +46,18 @@ def execute_handoff_flow(
     handoff_refs: dict[str, Any] = {}
     initial_instruction = instruction
 
+    def _parse_payload(output: str, *, instruction_hash: str) -> tuple[dict[str, Any] | None, dict[str, Any]]:
+        try:
+            payload, raw = agents_handoff._parse_handoff_payload(
+                output,
+                instruction_sha256=instruction_hash,
+            )
+        except TypeError:
+            payload, raw = agents_handoff._parse_handoff_payload(output)
+            if payload is not None and "instruction_sha256" not in raw:
+                raw["instruction_sha256"] = instruction_hash
+        return payload, raw
+
     store.append_event(
         run_id,
         {
@@ -124,8 +136,11 @@ def execute_handoff_flow(
                 )
                 if not isinstance(handoff_output, str) or not handoff_output.strip():
                     raise RuntimeError("handoff output missing")
-                handoff_instruction, payload = agents_handoff._parse_handoff_payload(handoff_output)
-                if not handoff_instruction:
+                handoff_payload, payload = _parse_payload(
+                    handoff_output,
+                    instruction_hash=sha256_text(current),
+                )
+                if not handoff_payload:
                     raise RuntimeError(payload.get("error", "handoff invalid"))
                 handoff_validator.validate_report(payload, "handoff.v1.json")
                 outputs.append(
@@ -134,10 +149,9 @@ def execute_handoff_flow(
                         "to": to_role,
                         "summary": payload.get("summary", ""),
                         "risks": payload.get("risks", []),
-                        "instruction": handoff_instruction,
+                        "instruction_sha256": payload.get("instruction_sha256", ""),
                     }
                 )
-                current = handoff_instruction
             return outputs
 
         try:
@@ -179,7 +193,6 @@ def execute_handoff_flow(
             flush_transcript()
             return instruction, handoff_refs, failure_result(contract, "handoff chain empty", None)
 
-        instruction = chain_outputs[-1]["instruction"]
         for payload in chain_outputs:
             store.append_event(
                 run_id,
@@ -202,7 +215,7 @@ def execute_handoff_flow(
                     "to": payload.get("to"),
                     "summary": payload.get("summary", ""),
                     "risks": payload.get("risks", []),
-                    "instruction": payload.get("instruction", ""),
+                    "instruction_sha256": payload.get("instruction_sha256", ""),
                 },
             )
         store.append_event(
@@ -312,8 +325,11 @@ def execute_handoff_flow(
         flush_transcript()
         return instruction, handoff_refs, failure_result(contract, "handoff output missing", None)
 
-    handoff_instruction, payload = agents_handoff._parse_handoff_payload(handoff_output)
-    if not handoff_instruction:
+    handoff_payload, payload = _parse_payload(
+        handoff_output,
+        instruction_hash=sha256_text(initial_instruction),
+    )
+    if not handoff_payload:
         store.append_event(
             run_id,
             {
@@ -335,7 +351,6 @@ def execute_handoff_flow(
         flush_transcript()
         return instruction, handoff_refs, failure_result(contract, "handoff schema invalid", {"error": str(exc)})
 
-    instruction = handoff_instruction
     handoff_refs = {
         "handoff_chain": [owner_role, assigned_role] if owner_role and assigned_role else [],
         "instruction_sha256": sha256_text(initial_instruction),
@@ -358,7 +373,7 @@ def execute_handoff_flow(
             "kind": "handoff_result",
             "summary": payload.get("summary", ""),
             "risks": payload.get("risks", []),
-            "instruction": handoff_instruction,
+            "instruction_sha256": payload.get("instruction_sha256", ""),
         },
     )
     return instruction, handoff_refs, None

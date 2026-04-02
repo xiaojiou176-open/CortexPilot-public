@@ -66,7 +66,10 @@ def test_chain_handoff_invalid_max_handoffs_uses_default(monkeypatch, tmp_path: 
     monkeypatch.setattr(
         agents_handoff_runtime.agents_handoff,
         "_parse_handoff_payload",
-        lambda _output: ("next-step", {"summary": "ok", "risks": []}),
+        lambda _output, instruction_sha256=None: (
+            {"summary": "ok", "risks": [], "instruction_sha256": instruction_sha256 or ""},
+            {"summary": "ok", "risks": [], "instruction_sha256": instruction_sha256 or ""},
+        ),
     )
 
     class _Validator:
@@ -102,7 +105,7 @@ def test_chain_handoff_invalid_max_handoffs_uses_default(monkeypatch, tmp_path: 
         sha256_text=_sha256_text,
     )
 
-    assert instruction == "next-step"
+    assert instruction == "initial"
     assert refs["handoff_chain"] == ["PM", "WORKER"]
     assert failure is None
     assert not flushed
@@ -194,7 +197,10 @@ def test_single_handoff_success(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr(
         agents_handoff_runtime.agents_handoff,
         "_parse_handoff_payload",
-        lambda _output: ("handoff-next", {"summary": "ok", "risks": ["r1"]}),
+        lambda _output, instruction_sha256=None: (
+            {"summary": "ok", "risks": ["r1"], "instruction_sha256": instruction_sha256 or ""},
+            {"summary": "ok", "risks": ["r1"], "instruction_sha256": instruction_sha256 or ""},
+        ),
     )
 
     class _Validator:
@@ -230,10 +236,10 @@ def test_single_handoff_success(monkeypatch, tmp_path: Path) -> None:
         sha256_text=_sha256_text,
     )
 
-    assert instruction == "handoff-next"
+    assert instruction == "initial"
     assert refs["handoff_chain"] == ["PM", "WORKER"]
     assert refs["instruction_sha256"] == "sha::initial"
-    assert refs["instruction_final_sha256"] == "sha::handoff-next"
+    assert refs["instruction_final_sha256"] == "sha::initial"
     assert failure is None
     assert transcripts[-1]["kind"] == "handoff_result"
 
@@ -352,7 +358,7 @@ def test_single_handoff_error_missing_output_invalid_and_schema(monkeypatch, tmp
     monkeypatch.setattr(
         agents_handoff_runtime.agents_handoff,
         "_parse_handoff_payload",
-        lambda _output: ("", {"error": "invalid handoff payload"}),
+        lambda _output, instruction_sha256=None: (None, {"error": "invalid handoff payload"}),
     )
 
     async def _run_invalid(_agent: _Agent, _prompt: str) -> _Result:
@@ -389,7 +395,10 @@ def test_single_handoff_error_missing_output_invalid_and_schema(monkeypatch, tmp
     monkeypatch.setattr(
         agents_handoff_runtime.agents_handoff,
         "_parse_handoff_payload",
-        lambda _output: ("handoff-next", {"summary": "ok", "risks": []}),
+        lambda _output, instruction_sha256=None: (
+            {"summary": "ok", "risks": [], "instruction_sha256": instruction_sha256 or ""},
+            {"summary": "ok", "risks": [], "instruction_sha256": instruction_sha256 or ""},
+        ),
     )
 
     class _BadValidator:

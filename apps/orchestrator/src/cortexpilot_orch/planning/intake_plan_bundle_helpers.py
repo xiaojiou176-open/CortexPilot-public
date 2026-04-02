@@ -42,6 +42,23 @@ _DEFAULT_NONTRIVIAL_ACCEPTANCE_TEST = {
     "cmd": "bash scripts/check_repo_hygiene.sh",
     "must_pass": True,
 }
+_VALID_ASSIGNED_ROLES = {
+    "PM",
+    "TECH_LEAD",
+    "WORKER",
+    "REVIEWER",
+    "TEST_RUNNER",
+    "SEARCHER",
+    "RESEARCHER",
+    "UI_UX",
+    "FRONTEND",
+    "BACKEND",
+    "AI",
+    "SECURITY",
+    "INFRA",
+    "TEST",
+    "OPS",
+}
 
 
 def _build_plan_fallback(payload: dict[str, Any], answers: list[str]) -> dict[str, Any]:
@@ -168,16 +185,14 @@ def _normalize_bundle_plan(
     updated["owner_agent"] = _ensure_agent(updated.get("owner_agent"), owner_agent)
     if isinstance(updated.get("owner_agent"), dict):
         updated["owner_agent"]["agent_id"] = "agent-1"
-        if updated["owner_agent"].get("role") == "PM":
-            updated["owner_agent"]["role"] = "TECH_LEAD"
     assigned = updated.get("assigned_agent")
     if not isinstance(assigned, dict):
         assigned = {}
-    assigned_role = str(assigned.get("role", "")).strip() or "WORKER"
-    assigned_agent_id = "agent-1"
-    updated["assigned_agent"] = {"role": "WORKER", "agent_id": assigned_agent_id}
-    if assigned_role != "WORKER":
-        updated["assigned_agent"]["role"] = "WORKER"
+    assigned_role = str(assigned.get("role", "")).strip().upper() or "WORKER"
+    assigned_agent_id = str(assigned.get("agent_id") or "agent-1").strip() or "agent-1"
+    if assigned_role not in _VALID_ASSIGNED_ROLES:
+        assigned_role = "WORKER"
+    updated["assigned_agent"] = {"role": assigned_role, "agent_id": assigned_agent_id}
     task_type = str(updated.get("task_type", "")).strip().upper()
     if task_type not in {"PLAN", "IMPLEMENT", "REVIEW", "TEST", "SEARCH"}:
         updated["task_type"] = "IMPLEMENT"

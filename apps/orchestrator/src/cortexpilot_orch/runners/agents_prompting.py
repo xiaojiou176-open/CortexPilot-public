@@ -37,6 +37,9 @@ def resolve_roles_root(worktree_path: Path) -> Path | None:
     fallback = Path(__file__).resolve().parents[5] / "codex" / "roles"
     if fallback.exists():
         return fallback
+    policy_fallback = Path(__file__).resolve().parents[5] / "policies" / "agents" / "codex" / "roles"
+    if policy_fallback.exists():
+        return policy_fallback
     return None
 
 

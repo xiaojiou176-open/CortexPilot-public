@@ -62,6 +62,23 @@ bash scripts/run_orchestrator_cli.sh --help
   `Switchyard /v1/runtime/invoke`, because that path still implies MCP tool
   execution semantics the adapter does not provide yet.
 
+## Role Contract v1 Notes
+
+- compiled task contracts now emit a resolved `role_contract` object so the
+  assigned role, role purpose, prompt ref, MCP bundle ref, runtime binding,
+  tool permissions, handoff posture, and fail-closed conditions are visible in
+  one place instead of being inferred from scattered helpers alone
+- intake preview now exposes `role_contract_summary` next to
+  `contract_preview`, so operators can inspect the resolved role binding
+  without reconstructing it from raw schema fields
+- role prompt refs now resolve from `policies/agents/codex/roles/` as the
+  repository-owned prompt asset root when a worktree-local `codex/roles/`
+  override is absent
+- `skills_bundle_ref` is intentionally `null` in the current Role Contract v1
+  because the repository does not yet ship a formal skills bundle surface
+- handoff summaries remain structured evidence only; they no longer rewrite the
+  execution instruction carried by the task contract
+
 ## Read-Only MCP + Copilot Notes
 
 - the repo-local MCP entry is `python -m cortexpilot_orch.cli mcp-readonly-server`

@@ -14,7 +14,7 @@ def test_handoff_validation_parity() -> None:
 
 
 def test_handoff_payload_parity() -> None:
-    payload_text = '{"instruction":"next step","summary":"ok","risks":["none"]}'
+    payload_text = '{"summary":"ok","risks":["none"]}'
     assert agents_runner._parse_handoff_payload(payload_text) == agents_handoff._parse_handoff_payload(payload_text)
 
 

@@ -84,8 +84,8 @@ def test_agents_runner_handoff_chain(monkeypatch, tmp_path: Path) -> None:
             self.mcp_servers = mcp_servers
 
     outputs = [
-        json.dumps({"instruction": "tl-step", "summary": "tl", "risks": []}),
-        json.dumps({"instruction": "worker-step", "summary": "worker", "risks": ["risk"]}),
+        json.dumps({"summary": "tl", "risks": []}),
+        json.dumps({"summary": "worker", "risks": ["risk"]}),
         json.dumps(
             {
                 "task_id": "task_chain",

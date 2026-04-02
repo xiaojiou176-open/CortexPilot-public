@@ -81,7 +81,7 @@ def test_generate_plan_bundle_fallback_on_invalid_output(monkeypatch) -> None:
     assert isinstance(bundle.get("plans"), list)
     assert len(bundle["plans"]) == 1
     assert bundle["plans"][0]["allowed_paths"] == ["docs/"]
-    assert bundle["plans"][0]["owner_agent"]["role"] == "TECH_LEAD"
+    assert bundle["plans"][0]["owner_agent"]["role"] == "PM"
     assert bundle["plans"][0]["assigned_agent"]["role"] == "WORKER"
 
 

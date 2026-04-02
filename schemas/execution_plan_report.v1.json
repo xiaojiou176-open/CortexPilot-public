@@ -114,6 +114,166 @@
     "task_chain": {
       "type": "object"
     },
+    "role_contract_summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "purpose",
+        "system_prompt_ref",
+        "skills_bundle_ref",
+        "mcp_bundle_ref",
+        "runtime_binding",
+        "tool_permissions",
+        "resolved_mcp_tool_set",
+        "handoff",
+        "fail_closed_conditions"
+      ],
+      "properties": {
+        "identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "agent_id"
+          ],
+          "properties": {
+            "role": {
+              "type": "string",
+              "minLength": 1
+            },
+            "agent_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "system_prompt_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "skills_bundle_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mcp_bundle_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "runtime_binding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "runner",
+            "provider",
+            "model"
+          ],
+          "properties": {
+            "runner": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "provider": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "model": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "tool_permissions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "filesystem",
+            "shell",
+            "network"
+          ],
+          "properties": {
+            "filesystem": {
+              "type": "string",
+              "minLength": 1
+            },
+            "shell": {
+              "type": "string",
+              "minLength": 1
+            },
+            "network": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "resolved_mcp_tool_set": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "handoff": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "eligible",
+            "required_downstream_roles",
+            "chain_roles",
+            "max_handoffs"
+          ],
+          "properties": {
+            "eligible": {
+              "type": "boolean"
+            },
+            "required_downstream_roles": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "chain_roles": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "max_handoffs": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          }
+        },
+        "fail_closed_conditions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
     "contract_preview": {
       "type": "object"
     }

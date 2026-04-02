@@ -25,6 +25,9 @@ flowchart LR
 - PM intake preview now emits an advisory `execution_plan_report` before a run
   starts; it is a read-only planning surface for contract/gate/output
   prediction, not a second execution truth source.
+- The same intake preview now carries a `role_contract_summary` when available,
+  so the assigned-role binding (prompt ref / MCP bundle / runtime binding /
+  fail-closed posture) is inspectable before execution starts.
 - Pack registry truth lives under `contracts/packs/`; dashboard and desktop
   intake surfaces consume that metadata, while runtime execution keeps the real
   output truth under run bundles.
@@ -50,6 +53,9 @@ flowchart LR
 - Daily operator briefings are generated under `.runtime-cache/cortexpilot/briefings/` by `tooling/briefing_generator.py`; this is a governed reporting surface rather than an ad-hoc scratch directory.
 - Chain orchestration now emits lifecycle evidence in `reports/chain_report.json` (`lifecycle` section) and event stream markers (`CHAIN_HANDOFF_STEP_MARKED`, `CHAIN_LIFECYCLE_EVALUATED`, `CHAIN_COMPLETED`) for PM→TL→Worker→Reviewer→Testing→TL→PM closure and reviewer quorum outcomes.
 - Control-plane role transitions can be represented with `task_chain` `handoff` steps, keeping PM/TL transitions explicit and auditable without execution-side effects.
+- Handoff summaries are now contract-authoritative read surfaces only; they may
+  summarize risks and next-role context, but they do not rewrite the execution
+  instruction carried by the task contract.
 - Retention policy controls run/worktree/log/cache/codex-home/intake/contract-artifact lifecycle and writes reports to `.runtime-cache/cortexpilot/reports/retention_report.json`.
 - Retention reports now also expose `log_lane_summary`, `test_output_visibility`, and `space_bridge`, so canonical log lanes plus the latest repo-side space audit are visible from one runtime-governance receipt.
 - CI governance reports share the governed root `.runtime-cache/cortexpilot/reports/ci/`; policy tracks the root plus the authoritative `current_run/` receipt surface, while the stable leaf report lanes currently include `artifact_index/`, `break_glass/`, `cost_profile/`, `evidence_manifest/`, `portal/`, `routes/`, `runner_health/`, `sbom/`, and `slo/`.
