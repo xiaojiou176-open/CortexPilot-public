@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from cortexpilot_orch.config import get_runner_config
+from cortexpilot_orch.runners.provider_resolution import resolve_runtime_model_from_env
 from cortexpilot_orch.contract.validator import ContractValidator, resolve_agent_registry_path
 
 _FORBIDDEN_POLICY_FILE = "policies/forbidden_actions.json"
@@ -219,8 +219,7 @@ def _runtime_binding(contract: dict[str, Any]) -> dict[str, Any]:
     runtime_options = contract.get("runtime_options") if isinstance(contract.get("runtime_options"), dict) else {}
     runner = str(runtime_options.get("runner") or "").strip() or None
     provider = str(runtime_options.get("provider") or "").strip() or None
-    runner_cfg = get_runner_config()
-    model = str(runner_cfg.codex_model or runner_cfg.agents_model or "").strip() or None
+    model = resolve_runtime_model_from_env(provider=provider) or None
     return {
         "runner": runner,
         "provider": provider,
