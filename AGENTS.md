@@ -80,6 +80,12 @@ Work in CortexPilot as a contract-first engineering agent:
 - when dashboard/operator wording or intake/runtime contracts change, sync the
   root AI/docs entrypoints in the same patch so doc-sync gates can trace the
   live English-first dashboard surface and the current intake/probe contracts
+- when runtime-provider compatibility changes the orchestrator client contract,
+  sync the root AI/docs entrypoints in the same patch; current examples include
+  the Switchyard runtime-first `/v1/runtime/invoke` adapter, the forced
+  `chat_completions` mode on chat-only intake/operator paths, and the explicit
+  fail-closed rule for MCP tool execution that still requires a tool-capable
+  provider path
 - when CI maintenance changes the Python dependency audit contract or the
   tracked runtime report namespaces, sync the root AI/docs entrypoints in the
   same patch; current examples include `.runtime-cache/test_output/ci/` and

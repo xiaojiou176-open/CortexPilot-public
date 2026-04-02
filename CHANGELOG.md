@@ -6,6 +6,10 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- added a Switchyard runtime-first adapter for chat-only orchestrator paths,
+  forcing `chat_completions` on intake/operator flows while keeping MCP tool
+  execution fail-closed until a tool-capable provider path exists, and synced
+  the root/orchestrator/docs entrypoints to the same contract
 - opened the fifth Phase 2 wave by adding dedicated public `MCP` and `API`
   quickstart entrypoints, wiring the dashboard AI section to the new discovery
   hub, and strengthening keyword-facing discoverability around read-only MCP,

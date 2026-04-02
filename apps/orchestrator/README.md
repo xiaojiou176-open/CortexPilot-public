@@ -52,9 +52,15 @@ bash scripts/run_orchestrator_cli.sh --help
     as `gemini`, `openai`, or `anthropic`
   - explicit web-provider routing when the model is written as
     `provider/model`, for example `chatgpt/gpt-4o` or `claude/claude-3-5-sonnet`
+- the current runtime-first slice is limited to chat-style compatibility
+  surfaces such as intake planning and operator-copilot briefs; it is not a
+  generic replacement for every Agents runner path
 - The current Switchyard adapter is intentionally chat-only. It does **not**
   expose tool-calling parity yet, so agent flows that require tool invocation
   must keep using a provider path that already supports those semantics.
+- `agents_runner` therefore fails closed when `agents_base_url` points at
+  `Switchyard /v1/runtime/invoke`, because that path still implies MCP tool
+  execution semantics the adapter does not provide yet.
 
 ## Read-Only MCP + Copilot Notes
 

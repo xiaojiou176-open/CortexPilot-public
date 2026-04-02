@@ -38,6 +38,11 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
 - when dashboard/operator wording or intake/runtime contracts change, sync the
   root AI/docs entrypoints in the same patch so doc-sync gates keep following
   the live English-first dashboard surface and the current intake/probe rules
+- when runtime-provider compatibility changes the orchestrator client contract,
+  sync the root AI/docs entrypoints in the same patch; current examples include
+  the Switchyard runtime-first `/v1/runtime/invoke` adapter, the forced
+  `chat_completions` mode on chat-only intake/operator paths, and the
+  fail-closed rule that keeps MCP tool execution on tool-capable providers
 - when CI maintenance changes the Python dependency audit contract or the
   tracked runtime report namespaces, sync the root AI/docs entrypoints in the
   same patch; current examples include `.runtime-cache/test_output/ci/` and

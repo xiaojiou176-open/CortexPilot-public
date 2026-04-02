@@ -71,3 +71,9 @@ flowchart LR
 - Runtime-root test rebinding must invalidate cached config before switching roots; otherwise parallel/xdist orchestrator tests can read stale `.runtime-cache` locations and produce false-negative tool-pipeline evidence paths.
 - Tool-pipeline search artifact writers now reuse the active `RunStore` instance for `search_results`, `verification`, and AI verification persistence so run-local artifact roots/locks stay consistent under parallel GitHub-hosted CI and protected manual verification lanes.
 - Tool-pipeline browser integration tests should stub `cortexpilot_orch.runners.tool_runner.BrowserRunner` instead of patching higher-level `ToolRunner.run_browser`; this keeps browser-task mocks stable even when scheduler/runtime layers hold imported `ToolRunner` references during large parallel suites.
+- When `apps/orchestrator` points its provider base URL at
+  `Switchyard /v1/runtime/invoke`, the current compatibility layer only covers
+  chat-style intake/operator flows. It forces `chat_completions` for those
+  paths, but MCP tool execution still fails closed until a tool-capable
+  provider path exists; this keeps the runtime-first adapter honest instead of
+  claiming full worker/tool parity too early.

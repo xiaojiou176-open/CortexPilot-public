@@ -124,6 +124,11 @@ repository should be judged on.
 - Windows desktop is not part of the current public support contract
 - the repo-local MCP surface is currently **read-only only**; write-capable MCP
   remains gated and is not part of the current public/product contract
+- the current Switchyard compatibility slice is **runtime-first and chat-only**
+  on the orchestrator side: `apps/orchestrator/` can point at
+  `Switchyard /v1/runtime/invoke` for intake/operator-style chat paths, but
+  MCP tool execution still needs a tool-capable provider path and therefore
+  fails closed instead of pretending Switchyard already has tool parity
 - CortexPilot is still **not** a hosted operator service; `cortexpilot.ai`
   should be treated as a marketing/holding domain until the public contract,
   support boundary, and live surface materially change
