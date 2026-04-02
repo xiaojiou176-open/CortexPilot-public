@@ -74,6 +74,8 @@ navigation set.
 - `docs/mcp/index.html`: public read-only MCP quickstart page for truthful protocol discovery
 - `docs/api/index.html`: public API / contract quickstart page for OpenAPI, frontend client, and contract-facing types
 - `apps/desktop/README.md`: desktop-owned module note for operator-surface locale/status hardening when desktop wording contracts change
+- `policies/agent_registry.json`: machine SSOT for role-contract defaults such as purpose, prompt ref, MCP bundle ref, downstream-role expectations, and fail-closed posture
+- `configs/env_direct_read_allowlist.json`: machine allowlist for governed backend direct env reads; update this alongside docs when a role/runtime helper legitimately reads env-backed model metadata
 
 ## Public CI Contract
 
