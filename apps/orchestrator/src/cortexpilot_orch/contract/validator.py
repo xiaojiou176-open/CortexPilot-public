@@ -33,6 +33,7 @@ _PLAN_STAGE_MARKERS = {
     "\u8ba1\u5212",
 }
 _TRIVIAL_TEST_COMMANDS = {"true", ":"}
+_FRAGMENT_REF_LABEL_SUFFIXES = ("mcp_bundle_ref", "skills_bundle_ref")
 _ROLE_SELECTOR_RE = re.compile(r"^(?P<name>[A-Za-z0-9_:-]+)\(role=(?P<role>[A-Za-z0-9_:-]+)\)$")
 
 
@@ -343,6 +344,8 @@ def _validate_ref_path(raw: Any, label: str) -> None:
         raise ValueError(f"Contract validation failed: {label} must reference a file: {path_text}")
     if "#" not in value:
         return
+    if not any(label.endswith(suffix) for suffix in _FRAGMENT_REF_LABEL_SUFFIXES):
+        raise ValueError(f"Contract validation failed: {label} fragments not allowed")
     if not fragment:
         raise ValueError(f"Contract validation failed: {label} fragment missing")
     try:

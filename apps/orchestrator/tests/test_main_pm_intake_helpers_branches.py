@@ -482,6 +482,27 @@ def test_run_intake_strips_intake_only_template_fields_before_execution(monkeypa
     assert observed_contract["runtime_options"]["strict_acceptance"] is True
 
 
+def test_build_role_binding_summary_only_marks_registry_refs_as_registry_backed() -> None:
+    summary = helpers._build_role_binding_summary(
+        {
+            "role_contract": {
+                "skills_bundle_ref": "bundles/skills.json#/worker",
+                "mcp_bundle_ref": "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools",
+                "runtime_binding": {"runner": None, "provider": "cliproxyapi", "model": None},
+            }
+        }
+    )
+
+    assert summary["skills_bundle_ref"] == {
+        "status": "resolved",
+        "ref": "bundles/skills.json#/worker",
+    }
+    assert summary["mcp_bundle_ref"] == {
+        "status": "registry-backed",
+        "ref": "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools",
+    }
+
+
 def test_run_intake_returns_run_id_before_background_execution_finishes(monkeypatch, tmp_path: Path) -> None:
     events: list[tuple[str, dict[str, object]]] = []
 

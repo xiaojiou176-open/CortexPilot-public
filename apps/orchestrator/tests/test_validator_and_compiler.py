@@ -238,6 +238,14 @@ def test_validate_contract_rejects_directory_mcp_bundle_ref() -> None:
         ContractValidator().validate_contract(contract)
 
 
+def test_validate_contract_rejects_system_prompt_fragments() -> None:
+    contract = compile_plan(_plan_base())
+    contract["role_contract"]["system_prompt_ref"] = "policies/agents/codex/roles/50_worker_core.md#fragment"
+
+    with pytest.raises(ValueError, match="fragments not allowed"):
+        ContractValidator().validate_contract(contract)
+
+
 def test_compile_plan_searcher_role_contract_accepts_registry_backed_mcp_bundle() -> None:
     plan = _plan_base()
     plan["assigned_agent"] = {"role": "SEARCHER", "agent_id": "agent-1"}

@@ -126,7 +126,11 @@ def _normalize_binding_ref(value: Any) -> str | None:
 
 
 def _binding_summary_status(ref: str | None) -> str:
-    return "registry-backed" if ref else "unresolved"
+    if not ref:
+        return "unresolved"
+    if ref.startswith("policies/agent_registry.json#"):
+        return "registry-backed"
+    return "resolved"
 
 
 def _build_role_binding_summary(contract: dict[str, Any]) -> dict[str, Any]:
