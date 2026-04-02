@@ -213,6 +213,18 @@ def execute_agents_contract(
         record_transcript({"kind": "missing_api_key", "text": missing_message})
         flush_transcript()
         return failure_result(missing_message, None)
+    if resolve_compat_api_mode("responses", base_url=base_url) == "chat_completions":
+        record_transcript(
+            {
+                "kind": "switchyard_runtime_unsupported",
+                "text": "Switchyard runtime-first adapter is not supported for agents_runner MCP tool execution yet.",
+            }
+        )
+        flush_transcript()
+        return failure_result(
+            "Switchyard runtime-first adapter is not supported for agents_runner MCP tool execution yet.",
+            {"base_url": base_url},
+        )
 
     compat_client = None
     try:
@@ -235,18 +247,6 @@ def execute_agents_contract(
         record_transcript({"kind": "llm_compat_client_setup_failed", "text": str(exc)})
         flush_transcript()
         return failure_result("agents sdk client setup failed", {"error": str(exc)})
-    try:
-        from agents import set_default_openai_api
-
-        if callable(set_default_openai_api):
-            set_default_openai_api(
-                resolve_compat_api_mode(
-                    str(getattr(runner_cfg, "agents_api", "") or "responses"),
-                    base_url=base_url,
-                )
-            )
-    except Exception:  # noqa: BLE001
-        pass
     if compat_client is not None:
         try:
             from agents import set_default_openai_client

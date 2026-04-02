@@ -363,7 +363,7 @@ def test_execute_agents_contract_switchyard_runtime_forces_chat_mode_and_placeho
 
     monkeypatch.setattr(execution_helpers, "build_llm_compat_client", _build_client)
 
-    result, _transcripts, _flush_counter = _invoke_execute(
+    result, transcripts, flush_counter = _invoke_execute(
         module=module,
         store=store,
         contract=contract,
@@ -371,11 +371,14 @@ def test_execute_agents_contract_switchyard_runtime_forces_chat_mode_and_placeho
     )
 
     assert result["status"] == "FAILED"
-    assert result["reason"] == "mcp_tool_set missing or empty"
-    assert records["api_mode"] == "chat_completions"
-    assert records["client_kwargs"]["api_key"] == "switchyard-local"
-    assert records["client_kwargs"]["base_url"] == "http://127.0.0.1:4010/v1/runtime/invoke"
-    assert records["client_kwargs"]["provider"] == "openai"
+    assert (
+        result["reason"]
+        == "Switchyard runtime-first adapter is not supported for agents_runner MCP tool execution yet."
+    )
+    assert result["evidence"] == {"base_url": "http://127.0.0.1:4010/v1/runtime/invoke"}
+    assert records == {}
+    assert transcripts[0]["kind"] == "switchyard_runtime_unsupported"
+    assert flush_counter["count"] == 1
 
 
 def test_execute_agents_contract_schema_binding_failures(
