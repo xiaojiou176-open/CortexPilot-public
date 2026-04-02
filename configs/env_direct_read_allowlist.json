@@ -122,6 +122,13 @@
       ]
     },
     {
+      "path": "apps/orchestrator/src/cortexpilot_orch/contract/compiler.py",
+      "keys": [
+        "CORTEXPILOT_CODEX_MODEL",
+        "CORTEXPILOT_PROVIDER_MODEL"
+      ]
+    },
+    {
       "path": "apps/orchestrator/src/cortexpilot_orch/contract/validator.py",
       "keys": [
         "CORTEXPILOT_AGENT_REGISTRY",
