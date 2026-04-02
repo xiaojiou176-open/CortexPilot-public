@@ -317,11 +317,26 @@ def _validate_ref_path(raw: Any, label: str) -> None:
         raise ValueError(f"Contract validation failed: {label} invalid")
     path_text = value.split("#", 1)[0].strip()
     if not path_text:
-        return
+        raise ValueError(f"Contract validation failed: {label} invalid")
     path = Path(path_text)
-    candidate = path if path.is_absolute() else (_REPO_ROOT / path)
+    if path.is_absolute():
+        raise ValueError(f"Contract validation failed: {label} must be a repo-relative path")
+    repo_root = _REPO_ROOT.resolve()
+    candidate = (repo_root / path).resolve()
+    try:
+        common = os.path.commonpath([str(repo_root), str(candidate)])
+    except ValueError as exc:
+        raise ValueError(
+            f"Contract validation failed: {label} must stay within the repository"
+        ) from exc
+    if common != str(repo_root):
+        raise ValueError(
+            f"Contract validation failed: {label} must stay within the repository"
+        )
     if not candidate.exists():
-        raise ValueError(f"Contract validation failed: {label} not found: {candidate}")
+        raise ValueError(f"Contract validation failed: {label} not found: {path_text}")
+    if not candidate.is_file():
+        raise ValueError(f"Contract validation failed: {label} must reference a file: {path_text}")
 
 
 def _validate_role_contract(payload: dict[str, Any]) -> None:

@@ -244,6 +244,62 @@ def test_single_handoff_success(monkeypatch, tmp_path: Path) -> None:
     assert transcripts[-1]["kind"] == "handoff_result"
 
 
+def test_single_handoff_legacy_payload_translates_to_schema_compliant_payload(monkeypatch, tmp_path: Path) -> None:
+    store = _Store()
+
+    monkeypatch.setattr(agents_handoff_runtime.agents_handoff, "_handoff_required", lambda _contract: True)
+    monkeypatch.setattr(agents_handoff_runtime.agents_handoff, "_handoff_prompt", lambda _task_id, text: text)
+
+    def _legacy_parse(_output: str) -> tuple[str, dict[str, Any]]:
+        return (
+            "legacy instruction",
+            {"summary": "ok", "risks": ["r1"], "instruction": "legacy instruction"},
+        )
+
+    monkeypatch.setattr(agents_handoff_runtime.agents_handoff, "_parse_handoff_payload", _legacy_parse)
+
+    class _Validator:
+        def __init__(self, schema_root: Path) -> None:
+            self.schema_root = schema_root
+
+        def validate_report(self, payload: dict[str, Any], _schema: str) -> None:
+            assert payload["summary"] == "ok"
+            assert payload["risks"] == ["r1"]
+            assert payload["instruction_sha256"] == "sha::initial"
+            assert "instruction" not in payload
+
+    monkeypatch.setattr(agents_handoff_runtime, "ContractValidator", _Validator)
+
+    async def _run_streamed(_agent: _Agent, _prompt: str) -> _Result:
+        return _Result("raw-output")
+
+    instruction, refs, failure = agents_handoff_runtime.execute_handoff_flow(
+        store=store,
+        contract={"task_id": "task-1"},
+        run_id="run-1",
+        task_id="task-1",
+        instruction="initial",
+        owner_agent={"role": "PM"},
+        assigned_agent={"role": "WORKER"},
+        owner_role="PM",
+        assigned_role="WORKER",
+        chain_roles=[],
+        schema_root=tmp_path,
+        agent_cls=_Agent,
+        run_streamed=_run_streamed,
+        handoff_instructions=_handoff_instructions,
+        record_transcript=lambda _payload: None,
+        flush_transcript=lambda: None,
+        failure_result=_failure_result,
+        sha256_text=_sha256_text,
+    )
+
+    assert instruction == "initial"
+    assert refs["instruction_sha256"] == "sha::initial"
+    assert refs["instruction_final_sha256"] == "sha::initial"
+    assert failure is None
+
+
 def test_single_handoff_timeout_fail_open(monkeypatch, tmp_path: Path) -> None:
     store = _Store()
     transcripts: list[dict[str, Any]] = []

@@ -206,3 +206,29 @@ def test_compile_plan_uses_nontrivial_acceptance_default_when_missing() -> None:
     assert contract["acceptance_tests"] == [
         {"name": "repo_hygiene", "cmd": "bash scripts/check_repo_hygiene.sh", "must_pass": True}
     ]
+
+
+def test_validate_contract_rejects_absolute_role_contract_ref(tmp_path: Path) -> None:
+    contract = compile_plan(_plan_base())
+    absolute_ref = tmp_path / "outside.md"
+    absolute_ref.write_text("outside", encoding="utf-8")
+    contract["role_contract"]["system_prompt_ref"] = str(absolute_ref)
+
+    with pytest.raises(ValueError, match="repo-relative path"):
+        ContractValidator().validate_contract(contract)
+
+
+def test_validate_contract_rejects_parent_traversal_role_contract_ref() -> None:
+    contract = compile_plan(_plan_base())
+    contract["role_contract"]["system_prompt_ref"] = "../outside.md"
+
+    with pytest.raises(ValueError, match="within the repository"):
+        ContractValidator().validate_contract(contract)
+
+
+def test_validate_contract_rejects_directory_mcp_bundle_ref() -> None:
+    contract = compile_plan(_plan_base())
+    contract["role_contract"]["mcp_bundle_ref"] = "schemas#agents(role=WORKER).capabilities.mcp_tools"
+
+    with pytest.raises(ValueError, match="must reference a file"):
+        ContractValidator().validate_contract(contract)

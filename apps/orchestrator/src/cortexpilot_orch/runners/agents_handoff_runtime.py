@@ -53,9 +53,24 @@ def execute_handoff_flow(
                 instruction_sha256=instruction_hash,
             )
         except TypeError:
-            payload, raw = agents_handoff._parse_handoff_payload(output)
-            if payload is not None and "instruction_sha256" not in raw:
-                raw["instruction_sha256"] = instruction_hash
+            legacy_first, legacy_second = agents_handoff._parse_handoff_payload(output)
+            if isinstance(legacy_first, dict) or legacy_first is None:
+                payload = legacy_first
+                raw = legacy_second if isinstance(legacy_second, dict) else {}
+                if payload is not None and "instruction_sha256" not in raw:
+                    payload = dict(payload)
+                    raw = dict(raw)
+                    payload["instruction_sha256"] = instruction_hash
+                    raw["instruction_sha256"] = instruction_hash
+            else:
+                legacy_payload = legacy_second if isinstance(legacy_second, dict) else {}
+                translated_payload: dict[str, Any] = {}
+                for key in ("summary", "risks"):
+                    if key in legacy_payload:
+                        translated_payload[key] = legacy_payload[key]
+                translated_payload["instruction_sha256"] = instruction_hash
+                payload = translated_payload if legacy_payload else None
+                raw = translated_payload if legacy_payload else {"error": "invalid handoff payload"}
         return payload, raw
 
     store.append_event(
