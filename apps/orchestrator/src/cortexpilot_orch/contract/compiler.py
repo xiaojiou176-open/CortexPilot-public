@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 from pathlib import Path
 from typing import Any
 
+from cortexpilot_orch.config import get_runner_config
 from cortexpilot_orch.contract.validator import ContractValidator, resolve_agent_registry_path
 
 _FORBIDDEN_POLICY_FILE = "policies/forbidden_actions.json"
@@ -219,11 +219,8 @@ def _runtime_binding(contract: dict[str, Any]) -> dict[str, Any]:
     runtime_options = contract.get("runtime_options") if isinstance(contract.get("runtime_options"), dict) else {}
     runner = str(runtime_options.get("runner") or "").strip() or None
     provider = str(runtime_options.get("provider") or "").strip() or None
-    model = (
-        os.getenv("CORTEXPILOT_CODEX_MODEL", "").strip()
-        or os.getenv("CORTEXPILOT_PROVIDER_MODEL", "").strip()
-        or None
-    )
+    runner_cfg = get_runner_config()
+    model = str(runner_cfg.codex_model or runner_cfg.agents_model or "").strip() or None
     return {
         "runner": runner,
         "provider": provider,
