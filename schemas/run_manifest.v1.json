@@ -191,6 +191,7 @@
       "required": [
         "authority",
         "source",
+        "execution_authority",
         "skills_bundle_ref",
         "mcp_bundle_ref",
         "runtime_binding"
@@ -205,6 +206,12 @@
         "source": {
           "type": "string",
           "minLength": 1
+        },
+        "execution_authority": {
+          "type": "string",
+          "enum": [
+            "task_contract"
+          ]
         },
         "skills_bundle_ref": {
           "type": "object",
@@ -243,6 +250,7 @@
           "required": [
             "status",
             "ref",
+            "resolved_mcp_tool_set",
             "validation"
           ],
           "properties": {
@@ -259,6 +267,12 @@
                 "string",
                 "null"
               ]
+            },
+            "resolved_mcp_tool_set": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             },
             "validation": {
               "type": "string",
