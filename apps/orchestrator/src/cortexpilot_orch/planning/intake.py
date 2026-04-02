@@ -1005,5 +1005,4 @@ class IntakeService:
             intake,
             intake_dir=self._store._intake_dir(intake_id),
         )
-        self._validator.validate_contract(contract)
         return contract

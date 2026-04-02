@@ -40,8 +40,14 @@ def build_plan_bundle_fallback(
     validator_factory: Callable[[], Any],
 ) -> dict[str, Any]:
     primary = generate_plan(payload, answers)
-    raw_plans = [clone_plan(primary, plan_type) for plan_type in plan_types]
     owner_agent = ensure_agent(payload.get("owner_agent"), default_tl)
+    raw_plans = [
+        {
+            **clone_plan(primary, plan_type),
+            "owner_agent": owner_agent,
+        }
+        for plan_type in plan_types
+    ]
     acceptance_tests = _coerce_acceptance_tests(payload.get("acceptance_tests"))
 
     plans = [
