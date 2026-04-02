@@ -68,8 +68,8 @@ This repository combines:
   readable after execution without pretending that summary has execution authority
 - **Role binding read model**: run detail now also exposes a stable
   `role_binding_read_model` so persisted bundle/runtime state is readable from
-  read-only surfaces without promoting that summary into execution authority
-  `contract.json` without promoting that read surface into execution authority
+  read-only surfaces by projecting `contract.json` without promoting that read
+  model into execution authority
 
 ## Quickstart
 
