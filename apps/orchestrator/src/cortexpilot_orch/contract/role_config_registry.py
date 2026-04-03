@@ -190,7 +190,6 @@ def build_runtime_capability_summary(runtime_binding: Mapping[str, Any] | None) 
         try:
             normalized_provider = resolve_runtime_provider(provider)
         except ProviderResolutionError:
-            normalized_provider = provider.strip().lower()
             provider_status = "unsupported"
         else:
             provider_status = "allowlisted"
