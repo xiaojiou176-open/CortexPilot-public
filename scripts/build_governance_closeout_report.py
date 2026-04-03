@@ -92,6 +92,46 @@ def _current_run_truth_level(
     return "advisory"
 
 
+def _manifest_check(manifest: dict | None, dimension: str, check_id: str) -> dict | None:
+    if not isinstance(manifest, dict):
+        return None
+    dimensions = manifest.get("dimensions")
+    if not isinstance(dimensions, dict):
+        return None
+    dimension_payload = dimensions.get(dimension)
+    if not isinstance(dimension_payload, dict):
+        return None
+    checks = dimension_payload.get("checks")
+    if not isinstance(checks, list):
+        return None
+    for row in checks:
+        if not isinstance(row, dict):
+            continue
+        if str(row.get("id") or "").strip() == check_id:
+            return row
+    return None
+
+
+def _is_route_exempt(check_row: dict | None) -> bool:
+    if not isinstance(check_row, dict):
+        return False
+    command = check_row.get("command")
+    if not isinstance(command, list):
+        return False
+    return any(str(item).startswith("route-exempt:") for item in command)
+
+
+def _optional_payloads_for_mode(manifest: dict | None, *, mode: str) -> set[str]:
+    if mode != PRE_PUSH_MODE:
+        return set()
+    optional: set[str] = set()
+    if _is_route_exempt(_manifest_check(manifest, "upstream", "inventory_matrix_gate")):
+        optional.add("upstream_report")
+    if _is_route_exempt(_manifest_check(manifest, "upstream", "same_run_cohesion")):
+        optional.add("upstream_same_run_report")
+    return optional
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build governance closeout report from fresh evidence artifacts.")
     parser.add_argument("--manifest", default=str(DEFAULT_MANIFEST))
@@ -122,6 +162,7 @@ def main() -> int:
     unsupported_surface_findings = _unsupported_surface_findings(DEFAULT_CARGO_AUDIT_IGNORES)
     current_run_consistency_payload = current_run_consistency or {}
     current_run_truth_level = _current_run_truth_level(current_run_consistency, mode=args.mode)
+    optional_payloads = _optional_payloads_for_mode(manifest, mode=args.mode)
 
     missing = []
     required_payloads = {
@@ -137,7 +178,7 @@ def main() -> int:
         required_payloads["current_run_consistency"] = current_run_consistency
 
     for label, payload in required_payloads.items():
-        if payload is None:
+        if payload is None and label not in optional_payloads:
             missing.append(label)
 
     if missing:
@@ -148,9 +189,9 @@ def main() -> int:
     remaining_risks: list[str] = []
     if failed_dimensions:
         remaining_risks.append(f"scorecard failed dimensions: {', '.join(failed_dimensions)}")
-    if upstream_report.get("errors"):
+    if upstream_report is not None and upstream_report.get("errors"):
         remaining_risks.append("upstream inventory report still contains errors")
-    if upstream_same_run_report.get("status") == "fail":
+    if upstream_same_run_report is not None and upstream_same_run_report.get("status") == "fail":
         remaining_risks.append("upstream same-run cohesion report failed")
     if log_report.get("errors"):
         remaining_risks.append("log contract report still contains errors")
@@ -171,9 +212,11 @@ def main() -> int:
         "python3 scripts/refresh_governance_evidence_manifest.py",
         "python3 scripts/build_governance_scorecard.py --enforce",
         "bash scripts/cleanup_runtime.sh dry-run",
-        "python3 scripts/check_upstream_inventory.py --mode gate",
-        "python3 scripts/check_upstream_same_run_cohesion.py",
     ]
+    if "upstream_report" not in optional_payloads:
+        fresh_commands.append("python3 scripts/check_upstream_inventory.py --mode gate")
+    if "upstream_same_run_report" not in optional_payloads:
+        fresh_commands.append("python3 scripts/check_upstream_same_run_cohesion.py")
     if current_run_consistency is not None or args.mode != PRE_PUSH_MODE:
         fresh_commands.append("python3 scripts/check_ci_current_run_sources.py")
 
@@ -199,6 +242,7 @@ def main() -> int:
         "current_run_consistency_status": current_run_consistency_payload.get("status", "missing"),
         "authoritative_current_truth": bool(current_run_consistency_payload.get("authoritative_current_truth")),
         "current_run_truth_level": current_run_truth_level,
+        "route_exempt_optional_artifacts": sorted(optional_payloads),
         "upstream_receipt_scope": upstream_receipt_scope,
         "unsupported_surface_findings": unsupported_surface_findings,
         "platform_support_boundary": {
@@ -228,6 +272,7 @@ def main() -> int:
         f"- current_run_consistency_status: `{report['current_run_consistency_status']}`",
         f"- current_run_truth_level: `{report['current_run_truth_level']}`",
         f"- authoritative_current_truth: `{report['authoritative_current_truth']}`",
+        f"- route_exempt_optional_artifacts: `{', '.join(report['route_exempt_optional_artifacts']) if report['route_exempt_optional_artifacts'] else 'none'}`",
         "",
         "## Fresh Commands",
     ]
