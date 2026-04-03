@@ -42,7 +42,7 @@ describe("agents page pagination semantics", () => {
     expect(screen.getByText("Failure-led queue")).toBeInTheDocument();
     expect(screen.getByText("Registered capacity")).toBeInTheDocument();
     expect(screen.getByText("Pending scheduling backlog")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Registered agent summary (first screen)" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Role catalog (read-only first screen)" })).toBeInTheDocument();
 
     expect(screen.queryByRole("link", { name: "Previous" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Next" })).toBeNull();
@@ -144,8 +144,8 @@ describe("agents page pagination semantics", () => {
     }
 
     const registeredAgentsLink = screen.getByRole("link", { name: "Go to the registered agent list" });
-    expect(registeredAgentsLink).toHaveAttribute("href", "#agents-registered-title");
-    expect(registeredAgentsLink).toHaveTextContent("View registered agents");
+    expect(registeredAgentsLink).toHaveAttribute("href", "#agents-role-catalog-title");
+    expect(registeredAgentsLink).toHaveTextContent("View role catalog");
 
     expect(screen.getByRole("link", { name: "Failed events" })).toHaveAttribute("href", "/events");
   });

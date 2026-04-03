@@ -5,6 +5,25 @@ from pathlib import Path
 from typing import Any, Callable
 
 
+def _normalize_optional_text(value: Any) -> str | None:
+    text = str(value or "").strip()
+    return text or None
+
+
+def _normalize_string_list(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    normalized: list[str] = []
+    seen: set[str] = set()
+    for raw in value:
+        text = str(raw or "").strip()
+        if not text or text in seen:
+            continue
+        normalized.append(text)
+        seen.add(text)
+    return normalized
+
+
 def list_diff_gate(
     *,
     runs_root: Path,
@@ -62,6 +81,7 @@ def list_agents(
     *,
     load_agent_registry_fn: Callable[[], dict],
     load_locks_fn: Callable[[], list[dict]],
+    build_role_binding_summary_fn: Callable[[dict[str, Any]], dict[str, Any]],
 ) -> dict:
     registry = load_agent_registry_fn()
     locks = load_locks_fn()
@@ -74,18 +94,58 @@ def list_agents(
         key = (agent_id, role)
         lock_map.setdefault(key, []).append(str(item.get("path", "")))
 
-    agents = []
+    agents: list[dict[str, Any]] = []
+    role_map: dict[str, list[dict[str, Any]]] = {}
     for entry in registry.get("agents", []):
         if not isinstance(entry, dict):
             continue
         agent_id = str(entry.get("agent_id", ""))
         role = str(entry.get("role", ""))
         locked = lock_map.get((agent_id, role), [])
-        payload = dict(entry)
-        payload["lock_count"] = len(locked)
-        payload["locked_paths"] = locked
+        defaults = entry.get("defaults") if isinstance(entry.get("defaults"), dict) else {}
+        capabilities = entry.get("capabilities") if isinstance(entry.get("capabilities"), dict) else {}
+        payload = {
+            "agent_id": agent_id or None,
+            "role": role or None,
+            "sandbox": _normalize_optional_text(defaults.get("sandbox")),
+            "approval_policy": _normalize_optional_text(defaults.get("approval_policy")),
+            "network": _normalize_optional_text(defaults.get("network")),
+            "mcp_tools": _normalize_string_list(capabilities.get("mcp_tools")),
+            "notes": _normalize_optional_text(capabilities.get("notes")),
+            "lock_count": len(locked),
+            "locked_paths": locked,
+        }
         agents.append(payload)
-    return {"agents": agents, "locks": locks}
+        if role:
+            role_map.setdefault(role, []).append(payload)
+
+    role_contracts = registry.get("role_contracts") if isinstance(registry.get("role_contracts"), dict) else {}
+    role_catalog: list[dict[str, Any]] = []
+    for role in sorted(set(role_map) | set(role_contracts)):
+        role_defaults = role_contracts.get(role) if isinstance(role_contracts.get(role), dict) else {}
+        role_agents = role_map.get(role, [])
+        role_catalog.append(
+            {
+                "role": role,
+                "purpose": _normalize_optional_text(role_defaults.get("purpose")),
+                "system_prompt_ref": _normalize_optional_text(role_defaults.get("system_prompt_ref")),
+                "handoff_eligible": bool(role_defaults.get("handoff_eligible")),
+                "required_downstream_roles": _normalize_string_list(role_defaults.get("required_downstream_roles")),
+                "fail_closed_conditions": _normalize_string_list(role_defaults.get("fail_closed_conditions")),
+                "registered_agent_count": len(role_agents),
+                "locked_agent_count": sum(1 for item in role_agents if int(item.get("lock_count") or 0) > 0),
+                "role_binding_read_model": build_role_binding_summary_fn(
+                    {
+                        "assigned_agent": {
+                            "role": role,
+                            "agent_id": role_agents[0].get("agent_id") if role_agents else f"catalog-{role.lower()}",
+                        },
+                        "role_contract": role_defaults,
+                    }
+                ),
+            }
+        )
+    return {"agents": agents, "locks": locks, "role_catalog": role_catalog}
 
 
 def list_agents_status(

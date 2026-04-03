@@ -5,6 +5,8 @@ import { Badge, type BadgeVariant } from "../../components/ui/badge";
 import { Card } from "../../components/ui/card";
 import { Input, Select } from "../../components/ui/input";
 import { safeLoad } from "../../lib/serverPageData";
+import type { AgentCatalogPayload, AgentStatusPayload, RoleCatalogRecord } from "../../lib/types";
+import { formatBindingReadModelLabel, formatRoleBindingRuntimeSummary } from "../../lib/types";
 
 type AgentsPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -68,6 +70,28 @@ function includesQuery(record: Record<string, unknown>, query: string): boolean 
     record.worktree,
   ];
   const normalized = query.toLowerCase();
+  return haystacks.some((value) => String(value ?? "").toLowerCase().includes(normalized));
+}
+
+function includesRoleCatalogQuery(record: RoleCatalogRecord, query: string): boolean {
+  if (!query) {
+    return true;
+  }
+  const normalized = query.toLowerCase();
+  const roleBinding = record.role_binding_read_model;
+  const haystacks = [
+    record.role,
+    record.purpose,
+    record.system_prompt_ref,
+    roleBinding?.skills_bundle_ref?.ref,
+    roleBinding?.skills_bundle_ref?.bundle_id,
+    ...(roleBinding?.skills_bundle_ref?.resolved_skill_set ?? []),
+    roleBinding?.mcp_bundle_ref?.ref,
+    ...(roleBinding?.mcp_bundle_ref?.resolved_mcp_tool_set ?? []),
+    roleBinding?.runtime_binding?.summary?.runner,
+    roleBinding?.runtime_binding?.summary?.provider,
+    roleBinding?.runtime_binding?.summary?.model,
+  ];
   return haystacks.some((value) => String(value ?? "").toLowerCase().includes(normalized));
 }
 
@@ -209,20 +233,30 @@ export default async function AgentsPage({ searchParams }: AgentsPageProps) {
   const pageNo = readPositiveInt(params.page, 1);
   const pageSize = 15;
 
-  const { data: payload, warning: payloadWarning } = await safeLoad(fetchAgents, {}, "Agent registry");
-  const { data: statusPayload, warning: statusWarning } = await safeLoad(fetchAgentStatus, {}, "Agent state machine");
+  const { data: payload, warning: payloadWarning } = await safeLoad<AgentCatalogPayload>(
+    fetchAgents,
+    { agents: [], locks: [], role_catalog: [] },
+    "Agent registry",
+  );
+  const { data: statusPayload, warning: statusWarning } = await safeLoad<AgentStatusPayload>(
+    fetchAgentStatus,
+    { agents: [] },
+    "Agent state machine",
+  );
   const warning = payloadWarning || statusWarning;
-  const agentsAll = asRecordArray(payload?.agents);
-  const locksAll = asRecordArray(payload?.locks);
-  const statusesAll = asRecordArray(statusPayload?.agents);
+  const agentsAll = Array.isArray(payload.agents) ? payload.agents : [];
+  const locksAll = asRecordArray(payload.locks);
+  const roleCatalogAll = Array.isArray(payload.role_catalog) ? payload.role_catalog : [];
+  const statusesAll = Array.isArray(statusPayload.agents) ? statusPayload.agents : [];
   const roles = Array.from(
     new Set(
-      [...agentsAll, ...statusesAll, ...locksAll]
+      [...roleCatalogAll, ...agentsAll, ...statusesAll, ...locksAll]
         .map((item) => String(item.role || "").trim().toUpperCase())
         .filter((item) => item.length > 0)
     )
   ).sort();
   const roleMatches = (value: unknown) => !roleFilter || String(value || "").trim().toUpperCase() === roleFilter;
+  const roleCatalog = roleCatalogAll.filter((item) => roleMatches(item.role) && includesRoleCatalogQuery(item, queryText));
   const agents = agentsAll.filter((item) => roleMatches(item.role) && includesQuery(item, queryText));
   const locks = locksAll.filter((item) => roleMatches(item.role) && includesQuery(item, queryText));
   const statuses = statusesAll.filter((item) => roleMatches(item.role) && includesQuery(item, queryText));
@@ -282,8 +316,6 @@ export default async function AgentsPage({ searchParams }: AgentsPageProps) {
   const capacityRatio = registeredAgents > 0 ? Math.round((activeAgents / registeredAgents) * 100) : 0;
   const healthyStatuses = Math.max(0, statuses.length - failedStatuses.length);
   const highRiskOps = failedStatuses.length + unassignedStatuses;
-  const registeredSummaryRows = groupedAgents.slice(0, 6);
-  const registeredSummaryHiddenCount = Math.max(0, groupedAgents.length - registeredSummaryRows.length);
   const baseQuery = new URLSearchParams();
   if (queryText) {
     baseQuery.set("q", queryText);
@@ -354,7 +386,7 @@ export default async function AgentsPage({ searchParams }: AgentsPageProps) {
               <Link href="#agents-state-machine-title">View pending details</Link>
             </Button>
             <Button asChild variant="secondary" aria-label="Go to the registered agent list">
-              <Link href="#agents-registered-title">View registered agents</Link>
+              <Link href="#agents-role-catalog-title">View role catalog</Link>
             </Button>
             <Button asChild variant="secondary">
               <Link href="/events">Failed events</Link>
@@ -364,13 +396,13 @@ export default async function AgentsPage({ searchParams }: AgentsPageProps) {
           <p className="cell-sub mono muted">Agents holding locks {lockedAgentCount}; this tracks backlog, not agent health.</p>
         </article>
       </section>
-      <section className="app-section" aria-labelledby="agents-register-summary-title">
+      <section className="app-section" aria-labelledby="agents-role-catalog-title">
         <div className="section-header">
           <div>
-            <h2 id="agents-register-summary-title" className="section-title">Registered agent summary (first screen)</h2>
-            <p className="mono muted">The first screen shows the first 6 agent entities so operators can verify roles and lock usage quickly.</p>
+            <h2 id="agents-role-catalog-title" className="section-title">Role catalog (read-only first screen)</h2>
+            <p className="mono muted">This registry-backed snapshot shows role purpose, bundle posture, and runtime binding without promoting the catalog into execution authority.</p>
           </div>
-          <div className="toolbar" role="group" aria-label="Registered agent summary entry">
+          <div className="toolbar" role="group" aria-label="Role catalog entry">
             <Button asChild variant="secondary" aria-label="Go to the full registered agent list">
               <Link href="#agents-registered-title">Full list</Link>
             </Button>
@@ -379,50 +411,57 @@ export default async function AgentsPage({ searchParams }: AgentsPageProps) {
         <Card variant="table">
           {payloadWarning ? (
             <p className="mono muted">The agent registry is temporarily unavailable. Failure triage entry points remain available.</p>
-          ) : registeredSummaryRows.length === 0 ? (
-            <p className="mono muted">No registered agent entities yet.</p>
+          ) : roleCatalog.length === 0 ? (
+            <p className="mono muted">No role catalog entries match the current filter.</p>
           ) : (
             <table className="run-table">
               <thead>
                 <tr>
-                  <th scope="col">Agent ID</th>
                   <th scope="col">Role</th>
-                  <th scope="col">Lock count</th>
-                  <th scope="col">Locked path samples</th>
+                  <th scope="col">Skills bundle</th>
+                  <th scope="col">MCP bundle</th>
+                  <th scope="col">Runtime binding</th>
+                  <th scope="col">Execution authority</th>
+                  <th scope="col">Registered seats</th>
                 </tr>
               </thead>
               <tbody>
-                {registeredSummaryRows.map((agent) => (
-                  <tr key={groupedAgentRowKey(agent.agentId, agent.roles, agent.lockCount, agent.lockedPaths)}>
+                {roleCatalog.map((roleEntry) => (
+                  <tr key={`role-catalog:${roleEntry.role}`}>
                     <th scope="row">
-                      <span className="mono" title={String(agent.agentId || "-")}>
-                        {readableId("AGENT", agent.agentId)}
-                      </span>
+                      <div className="stack-gap-2">
+                        <Badge>{roleEntry.role}</Badge>
+                        <span className="muted">{roleEntry.purpose || "No role purpose published yet."}</span>
+                      </div>
                     </th>
                     <td>
-                      <span className="chip-list">
-                        {agent.roles.length > 0 ? agent.roles.map((role) => <Badge key={role}>{role}</Badge>) : <span className="muted">-</span>}
+                      <span className="mono muted">
+                        {formatBindingReadModelLabel(roleEntry.role_binding_read_model?.skills_bundle_ref)}
                       </span>
                     </td>
-                    <td><span className="cell-primary">{String(agent.lockCount ?? 0)}</span></td>
                     <td>
-                      {agent.lockedPaths.length > 0 ? (
-                        <span className="chip-list">
-                          {agent.lockedPaths.slice(0, 2).map((path) => <span key={path} className="chip">{path}</span>)}
-                          {agent.lockedPaths.length > 2 ? <Badge>+{agent.lockedPaths.length - 2}</Badge> : null}
-                        </span>
-                      ) : (
-                        <span className="muted">-</span>
-                      )}
+                      <span className="mono muted">
+                        {formatBindingReadModelLabel(roleEntry.role_binding_read_model?.mcp_bundle_ref)}
+                      </span>
+                    </td>
+                    <td><span className="mono muted">{formatRoleBindingRuntimeSummary(roleEntry.role_binding_read_model)}</span></td>
+                    <td>
+                      <div className="stack-gap-2">
+                        <Badge variant="running">{roleEntry.role_binding_read_model.execution_authority}</Badge>
+                        <span className="muted">Read-only derived mirror</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="stack-gap-2">
+                        <span className="cell-primary">{roleEntry.registered_agent_count}</span>
+                        <span className="mono muted">{roleEntry.locked_agent_count} locked</span>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
-          {registeredSummaryHiddenCount > 0 ? (
-            <p className="mono muted">{registeredSummaryHiddenCount} more agents are available in the full list.</p>
-          ) : null}
         </Card>
       </section>
       <section className="app-section" aria-labelledby="agents-ops-title">
@@ -592,7 +631,7 @@ export default async function AgentsPage({ searchParams }: AgentsPageProps) {
         <Card asChild>
           <details>
             <summary className="section-title" id="agents-registered-title">
-              Agent detail (expandable, {groupedAgents.length} items)
+              Registered agent inventory (expandable, {groupedAgents.length} items)
             </summary>
             {payloadWarning ? (
               <div className="empty-state-stack">

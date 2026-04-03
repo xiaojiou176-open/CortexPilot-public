@@ -18,6 +18,12 @@
       "name": "runs"
     },
     {
+      "name": "agents"
+    },
+    {
+      "name": "contracts"
+    },
+    {
       "name": "workflows"
     },
     {
@@ -175,6 +181,45 @@
         "responses": {
           "200": {
             "description": "Run report payload"
+          }
+        }
+      }
+    },
+    "/api/agents": {
+      "get": {
+        "tags": [
+          "agents"
+        ],
+        "operationId": "fetchAgents",
+        "responses": {
+          "200": {
+            "description": "Global read-only role catalog plus registered agent inventory payload"
+          }
+        }
+      }
+    },
+    "/api/agents/status": {
+      "get": {
+        "tags": [
+          "agents"
+        ],
+        "operationId": "fetchAgentStatus",
+        "responses": {
+          "200": {
+            "description": "Run-scoped agent state machine advisory payload"
+          }
+        }
+      }
+    },
+    "/api/contracts": {
+      "get": {
+        "tags": [
+          "contracts"
+        ],
+        "operationId": "fetchContracts",
+        "responses": {
+          "200": {
+            "description": "Read-only contract artifact inspector payload with normalized bundle/runtime projection"
           }
         }
       }
@@ -343,6 +388,9 @@
       "runEventsStream": "/api/runs/{run_id}/events/stream",
       "runDiff": "/api/runs/{run_id}/diff",
       "runReports": "/api/runs/{run_id}/reports",
+      "agents": "/api/agents",
+      "agentStatus": "/api/agents/status",
+      "contracts": "/api/contracts",
       "queue": "/api/queue",
       "workflows": "/api/workflows",
       "workflowDetail": "/api/workflows/{workflow_id}",

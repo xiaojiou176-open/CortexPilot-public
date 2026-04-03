@@ -158,6 +158,13 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `@cortexpilot/frontend-api-contract` read-model types, and the read-only Run
   Detail operator summaries that continue to treat `task_contract` as
   execution authority
+- when a Prompt 9-style slice turns role / bundle / runtime truth into
+  dashboard/desktop `Agents` + `Contracts` operator catalog surfaces, keep this
+  file, the root AI/docs entrypoints, and the module READMEs aligned in the
+  same patch; current examples include the registry-backed `/api/agents` role
+  catalog, the normalized `/api/contracts` inspector payload, and the same
+  read-only authority/advisory wording carried through both web and desktop
+  operator shells
 
 ## Key Commands
 

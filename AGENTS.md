@@ -192,6 +192,12 @@ Work in CortexPilot as a contract-first engineering agent:
   `@cortexpilot/frontend-api-contract` read-model types, and the read-only
   Run Detail operator summaries that keep `task_contract` as execution
   authority
+- when a Prompt 9-style slice turns role / bundle / runtime truth into
+  dashboard/desktop `Agents` + `Contracts` operator catalog surfaces, sync the
+  root AI/docs entrypoints in the same patch; current examples include the
+  registry-backed `/api/agents` role catalog, the normalized `/api/contracts`
+  inspector payload, and the same read-only authority/advisory wording carried
+  through both web and desktop operator shells
 
 ## Local Overrides
 

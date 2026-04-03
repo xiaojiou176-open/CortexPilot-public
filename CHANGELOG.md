@@ -31,6 +31,12 @@ All notable changes to this repository will be documented in this file.
   frontend client/types, and dashboard/desktop Run Detail so
   `role_binding_read_model` is now contract-backed from the generated frontend
   surface through the primary run operator views
+- opened Prompt 9 by turning role / bundle / runtime truth into a global
+  read-only operator catalog: `/api/agents` now publishes a registry-backed
+  role catalog, `/api/contracts` now emits normalized inspector rows, the
+  generated frontend contract now covers agents/contracts catalog routes, and
+  dashboard/desktop `Agents` + `Contracts` pages project the same advisory
+  bundle/runtime posture without becoming execution-authority controls
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

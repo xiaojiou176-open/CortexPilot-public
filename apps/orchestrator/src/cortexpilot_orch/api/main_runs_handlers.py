@@ -116,6 +116,36 @@ def build_runs_handlers(
     def _normalize_contract(value: Any) -> dict[str, Any]:
         return value if isinstance(value, dict) else {}
 
+    def _normalize_optional_text(value: Any) -> str | None:
+        text = str(value or "").strip()
+        return text or None
+
+    def _normalize_string_list(value: Any) -> list[str]:
+        if not isinstance(value, list):
+            return []
+        normalized: list[str] = []
+        seen: set[str] = set()
+        for raw in value:
+            text = str(raw or "").strip()
+            if not text or text in seen:
+                continue
+            normalized.append(text)
+            seen.add(text)
+        return normalized
+
+    def _normalize_acceptance_tests(value: Any) -> list[str]:
+        if not isinstance(value, list):
+            return []
+        normalized: list[str] = []
+        for raw in value:
+            if isinstance(raw, str):
+                text = raw.strip()
+            else:
+                text = json.dumps(raw, ensure_ascii=False, sort_keys=True)
+            if text:
+                normalized.append(text)
+        return normalized
+
     def _is_rejected_diff_gate(event: dict[str, Any]) -> bool:
         name = str(event.get("event") or "")
         if name in {"DIFF_GATE_REJECTED", "DIFF_GATE_FAIL"}:
@@ -817,22 +847,65 @@ def build_runs_handlers(
         contracts = []
 
         def _read_contract_item(path: Path) -> dict[str, Any]:
+            payload: dict[str, Any] | None = None
+            record_status = "structured"
+            raw_preview: str | None = None
             try:
                 raw_text = path.read_text(encoding="utf-8")
             except Exception:  # noqa: BLE001
-                return {"raw_error": "read_failed"}
-            try:
-                payload = json_loads_fn(raw_text)
-            except json_decode_error_cls:
-                return {"raw": raw_text}
-            except Exception:  # noqa: BLE001
-                return {"raw": raw_text}
-            return payload if isinstance(payload, dict) else {"payload": payload}
+                record_status = "read-failed"
+                raw_text = ""
+            if record_status != "read-failed":
+                try:
+                    loaded = json_loads_fn(raw_text)
+                except json_decode_error_cls:
+                    record_status = "raw"
+                    raw_preview = raw_text
+                except Exception:  # noqa: BLE001
+                    record_status = "raw"
+                    raw_preview = raw_text
+                else:
+                    if isinstance(loaded, dict):
+                        payload = _normalize_contract(loaded)
+                    else:
+                        record_status = "raw"
+                        raw_preview = raw_text
+            normalized_contract = payload or {}
+            assigned_agent = _as_dict(normalized_contract.get("assigned_agent"))
+            owner_agent = _as_dict(normalized_contract.get("owner_agent"))
+            role_binding = None
+            if normalized_contract and (
+                isinstance(normalized_contract.get("role_contract"), dict)
+                or _normalize_optional_text(assigned_agent.get("role"))
+            ):
+                role_binding = build_role_binding_summary(normalized_contract)
+            tool_permissions = _as_dict(normalized_contract.get("tool_permissions"))
+            return {
+                "source": None,
+                "_source": None,
+                "path": str(path),
+                "_path": str(path),
+                "record_status": record_status,
+                "task_id": _normalize_optional_text(normalized_contract.get("task_id")),
+                "run_id": _normalize_optional_text(normalized_contract.get("run_id")),
+                "allowed_paths": _normalize_string_list(normalized_contract.get("allowed_paths")),
+                "acceptance_tests": _normalize_acceptance_tests(normalized_contract.get("acceptance_tests")),
+                "tool_permissions": tool_permissions or None,
+                "owner_agent_id": _normalize_optional_text(owner_agent.get("agent_id")),
+                "owner_role": _normalize_optional_text(owner_agent.get("role")),
+                "assigned_agent_id": _normalize_optional_text(assigned_agent.get("agent_id")),
+                "assigned_role": _normalize_optional_text(assigned_agent.get("role")),
+                "execution_authority": role_binding.get("execution_authority") if isinstance(role_binding, dict) else None,
+                "role_binding_read_model": role_binding,
+                "payload": normalized_contract or None,
+                "raw": raw_preview,
+                "raw_preview": raw_preview,
+            }
 
         for path in (cfg.contract_root / "examples").glob("*.json"):
             item = _read_contract_item(path)
+            item["source"] = "examples"
             item["_source"] = "examples"
-            item["_path"] = str(path)
             contracts.append(item)
         for bucket in ["tasks", "reviews", "results"]:
             root = cfg.contract_root / bucket
@@ -840,8 +913,8 @@ def build_runs_handlers(
                 continue
             for path in root.glob("**/*.json"):
                 item = _read_contract_item(path)
+                item["source"] = bucket
                 item["_source"] = bucket
-                item["_path"] = str(path)
                 contracts.append(item)
         return contracts
 

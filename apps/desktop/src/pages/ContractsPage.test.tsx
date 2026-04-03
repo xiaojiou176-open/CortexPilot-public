@@ -29,8 +29,8 @@ describe("ContractsPage", () => {
       ] as any);
     const user = userEvent.setup();
     render(<ContractsPage />);
-    expect(await screen.findByText("暂无合约")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "刷新" }));
+    expect(await screen.findByText(/No contracts yet|暂无合约/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Refresh|刷新/ }));
     expect(await screen.findByText("task-1")).toBeInTheDocument();
     expect(screen.getByText("apps/desktop/src")).toBeInTheDocument();
     expect(screen.getByText("pnpm test")).toBeInTheDocument();

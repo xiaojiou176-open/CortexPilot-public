@@ -43,13 +43,27 @@ describe("coverage sprint F: low-branch pages", () => {
       .mockResolvedValueOnce({ agents: [] } as any)
       .mockRejectedValueOnce(new Error("agents boom"));
     vi.mocked(fetchAgentStatus)
-      .mockResolvedValueOnce({ machines: [{ agent_id: "a-1", role: "TL", status: "running", run_id: "run-1234567890abcdef" }] } as any)
-      .mockResolvedValueOnce({ machines: [] } as any)
-      .mockResolvedValueOnce({ machines: [] } as any);
+      .mockResolvedValueOnce({ agents: [{ agent_id: "a-1", role: "TL", stage: "RUNNING", run_id: "run-1234567890abcdef" }] } as any)
+      .mockResolvedValueOnce({ agents: [] } as any)
+      .mockResolvedValueOnce({ agents: [] } as any);
 
     render(<AgentsPage />);
     expect(screen.getByRole("button", { name: /刷新中\.\.\.|Refreshing\.\.\./ })).toBeDisabled();
-    resolveFirstAgents({ agents: [{ agent_id: "a-1", role: "TL", type: "worker" }] } as FirstAgentsPayload);
+    resolveFirstAgents({
+      agents: [{
+        agent_id: "a-1",
+        role: "TL",
+        sandbox: null,
+        approval_policy: null,
+        network: null,
+        mcp_tools: [],
+        notes: "worker",
+        lock_count: 0,
+        locked_paths: [],
+      }],
+      locks: [],
+      role_catalog: [],
+    } as FirstAgentsPayload);
     expect(await screen.findByText(/活跃状态机|Active State Machines/)).toBeInTheDocument();
     expect(screen.getByText(/注册代理 \(1\)|Registered Agents \(1\)/)).toBeInTheDocument();
     expect(screen.getByText("run-12345678")).toBeInTheDocument();
@@ -117,7 +131,7 @@ describe("coverage sprint F: low-branch pages", () => {
     expect(screen.getAllByText("0").length).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
-    expect(await screen.findByText(/暂无工作流|No workflows yet/)).toBeInTheDocument();
+    expect(await screen.findByText(/暂无工作流|No workflows? cases yet/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => {

@@ -79,4 +79,59 @@ describe("agents page presentation", () => {
     expect(text.indexOf("AGENT-000002")).toBeLessThan(text.indexOf("AGENT-000010"));
     expect(text.indexOf("AGENT-000010")).toBeLessThan(text.indexOf("AGENT-000111"));
   });
+
+  it("shows the read-only role catalog before the full agent inventory", async () => {
+    vi.mocked(fetchAgents).mockResolvedValueOnce({
+      agents: [{ agent_id: "agent-1", role: "WORKER", lock_count: 0, locked_paths: [] }],
+      locks: [],
+      role_catalog: [
+        {
+          role: "WORKER",
+          purpose: "Execute the contracted change inside allowed_paths and produce structured evidence.",
+          role_binding_read_model: {
+            authority: "contract-derived-read-model",
+            source: "derived from compiled role_contract and runtime inputs; not an execution authority surface",
+            execution_authority: "task_contract",
+            skills_bundle_ref: {
+              status: "resolved",
+              ref: "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+              bundle_id: "worker_delivery_core_v1",
+              resolved_skill_set: ["l1-backend-verify"],
+              validation: "fail-closed",
+            },
+            mcp_bundle_ref: {
+              status: "resolved",
+              ref: "policies/agent_registry.json#agents(role=WORKER).capabilities.mcp_tools",
+              resolved_mcp_tool_set: ["codex"],
+              validation: "fail-closed",
+            },
+            runtime_binding: {
+              status: "partially-resolved",
+              authority_scope: "contract-derived-read-model",
+              source: {
+                runner: "unresolved",
+                provider: "unresolved",
+                model: "unresolved",
+              },
+              summary: {
+                runner: null,
+                provider: null,
+                model: null,
+              },
+            },
+          },
+          registered_agent_count: 1,
+          locked_agent_count: 0,
+        },
+      ],
+    } as never);
+    vi.mocked(fetchAgentStatus).mockResolvedValueOnce({ agents: [] } as never);
+
+    render(await AgentsPage({ searchParams: Promise.resolve({}) }));
+
+    expect(screen.getByText("Role catalog (read-only first screen)")).toBeInTheDocument();
+    expect(screen.getByText("task_contract")).toBeInTheDocument();
+    expect(screen.getByText(/worker_delivery_core_v1/)).toBeInTheDocument();
+    expect(screen.getByText("Registered agent inventory (expandable, 1 items)")).toBeInTheDocument();
+  });
 });

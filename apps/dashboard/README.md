@@ -109,3 +109,9 @@ finished consumer product.
 - Run Detail now mirrors `role_binding_read_model` inside the existing
   `Status & Contract` card, and that note keeps `task_contract` explicit as the
   only execution authority.
+- Agents now also uses a registry-backed read-only role catalog on the first
+  screen, so operators can inspect skills/MCP/runtime posture before drilling
+  into individual agent seats or scheduler backlog.
+- Contracts now acts as a bundle/runtime inspector: each card keeps the task
+  contract envelope visible while projecting the derived bundle/runtime summary
+  as read-only operator context rather than a control surface.

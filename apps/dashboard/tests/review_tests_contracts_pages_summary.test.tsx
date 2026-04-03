@@ -82,8 +82,46 @@ describe("summary-first rendering for reviews/tests/contracts pages", () => {
   it("contracts page keeps JSON in collapsible detail only", async () => {
     vi.mocked(fetchContracts).mockResolvedValueOnce([
       {
-        _path: "runs/run-contract-1/contract.json",
-        _source: "runs_root",
+        path: "runs/run-contract-1/contract.json",
+        source: "runs_root",
+        task_id: "task-1",
+        allowed_paths: ["apps/dashboard"],
+        acceptance_tests: ["npm run test"],
+        tool_permissions: { shell: "allow", network: "deny" },
+        assigned_role: "TECH_LEAD",
+        execution_authority: "task_contract",
+        role_binding_read_model: {
+          authority: "contract-derived-read-model",
+          source: "derived from compiled role_contract and runtime inputs; not an execution authority surface",
+          execution_authority: "task_contract",
+          skills_bundle_ref: {
+            status: "resolved",
+            ref: "policies/skills_bundle_registry.json#bundles.tech_lead_contract_bridge_v1",
+            bundle_id: "tech_lead_contract_bridge_v1",
+            resolved_skill_set: ["l1-product-plan-and-delegate"],
+            validation: "fail-closed",
+          },
+          mcp_bundle_ref: {
+            status: "unresolved",
+            ref: null,
+            resolved_mcp_tool_set: [],
+            validation: "fail-closed",
+          },
+          runtime_binding: {
+            status: "partially-resolved",
+            authority_scope: "contract-derived-read-model",
+            source: {
+              runner: "unresolved",
+              provider: "unresolved",
+              model: "unresolved",
+            },
+            summary: {
+              runner: null,
+              provider: null,
+              model: null,
+            },
+          },
+        },
         payload: {
           task_id: "task-1",
           allowed_paths: ["apps/dashboard"],
@@ -99,6 +137,8 @@ describe("summary-first rendering for reviews/tests/contracts pages", () => {
     expect(permissionRow).not.toBeNull();
     expect(within(permissionRow as HTMLElement).getByText("shell: allow")).toBeInTheDocument();
     expect(within(permissionRow as HTMLElement).getByText("network: deny")).toBeInTheDocument();
+    expect(screen.getByText("task_contract")).toBeInTheDocument();
+    expect(screen.getByText(/tech_lead_contract_bridge_v1/)).toBeInTheDocument();
 
     const preBlocks = document.querySelectorAll("pre");
     expect(preBlocks.length).toBe(1);
@@ -108,8 +148,12 @@ describe("summary-first rendering for reviews/tests/contracts pages", () => {
   it("contracts page exposes expand-all link when more than the default rows exist", async () => {
     vi.mocked(fetchContracts).mockResolvedValueOnce(
       Array.from({ length: 11 }).map((_, index) => ({
-        _path: `runs/run-contract-${index + 1}/contract.json`,
-        _source: "runs_root",
+        path: `runs/run-contract-${index + 1}/contract.json`,
+        source: "runs_root",
+        task_id: `task-${index + 1}`,
+        allowed_paths: ["apps/dashboard"],
+        acceptance_tests: ["npm run test"],
+        tool_permissions: { shell: "allow" },
         payload: {
           task_id: `task-${index + 1}`,
           allowed_paths: ["apps/dashboard"],
@@ -302,8 +346,8 @@ describe("summary-first rendering for reviews/tests/contracts pages", () => {
   it("contracts page resolves raw contract payload fallback and expand-all link", async () => {
     vi.mocked(fetchContracts).mockResolvedValueOnce(
       Array.from({ length: 11 }).map((_, index) => ({
-        _path: `runs/run-contract-${index + 1}/contract.json`,
-        _source: index === 0 ? "" : "runs_root",
+        path: `runs/run-contract-${index + 1}/contract.json`,
+        source: index === 0 ? "" : "runs_root",
         task_id: index === 0 ? "" : `task-${index + 1}`,
         run_id: index === 0 ? "run-fallback" : "",
         allowed_paths: index === 0 ? [] : ["apps/dashboard"],
@@ -323,8 +367,12 @@ describe("summary-first rendering for reviews/tests/contracts pages", () => {
   it("contracts page falls back to default permissions text when tool permissions are non-object", async () => {
     vi.mocked(fetchContracts).mockResolvedValueOnce([
       {
-        _path: "runs/run-contract-invalid/contract.json",
-        _source: "runs_root",
+        path: "runs/run-contract-invalid/contract.json",
+        source: "runs_root",
+        task_id: "task-invalid",
+        allowed_paths: ["apps/dashboard"],
+        acceptance_tests: ["npm run test"],
+        tool_permissions: "inherit",
         payload: {
           task_id: "task-invalid",
           allowed_paths: ["apps/dashboard"],

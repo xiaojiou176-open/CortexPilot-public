@@ -54,6 +54,13 @@ npm --prefix apps/desktop run tauri:dev
   existing `Run overview` card, so the persisted binding summary is visible on
   the primary operator surface while `task_contract` remains the only execution
   authority.
+- Desktop `Agents` now mirrors the same read-only role catalog semantics as the
+  dashboard while keeping a compact table/card layout, so operators can inspect
+  role bundle/runtime posture without turning the page into a control panel.
+- Desktop `Contracts` now mirrors the same bundle/runtime inspector semantics
+  as the dashboard while keeping the compact desktop card layout, so contract
+  envelopes and derived binding summaries stay aligned across both operator
+  shells.
 - The desktop Workflow Case detail surface now mirrors the latest linked run's
   `workflow_case_read_model`, but it presents that card as read-only operator
   context rather than a second execution-authority switch.
