@@ -104,7 +104,10 @@ This repository combines:
 - **Quick Feedback light path**: role-config runtime capability summaries now
   resolve through a lightweight provider-capability helper, so control-plane
   previews keep their fail-closed provider posture without forcing GitHub
-  quick-path governance checks to import full runtime transport dependencies
+  quick-path governance checks to import full runtime transport dependencies;
+  the staged dashboard UI-audit workspace now also copies the required
+  `packages/frontend-*` sources into its temporary root so Next/Turbopack does
+  not reject out-of-root symlinks during smoke builds
 
 ## Quickstart
 

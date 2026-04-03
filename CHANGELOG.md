@@ -48,7 +48,10 @@ All notable changes to this repository will be documented in this file.
   provider-capability helpers for role-config runtime summaries, registering
   the governed env reads in `configs/env_direct_read_allowlist.json`, and
   adding a regression that proves the role-config read surface still imports
-  when `httpx` is unavailable on quick-path governance runners
+  when `httpx` is unavailable on quick-path governance runners; the staged
+  dashboard UI-audit workspace now also copies the required
+  `packages/frontend-*` sources into its temporary root so Next/Turbopack does
+  not reject out-of-root symlinks during smoke builds
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced
