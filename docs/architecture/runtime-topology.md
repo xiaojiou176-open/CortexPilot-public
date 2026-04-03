@@ -84,6 +84,11 @@ flowchart LR
 - Contract artifact cleanup scope follows configured `CORTEXPILOT_RUNTIME_CONTRACT_ROOT` inside `.runtime-cache/cortexpilot/contracts/`.
 - Root cleanliness and runtime artifact routing are SSOT-driven by `configs/root_allowlist.json` + `configs/runtime_artifact_policy.json`; root-noise directories such as root `logs/`, root `.next/`, and root coverage artifacts are treated as governance violations rather than acceptable steady state.
 - JS runtime machine state is app- or package-local and explicit: only `apps/dashboard/node_modules`, `apps/dashboard/.next`, `apps/dashboard/tsconfig.tsbuildinfo`, `apps/dashboard/tsconfig.typecheck.tsbuildinfo`, `apps/desktop/node_modules`, `apps/desktop/dist`, `apps/desktop/tsconfig.tsbuildinfo`, and `packages/frontend-api-client/node_modules` are allowed repo-local machine-managed surfaces; root `node_modules` remains forbidden.
+- Staged dashboard UI-audit workspaces must keep required
+  `packages/frontend-api-client`, `packages/frontend-api-contract`, and
+  `packages/frontend-shared` sources inside the temporary workspace root
+  itself; out-of-root `packages` symlinks are rejected by Next/Turbopack and
+  therefore do not satisfy the hosted smoke-build contract.
 - Log rotation remains owned by `observability/logger.py` (`RotatingFileHandler` + gzip rollover), while lifecycle cleanup remains owned by runtime retention and guarded high-yield cleanup remains owned by space governance. The three layers are complementary, not interchangeable.
 - `~/.cache/cortexpilot` is the repo-external strong-related cache root, but it is still machine-shared across local CortexPilot worktrees and branches. Treat it as governed shared cache, not single-repo private disk.
 - Log envelope SSOT is `schemas/log_event.v2.json`, and machine-consumed log correlation must stay auditable through `lane` + `correlation_kind`.

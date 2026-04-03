@@ -82,7 +82,20 @@ prepare_staged_dashboard_workspace() {
     cd "${stage_root}/apps/dashboard"
     tar -xf -
   )
-  ln -s "${ROOT_DIR}/packages" "${stage_root}/packages"
+  mkdir -p "${stage_root}/packages"
+  (
+    cd "${ROOT_DIR}/packages"
+    tar \
+      --exclude='./node_modules' \
+      --exclude='./*/node_modules' \
+      -cf - \
+      frontend-api-client \
+      frontend-api-contract \
+      frontend-shared
+  ) | (
+    cd "${stage_root}/packages"
+    tar -xf -
+  )
   printf '%s\n' "${stage_root}"
 }
 
