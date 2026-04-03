@@ -101,3 +101,8 @@ flowchart LR
   dashboard/desktop `Contracts` plus `Run Detail` surfaces; this keeps the
   runtime boundary readable without upgrading chat-compatible lanes into full
   execution parity.
+- Contract package entrypoints (`cortexpilot_orch.contract`) now lazy-load
+  `compiler` / `validator` submodules, so CI/governance readers such as
+  `scripts/check_schedule_boundary.py` can stay below runtime-provider
+  dependencies on Quick Feedback lanes instead of importing `httpx` just to
+  validate queue/report schemas.

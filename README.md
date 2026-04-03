@@ -115,6 +115,11 @@ This repository combines:
   reinstalls package-local `frontend-api-client` dependencies before it runs
   the node smoke bundle, so clean-room verification keeps testing the package
   itself instead of failing on missing local installs
+- **Prompt 10 quick-gate decoupling**: the `cortexpilot_orch.contract`
+  package now lazy-loads `compiler` / `validator` entrypoints, so Quick
+  Feedback governance scripts can import `ContractValidator` and schedule
+  boundary checks without accidentally pulling the runtime-provider stack or
+  requiring `httpx` on light governance Python paths
 
 ## Quickstart
 

@@ -64,6 +64,10 @@ All notable changes to this repository will be documented in this file.
 - restored clean-room frontend-api-client recovery by making
   `scripts/check_clean_room_recovery.sh` reinstall package-local
   `frontend-api-client` dependencies before it runs the node smoke bundle
+- hardened Prompt 10 closeout CI by lazy-loading
+  `cortexpilot_orch.contract` package entrypoints, so Quick Feedback /
+  schedule-boundary governance checks no longer pull runtime-provider
+  dependencies like `httpx` just to import `ContractValidator`
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced
