@@ -77,7 +77,8 @@ All notable changes to this repository will be documented in this file.
   `packages/frontend-*` sources into its temporary root so Next/Turbopack does
   not reject out-of-root symlinks during smoke builds, and repeated pnpm
   `ERR_PNPM_ENOENT` recovery now escalates from fresh-store retries to a
-  workspace-local store path for dashboard/desktop dependency bootstrap lanes
+  workspace-local store path for dashboard/desktop dependency bootstrap lanes,
+  including clean-room recovery and prompt-stack pre-push host-compat lanes
 - aligned the governance closeout builder with `trusted_pr` route exemptions so
   pre-push closeout no longer fails on missing `upstream_inventory_report` /
   `upstream_same_run_cohesion` artifacts when the evidence manifest has already

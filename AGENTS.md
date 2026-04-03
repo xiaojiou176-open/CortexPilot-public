@@ -112,7 +112,9 @@ Work in CortexPilot as a contract-first engineering agent:
   second while keeping dotenv and shell-export fallbacks disabled on mainline;
   staged dashboard UI-audit workspaces must also keep package-local frontend
   sources inside the temporary workspace root instead of relying on out-of-root
-  symlinks that Turbopack rejects
+  symlinks that Turbopack rejects, and repeated pnpm `ERR_PNPM_ENOENT`
+  recovery should escalate to workspace-local store recovery instead of
+  repeating the same failing fresh-store copy path
 - when runtime retention and space-governance contracts change, sync the root
   AI/docs entrypoints in the same patch; current examples include
   `log_lane_summary` + `space_bridge` in `retention_report.json`, serial-only
