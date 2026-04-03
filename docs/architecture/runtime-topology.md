@@ -31,6 +31,10 @@ flowchart LR
 - The same role-binding read model now persists into `manifest.json` as
   `role_binding_summary`, so post-run/read-only surfaces can inspect the same
   bundle/runtime state without promoting that summary into execution authority.
+- Role-config runtime capability previews now resolve through a lightweight
+  provider-capability helper so advisory read surfaces can keep their
+  fail-closed provider classification without importing the full transport
+  runtime on GitHub-hosted quick-path governance checks.
 - Role contracts for qualifying delivery roles now resolve `skills_bundle_ref`
   from the repo-owned `policies/skills_bundle_registry.json` surface, keeping
   skills bundle truth separate from agent defaults and MCP bundle truth.

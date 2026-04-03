@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
+import subprocess
+import sys
+import textwrap
 
 from fastapi.testclient import TestClient
 
@@ -217,3 +221,47 @@ def test_role_config_routes_fail_closed_on_invalid_provider(tmp_path: Path, monk
     )
     assert preview_response.status_code == 400
     assert preview_response.json()["detail"]["code"] == "ROLE_CONFIG_PREVIEW_INVALID"
+
+
+def test_role_config_runtime_capability_import_stays_lightweight(tmp_path: Path) -> None:
+    probe = tmp_path / "probe_role_config_import.py"
+    probe.write_text(
+        textwrap.dedent(
+            """
+            import builtins
+            import importlib
+
+            original_import = builtins.__import__
+
+            def blocked_import(name, globals=None, locals=None, fromlist=(), level=0):
+                if name == "httpx":
+                    raise ModuleNotFoundError("No module named 'httpx'")
+                return original_import(name, globals, locals, fromlist, level)
+
+            builtins.__import__ = blocked_import
+
+            module = importlib.import_module("cortexpilot_orch.contract.role_config_registry")
+            summary = module.build_runtime_capability_summary(
+                {
+                    "runner": "codex",
+                    "provider": "anthropic",
+                    "model": "claude-3-5-sonnet",
+                }
+            )
+            assert summary["provider_status"] == "allowlisted"
+            assert summary["tool_execution"] == "provider-path-required"
+            """
+        ),
+        encoding="utf-8",
+    )
+
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(Path(api_main.__file__).resolve().parents[2])
+    result = subprocess.run(
+        [sys.executable, str(probe)],
+        capture_output=True,
+        text=True,
+        env=env,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout

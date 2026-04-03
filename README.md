@@ -120,6 +120,10 @@ This repository combines:
   Feedback governance scripts can import `ContractValidator` and schedule
   boundary checks without accidentally pulling the runtime-provider stack or
   requiring `httpx` on light governance Python paths
+- **Quick Feedback light path**: role-config runtime capability summaries now
+  resolve through a lightweight provider-capability helper, so control-plane
+  previews keep their fail-closed provider posture without forcing GitHub
+  quick-path governance checks to import full runtime transport dependencies
 
 ## Quickstart
 

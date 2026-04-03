@@ -68,6 +68,11 @@ All notable changes to this repository will be documented in this file.
   `cortexpilot_orch.contract` package entrypoints, so Quick Feedback /
   schedule-boundary governance checks no longer pull runtime-provider
   dependencies like `httpx` just to import `ContractValidator`
+- hardened the Prompt 10 control-plane CI path by extracting lightweight
+  provider-capability helpers for role-config runtime summaries, registering
+  the governed env reads in `configs/env_direct_read_allowlist.json`, and
+  adding a regression that proves the role-config read surface still imports
+  when `httpx` is unavailable on quick-path governance runners
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

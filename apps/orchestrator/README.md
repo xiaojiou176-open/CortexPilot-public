@@ -127,6 +127,10 @@ bash scripts/run_orchestrator_cli.sh --help
   accidentally loading runtime-provider dependencies like `httpx`; this keeps
   Quick Feedback contract checks lightweight without changing execution
   authority or runtime capability semantics
+- the role-config runtime capability preview now resolves through
+  `src/cortexpilot_orch/runners/provider_capability.py`, which keeps the
+  advisory control-plane lane honest without forcing GitHub-hosted quick
+  hygiene checks to import the full provider transport runtime
 - `/api/contracts` now normalizes contract artifact rows into a read-only
   bundle/runtime inspector payload instead of leaving dashboard/desktop pages
   to guess from heterogeneous raw JSON blobs
