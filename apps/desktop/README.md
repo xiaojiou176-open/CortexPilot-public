@@ -50,6 +50,10 @@ npm --prefix apps/desktop run tauri:dev
   copy on the shared `@cortexpilot/frontend-shared/uiCopy` contract and route
   status labels through shared status-presentation helpers, so `en` / `zh-CN`
   operator rendering does not depend on page-local literal maps.
+- Desktop `Run Detail` now also mirrors `role_binding_read_model` inside the
+  existing `Run overview` card, so the persisted binding summary is visible on
+  the primary operator surface while `task_contract` remains the only execution
+  authority.
 - The desktop Workflow Case detail surface now mirrors the latest linked run's
   `workflow_case_read_model`, but it presents that card as read-only operator
   context rather than a second execution-authority switch.

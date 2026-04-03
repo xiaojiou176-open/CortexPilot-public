@@ -277,6 +277,55 @@ describe("RunDetailPage p0 controls", () => {
     expect(onBack).toHaveBeenCalled();
   });
 
+  it("renders the role binding read model inside the run overview card", async () => {
+    vi.mocked(fetchRun).mockResolvedValueOnce(
+      makeRun({
+        role_binding_read_model: {
+          authority: "contract-derived-read-model",
+          source: "persisted from contract",
+          execution_authority: "task_contract",
+          skills_bundle_ref: {
+            status: "registry-backed",
+            ref: "registry://skills/worker",
+            bundle_id: "worker_delivery_core_v1",
+            resolved_skill_set: ["contract_alignment"],
+            validation: "fail-closed",
+          },
+          mcp_bundle_ref: {
+            status: "registry-backed",
+            ref: "registry://mcp/worker-readonly",
+            resolved_mcp_tool_set: ["codex"],
+            validation: "fail-closed",
+          },
+          runtime_binding: {
+            status: "contract-derived",
+            authority_scope: "contract-derived-read-model",
+            source: {
+              runner: "runtime_options.runner",
+              provider: "runtime_options.provider",
+              model: "role_contract.runtime_binding.model",
+            },
+            summary: { runner: "agents", provider: "cliproxyapi", model: "gpt-5.4" },
+          },
+        },
+      }),
+    );
+
+    render(<RunDetailPage runId="run-binding" onBack={vi.fn()} />);
+
+    expect(await screen.findByRole("heading", { name: "run-001" })).toBeInTheDocument();
+    expect(screen.getByText("Role binding read model")).toBeInTheDocument();
+    expect(screen.getByText("Execution authority")).toBeInTheDocument();
+    expect(screen.getByText("task_contract")).toBeInTheDocument();
+    expect(screen.getByText("worker_delivery_core_v1 (registry-backed)")).toBeInTheDocument();
+    expect(screen.getByText("agents / cliproxyapi / gpt-5.4")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Read-only note: this mirrors the persisted binding summary. task_contract still owns execution authority.",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("recovers from error state after retry load", async () => {
     const user = userEvent.setup();
     vi.mocked(fetchRun).mockRejectedValueOnce(new Error("first fail"));
@@ -375,6 +424,38 @@ describe("RunDetailPage p0 controls", () => {
   });
 
   it("renders shared zh-CN operator copy for high-value run detail surfaces", async () => {
+    vi.mocked(fetchRun).mockResolvedValueOnce(
+      makeRun({
+        role_binding_read_model: {
+          authority: "contract-derived-read-model",
+          source: "persisted from contract",
+          execution_authority: "task_contract",
+          skills_bundle_ref: {
+            status: "registry-backed",
+            ref: "registry://skills/worker",
+            bundle_id: "worker_delivery_core_v1",
+            resolved_skill_set: ["contract_alignment"],
+            validation: "fail-closed",
+          },
+          mcp_bundle_ref: {
+            status: "registry-backed",
+            ref: "registry://mcp/worker-readonly",
+            resolved_mcp_tool_set: ["codex"],
+            validation: "fail-closed",
+          },
+          runtime_binding: {
+            status: "contract-derived",
+            authority_scope: "contract-derived-read-model",
+            source: {
+              runner: "runtime_options.runner",
+              provider: "runtime_options.provider",
+              model: "role_contract.runtime_binding.model",
+            },
+            summary: { runner: "agents", provider: "cliproxyapi", model: "gpt-5.4" },
+          },
+        },
+      }),
+    );
     render(<RunDetailPage runId="run-zh" onBack={vi.fn()} locale="zh-CN" />);
 
     expect(await screen.findByRole("heading", { name: "run-001" })).toBeInTheDocument();
@@ -385,8 +466,12 @@ describe("RunDetailPage p0 controls", () => {
     expect(screen.getByRole("button", { name: /事件时间线（1）/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "回放对比" })).toBeInTheDocument();
     expect(screen.getByText("Run 总览")).toBeInTheDocument();
+    expect(screen.getByText("角色绑定只读模型")).toBeInTheDocument();
     expect(screen.getByText("执行角色")).toBeInTheDocument();
     expect(screen.getByText("证据与可追溯性")).toBeInTheDocument();
+    expect(
+      screen.getByText("只读说明：这里展示的是持久化的角色绑定摘要镜像；`task_contract` 仍然掌握执行权威。"),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "提升为证据" })).toBeInTheDocument();
   });
 

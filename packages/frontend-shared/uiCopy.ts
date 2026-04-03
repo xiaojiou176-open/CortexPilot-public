@@ -336,6 +336,16 @@ export type UiCopy = {
         executionRolesTitle: string;
         evidenceTitle: string;
       };
+      bindingReadModel: {
+        title: string;
+        authority: string;
+        source: string;
+        executionAuthority: string;
+        skillsBundle: string;
+        mcpBundle: string;
+        runtimeBinding: string;
+        readOnlyNote: string;
+      };
       fieldLabels: {
         runId: string;
         taskId: string;
@@ -1000,6 +1010,17 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           overviewTitle: "Run overview",
           executionRolesTitle: "Execution roles",
           evidenceTitle: "Evidence and traceability",
+        },
+        bindingReadModel: {
+          title: "Role binding read model",
+          authority: "Authority",
+          source: "Source",
+          executionAuthority: "Execution authority",
+          skillsBundle: "Skills bundle",
+          mcpBundle: "MCP bundle",
+          runtimeBinding: "Runtime binding",
+          readOnlyNote:
+            "Read-only note: this mirrors the persisted binding summary. task_contract still owns execution authority.",
         },
         fieldLabels: {
           runId: "Run ID",
@@ -1692,6 +1713,17 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           overviewTitle: "Run 总览",
           executionRolesTitle: "执行角色",
           evidenceTitle: "证据与可追溯性",
+        },
+        bindingReadModel: {
+          title: "角色绑定只读模型",
+          authority: "权威来源",
+          source: "来源",
+          executionAuthority: "执行权威",
+          skillsBundle: "技能包",
+          mcpBundle: "MCP 包",
+          runtimeBinding: "运行时绑定",
+          readOnlyNote:
+            "只读说明：这里展示的是持久化的角色绑定摘要镜像；`task_contract` 仍然掌握执行权威。",
         },
         fieldLabels: {
           runId: "Run ID",

@@ -160,6 +160,65 @@ describe("RunDetail core flows", () => {
     vi.useRealTimers();
   });
 
+  it("renders the role binding read model in the status and contract card", async () => {
+    const run = {
+      run_id: "run_binding",
+      task_id: "task_binding",
+      status: "RUNNING",
+      allowed_paths: ["apps/dashboard"],
+      contract: {},
+      manifest: {},
+      role_binding_read_model: {
+        authority: "contract-derived-read-model",
+        source: "persisted from contract",
+        execution_authority: "task_contract",
+        skills_bundle_ref: {
+          status: "registry-backed",
+          ref: "registry://skills/worker",
+          bundle_id: "worker_delivery_core_v1",
+          resolved_skill_set: ["contract_alignment"],
+          validation: "fail-closed",
+        },
+        mcp_bundle_ref: {
+          status: "registry-backed",
+          ref: "registry://mcp/worker-readonly",
+          resolved_mcp_tool_set: ["codex"],
+          validation: "fail-closed",
+        },
+        runtime_binding: {
+          status: "contract-derived",
+          authority_scope: "contract-derived-read-model",
+          source: {
+            runner: "runtime_options.runner",
+            provider: "runtime_options.provider",
+            model: "role_contract.runtime_binding.model",
+          },
+          summary: { runner: "agents", provider: "cliproxyapi", model: "gpt-5.4" },
+        },
+      },
+    };
+    const fetchMock = mockFetchFactory({ events: [], reports: [], availableRuns: [] });
+    // @ts-expect-error test override
+    global.fetch = fetchMock;
+
+    render(<RunDetail run={run as any} events={[]} diff="" reports={[]} />);
+    await act(async () => {
+      await flushPromises();
+    });
+
+    expect(screen.getByText("Role binding read model")).toBeInTheDocument();
+    expect(screen.getByText("Authority: contract-derived-read-model")).toBeInTheDocument();
+    expect(screen.getByText("Execution authority: task_contract")).toBeInTheDocument();
+    expect(screen.getByText("Skills bundle: worker_delivery_core_v1 (registry-backed)")).toBeInTheDocument();
+    expect(screen.getByText("MCP bundle: registry://mcp/worker-readonly (registry-backed)")).toBeInTheDocument();
+    expect(screen.getByText("Runtime binding: agents / cliproxyapi / gpt-5.4")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Read-only note: this mirrors the persisted binding summary. task_contract still owns execution authority.",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("uses SSE transport and consumes stream events", async () => {
     const run = {
       run_id: "run_sse",

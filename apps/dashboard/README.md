@@ -45,8 +45,10 @@ finished consumer product.
 - Workflow views: workflow-case summaries derived from run manifests and PM
   session bindings, now with queue/SLA read surfaces and a read-only
   `Workflow read model` card sourced from `workflow_case_read_model`.
-- Run Detail: incident packs, approval summaries, and replay compare reports as
-  operator-readable decision objects.
+- Run Detail: incident packs, approval summaries, replay compare reports, and a
+  read-only role-binding summary in the existing `Status & Contract` card, so
+  bundle/runtime posture is visible on the main run surface without creating a
+  second execution-authority switch.
 - Builder/public discovery: the home builder section now surfaces direct
   `Read-only MCP quickstart` and `API and contract quickstart` entry cards so
   operators can jump from the web control surface into the truthful public
@@ -104,3 +106,6 @@ finished consumer product.
 - Workflow Case detail now also renders the latest linked run's
   `workflow_case_read_model` for operator inspection, but that card remains a
   read-only mirror below `task_contract` execution authority.
+- Run Detail now mirrors `role_binding_read_model` inside the existing
+  `Status & Contract` card, and that note keeps `task_contract` explicit as the
+  only execution authority.

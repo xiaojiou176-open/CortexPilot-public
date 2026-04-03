@@ -17,6 +17,7 @@ This package is useful when you want one import boundary for:
 - run/workflow binding read models that stay explicitly below execution authority
 - PM intake and command-tower overview routes
 - approvals, reviews, and operator-facing control-plane reads
+- contract-backed workflow, queue, PM-session, and command-tower path/query bindings
 
 ## Minimal example
 
@@ -36,6 +37,9 @@ const workflows = await client.fetchWorkflows();
 
 - This is a thin client surface, not a full SDK platform.
 - It wraps the current HTTP routes that power the dashboard and desktop shells.
+- Where `@cortexpilot/frontend-api-contract` already publishes frontend-safe
+  route or query truth, this client reuses that contract instead of keeping a
+  second handwritten path map.
 - It does not replace the backend orchestration runtime or the read-only MCP
   server.
 - Prompt 7-style frontend slices should treat `role_binding_read_model` and

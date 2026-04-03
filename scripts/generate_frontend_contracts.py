@@ -30,7 +30,6 @@ def _tuple_union(values: list[str]) -> tuple[str, str]:
 
 
 def build_index_js(ext: dict) -> str:
-    ui_flow = ext["uiFlow"]
     return f"""// GENERATED FILE. DO NOT EDIT.
 // Source: docs/api/openapi.cortexpilot.json
 
@@ -41,6 +40,7 @@ export const FRONTEND_API_CONTRACT = { _json_js({
     "network": ext["network"],
     "query": ext["query"],
     "paths": ext["paths"],
+    "readModels": ext["readModels"],
 }) };
 
 export const PM_SESSION_SORT_OPTIONS = { _json_js(ext["pmSessionSortOptions"]) };
@@ -78,6 +78,7 @@ const FRONTEND_API_CONTRACT = { _json_js({
     "network": ext["network"],
     "query": ext["query"],
     "paths": ext["paths"],
+    "readModels": ext["readModels"],
 }) };
 
 const PM_SESSION_SORT_OPTIONS = { _json_js(ext["pmSessionSortOptions"]) };
@@ -107,6 +108,19 @@ module.exports = {{
 
 def build_index_dts(ext: dict) -> str:
     sort_tuple, sort_union = _tuple_union(ext["pmSessionSortOptions"])
+    read_models = ext["readModels"]
+    binding_status_tuple, binding_status_union = _tuple_union(read_models["bindingStatuses"])
+    binding_validation_tuple, binding_validation_union = _tuple_union(read_models["bindingValidationModes"])
+    execution_authority_tuple, execution_authority_union = _tuple_union(read_models["executionAuthorities"])
+    runtime_status_tuple, runtime_status_union = _tuple_union(read_models["runtimeBindingStatuses"])
+    runtime_scope_tuple, runtime_scope_union = _tuple_union(read_models["runtimeBindingAuthorityScopes"])
+    runtime_runner_tuple, runtime_runner_union = _tuple_union(read_models["runtimeBindingSourceRunners"])
+    runtime_provider_tuple, runtime_provider_union = _tuple_union(read_models["runtimeBindingSourceProviders"])
+    runtime_model_tuple, runtime_model_union = _tuple_union(read_models["runtimeBindingSourceModels"])
+    role_binding_authority_tuple, role_binding_authority_union = _tuple_union(read_models["roleBindingAuthorities"])
+    role_binding_source_tuple, role_binding_source_union = _tuple_union(read_models["roleBindingSources"])
+    workflow_authority_tuple, workflow_authority_union = _tuple_union(read_models["workflowCaseAuthorities"])
+    workflow_source_tuple, workflow_source_union = _tuple_union(read_models["workflowCaseSources"])
     return f"""// GENERATED FILE. DO NOT EDIT.
 // Source: docs/api/openapi.cortexpilot.json
 
@@ -136,8 +150,31 @@ export declare const FRONTEND_API_CONTRACT: {{
   readonly paths: {{
     readonly commandTowerOverview: "{ext["paths"]["commandTowerOverview"]}";
     readonly commandTowerAlerts: "{ext["paths"]["commandTowerAlerts"]}";
+    readonly runs: "{ext["paths"]["runs"]}";
+    readonly runDetail: "{ext["paths"]["runDetail"]}";
+    readonly runEvents: "{ext["paths"]["runEvents"]}";
+    readonly runEventsStream: "{ext["paths"]["runEventsStream"]}";
+    readonly runDiff: "{ext["paths"]["runDiff"]}";
+    readonly runReports: "{ext["paths"]["runReports"]}";
+    readonly queue: "{ext["paths"]["queue"]}";
+    readonly workflows: "{ext["paths"]["workflows"]}";
+    readonly workflowDetail: "{ext["paths"]["workflowDetail"]}";
     readonly pmSessions: "{ext["paths"]["pmSessions"]}";
     readonly pmSessionMessages: "{ext["paths"]["pmSessionMessages"]}";
+  }};
+  readonly readModels: {{
+    readonly bindingStatuses: readonly [{binding_status_tuple}];
+    readonly bindingValidationModes: readonly [{binding_validation_tuple}];
+    readonly executionAuthorities: readonly [{execution_authority_tuple}];
+    readonly runtimeBindingStatuses: readonly [{runtime_status_tuple}];
+    readonly runtimeBindingAuthorityScopes: readonly [{runtime_scope_tuple}];
+    readonly runtimeBindingSourceRunners: readonly [{runtime_runner_tuple}];
+    readonly runtimeBindingSourceProviders: readonly [{runtime_provider_tuple}];
+    readonly runtimeBindingSourceModels: readonly [{runtime_model_tuple}];
+    readonly roleBindingAuthorities: readonly [{role_binding_authority_tuple}];
+    readonly roleBindingSources: readonly [{role_binding_source_tuple}];
+    readonly workflowCaseAuthorities: readonly [{workflow_authority_tuple}];
+    readonly workflowCaseSources: readonly [{workflow_source_tuple}];
   }};
 }};
 export declare const PM_SESSION_SORT_OPTIONS: readonly [{sort_tuple}];
@@ -154,6 +191,63 @@ export declare function mapBadgeByToken(
   defaultToken?: string,
 ): BadgePresentation;
 export type FrontendApiContract = typeof FRONTEND_API_CONTRACT;
+export type BindingReadModelStatus = {binding_status_union};
+export type BindingValidationMode = {binding_validation_union};
+export type ExecutionAuthority = {execution_authority_union};
+export type RuntimeBindingStatus = {runtime_status_union};
+export type RuntimeBindingAuthorityScope = {runtime_scope_union};
+export type RuntimeBindingSourceRunner = {runtime_runner_union};
+export type RuntimeBindingSourceProvider = {runtime_provider_union};
+export type RuntimeBindingSourceModel = {runtime_model_union};
+export type RoleBindingReadModelAuthority = {role_binding_authority_union};
+export type RoleBindingReadModelSource = {role_binding_source_union};
+export type WorkflowCaseReadModelAuthority = {workflow_authority_union};
+export type WorkflowCaseReadModelSource = {workflow_source_union};
+export type RuntimeBindingSourceSummary = {{
+  runner: RuntimeBindingSourceRunner;
+  provider: RuntimeBindingSourceProvider;
+  model: RuntimeBindingSourceModel;
+}};
+export type RuntimeBindingValueSummary = {{
+  runner: string | null;
+  provider: string | null;
+  model: string | null;
+}};
+export type SkillsBundleReadModel = {{
+  status: BindingReadModelStatus;
+  ref: string | null;
+  bundle_id: string | null;
+  resolved_skill_set: string[];
+  validation: BindingValidationMode;
+}};
+export type McpBundleReadModel = {{
+  status: BindingReadModelStatus;
+  ref: string | null;
+  resolved_mcp_tool_set: string[];
+  validation: BindingValidationMode;
+}};
+export type RuntimeBindingReadModel = {{
+  status: RuntimeBindingStatus;
+  authority_scope: RuntimeBindingAuthorityScope;
+  source: RuntimeBindingSourceSummary;
+  summary: RuntimeBindingValueSummary;
+}};
+export type RoleBindingReadModel = {{
+  authority: RoleBindingReadModelAuthority;
+  source: RoleBindingReadModelSource;
+  execution_authority: ExecutionAuthority;
+  skills_bundle_ref: SkillsBundleReadModel;
+  mcp_bundle_ref: McpBundleReadModel;
+  runtime_binding: RuntimeBindingReadModel;
+}};
+export type WorkflowCaseReadModel = {{
+  authority: WorkflowCaseReadModelAuthority;
+  source: WorkflowCaseReadModelSource;
+  execution_authority: ExecutionAuthority;
+  workflow_id: string;
+  source_run_id: string;
+  role_binding_summary: RoleBindingReadModel;
+}};
 export {{
   PM_JOURNEY_STAGES,
   COMMAND_TOWER_PRIORITY_LANES,

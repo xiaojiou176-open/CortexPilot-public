@@ -1,11 +1,18 @@
 "use client";
 
+import { DEFAULT_UI_LOCALE, getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
 import Link from "next/link";
 import ContractViewer from "../ContractViewer";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
-import type { EventRecord, RunContract, RunDetailPayload } from "../../lib/types";
+import {
+  formatBindingReadModelLabel,
+  formatRoleBindingRuntimeSummary,
+  type EventRecord,
+  type RunContract,
+  type RunDetailPayload,
+} from "../../lib/types";
 import type { LifecycleBadge, LiveMode, LiveTransport } from "./runDetailHelpers";
 import { badgeVariantForStage, liveBadgeVariant, liveLabel, toArray, toDisplayText, toObject } from "./runDetailHelpers";
 
@@ -60,12 +67,14 @@ export default function RunDetailStatusContractCard({
   onOpenReports,
   failedTerminalActionFeedback,
 }: RunDetailStatusContractCardProps) {
+  const bindingReadModelCopy = getUiCopy(DEFAULT_UI_LOCALE).desktop.runDetail.bindingReadModel;
   const terminal = terminalStatus.toUpperCase();
   const isTerminal = terminal === "FAILED" || terminal === "ERROR" || terminal === "SUCCESS" || terminal === "DONE" || terminal === "REJECTED";
   const isFailedTerminal = terminal === "FAILED" || terminal === "ERROR" || terminal === "REJECTED";
   const allowedPaths = toArray(run.allowed_paths);
   const evidenceEntries = Object.entries(toObject(evidenceHashes));
   const artifactList = toArray(manifestArtifacts);
+  const roleBindingReadModel = run.role_binding_read_model;
 
   return (
     <Card>
@@ -181,6 +190,28 @@ export default function RunDetailStatusContractCard({
         <summary className="mono">Expand evidence hashes</summary>
         <pre className="mono">{JSON.stringify(toObject(evidenceHashes), null, 2)}</pre>
       </details>
+      {roleBindingReadModel ? (
+        <div className="run-detail-section" data-testid="run-role-binding-read-model">
+          <div className="mono run-detail-section-label">{bindingReadModelCopy.title}</div>
+          <div className="mono">{bindingReadModelCopy.authority}: {toDisplayText(roleBindingReadModel.authority)}</div>
+          <div className="mono">{bindingReadModelCopy.source}: {toDisplayText(roleBindingReadModel.source)}</div>
+          <div className="mono">
+            {bindingReadModelCopy.executionAuthority}: {toDisplayText(roleBindingReadModel.execution_authority)}
+          </div>
+          <div className="mono">
+            {bindingReadModelCopy.skillsBundle}: {formatBindingReadModelLabel(roleBindingReadModel.skills_bundle_ref)}
+          </div>
+          <div className="mono">
+            {bindingReadModelCopy.mcpBundle}: {formatBindingReadModelLabel(roleBindingReadModel.mcp_bundle_ref)}
+          </div>
+          <div className="mono">
+            {bindingReadModelCopy.runtimeBinding}: {formatRoleBindingRuntimeSummary(roleBindingReadModel)}
+          </div>
+          <div className="mono muted">
+            {bindingReadModelCopy.readOnlyNote}
+          </div>
+        </div>
+      ) : null}
       <div className="mono">Manifest artifacts:</div>
       <div className="mono muted">{artifactList.length} artifact{artifactList.length === 1 ? "" : "s"}</div>
       <details>

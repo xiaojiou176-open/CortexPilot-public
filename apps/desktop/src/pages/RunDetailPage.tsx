@@ -1,6 +1,15 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
-import type { RunDetailPayload, EventRecord, ReportRecord, ToolCallRecord, JsonValue, RunSummary } from "../lib/types";
+import {
+  formatBindingReadModelLabel,
+  formatRoleBindingRuntimeSummary,
+  type RunDetailPayload,
+  type EventRecord,
+  type ReportRecord,
+  type ToolCallRecord,
+  type JsonValue,
+  type RunSummary,
+} from "../lib/types";
 import {
   fetchRun, fetchEvents, fetchDiff, fetchReports, fetchToolCalls, fetchChainSpec,
   fetchAgentStatus, fetchRuns, rollbackRun, rejectRun, replayRun, promoteEvidence, fetchOperatorCopilotBrief,
@@ -363,6 +372,7 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
     asNumber(compareSummary.extra_count);
   const traceId = toStr(run.manifest?.trace_id, toStr(run.manifest?.trace?.trace_id));
   const workflowId = toStr(run.manifest?.workflow?.workflow_id);
+  const roleBindingReadModel = run.role_binding_read_model;
   const isTerminal = isTerminalStatus(run.status);
   const pendingApprovals = events.filter(ev => (ev.event || "").toUpperCase() === "HUMAN_APPROVAL_REQUIRED");
   const semanticType = outcomeSemantic(run.outcome_type, run.status, run.failure_class, run.failure_code);
@@ -458,6 +468,20 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
               {workflowId !== "-" && <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.workflow}</span><span className="data-list-value mono">{workflowId}</span></div>}
               {run.failure_reason && <div className="data-list-row"><span className="data-list-label">{runDetailCopy.fieldLabels.failureReason}</span><span className="data-list-value cell-danger">{run.failure_reason}</span></div>}
             </div>
+            {roleBindingReadModel ? (
+              <div className="stack-gap-2 mt-3" data-testid="run-detail-role-binding-read-model">
+                <div className="muted text-xs fw-500">{runDetailCopy.bindingReadModel.title}</div>
+                <div className="data-list">
+                  <div className="data-list-row"><span className="data-list-label">{runDetailCopy.bindingReadModel.authority}</span><span className="data-list-value mono">{toStr(roleBindingReadModel.authority)}</span></div>
+                  <div className="data-list-row"><span className="data-list-label">{runDetailCopy.bindingReadModel.source}</span><span className="data-list-value mono">{toStr(roleBindingReadModel.source)}</span></div>
+                  <div className="data-list-row"><span className="data-list-label">{runDetailCopy.bindingReadModel.executionAuthority}</span><span className="data-list-value mono">{toStr(roleBindingReadModel.execution_authority)}</span></div>
+                  <div className="data-list-row"><span className="data-list-label">{runDetailCopy.bindingReadModel.skillsBundle}</span><span className="data-list-value mono">{formatBindingReadModelLabel(roleBindingReadModel.skills_bundle_ref)}</span></div>
+                  <div className="data-list-row"><span className="data-list-label">{runDetailCopy.bindingReadModel.mcpBundle}</span><span className="data-list-value mono">{formatBindingReadModelLabel(roleBindingReadModel.mcp_bundle_ref)}</span></div>
+                  <div className="data-list-row"><span className="data-list-label">{runDetailCopy.bindingReadModel.runtimeBinding}</span><span className="data-list-value mono">{formatRoleBindingRuntimeSummary(roleBindingReadModel)}</span></div>
+                </div>
+                <div className="muted text-xs">{runDetailCopy.bindingReadModel.readOnlyNote}</div>
+              </div>
+            ) : null}
           </CardBody>
         </Card>
 
