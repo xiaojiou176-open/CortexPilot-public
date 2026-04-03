@@ -80,6 +80,11 @@ All notable changes to this repository will be documented in this file.
   pre-push closeout no longer fails on missing `upstream_inventory_report` /
   `upstream_same_run_cohesion` artifacts when the evidence manifest has already
   marked those upstream checks as route-exempt on PR-bound lanes
+- hardened `scripts/check_log_event_contract.py` so backend log-contract
+  samples can bootstrap a repo-owned Python toolchain when the active
+  interpreter cannot import orchestrator logging dependencies, keeping
+  containerized pre-push governance lanes from failing on `/usr/bin/python3`
+  drift alone
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced
