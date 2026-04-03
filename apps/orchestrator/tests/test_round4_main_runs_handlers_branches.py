@@ -463,6 +463,7 @@ def test_round4_search_promote_replay_and_contract_branches(tmp_path: Path) -> N
     assert status_payload == {"run_id": "run-x", "status": "ok"}
 
     contracts = handlers["list_contracts"]()
-    by_source = {item["_source"]: item for item in contracts}
-    assert by_source["examples"]["raw_error"] == "read_failed"
-    assert by_source["tasks"]["raw"] == "RAW"
+    by_source = {item["source"]: item for item in contracts}
+    assert by_source["examples"]["record_status"] == "read-failed"
+    assert by_source["tasks"]["record_status"] == "raw"
+    assert by_source["tasks"]["raw_preview"] == "RAW"

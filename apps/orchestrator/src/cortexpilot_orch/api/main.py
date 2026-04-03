@@ -32,6 +32,7 @@ from cortexpilot_orch.api import (
     search_payload_helpers,
 )
 from cortexpilot_orch.config import get_api_runtime_config, load_config
+from cortexpilot_orch.contract.compiler import build_role_binding_summary
 from cortexpilot_orch.contract.validator import resolve_agent_registry_path
 from cortexpilot_orch.observability.logger import log_event
 from cortexpilot_orch.services.orchestration_service import OrchestrationService
@@ -549,6 +550,7 @@ _runs_handler_map = main_runs_handlers.build_runs_handlers(
     list_agents_fn=lambda: main_run_views_helpers.list_agents(
         load_agent_registry_fn=_load_agent_registry,
         load_locks_fn=_load_locks,
+        build_role_binding_summary_fn=build_role_binding_summary,
     ),
     list_agents_status_fn=lambda run_id=None: main_run_views_helpers.list_agents_status(
         run_id=run_id,

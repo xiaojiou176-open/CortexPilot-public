@@ -156,6 +156,9 @@ export declare const FRONTEND_API_CONTRACT: {{
     readonly runEventsStream: "{ext["paths"]["runEventsStream"]}";
     readonly runDiff: "{ext["paths"]["runDiff"]}";
     readonly runReports: "{ext["paths"]["runReports"]}";
+    readonly agents: "{ext["paths"]["agents"]}";
+    readonly agentStatus: "{ext["paths"]["agentStatus"]}";
+    readonly contracts: "{ext["paths"]["contracts"]}";
     readonly queue: "{ext["paths"]["queue"]}";
     readonly workflows: "{ext["paths"]["workflows"]}";
     readonly workflowDetail: "{ext["paths"]["workflowDetail"]}";
@@ -247,6 +250,74 @@ export type WorkflowCaseReadModel = {{
   workflow_id: string;
   source_run_id: string;
   role_binding_summary: RoleBindingReadModel;
+}};
+export type AgentCatalogRecord = {{
+  agent_id: string | null;
+  role: string | null;
+  sandbox: string | null;
+  approval_policy: string | null;
+  network: string | null;
+  mcp_tools: string[];
+  notes: string | null;
+  lock_count: number;
+  locked_paths: string[];
+}};
+export type AgentLockRecord = {{
+  lock_id?: string | null;
+  run_id?: string | null;
+  agent_id?: string | null;
+  role?: string | null;
+  path?: string | null;
+  ts?: string | null;
+}};
+export type RoleCatalogRecord = {{
+  role: string;
+  purpose: string | null;
+  system_prompt_ref: string | null;
+  handoff_eligible: boolean;
+  required_downstream_roles: string[];
+  fail_closed_conditions: string[];
+  registered_agent_count: number;
+  locked_agent_count: number;
+  role_binding_read_model: RoleBindingReadModel;
+}};
+export type AgentCatalogPayload = {{
+  agents: AgentCatalogRecord[];
+  locks: AgentLockRecord[];
+  role_catalog: RoleCatalogRecord[];
+}};
+export type AgentStatusRecord = {{
+  run_id: string;
+  task_id: string | null;
+  agent_id: string;
+  role: string;
+  stage: string;
+  worktree: string;
+  allowed_paths: string[];
+  locked_paths: string[];
+  current_files: string[];
+}};
+export type AgentStatusPayload = {{
+  agents: AgentStatusRecord[];
+}};
+export type ContractCatalogRecordStatus = "structured" | "raw" | "read-failed";
+export type ContractCatalogRecord = {{
+  source: string | null;
+  path: string;
+  record_status: ContractCatalogRecordStatus;
+  task_id: string | null;
+  run_id: string | null;
+  allowed_paths: string[];
+  acceptance_tests: string[];
+  tool_permissions: Record<string, unknown> | null;
+  owner_agent_id: string | null;
+  owner_role: string | null;
+  assigned_agent_id: string | null;
+  assigned_role: string | null;
+  execution_authority: ExecutionAuthority | null;
+  role_binding_read_model: RoleBindingReadModel | null;
+  payload: Record<string, unknown> | null;
+  raw_preview: string | null;
 }};
 export {{
   PM_JOURNEY_STAGES,

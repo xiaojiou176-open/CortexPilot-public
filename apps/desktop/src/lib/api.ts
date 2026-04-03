@@ -1,6 +1,8 @@
 import { createDesktopApiClient, type RequestControlOptions } from "@cortexpilot/frontend-api-client";
 import type { PmSessionSort } from "@cortexpilot/frontend-api-contract";
 import type {
+  AgentCatalogPayload,
+  AgentStatusPayload,
   CommandTowerAlertsPayload,
   CommandTowerOverviewPayload,
   ContractRecord,
@@ -189,11 +191,11 @@ export async function fetchTests() {
 
 /* ─── Agents ─── */
 export async function fetchAgents() {
-  return withNormalizedError(() => desktopApiClient.fetchAgents() as Promise<Record<string, JsonValue>>);
+  return withNormalizedError(() => desktopApiClient.fetchAgents() as Promise<AgentCatalogPayload>);
 }
 
 export async function fetchAgentStatus(runId?: string) {
-  return withNormalizedError(() => desktopApiClient.fetchAgentStatus(runId) as Promise<Record<string, JsonValue>>);
+  return withNormalizedError(() => desktopApiClient.fetchAgentStatus(runId) as Promise<AgentStatusPayload>);
 }
 
 /* ─── Policies ─── */

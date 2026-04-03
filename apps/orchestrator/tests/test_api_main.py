@@ -570,7 +570,10 @@ def test_api_replay_and_contracts_and_god_mode(tmp_path: Path, monkeypatch) -> N
     _write_manifest(run_current, {"run_id": "run_current", "task_id": "task", "status": "SUCCESS", "created_at": now.isoformat()})
     _write_manifest(run_baseline, {"run_id": "run_baseline", "task_id": "task", "status": "SUCCESS", "created_at": (now - timedelta(minutes=1)).isoformat()})
 
-    (examples / "contract.json").write_text(json.dumps({"task_id": "example"}), encoding="utf-8")
+    (examples / "contract.json").write_text(
+        json.dumps({"task_id": "example", "assigned_agent": {"agent_id": "agent-1", "role": "WORKER"}}),
+        encoding="utf-8",
+    )
 
     class DummyOrchestrationService:
         def replay_run(self, run_id: str, baseline_run_id: str | None = None) -> dict:
@@ -594,6 +597,8 @@ def test_api_replay_and_contracts_and_god_mode(tmp_path: Path, monkeypatch) -> N
     contracts = client.get("/api/contracts")
     assert contracts.status_code == 200
     assert contracts.json()[0]["task_id"] == "example"
+    assert contracts.json()[0]["source"] == "examples"
+    assert contracts.json()[0]["execution_authority"] == "task_contract"
 
     store = RunStore(runs_root=runs_root)
     monkeypatch.setattr(run_store_module, "_default_store", store)

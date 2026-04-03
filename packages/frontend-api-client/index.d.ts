@@ -1,3 +1,9 @@
+import type {
+  AgentCatalogPayload,
+  AgentStatusPayload,
+  ContractCatalogRecord,
+} from "@cortexpilot/frontend-api-contract";
+
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 export type CortexPilotLogDomain = "runtime" | "api" | "ui" | "desktop" | "ci" | "e2e" | "test" | "governance";
@@ -39,13 +45,13 @@ export type FrontendApiClient = {
   replayRun: (runId: string, baselineRunId?: string) => Promise<unknown>;
   fetchToolCalls: (runId: string) => Promise<unknown>;
   fetchChainSpec: (runId: string) => Promise<unknown>;
-  fetchContracts: () => Promise<unknown>;
+  fetchContracts: () => Promise<ContractCatalogRecord[]>;
   fetchAllEvents: () => Promise<unknown>;
   fetchDiffGate: () => Promise<unknown>;
   fetchReviews: () => Promise<unknown>;
   fetchTests: () => Promise<unknown>;
-  fetchAgents: () => Promise<unknown>;
-  fetchAgentStatus: (runId?: string) => Promise<unknown>;
+  fetchAgents: () => Promise<AgentCatalogPayload>;
+  fetchAgentStatus: (runId?: string) => Promise<AgentStatusPayload>;
   fetchPolicies: () => Promise<unknown>;
   fetchLocks: () => Promise<unknown>;
   releaseLocks: (paths: string[]) => Promise<unknown>;

@@ -176,7 +176,7 @@ function createClient(options = {}) {
   }
 
   async function fetchContracts() {
-    return http.getJson("/api/contracts");
+    return http.getJson(paths.contracts);
   }
 
   async function fetchAllEvents() {
@@ -196,12 +196,15 @@ function createClient(options = {}) {
   }
 
   async function fetchAgents() {
-    return http.getJson("/api/agents");
+    return http.getJson(paths.agents);
   }
 
   async function fetchAgentStatus(runId) {
-    const suffix = runId ? `?run_id=${encodeURIComponent(runId)}` : "";
-    return http.getJson(`/api/agents/status${suffix}`, runId ? { runId } : {});
+    const params = new URLSearchParams();
+    if (typeof runId === "string" && runId.trim()) {
+      params.set("run_id", runId.trim());
+    }
+    return http.getJson(withQuery(paths.agentStatus, params), runId ? { runId } : {});
   }
 
   async function fetchPolicies() {

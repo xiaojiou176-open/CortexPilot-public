@@ -124,7 +124,7 @@ describe("desktop p1 controls", () => {
     });
 
     vi.mocked(fetchAgents).mockResolvedValue({ agents: [] } as any);
-    vi.mocked(fetchAgentStatus).mockResolvedValue({ machines: [] } as any);
+    vi.mocked(fetchAgentStatus).mockResolvedValue({ agents: [] } as any);
     vi.mocked(fetchCommandTowerOverview).mockResolvedValue({
       total_sessions: 2,
       active_sessions: 1,

@@ -168,6 +168,27 @@ test("dashboard client uses contract workflow and queue paths", async () => {
   assert.equal(queueUrl.searchParams.get("status"), "running");
 });
 
+test("dashboard client uses contract-backed agents and contracts paths", async () => {
+  const calls = [];
+  const client = createDashboardApiClient({
+    baseUrl: "http://127.0.0.1:10000",
+    fetchImpl: async (url, init) => {
+      calls.push({ url, init });
+      return createJsonResponse({ ok: true });
+    },
+  });
+
+  await client.fetchAgents();
+  await client.fetchAgentStatus();
+  await client.fetchAgentStatus("run/1");
+  await client.fetchContracts();
+
+  assert.equal(calls[0].url, `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.agents}`);
+  assert.equal(calls[1].url, `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.agentStatus}`);
+  assert.equal(calls[2].url, `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.agentStatus}?run_id=run%2F1`);
+  assert.equal(calls[3].url, `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.contracts}`);
+});
+
 test("dashboard client attaches operator role only for mutation requests", async () => {
   const calls = [];
   const client = createDashboardApiClient({

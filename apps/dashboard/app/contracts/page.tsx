@@ -4,15 +4,8 @@ import { Card, CardContent, CardHeader } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { fetchContracts } from "../../lib/api";
 import { safeLoad } from "../../lib/serverPageData";
-import type { ContractRecord, RunContract } from "../../lib/types";
-
-function resolveContractPayload(contract: ContractRecord): RunContract {
-  const payload = contract.payload;
-  if (payload && typeof payload === "object" && !Array.isArray(payload)) {
-    return payload;
-  }
-  return contract;
-}
+import type { ContractRecord } from "../../lib/types";
+import { formatBindingReadModelLabel, formatRoleBindingRuntimeSummary } from "../../lib/types";
 
 function summarizeToolPermissions(value: unknown): string[] {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -35,9 +28,8 @@ export default async function ContractsPage({
   const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? limitRaw : DEFAULT_CONTRACT_LIMIT;
   const filteredContracts = contracts.filter((contract) => {
     if (!query) return true;
-    const payload = resolveContractPayload(contract);
-    const allowedPaths = Array.isArray(payload.allowed_paths) ? payload.allowed_paths : [];
-    return [contract._path, contract._source, payload.task_id, payload.run_id, ...allowedPaths.map((p) => String(p))]
+    const allowedPaths = Array.isArray(contract.allowed_paths) ? contract.allowed_paths : [];
+    return [contract.path, contract.source, contract.task_id, contract.run_id, contract.assigned_role, ...allowedPaths.map((p) => String(p))]
       .map((value) => String(value || "").toLowerCase())
       .some((value) => value.includes(query));
   });
@@ -49,7 +41,7 @@ export default async function ContractsPage({
         <div className="section-header">
           <div>
             <h1 id="contracts-page-title" className="page-title">Contracts</h1>
-            <p className="page-subtitle">Review task contracts, allowed paths, and tool-permission envelopes in one place.</p>
+            <p className="page-subtitle">Inspect task-contract envelopes, derived bundle/runtime projections, and raw artifact detail in one read-only surface.</p>
           </div>
           <Badge>{contracts.length} contracts</Badge>
         </div>
@@ -81,26 +73,61 @@ export default async function ContractsPage({
         ) : (
           <div className="grid-2">
             {visibleContracts.map((contract) => {
-              const payload = resolveContractPayload(contract);
-              const key = contract._path || payload.task_id || payload.run_id || JSON.stringify(payload).slice(0, 40);
-              const allowedPaths = Array.isArray(payload.allowed_paths) ? payload.allowed_paths : [];
-              const acceptanceTests = Array.isArray(payload.acceptance_tests) ? payload.acceptance_tests : [];
-              const toolPermissions = payload.tool_permissions || {};
+              const payload = contract.payload || {};
+              const key = contract.path || contract.task_id || contract.run_id || JSON.stringify(payload).slice(0, 40);
+              const allowedPaths = Array.isArray(contract.allowed_paths) ? contract.allowed_paths : [];
+              const acceptanceTests = Array.isArray(contract.acceptance_tests) ? contract.acceptance_tests : [];
+              const toolPermissions = contract.tool_permissions || {};
               const permissionSummary = summarizeToolPermissions(toolPermissions);
+              const roleBinding = contract.role_binding_read_model;
               return (
                 <Card key={key} variant="detail">
                   <CardHeader>
-                    <span className="card-header-title">{contract._path || payload.task_id || "Contract"}</span>
-                    <Badge>{contract._source || "unknown"}</Badge>
+                    <span className="card-header-title">{contract.path || contract.task_id || "Contract"}</span>
+                    <Badge>{contract.source || "unknown"}</Badge>
                   </CardHeader>
                   <CardContent>
                     <div className="data-list">
-                      {payload.task_id ? (
+                      {contract.task_id ? (
                         <div className="data-list-row">
                           <span className="data-list-label">Task ID</span>
-                          <span className="data-list-value mono">{payload.task_id}</span>
+                          <span className="data-list-value mono">{contract.task_id}</span>
                         </div>
                       ) : null}
+                      {contract.run_id ? (
+                        <div className="data-list-row">
+                          <span className="data-list-label">Run ID</span>
+                          <span className="data-list-value mono">{contract.run_id}</span>
+                        </div>
+                      ) : null}
+                      <div className="data-list-row">
+                        <span className="data-list-label">Assigned role</span>
+                        <span className="data-list-value">{contract.assigned_role || "Not assigned"}</span>
+                      </div>
+                      <div className="data-list-row">
+                        <span className="data-list-label">Execution authority</span>
+                        <span className="data-list-value">
+                          {contract.execution_authority ? <Badge variant="running">{contract.execution_authority}</Badge> : <span className="muted">Not published</span>}
+                        </span>
+                      </div>
+                      <div className="data-list-row">
+                        <span className="data-list-label">Skills bundle</span>
+                        <span className="data-list-value mono muted">
+                          {roleBinding ? formatBindingReadModelLabel(roleBinding.skills_bundle_ref) : "Not derived"}
+                        </span>
+                      </div>
+                      <div className="data-list-row">
+                        <span className="data-list-label">MCP bundle</span>
+                        <span className="data-list-value mono muted">
+                          {roleBinding ? formatBindingReadModelLabel(roleBinding.mcp_bundle_ref) : "Not derived"}
+                        </span>
+                      </div>
+                      <div className="data-list-row">
+                        <span className="data-list-label">Runtime binding</span>
+                        <span className="data-list-value mono muted">
+                          {roleBinding ? formatRoleBindingRuntimeSummary(roleBinding) : "Not derived"}
+                        </span>
+                      </div>
                       <div className="data-list-row">
                         <span className="data-list-label">Allowed paths</span>
                         <span className="data-list-value">
@@ -148,7 +175,7 @@ export default async function ContractsPage({
                   <details className="collapsible">
                     <summary>Full contract JSON</summary>
                     <div className="collapsible-body">
-                      <pre className="mono">{JSON.stringify(payload, null, 2)}</pre>
+                      <pre className="mono">{JSON.stringify(payload || { raw_preview: contract.raw_preview }, null, 2)}</pre>
                     </div>
                   </details>
                 </Card>

@@ -2,6 +2,8 @@ import { createAuthCore, createDashboardApiClient, createHttpCore } from "@corte
 import { FRONTEND_API_CONTRACT } from "@cortexpilot/frontend-api-contract";
 import type { PmSessionSort } from "@cortexpilot/frontend-api-contract";
 import type {
+  AgentCatalogPayload,
+  AgentStatusPayload,
   CommandTowerAlertsPayload,
   CommandTowerOverviewPayload,
   ContractRecord,
@@ -234,11 +236,11 @@ export async function fetchTests() {
 }
 
 export async function fetchAgents() {
-  return delegateGetApi<Record<string, JsonValue>>(() => sharedDashboardApi.fetchAgents());
+  return delegateGetApi<AgentCatalogPayload>(() => sharedDashboardApi.fetchAgents());
 }
 
 export async function fetchAgentStatus(runId?: string) {
-  return delegateGetApi<Record<string, JsonValue>>(() => sharedDashboardApi.fetchAgentStatus(runId));
+  return delegateGetApi<AgentStatusPayload>(() => sharedDashboardApi.fetchAgentStatus(runId));
 }
 
 export async function fetchPolicies() {

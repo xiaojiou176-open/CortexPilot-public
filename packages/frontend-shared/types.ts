@@ -1,7 +1,13 @@
 import type {
+  AgentCatalogPayload,
+  AgentCatalogRecord,
+  AgentStatusPayload,
+  AgentStatusRecord,
   BindingReadModelStatus,
   BindingValidationMode,
+  ContractCatalogRecord,
   McpBundleReadModel,
+  RoleCatalogRecord,
   RoleBindingReadModel,
   RuntimeBindingReadModel,
   RuntimeBindingSourceSummary,
@@ -11,9 +17,15 @@ import type {
 } from "../frontend-api-contract";
 
 export type {
+  AgentCatalogPayload,
+  AgentCatalogRecord,
+  AgentStatusPayload,
+  AgentStatusRecord,
   BindingReadModelStatus,
   BindingValidationMode,
+  ContractCatalogRecord,
   McpBundleReadModel,
+  RoleCatalogRecord,
   RoleBindingReadModel,
   RuntimeBindingReadModel,
   RuntimeBindingSourceSummary,
@@ -304,11 +316,7 @@ export type ToolCallRecord = {
   [key: string]: JsonValue | undefined;
 };
 
-export type ContractRecord = {
-  _source?: string;
-  _path?: string;
-  payload?: RunContract;
-} & RunContract;
+export type ContractRecord = ContractCatalogRecord;
 
 export type WorkflowRun = {
   run_id: string;

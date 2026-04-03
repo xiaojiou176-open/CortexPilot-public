@@ -90,6 +90,11 @@ This repository combines:
   expose `role_binding_read_model` on their primary operator summary surfaces,
   so the persisted binding summary is visible where operators already inspect
   run status while `task_contract` still owns execution authority
+- **Prompt 9 operator catalog**: `/api/agents` now publishes a registry-backed
+  role catalog, `/api/contracts` now exposes a normalized contract inspector
+  record, and dashboard/desktop `Agents` + `Contracts` pages project the same
+  bundle/runtime truth as read-only operator surfaces without becoming
+  execution authority or edit controls
 
 ## Quickstart
 

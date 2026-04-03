@@ -305,6 +305,17 @@ def test_api_agents_policies_locks_worktrees(tmp_path: Path, monkeypatch) -> Non
         json.dumps(
             {
                 "version": "v1",
+                "role_contracts": {
+                    "WORKER": {
+                        "purpose": "Execute the contracted change inside allowed_paths and produce structured evidence.",
+                        "system_prompt_ref": "policies/agents/codex/roles/50_worker_core.md",
+                        "skills_bundle_ref": "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+                        "mcp_bundle_ref": "policies/agent_registry.json#agents(role=WORKER).capabilities.mcp_tools",
+                        "handoff_eligible": True,
+                        "required_downstream_roles": ["REVIEWER", "TEST_RUNNER"],
+                        "fail_closed_conditions": ["Writes outside allowed_paths fail closed"],
+                    }
+                },
                 "agents": [{"agent_id": "agent-1", "role": "WORKER", "label": "worker"}],
             }
         ),
@@ -353,6 +364,8 @@ def test_api_agents_policies_locks_worktrees(tmp_path: Path, monkeypatch) -> Non
     payload = agents.json()
     assert payload["agents"][0]["agent_id"] == "agent-1"
     assert payload["agents"][0]["lock_count"] == 1
+    assert payload["role_catalog"][0]["role"] == "WORKER"
+    assert payload["role_catalog"][0]["role_binding_read_model"]["execution_authority"] == "task_contract"
 
     policies = client.get("/api/policies")
     assert policies.status_code == 200

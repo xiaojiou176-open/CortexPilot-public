@@ -80,6 +80,15 @@ def test_main_run_views_helpers_branch_matrix(tmp_path: Path) -> None:
 
     agents_payload = main_run_views_helpers.list_agents(
         load_agent_registry_fn=lambda: {
+            "role_contracts": {
+                "WORKER": {
+                    "purpose": "Execute contracted work.",
+                    "system_prompt_ref": "policies/agents/codex/roles/50_worker_core.md",
+                    "handoff_eligible": True,
+                    "required_downstream_roles": ["REVIEWER"],
+                    "fail_closed_conditions": ["scope drift"],
+                }
+            },
             "agents": [
                 {"agent_id": "agent-a", "role": "WORKER"},
                 "not-a-dict",
@@ -92,11 +101,28 @@ def test_main_run_views_helpers_branch_matrix(tmp_path: Path) -> None:
             {"agent_id": "agent-a", "path": "missing-role"},
             {"role": "WORKER", "path": "missing-id"},
         ],
+        build_role_binding_summary_fn=lambda contract: {
+            "authority": "contract-derived-read-model",
+            "source": "derived",
+            "execution_authority": "task_contract",
+            "skills_bundle_ref": {"status": "unresolved", "ref": None, "bundle_id": None, "resolved_skill_set": [], "validation": "fail-closed"},
+            "mcp_bundle_ref": {"status": "unresolved", "ref": None, "resolved_mcp_tool_set": [], "validation": "fail-closed"},
+            "runtime_binding": {
+                "status": "unresolved",
+                "authority_scope": "contract-derived-read-model",
+                "source": {"runner": "unresolved", "provider": "unresolved", "model": "unresolved"},
+                "summary": {"runner": None, "provider": None, "model": None},
+            },
+            "role": contract.get("assigned_agent", {}).get("role"),
+        },
     )
     agents_by_id = {item["agent_id"]: item for item in agents_payload["agents"]}
     assert agents_by_id["agent-a"]["lock_count"] == 2
     assert agents_by_id["agent-a"]["locked_paths"] == ["p1", "p2"]
     assert agents_by_id["agent-b"]["lock_count"] == 0
+    role_catalog = {item["role"]: item for item in agents_payload["role_catalog"]}
+    assert role_catalog["WORKER"]["registered_agent_count"] == 1
+    assert role_catalog["WORKER"]["role_binding_read_model"]["execution_authority"] == "task_contract"
 
     status_payload = main_run_views_helpers.list_agents_status(
         run_id=None,
