@@ -20,6 +20,10 @@ def test_ui_audit_container_staging_prefers_runner_temp() -> None:
     text = _read("scripts/ui_audit_gate.sh")
     assert 'if [[ "${CORTEXPILOT_CI_CONTAINER:-0}" == "1" && -n "${RUNNER_TEMP:-}" ]]; then' in text
     assert 'workspace_parent="${RUNNER_TEMP}/ui-audit-dashboard-workspace"' in text
+    assert 'frontend-api-client \\' in text
+    assert 'frontend-api-contract \\' in text
+    assert 'frontend-shared' in text
+    assert 'ln -s "${ROOT_DIR}/packages" "${stage_root}/packages"' not in text
     assert 'desktop preview exited before ready; refreshing desktop deps before fallback' in text
 
 

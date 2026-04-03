@@ -109,7 +109,10 @@ Work in CortexPilot as a contract-first engineering agent:
   credential/evidence examples also include the upstream receipt refresh
   fallback to `scripts/verify_upstream_slices.py --mode smoke` and the strict
   live-provider rule that resolves process env first and `~/.codex/config.toml`
-  second while keeping dotenv and shell-export fallbacks disabled on mainline
+  second while keeping dotenv and shell-export fallbacks disabled on mainline;
+  staged dashboard UI-audit workspaces must also keep package-local frontend
+  sources inside the temporary workspace root instead of relying on out-of-root
+  symlinks that Turbopack rejects
 - when runtime retention and space-governance contracts change, sync the root
   AI/docs entrypoints in the same patch; current examples include
   `log_lane_summary` + `space_bridge` in `retention_report.json`, serial-only
