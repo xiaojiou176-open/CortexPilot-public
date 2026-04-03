@@ -87,7 +87,9 @@ All notable changes to this repository will be documented in this file.
   samples can bootstrap a repo-owned Python toolchain when the active
   interpreter cannot import orchestrator logging dependencies, keeping
   containerized pre-push governance lanes from failing on `/usr/bin/python3`
-  drift alone
+  drift alone, and rewrote the bootstrap shell command as one explicit list
+  element so GitHub code-quality review no longer flags implicit string
+  concatenation on that fallback path
 - hardened `scripts/check_clean_room_recovery.sh` by running the repo-owned
   workspace-module cleanup before its broad runtime `rm -rf` sweep, so
   stubborn `apps/dashboard/node_modules` bind-mount residue no longer aborts

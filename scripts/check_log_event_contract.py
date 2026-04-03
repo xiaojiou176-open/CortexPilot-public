@@ -54,9 +54,7 @@ def _cortexpilot_python() -> str:
         [
             "bash",
             "-lc",
-            "bash scripts/bootstrap.sh python >/dev/null && "
-            "source scripts/lib/toolchain_env.sh && "
-            "cortexpilot_python_bin \"$PWD\"",
+            "bash scripts/bootstrap.sh python >/dev/null && source scripts/lib/toolchain_env.sh && cortexpilot_python_bin \"$PWD\"",
         ],
         cwd=ROOT,
         check=False,
