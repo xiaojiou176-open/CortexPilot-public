@@ -112,7 +112,8 @@ bash scripts/run_orchestrator_cli.sh --help
 - `/api/agents` now also publishes a registry-backed role catalog that reuses
   the same `build_role_binding_summary(...)` authority/source grammar, so
   agents surfaces can inspect role defaults without inventing a second truth
-  surface
+  surface; the lightweight provider-capability import path that feeds those
+  read models now stays free of unused helper imports and other dead-code noise
 - `/api/agents/roles/{role}/config` plus `preview` / `apply` sibling routes now
   expose the repo-owned role configuration desk for future compiled defaults;
   these routes validate refs and runtime bindings fail-closed, preview the

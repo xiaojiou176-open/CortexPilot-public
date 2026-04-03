@@ -34,7 +34,10 @@ flowchart LR
 - Role-config runtime capability previews now resolve through a lightweight
   provider-capability helper so advisory read surfaces can keep their
   fail-closed provider classification without importing the full transport
-  runtime on GitHub-hosted quick-path governance checks.
+  runtime on GitHub-hosted quick-path governance checks; the runtime-facing
+  `provider_resolution` module still re-exports the same helper names through a
+  dead-code-clean compatibility wrapper so existing callers do not lose that
+  import surface.
 - Role contracts for qualifying delivery roles now resolve `skills_bundle_ref`
   from the repo-owned `policies/skills_bundle_registry.json` surface, keeping
   skills bundle truth separate from agent defaults and MCP bundle truth.

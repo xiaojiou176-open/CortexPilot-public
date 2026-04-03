@@ -9,13 +9,12 @@ from uuid import uuid4
 
 import httpx
 
+from cortexpilot_orch.runners import provider_capability as provider_capability_module
 from cortexpilot_orch.runners.provider_capability import (
     PROVIDER_UNSUPPORTED_ERROR,
     _is_switchyard_runtime_base_url,
     _provider_gateway_ids,
     ProviderResolutionError,
-    resolve_compat_api_mode,
-    resolve_runtime_base_url_from_env,
     resolve_runtime_provider,
 )
 
@@ -33,6 +32,14 @@ _PROVIDER_DEFAULT_MODELS = {
 _LITELLM_ENABLE_ENV_KEYS = ("CORTEXPILOT_PROVIDER_USE_LITELLM",)
 _SWITCHYARD_RUNTIME_INVOKE_PATH = "/v1/runtime/invoke"
 _SWITCHYARD_WEB_PROVIDERS = {"chatgpt", "gemini", "claude", "grok", "qwen"}
+
+
+def resolve_compat_api_mode(default_api: str | None, *, base_url: str | None = None) -> str:
+    return provider_capability_module.resolve_compat_api_mode(default_api, base_url=base_url)
+
+
+def resolve_runtime_base_url_from_env(env: Mapping[str, str] | None = None) -> str:
+    return provider_capability_module.resolve_runtime_base_url_from_env(env)
 
 
 @dataclass(frozen=True)
