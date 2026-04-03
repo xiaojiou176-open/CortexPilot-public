@@ -300,6 +300,11 @@ describe("RunDetailPage p0 controls", () => {
           runtime_binding: {
             status: "contract-derived",
             authority_scope: "contract-derived-read-model",
+            source: {
+              runner: "runtime_options.runner",
+              provider: "runtime_options.provider",
+              model: "role_contract.runtime_binding.model",
+            },
             summary: { runner: "agents", provider: "cliproxyapi", model: "gpt-5.4" },
           },
         },
@@ -441,6 +446,11 @@ describe("RunDetailPage p0 controls", () => {
           runtime_binding: {
             status: "contract-derived",
             authority_scope: "contract-derived-read-model",
+            source: {
+              runner: "runtime_options.runner",
+              provider: "runtime_options.provider",
+              model: "role_contract.runtime_binding.model",
+            },
             summary: { runner: "agents", provider: "cliproxyapi", model: "gpt-5.4" },
           },
         },

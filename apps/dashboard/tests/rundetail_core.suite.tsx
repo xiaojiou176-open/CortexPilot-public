@@ -188,6 +188,11 @@ describe("RunDetail core flows", () => {
         runtime_binding: {
           status: "contract-derived",
           authority_scope: "contract-derived-read-model",
+          source: {
+            runner: "runtime_options.runner",
+            provider: "runtime_options.provider",
+            model: "role_contract.runtime_binding.model",
+          },
           summary: { runner: "agents", provider: "cliproxyapi", model: "gpt-5.4" },
         },
       },
@@ -209,7 +214,7 @@ describe("RunDetail core flows", () => {
     expect(screen.getByText("Runtime binding: agents / cliproxyapi / gpt-5.4")).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Read-only note: this mirrors the persisted binding summary; task_contract still owns execution authority.",
+        "Read-only note: this mirrors the persisted binding summary. task_contract still owns execution authority.",
       ),
     ).toBeInTheDocument();
   });

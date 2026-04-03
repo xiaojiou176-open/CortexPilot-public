@@ -1,5 +1,6 @@
 "use client";
 
+import { DEFAULT_UI_LOCALE, getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
 import Link from "next/link";
 import ContractViewer from "../ContractViewer";
 import { Badge } from "../ui/badge";
@@ -66,6 +67,7 @@ export default function RunDetailStatusContractCard({
   onOpenReports,
   failedTerminalActionFeedback,
 }: RunDetailStatusContractCardProps) {
+  const bindingReadModelCopy = getUiCopy(DEFAULT_UI_LOCALE).desktop.runDetail.bindingReadModel;
   const terminal = terminalStatus.toUpperCase();
   const isTerminal = terminal === "FAILED" || terminal === "ERROR" || terminal === "SUCCESS" || terminal === "DONE" || terminal === "REJECTED";
   const isFailedTerminal = terminal === "FAILED" || terminal === "ERROR" || terminal === "REJECTED";
@@ -190,15 +192,23 @@ export default function RunDetailStatusContractCard({
       </details>
       {roleBindingReadModel ? (
         <div className="run-detail-section" data-testid="run-role-binding-read-model">
-          <div className="mono run-detail-section-label">Role binding read model</div>
-          <div className="mono">Authority: {toDisplayText(roleBindingReadModel.authority)}</div>
-          <div className="mono">Source: {toDisplayText(roleBindingReadModel.source)}</div>
-          <div className="mono">Execution authority: {toDisplayText(roleBindingReadModel.execution_authority)}</div>
-          <div className="mono">Skills bundle: {formatBindingReadModelLabel(roleBindingReadModel.skills_bundle_ref)}</div>
-          <div className="mono">MCP bundle: {formatBindingReadModelLabel(roleBindingReadModel.mcp_bundle_ref)}</div>
-          <div className="mono">Runtime binding: {formatRoleBindingRuntimeSummary(roleBindingReadModel)}</div>
+          <div className="mono run-detail-section-label">{bindingReadModelCopy.title}</div>
+          <div className="mono">{bindingReadModelCopy.authority}: {toDisplayText(roleBindingReadModel.authority)}</div>
+          <div className="mono">{bindingReadModelCopy.source}: {toDisplayText(roleBindingReadModel.source)}</div>
+          <div className="mono">
+            {bindingReadModelCopy.executionAuthority}: {toDisplayText(roleBindingReadModel.execution_authority)}
+          </div>
+          <div className="mono">
+            {bindingReadModelCopy.skillsBundle}: {formatBindingReadModelLabel(roleBindingReadModel.skills_bundle_ref)}
+          </div>
+          <div className="mono">
+            {bindingReadModelCopy.mcpBundle}: {formatBindingReadModelLabel(roleBindingReadModel.mcp_bundle_ref)}
+          </div>
+          <div className="mono">
+            {bindingReadModelCopy.runtimeBinding}: {formatRoleBindingRuntimeSummary(roleBindingReadModel)}
+          </div>
           <div className="mono muted">
-            Read-only note: this mirrors the persisted binding summary; task_contract still owns execution authority.
+            {bindingReadModelCopy.readOnlyNote}
           </div>
         </div>
       ) : null}

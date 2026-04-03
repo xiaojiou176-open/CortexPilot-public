@@ -8,7 +8,7 @@ import type {
   RuntimeBindingValueSummary,
   SkillsBundleReadModel,
   WorkflowCaseReadModel,
-} from "../frontend-api-contract/index";
+} from "../frontend-api-contract";
 
 export type {
   BindingReadModelStatus,
