@@ -59,6 +59,36 @@ describe("workflow detail page", () => {
         owner_pm: "pm-owner",
         project_key: "cortex-case",
         verdict: "active",
+        workflow_case_read_model: {
+          authority: "workflow-case-read-model",
+          source: "latest linked run manifest.role_binding_summary",
+          execution_authority: "task_contract",
+          workflow_id: "wf-1",
+          source_run_id: "run/1",
+          role_binding_summary: {
+            authority: "contract-derived-read-model",
+            source: "persisted from contract",
+            execution_authority: "task_contract",
+            skills_bundle_ref: {
+              status: "registry-backed",
+              ref: "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+              bundle_id: "worker_delivery_core_v1",
+              resolved_skill_set: ["contract_alignment"],
+              validation: "fail-closed",
+            },
+            mcp_bundle_ref: {
+              status: "registry-backed",
+              ref: "policies/agent_registry.json#agents(role=WORKER).capabilities.mcp_tools",
+              resolved_mcp_tool_set: ["codex"],
+              validation: "fail-closed",
+            },
+            runtime_binding: {
+              status: "contract-derived",
+              authority_scope: "contract-derived-read-model",
+              summary: { runner: "agents", provider: "cliproxyapi", model: "gpt-5.4" },
+            },
+          },
+        },
       },
       runs: [{ run_id: "run/1", status: "running", created_at: "2026-02-25T00:00:00Z" }],
       events: [],
@@ -115,6 +145,9 @@ describe("workflow detail page", () => {
     expect(screen.getByRole("button", { name: "Run next queued task" })).toBeInTheDocument();
     expect(screen.getByText("Workflow Case copilot")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Explain this workflow case" })).toBeInTheDocument();
+    expect(screen.getByText("Workflow read model")).toBeInTheDocument();
+    expect(screen.getByText("Execution authority: task_contract")).toBeInTheDocument();
+    expect(screen.getByText("Skills bundle: worker_delivery_core_v1 (registry-backed)")).toBeInTheDocument();
   });
 
   it("decodes valid encoded route id before fetching workflow", async () => {

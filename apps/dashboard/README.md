@@ -43,7 +43,8 @@ finished consumer product.
 - PM workspace: registry-driven task-pack selection plus `execution_plan_report`
   preview before execution starts.
 - Workflow views: workflow-case summaries derived from run manifests and PM
-  session bindings, now with queue/SLA read surfaces.
+  session bindings, now with queue/SLA read surfaces and a read-only
+  `Workflow read model` card sourced from `workflow_case_read_model`.
 - Run Detail: incident packs, approval summaries, and replay compare reports as
   operator-readable decision objects.
 - Builder/public discovery: the home builder section now surfaces direct
@@ -100,3 +101,6 @@ finished consumer product.
 - The current CI unblock patch also keeps the PM and RunDetail regression suite
   aligned with the English-first operator surface, including Command Tower
   session copy, PM composer controls, and RunDetail tab/status wording.
+- Workflow Case detail now also renders the latest linked run's
+  `workflow_case_read_model` for operator inspection, but that card remains a
+  read-only mirror below `task_contract` execution authority.

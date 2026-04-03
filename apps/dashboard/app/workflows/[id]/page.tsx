@@ -8,6 +8,8 @@ import ControlPlaneStatusCallout from "../../../components/control-plane/Control
 import WorkflowOperatorCopilotPanel from "../../../components/control-plane/WorkflowOperatorCopilotPanel";
 import { fetchQueue, fetchWorkflow } from "../../../lib/api";
 import { safeLoad } from "../../../lib/serverPageData";
+import type { QueueItemRecord, WorkflowDetailPayload } from "../../../lib/types";
+import { formatBindingReadModelLabel, formatRoleBindingRuntimeSummary } from "../../../lib/types";
 import WorkflowQueueMutationControls from "../WorkflowQueueMutationControls";
 
 function statusLabelEn(status: string | undefined): string {
@@ -86,28 +88,32 @@ export default async function WorkflowDetailPage({
 }) {
   const { id } = await params;
   const workflowId = safeDecodeParam(id);
-  const { data: payload, warning } = await safeLoad(
+  const { data: payload, warning } = await safeLoad<WorkflowDetailPayload>(
     () => fetchWorkflow(workflowId),
     { workflow: { workflow_id: workflowId }, runs: [], events: [] },
     "Workflow detail",
   );
-  const { data: queueItems } = await safeLoad(
+  const { data: queueItems } = await safeLoad<QueueItemRecord[]>(
     () => fetchQueue(workflowId),
-    [] as Record<string, unknown>[],
+    [],
     "Queue detail",
   );
-  const workflow = payload.workflow || { workflow_id: workflowId };
+  const workflow = payload.workflow ?? { workflow_id: workflowId };
   const runs = Array.isArray(payload.runs) ? payload.runs : [];
   const events = Array.isArray(payload.events) ? payload.events : [];
-  const workflowMeta = workflow as Record<string, unknown>;
   const workflowName = String(
-    workflowMeta["name"] || workflowMeta["title"] || workflow.workflow_id || workflowId || "-",
+    workflow.name || workflow.title || workflow.workflow_id || workflowId || "-",
   );
   const workflowStatus = statusLabelEn(workflow.status);
-  const workflowUpdatedAt = String(workflowMeta["updated_at"] || workflowMeta["created_at"] || "-");
+  const workflowUpdatedAt = String(workflow.updated_at || workflow.created_at || "-");
   const workflowRisk = isWorkflowAtRisk(workflow.status);
   const riskLabel = workflowRisk ? "High-risk state" : "Normal state";
   const latestRunId = resolveLatestRunId(runs);
+  const workflowCaseReadModel = workflow.workflow_case_read_model;
+  const roleBindingSummary = workflowCaseReadModel?.role_binding_summary;
+  const skillsBundle = roleBindingSummary?.skills_bundle_ref;
+  const mcpBundle = roleBindingSummary?.mcp_bundle_ref;
+  const sourceRunId = String(workflowCaseReadModel?.source_run_id || "").trim();
   const eligibleQueueCount = queueItems.filter((item) => {
     if (item.eligible === true || String(item.eligible || "").toLowerCase() === "true") {
       return true;
@@ -245,15 +251,41 @@ export default async function WorkflowDetailPage({
             <div className="mono">Updated at: {workflowUpdatedAt}</div>
             <div className="mono">Namespace: {workflow.namespace || "-"}</div>
             <div className="mono">Task queue: {workflow.task_queue || "-"}</div>
-            <div className="mono">Owner: {String(workflowMeta["owner_pm"] || "-")}</div>
-            <div className="mono">Project: {String(workflowMeta["project_key"] || "-")}</div>
-            <div className="mono">Verdict: {String(workflowMeta["verdict"] || "-")}</div>
+            <div className="mono">Owner: {String(workflow.owner_pm || "-")}</div>
+            <div className="mono">Project: {String(workflow.project_key || "-")}</div>
+            <div className="mono">Verdict: {String(workflow.verdict || "-")}</div>
             <div className="mono">Runs: {runs.length}</div>
             <div className="toolbar mt-2">
               <Button asChild variant="secondary">
                 <Link href={`/workflows/${encodeURIComponent(workflowId)}/share`}>Open share-ready case asset</Link>
               </Button>
             </div>
+          </Card>
+          <Card>
+            <h3>Workflow read model</h3>
+            {!workflowCaseReadModel ? (
+              <div className="mono">No workflow read model is attached yet.</div>
+            ) : (
+              <>
+                <div className="mono">Authority: {String(workflowCaseReadModel.authority || "-")}</div>
+                <div className="mono">Execution authority: {String(workflowCaseReadModel.execution_authority || "-")}</div>
+                <div className="mono">Source: {String(workflowCaseReadModel.source || "-")}</div>
+                <div className="mono">
+                  Source run:{" "}
+                  {sourceRunId ? (
+                    <Link href={`/runs/${encodeURIComponent(sourceRunId)}`} aria-label={`Source run ${sourceRunId}`}>
+                      {sourceRunId}
+                    </Link>
+                  ) : "-"}
+                </div>
+                <div className="mono">Skills bundle: {formatBindingReadModelLabel(skillsBundle)}</div>
+                <div className="mono">MCP bundle: {formatBindingReadModelLabel(mcpBundle)}</div>
+                <div className="mono">Runtime binding: {formatRoleBindingRuntimeSummary(roleBindingSummary)}</div>
+                <span className="mono muted">
+                  Read-only note: this mirrors the latest linked run binding summary; the task contract still owns execution authority.
+                </span>
+              </>
+            )}
           </Card>
           <Card>
             <h3>Run mapping</h3>

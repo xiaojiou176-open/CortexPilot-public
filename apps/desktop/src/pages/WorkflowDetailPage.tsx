@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import type { QueueItemRecord, WorkflowDetailPayload } from "../lib/types";
+import {
+  formatBindingReadModelLabel,
+  formatRoleBindingRuntimeSummary,
+  type QueueItemRecord,
+  type WorkflowDetailPayload,
+} from "../lib/types";
 import { enqueueRunQueue, fetchQueue, fetchWorkflow, fetchWorkflowCopilotBrief, runNextQueue } from "../lib/api";
 import { statusLabelZh, statusVariant } from "../lib/statusPresentation";
 import { Badge } from "../components/ui/Badge";
@@ -50,7 +55,14 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
   if (loading) return <div className="content"><div className="skeleton-stack-lg"><div className="skeleton skeleton-row" /></div></div>;
   if (error) return <div className="content"><div className="alert alert-danger">{error}</div><Button onClick={onBack}>Back</Button></div>;
   if (!data) return null;
-  const workflowData = data;
+  const workflowData = {
+    ...data,
+    workflow: data.workflow ?? { workflow_id: workflowId },
+  };
+  const workflowCaseReadModel = workflowData.workflow.workflow_case_read_model;
+  const roleBindingSummary = workflowCaseReadModel?.role_binding_summary;
+  const skillsBundle = roleBindingSummary?.skills_bundle_ref;
+  const mcpBundle = roleBindingSummary?.mcp_bundle_ref;
   const recommendedAction =
     queueItems.length > 0
       ? "Queued work already exists. The next high-value action is to run the next queued task and watch the case move."
@@ -181,6 +193,29 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
               <div className="mono">pm_sessions: {(workflowData.workflow.pm_session_ids || []).join(", ") || "-"}</div>
               <div className="mono">summary: {workflowData.workflow.summary || "-"}</div>
             </div>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Workflow read model</CardTitle>
+          </CardHeader>
+          <CardBody>
+            {!workflowCaseReadModel ? (
+              <div className="mono">No workflow read model is attached yet.</div>
+            ) : (
+              <div className="stack-gap-2">
+                <div className="mono">authority: {String(workflowCaseReadModel.authority || "-")}</div>
+                <div className="mono">execution_authority: {String(workflowCaseReadModel.execution_authority || "-")}</div>
+                <div className="mono">source: {String(workflowCaseReadModel.source || "-")}</div>
+                <div className="mono">source_run_id: {String(workflowCaseReadModel.source_run_id || "-")}</div>
+                <div className="mono">skills_bundle: {formatBindingReadModelLabel(skillsBundle)}</div>
+                <div className="mono">mcp_bundle: {formatBindingReadModelLabel(mcpBundle)}</div>
+                <div className="mono">runtime_binding: {formatRoleBindingRuntimeSummary(roleBindingSummary)}</div>
+                <div className="muted">
+                  Read-only note: this workflow summary mirrors the latest linked run binding summary. The task contract still owns execution authority.
+                </div>
+              </div>
+            )}
           </CardBody>
         </Card>
         <Card>

@@ -1,6 +1,53 @@
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
 export type JsonObject = { [key: string]: JsonValue };
+export type BindingReadModelStatus = "unresolved" | "resolved" | "registry-backed";
+export type BindingValidationMode = "fail-closed";
+export type SkillsBundleReadModel = {
+  status: BindingReadModelStatus;
+  ref: string | null;
+  bundle_id: string | null;
+  resolved_skill_set: string[];
+  validation: BindingValidationMode;
+};
+export type McpBundleReadModel = {
+  status: BindingReadModelStatus;
+  ref: string | null;
+  resolved_mcp_tool_set: string[];
+  validation: BindingValidationMode;
+};
+export type RuntimeBindingSourceSummary = {
+  runner?: string;
+  provider?: string;
+  model?: string;
+};
+export type RuntimeBindingValueSummary = {
+  runner?: string;
+  provider?: string;
+  model?: string | null;
+};
+export type RuntimeBindingReadModel = {
+  status?: string;
+  authority_scope?: string;
+  source?: RuntimeBindingSourceSummary;
+  summary?: RuntimeBindingValueSummary;
+};
+export type RoleBindingReadModel = {
+  authority: string;
+  source: string;
+  execution_authority: string;
+  skills_bundle_ref: SkillsBundleReadModel;
+  mcp_bundle_ref: McpBundleReadModel;
+  runtime_binding: RuntimeBindingReadModel;
+};
+export type WorkflowCaseReadModel = {
+  authority: string;
+  source: string;
+  execution_authority: string;
+  workflow_id: string;
+  source_run_id: string;
+  role_binding_summary: RoleBindingReadModel;
+};
 export type PublicTaskTemplate = string;
 export type NewsDigestTimeRange = "24h" | "7d" | "30d";
 export type NewsDigestTemplatePayload = {
@@ -211,6 +258,7 @@ export type RunManifest = {
   trace_id?: string;
   trace?: { trace_id?: string; trace_url?: string };
   workflow?: WorkflowInfo;
+  role_binding_summary?: RoleBindingReadModel;
   evidence_hashes?: Record<string, JsonValue>;
   artifacts?: JsonValue[];
   observability?: { enabled?: boolean };
@@ -245,6 +293,7 @@ export type RunDetailPayload = RunSummary & {
   allowed_paths?: string[];
   contract?: RunContract;
   manifest?: RunManifest;
+  role_binding_read_model?: RoleBindingReadModel;
   news_digest_result?: NewsDigestResult;
   topic_brief_result?: TopicBriefResult;
   page_brief_result?: PageBriefResult;
@@ -293,6 +342,8 @@ export type WorkflowRun = {
 
 export type WorkflowRecord = {
   workflow_id: string;
+  name?: string;
+  title?: string;
   status?: string;
   namespace?: string;
   task_queue?: string;
@@ -301,12 +352,49 @@ export type WorkflowRecord = {
   project_key?: string;
   verdict?: string;
   summary?: string;
+  updated_at?: string;
+  created_at?: string;
   pm_session_ids?: string[];
   run_ids?: string[];
   case_source?: string;
   case_updated_at?: string;
+  workflow_case_read_model?: WorkflowCaseReadModel;
   runs?: WorkflowRun[];
 };
+
+function bindingReadModelLabel(
+  ref: string | null | undefined,
+  bundleId: string | null | undefined,
+  status: string | undefined,
+): string {
+  const normalizedRef = String(ref || "").trim();
+  const normalizedBundleId = String(bundleId || "").trim();
+  const label = normalizedBundleId || normalizedRef || "-";
+  return `${label} (${String(status || "-")})`;
+}
+
+export function formatBindingReadModelLabel(
+  binding: SkillsBundleReadModel | McpBundleReadModel | null | undefined,
+): string {
+  if (!binding) {
+    return "- (-)";
+  }
+  return bindingReadModelLabel(
+    binding.ref,
+    "bundle_id" in binding ? binding.bundle_id : null,
+    binding.status,
+  );
+}
+
+export function formatRoleBindingRuntimeSummary(
+  roleBindingSummary: RoleBindingReadModel | null | undefined,
+): string {
+  const runtimeSummary = roleBindingSummary?.runtime_binding?.summary;
+  const runner = String(runtimeSummary?.runner || "-");
+  const provider = String(runtimeSummary?.provider || "-");
+  const model = String(runtimeSummary?.model || "-");
+  return `${runner} / ${provider} / ${model}`;
+}
 
 export type QueueItemRecord = {
   queue_id: string;

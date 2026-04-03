@@ -47,6 +47,9 @@ flowchart LR
 - Workflow/control-plane reads now also expose `workflow_case_read_model`,
   which reuses the latest linked run's persisted `role_binding_summary` instead
   of inventing a second execution authority surface.
+- Dashboard and desktop Workflow Case detail surfaces may project that same
+  `workflow_case_read_model` directly for operator inspection, but those UI
+  cards remain read-only mirrors below `task_contract`.
 - Runtime artifacts (`manifest`, `events.jsonl`, reports) are generated per run.
 - Run detail views may now include derived decision packs such as
   `incident_pack.json`, while approval queues synthesize `approval_pack`

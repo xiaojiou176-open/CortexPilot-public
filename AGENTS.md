@@ -178,6 +178,13 @@ Work in CortexPilot as a contract-first engineering agent:
   `role_binding_summary.skills_bundle_ref` metadata, and
   `workflow_case_read_model` on workflow/control-plane reads that stay
   explicitly non-authoritative
+- when a Prompt 7-style frontend slice projects those same read models onto
+  dashboard or desktop Workflow Case detail views, sync the root AI/docs
+  entrypoints in the same patch; current examples include the read-only
+  `Workflow read model` cards on `apps/dashboard/app/workflows/[id]/page.tsx`
+  and `apps/desktop/src/pages/WorkflowDetailPage.tsx`, plus the typed frontend
+  `RoleBindingReadModel` / `WorkflowCaseReadModel` shapes that stay below
+  `task_contract`
 
 ## Local Overrides
 

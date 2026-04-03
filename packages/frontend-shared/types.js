@@ -1,5 +1,31 @@
 export const GENERAL_TASK_TEMPLATE = "general";
 
+function bindingReadModelLabel(ref, bundleId, status) {
+  const normalizedRef = String(ref || "").trim();
+  const normalizedBundleId = String(bundleId || "").trim();
+  const label = normalizedBundleId || normalizedRef || "-";
+  return `${label} (${String(status || "-")})`;
+}
+
+export function formatBindingReadModelLabel(binding) {
+  if (!binding) {
+    return "- (-)";
+  }
+  return bindingReadModelLabel(
+    binding.ref,
+    Object.prototype.hasOwnProperty.call(binding, "bundle_id") ? binding.bundle_id : null,
+    binding.status,
+  );
+}
+
+export function formatRoleBindingRuntimeSummary(roleBindingSummary) {
+  const runtimeSummary = roleBindingSummary?.runtime_binding?.summary;
+  const runner = String(runtimeSummary?.runner || "-");
+  const provider = String(runtimeSummary?.provider || "-");
+  const model = String(runtimeSummary?.model || "-");
+  return `${runner} / ${provider} / ${model}`;
+}
+
 function splitTaskPackList(raw) {
   return String(raw)
     .split(/\r?\n|,/g)

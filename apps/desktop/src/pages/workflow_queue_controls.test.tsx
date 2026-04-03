@@ -31,6 +31,36 @@ describe("workflow queue controls", () => {
         workflow_id: "wf-queue",
         status: "running",
         objective: "Queue the latest run",
+        workflow_case_read_model: {
+          authority: "workflow-case-read-model",
+          source: "latest linked run manifest.role_binding_summary",
+          execution_authority: "task_contract",
+          workflow_id: "wf-queue",
+          source_run_id: "run-001",
+          role_binding_summary: {
+            authority: "contract-derived-read-model",
+            source: "persisted from contract",
+            execution_authority: "task_contract",
+            skills_bundle_ref: {
+              status: "registry-backed",
+              ref: "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+              bundle_id: "worker_delivery_core_v1",
+              resolved_skill_set: ["contract_alignment"],
+              validation: "fail-closed",
+            },
+            mcp_bundle_ref: {
+              status: "registry-backed",
+              ref: "policies/agent_registry.json#agents(role=WORKER).capabilities.mcp_tools",
+              resolved_mcp_tool_set: ["codex"],
+              validation: "fail-closed",
+            },
+            runtime_binding: {
+              status: "contract-derived",
+              authority_scope: "contract-derived-read-model",
+              summary: { runner: "agents", provider: "cliproxyapi", model: "gpt-5.4" },
+            },
+          },
+        },
       },
       runs: [{ run_id: "run-001", status: "running" }],
       events: [],
@@ -93,6 +123,9 @@ describe("workflow queue controls", () => {
     expect(screen.getByText(/Queued work already exists\. The next high-value action is to run the next queued task and watch the case move\./)).toBeInTheDocument();
     expect(await screen.findByText("Queue / SLA (1)")).toBeInTheDocument();
     expect(screen.getByText("priority 5 / sla at_risk")).toBeInTheDocument();
+    expect(screen.getByText("Workflow read model")).toBeInTheDocument();
+    expect(screen.getByText("execution_authority: task_contract")).toBeInTheDocument();
+    expect(screen.getByText("skills_bundle: worker_delivery_core_v1 (registry-backed)")).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Queue priority"), { target: { value: "3" } });
     fireEvent.change(screen.getByLabelText("Queue scheduled at"), { target: { value: "2026-03-30T12:00" } });
