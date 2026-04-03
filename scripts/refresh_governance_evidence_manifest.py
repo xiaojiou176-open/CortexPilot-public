@@ -278,6 +278,47 @@ def _reuse_upstream_verification_records(check: dict[str, object]) -> dict[str, 
     }
 
 
+def _reuse_clean_room_recovery_record(check: dict[str, object]) -> dict[str, object] | None:
+    if str(check.get("id")) != "clean_room_recovery":
+        return None
+    artifacts = _resolve_check_artifacts(check)
+    if len(artifacts) != 1:
+        return None
+
+    raw_path = artifacts[0]
+    path = ROOT / raw_path
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    if str(payload.get("status") or "").strip().lower() not in {"pass", "passed"}:
+        return None
+
+    stat = path.stat()
+    now_ts = time.time()
+    if now_ts - stat.st_mtime > UPSTREAM_RECORD_FRESH_SEC:
+        return None
+
+    artifact_ok, artifact_rows = _artifact_status(artifacts)
+    if not artifact_ok:
+        return None
+
+    return {
+        "id": str(check["id"]),
+        "weight": int(check["weight"]),
+        "ok": True,
+        "command": ["reuse:fresh-clean-room-record"],
+        "executed_at": datetime.now(timezone.utc).isoformat(),
+        "duration_sec": 0.0,
+        "artifacts": artifact_rows,
+        "output": "reused fresh clean-room recovery report",
+    }
+
+
 def _current_ci_route_id() -> str:
     return str(os.environ.get("CORTEXPILOT_CI_ROUTE_ID") or "").strip()
 
@@ -309,6 +350,9 @@ def _run_check(check: dict[str, object]) -> dict[str, object]:
     if exempt is not None:
         return exempt
     reused = _reuse_upstream_verification_records(check)
+    if reused is not None:
+        return reused
+    reused = _reuse_clean_room_recovery_record(check)
     if reused is not None:
         return reused
     check_id = str(check["id"])

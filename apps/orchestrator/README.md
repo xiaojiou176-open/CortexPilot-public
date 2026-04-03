@@ -197,6 +197,10 @@ bash scripts/run_orchestrator_cli.sh --help
   `inventory_matrix_gate` and `same_run_cohesion` as optional evidence in the
   pre-push closeout builder, so lightweight PR-bound pushes do not fail merely
   because workflow-dispatch-only upstream receipts were intentionally skipped.
+- Governance evidence refresh now also reuses a fresh
+  `clean_room_recovery.json` receipt when that report already passed inside the
+  freshness window, which keeps repeated PR-bound CI-fix pushes from rerunning
+  the full clean-room bundle just to restate the same healthy local receipt.
 - Mainline live-provider probes keep the stricter credential contract: process
   env first, `~/.codex/config.toml` second, while repo-local dotenv files and
   shell-export fallback stay disabled on `CI` / strict mainline contexts.
