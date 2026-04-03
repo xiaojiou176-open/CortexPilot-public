@@ -93,7 +93,7 @@ describe("dashboard api wrappers", () => {
       { name: "fetchAgentStatus(empty)", path: "/api/agents/status", invoke: () => fetchAgentStatus() },
       {
         name: "fetchAgentStatus(runId)",
-        path: "/api/agents/status?run_id=run%20id",
+        path: "/api/agents/status?run_id=run+id",
         invoke: () => fetchAgentStatus("run id"),
       },
       { name: "fetchPolicies", path: "/api/policies", invoke: () => fetchPolicies() },
