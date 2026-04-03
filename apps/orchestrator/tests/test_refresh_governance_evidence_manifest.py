@@ -205,6 +205,59 @@ def test_reuse_upstream_records_returns_none_when_batches_do_not_match(tmp_path:
     assert module._reuse_upstream_verification_records(check) is None
 
 
+def test_reuse_clean_room_recovery_record_when_fresh_and_passed(tmp_path: Path) -> None:
+    module = _load_module()
+    module.ROOT = tmp_path
+    module.UPSTREAM_RECORD_FRESH_SEC = 3600
+
+    report_path = tmp_path / ".runtime-cache/test_output/governance/clean_room_recovery.json"
+    _write_json(
+        report_path,
+        {
+            "status": "pass",
+            "generated_at": "2026-04-03T12:00:00+00:00",
+        },
+    )
+
+    check = {
+        "id": "clean_room_recovery",
+        "weight": 5,
+        "artifacts": [".runtime-cache/test_output/governance/clean_room_recovery.json"],
+    }
+
+    result = module._reuse_clean_room_recovery_record(check)
+
+    assert result is not None
+    assert result["ok"] is True
+    assert result["command"] == ["reuse:fresh-clean-room-record"]
+    assert result["artifacts"][0]["exists"] is True
+
+
+def test_reuse_clean_room_recovery_record_returns_none_when_stale_or_failed(tmp_path: Path) -> None:
+    module = _load_module()
+    module.ROOT = tmp_path
+    module.UPSTREAM_RECORD_FRESH_SEC = 60
+
+    report_path = tmp_path / ".runtime-cache/test_output/governance/clean_room_recovery.json"
+    _write_json(
+        report_path,
+        {
+            "status": "fail",
+            "generated_at": "2026-04-03T12:00:00+00:00",
+        },
+    )
+    old_ts = report_path.stat().st_mtime - 7200
+    os.utime(report_path, (old_ts, old_ts))
+
+    check = {
+        "id": "clean_room_recovery",
+        "weight": 5,
+        "artifacts": [".runtime-cache/test_output/governance/clean_room_recovery.json"],
+    }
+
+    assert module._reuse_clean_room_recovery_record(check) is None
+
+
 def test_run_check_falls_back_to_real_smoke_command_when_reuse_is_not_allowed(tmp_path: Path, monkeypatch) -> None:
     module = _load_module()
     module.ROOT = tmp_path
