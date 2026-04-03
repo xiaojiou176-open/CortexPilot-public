@@ -18,6 +18,10 @@ const WORKFLOW_COPILOT_QUESTIONS = [
 
 type Props = { workflowId: string; onBack: () => void; onNavigateToRun: (runId: string) => void };
 
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+}
+
 function toUtcIsoOrEmpty(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) {
@@ -25,6 +29,23 @@ function toUtcIsoOrEmpty(value: string): string {
   }
   const parsed = new Date(trimmed);
   return Number.isNaN(parsed.getTime()) ? "" : parsed.toISOString();
+}
+
+function formatBindingLabel(binding: Record<string, unknown>): string {
+  const status = String(binding.status || "-");
+  const bundleId = String(binding.bundle_id || "").trim();
+  const ref = String(binding.ref || "").trim();
+  const label = bundleId || ref || "-";
+  return `${label} (${status})`;
+}
+
+function formatRuntimeBinding(roleBindingSummary: Record<string, unknown>): string {
+  const runtimeBinding = asRecord(roleBindingSummary.runtime_binding);
+  const runtimeSummary = asRecord(runtimeBinding.summary);
+  const runner = String(runtimeSummary.runner || "-");
+  const provider = String(runtimeSummary.provider || "-");
+  const model = String(runtimeSummary.model || "-");
+  return `${runner} / ${provider} / ${model}`;
 }
 
 export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Props) {
@@ -51,6 +72,10 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
   if (error) return <div className="content"><div className="alert alert-danger">{error}</div><Button onClick={onBack}>Back</Button></div>;
   if (!data) return null;
   const workflowData = data;
+  const workflowCaseReadModel = asRecord(workflowData.workflow.workflow_case_read_model);
+  const roleBindingSummary = asRecord(workflowCaseReadModel.role_binding_summary);
+  const skillsBundle = asRecord(roleBindingSummary.skills_bundle_ref);
+  const mcpBundle = asRecord(roleBindingSummary.mcp_bundle_ref);
   const recommendedAction =
     queueItems.length > 0
       ? "Queued work already exists. The next high-value action is to run the next queued task and watch the case move."
@@ -181,6 +206,29 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
               <div className="mono">pm_sessions: {(workflowData.workflow.pm_session_ids || []).join(", ") || "-"}</div>
               <div className="mono">summary: {workflowData.workflow.summary || "-"}</div>
             </div>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Workflow read model</CardTitle>
+          </CardHeader>
+          <CardBody>
+            {Object.keys(workflowCaseReadModel).length === 0 ? (
+              <div className="mono">No workflow read model is attached yet.</div>
+            ) : (
+              <div className="stack-gap-2">
+                <div className="mono">authority: {String(workflowCaseReadModel.authority || "-")}</div>
+                <div className="mono">execution_authority: {String(workflowCaseReadModel.execution_authority || "-")}</div>
+                <div className="mono">source: {String(workflowCaseReadModel.source || "-")}</div>
+                <div className="mono">source_run_id: {String(workflowCaseReadModel.source_run_id || "-")}</div>
+                <div className="mono">skills_bundle: {formatBindingLabel(skillsBundle)}</div>
+                <div className="mono">mcp_bundle: {formatBindingLabel(mcpBundle)}</div>
+                <div className="mono">runtime_binding: {formatRuntimeBinding(roleBindingSummary)}</div>
+                <div className="muted">
+                  Read-only note: this workflow summary mirrors the latest linked run binding summary. The task contract still owns execution authority.
+                </div>
+              </div>
+            )}
           </CardBody>
         </Card>
         <Card>

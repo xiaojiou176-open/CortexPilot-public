@@ -77,6 +77,10 @@ This repository combines:
   `workflow_case_read_model` that points back to the latest linked run's
   persisted `role_binding_summary`, keeping workflow/control-plane reads
   stable without inventing a second execution authority
+- **Workflow detail read-only projection**: dashboard and desktop Workflow Case
+  detail views now render that `workflow_case_read_model` directly, so
+  operators can inspect bundle/runtime posture from the current case surface
+  while `task_contract` remains the only execution authority
 
 ## Quickstart
 

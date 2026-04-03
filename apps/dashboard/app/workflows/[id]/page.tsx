@@ -69,6 +69,27 @@ function workflowRunRowKey(run: Record<string, unknown>, index: number): string 
   ].join(":");
 }
 
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+}
+
+function formatBindingLabel(binding: Record<string, unknown>): string {
+  const status = String(binding.status || "-");
+  const bundleId = String(binding.bundle_id || "").trim();
+  const ref = String(binding.ref || "").trim();
+  const label = bundleId || ref || "-";
+  return `${label} (${status})`;
+}
+
+function formatRuntimeBinding(roleBindingSummary: Record<string, unknown>): string {
+  const runtimeBinding = asRecord(roleBindingSummary.runtime_binding);
+  const runtimeSummary = asRecord(runtimeBinding.summary);
+  const runner = String(runtimeSummary.runner || "-");
+  const provider = String(runtimeSummary.provider || "-");
+  const model = String(runtimeSummary.model || "-");
+  return `${runner} / ${provider} / ${model}`;
+}
+
 function resolveLatestRunId(runs: Array<Record<string, unknown>>): string {
   const sortedRuns = [...runs];
   sortedRuns.sort((left, right) => {
@@ -108,6 +129,11 @@ export default async function WorkflowDetailPage({
   const workflowRisk = isWorkflowAtRisk(workflow.status);
   const riskLabel = workflowRisk ? "High-risk state" : "Normal state";
   const latestRunId = resolveLatestRunId(runs);
+  const workflowCaseReadModel = asRecord(workflowMeta["workflow_case_read_model"]);
+  const roleBindingSummary = asRecord(workflowCaseReadModel["role_binding_summary"]);
+  const skillsBundle = asRecord(roleBindingSummary["skills_bundle_ref"]);
+  const mcpBundle = asRecord(roleBindingSummary["mcp_bundle_ref"]);
+  const sourceRunId = String(workflowCaseReadModel["source_run_id"] || "").trim();
   const eligibleQueueCount = queueItems.filter((item) => {
     if (item.eligible === true || String(item.eligible || "").toLowerCase() === "true") {
       return true;
@@ -254,6 +280,32 @@ export default async function WorkflowDetailPage({
                 <Link href={`/workflows/${encodeURIComponent(workflowId)}/share`}>Open share-ready case asset</Link>
               </Button>
             </div>
+          </Card>
+          <Card>
+            <h3>Workflow read model</h3>
+            {Object.keys(workflowCaseReadModel).length === 0 ? (
+              <div className="mono">No workflow read model is attached yet.</div>
+            ) : (
+              <>
+                <div className="mono">Authority: {String(workflowCaseReadModel["authority"] || "-")}</div>
+                <div className="mono">Execution authority: {String(workflowCaseReadModel["execution_authority"] || "-")}</div>
+                <div className="mono">Source: {String(workflowCaseReadModel["source"] || "-")}</div>
+                <div className="mono">
+                  Source run:{" "}
+                  {sourceRunId ? (
+                    <Link href={`/runs/${encodeURIComponent(sourceRunId)}`} aria-label={`Source run ${sourceRunId}`}>
+                      {sourceRunId}
+                    </Link>
+                  ) : "-"}
+                </div>
+                <div className="mono">Skills bundle: {formatBindingLabel(skillsBundle)}</div>
+                <div className="mono">MCP bundle: {formatBindingLabel(mcpBundle)}</div>
+                <div className="mono">Runtime binding: {formatRuntimeBinding(roleBindingSummary)}</div>
+                <span className="mono muted">
+                  Read-only note: this mirrors the latest linked run binding summary; the task contract still owns execution authority.
+                </span>
+              </>
+            )}
           </Card>
           <Card>
             <h3>Run mapping</h3>

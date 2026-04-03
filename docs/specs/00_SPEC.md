@@ -275,6 +275,9 @@
   from the latest linked run's persisted `role_binding_summary`, but that
   projection must remain explicitly read-only and must keep
   `execution_authority = task_contract`.
+- Dashboard and desktop Workflow Case detail views may render that same
+  `workflow_case_read_model` for operator inspection, but they must present it
+  as a read-only case summary instead of an execution-authority switch.
 
 ### 6.2 Output-Side Contracts (Results / Reports)
 
