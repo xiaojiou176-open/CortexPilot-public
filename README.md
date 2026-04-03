@@ -264,7 +264,7 @@ review, and hand off.”
 These are the current public-facing entry points for teams that want to build
 around CortexPilot without pretending a full SDK platform already exists:
 
-- [packages/frontend-api-client/README.md](packages/frontend-api-client/README.md): thin JavaScript/TypeScript client entry points for dashboard, desktop, and web surfaces.
+- [packages/frontend-api-client/README.md](packages/frontend-api-client/README.md): thin JavaScript/TypeScript client entry points for dashboard, desktop, and web surfaces, including the repo-owned `createControlPlaneStarter(...)` bootstrap path for overview + agents + contracts + role-config integration.
 - [packages/frontend-api-contract/index.d.ts](packages/frontend-api-contract/index.d.ts): generated contract surface and stable import boundary for API-facing types.
 - [packages/frontend-shared/README.md](packages/frontend-shared/README.md): shared UI copy, locale, status, and frontend-only presentation helpers.
 - [docs/architecture/ecosystem-and-builder-surfaces-v1.md](docs/architecture/ecosystem-and-builder-surfaces-v1.md): the human-readable map that explains how Codex / Claude Code / MCP / public packs / share-ready Workflow Cases fit together.

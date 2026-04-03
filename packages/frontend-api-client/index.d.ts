@@ -109,6 +109,29 @@ export type FrontendApiClient = {
 export declare function createFrontendApiClient(options?: FrontendApiClientOptions): FrontendApiClient;
 export declare function createDashboardApiClient(options?: FrontendApiClientOptions): FrontendApiClient;
 export declare function createDesktopApiClient(options?: FrontendApiClientOptions): FrontendApiClient;
+export type ControlPlaneStarterBootstrap = {
+  overview: unknown;
+  agents: AgentCatalogPayload;
+  contracts: ContractCatalogRecord[];
+  roleConfig: RoleConfigSurface | null;
+  role: string | null;
+};
+
+export type ControlPlaneStarterRoleWorkspace = {
+  role: string;
+  agents: AgentCatalogPayload;
+  contracts: ContractCatalogRecord[];
+  roleConfig: RoleConfigSurface;
+};
+
+export type ControlPlaneStarter = {
+  fetchBootstrap: (options?: { role?: string; requestOptions?: RequestControlOptions }) => Promise<ControlPlaneStarterBootstrap>;
+  fetchRoleWorkspace: (role: string) => Promise<ControlPlaneStarterRoleWorkspace>;
+  previewRoleDefaults: (role: string, payload?: Record<string, JsonValue>) => Promise<RoleConfigPreviewResponse>;
+  applyRoleDefaults: (role: string, payload?: Record<string, JsonValue>) => Promise<RoleConfigApplyResponse>;
+};
+
+export declare function createControlPlaneStarter(client: FrontendApiClient): ControlPlaneStarter;
 
 export declare function createAuthCore(options?: { resolveToken?: () => string | undefined }): {
   authHeaders: (extra?: HeadersInit) => HeadersInit;
