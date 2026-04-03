@@ -135,6 +135,13 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   points readers toward read-only MCP and API quickstarts without implying
   hosted/write-capable MCP
   shared-copy Run Detail table/action chrome, and zh-CN regression coverage
+- when Prompt 6-style skills-bundle and workflow/control-plane read-model work
+  lands, keep this file, `AGENTS.md`, `README.md`, and the orchestrator/docs
+  entrypoints aligned in the same patch; current examples include
+  `policies/skills_bundle_registry.json`, enriched
+  `role_binding_summary.skills_bundle_ref` metadata, and
+  `workflow_case_read_model` on workflow/control-plane reads that remain
+  explicitly read-only
 
 ## Key Commands
 
