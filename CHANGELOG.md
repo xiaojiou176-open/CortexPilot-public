@@ -52,6 +52,10 @@ All notable changes to this repository will be documented in this file.
   dashboard UI-audit workspace now also copies the required
   `packages/frontend-*` sources into its temporary root so Next/Turbopack does
   not reject out-of-root symlinks during smoke builds
+- aligned the governance closeout builder with `trusted_pr` route exemptions so
+  pre-push closeout no longer fails on missing `upstream_inventory_report` /
+  `upstream_same_run_cohesion` artifacts when the evidence manifest has already
+  marked those upstream checks as route-exempt on PR-bound lanes
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

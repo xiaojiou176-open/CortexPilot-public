@@ -183,6 +183,10 @@ bash scripts/run_orchestrator_cli.sh --help
   stale, failed, or mixed-batch receipts fall back to
   `scripts/verify_upstream_slices.py --mode smoke` so `main` validation
   regenerates real receipts instead of failing on missing files alone.
+- PR-route governance closeout now treats `trusted_pr` route exemptions for
+  `inventory_matrix_gate` and `same_run_cohesion` as optional evidence in the
+  pre-push closeout builder, so lightweight PR-bound pushes do not fail merely
+  because workflow-dispatch-only upstream receipts were intentionally skipped.
 - Mainline live-provider probes keep the stricter credential contract: process
   env first, `~/.codex/config.toml` second, while repo-local dotenv files and
   shell-export fallback stay disabled on `CI` / strict mainline contexts.
