@@ -271,9 +271,11 @@ def _resolve_skills_bundle_summary(ref: str | None) -> dict[str, Any]:
         return {"bundle_id": None, "resolved_skill_set": []}
     if not isinstance(resolved, dict):
         return {"bundle_id": None, "resolved_skill_set": []}
+    raw_skills = resolved.get("skills", [])
+    skills_list = raw_skills if isinstance(raw_skills, list) else []
     skills = [
         str(item).strip()
-        for item in resolved.get("skills", [])
+        for item in skills_list
         if isinstance(item, str) and str(item).strip()
     ]
     bundle_id = str(resolved.get("bundle_id") or "").strip() or None

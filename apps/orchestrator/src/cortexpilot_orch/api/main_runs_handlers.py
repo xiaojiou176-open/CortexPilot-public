@@ -32,6 +32,20 @@ class _NoOpQueueStore:
         return None
 
 
+def _is_valid_role_binding_summary_payload(payload: object) -> bool:
+    if not isinstance(payload, dict):
+        return False
+    required = {
+        "authority",
+        "source",
+        "execution_authority",
+        "skills_bundle_ref",
+        "mcp_bundle_ref",
+        "runtime_binding",
+    }
+    return required.issubset(payload.keys())
+
+
 def build_runs_handlers(
     *,
     runs_root_fn: Callable[[], Path],
@@ -523,7 +537,7 @@ def build_runs_handlers(
         normalized_contract = _normalize_contract(contract)
         persisted_role_binding = (
             manifest.get("role_binding_summary")
-            if isinstance(manifest.get("role_binding_summary"), dict)
+            if _is_valid_role_binding_summary_payload(manifest.get("role_binding_summary"))
             else {}
         )
         status = str(manifest.get("status") or "")

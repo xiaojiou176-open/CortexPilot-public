@@ -111,6 +111,41 @@ def test_api_list_runs_handles_mixed_sort_key_types(tmp_path: Path, monkeypatch)
     assert {item["run_id"] for item in payload} == {"run_iso", "run_mtime"}
 
 
+def test_api_get_run_falls_back_when_persisted_role_binding_summary_is_incomplete(tmp_path: Path, monkeypatch) -> None:
+    runs_root = tmp_path / "runs"
+    contracts_root = tmp_path / "contracts"
+    monkeypatch.setenv("CORTEXPILOT_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CORTEXPILOT_CONTRACT_ROOT", str(contracts_root))
+
+    run_dir = runs_root / "run_role_binding_fallback"
+    contract_payload = {
+        "allowed_paths": ["README.md"],
+        "task_id": "task_role_binding_fallback",
+        "role_contract": {
+            "skills_bundle_ref": "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+            "mcp_bundle_ref": "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools",
+            "runtime_binding": {"runner": "agents", "provider": "cliproxyapi", "model": "gpt-5.4"},
+            "resolved_mcp_tool_set": ["search-01-tavily"],
+        },
+    }
+    _write_manifest(
+        run_dir,
+        {
+            "run_id": "run_role_binding_fallback",
+            "task_id": "task_role_binding_fallback",
+            "status": "SUCCESS",
+            "role_binding_summary": {"authority": "broken-only"},
+        },
+    )
+    _write_contract(run_dir, contract_payload)
+
+    client = TestClient(api_main.app)
+    resp = client.get("/api/runs/run_role_binding_fallback")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["role_binding_read_model"] == build_role_binding_summary(data["contract"])
+
+
 def test_api_list_runs_skips_bad_manifest_and_normalizes_non_dict_contract(tmp_path: Path, monkeypatch) -> None:
     runs_root = tmp_path / "runs"
     contracts_root = tmp_path / "contracts"

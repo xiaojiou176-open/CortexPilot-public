@@ -261,6 +261,7 @@ def collect_workflows(
                 "_has_running": False,
                 "_has_pending_approval": False,
                 "_latest_role_binding_ts": datetime.min.replace(tzinfo=timezone.utc),
+                "_latest_role_binding_key": (datetime.min.replace(tzinfo=timezone.utc), ""),
             },
         )
         created_raw = manifest.get("created_at") or manifest.get("start_ts")
@@ -286,8 +287,10 @@ def collect_workflows(
             if isinstance(manifest.get("role_binding_summary"), dict)
             else {}
         )
-        if role_binding_summary and created_at >= entry["_latest_role_binding_ts"]:
+        latest_role_binding_key = (created_at, current_run_id)
+        if role_binding_summary and latest_role_binding_key > entry["_latest_role_binding_key"]:
             entry["_latest_role_binding_ts"] = created_at
+            entry["_latest_role_binding_key"] = latest_role_binding_key
             entry["workflow_case_read_model"] = {
                 "authority": "workflow-case-read-model",
                 "source": "latest linked run manifest.role_binding_summary",
@@ -383,4 +386,5 @@ def collect_workflows(
             entry["case_updated_at"] = str(persisted.get("updated_at") or "")
         entry.pop("_latest_ts", None)
         entry.pop("_latest_role_binding_ts", None)
+        entry.pop("_latest_role_binding_key", None)
     return workflows

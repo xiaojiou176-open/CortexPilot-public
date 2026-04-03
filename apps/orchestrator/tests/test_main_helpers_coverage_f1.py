@@ -389,3 +389,28 @@ def test_main_state_store_helpers_branch_matrix(tmp_path: Path) -> None:
         workflows["wf-1"]["workflow_case_read_model"]["role_binding_summary"]["skills_bundle_ref"]["bundle_id"]
         == "worker_delivery_core_v1"
     )
+
+    _write_json(
+        runs_root / "run-workflow-3" / "manifest.json",
+        {
+            "run_id": "run-workflow-zz",
+            "task_id": "task-3",
+            "status": "SUCCESS",
+            "created_at": "2024-01-02T00:00:00Z",
+            "role_binding_summary": build_role_binding_summary(
+                {
+                    "runtime_options": {"runner": "agents", "provider": "cliproxyapi"},
+                    "role_contract": {
+                        "skills_bundle_ref": "policies/skills_bundle_registry.json#bundles.reviewer_gate_v1",
+                        "mcp_bundle_ref": "policies/agent_registry.json#agents(role=REVIEWER).capabilities.mcp_tools",
+                        "runtime_binding": {"runner": "agents", "provider": "cliproxyapi", "model": None},
+                        "resolved_mcp_tool_set": ["codex"],
+                    },
+                }
+            ),
+            "workflow": {"workflow_id": "wf-1", "task_queue": "q1", "namespace": "n1", "status": "DONE"},
+        },
+    )
+
+    workflows = main_state_store_helpers.collect_workflows(runs_root=runs_root)
+    assert workflows["wf-1"]["workflow_case_read_model"]["source_run_id"] == "run-workflow-zz"
