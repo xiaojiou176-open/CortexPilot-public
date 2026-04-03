@@ -115,6 +115,10 @@ This repository combines:
   reinstalls package-local `frontend-api-client` dependencies before it runs
   the node smoke bundle, so clean-room verification keeps testing the package
   itself instead of failing on missing local installs
+- **Prompt 10 clean-room cleanup hardening**: clean-room recovery now runs the
+  repo-owned workspace-module cleanup before its broad runtime `rm -rf` sweep,
+  so stubborn `apps/dashboard/node_modules` residue cannot abort the recovery
+  lane before the resilient cleanup path gets a chance to run
 - **Prompt 10 quick-gate decoupling**: the `cortexpilot_orch.contract`
   package now lazy-loads `compiler` / `validator` entrypoints, so Quick
   Feedback governance scripts can import `ContractValidator` and schedule

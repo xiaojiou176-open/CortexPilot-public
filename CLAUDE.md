@@ -207,6 +207,11 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `frontend-api-client`, keep this file and the root docs aligned in the same
   patch so recovery gates fail on product regressions instead of missing local
   package installs
+- when clean-room recovery changes the ordering between workspace cleanup and
+  broad runtime deletion, keep this file and the root docs aligned in the same
+  patch; current examples include running `scripts/cleanup_workspace_modules.sh`
+  before the clean-room `rm -rf` sweep so stubborn dashboard module residue
+  does not abort the recovery lane early
 
 ## Key Commands
 

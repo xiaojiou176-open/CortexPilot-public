@@ -85,6 +85,10 @@ All notable changes to this repository will be documented in this file.
   interpreter cannot import orchestrator logging dependencies, keeping
   containerized pre-push governance lanes from failing on `/usr/bin/python3`
   drift alone
+- hardened `scripts/check_clean_room_recovery.sh` by running the repo-owned
+  workspace-module cleanup before its broad runtime `rm -rf` sweep, so
+  stubborn `apps/dashboard/node_modules` bind-mount residue no longer aborts
+  clean-room recovery before the resilient cleanup path runs
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced
