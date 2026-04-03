@@ -1,5 +1,22 @@
 import { describe, expect, it, expectTypeOf } from "vitest";
 
+import type {
+  BindingValidationMode as CanonicalBindingValidationMode,
+  McpBundleReadModel as CanonicalMcpBundleReadModel,
+  RoleBindingReadModel as CanonicalRoleBindingReadModel,
+  RuntimeBindingReadModel as CanonicalRuntimeBindingReadModel,
+  SkillsBundleReadModel as CanonicalSkillsBundleReadModel,
+  WorkflowCaseReadModel as CanonicalWorkflowCaseReadModel,
+} from "../../../packages/frontend-api-contract/index";
+
+import type {
+  McpBundleReadModel as SharedMcpBundleReadModel,
+  RoleBindingReadModel as SharedRoleBindingReadModel,
+  RuntimeBindingReadModel as SharedRuntimeBindingReadModel,
+  SkillsBundleReadModel as SharedSkillsBundleReadModel,
+  WorkflowCaseReadModel as SharedWorkflowCaseReadModel,
+} from "@cortexpilot/frontend-shared/types";
+
 import {
   FRONTEND_API_CONTRACT as localContract,
   PM_JOURNEY_STAGES as localStages,
@@ -19,6 +36,14 @@ import {
 describe("frontendApiContract re-export mapping", () => {
   it("re-exports the same contract object to prevent drift", () => {
     expect(localContract).toBe(packageContract);
+    expect(localContract.paths.runs).toBe("/api/runs");
+    expect(localContract.paths.runDetail).toBe("/api/runs/{run_id}");
+    expect(localContract.paths.runEvents).toBe("/api/runs/{run_id}/events");
+    expect(localContract.paths.runEventsStream).toBe("/api/runs/{run_id}/events/stream");
+    expect(localContract.paths.runDiff).toBe("/api/runs/{run_id}/diff");
+    expect(localContract.paths.runReports).toBe("/api/runs/{run_id}/reports");
+    expect(localContract.paths.workflows).toBe("/api/workflows");
+    expect(localContract.paths.workflowDetail).toBe("/api/workflows/{workflow_id}");
     expect(localContract.paths.pmSessions).toBe("/api/pm/sessions");
     expect(localContract.paths.pmSessionMessages).toBe("/api/pm/sessions/{pm_session_id}/messages");
     expect(localContract.headers.requestId).toBe("x-request-id");
@@ -36,5 +61,14 @@ describe("frontendApiContract re-export mapping", () => {
     expectTypeOf<LocalFrontendApiContract>().toEqualTypeOf<PackageFrontendApiContract>();
     expectTypeOf<LocalPmJourneyContext>().toEqualTypeOf<PackagePmJourneyContext>();
     expectTypeOf<LocalPmJourneyStage>().toEqualTypeOf<PackagePmJourneyStage>();
+  });
+
+  it("keeps shared read-model type aliases aligned with the contract package", () => {
+    expectTypeOf<SharedSkillsBundleReadModel>().toEqualTypeOf<CanonicalSkillsBundleReadModel>();
+    expectTypeOf<SharedMcpBundleReadModel>().toEqualTypeOf<CanonicalMcpBundleReadModel>();
+    expectTypeOf<SharedRuntimeBindingReadModel>().toEqualTypeOf<CanonicalRuntimeBindingReadModel>();
+    expectTypeOf<SharedRoleBindingReadModel>().toEqualTypeOf<CanonicalRoleBindingReadModel>();
+    expectTypeOf<SharedWorkflowCaseReadModel>().toEqualTypeOf<CanonicalWorkflowCaseReadModel>();
+    expectTypeOf<SharedSkillsBundleReadModel["validation"]>().toEqualTypeOf<CanonicalBindingValidationMode>();
   });
 });

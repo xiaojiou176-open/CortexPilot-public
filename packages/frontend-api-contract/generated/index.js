@@ -32,10 +32,67 @@ export const FRONTEND_API_CONTRACT = {
   "paths": {
     "commandTowerOverview": "/api/command-tower/overview",
     "commandTowerAlerts": "/api/command-tower/alerts",
+    "runs": "/api/runs",
+    "runDetail": "/api/runs/{run_id}",
+    "runEvents": "/api/runs/{run_id}/events",
+    "runEventsStream": "/api/runs/{run_id}/events/stream",
+    "runDiff": "/api/runs/{run_id}/diff",
+    "runReports": "/api/runs/{run_id}/reports",
     "queue": "/api/queue",
+    "workflows": "/api/workflows",
+    "workflowDetail": "/api/workflows/{workflow_id}",
     "pmSessions": "/api/pm/sessions",
-    "pmSessionMessages": "/api/pm/sessions/{pm_session_id}/messages",
-    "workflows": "/api/workflows"
+    "pmSessionMessages": "/api/pm/sessions/{pm_session_id}/messages"
+  },
+  "readModels": {
+    "bindingStatuses": [
+      "unresolved",
+      "resolved",
+      "registry-backed"
+    ],
+    "bindingValidationModes": [
+      "fail-closed"
+    ],
+    "executionAuthorities": [
+      "task_contract"
+    ],
+    "runtimeBindingStatuses": [
+      "unresolved",
+      "partially-resolved",
+      "contract-derived"
+    ],
+    "runtimeBindingAuthorityScopes": [
+      "contract-derived-read-model"
+    ],
+    "runtimeBindingSourceRunners": [
+      "runtime_options.runner",
+      "role_contract.runtime_binding.runner",
+      "unresolved"
+    ],
+    "runtimeBindingSourceProviders": [
+      "runtime_options.provider",
+      "role_contract.runtime_binding.provider",
+      "unresolved"
+    ],
+    "runtimeBindingSourceModels": [
+      "env.CORTEXPILOT_CODEX_MODEL",
+      "env.CORTEXPILOT_PROVIDER_MODEL",
+      "role_contract.runtime_binding.model",
+      "unresolved"
+    ],
+    "roleBindingAuthorities": [
+      "contract-derived-read-model"
+    ],
+    "roleBindingSources": [
+      "persisted from contract",
+      "derived from compiled role_contract and runtime inputs; not an execution authority surface"
+    ],
+    "workflowCaseAuthorities": [
+      "workflow-case-read-model"
+    ],
+    "workflowCaseSources": [
+      "latest linked run manifest.role_binding_summary"
+    ]
   }
 };
 

@@ -5,7 +5,13 @@ import ContractViewer from "../ContractViewer";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
-import type { EventRecord, RunContract, RunDetailPayload } from "../../lib/types";
+import {
+  formatBindingReadModelLabel,
+  formatRoleBindingRuntimeSummary,
+  type EventRecord,
+  type RunContract,
+  type RunDetailPayload,
+} from "../../lib/types";
 import type { LifecycleBadge, LiveMode, LiveTransport } from "./runDetailHelpers";
 import { badgeVariantForStage, liveBadgeVariant, liveLabel, toArray, toDisplayText, toObject } from "./runDetailHelpers";
 
@@ -66,6 +72,7 @@ export default function RunDetailStatusContractCard({
   const allowedPaths = toArray(run.allowed_paths);
   const evidenceEntries = Object.entries(toObject(evidenceHashes));
   const artifactList = toArray(manifestArtifacts);
+  const roleBindingReadModel = run.role_binding_read_model;
 
   return (
     <Card>
@@ -181,6 +188,20 @@ export default function RunDetailStatusContractCard({
         <summary className="mono">Expand evidence hashes</summary>
         <pre className="mono">{JSON.stringify(toObject(evidenceHashes), null, 2)}</pre>
       </details>
+      {roleBindingReadModel ? (
+        <div className="run-detail-section" data-testid="run-role-binding-read-model">
+          <div className="mono run-detail-section-label">Role binding read model</div>
+          <div className="mono">Authority: {toDisplayText(roleBindingReadModel.authority)}</div>
+          <div className="mono">Source: {toDisplayText(roleBindingReadModel.source)}</div>
+          <div className="mono">Execution authority: {toDisplayText(roleBindingReadModel.execution_authority)}</div>
+          <div className="mono">Skills bundle: {formatBindingReadModelLabel(roleBindingReadModel.skills_bundle_ref)}</div>
+          <div className="mono">MCP bundle: {formatBindingReadModelLabel(roleBindingReadModel.mcp_bundle_ref)}</div>
+          <div className="mono">Runtime binding: {formatRoleBindingRuntimeSummary(roleBindingReadModel)}</div>
+          <div className="mono muted">
+            Read-only note: this mirrors the persisted binding summary; task_contract still owns execution authority.
+          </div>
+        </div>
+      ) : null}
       <div className="mono">Manifest artifacts:</div>
       <div className="mono muted">{artifactList.length} artifact{artifactList.length === 1 ? "" : "s"}</div>
       <details>

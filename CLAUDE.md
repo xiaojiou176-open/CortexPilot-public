@@ -150,6 +150,14 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `apps/desktop/src/pages/WorkflowDetailPage.tsx`, plus the typed frontend
   `RoleBindingReadModel` / `WorkflowCaseReadModel` surfaces that stay below
   `task_contract`
+- when a Prompt 8-style slice converges the OpenAPI/frontend-contract
+  generation chain or projects `role_binding_read_model` onto dashboard/desktop
+  Run Detail surfaces, keep this file, the root AI/docs entrypoints, and the
+  module READMEs aligned in the same patch; current examples include
+  `docs/api/openapi.cortexpilot.json`, generated
+  `@cortexpilot/frontend-api-contract` read-model types, and the read-only Run
+  Detail operator summaries that continue to treat `task_contract` as
+  execution authority
 
 ## Key Commands
 

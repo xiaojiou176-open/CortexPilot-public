@@ -185,6 +185,13 @@ Work in CortexPilot as a contract-first engineering agent:
   and `apps/desktop/src/pages/WorkflowDetailPage.tsx`, plus the typed frontend
   `RoleBindingReadModel` / `WorkflowCaseReadModel` shapes that stay below
   `task_contract`
+- when a Prompt 8-style slice converges the OpenAPI/frontend-contract
+  generation chain or projects `role_binding_read_model` onto dashboard/desktop
+  Run Detail surfaces, sync the root AI/docs entrypoints in the same patch;
+  current examples include `docs/api/openapi.cortexpilot.json`, the generated
+  `@cortexpilot/frontend-api-contract` read-model types, and the read-only
+  Run Detail operator summaries that keep `task_contract` as execution
+  authority
 
 ## Local Overrides
 

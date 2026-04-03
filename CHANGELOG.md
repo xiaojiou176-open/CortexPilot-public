@@ -26,6 +26,11 @@ All notable changes to this repository will be documented in this file.
   dashboard and desktop Workflow Case detail surfaces, typing the frontend
   `RoleBindingReadModel` / `WorkflowCaseReadModel` shapes, and keeping those
   operator cards explicitly below `task_contract` execution authority
+- opened Prompt 8 by converging `docs/api/openapi.cortexpilot.json`,
+  `generate_frontend_contracts.py`, `@cortexpilot/frontend-api-contract`,
+  frontend client/types, and dashboard/desktop Run Detail so
+  `role_binding_read_model` is now contract-backed from the generated frontend
+  surface through the primary run operator views
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { FRONTEND_API_CONTRACT } from "@cortexpilot/frontend-api-contract";
 import { createDashboardApiClient, createDesktopApiClient } from "../index.js";
 
 function createJsonResponse(body) {
@@ -27,7 +28,7 @@ test("dashboard client sends auth + trace headers and hits runs endpoint", async
   const payload = await client.fetchRuns();
   assert.deepEqual(payload, { ok: true });
   assert.equal(calls.length, 1);
-  assert.equal(calls[0].url, "http://127.0.0.1:10000/api/runs");
+  assert.equal(calls[0].url, `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.runs}`);
   assert.equal(calls[0].init.headers.Authorization, "Bearer token-dashboard");
   assert.equal(typeof calls[0].init.headers["x-request-id"], "string");
   assert.equal(typeof calls[0].init.headers["x-trace-id"], "string");
@@ -60,9 +61,42 @@ test("dashboard client openEventsStream builds stream url and forwards credentia
   assert.equal(eventSourceCalls.length, 1);
   assert.equal(
     eventSourceCalls[0].url,
-    "http://127.0.0.1:10000/api/runs/run-1/events/stream?since=cursor-1&limit=5&tail=1",
+    `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.runEventsStream.replace("{run_id}", "run-1")}?since=cursor-1&limit=5&tail=1`,
   );
   assert.deepEqual(eventSourceCalls[0].options, { withCredentials: true });
+});
+
+test("dashboard client uses contract-backed run detail routes", async () => {
+  const calls = [];
+  const client = createDashboardApiClient({
+    baseUrl: "http://127.0.0.1:10000",
+    fetchImpl: async (url, init) => {
+      calls.push({ url, init });
+      return createJsonResponse({ ok: true });
+    },
+  });
+
+  await client.fetchRun("run/1");
+  await client.fetchEvents("run/1", { tail: true });
+  await client.fetchDiff("run/1");
+  await client.fetchReports("run/1");
+
+  assert.equal(
+    calls[0].url,
+    `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.runDetail.replace("{run_id}", "run%2F1")}`,
+  );
+  assert.equal(
+    calls[1].url,
+    `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.runEvents.replace("{run_id}", "run%2F1")}?tail=1`,
+  );
+  assert.equal(
+    calls[2].url,
+    `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.runDiff.replace("{run_id}", "run%2F1")}`,
+  );
+  assert.equal(
+    calls[3].url,
+    `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.runReports.replace("{run_id}", "run%2F1")}`,
+  );
 });
 
 test("dashboard client uses PM endpoints contract for list + message posting", async () => {
@@ -104,6 +138,34 @@ test("desktop client fetchDesktopSessions uses PM session list defaults", async 
   assert.deepEqual(payload, { sessions: [] });
   assert.equal(calls.length, 1);
   assert.equal(calls[0].url, "http://127.0.0.1:10000/api/pm/sessions?sort=updated_desc&limit=10");
+});
+
+test("dashboard client uses contract workflow and queue paths", async () => {
+  const calls = [];
+  const client = createDashboardApiClient({
+    baseUrl: "http://127.0.0.1:10000",
+    fetchImpl: async (url, init) => {
+      calls.push({ url, init });
+      return createJsonResponse({ ok: true });
+    },
+  });
+
+  await client.fetchWorkflows();
+  await client.fetchWorkflow("wf/1");
+  await client.fetchQueue("wf/1", "running");
+
+  const workflowPath = FRONTEND_API_CONTRACT.paths.workflows;
+  const queuePath = FRONTEND_API_CONTRACT.paths.queue;
+  assert.equal(calls[0].url, `http://127.0.0.1:10000${workflowPath}`);
+  assert.equal(
+    calls[1].url,
+    `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.workflowDetail.replace("{workflow_id}", "wf%2F1")}`,
+  );
+  const queueUrl = new URL(calls[2].url);
+  assert.equal(queueUrl.origin, "http://127.0.0.1:10000");
+  assert.equal(queueUrl.pathname, queuePath);
+  assert.equal(queueUrl.searchParams.get("workflow_id"), "wf/1");
+  assert.equal(queueUrl.searchParams.get("status"), "running");
 });
 
 test("dashboard client attaches operator role only for mutation requests", async () => {

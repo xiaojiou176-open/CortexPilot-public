@@ -77,6 +77,14 @@ function withQuery(path, params) {
   return qs ? `${path}?${qs}` : path;
 }
 
+function fillPathTemplate(pathTemplate, replacements = {}) {
+  let nextPath = pathTemplate;
+  for (const [key, rawValue] of Object.entries(replacements)) {
+    nextPath = nextPath.replace(`{${key}}`, encodeURIComponent(String(rawValue)));
+  }
+  return nextPath;
+}
+
 function createClient(options = {}) {
   const baseUrl = options.baseUrl || FRONTEND_API_CONTRACT.defaultApiBase;
   const resolveMutationRole =
@@ -103,29 +111,32 @@ function createClient(options = {}) {
   const paths = FRONTEND_API_CONTRACT.paths;
 
   async function fetchRuns() {
-    return http.getJson("/api/runs");
+    return http.getJson(paths.runs);
   }
 
   async function fetchRun(runId) {
-    return http.getJson(`/api/runs/${encodeRunId(runId)}`, { runId });
+    return http.getJson(fillPathTemplate(paths.runDetail, { run_id: runId }), { runId });
   }
 
   async function fetchEvents(runId, optionsArg = {}) {
-    return http.getJson(withQuery(`/api/runs/${encodeRunId(runId)}/events`, buildEventQuery(optionsArg)), { ...optionsArg, runId });
+    return http.getJson(
+      withQuery(fillPathTemplate(paths.runEvents, { run_id: runId }), buildEventQuery(optionsArg)),
+      { ...optionsArg, runId },
+    );
   }
 
   function openEventsStream(runId, optionsArg = {}) {
-    return sse.open(`/api/runs/${encodeRunId(runId)}/events/stream`, buildEventQuery(optionsArg), {
+    return sse.open(fillPathTemplate(paths.runEventsStream, { run_id: runId }), buildEventQuery(optionsArg), {
       resolveToken: options.resolveToken,
     });
   }
 
   async function fetchDiff(runId) {
-    return http.getJson(`/api/runs/${encodeRunId(runId)}/diff`, { runId });
+    return http.getJson(fillPathTemplate(paths.runDiff, { run_id: runId }), { runId });
   }
 
   async function fetchReports(runId) {
-    return http.getJson(`/api/runs/${encodeRunId(runId)}/reports`, { runId });
+    return http.getJson(fillPathTemplate(paths.runReports, { run_id: runId }), { runId });
   }
 
   async function fetchArtifact(runId, name) {
@@ -210,11 +221,11 @@ function createClient(options = {}) {
   }
 
   async function fetchWorkflows() {
-    return http.getJson("/api/workflows");
+    return http.getJson(paths.workflows);
   }
 
   async function fetchWorkflow(workflowId) {
-    return http.getJson(`/api/workflows/${encodeURIComponent(workflowId)}`);
+    return http.getJson(fillPathTemplate(paths.workflowDetail, { workflow_id: workflowId }));
   }
 
   async function fetchQueue(workflowId, status) {
@@ -225,8 +236,7 @@ function createClient(options = {}) {
     if (typeof status === "string" && status.trim()) {
       params.set("status", status.trim());
     }
-    const suffix = params.toString() ? `?${params.toString()}` : "";
-    return http.getJson(`/api/queue${suffix}`);
+    return http.getJson(withQuery(paths.queue, params));
   }
 
   async function enqueueRunQueue(runId, payload = {}) {

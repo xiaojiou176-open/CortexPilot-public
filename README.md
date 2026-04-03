@@ -81,6 +81,15 @@ This repository combines:
   detail views now render that `workflow_case_read_model` directly, so
   operators can inspect bundle/runtime posture from the current case surface
   while `task_contract` remains the only execution authority
+- **Prompt 8 contract convergence**: `docs/api/openapi.cortexpilot.json` plus
+  generated `@cortexpilot/frontend-api-contract` artifacts now publish
+  run/workflow route bindings and `RoleBindingReadModel` /
+  `WorkflowCaseReadModel` shapes from one source instead of relying on a
+  stale helper contract plus hand-written overlays
+- **Run Detail read-only projection**: dashboard and desktop Run Detail now
+  expose `role_binding_read_model` on their primary operator summary surfaces,
+  so the persisted binding summary is visible where operators already inspect
+  run status while `task_contract` still owns execution authority
 
 ## Quickstart
 
