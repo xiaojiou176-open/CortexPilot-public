@@ -38,8 +38,9 @@ npm --prefix apps/desktop run tauri:dev
   sends the first message.
 - Desktop workflow surfaces now expose workflow-case summaries, queue / SLA
   state, queue scheduling inputs (`priority`, `scheduled_at`, `deadline_at`),
-  and a dedicated Run Compare page so operator triage is not limited to the
-  dashboard.
+  a read-only `Workflow read model` card sourced from
+  `workflow_case_read_model`, and a dedicated Run Compare page so operator
+  triage is not limited to the dashboard.
 - High-frequency desktop operator surfaces now keep their `Run Detail` /
   `Overview` chrome closer to the shared locale and status-presentation
   substrate. Current examples include run-detail tabs, replay/compare empty
@@ -49,3 +50,6 @@ npm --prefix apps/desktop run tauri:dev
   copy on the shared `@cortexpilot/frontend-shared/uiCopy` contract and route
   status labels through shared status-presentation helpers, so `en` / `zh-CN`
   operator rendering does not depend on page-local literal maps.
+- The desktop Workflow Case detail surface now mirrors the latest linked run's
+  `workflow_case_read_model`, but it presents that card as read-only operator
+  context rather than a second execution-authority switch.
