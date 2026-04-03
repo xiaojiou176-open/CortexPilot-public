@@ -73,7 +73,9 @@ bash scripts/run_orchestrator_cli.sh --help
   without reconstructing it from raw schema fields
 - `run_intake(...)` now returns a contract-derived `role_binding_summary` read
   model, and the same summary is persisted into run manifests so PM-facing
-  helpers plus post-run surfaces can inspect the same bundle/runtime state
+  helpers plus post-run surfaces can inspect the same bundle/runtime state;
+  registry-backed `mcp_bundle_ref` rows now surface their resolved tool set
+  directly instead of falling back to an empty placeholder array
   without treating that summary as execution authority
 - `get_run(...)` now also returns a stable `role_binding_read_model`, so run
   detail and read-only MCP consumers can inspect persisted bundle/runtime state
