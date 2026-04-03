@@ -22,6 +22,10 @@ All notable changes to this repository will be documented in this file.
   `role_binding_summary.skills_bundle_ref` with bundle metadata, and adding a
   `workflow_case_read_model` on workflow/control-plane reads while keeping
   `execution_authority = task_contract`
+- opened Prompt 7 by projecting the Prompt 5/6 workflow binding read model onto
+  dashboard and desktop Workflow Case detail surfaces, typing the frontend
+  `RoleBindingReadModel` / `WorkflowCaseReadModel` shapes, and keeping those
+  operator cards explicitly below `task_contract` execution authority
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced
