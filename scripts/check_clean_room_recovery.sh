@@ -97,6 +97,8 @@ preserve_runtime_path ".runtime-cache/test_output/governance"
 preserve_runtime_path ".runtime-cache/cortexpilot/reports/ci"
 preserve_runtime_path ".runtime-cache/cortexpilot/release"
 
+bash "$ROOT_DIR/scripts/cleanup_workspace_modules.sh" >/dev/null 2>&1 || true
+
 rm -rf \
   "$ROOT_DIR/.runtime-cache" \
   "$ROOT_DIR/.next" \

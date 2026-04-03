@@ -1,5 +1,7 @@
 import hashlib
+import importlib
 import json
+import sys
 from pathlib import Path
 
 import pytest
@@ -76,6 +78,26 @@ def test_compile_plan_text_errors() -> None:
         compile_plan_text("{")
     with pytest.raises(ValueError, match="payload must be object"):
         compile_plan_text("[]")
+
+
+def test_contract_validator_import_does_not_eagerly_import_compiler() -> None:
+    saved_modules = {
+        name: module
+        for name, module in sys.modules.items()
+        if name == "cortexpilot_orch.contract" or name.startswith("cortexpilot_orch.contract.")
+    }
+    for name in list(saved_modules):
+        sys.modules.pop(name, None)
+
+    try:
+        validator_module = importlib.import_module("cortexpilot_orch.contract.validator")
+        assert validator_module.ContractValidator is not None
+        assert "cortexpilot_orch.contract.compiler" not in sys.modules
+    finally:
+        for name in list(sys.modules):
+            if name == "cortexpilot_orch.contract" or name.startswith("cortexpilot_orch.contract."):
+                sys.modules.pop(name, None)
+        sys.modules.update(saved_modules)
 
 
 def test_compile_plan_missing_task_id(monkeypatch) -> None:

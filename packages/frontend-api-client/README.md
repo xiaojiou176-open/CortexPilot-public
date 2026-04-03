@@ -8,6 +8,7 @@ layer for CortexPilot frontend consumers.
 - `createFrontendApiClient`
 - `createDashboardApiClient`
 - `createDesktopApiClient`
+- `createControlPlaneStarter`
 - shared auth, HTTP, and SSE cores for the same API surface
 
 This package is useful when you want one import boundary for:
@@ -25,16 +26,90 @@ This package is useful when you want one import boundary for:
 ## Minimal example
 
 ```ts
-import { createDashboardApiClient } from "@cortexpilot/frontend-api-client";
+import {
+  createControlPlaneStarter,
+  createDashboardApiClient,
+} from "@cortexpilot/frontend-api-client";
 
 const client = createDashboardApiClient({
   baseUrl: "http://localhost:8000",
   resolveToken: () => window.localStorage.getItem("cortexpilot.token") || undefined,
+  resolveMutationRole: () => "TECH_LEAD",
 });
 
-const overview = await client.fetchCommandTowerOverview();
-const workflows = await client.fetchWorkflows();
+const starter = createControlPlaneStarter(client);
+
+const bootstrap = await starter.fetchBootstrap({ role: "WORKER" });
+const preview = await starter.previewRoleDefaults("WORKER", {
+  runtime_binding: {
+    provider: "cliproxyapi",
+    model: "gpt-5.4",
+  },
+});
 ```
+
+## External integration starter
+
+Use `createControlPlaneStarter(...)` when another dashboard, desktop shell, or
+builder tool needs the shortest repo-owned path into the current control-plane
+story.
+
+It gives external consumers one place to:
+
+- bootstrap Command Tower overview + agents + contracts + optional role config
+- preview role-default changes without inventing a second client wrapper
+- apply role-default changes with the same mutation-role header discipline the
+  existing operator surfaces already use
+- stay inside the truthful boundary where role defaults are configurable but
+  `task_contract` remains the execution authority
+
+## Repo-owned starter example
+
+If you want a copy-pasteable starting point instead of reading the helpers one
+by one, use the repo-owned example:
+
+```bash
+node packages/frontend-api-client/examples/control_plane_starter.local.mjs
+```
+
+That example bootstraps:
+
+- Command Tower overview
+- `/api/agents`
+- `/api/contracts`
+- optional role-config preview for one role
+
+The quickest useful preview run looks like this:
+
+```bash
+node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
+  --base-url http://127.0.0.1:10000 \
+  --role WORKER \
+  --mutation-role TECH_LEAD \
+  --preview-provider cliproxyapi \
+  --preview-model gpt-5.4
+```
+
+Apply stays opt-in on purpose:
+
+```bash
+node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
+  --base-url http://127.0.0.1:10000 \
+  --role WORKER \
+  --mutation-role TECH_LEAD \
+  --preview-provider cliproxyapi \
+  --preview-model gpt-5.4 \
+  --apply
+```
+
+The example stays inside the truthful boundary:
+
+- it demonstrates bootstrap + preview
+- apply only happens when you pass `--apply`
+- it does not imply hosted SDK behavior
+- it does not replace the backend orchestration runtime
+- `task_contract` remains the execution authority even when role-default apply
+  is available through the same client under local operator policy
 
 ## Current boundary
 
@@ -45,6 +120,8 @@ const workflows = await client.fetchWorkflows();
   second handwritten path map.
 - It does not replace the backend orchestration runtime or the read-only MCP
   server.
+- The control-plane starter is a builder convenience layer, not a second
+  execution authority or a hosted SDK runtime.
 - Prompt 7-style frontend slices should treat `role_binding_read_model` and
   `workflow_case_read_model` as read-only operator surfaces; the task contract
   remains the execution authority.

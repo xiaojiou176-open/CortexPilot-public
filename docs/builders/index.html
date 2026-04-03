@@ -58,6 +58,12 @@
         ready-to-call helpers for runs, Workflow Cases, approvals, and
         command-tower reads.
       </p>
+      <p>
+        The current shortest integration path is the package's
+        <code>createControlPlaneStarter(...)</code> helper, which bootstraps
+        Command Tower overview + agents + contracts + optional role config
+        reads without inventing a second client wrapper.
+      </p>
       <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md">Open package README</a></p>
 
       <h2>2. Frontend API contract</h2>
@@ -83,14 +89,44 @@
       </ul>
 
       <h2>Minimal example</h2>
-      <pre><code>import { createFrontendApiClient } from "@cortexpilot/frontend-api-client";
+      <pre><code>import {
+  createControlPlaneStarter,
+  createFrontendApiClient,
+} from "@cortexpilot/frontend-api-client";
 
 const client = createFrontendApiClient({
   baseUrl: "http://localhost:8000",
+  resolveMutationRole: () => "TECH_LEAD",
 });
 
-const overview = await client.fetchCommandTowerOverview();
-const workflows = await client.fetchWorkflows();</code></pre>
+const starter = createControlPlaneStarter(client);
+const bootstrap = await starter.fetchBootstrap({ role: "WORKER" });
+const preview = await starter.previewRoleDefaults("WORKER", {
+  runtime_binding: { provider: "cliproxyapi", model: "gpt-5.4" },
+});</code></pre>
+
+      <h2>Repo-owned starter file</h2>
+      <p>
+        If you want a path you can run inside this repo without inventing your
+        own wrapper first, use the
+        <a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/examples/control_plane_starter.local.mjs">control-plane starter example</a>.
+      </p>
+      <pre><code>node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
+  --base-url http://127.0.0.1:10000 \
+  --role WORKER \
+  --mutation-role TECH_LEAD \
+  --preview-provider cliproxyapi \
+  --preview-model gpt-5.4</code></pre>
+      <p>
+        This remains a repo-owned starter path, not a hosted SDK. It proves one
+        outside-consumer loop for overview + agents + contracts + role-config
+        preview without claiming hosted accounts, write-capable MCP, or a full
+        marketplace/distribution product.
+      </p>
+      <p>
+        Apply stays opt-in. Pass <code>--apply</code> only when you
+        intentionally want the example to persist repo-owned role defaults.
+      </p>
 
       <h2>Fast onboarding order</h2>
       <ol>

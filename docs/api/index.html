@@ -60,6 +60,18 @@
         Use <a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md"><code>@cortexpilot/frontend-api-client</code></a>
         when you want convenience helpers over runs, Workflow Cases, approvals, and command-tower reads.
       </p>
+      <p>
+        External teams that want the shortest repo-owned starter should begin
+        with <code>createControlPlaneStarter(...)</code> on top of that client,
+        because it bundles the current overview + agents + contracts + role
+        config bootstrap path without implying a hosted SDK platform.
+      </p>
+      <p>
+        The repo-owned
+        <a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/examples/control_plane_starter.local.mjs">starter example</a>
+        shows the same bootstrap + preview path as runnable code instead of
+        leaving builders to reconstruct it from prose alone.
+      </p>
 
       <h2>3. Contract-facing types</h2>
       <p>
@@ -87,6 +99,17 @@
         <li>Use contract-facing types when you want typed route/query boundaries without importing backend modules.</li>
         <li>Pair the result with the <a href="../builders/">builder quickstart</a> so package-level adoption stays aligned with the current MCP/API story.</li>
       </ol>
+      <pre><code>node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
+  --base-url http://127.0.0.1:10000 \
+  --role WORKER \
+  --mutation-role TECH_LEAD \
+  --preview-provider cliproxyapi \
+  --preview-model gpt-5.4</code></pre>
+      <p>
+        This example is preview-first by default. Use
+        <code>--apply</code> only when you intentionally
+        want to persist repo-owned role defaults through the same starter path.
+      </p>
     </main>
   </body>
 </html>

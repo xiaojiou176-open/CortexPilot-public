@@ -115,6 +115,16 @@ This repository combines:
   reinstalls package-local `frontend-api-client` dependencies before it runs
   the node smoke bundle, so clean-room verification keeps testing the package
   itself instead of failing on missing local installs
+- **Prompt 10 clean-room cleanup hardening**: clean-room recovery now runs the
+  repo-owned workspace-module cleanup before its broad runtime `rm -rf` sweep,
+  and that cleanup path can now quarantine stubborn `apps/dashboard/node_modules`
+  residue before deletion, so the recovery lane does not abort on transient
+  bind-mounted module trees
+- **Prompt 10 quick-gate decoupling**: the `cortexpilot_orch.contract`
+  package now lazy-loads `compiler` / `validator` entrypoints, so Quick
+  Feedback governance scripts can import `ContractValidator` and schedule
+  boundary checks without accidentally pulling the runtime-provider stack or
+  requiring `httpx` on light governance Python paths
 - **Quick Feedback light path**: role-config runtime capability summaries now
   resolve through a lightweight provider-capability helper, so control-plane
   previews keep their fail-closed provider posture without forcing GitHub
@@ -276,7 +286,7 @@ review, and hand off.”
 These are the current public-facing entry points for teams that want to build
 around CortexPilot without pretending a full SDK platform already exists:
 
-- [packages/frontend-api-client/README.md](packages/frontend-api-client/README.md): thin JavaScript/TypeScript client entry points for dashboard, desktop, and web surfaces.
+- [packages/frontend-api-client/README.md](packages/frontend-api-client/README.md): thin JavaScript/TypeScript client entry points for dashboard, desktop, and web surfaces, including the repo-owned `createControlPlaneStarter(...)` bootstrap path for overview + agents + contracts + role-config integration.
 - [packages/frontend-api-contract/index.d.ts](packages/frontend-api-contract/index.d.ts): generated contract surface and stable import boundary for API-facing types.
 - [packages/frontend-shared/README.md](packages/frontend-shared/README.md): shared UI copy, locale, status, and frontend-only presentation helpers.
 - [docs/architecture/ecosystem-and-builder-surfaces-v1.md](docs/architecture/ecosystem-and-builder-surfaces-v1.md): the human-readable map that explains how Codex / Claude Code / MCP / public packs / share-ready Workflow Cases fit together.

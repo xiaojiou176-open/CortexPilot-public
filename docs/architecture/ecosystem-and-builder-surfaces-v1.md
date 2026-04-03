@@ -63,7 +63,7 @@ Use these three layers together:
 
 | Surface | What it is for | Where to start |
 | --- | --- | --- |
-| `@cortexpilot/frontend-api-client` | thin JS/TS client helpers for dashboard/desktop/web consumers | `packages/frontend-api-client/README.md` |
+| `@cortexpilot/frontend-api-client` | thin JS/TS client helpers for dashboard/desktop/web consumers plus the repo-owned `createControlPlaneStarter(...)` bootstrap path | `packages/frontend-api-client/README.md` |
 | `@cortexpilot/frontend-api-contract` | generated contract-facing types and route/query names | `packages/frontend-api-contract/index.d.ts` |
 | `@cortexpilot/frontend-shared` | shared UI copy, locale, status, and frontend-only presentation helpers | `packages/frontend-shared/README.md` |
 
@@ -71,12 +71,18 @@ Use these three layers together:
 
 1. Import `createFrontendApiClient` or a dashboard/desktop-specific variant
 2. Point it at the current API base URL
-3. Read runs, Workflow Cases, approvals, and command-tower overviews from the
+3. Use `createControlPlaneStarter(...)` when you want the shortest truthful
+   bootstrap for overview + agents + contracts + role-config reads
+4. Read runs, Workflow Cases, approvals, and command-tower overviews from the
    same client boundary
-4. Use `@cortexpilot/frontend-api-contract` for generated contract-facing
+5. Use `@cortexpilot/frontend-api-contract` for generated contract-facing
    imports
-5. Use `@cortexpilot/frontend-shared` for copy, locale, and presentation
+6. Use `@cortexpilot/frontend-shared` for copy, locale, and presentation
    helpers instead of rebuilding those layers per app
+7. Use the repo-owned example
+   `packages/frontend-api-client/examples/control_plane_starter.local.mjs`
+   when you want the shortest runnable bootstrap for overview + agents +
+   contracts + role-config preview without inventing a second starter wrapper
 
 ## Minimal builder example
 
@@ -91,6 +97,25 @@ const runs = await client.fetchRuns();
 const workflows = await client.fetchWorkflows();
 const overview = await client.fetchCommandTowerOverview();
 ```
+
+## Repo-owned starter path
+
+For a truthful external-consumer starting point, run the example that ships
+with the thin client package instead of reconstructing the flow from docs
+alone:
+
+```bash
+node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
+  --base-url http://127.0.0.1:10000 \
+  --role WORKER \
+  --mutation-role TECH_LEAD \
+  --preview-provider cliproxyapi \
+  --preview-model gpt-5.4
+```
+
+Keep the starter preview-first by default. Apply should stay behind
+`--apply` so the example does not masquerade as a hosted
+SDK or an automatic execution-authority switch.
 
 ## Guardrails
 

@@ -222,6 +222,11 @@ Work in CortexPilot as a contract-first engineering agent:
   frontend contracts, the shared dashboard/desktop runtime-capability copy,
   and the explicit fail-closed wording that keeps chat compatibility distinct
   from tool execution parity
+- when a Prompt 10 closeout fix changes how contract package entrypoints load
+  under CI/governance paths, sync the root AI/docs entrypoints in the same
+  patch; current examples include lazy-loading `cortexpilot_orch.contract`
+  so `ContractValidator` and schedule-boundary governance checks stay below
+  runtime-provider dependencies such as `httpx` on Quick Feedback lanes
 - when a Prompt 10 Wave 3 slice hardens builder/client entrypoints into a
   repo-owned starter path, sync the root AI/docs entrypoints in the same patch;
   current examples include
@@ -236,6 +241,12 @@ Work in CortexPilot as a contract-first engineering agent:
   `frontend-api-client`, sync the root AI/docs entrypoints in the same patch so
   recovery gates fail on product regressions instead of missing local package
   installs
+- when clean-room recovery changes the ordering between workspace cleanup and
+  broad runtime deletion, sync the root AI/docs entrypoints in the same patch;
+  current examples include running `scripts/cleanup_workspace_modules.sh`
+  before the clean-room `rm -rf` sweep, plus quarantining stubborn dashboard
+  module residue when recursive delete alone is not enough, so the recovery
+  lane does not abort early on transient bind-mounted trees
 
 ## Local Overrides
 

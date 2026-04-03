@@ -64,6 +64,10 @@ All notable changes to this repository will be documented in this file.
 - restored clean-room frontend-api-client recovery by making
   `scripts/check_clean_room_recovery.sh` reinstall package-local
   `frontend-api-client` dependencies before it runs the node smoke bundle
+- hardened Prompt 10 closeout CI by lazy-loading
+  `cortexpilot_orch.contract` package entrypoints, so Quick Feedback /
+  schedule-boundary governance checks no longer pull runtime-provider
+  dependencies like `httpx` just to import `ContractValidator`
 - hardened the Prompt 10 control-plane CI path by extracting lightweight
   provider-capability helpers for role-config runtime summaries, registering
   the governed env reads in `configs/env_direct_read_allowlist.json`, and
@@ -79,6 +83,19 @@ All notable changes to this repository will be documented in this file.
   pre-push closeout no longer fails on missing `upstream_inventory_report` /
   `upstream_same_run_cohesion` artifacts when the evidence manifest has already
   marked those upstream checks as route-exempt on PR-bound lanes
+- hardened `scripts/check_log_event_contract.py` so backend log-contract
+  samples can bootstrap a repo-owned Python toolchain when the active
+  interpreter cannot import orchestrator logging dependencies, keeping
+  containerized pre-push governance lanes from failing on `/usr/bin/python3`
+  drift alone, and rewrote the bootstrap shell command as one explicit list
+  element so GitHub code-quality review no longer flags implicit string
+  concatenation on that fallback path
+- hardened `scripts/check_clean_room_recovery.sh` by running the repo-owned
+  workspace-module cleanup before its broad runtime `rm -rf` sweep, so
+  stubborn `apps/dashboard/node_modules` bind-mount residue no longer aborts
+  clean-room recovery before the resilient cleanup path runs; the cleanup
+  helper itself now quarantines stubborn module trees when recursive removal
+  alone is not enough
 - taught `refresh_governance_evidence_manifest.py` to reuse a fresh
   `clean_room_recovery.json` receipt instead of rerunning the full clean-room
   bundle on every PR-bound pre-push refresh, keeping the local governance

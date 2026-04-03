@@ -124,6 +124,12 @@ bash scripts/run_orchestrator_cli.sh --help
   a derived runtime capability summary (`lane`, `compat_api_mode`,
   `provider_status`, `tool_execution`) so runtime/provider posture is readable
   from repo-owned control-plane reads without implying full tool parity
+- the `cortexpilot_orch.contract` package now lazy-loads `compiler` and
+  `validator`, so governance-only entrypoints such as
+  `scripts/check_schedule_boundary.py` can import `ContractValidator` without
+  accidentally loading runtime-provider dependencies like `httpx`; this keeps
+  Quick Feedback contract checks lightweight without changing execution
+  authority or runtime capability semantics
 - the role-config runtime capability preview now resolves through
   `src/cortexpilot_orch/runners/provider_capability.py`, which keeps the
   advisory control-plane lane honest without forcing GitHub-hosted quick

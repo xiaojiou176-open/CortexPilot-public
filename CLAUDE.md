@@ -189,6 +189,12 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `role_binding_read_model.runtime_binding.capability`, the shared
   dashboard/desktop runtime-capability copy, and the fail-closed wording that
   keeps chat-compatible lanes separate from tool execution parity
+- when a Prompt 10 closeout fix changes how contract package entrypoints load
+  on CI/governance paths, keep this file, the root AI/docs entrypoints, and
+  the relevant module/docs READMEs aligned in the same patch; current examples
+  include lazy-loading `cortexpilot_orch.contract` so `ContractValidator`
+  imports and schedule-boundary checks stay below runtime-provider dependencies
+  such as `httpx` on Quick Feedback lanes
 - when a Prompt 10 Wave 3 slice hardens builder/client entrypoints into a
   repo-owned starter path, keep this file, the root AI/docs entrypoints, and
   the package/docs entrypoints aligned in the same patch; current examples
@@ -204,6 +210,12 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `frontend-api-client`, keep this file and the root docs aligned in the same
   patch so recovery gates fail on product regressions instead of missing local
   package installs
+- when clean-room recovery changes the ordering between workspace cleanup and
+  broad runtime deletion, keep this file and the root docs aligned in the same
+  patch; current examples include running `scripts/cleanup_workspace_modules.sh`
+  before the clean-room `rm -rf` sweep, plus quarantining stubborn dashboard
+  module residue when recursive delete alone is not enough, so the recovery
+  lane does not abort early on transient bind-mounted trees
 
 ## Key Commands
 

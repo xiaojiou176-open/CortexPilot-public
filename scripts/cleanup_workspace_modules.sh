@@ -28,7 +28,13 @@ for _ in range(5):
     except OSError:
         time.sleep(0.2)
 if path.exists():
-    raise SystemExit(f"failed to remove {path}")
+    quarantine = path.with_name(f"{path.name}.quarantine.{int(time.time())}")
+    try:
+        path.rename(quarantine)
+        shutil.rmtree(quarantine, ignore_errors=True)
+        raise SystemExit(0)
+    except OSError:
+        raise SystemExit(f"failed to remove {path}")
 PY
   fi
 }

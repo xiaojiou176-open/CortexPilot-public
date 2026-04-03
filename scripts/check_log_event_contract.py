@@ -50,6 +50,24 @@ def _cortexpilot_python() -> str:
     for candidate in candidates:
         if candidate is not None and candidate.exists():
             return str(candidate)
+    bootstrap = subprocess.run(
+        [
+            "bash",
+            "-lc",
+            "bash scripts/bootstrap.sh python >/dev/null && source scripts/lib/toolchain_env.sh && cortexpilot_python_bin \"$PWD\"",
+        ],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+        env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"},
+    )
+    if bootstrap.returncode == 0:
+        resolved = bootstrap.stdout.strip().splitlines()
+        if resolved:
+            candidate = Path(resolved[-1]).expanduser()
+            if candidate.exists():
+                return str(candidate)
     return sys.executable
 
 
