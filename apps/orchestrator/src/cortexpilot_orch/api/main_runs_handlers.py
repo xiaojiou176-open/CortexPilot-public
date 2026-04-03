@@ -882,7 +882,9 @@ def build_runs_handlers(
             tool_permissions = _as_dict(normalized_contract.get("tool_permissions"))
             return {
                 "source": None,
+                "_source": None,
                 "path": str(path),
+                "_path": str(path),
                 "record_status": record_status,
                 "task_id": _normalize_optional_text(normalized_contract.get("task_id")),
                 "run_id": _normalize_optional_text(normalized_contract.get("run_id")),
@@ -896,12 +898,14 @@ def build_runs_handlers(
                 "execution_authority": role_binding.get("execution_authority") if isinstance(role_binding, dict) else None,
                 "role_binding_read_model": role_binding,
                 "payload": normalized_contract or None,
+                "raw": raw_preview,
                 "raw_preview": raw_preview,
             }
 
         for path in (cfg.contract_root / "examples").glob("*.json"):
             item = _read_contract_item(path)
             item["source"] = "examples"
+            item["_source"] = "examples"
             contracts.append(item)
         for bucket in ["tasks", "reviews", "results"]:
             root = cfg.contract_root / bucket
@@ -910,6 +914,7 @@ def build_runs_handlers(
             for path in root.glob("**/*.json"):
                 item = _read_contract_item(path)
                 item["source"] = bucket
+                item["_source"] = bucket
                 contracts.append(item)
         return contracts
 
