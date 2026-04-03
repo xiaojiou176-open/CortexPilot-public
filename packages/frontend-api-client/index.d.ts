@@ -2,6 +2,9 @@ import type {
   AgentCatalogPayload,
   AgentStatusPayload,
   ContractCatalogRecord,
+  RoleConfigApplyResponse,
+  RoleConfigPreviewResponse,
+  RoleConfigSurface,
 } from "@cortexpilot/frontend-api-contract";
 
 export type JsonPrimitive = string | number | boolean | null;
@@ -19,6 +22,7 @@ export type FrontendApiClientOptions = {
   baseUrl?: string;
   defaultTimeoutMs?: number;
   resolveToken?: () => string | undefined;
+  resolveMutationRole?: () => string | undefined;
   fetchImpl?: typeof fetch;
   eventSourceCtor?: typeof EventSource;
   surface?: string;
@@ -52,6 +56,9 @@ export type FrontendApiClient = {
   fetchTests: () => Promise<unknown>;
   fetchAgents: () => Promise<AgentCatalogPayload>;
   fetchAgentStatus: (runId?: string) => Promise<AgentStatusPayload>;
+  fetchRoleConfig: (role: string) => Promise<RoleConfigSurface>;
+  previewRoleConfig: (role: string, payload?: Record<string, JsonValue>) => Promise<RoleConfigPreviewResponse>;
+  applyRoleConfig: (role: string, payload?: Record<string, JsonValue>) => Promise<RoleConfigApplyResponse>;
   fetchPolicies: () => Promise<unknown>;
   fetchLocks: () => Promise<unknown>;
   releaseLocks: (paths: string[]) => Promise<unknown>;
@@ -113,6 +120,7 @@ export declare function createHttpCore(options: {
   auth: { authHeaders: (extra?: HeadersInit) => HeadersInit; authJsonHeaders: (extra?: HeadersInit) => HeadersInit };
   fetchImpl?: typeof fetch;
   defaultTimeoutMs?: number;
+  resolveMutationRole?: () => string | undefined;
   surface?: string;
   component?: string;
 }): {

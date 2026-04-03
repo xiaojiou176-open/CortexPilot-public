@@ -208,6 +208,26 @@ function createClient(options = {}) {
     return http.getJson(withQuery(paths.agentStatus, params), normalizedRunId ? { runId: normalizedRunId } : {});
   }
 
+  async function fetchRoleConfig(role) {
+    return http.getJson(fillPathTemplate(paths.roleConfig, { role }));
+  }
+
+  async function previewRoleConfig(role, payload = {}) {
+    return http.postJson(
+      fillPathTemplate(paths.roleConfigPreview, { role }),
+      payload,
+      "Role config preview failed",
+    );
+  }
+
+  async function applyRoleConfig(role, payload = {}) {
+    return http.postJson(
+      fillPathTemplate(paths.roleConfigApply, { role }),
+      payload,
+      "Role config apply failed",
+    );
+  }
+
   async function fetchPolicies() {
     return http.getJson("/api/policies");
   }
@@ -379,6 +399,9 @@ function createClient(options = {}) {
     fetchTests,
     fetchAgents,
     fetchAgentStatus,
+    fetchRoleConfig,
+    previewRoleConfig,
+    applyRoleConfig,
     fetchPolicies,
     fetchLocks,
     releaseLocks,

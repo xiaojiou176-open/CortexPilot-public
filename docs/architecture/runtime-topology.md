@@ -31,6 +31,13 @@ flowchart LR
 - The same role-binding read model now persists into `manifest.json` as
   `role_binding_summary`, so post-run/read-only surfaces can inspect the same
   bundle/runtime state without promoting that summary into execution authority.
+- Role-config runtime capability previews now resolve through a lightweight
+  provider-capability helper so advisory read surfaces can keep their
+  fail-closed provider classification without importing the full transport
+  runtime on GitHub-hosted quick-path governance checks; the runtime-facing
+  `provider_resolution` module still re-exports the same helper names through a
+  dead-code-clean compatibility wrapper so existing callers do not lose that
+  import surface.
 - Role contracts for qualifying delivery roles now resolve `skills_bundle_ref`
   from the repo-owned `policies/skills_bundle_registry.json` surface, keeping
   skills bundle truth separate from agent defaults and MCP bundle truth.
@@ -80,6 +87,15 @@ flowchart LR
 - Contract artifact cleanup scope follows configured `CORTEXPILOT_RUNTIME_CONTRACT_ROOT` inside `.runtime-cache/cortexpilot/contracts/`.
 - Root cleanliness and runtime artifact routing are SSOT-driven by `configs/root_allowlist.json` + `configs/runtime_artifact_policy.json`; root-noise directories such as root `logs/`, root `.next/`, and root coverage artifacts are treated as governance violations rather than acceptable steady state.
 - JS runtime machine state is app- or package-local and explicit: only `apps/dashboard/node_modules`, `apps/dashboard/.next`, `apps/dashboard/tsconfig.tsbuildinfo`, `apps/dashboard/tsconfig.typecheck.tsbuildinfo`, `apps/desktop/node_modules`, `apps/desktop/dist`, `apps/desktop/tsconfig.tsbuildinfo`, and `packages/frontend-api-client/node_modules` are allowed repo-local machine-managed surfaces; root `node_modules` remains forbidden.
+- Staged dashboard UI-audit workspaces must keep required
+  `packages/frontend-api-client`, `packages/frontend-api-contract`, and
+  `packages/frontend-shared` sources inside the temporary workspace root
+  itself; out-of-root `packages` symlinks are rejected by Next/Turbopack and
+  therefore do not satisfy the hosted smoke-build contract.
+- When dashboard or desktop dependency bootstrap hits repeated pnpm
+  `ERR_PNPM_ENOENT` failures, recovery must escalate from fresh-store retries
+  to a workspace-local store path so the clean-room / UI-audit lanes stop
+  repeating the same failing cross-cache copy route.
 - Log rotation remains owned by `observability/logger.py` (`RotatingFileHandler` + gzip rollover), while lifecycle cleanup remains owned by runtime retention and guarded high-yield cleanup remains owned by space governance. The three layers are complementary, not interchangeable.
 - `~/.cache/cortexpilot` is the repo-external strong-related cache root, but it is still machine-shared across local CortexPilot worktrees and branches. Treat it as governed shared cache, not single-repo private disk.
 - Log envelope SSOT is `schemas/log_event.v2.json`, and machine-consumed log correlation must stay auditable through `lane` + `correlation_kind`.

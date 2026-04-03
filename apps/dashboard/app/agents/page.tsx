@@ -4,6 +4,7 @@ import { Button, buttonClasses } from "../../components/ui/button";
 import { Badge, type BadgeVariant } from "../../components/ui/badge";
 import { Card } from "../../components/ui/card";
 import { Input, Select } from "../../components/ui/input";
+import { RoleConfigControlPlane } from "../../components/control-plane/RoleConfigControlPlane";
 import { safeLoad } from "../../lib/serverPageData";
 import type { AgentCatalogPayload, AgentStatusPayload, RoleCatalogRecord } from "../../lib/types";
 import { formatBindingReadModelLabel, formatRoleBindingRuntimeSummary } from "../../lib/types";
@@ -396,6 +397,7 @@ export default async function AgentsPage({ searchParams }: AgentsPageProps) {
           <p className="cell-sub mono muted">Agents holding locks {lockedAgentCount}; this tracks backlog, not agent health.</p>
         </article>
       </section>
+      <RoleConfigControlPlane roleCatalog={roleCatalogAll} />
       <section className="app-section" aria-labelledby="agents-role-catalog-title">
         <div className="section-header">
           <div>

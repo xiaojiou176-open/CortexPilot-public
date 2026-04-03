@@ -6,10 +6,11 @@ import os
 from pathlib import Path
 from typing import Any
 
-from cortexpilot_orch.contract.validator import ContractValidator, resolve_agent_registry_path
+from cortexpilot_orch.contract.validator import ContractValidator, _resolve_ref_fragment, resolve_agent_registry_path
 
 _FORBIDDEN_POLICY_FILE = "policies/forbidden_actions.json"
 _SKILLS_BUNDLE_REGISTRY_FILE = "policies/skills_bundle_registry.json"
+_ROLE_CONFIG_REGISTRY_FILE = "policies/role_config_registry.json"
 _REGISTRY_BACKED_REF_PREFIXES = (
     "policies/agent_registry.json#",
     f"{_SKILLS_BUNDLE_REGISTRY_FILE}#",
@@ -162,6 +163,19 @@ def _load_agent_registry() -> dict[str, Any] | None:
     return payload if isinstance(payload, dict) else None
 
 
+def _load_role_config_registry() -> dict[str, Any] | None:
+    repo_root = Path(__file__).resolve().parents[5]
+    path = repo_root / _ROLE_CONFIG_REGISTRY_FILE
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"role_config_registry invalid: {exc}") from exc
+    ContractValidator().validate_report(payload, "role_config_registry.v1.json")
+    return payload if isinstance(payload, dict) else None
+
+
 def _find_registry_entry(registry: dict[str, Any] | None, agent: dict[str, Any]) -> dict[str, Any] | None:
     if not isinstance(registry, dict):
         return None
@@ -220,13 +234,40 @@ def _find_role_contract_defaults(registry: dict[str, Any] | None, role: str | No
     return payload if isinstance(payload, dict) else {}
 
 
-def _runtime_binding(contract: dict[str, Any]) -> dict[str, Any]:
+def _find_role_config_defaults(registry: dict[str, Any] | None, role: str | None) -> dict[str, Any]:
+    if not isinstance(registry, dict) or not isinstance(role, str) or not role.strip():
+        return {}
+    roles = registry.get("roles")
+    if not isinstance(roles, dict):
+        return {}
+    payload = roles.get(role.strip().upper())
+    return payload if isinstance(payload, dict) else {}
+
+
+def _merge_role_config_defaults(base_defaults: dict[str, Any], role_config_defaults: dict[str, Any]) -> dict[str, Any]:
+    merged = dict(base_defaults)
+    for key in ("system_prompt_ref", "skills_bundle_ref", "mcp_bundle_ref"):
+        if key in role_config_defaults:
+            merged[key] = role_config_defaults.get(key)
+    runtime_binding = role_config_defaults.get("runtime_binding")
+    if isinstance(runtime_binding, dict):
+        merged["runtime_binding"] = {
+            "runner": _normalize_optional_ref(runtime_binding.get("runner")),
+            "provider": _normalize_optional_ref(runtime_binding.get("provider")),
+            "model": _normalize_optional_ref(runtime_binding.get("model")),
+        }
+    return merged
+
+
+def _runtime_binding(contract: dict[str, Any], role_defaults: dict[str, Any] | None = None) -> dict[str, Any]:
     runtime_options = contract.get("runtime_options") if isinstance(contract.get("runtime_options"), dict) else {}
-    runner = str(runtime_options.get("runner") or "").strip() or None
-    provider = str(runtime_options.get("provider") or "").strip() or None
+    role_runtime_binding = role_defaults.get("runtime_binding") if isinstance(role_defaults, dict) and isinstance(role_defaults.get("runtime_binding"), dict) else {}
+    runner = str(runtime_options.get("runner") or "").strip() or _normalize_optional_ref(role_runtime_binding.get("runner"))
+    provider = str(runtime_options.get("provider") or "").strip() or _normalize_optional_ref(role_runtime_binding.get("provider"))
     model = (
         os.getenv("CORTEXPILOT_CODEX_MODEL", "").strip()
         or os.getenv("CORTEXPILOT_PROVIDER_MODEL", "").strip()
+        or _normalize_optional_ref(role_runtime_binding.get("model"))
         or None
     )
     return {
@@ -244,21 +285,6 @@ def _binding_summary_status(ref: str | None) -> str:
     return "resolved"
 
 
-def _resolve_fragment(payload: Any, fragment: str) -> Any:
-    current = payload
-    for token in fragment.split("."):
-        part = token.strip()
-        if not part:
-            raise ValueError("fragment segment invalid")
-        if isinstance(current, dict):
-            if part not in current:
-                raise ValueError(f"fragment segment missing: {part}")
-            current = current[part]
-            continue
-        raise ValueError(f"fragment segment invalid: {part}")
-    return current
-
-
 def _resolve_skills_bundle_summary(ref: str | None) -> dict[str, Any]:
     if not ref or not ref.startswith(f"{_SKILLS_BUNDLE_REGISTRY_FILE}#"):
         return {"bundle_id": None, "resolved_skill_set": []}
@@ -266,7 +292,7 @@ def _resolve_skills_bundle_summary(ref: str | None) -> dict[str, Any]:
     bundle_path = Path(__file__).resolve().parents[5] / path_text
     try:
         payload = json.loads(bundle_path.read_text(encoding="utf-8"))
-        resolved = _resolve_fragment(payload, fragment)
+        resolved = _resolve_ref_fragment(payload, fragment)
     except (OSError, json.JSONDecodeError, ValueError):
         return {"bundle_id": None, "resolved_skill_set": []}
     if not isinstance(resolved, dict):
@@ -282,6 +308,27 @@ def _resolve_skills_bundle_summary(ref: str | None) -> dict[str, Any]:
     return {
         "bundle_id": bundle_id,
         "resolved_skill_set": skills,
+    }
+
+
+def _resolve_mcp_bundle_summary(ref: str | None) -> dict[str, Any]:
+    if not ref or not ref.startswith("policies/agent_registry.json#"):
+        return {"resolved_mcp_tool_set": []}
+    path_text, fragment = ref.split("#", 1)
+    bundle_path = Path(__file__).resolve().parents[5] / path_text
+    try:
+        payload = json.loads(bundle_path.read_text(encoding="utf-8"))
+        resolved = _resolve_ref_fragment(payload, fragment)
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        raise ValueError(f"role_contract.mcp_bundle_ref invalid: {exc}") from exc
+    if not isinstance(resolved, list):
+        raise ValueError("role_contract.mcp_bundle_ref invalid: resolved payload must be a list")
+    return {
+        "resolved_mcp_tool_set": [
+            str(item).strip()
+            for item in resolved
+            if isinstance(item, str) and str(item).strip()
+        ]
     }
 
 
@@ -326,10 +373,20 @@ def build_role_binding_summary(contract: dict[str, Any]) -> dict[str, Any]:
     role_contract = contract.get("role_contract") if isinstance(contract.get("role_contract"), dict) else {}
     if not role_contract:
         role_contract = _build_role_contract(contract, _load_agent_registry())
+    assigned_agent = contract.get("assigned_agent") if isinstance(contract.get("assigned_agent"), dict) else {}
+    role = str(
+        assigned_agent.get("role")
+        or (role_contract.get("identity", {}) if isinstance(role_contract.get("identity"), dict) else {}).get("role")
+        or ""
+    ).strip().upper()
+    role_contract = _merge_role_config_defaults(
+        role_contract,
+        _find_role_config_defaults(_load_role_config_registry(), role),
+    )
     skills_bundle_ref = _normalize_optional_ref(role_contract.get("skills_bundle_ref"))
     skills_bundle_summary = _resolve_skills_bundle_summary(skills_bundle_ref)
     mcp_bundle_ref = _normalize_optional_ref(role_contract.get("mcp_bundle_ref"))
-    resolved_mcp_tools = _normalize_string_list(role_contract.get("resolved_mcp_tool_set"))
+    resolved_mcp_tools = _normalize_string_list(role_contract.get("resolved_mcp_tool_set")) or _resolve_mcp_bundle_summary(mcp_bundle_ref).get("resolved_mcp_tool_set", [])
     runtime_binding_raw = role_contract.get("runtime_binding") if isinstance(role_contract.get("runtime_binding"), dict) else {}
     runtime_binding = {
         "runner": _normalize_optional_ref(runtime_binding_raw.get("runner")),
@@ -366,7 +423,14 @@ def _build_role_contract(contract: dict[str, Any], registry: dict[str, Any] | No
     assigned_agent = contract.get("assigned_agent") if isinstance(contract.get("assigned_agent"), dict) else {}
     role = str(assigned_agent.get("role") or "WORKER").strip().upper() or "WORKER"
     agent_id = str(assigned_agent.get("agent_id") or "agent-1").strip() or "agent-1"
-    defaults = _find_role_contract_defaults(registry, role)
+    base_defaults = _find_role_contract_defaults(registry, role)
+    base_mcp_bundle_ref = _normalize_optional_ref(base_defaults.get("mcp_bundle_ref"))
+    if base_mcp_bundle_ref:
+        _resolve_mcp_bundle_summary(base_mcp_bundle_ref)
+    defaults = _merge_role_config_defaults(
+        base_defaults,
+        _find_role_config_defaults(_load_role_config_registry(), role),
+    )
     tool_permissions = contract.get("tool_permissions") if isinstance(contract.get("tool_permissions"), dict) else {}
     handoff_chain = contract.get("handoff_chain") if isinstance(contract.get("handoff_chain"), dict) else {}
     chain_roles = _normalize_role_list(handoff_chain.get("roles"))
@@ -374,9 +438,13 @@ def _build_role_contract(contract: dict[str, Any], registry: dict[str, Any] | No
         max_handoffs = int(handoff_chain.get("max_handoffs")) if handoff_chain.get("max_handoffs") is not None else None
     except (TypeError, ValueError):
         max_handoffs = None
+    mcp_bundle_ref = _normalize_optional_ref(defaults.get("mcp_bundle_ref"))
+    resolved_mcp_from_ref = _resolve_mcp_bundle_summary(mcp_bundle_ref).get("resolved_mcp_tool_set", []) if mcp_bundle_ref else []
     resolved_mcp_tools = _normalize_string_list(contract.get("mcp_tool_set"))
     if not resolved_mcp_tools:
         resolved_mcp_tools = _normalize_string_list(tool_permissions.get("mcp_tools"))
+    if not resolved_mcp_tools:
+        resolved_mcp_tools = resolved_mcp_from_ref
     purpose = str(defaults.get("purpose") or f"Resolved {role.lower()} role contract.").strip()
     return {
         "identity": {
@@ -387,7 +455,7 @@ def _build_role_contract(contract: dict[str, Any], registry: dict[str, Any] | No
         "system_prompt_ref": _normalize_optional_ref(defaults.get("system_prompt_ref")),
         "skills_bundle_ref": _normalize_optional_ref(defaults.get("skills_bundle_ref")),
         "mcp_bundle_ref": _normalize_optional_ref(defaults.get("mcp_bundle_ref")),
-        "runtime_binding": _runtime_binding(contract),
+        "runtime_binding": _runtime_binding(contract, defaults),
         "tool_permissions": {
             "filesystem": str(tool_permissions.get("filesystem") or "workspace-write").strip() or "workspace-write",
             "shell": str(tool_permissions.get("shell") or "deny").strip() or "deny",
@@ -437,6 +505,34 @@ def _apply_role_defaults(contract: dict[str, Any]) -> None:
         else:
             updated["mcp_tools"] = list(allowed_set)
     contract["tool_permissions"] = updated
+
+
+def _apply_role_runtime_defaults(contract: dict[str, Any]) -> None:
+    assigned_agent = contract.get("assigned_agent") if isinstance(contract.get("assigned_agent"), dict) else {}
+    role = str(assigned_agent.get("role") or "").strip().upper()
+    if not role:
+        return
+    role_defaults = _merge_role_config_defaults(
+        _find_role_contract_defaults(_load_agent_registry(), role),
+        _find_role_config_defaults(_load_role_config_registry(), role),
+    )
+    role_runtime_binding = (
+        role_defaults.get("runtime_binding")
+        if isinstance(role_defaults.get("runtime_binding"), dict)
+        else {}
+    )
+    runtime_options = contract.get("runtime_options") if isinstance(contract.get("runtime_options"), dict) else {}
+    updated_runtime_options = dict(runtime_options)
+    for key in ("runner", "provider", "model"):
+        current_value = _normalize_optional_ref(updated_runtime_options.get(key))
+        if current_value is not None:
+            updated_runtime_options[key] = current_value
+            continue
+        default_value = _normalize_optional_ref(role_runtime_binding.get(key))
+        if default_value is not None:
+            updated_runtime_options[key] = default_value
+    if updated_runtime_options:
+        contract["runtime_options"] = updated_runtime_options
 
 
 def sync_role_contract(contract: dict[str, Any]) -> dict[str, Any]:
@@ -513,6 +609,7 @@ def compile_plan(plan: dict[str, Any]) -> dict[str, Any]:
         contract["browser_policy"] = dict(browser_policy)
 
     _apply_role_defaults(contract)
+    _apply_role_runtime_defaults(contract)
 
     tests = contract.get("acceptance_tests")
     if not isinstance(tests, list) or not tests:

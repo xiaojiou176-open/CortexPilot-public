@@ -37,6 +37,38 @@ All notable changes to this repository will be documented in this file.
   generated frontend contract now covers agents/contracts catalog routes, and
   dashboard/desktop `Agents` + `Contracts` pages project the same advisory
   bundle/runtime posture without becoming execution-authority controls
+- opened Prompt 10 Wave 1 by adding a repo-owned role configuration control
+  plane: `policies/role_config_registry.json` plus role-config schemas now own
+  mutable role defaults, `/api/agents/roles/{role}/config` exposes
+  read/preview/apply surfaces, generated frontend contracts/client paths now
+  cover those routes, dashboard/desktop `Agents` pages now host the minimal
+  preview/apply desk, and `Contracts` remains inspector-first while
+  `task_contract` stays the only execution authority
+- hardened the Prompt 10 control-plane CI path by extracting lightweight
+  provider-capability helpers for role-config runtime summaries, registering
+  the governed env reads in `configs/env_direct_read_allowlist.json`, and
+  adding a regression that proves the role-config read surface still imports
+  when `httpx` is unavailable on quick-path governance runners; the staged
+  dashboard UI-audit workspace now also copies the required
+  `packages/frontend-*` sources into its temporary root so Next/Turbopack does
+  not reject out-of-root symlinks during smoke builds, and repeated pnpm
+  `ERR_PNPM_ENOENT` recovery now escalates from fresh-store retries to a
+  workspace-local store path for dashboard/desktop dependency bootstrap lanes,
+  including clean-room recovery and prompt-stack pre-push host-compat lanes
+- aligned the governance closeout builder with `trusted_pr` route exemptions so
+  pre-push closeout no longer fails on missing `upstream_inventory_report` /
+  `upstream_same_run_cohesion` artifacts when the evidence manifest has already
+  marked those upstream checks as route-exempt on PR-bound lanes
+- taught `refresh_governance_evidence_manifest.py` to reuse a fresh
+  `clean_room_recovery.json` receipt instead of rerunning the full clean-room
+  bundle on every PR-bound pre-push refresh, keeping the local governance
+  manifest strict while making repeated CI-fix pushes finish inside the worker
+  execution window
+- cleaned the remaining Wave 1 review-thread blockers by dropping the unused
+  fallback assignment in `role_config_registry.py`, keeping
+  `provider_resolution` as a dead-code-clean compatibility export surface for
+  lightweight helper callers, and aligning the Wave 1 role-binding MCP test
+  expectation with the registry-backed `['codex', 'search']` tool set
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

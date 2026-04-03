@@ -30,6 +30,10 @@ vi.mock("sonner", () => ({
 vi.mock("../lib/api", () => ({
   fetchAgents: vi.fn(),
   fetchAgentStatus: vi.fn(),
+  fetchRoleConfig: vi.fn(),
+  previewRoleConfig: vi.fn(),
+  applyRoleConfig: vi.fn(),
+  mutationExecutionCapability: vi.fn(() => ({ executable: false, operatorRole: null })),
   fetchCommandTowerOverview: vi.fn(),
   fetchCommandTowerAlerts: vi.fn(),
   fetchPmSessions: vi.fn(),
@@ -60,6 +64,10 @@ vi.mock("../lib/api", () => ({
 import {
   fetchAgents,
   fetchAgentStatus,
+  fetchRoleConfig,
+  previewRoleConfig,
+  applyRoleConfig,
+  mutationExecutionCapability,
   fetchCommandTowerOverview,
   fetchCommandTowerAlerts,
   fetchPmSessions,
@@ -125,6 +133,72 @@ describe("desktop p1 controls", () => {
 
     vi.mocked(fetchAgents).mockResolvedValue({ agents: [] } as any);
     vi.mocked(fetchAgentStatus).mockResolvedValue({ agents: [] } as any);
+    vi.mocked(fetchRoleConfig).mockResolvedValue({
+      authority: "repo-owned-role-config",
+      persisted_source: "policies/role_config_registry.json",
+      overlay_state: "repo-owned-defaults",
+      field_modes: {
+        purpose: "reserved-for-later",
+        system_prompt_ref: "editable-now",
+        skills_bundle_ref: "editable-now",
+        mcp_bundle_ref: "editable-now",
+        runtime_binding: "editable-now",
+        role_binding_summary: "derived-read-only",
+        role_binding_read_model: "derived-read-only",
+        workflow_case_read_model: "derived-read-only",
+        execution_authority: "authority-source",
+      },
+      editable_now: {
+        system_prompt_ref: "policies/agents/codex/roles/50_worker_core.md",
+        skills_bundle_ref: "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+        mcp_bundle_ref: "policies/agent_registry.json#agents(role=WORKER).capabilities.mcp_tools",
+        runtime_binding: { runner: null, provider: null, model: null },
+      },
+      registry_defaults: {
+        system_prompt_ref: "policies/agents/codex/roles/50_worker_core.md",
+        skills_bundle_ref: "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+        mcp_bundle_ref: "policies/agent_registry.json#agents(role=WORKER).capabilities.mcp_tools",
+        runtime_binding: { runner: null, provider: null, model: null },
+      },
+      persisted_values: {
+        system_prompt_ref: "policies/agents/codex/roles/50_worker_core.md",
+        skills_bundle_ref: "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+        mcp_bundle_ref: "policies/agent_registry.json#agents(role=WORKER).capabilities.mcp_tools",
+        runtime_binding: { runner: null, provider: null, model: null },
+      },
+      validation: "fail-closed",
+      preview_supported: true,
+      apply_supported: true,
+      execution_authority: "task_contract",
+      runtime_capability: {
+        status: "previewable",
+        lane: "standard-provider-path",
+        compat_api_mode: "responses",
+        provider_status: "unresolved",
+        provider_inventory_id: null,
+        tool_execution: "provider-path-required",
+        notes: [
+          "Chat-style compatibility may differ from tool-execution capability.",
+          "Execution authority remains task_contract even when role defaults change.",
+        ],
+      },
+    } as any);
+    vi.mocked(previewRoleConfig).mockResolvedValue({
+      role: "WORKER",
+      authority: "repo-owned-role-config",
+      validation: "fail-closed",
+      can_apply: true,
+      current_surface: {} as any,
+      preview_surface: {
+        runtime_capability: {
+          lane: "standard-provider-path",
+          tool_execution: "provider-path-required",
+        },
+      } as any,
+      changes: [],
+    } as any);
+    vi.mocked(applyRoleConfig).mockResolvedValue({ role: "WORKER", saved: true, surface: {} } as any);
+    vi.mocked(mutationExecutionCapability).mockReturnValue({ executable: false, operatorRole: null } as any);
     vi.mocked(fetchCommandTowerOverview).mockResolvedValue({
       total_sessions: 2,
       active_sessions: 1,
@@ -462,6 +536,41 @@ describe("desktop p1 controls", () => {
     fireEvent.click(screen.getByRole("button", { name: /刷新|Refresh/ }));
     await waitFor(() => expect(fetchWorktrees).toHaveBeenCalledTimes(2));
     worktrees.unmount();
+  });
+
+  it("renders role configuration desk in preview-only mode and calls preview", async () => {
+    vi.mocked(fetchAgents).mockResolvedValueOnce({
+      agents: [{ agent_id: "agent-1", role: "WORKER", lock_count: 0, locked_paths: [] }],
+      locks: [],
+      role_catalog: [
+        {
+          role: "WORKER",
+          purpose: "Execute the contracted change inside allowed_paths and produce structured evidence.",
+          role_binding_read_model: {
+            authority: "contract-derived-read-model",
+            source: "derived from compiled role_contract and runtime inputs; not an execution authority surface",
+            execution_authority: "task_contract",
+            skills_bundle_ref: { status: "resolved", ref: "a", bundle_id: "b", resolved_skill_set: [], validation: "fail-closed" },
+            mcp_bundle_ref: { status: "resolved", ref: "c", resolved_mcp_tool_set: [], validation: "fail-closed" },
+            runtime_binding: {
+              status: "unresolved",
+              authority_scope: "contract-derived-read-model",
+              source: { runner: "unresolved", provider: "unresolved", model: "unresolved" },
+              summary: { runner: null, provider: null, model: null },
+            },
+          },
+          registered_agent_count: 1,
+          locked_agent_count: 0,
+        },
+      ],
+    } as any);
+    vi.mocked(fetchAgentStatus).mockResolvedValueOnce({ agents: [] } as any);
+
+    render(<AgentsPage />);
+    expect(await screen.findByText("Role configuration desk")).toBeInTheDocument();
+    expect(screen.getByText("Preview is available, but saving defaults requires an operator role.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Preview defaults" }));
+    await waitFor(() => expect(previewRoleConfig).toHaveBeenCalledTimes(1));
   });
 
   it("keeps contrast-safe muted and badge text tokens in desktop styles", () => {

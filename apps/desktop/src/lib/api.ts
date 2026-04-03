@@ -20,12 +20,15 @@ import type {
   ReportRecord,
   RunDetailPayload,
   RunSummary,
+  RoleConfigApplyResponse,
+  RoleConfigPreviewResponse,
+  RoleConfigSurface,
   ToolCallRecord,
   TaskPackManifest,
   WorkflowDetailPayload,
   WorkflowRecord,
 } from "./types";
-import { resolveDesktopApiBase, resolveDesktopApiToken } from "./env";
+import { resolveDesktopApiBase, resolveDesktopApiToken, resolveDesktopOperatorRoleEnv } from "./env";
 
 export type EventsStream = {
   onopen: ((this: EventsStream, ev: Event) => void) | null;
@@ -92,9 +95,23 @@ const desktopApiClient = createDesktopApiClient({
     const token = resolveDesktopApiToken();
     return token || undefined;
   },
+  resolveMutationRole: resolveDesktopOperatorRole,
   fetchImpl: dynamicFetch,
   eventSourceCtor: DynamicEventSource as unknown as typeof EventSource,
 });
+
+function resolveDesktopOperatorRole(): string | undefined {
+  const role = resolveDesktopOperatorRoleEnv();
+  return role ? role.toUpperCase() : undefined;
+}
+
+export function mutationExecutionCapability(): { executable: boolean; operatorRole: string | null } {
+  const operatorRole = resolveDesktopOperatorRole();
+  return {
+    executable: Boolean(operatorRole),
+    operatorRole: operatorRole || null,
+  };
+}
 
 /* ─── Runs ─── */
 export async function fetchRuns() {
@@ -196,6 +213,18 @@ export async function fetchAgents() {
 
 export async function fetchAgentStatus(runId?: string) {
   return withNormalizedError(() => desktopApiClient.fetchAgentStatus(runId) as Promise<AgentStatusPayload>);
+}
+
+export async function fetchRoleConfig(role: string) {
+  return withNormalizedError(() => desktopApiClient.fetchRoleConfig(role) as Promise<RoleConfigSurface>);
+}
+
+export async function previewRoleConfig(role: string, payload: Record<string, JsonValue>) {
+  return withNormalizedError(() => desktopApiClient.previewRoleConfig(role, payload) as Promise<RoleConfigPreviewResponse>);
+}
+
+export async function applyRoleConfig(role: string, payload: Record<string, JsonValue>) {
+  return withNormalizedError(() => desktopApiClient.applyRoleConfig(role, payload) as Promise<RoleConfigApplyResponse>);
 }
 
 /* ─── Policies ─── */

@@ -490,7 +490,7 @@ def test_build_role_binding_summary_marks_skills_and_mcp_registry_refs_as_regist
     assert summary["mcp_bundle_ref"] == {
         "status": "registry-backed",
         "ref": "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools",
-        "resolved_mcp_tool_set": [],
+        "resolved_mcp_tool_set": ["codex", "search"],
         "validation": "fail-closed",
     }
     assert summary["execution_authority"] == "task_contract"

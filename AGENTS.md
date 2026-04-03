@@ -85,7 +85,9 @@ Work in CortexPilot as a contract-first engineering agent:
   the Switchyard runtime-first `/v1/runtime/invoke` adapter, the forced
   `chat_completions` mode on chat-only intake/operator paths, and the explicit
   fail-closed rule for MCP tool execution that still requires a tool-capable
-  provider path
+  provider path; Quick Feedback-safe helper extraction, dead-code-clean
+  `provider_resolution` compatibility exports, and env-governance allowlist
+  updates for read-only runtime-capability summaries follow the same rule
 - when role-contract / prompt-ref / handoff-summary semantics change the
   orchestrator contract or preview surfaces, sync the root AI/docs entrypoints
   in the same patch; current examples include resolved `role_contract`,
@@ -107,7 +109,12 @@ Work in CortexPilot as a contract-first engineering agent:
   credential/evidence examples also include the upstream receipt refresh
   fallback to `scripts/verify_upstream_slices.py --mode smoke` and the strict
   live-provider rule that resolves process env first and `~/.codex/config.toml`
-  second while keeping dotenv and shell-export fallbacks disabled on mainline
+  second while keeping dotenv and shell-export fallbacks disabled on mainline;
+  staged dashboard UI-audit workspaces must also keep package-local frontend
+  sources inside the temporary workspace root instead of relying on out-of-root
+  symlinks that Turbopack rejects, and repeated pnpm `ERR_PNPM_ENOENT`
+  recovery should escalate to workspace-local store recovery instead of
+  repeating the same failing fresh-store copy path
 - when runtime retention and space-governance contracts change, sync the root
   AI/docs entrypoints in the same patch; current examples include
   `log_lane_summary` + `space_bridge` in `retention_report.json`, serial-only
@@ -198,6 +205,14 @@ Work in CortexPilot as a contract-first engineering agent:
   registry-backed `/api/agents` role catalog, the normalized `/api/contracts`
   inspector payload, and the same read-only authority/advisory wording carried
   through both web and desktop operator shells
+- when a Prompt 10-style slice turns those read-only catalog surfaces into a
+  repo-owned role-configuration control plane, sync the root AI/docs
+  entrypoints in the same patch; current examples include
+  `policies/role_config_registry.json`, the role-config preview/apply routes
+  under `/api/agents/roles/{role}/config*`, the generated frontend contract
+  bindings for those routes, and the rule that `Agents` becomes the control
+  desk while `Contracts` stays inspector-first and `task_contract` remains the
+  only execution authority
 
 ## Local Overrides
 

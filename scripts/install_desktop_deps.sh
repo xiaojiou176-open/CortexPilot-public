@@ -176,6 +176,11 @@ recover_with_fresh_store() {
     exit 1
   fi
   if ! run_install; then
+    if grep -q "ERR_PNPM_ENOENT" "$INSTALL_LOG"; then
+      echo "⚠️ [install-desktop-deps] fresh-store recovery hit another ERR_PNPM_ENOENT; escalating to workspace-local pnpm store recovery" >&2
+      recover_with_workspace_store "fresh-store ERR_PNPM_ENOENT persisted after desktop retry"
+      return 0
+    fi
     echo "❌ [install-desktop-deps] pnpm install failed after fresh-store recovery; tail follows" >&2
     tail -n 80 "$INSTALL_LOG" >&2 || true
     exit 1
@@ -205,7 +210,7 @@ recover_with_workspace_store() {
     INSTALL_PACKAGE_IMPORT_METHOD="$previous_import_method"
     INSTALL_NODE_LINKER="$previous_node_linker"
     INSTALL_SHAMEFULLY_HOIST="$previous_shamefully_hoist"
-    echo "❌ [install-desktop-deps] pnpm install failed after ENOSPC recovery; tail follows" >&2
+    echo "❌ [install-desktop-deps] pnpm install failed after workspace-local recovery; tail follows" >&2
     tail -n 80 "$INSTALL_LOG" >&2 || true
     exit 1
   fi

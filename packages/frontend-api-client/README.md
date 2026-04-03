@@ -17,6 +17,9 @@ This package is useful when you want one import boundary for:
 - run/workflow binding read models that stay explicitly below execution authority
 - PM intake and command-tower overview routes
 - approvals, reviews, and operator-facing control-plane reads
+- role-configuration fetch / preview / apply routes for repo-owned role
+  defaults, including the same mutation-role header discipline used by other
+  operator mutation surfaces
 - contract-backed workflow, queue, PM-session, and command-tower path/query bindings
 
 ## Minimal example

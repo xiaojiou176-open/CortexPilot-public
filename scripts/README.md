@@ -38,6 +38,14 @@ user's ambient Python environment.
   checks, while `ui-truth`, `resilience-and-e2e`, and `release-evidence` are
   protected `workflow_dispatch` lanes that require
   `owner-approved-sensitive`.
+- `ui_audit_gate.sh` stages a temporary dashboard workspace for Lighthouse +
+  axe verification; keep the required `packages/frontend-*` sources copied
+  inside that temporary root so Next/Turbopack does not reject out-of-root
+  symlinks during smoke builds.
+- `install_dashboard_deps.sh` and `install_desktop_deps.sh` now escalate
+  repeated pnpm `ERR_PNPM_ENOENT` failures from fresh-store retries to a
+  workspace-local store recovery path instead of repeating the same failing
+  copy strategy indefinitely.
 - Hosted CI lanes now try `sudo -E bash scripts/docker_ci.sh ...` only when
   passwordless sudo is available; otherwise they fall back to direct
   `bash scripts/docker_ci.sh ...` execution so `main` push lanes do not fail on

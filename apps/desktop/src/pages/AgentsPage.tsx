@@ -6,6 +6,7 @@ import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { Card } from "../components/ui/Card";
 import { formatBindingReadModelLabel, formatRoleBindingRuntimeSummary } from "../lib/types";
+import { AgentsRoleConfigPanel } from "./AgentsRoleConfigPanel";
 
 function stageBadgeVariant(stage: string | null | undefined): "default" | "success" | "warning" | "info" | "running" {
   const variant = stageVariant(stage);
@@ -85,6 +86,7 @@ export function AgentsPage() {
       {error && <div className="alert alert-danger" role="alert" aria-live="assertive">{error}</div>}
       {loading ? <div className="skeleton-stack-lg"><div className="skeleton skeleton-card-tall" /><div className="skeleton skeleton-card-tall" /></div> : (
         <div className="grid">
+          <AgentsRoleConfigPanel roleCatalog={roleCatalog} onApplied={load} />
           <div className="app-section"><h2 className="section-title">Role Catalog ({roleCatalog.length})</h2>
             {roleCatalog.length === 0 ? <div className="empty-state-stack"><p className="muted">No role catalog entries yet</p></div> : (
               <Card className="table-card"><table className="run-table"><thead><tr><th>Role</th><th>Skills bundle</th><th>MCP bundle</th><th>Runtime binding</th><th>Execution authority</th></tr></thead>

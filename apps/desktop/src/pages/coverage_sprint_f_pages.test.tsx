@@ -9,6 +9,10 @@ import { WorktreesPage } from "./WorktreesPage";
 vi.mock("../lib/api", () => ({
   fetchAgents: vi.fn(),
   fetchAgentStatus: vi.fn(),
+  fetchRoleConfig: vi.fn(),
+  previewRoleConfig: vi.fn(),
+  applyRoleConfig: vi.fn(),
+  mutationExecutionCapability: vi.fn(() => ({ executable: false, operatorRole: null })),
   fetchQueue: vi.fn(),
   fetchLocks: vi.fn(),
   fetchWorkflows: vi.fn(),
@@ -17,10 +21,14 @@ vi.mock("../lib/api", () => ({
 }));
 
 import {
+  applyRoleConfig,
   fetchAgents,
   fetchAgentStatus,
+  fetchRoleConfig,
   fetchQueue,
   fetchLocks,
+  mutationExecutionCapability,
+  previewRoleConfig,
   fetchWorkflows,
   fetchWorktrees,
   runNextQueue,
@@ -29,6 +37,59 @@ import {
 describe("coverage sprint F: low-branch pages", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(fetchRoleConfig).mockResolvedValue({
+      authority: "repo-owned-role-config",
+      persisted_source: "policies/role_config_registry.json",
+      overlay_state: "repo-owned-defaults",
+      field_modes: {
+        purpose: "reserved-for-later",
+        system_prompt_ref: "editable-now",
+        skills_bundle_ref: "editable-now",
+        mcp_bundle_ref: "editable-now",
+        runtime_binding: "editable-now",
+        role_binding_summary: "derived-read-only",
+        role_binding_read_model: "derived-read-only",
+        workflow_case_read_model: "derived-read-only",
+        execution_authority: "authority-source",
+      },
+      editable_now: {
+        system_prompt_ref: "policies/agents/codex/roles/50_worker_core.md",
+        skills_bundle_ref: "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+        mcp_bundle_ref: "policies/agent_registry.json#agents(role=WORKER).capabilities.mcp_tools",
+        runtime_binding: { runner: null, provider: null, model: null },
+      },
+      registry_defaults: {
+        system_prompt_ref: "policies/agents/codex/roles/50_worker_core.md",
+        skills_bundle_ref: "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+        mcp_bundle_ref: "policies/agent_registry.json#agents(role=WORKER).capabilities.mcp_tools",
+        runtime_binding: { runner: null, provider: null, model: null },
+      },
+      persisted_values: {
+        system_prompt_ref: "policies/agents/codex/roles/50_worker_core.md",
+        skills_bundle_ref: "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+        mcp_bundle_ref: "policies/agent_registry.json#agents(role=WORKER).capabilities.mcp_tools",
+        runtime_binding: { runner: null, provider: null, model: null },
+      },
+      validation: "fail-closed",
+      preview_supported: true,
+      apply_supported: true,
+      execution_authority: "task_contract",
+      runtime_capability: {
+        status: "previewable",
+        lane: "standard-provider-path",
+        compat_api_mode: "responses",
+        provider_status: "unresolved",
+        provider_inventory_id: null,
+        tool_execution: "provider-path-required",
+        notes: [
+          "Chat-style compatibility may differ from tool-execution capability.",
+          "Execution authority remains task_contract even when role defaults change.",
+        ],
+      },
+    } as any);
+    vi.mocked(previewRoleConfig).mockResolvedValue({ changes: [] } as any);
+    vi.mocked(applyRoleConfig).mockResolvedValue({ saved: true, surface: {} } as any);
+    vi.mocked(mutationExecutionCapability).mockReturnValue({ executable: false, operatorRole: null } as any);
     vi.mocked(fetchQueue).mockResolvedValue([] as any);
     vi.mocked(runNextQueue).mockResolvedValue({ ok: false, reason: "queue empty" } as any);
   });

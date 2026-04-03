@@ -73,7 +73,9 @@ bash scripts/run_orchestrator_cli.sh --help
   without reconstructing it from raw schema fields
 - `run_intake(...)` now returns a contract-derived `role_binding_summary` read
   model, and the same summary is persisted into run manifests so PM-facing
-  helpers plus post-run surfaces can inspect the same bundle/runtime state
+  helpers plus post-run surfaces can inspect the same bundle/runtime state;
+  registry-backed `mcp_bundle_ref` rows now surface their resolved tool set
+  directly instead of falling back to an empty placeholder array
   without treating that summary as execution authority
 - `get_run(...)` now also returns a stable `role_binding_read_model`, so run
   detail and read-only MCP consumers can inspect persisted bundle/runtime state
@@ -110,7 +112,18 @@ bash scripts/run_orchestrator_cli.sh --help
 - `/api/agents` now also publishes a registry-backed role catalog that reuses
   the same `build_role_binding_summary(...)` authority/source grammar, so
   agents surfaces can inspect role defaults without inventing a second truth
-  surface
+  surface; the lightweight provider-capability import path that feeds those
+  read models now stays free of unused helper imports and other dead-code noise
+- `/api/agents/roles/{role}/config` plus `preview` / `apply` sibling routes now
+  expose the repo-owned role configuration desk for future compiled defaults;
+  these routes validate refs and runtime bindings fail-closed, preview the
+  derived readback, and persist changes into
+  `policies/role_config_registry.json` without promoting that surface into
+  execution authority
+- the role-config runtime capability preview now resolves through
+  `src/cortexpilot_orch/runners/provider_capability.py`, which keeps the
+  advisory control-plane lane honest without forcing GitHub-hosted quick
+  hygiene checks to import the full provider transport runtime
 - `/api/contracts` now normalizes contract artifact rows into a read-only
   bundle/runtime inspector payload instead of leaving dashboard/desktop pages
   to guess from heterogeneous raw JSON blobs
@@ -173,6 +186,14 @@ bash scripts/run_orchestrator_cli.sh --help
   stale, failed, or mixed-batch receipts fall back to
   `scripts/verify_upstream_slices.py --mode smoke` so `main` validation
   regenerates real receipts instead of failing on missing files alone.
+- PR-route governance closeout now treats `trusted_pr` route exemptions for
+  `inventory_matrix_gate` and `same_run_cohesion` as optional evidence in the
+  pre-push closeout builder, so lightweight PR-bound pushes do not fail merely
+  because workflow-dispatch-only upstream receipts were intentionally skipped.
+- Governance evidence refresh now also reuses a fresh
+  `clean_room_recovery.json` receipt when that report already passed inside the
+  freshness window, which keeps repeated PR-bound CI-fix pushes from rerunning
+  the full clean-room bundle just to restate the same healthy local receipt.
 - Mainline live-provider probes keep the stricter credential contract: process
   env first, `~/.codex/config.toml` second, while repo-local dotenv files and
   shell-export fallback stay disabled on `CI` / strict mainline contexts.

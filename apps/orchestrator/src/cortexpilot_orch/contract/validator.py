@@ -38,6 +38,8 @@ _FRAGMENT_REF_MAX_BYTES = 256 * 1024
 _FRAGMENT_REF_ALLOWED_PATHS = {
     "role_contract.mcp_bundle_ref": {"policies/agent_registry.json"},
     "role_contract.skills_bundle_ref": {"policies/skills_bundle_registry.json"},
+    "role_config.mcp_bundle_ref": {"policies/agent_registry.json"},
+    "role_config.skills_bundle_ref": {"policies/skills_bundle_registry.json"},
 }
 _ROLE_SELECTOR_RE = re.compile(r"^(?P<name>[A-Za-z0-9_:-]+)\(role=(?P<role>[A-Za-z0-9_:-]+)\)$")
 
@@ -396,6 +398,37 @@ def _validate_ref_path(raw: Any, label: str) -> None:
             raise ValueError(
                 f"Contract validation failed: {label} must resolve to non-empty skills list"
             )
+
+
+def validate_role_config_fields(payload: dict[str, Any], *, label_prefix: str = "role_config") -> dict[str, Any]:
+    if not isinstance(payload, dict):
+        raise ValueError(f"{label_prefix} must be an object")
+    system_prompt_ref = payload.get("system_prompt_ref")
+    skills_bundle_ref = payload.get("skills_bundle_ref")
+    mcp_bundle_ref = payload.get("mcp_bundle_ref")
+    runtime_binding = payload.get("runtime_binding")
+    _validate_ref_path(system_prompt_ref, f"{label_prefix}.system_prompt_ref")
+    if skills_bundle_ref is not None:
+        _validate_ref_path(skills_bundle_ref, f"{label_prefix}.skills_bundle_ref")
+    _validate_ref_path(mcp_bundle_ref, f"{label_prefix}.mcp_bundle_ref")
+    if not isinstance(runtime_binding, dict):
+        raise ValueError(f"{label_prefix}.runtime_binding must be an object")
+    normalized_runtime_binding: dict[str, str | None] = {}
+    for key in ("runner", "provider", "model"):
+        value = runtime_binding.get(key)
+        if value is None:
+            normalized_runtime_binding[key] = None
+            continue
+        if not isinstance(value, str):
+            raise ValueError(f"{label_prefix}.runtime_binding.{key} must be string or null")
+        normalized = value.strip() or None
+        normalized_runtime_binding[key] = normalized
+    return {
+        "system_prompt_ref": str(system_prompt_ref).strip() if isinstance(system_prompt_ref, str) and system_prompt_ref.strip() else None,
+        "skills_bundle_ref": str(skills_bundle_ref).strip() if isinstance(skills_bundle_ref, str) and skills_bundle_ref.strip() else None,
+        "mcp_bundle_ref": str(mcp_bundle_ref).strip() if isinstance(mcp_bundle_ref, str) and mcp_bundle_ref.strip() else None,
+        "runtime_binding": normalized_runtime_binding,
+    }
 
 
 def _resolve_ref_fragment(payload: Any, fragment: str) -> Any:

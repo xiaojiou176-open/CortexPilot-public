@@ -95,6 +95,24 @@ This repository combines:
   record, and dashboard/desktop `Agents` + `Contracts` pages project the same
   bundle/runtime truth as read-only operator surfaces without becoming
   execution authority or edit controls
+- **Prompt 10 role configuration desk**: role defaults now have a repo-owned
+  control-plane overlay in `policies/role_config_registry.json`, plus
+  preview/apply API surfaces for `system_prompt_ref`, `skills_bundle_ref`,
+  `mcp_bundle_ref`, and role-level `runtime_binding`; the `Agents` pages act as
+  the primary control desk while `Contracts` stays inspector-first and
+  `task_contract` remains the only execution authority
+- **Quick Feedback light path**: role-config runtime capability summaries now
+  resolve through a lightweight provider-capability helper, so control-plane
+  previews keep their fail-closed provider posture without forcing GitHub
+  quick-path governance checks to import full runtime transport dependencies;
+  the staged dashboard UI-audit workspace now also copies the required
+  `packages/frontend-*` sources into its temporary root so Next/Turbopack does
+  not reject out-of-root symlinks during smoke builds, and repeated pnpm
+  `ERR_PNPM_ENOENT` recovery now escalates from fresh-store retries to a
+  workspace-local store path instead of repeating the same failing copy route,
+  while `provider_resolution` keeps a dead-code-clean compatibility export
+  surface for callers that still import lightweight helper names from the
+  runtime module
 
 ## Quickstart
 
@@ -276,6 +294,9 @@ The current stage freeze keeps two high-risk directions explicitly constrained:
 - The public repo ships a **read-only MCP** surface only.
 - Internal mutation APIs and approval flows exist, but they are not yet
   exposed as an agent-facing write surface.
+- Repo-owned role configuration defaults now exist for future compiled
+  contracts, but they are still operator-owned web/desktop controls rather than
+  an agent-facing write capability.
 - If this is ever reopened, the smallest safe move is one owner-only,
   manual-only, default-off queue mutation pilot with explicit audit evidence.
 

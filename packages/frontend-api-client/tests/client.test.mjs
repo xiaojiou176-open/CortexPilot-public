@@ -189,6 +189,37 @@ test("dashboard client uses contract-backed agents and contracts paths", async (
   assert.equal(calls[3].url, `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.contracts}`);
 });
 
+test("dashboard client uses contract-backed role-config paths", async () => {
+  const calls = [];
+  const client = createDashboardApiClient({
+    baseUrl: "http://127.0.0.1:10000",
+    resolveMutationRole: () => "tech_lead",
+    fetchImpl: async (url, init) => {
+      calls.push({ url, init });
+      return createJsonResponse({ ok: true });
+    },
+  });
+
+  await client.fetchRoleConfig("worker");
+  await client.previewRoleConfig("worker", { system_prompt_ref: "policies/agents/codex/roles/50_worker_core.md" });
+  await client.applyRoleConfig("worker", { system_prompt_ref: "policies/agents/codex/roles/50_worker_core.md" });
+
+  assert.equal(
+    calls[0].url,
+    `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.roleConfig.replace("{role}", "worker")}`,
+  );
+  assert.equal(
+    calls[1].url,
+    `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.roleConfigPreview.replace("{role}", "worker")}`,
+  );
+  assert.equal(
+    calls[2].url,
+    `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.roleConfigApply.replace("{role}", "worker")}`,
+  );
+  assert.equal(calls[1].init.headers["x-cortexpilot-role"], "TECH_LEAD");
+  assert.equal(calls[2].init.headers["x-cortexpilot-role"], "TECH_LEAD");
+});
+
 test("dashboard client attaches operator role only for mutation requests", async () => {
   const calls = [];
   const client = createDashboardApiClient({
