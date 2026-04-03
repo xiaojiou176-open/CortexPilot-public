@@ -82,3 +82,49 @@ def test_non_pre_push_mode_still_fails_without_current_run_consistency(tmp_path:
     proc = _run_script(*args, "--mode", "ci")
     assert proc.returncode != 0
     assert "missing required evidence: current_run_consistency" in (proc.stdout + proc.stderr)
+
+
+def test_pre_push_mode_allows_route_exempt_upstream_artifacts_to_be_missing(tmp_path: Path) -> None:
+    args = _base_args(tmp_path)
+    generated_at = datetime.now(timezone.utc).isoformat()
+    manifest_path = tmp_path / "governance_evidence_manifest.json"
+    _write_json(
+        manifest_path,
+        {
+            "generated_at": generated_at,
+            "dimensions": {
+                "upstream": {
+                    "checks": [
+                        {
+                            "id": "verification_smoke",
+                            "command": ["route-exempt:trusted_pr"],
+                            "ok": True,
+                        },
+                        {
+                            "id": "inventory_matrix_gate",
+                            "command": ["route-exempt:trusted_pr"],
+                            "ok": True,
+                        },
+                        {
+                            "id": "same_run_cohesion",
+                            "command": ["route-exempt:trusted_pr"],
+                            "ok": True,
+                        },
+                    ]
+                }
+            },
+        },
+    )
+    (tmp_path / "upstream_inventory_report.json").unlink()
+    (tmp_path / "upstream_same_run_cohesion.json").unlink()
+
+    proc = _run_script(*args, "--mode", "pre-push")
+    assert proc.returncode == 0, proc.stderr or proc.stdout
+
+    payload = json.loads((tmp_path / "closeout_report.json").read_text(encoding="utf-8"))
+    assert payload["route_exempt_optional_artifacts"] == [
+        "upstream_report",
+        "upstream_same_run_report",
+    ]
+    assert "python3 scripts/check_upstream_inventory.py --mode gate" not in payload["fresh_commands"]
+    assert "python3 scripts/check_upstream_same_run_cohesion.py" not in payload["fresh_commands"]
