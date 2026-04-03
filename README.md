@@ -121,7 +121,9 @@ This repository combines:
   quick-path governance checks to import full runtime transport dependencies;
   the staged dashboard UI-audit workspace now also copies the required
   `packages/frontend-*` sources into its temporary root so Next/Turbopack does
-  not reject out-of-root symlinks during smoke builds
+  not reject out-of-root symlinks during smoke builds, and repeated pnpm
+  `ERR_PNPM_ENOENT` recovery now escalates from fresh-store retries to a
+  workspace-local store path instead of repeating the same failing copy route
 
 ## Quickstart
 

@@ -89,6 +89,10 @@ flowchart LR
   `packages/frontend-shared` sources inside the temporary workspace root
   itself; out-of-root `packages` symlinks are rejected by Next/Turbopack and
   therefore do not satisfy the hosted smoke-build contract.
+- When dashboard or desktop dependency bootstrap hits repeated pnpm
+  `ERR_PNPM_ENOENT` failures, recovery must escalate from fresh-store retries
+  to a workspace-local store path so the clean-room / UI-audit lanes stop
+  repeating the same failing cross-cache copy route.
 - Log rotation remains owned by `observability/logger.py` (`RotatingFileHandler` + gzip rollover), while lifecycle cleanup remains owned by runtime retention and guarded high-yield cleanup remains owned by space governance. The three layers are complementary, not interchangeable.
 - `~/.cache/cortexpilot` is the repo-external strong-related cache root, but it is still machine-shared across local CortexPilot worktrees and branches. Treat it as governed shared cache, not single-repo private disk.
 - Log envelope SSOT is `schemas/log_event.v2.json`, and machine-consumed log correlation must stay auditable through `lane` + `correlation_kind`.
