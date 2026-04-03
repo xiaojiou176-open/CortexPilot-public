@@ -67,7 +67,7 @@ navigation set.
 - `docs/assets/storefront/demo-status.md`: status ledger for tracked public demo and proof assets
 - `docs/assets/storefront/benchmark-methodology.md`: public benchmark evidence contract and wording boundary
 - `docs/architecture/ecosystem-and-builder-surfaces-v1.md`: ecosystem binding, first-run distribution loop, and current builder/client entry points
-- `docs/builders/index.html`: public builder quickstart hub for current client/contract/shared entrypoints, including the repo-owned control-plane starter path
+- `docs/builders/index.html`: public builder quickstart hub for current client/contract/shared entrypoints, including the repo-owned control-plane starter path and its runnable local example
 - `docs/ecosystem/index.html`: public ecosystem positioning page for Codex / Claude Code / MCP plus adjacent comparison layers
 - `docs/use-cases/index.html`: public first-run, proof, and share-ready asset guide
 - `docs/ai-surfaces/index.html`: public AI operator / read-only MCP / API entrypoint map for truthful discoverability

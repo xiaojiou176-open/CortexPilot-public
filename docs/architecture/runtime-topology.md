@@ -95,3 +95,9 @@ flowchart LR
   paths, but MCP tool execution still fails closed until a tool-capable
   provider path exists; this keeps the runtime-first adapter honest instead of
   claiming full worker/tool parity too early.
+- Prompt 10 follow-up slices now also project a derived runtime capability
+  summary (`lane`, `compat_api_mode`, `provider_status`, `tool_execution`)
+  through intake previews, run manifests, operator-copilot briefs, and the
+  dashboard/desktop `Contracts` plus `Run Detail` surfaces; this keeps the
+  runtime boundary readable without upgrading chat-compatible lanes into full
+  execution parity.
