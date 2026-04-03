@@ -3,7 +3,11 @@ import type { ContractRecord } from "../lib/types";
 import { fetchContracts } from "../lib/api";
 import { Button } from "../components/ui/Button";
 import { Card, CardBody, CardHeader, CardTitle } from "../components/ui/Card";
-import { formatBindingReadModelLabel, formatRoleBindingRuntimeSummary } from "../lib/types";
+import {
+  formatBindingReadModelLabel,
+  formatRoleBindingRuntimeCapabilitySummary,
+  formatRoleBindingRuntimeSummary,
+} from "../lib/types";
 
 export function ContractsPage() {
   const [contracts, setContracts] = useState<ContractRecord[]>([]);
@@ -42,6 +46,8 @@ export function ContractsPage() {
                     <div className="data-list-row"><span className="data-list-label">Skills bundle</span><span className="data-list-value">{contract.role_binding_read_model ? formatBindingReadModelLabel(contract.role_binding_read_model.skills_bundle_ref) : "Not derived"}</span></div>
                     <div className="data-list-row"><span className="data-list-label">MCP bundle</span><span className="data-list-value">{contract.role_binding_read_model ? formatBindingReadModelLabel(contract.role_binding_read_model.mcp_bundle_ref) : "Not derived"}</span></div>
                     <div className="data-list-row"><span className="data-list-label">Runtime binding</span><span className="data-list-value mono">{contract.role_binding_read_model ? formatRoleBindingRuntimeSummary(contract.role_binding_read_model) : "Not derived"}</span></div>
+                    <div className="data-list-row"><span className="data-list-label">Runtime capability</span><span className="data-list-value mono">{contract.role_binding_read_model?.runtime_binding?.capability?.lane || "Not derived"}</span></div>
+                    <div className="data-list-row"><span className="data-list-label">Tool execution</span><span className="data-list-value mono">{contract.role_binding_read_model ? formatRoleBindingRuntimeCapabilitySummary(contract.role_binding_read_model) : "Not derived"}</span></div>
                     {contract.allowed_paths && (
                       <div className="data-list-row"><span className="data-list-label">Allowed paths</span><span className="data-list-value"><div className="chip-list">{contract.allowed_paths.map((p) => <span key={p} className="chip">{p}</span>)}</div></span></div>
                     )}

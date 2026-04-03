@@ -222,6 +222,7 @@ export type ExecutionPlanReport = {
   search_queries: string[];
   predicted_reports: string[];
   predicted_artifacts: string[];
+  runtime_capability_summary?: RuntimeCapabilitySummary;
   requires_human_approval: boolean;
   plan?: JsonValue;
   plan_bundle?: JsonValue;
@@ -409,6 +410,16 @@ export function formatRoleBindingRuntimeSummary(
   const provider = String(runtimeSummary?.provider || "-");
   const model = String(runtimeSummary?.model || "-");
   return `${runner} / ${provider} / ${model}`;
+}
+
+export function formatRoleBindingRuntimeCapabilitySummary(
+  roleBindingSummary: RoleBindingReadModel | null | undefined,
+): string {
+  const capability = roleBindingSummary?.runtime_binding?.capability;
+  if (!capability) {
+    return "- / -";
+  }
+  return `${capability.lane} / ${capability.tool_execution}`;
 }
 
 export type QueueItemRecord = {

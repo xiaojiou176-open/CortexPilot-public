@@ -2,6 +2,7 @@ import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 import {
   formatBindingReadModelLabel,
+  formatRoleBindingRuntimeCapabilitySummary,
   formatRoleBindingRuntimeSummary,
   type RunDetailPayload,
   type EventRecord,
@@ -478,6 +479,8 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
                   <div className="data-list-row"><span className="data-list-label">{runDetailCopy.bindingReadModel.skillsBundle}</span><span className="data-list-value mono">{formatBindingReadModelLabel(roleBindingReadModel.skills_bundle_ref)}</span></div>
                   <div className="data-list-row"><span className="data-list-label">{runDetailCopy.bindingReadModel.mcpBundle}</span><span className="data-list-value mono">{formatBindingReadModelLabel(roleBindingReadModel.mcp_bundle_ref)}</span></div>
                   <div className="data-list-row"><span className="data-list-label">{runDetailCopy.bindingReadModel.runtimeBinding}</span><span className="data-list-value mono">{formatRoleBindingRuntimeSummary(roleBindingReadModel)}</span></div>
+                  <div className="data-list-row"><span className="data-list-label">{runDetailCopy.bindingReadModel.runtimeCapability}</span><span className="data-list-value mono">{toStr(roleBindingReadModel.runtime_binding?.capability?.lane)}</span></div>
+                  <div className="data-list-row"><span className="data-list-label">{runDetailCopy.bindingReadModel.toolExecution}</span><span className="data-list-value mono">{formatRoleBindingRuntimeCapabilitySummary(roleBindingReadModel)}</span></div>
                 </div>
                 <div className="muted text-xs">{runDetailCopy.bindingReadModel.readOnlyNote}</div>
               </div>

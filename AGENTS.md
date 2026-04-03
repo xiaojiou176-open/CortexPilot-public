@@ -213,6 +213,29 @@ Work in CortexPilot as a contract-first engineering agent:
   bindings for those routes, and the rule that `Agents` becomes the control
   desk while `Contracts` stays inspector-first and `task_contract` remains the
   only execution authority
+- when a Prompt 10 follow-up slice adds derived runtime capability posture to
+  intake previews, run manifests, operator-copilot briefs, or the
+  dashboard/desktop `Contracts` and `Run Detail` surfaces, sync the root
+  AI/docs entrypoints in the same patch; current examples include the derived
+  `runtime_capability_summary` on `execution_plan_report`, the
+  `role_binding_read_model.runtime_binding.capability` summary in generated
+  frontend contracts, the shared dashboard/desktop runtime-capability copy,
+  and the explicit fail-closed wording that keeps chat compatibility distinct
+  from tool execution parity
+- when a Prompt 10 Wave 3 slice hardens builder/client entrypoints into a
+  repo-owned starter path, sync the root AI/docs entrypoints in the same patch;
+  current examples include
+  `packages/frontend-api-client/examples/control_plane_starter.local.mjs`, the
+  package-facing `createControlPlaneStarter(...)` bootstrap flow, and the rule
+  that this starter remains below hosted SDK / marketplace claims
+- when staged dashboard smoke builds change their dependency-install or
+  `apps/dashboard/lib/types.ts` export bridge semantics, sync the root AI/docs
+  entrypoints in the same patch so pre-push and UI-audit gates can distinguish
+  staging drift from real dashboard regressions
+- when clean-room recovery changes the package-local install order for
+  `frontend-api-client`, sync the root AI/docs entrypoints in the same patch so
+  recovery gates fail on product regressions instead of missing local package
+  installs
 
 ## Local Overrides
 

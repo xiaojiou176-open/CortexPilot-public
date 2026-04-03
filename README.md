@@ -101,6 +101,20 @@ This repository combines:
   `mcp_bundle_ref`, and role-level `runtime_binding`; the `Agents` pages act as
   the primary control desk while `Contracts` stays inspector-first and
   `task_contract` remains the only execution authority
+- **Prompt 10 runtime capability truth**: intake preview, run manifests,
+  operator copilot, `Contracts`, and `Run Detail` now also surface a derived
+  runtime capability summary (`lane`, `compat_api_mode`, `provider_status`,
+  `tool_execution`) so runtime/provider posture is readable without pretending
+  the system already has full tool parity or runtime replaceability
+- **Prompt 10 smoke-gate hardening**: staged dashboard smoke builds now keep
+  their dependency-install log path recreated on each run, and
+  `apps/dashboard/lib/types.ts` now explicitly re-exports task-pack/runtime
+  helper values so UI-audit builds fail on product regressions instead of
+  brittle staging/export drift
+- **Prompt 10 clean-room recovery hardening**: empty-runtime recovery now
+  reinstalls package-local `frontend-api-client` dependencies before it runs
+  the node smoke bundle, so clean-room verification keeps testing the package
+  itself instead of failing on missing local installs
 - **Quick Feedback light path**: role-config runtime capability summaries now
   resolve through a lightweight provider-capability helper, so control-plane
   previews keep their fail-closed provider posture without forcing GitHub

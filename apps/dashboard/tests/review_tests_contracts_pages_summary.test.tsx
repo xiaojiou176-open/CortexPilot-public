@@ -120,6 +120,18 @@ describe("summary-first rendering for reviews/tests/contracts pages", () => {
               provider: null,
               model: null,
             },
+            capability: {
+              status: "previewable",
+              lane: "switchyard-chat-compatible",
+              compat_api_mode: "chat_completions",
+              provider_status: "unresolved",
+              provider_inventory_id: null,
+              tool_execution: "fail-closed",
+              notes: [
+                "Chat-style compatibility may differ from tool-execution capability.",
+                "Execution authority remains task_contract even when role defaults change.",
+              ],
+            },
           },
         },
         payload: {
@@ -139,6 +151,8 @@ describe("summary-first rendering for reviews/tests/contracts pages", () => {
     expect(within(permissionRow as HTMLElement).getByText("network: deny")).toBeInTheDocument();
     expect(screen.getByText("task_contract")).toBeInTheDocument();
     expect(screen.getByText(/tech_lead_contract_bridge_v1/)).toBeInTheDocument();
+    expect(screen.getByText("switchyard-chat-compatible")).toBeInTheDocument();
+    expect(screen.getByText("switchyard-chat-compatible / fail-closed")).toBeInTheDocument();
 
     const preBlocks = document.querySelectorAll("pre");
     expect(preBlocks.length).toBe(1);

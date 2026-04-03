@@ -503,6 +503,18 @@ def test_build_role_binding_summary_marks_skills_and_mcp_registry_refs_as_regist
             "model": "unresolved",
         },
         "summary": {"runner": None, "provider": "cliproxyapi", "model": None},
+        "capability": {
+            "status": "previewable",
+            "lane": "standard-provider-path",
+            "compat_api_mode": "responses",
+            "provider_status": "allowlisted",
+            "provider_inventory_id": "cliproxyapi",
+            "tool_execution": "provider-path-required",
+            "notes": [
+                "Chat-style compatibility may differ from tool-execution capability.",
+                "Execution authority remains task_contract even when role defaults change.",
+            ],
+        },
     }
 
 

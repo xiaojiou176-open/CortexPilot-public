@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from cortexpilot_orch.contract.validator import ContractValidator, _resolve_ref_fragment, resolve_agent_registry_path
+from cortexpilot_orch.contract.role_config_registry import build_runtime_capability_summary
 
 _FORBIDDEN_POLICY_FILE = "policies/forbidden_actions.json"
 _SKILLS_BUNDLE_REGISTRY_FILE = "policies/skills_bundle_registry.json"
@@ -415,6 +416,7 @@ def build_role_binding_summary(contract: dict[str, Any]) -> dict[str, Any]:
             "authority_scope": "contract-derived-read-model",
             "source": _runtime_binding_sources(contract, runtime_binding),
             "summary": runtime_binding,
+            "capability": build_runtime_capability_summary(runtime_binding),
         },
     }
 

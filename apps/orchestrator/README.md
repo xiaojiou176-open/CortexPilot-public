@@ -120,6 +120,10 @@ bash scripts/run_orchestrator_cli.sh --help
   derived readback, and persist changes into
   `policies/role_config_registry.json` without promoting that surface into
   execution authority
+- intake preview, run manifests, and operator-copilot briefs now also surface
+  a derived runtime capability summary (`lane`, `compat_api_mode`,
+  `provider_status`, `tool_execution`) so runtime/provider posture is readable
+  from repo-owned control-plane reads without implying full tool parity
 - the role-config runtime capability preview now resolves through
   `src/cortexpilot_orch/runners/provider_capability.py`, which keeps the
   advisory control-plane lane honest without forcing GitHub-hosted quick

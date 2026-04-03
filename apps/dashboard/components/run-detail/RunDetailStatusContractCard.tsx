@@ -8,6 +8,7 @@ import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import {
   formatBindingReadModelLabel,
+  formatRoleBindingRuntimeCapabilitySummary,
   formatRoleBindingRuntimeSummary,
   type EventRecord,
   type RunContract,
@@ -206,6 +207,12 @@ export default function RunDetailStatusContractCard({
           </div>
           <div className="mono">
             {bindingReadModelCopy.runtimeBinding}: {formatRoleBindingRuntimeSummary(roleBindingReadModel)}
+          </div>
+          <div className="mono">
+            {bindingReadModelCopy.runtimeCapability}: {toDisplayText(roleBindingReadModel.runtime_binding?.capability?.lane)}
+          </div>
+          <div className="mono">
+            {bindingReadModelCopy.toolExecution}: {formatRoleBindingRuntimeCapabilitySummary(roleBindingReadModel)}
           </div>
           <div className="mono muted">
             {bindingReadModelCopy.readOnlyNote}

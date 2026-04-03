@@ -194,6 +194,18 @@ describe("RunDetail core flows", () => {
             model: "role_contract.runtime_binding.model",
           },
           summary: { runner: "agents", provider: "cliproxyapi", model: "gpt-5.4" },
+          capability: {
+            status: "previewable",
+            lane: "standard-provider-path",
+            compat_api_mode: "responses",
+            provider_status: "allowlisted",
+            provider_inventory_id: "cliproxyapi",
+            tool_execution: "provider-path-required",
+            notes: [
+              "Chat-style compatibility may differ from tool-execution capability.",
+              "Execution authority remains task_contract even when role defaults change.",
+            ],
+          },
         },
       },
     };
@@ -212,6 +224,8 @@ describe("RunDetail core flows", () => {
     expect(screen.getByText("Skills bundle: worker_delivery_core_v1 (registry-backed)")).toBeInTheDocument();
     expect(screen.getByText("MCP bundle: registry://mcp/worker-readonly (registry-backed)")).toBeInTheDocument();
     expect(screen.getByText("Runtime binding: agents / cliproxyapi / gpt-5.4")).toBeInTheDocument();
+    expect(screen.getByText("Runtime capability: standard-provider-path")).toBeInTheDocument();
+    expect(screen.getByText("Tool execution: standard-provider-path / provider-path-required")).toBeInTheDocument();
     expect(
       screen.getByText(
         "Read-only note: this mirrors the persisted binding summary. task_contract still owns execution authority.",

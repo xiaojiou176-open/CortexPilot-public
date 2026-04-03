@@ -145,6 +145,7 @@ export type RuntimeBindingReadModel = {
   authority_scope: RuntimeBindingAuthorityScope;
   source: RuntimeBindingSourceSummary;
   summary: RuntimeBindingValueSummary;
+  capability?: RuntimeCapabilitySummary;
 };
 export type RoleBindingReadModel = {
   authority: RoleBindingReadModelAuthority;

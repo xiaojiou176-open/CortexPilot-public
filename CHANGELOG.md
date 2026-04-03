@@ -44,6 +44,26 @@ All notable changes to this repository will be documented in this file.
   cover those routes, dashboard/desktop `Agents` pages now host the minimal
   preview/apply desk, and `Contracts` remains inspector-first while
   `task_contract` stays the only execution authority
+- opened Prompt 10 Wave 2 by projecting a derived runtime capability summary
+  (`lane`, `compat_api_mode`, `provider_status`, `tool_execution`) onto intake
+  previews, run manifests, operator-copilot briefs, and the dashboard/desktop
+  `Contracts` + `Run Detail` operator surfaces while keeping `task_contract`
+  as the only execution authority and preserving fail-closed tool/runtime
+  posture
+- opened Prompt 10 Wave 3 by hardening the repo-owned frontend starter path:
+  `@cortexpilot/frontend-api-client` now documents and exports
+  `createControlPlaneStarter(...)`, the package ships a runnable local example
+  at `packages/frontend-api-client/examples/control_plane_starter.local.mjs`,
+  and the builder/API/docs entrypoints now describe that preview-first starter
+  loop without overclaiming a hosted SDK or marketplace surface
+- hardened the Prompt 10 follow-up smoke gates by ensuring dashboard dependency
+  installs always recreate their runtime log directory and by making
+  `apps/dashboard/lib/types.ts` explicitly re-export task-pack/runtime helpers
+  for staged UI-audit builds instead of relying on a fragile wildcard-only
+  surface
+- restored clean-room frontend-api-client recovery by making
+  `scripts/check_clean_room_recovery.sh` reinstall package-local
+  `frontend-api-client` dependencies before it runs the node smoke bundle
 - hardened the Prompt 10 control-plane CI path by extracting lightweight
   provider-capability helpers for role-config runtime summaries, registering
   the governed env reads in `configs/env_direct_read_allowlist.json`, and

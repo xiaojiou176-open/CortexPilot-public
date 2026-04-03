@@ -867,6 +867,7 @@ def generate_execution_plan_operator_copilot_brief(
     used_truth_surfaces = [
         "execution plan preview",
         "contract preview",
+        "runtime capability summary",
         "predicted reports",
         "predicted artifacts",
         "acceptance checks",
@@ -891,6 +892,7 @@ def generate_execution_plan_operator_copilot_brief(
             "search_queries": _valid_list_items(report_payload.get("search_queries")),
             "predicted_reports": _valid_list_items(report_payload.get("predicted_reports")),
             "predicted_artifacts": _valid_list_items(report_payload.get("predicted_artifacts")),
+            "runtime_capability_summary": _as_record(report_payload.get("runtime_capability_summary")),
             "warnings": _valid_list_items(report_payload.get("warnings")),
             "notes": _valid_list_items(report_payload.get("notes")),
             "requires_human_approval": bool(report_payload.get("requires_human_approval")),

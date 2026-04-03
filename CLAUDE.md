@@ -181,6 +181,29 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   the generated frontend contract bindings for those routes, and the rule that
   `Agents` becomes the control desk while `Contracts` stays inspector-first and
   `task_contract` remains the only execution authority
+- when a Prompt 10 follow-up slice adds derived runtime capability posture to
+  intake previews, run manifests, operator-copilot briefs, or the
+  dashboard/desktop `Contracts` and `Run Detail` surfaces, keep this file, the
+  root AI/docs entrypoints, and the module READMEs aligned in the same patch;
+  current examples include `execution_plan_report.runtime_capability_summary`,
+  `role_binding_read_model.runtime_binding.capability`, the shared
+  dashboard/desktop runtime-capability copy, and the fail-closed wording that
+  keeps chat-compatible lanes separate from tool execution parity
+- when a Prompt 10 Wave 3 slice hardens builder/client entrypoints into a
+  repo-owned starter path, keep this file, the root AI/docs entrypoints, and
+  the package/docs entrypoints aligned in the same patch; current examples
+  include `packages/frontend-api-client/examples/control_plane_starter.local.mjs`,
+  the package-facing `createControlPlaneStarter(...)` bootstrap flow, and the
+  rule that the starter remains a repo-owned integration edge rather than a
+  hosted SDK or marketplace claim
+- when staged dashboard smoke builds change their dependency-install behavior
+  or the `apps/dashboard/lib/types.ts` export bridge, keep this file and the
+  root/module docs aligned in the same patch so UI-audit / pre-push failures
+  stay attributable to staging drift vs real dashboard regressions
+- when clean-room recovery changes the package-local install order for
+  `frontend-api-client`, keep this file and the root docs aligned in the same
+  patch so recovery gates fail on product regressions instead of missing local
+  package installs
 
 ## Key Commands
 
