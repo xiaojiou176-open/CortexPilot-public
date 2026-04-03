@@ -262,9 +262,9 @@ recover_with_fresh_store() {
           attempt=$((attempt + 1))
           continue
         fi
-        echo "❌ [install-dashboard-deps] pnpm install failed after ${max_attempts} fresh-store recovery attempts; tail follows" >&2
-        print_install_log_tail 80
-        exit 1
+        echo "⚠️ [install-dashboard-deps] fresh-store recovery exhausted ${max_attempts} ERR_PNPM_ENOENT attempts; escalating to workspace-local pnpm store recovery" >&2
+        recover_with_workspace_store "fresh-store ERR_PNPM_ENOENT persisted after ${max_attempts} attempts"
+        return 0
       fi
       echo "❌ [install-dashboard-deps] pnpm install failed after fresh-store recovery; tail follows" >&2
       print_install_log_tail 80
@@ -307,7 +307,7 @@ recover_with_workspace_store() {
     INSTALL_PACKAGE_IMPORT_METHOD="$previous_import_method"
     INSTALL_NODE_LINKER="$previous_node_linker"
     INSTALL_SHAMEFULLY_HOIST="$previous_shamefully_hoist"
-    echo "❌ [install-dashboard-deps] pnpm install failed after ENOSPC recovery; tail follows" >&2
+    echo "❌ [install-dashboard-deps] pnpm install failed after workspace-local recovery; tail follows" >&2
     print_install_log_tail 80
     exit 1
   fi
