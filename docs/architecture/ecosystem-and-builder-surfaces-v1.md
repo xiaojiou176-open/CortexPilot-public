@@ -114,7 +114,7 @@ node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
 ```
 
 Keep the starter preview-first by default. Apply should stay behind
-`CORTEXPILOT_STARTER_APPLY=1` so the example does not masquerade as a hosted
+`--apply` so the example does not masquerade as a hosted
 SDK or an automatic execution-authority switch.
 
 ## Guardrails

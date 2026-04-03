@@ -2,47 +2,65 @@ import { pathToFileURL } from "node:url";
 
 import { createControlPlaneStarter, createDashboardApiClient } from "../index.js";
 
-function cleanText(value) {
-  if (typeof value !== "string") {
-    return "";
+function parseArgs(argv = process.argv.slice(2)) {
+  const options = {
+    baseUrl: "http://127.0.0.1:10000",
+    role: "WORKER",
+    mutationRole: "TECH_LEAD",
+    previewProvider: "",
+    previewModel: "",
+    apply: false,
+  };
+
+  for (let index = 0; index < argv.length; index += 1) {
+    const raw = argv[index];
+    if (raw === "--apply") {
+      options.apply = true;
+      continue;
+    }
+    const next = argv[index + 1];
+    if (typeof next !== "string") {
+      continue;
+    }
+    switch (raw) {
+      case "--base-url":
+        options.baseUrl = next.trim() || options.baseUrl;
+        index += 1;
+        break;
+      case "--role":
+        options.role = next.trim() || options.role;
+        index += 1;
+        break;
+      case "--mutation-role":
+        options.mutationRole = next.trim() || options.mutationRole;
+        index += 1;
+        break;
+      case "--preview-provider":
+        options.previewProvider = next.trim();
+        index += 1;
+        break;
+      case "--preview-model":
+        options.previewModel = next.trim();
+        index += 1;
+        break;
+      default:
+        break;
+    }
   }
-  return value.trim();
+
+  return options;
 }
 
-function buildPreviewPayload({
-  systemPromptRef = "",
-  skillsBundleRef = "",
-  mcpBundleRef = "",
-  runner = "",
-  provider = "",
-  model = "",
-} = {}) {
-  const cleanedSystemPromptRef = cleanText(systemPromptRef);
-  const cleanedSkillsBundleRef = cleanText(skillsBundleRef);
-  const cleanedMcpBundleRef = cleanText(mcpBundleRef);
-  const cleanedRunner = cleanText(runner);
-  const cleanedProvider = cleanText(provider);
-  const cleanedModel = cleanText(model);
-
-  const hasPreviewValues =
-    cleanedSystemPromptRef ||
-    cleanedSkillsBundleRef ||
-    cleanedMcpBundleRef ||
-    cleanedRunner ||
-    cleanedProvider ||
-    cleanedModel;
-  if (!hasPreviewValues) {
+function buildPreviewPayload(options) {
+  const provider = options.previewProvider.trim();
+  const model = options.previewModel.trim();
+  if (!provider && !model) {
     return null;
   }
-
   return {
-    system_prompt_ref: cleanedSystemPromptRef || null,
-    skills_bundle_ref: cleanedSkillsBundleRef || null,
-    mcp_bundle_ref: cleanedMcpBundleRef || null,
     runtime_binding: {
-      runner: cleanedRunner || null,
-      provider: cleanedProvider || null,
-      model: cleanedModel || null,
+      provider: provider || null,
+      model: model || null,
     },
   };
 }
@@ -50,36 +68,28 @@ function buildPreviewPayload({
 export async function runControlPlaneStarterExample({
   baseUrl = "http://127.0.0.1:10000",
   role = "WORKER",
-  previewPayload = null,
-  shouldApply = false,
-  resolveToken,
   mutationRole = "TECH_LEAD",
+  previewPayload = null,
+  apply = false,
+  resolveToken,
   fetchImpl,
 } = {}) {
-  const normalizedRole = cleanText(role) || "WORKER";
-  const normalizedMutationRole = cleanText(mutationRole);
+  const normalizedRole = role.trim() || "WORKER";
   const client = createDashboardApiClient({
     baseUrl,
     fetchImpl,
     resolveToken,
-    resolveMutationRole: normalizedMutationRole
-      ? () => normalizedMutationRole
-      : () => undefined,
+    resolveMutationRole: () => mutationRole,
   });
   const starter = createControlPlaneStarter(client);
   const bootstrap = await starter.fetchBootstrap({ role: normalizedRole });
   const preview = previewPayload
     ? await starter.previewRoleDefaults(normalizedRole, previewPayload)
     : null;
-  if (shouldApply && !previewPayload) {
-    throw new TypeError(
-      "control_plane_starter.local requires preview payload values before apply is enabled.",
-    );
-  }
-  const applied =
-    shouldApply && previewPayload
-      ? await starter.applyRoleDefaults(normalizedRole, previewPayload)
-      : null;
+  const applied = apply && previewPayload
+    ? await starter.applyRoleDefaults(normalizedRole, previewPayload)
+    : null;
+
   return {
     role: normalizedRole,
     baseUrl,
@@ -91,7 +101,7 @@ export async function runControlPlaneStarterExample({
       mcp_boundary: "read-only",
       execution_authority: "task_contract",
       apply_supported_via_client: true,
-      note: "This starter defaults to bootstrap + preview. Apply only runs when the caller opts in and the same operator policy allows repo-owned default changes.",
+      note: "This starter defaults to bootstrap + preview. Pass --apply only when you intentionally want to persist repo-owned role defaults under the same operator policy.",
     },
   };
 }
@@ -104,90 +114,15 @@ function isDirectRun() {
   return import.meta.url === pathToFileURL(currentArg).href;
 }
 
-function parseCliArgs(argv = process.argv.slice(2)) {
-  const options = {
-    baseUrl: "http://127.0.0.1:10000",
-    role: "WORKER",
-    mutationRole: "TECH_LEAD",
-    token: "",
-    previewRunner: "",
-    previewProvider: "",
-    previewModel: "",
-    previewSystemPromptRef: "",
-    previewSkillsBundleRef: "",
-    previewMcpBundleRef: "",
-    apply: false,
-  };
-  for (let index = 0; index < argv.length; index += 1) {
-    const current = argv[index];
-    const next = argv[index + 1];
-    if (current === "--apply") {
-      options.apply = true;
-      continue;
-    }
-    if (!current.startsWith("--")) {
-      continue;
-    }
-    const [rawKey, inlineValue] = current.slice(2).split("=", 2);
-    const value = inlineValue ?? next ?? "";
-    const consumeNext = inlineValue === undefined;
-    switch (rawKey) {
-      case "base-url":
-        options.baseUrl = value;
-        break;
-      case "role":
-        options.role = value;
-        break;
-      case "mutation-role":
-        options.mutationRole = value;
-        break;
-      case "token":
-        options.token = value;
-        break;
-      case "preview-runner":
-        options.previewRunner = value;
-        break;
-      case "preview-provider":
-        options.previewProvider = value;
-        break;
-      case "preview-model":
-        options.previewModel = value;
-        break;
-      case "preview-system-prompt-ref":
-        options.previewSystemPromptRef = value;
-        break;
-      case "preview-skills-bundle-ref":
-        options.previewSkillsBundleRef = value;
-        break;
-      case "preview-mcp-bundle-ref":
-        options.previewMcpBundleRef = value;
-        break;
-      default:
-        break;
-    }
-    if (consumeNext) {
-      index += 1;
-    }
-  }
-  return options;
-}
-
 if (isDirectRun()) {
-  const cli = parseCliArgs();
+  const options = parseArgs();
+  const previewPayload = buildPreviewPayload(options);
   const result = await runControlPlaneStarterExample({
-    baseUrl: cleanText(cli.baseUrl) || "http://127.0.0.1:10000",
-    role: cleanText(cli.role) || "WORKER",
-    previewPayload: buildPreviewPayload({
-      systemPromptRef: cli.previewSystemPromptRef,
-      skillsBundleRef: cli.previewSkillsBundleRef,
-      mcpBundleRef: cli.previewMcpBundleRef,
-      runner: cli.previewRunner,
-      provider: cli.previewProvider,
-      model: cli.previewModel,
-    }),
-    shouldApply: cli.apply,
-    resolveToken: () => cleanText(cli.token) || cleanText(process.env.CORTEXPILOT_API_TOKEN) || undefined,
-    mutationRole: cleanText(cli.mutationRole) || "TECH_LEAD",
+    baseUrl: options.baseUrl,
+    role: options.role,
+    mutationRole: options.mutationRole,
+    previewPayload,
+    apply: options.apply,
   });
   console.log(JSON.stringify(result, null, 2));
 }

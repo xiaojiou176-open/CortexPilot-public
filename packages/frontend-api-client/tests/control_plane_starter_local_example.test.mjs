@@ -80,7 +80,7 @@ test("local starter example only applies when explicitly enabled", async () => {
         model: "gpt-5.4",
       },
     },
-    shouldApply: true,
+    apply: true,
     mutationRole: "TECH_LEAD",
     fetchImpl: async (url, init) => {
       calls.push({ url, init });
