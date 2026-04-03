@@ -61,14 +61,22 @@ function draftFromSurface(surface: RoleConfigSurface | null): RoleConfigDraft {
   if (!surface) {
     return createEmptyDraft();
   }
+  const editableNow = surface.editable_now;
+  if (!editableNow || typeof editableNow !== "object") {
+    return createEmptyDraft();
+  }
+  const runtimeBinding =
+    editableNow.runtime_binding && typeof editableNow.runtime_binding === "object"
+      ? editableNow.runtime_binding
+      : createEmptyDraft().runtime_binding;
   return {
-    system_prompt_ref: surface.editable_now.system_prompt_ref || "",
-    skills_bundle_ref: surface.editable_now.skills_bundle_ref || "",
-    mcp_bundle_ref: surface.editable_now.mcp_bundle_ref || "",
+    system_prompt_ref: editableNow.system_prompt_ref || "",
+    skills_bundle_ref: editableNow.skills_bundle_ref || "",
+    mcp_bundle_ref: editableNow.mcp_bundle_ref || "",
     runtime_binding: {
-      runner: surface.editable_now.runtime_binding.runner || "",
-      provider: surface.editable_now.runtime_binding.provider || "",
-      model: surface.editable_now.runtime_binding.model || "",
+      runner: runtimeBinding.runner || "",
+      provider: runtimeBinding.provider || "",
+      model: runtimeBinding.model || "",
     },
   };
 }
@@ -95,6 +103,21 @@ function readableValue(value: string | null | undefined): string {
   return normalized || "Not set";
 }
 
+function editableSurfaceValues(surface: RoleConfigSurface | null | undefined): RoleConfigDraft {
+  return draftFromSurface(surface ?? null);
+}
+
+function runtimeCapabilitySummary(surface: RoleConfigSurface | null | undefined) {
+  const capability = surface?.runtime_capability;
+  return {
+    lane: capability?.lane || "unknown",
+    compatApiMode: capability?.compat_api_mode || "unknown",
+    providerStatus: capability?.provider_status || "unresolved",
+    toolExecution: capability?.tool_execution || "fail-closed",
+    notes: Array.isArray(capability?.notes) ? capability.notes : [],
+  };
+}
+
 function changeLabel(field: string): string {
   const mapping: Record<string, string> = {
     system_prompt_ref: "System prompt ref",
@@ -108,7 +131,7 @@ function changeLabel(field: string): string {
 }
 
 function RuntimeCapabilityBlock({ surface }: { surface: RoleConfigSurface }) {
-  const capability = surface.runtime_capability;
+  const capability = runtimeCapabilitySummary(surface);
   return (
     <div className="data-list">
       <div className="data-list-row">
@@ -117,15 +140,15 @@ function RuntimeCapabilityBlock({ surface }: { surface: RoleConfigSurface }) {
       </div>
       <div className="data-list-row">
         <span className="data-list-label">Compat API mode</span>
-        <span className="data-list-value mono">{capability.compat_api_mode}</span>
+        <span className="data-list-value mono">{capability.compatApiMode}</span>
       </div>
       <div className="data-list-row">
         <span className="data-list-label">Provider status</span>
-        <span className="data-list-value mono">{capability.provider_status}</span>
+        <span className="data-list-value mono">{capability.providerStatus}</span>
       </div>
       <div className="data-list-row">
         <span className="data-list-label">Tool execution</span>
-        <span className="data-list-value mono">{capability.tool_execution}</span>
+        <span className="data-list-value mono">{capability.toolExecution}</span>
       </div>
       <div className="data-list-row">
         <span className="data-list-label">Notes</span>
@@ -148,6 +171,7 @@ function SurfaceSummary({
   heading: string;
   surface: RoleConfigSurface;
 }) {
+  const editableNow = editableSurfaceValues(surface);
   return (
     <Card variant="detail">
       <CardHeader>
@@ -162,20 +186,20 @@ function SurfaceSummary({
         <div className="data-list">
           <div className="data-list-row">
             <span className="data-list-label">System prompt ref</span>
-            <span className="data-list-value mono">{readableValue(surface.editable_now.system_prompt_ref)}</span>
+            <span className="data-list-value mono">{readableValue(editableNow.system_prompt_ref)}</span>
           </div>
           <div className="data-list-row">
             <span className="data-list-label">Skills bundle ref</span>
-            <span className="data-list-value mono">{readableValue(surface.editable_now.skills_bundle_ref)}</span>
+            <span className="data-list-value mono">{readableValue(editableNow.skills_bundle_ref)}</span>
           </div>
           <div className="data-list-row">
             <span className="data-list-label">MCP bundle ref</span>
-            <span className="data-list-value mono">{readableValue(surface.editable_now.mcp_bundle_ref)}</span>
+            <span className="data-list-value mono">{readableValue(editableNow.mcp_bundle_ref)}</span>
           </div>
           <div className="data-list-row">
             <span className="data-list-label">Runtime binding</span>
             <span className="data-list-value mono">
-              {readableValue(surface.editable_now.runtime_binding.runner)} / {readableValue(surface.editable_now.runtime_binding.provider)} / {readableValue(surface.editable_now.runtime_binding.model)}
+              {readableValue(editableNow.runtime_binding.runner)} / {readableValue(editableNow.runtime_binding.provider)} / {readableValue(editableNow.runtime_binding.model)}
             </span>
           </div>
           <div className="data-list-row">
