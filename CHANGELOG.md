@@ -71,11 +71,18 @@ All notable changes to this repository will be documented in this file.
   when `httpx` is unavailable on quick-path governance runners; the staged
   dashboard UI-audit workspace now also copies the required
   `packages/frontend-*` sources into its temporary root so Next/Turbopack does
-  not reject out-of-root symlinks during smoke builds
+  not reject out-of-root symlinks during smoke builds, and repeated pnpm
+  `ERR_PNPM_ENOENT` recovery now escalates from fresh-store retries to a
+  workspace-local store path for dashboard/desktop dependency bootstrap lanes
 - aligned the governance closeout builder with `trusted_pr` route exemptions so
   pre-push closeout no longer fails on missing `upstream_inventory_report` /
   `upstream_same_run_cohesion` artifacts when the evidence manifest has already
   marked those upstream checks as route-exempt on PR-bound lanes
+- taught `refresh_governance_evidence_manifest.py` to reuse a fresh
+  `clean_room_recovery.json` receipt instead of rerunning the full clean-room
+  bundle on every PR-bound pre-push refresh, keeping the local governance
+  manifest strict while making repeated CI-fix pushes finish inside the worker
+  execution window
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced
