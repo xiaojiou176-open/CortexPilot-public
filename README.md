@@ -117,8 +117,9 @@ This repository combines:
   itself instead of failing on missing local installs
 - **Prompt 10 clean-room cleanup hardening**: clean-room recovery now runs the
   repo-owned workspace-module cleanup before its broad runtime `rm -rf` sweep,
-  so stubborn `apps/dashboard/node_modules` residue cannot abort the recovery
-  lane before the resilient cleanup path gets a chance to run
+  and that cleanup path can now quarantine stubborn `apps/dashboard/node_modules`
+  residue before deletion, so the recovery lane does not abort on transient
+  bind-mounted module trees
 - **Prompt 10 quick-gate decoupling**: the `cortexpilot_orch.contract`
   package now lazy-loads `compiler` / `validator` entrypoints, so Quick
   Feedback governance scripts can import `ContractValidator` and schedule

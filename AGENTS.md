@@ -244,8 +244,9 @@ Work in CortexPilot as a contract-first engineering agent:
 - when clean-room recovery changes the ordering between workspace cleanup and
   broad runtime deletion, sync the root AI/docs entrypoints in the same patch;
   current examples include running `scripts/cleanup_workspace_modules.sh`
-  before the clean-room `rm -rf` sweep so stubborn dashboard module residue
-  does not abort the recovery lane early
+  before the clean-room `rm -rf` sweep, plus quarantining stubborn dashboard
+  module residue when recursive delete alone is not enough, so the recovery
+  lane does not abort early on transient bind-mounted trees
 
 ## Local Overrides
 

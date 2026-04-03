@@ -91,7 +91,9 @@ All notable changes to this repository will be documented in this file.
 - hardened `scripts/check_clean_room_recovery.sh` by running the repo-owned
   workspace-module cleanup before its broad runtime `rm -rf` sweep, so
   stubborn `apps/dashboard/node_modules` bind-mount residue no longer aborts
-  clean-room recovery before the resilient cleanup path runs
+  clean-room recovery before the resilient cleanup path runs; the cleanup
+  helper itself now quarantines stubborn module trees when recursive removal
+  alone is not enough
 - taught `refresh_governance_evidence_manifest.py` to reuse a fresh
   `clean_room_recovery.json` receipt instead of rerunning the full clean-room
   bundle on every PR-bound pre-push refresh, keeping the local governance
