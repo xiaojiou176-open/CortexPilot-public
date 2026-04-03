@@ -64,6 +64,11 @@ All notable changes to this repository will be documented in this file.
   bundle on every PR-bound pre-push refresh, keeping the local governance
   manifest strict while making repeated CI-fix pushes finish inside the worker
   execution window
+- cleaned the remaining Wave 1 review-thread blockers by dropping the unused
+  fallback assignment in `role_config_registry.py`, keeping
+  `provider_resolution` as a dead-code-clean compatibility export surface for
+  lightweight helper callers, and aligning the Wave 1 role-binding MCP test
+  expectation with the registry-backed `['codex', 'search']` tool set
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

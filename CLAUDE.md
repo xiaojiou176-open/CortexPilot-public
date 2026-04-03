@@ -43,8 +43,9 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   the Switchyard runtime-first `/v1/runtime/invoke` adapter, the forced
   `chat_completions` mode on chat-only intake/operator paths, and the
   fail-closed rule that keeps MCP tool execution on tool-capable providers;
-  Quick Feedback-safe helper extraction and env-governance allowlist updates
-  for read-only runtime-capability summaries follow the same rule
+  Quick Feedback-safe helper extraction, dead-code-clean
+  `provider_resolution` compatibility exports, and env-governance allowlist
+  updates for read-only runtime-capability summaries follow the same rule
 - when role-contract / prompt-ref / handoff-summary semantics change the
   orchestrator contract or preview surfaces, sync the root AI/docs entrypoints
   in the same patch; current examples include resolved `role_contract`,

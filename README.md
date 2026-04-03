@@ -109,7 +109,10 @@ This repository combines:
   `packages/frontend-*` sources into its temporary root so Next/Turbopack does
   not reject out-of-root symlinks during smoke builds, and repeated pnpm
   `ERR_PNPM_ENOENT` recovery now escalates from fresh-store retries to a
-  workspace-local store path instead of repeating the same failing copy route
+  workspace-local store path instead of repeating the same failing copy route,
+  while `provider_resolution` keeps a dead-code-clean compatibility export
+  surface for callers that still import lightweight helper names from the
+  runtime module
 
 ## Quickstart
 

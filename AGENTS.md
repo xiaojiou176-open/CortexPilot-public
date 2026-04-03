@@ -85,9 +85,9 @@ Work in CortexPilot as a contract-first engineering agent:
   the Switchyard runtime-first `/v1/runtime/invoke` adapter, the forced
   `chat_completions` mode on chat-only intake/operator paths, and the explicit
   fail-closed rule for MCP tool execution that still requires a tool-capable
-  provider path; Quick Feedback-safe helper extraction and env-governance
-  allowlist updates for read-only runtime-capability summaries follow the same
-  rule
+  provider path; Quick Feedback-safe helper extraction, dead-code-clean
+  `provider_resolution` compatibility exports, and env-governance allowlist
+  updates for read-only runtime-capability summaries follow the same rule
 - when role-contract / prompt-ref / handoff-summary semantics change the
   orchestrator contract or preview surfaces, sync the root AI/docs entrypoints
   in the same patch; current examples include resolved `role_contract`,
