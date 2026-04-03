@@ -132,6 +132,7 @@ PYTHONPATH=apps/orchestrator/src \
   apps/orchestrator/tests/test_agents_runner_failure_matrix_extra.py::test_agents_runner_broken_pipe_branch \
   apps/orchestrator/tests/test_agents_runner_failure_matrix_extra.py::test_agents_runner_cleanup_timeout_branch \
   -q -n 0
+bash "$ROOT_DIR/scripts/install_frontend_api_client_deps.sh" >/dev/null
 node --test \
   "$ROOT_DIR/packages/frontend-api-client/tests/http.test.mjs" \
   "$ROOT_DIR/packages/frontend-api-client/tests/client.test.mjs" \

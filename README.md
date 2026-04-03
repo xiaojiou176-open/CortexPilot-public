@@ -111,6 +111,10 @@ This repository combines:
   `apps/dashboard/lib/types.ts` now explicitly re-exports task-pack/runtime
   helper values so UI-audit builds fail on product regressions instead of
   brittle staging/export drift
+- **Prompt 10 clean-room recovery hardening**: empty-runtime recovery now
+  reinstalls package-local `frontend-api-client` dependencies before it runs
+  the node smoke bundle, so clean-room verification keeps testing the package
+  itself instead of failing on missing local installs
 
 ## Quickstart
 

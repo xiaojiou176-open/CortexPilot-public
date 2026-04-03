@@ -61,6 +61,9 @@ All notable changes to this repository will be documented in this file.
   `apps/dashboard/lib/types.ts` explicitly re-export task-pack/runtime helpers
   for staged UI-audit builds instead of relying on a fragile wildcard-only
   surface
+- restored clean-room frontend-api-client recovery by making
+  `scripts/check_clean_room_recovery.sh` reinstall package-local
+  `frontend-api-client` dependencies before it runs the node smoke bundle
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

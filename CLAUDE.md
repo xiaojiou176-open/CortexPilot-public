@@ -192,6 +192,10 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   or the `apps/dashboard/lib/types.ts` export bridge, keep this file and the
   root/module docs aligned in the same patch so UI-audit / pre-push failures
   stay attributable to staging drift vs real dashboard regressions
+- when clean-room recovery changes the package-local install order for
+  `frontend-api-client`, keep this file and the root docs aligned in the same
+  patch so recovery gates fail on product regressions instead of missing local
+  package installs
 
 ## Key Commands
 

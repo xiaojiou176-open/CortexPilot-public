@@ -225,6 +225,10 @@ Work in CortexPilot as a contract-first engineering agent:
   `apps/dashboard/lib/types.ts` export bridge semantics, sync the root AI/docs
   entrypoints in the same patch so pre-push and UI-audit gates can distinguish
   staging drift from real dashboard regressions
+- when clean-room recovery changes the package-local install order for
+  `frontend-api-client`, sync the root AI/docs entrypoints in the same patch so
+  recovery gates fail on product regressions instead of missing local package
+  installs
 
 ## Local Overrides
 
