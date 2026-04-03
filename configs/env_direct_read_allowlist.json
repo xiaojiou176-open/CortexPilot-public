@@ -129,6 +129,18 @@
       ]
     },
     {
+      "path": "apps/orchestrator/src/cortexpilot_orch/contract/role_config_registry.py",
+      "keys": [
+        "CORTEXPILOT_ROLE_CONFIG_REGISTRY"
+      ]
+    },
+    {
+      "path": "apps/orchestrator/src/cortexpilot_orch/contract/role_config_registry.py",
+      "keys": [
+        "CORTEXPILOT_ROLE_CONFIG_REGISTRY"
+      ]
+    },
+    {
       "path": "apps/orchestrator/src/cortexpilot_orch/contract/validator.py",
       "keys": [
         "CORTEXPILOT_AGENT_REGISTRY",

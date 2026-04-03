@@ -173,6 +173,13 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   the generated frontend contract bindings for those routes, and the rule that
   `Agents` becomes the control desk while `Contracts` stays inspector-first and
   `task_contract` remains the only execution authority
+- when a Prompt 10 follow-up slice adds derived runtime capability posture to
+  intake previews, run manifests, operator-copilot briefs, or the
+  dashboard/desktop `Contracts` and `Run Detail` surfaces, keep this file, the
+  root AI/docs entrypoints, and the module READMEs aligned in the same patch;
+  current examples include `execution_plan_report.runtime_capability_summary`,
+  `role_binding_read_model.runtime_binding.capability`, and the fail-closed
+  wording that keeps chat-compatible lanes separate from tool execution parity
 
 ## Key Commands
 

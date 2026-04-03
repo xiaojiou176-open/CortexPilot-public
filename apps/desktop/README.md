@@ -54,6 +54,10 @@ npm --prefix apps/desktop run tauri:dev
   existing `Run overview` card, so the persisted binding summary is visible on
   the primary operator surface while `task_contract` remains the only execution
   authority.
+- Desktop `Contracts` and `Run Detail` now also expose the derived runtime
+  capability posture (`lane`, `compat_api_mode`, `provider_status`,
+  `tool_execution`) so operators can read runtime/provider posture without
+  confusing chat-compatible lanes with full tool execution parity.
 - Desktop `Agents` now mirrors the same read-only role catalog semantics as the
   dashboard while keeping a compact table/card layout, and it now also hosts a
   repo-owned role configuration desk for previewing/saving future compiled

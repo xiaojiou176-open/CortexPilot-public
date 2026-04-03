@@ -53,6 +53,10 @@ finished consumer product.
   read-only role-binding summary in the existing `Status & Contract` card, so
   bundle/runtime posture is visible on the main run surface without creating a
   second execution-authority switch.
+- Contracts and Run Detail now also surface the derived runtime capability
+  posture (`lane`, `compat_api_mode`, `provider_status`, `tool_execution`) so
+  operators can read chat-style compatibility vs fail-closed tool execution
+  without overstating the current runtime boundary.
 - Builder/public discovery: the home builder section now surfaces direct
   `Read-only MCP quickstart` and `API and contract quickstart` entry cards so
   operators can jump from the web control surface into the truthful public

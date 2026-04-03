@@ -117,6 +117,10 @@ bash scripts/run_orchestrator_cli.sh --help
   derived readback, and persist changes into
   `policies/role_config_registry.json` without promoting that surface into
   execution authority
+- intake preview, run manifests, and operator-copilot briefs now also surface
+  a derived runtime capability summary (`lane`, `compat_api_mode`,
+  `provider_status`, `tool_execution`) so runtime/provider posture is readable
+  from repo-owned control-plane reads without implying full tool parity
 - `/api/contracts` now normalizes contract artifact rows into a read-only
   bundle/runtime inspector payload instead of leaving dashboard/desktop pages
   to guess from heterogeneous raw JSON blobs

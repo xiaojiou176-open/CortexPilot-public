@@ -101,6 +101,11 @@ This repository combines:
   `mcp_bundle_ref`, and role-level `runtime_binding`; the `Agents` pages act as
   the primary control desk while `Contracts` stays inspector-first and
   `task_contract` remains the only execution authority
+- **Prompt 10 runtime capability truth**: intake preview, run manifests,
+  operator copilot, `Contracts`, and `Run Detail` now also surface a derived
+  runtime capability summary (`lane`, `compat_api_mode`, `provider_status`,
+  `tool_execution`) so runtime/provider posture is readable without pretending
+  the system already has full tool parity or runtime replaceability
 
 ## Quickstart
 

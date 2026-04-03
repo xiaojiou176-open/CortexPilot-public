@@ -344,6 +344,8 @@ export type UiCopy = {
         skillsBundle: string;
         mcpBundle: string;
         runtimeBinding: string;
+        runtimeCapability: string;
+        toolExecution: string;
         readOnlyNote: string;
       };
       fieldLabels: {
@@ -1019,6 +1021,8 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           skillsBundle: "Skills bundle",
           mcpBundle: "MCP bundle",
           runtimeBinding: "Runtime binding",
+          runtimeCapability: "Runtime capability",
+          toolExecution: "Tool execution",
           readOnlyNote:
             "Read-only note: this mirrors the persisted binding summary. task_contract still owns execution authority.",
         },
@@ -1722,6 +1726,8 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           skillsBundle: "技能包",
           mcpBundle: "MCP 包",
           runtimeBinding: "运行时绑定",
+          runtimeCapability: "运行时能力",
+          toolExecution: "工具执行",
           readOnlyNote:
             "只读说明：这里展示的是持久化的角色绑定摘要镜像；`task_contract` 仍然掌握执行权威。",
         },

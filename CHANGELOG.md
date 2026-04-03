@@ -44,6 +44,12 @@ All notable changes to this repository will be documented in this file.
   cover those routes, dashboard/desktop `Agents` pages now host the minimal
   preview/apply desk, and `Contracts` remains inspector-first while
   `task_contract` stays the only execution authority
+- opened Prompt 10 Wave 2 by projecting a derived runtime capability summary
+  (`lane`, `compat_api_mode`, `provider_status`, `tool_execution`) onto intake
+  previews, run manifests, operator-copilot briefs, and the dashboard/desktop
+  `Contracts` + `Run Detail` operator surfaces while keeping `task_contract`
+  as the only execution authority and preserving fail-closed tool/runtime
+  posture
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

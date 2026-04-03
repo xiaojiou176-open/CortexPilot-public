@@ -25,6 +25,40 @@ describe("ContractsPage", () => {
           allowed_paths: ["apps/desktop/src"],
           acceptance_tests: ["pnpm test"],
           tool_permissions: { shell: "allow" },
+          role_binding_read_model: {
+            skills_bundle_ref: {
+              status: "resolved",
+              ref: "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+              bundle_id: "worker_delivery_core_v1",
+              resolved_skill_set: [],
+              validation: "fail-closed",
+            },
+            mcp_bundle_ref: {
+              status: "resolved",
+              ref: "policies/agent_registry.json#agents(role=WORKER).capabilities.mcp_tools",
+              resolved_mcp_tool_set: [],
+              validation: "fail-closed",
+            },
+            runtime_binding: {
+              status: "contract-derived",
+              authority_scope: "contract-derived-read-model",
+              source: {
+                runner: "runtime_options.runner",
+                provider: "runtime_options.provider",
+                model: "role_contract.runtime_binding.model",
+              },
+              summary: { runner: "agents", provider: "cliproxyapi", model: "gpt-5.4" },
+              capability: {
+                status: "previewable",
+                lane: "standard-provider-path",
+                compat_api_mode: "responses",
+                provider_status: "allowlisted",
+                provider_inventory_id: "cliproxyapi",
+                tool_execution: "provider-path-required",
+                notes: [],
+              },
+            },
+          },
         },
       ] as any);
     const user = userEvent.setup();
@@ -35,6 +69,8 @@ describe("ContractsPage", () => {
     expect(screen.getByText("apps/desktop/src")).toBeInTheDocument();
     expect(screen.getByText("pnpm test")).toBeInTheDocument();
     expect(screen.getByText(/"shell": "allow"/)).toBeInTheDocument();
+    expect(screen.getByText("standard-provider-path")).toBeInTheDocument();
+    expect(screen.getByText("standard-provider-path / provider-path-required")).toBeInTheDocument();
   });
 
   it("surfaces load error", async () => {

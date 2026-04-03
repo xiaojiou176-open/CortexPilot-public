@@ -371,6 +371,65 @@
                   ]
                 }
               }
+            },
+            "capability": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "lane",
+                "compat_api_mode",
+                "provider_status",
+                "provider_inventory_id",
+                "tool_execution",
+                "notes"
+              ],
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "previewable"
+                  ]
+                },
+                "lane": {
+                  "type": "string",
+                  "enum": [
+                    "standard-provider-path",
+                    "switchyard-chat-compatible"
+                  ]
+                },
+                "compat_api_mode": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "provider_status": {
+                  "type": "string",
+                  "enum": [
+                    "unresolved",
+                    "allowlisted",
+                    "unsupported"
+                  ]
+                },
+                "provider_inventory_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "tool_execution": {
+                  "type": "string",
+                  "enum": [
+                    "provider-path-required",
+                    "fail-closed"
+                  ]
+                },
+                "notes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
             }
           }
         }

@@ -5,7 +5,11 @@ import { Input } from "../../components/ui/input";
 import { fetchContracts } from "../../lib/api";
 import { safeLoad } from "../../lib/serverPageData";
 import type { ContractRecord } from "../../lib/types";
-import { formatBindingReadModelLabel, formatRoleBindingRuntimeSummary } from "../../lib/types";
+import {
+  formatBindingReadModelLabel,
+  formatRoleBindingRuntimeCapabilitySummary,
+  formatRoleBindingRuntimeSummary,
+} from "../../lib/types";
 
 function summarizeToolPermissions(value: unknown): string[] {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -126,6 +130,18 @@ export default async function ContractsPage({
                         <span className="data-list-label">Runtime binding</span>
                         <span className="data-list-value mono muted">
                           {roleBinding ? formatRoleBindingRuntimeSummary(roleBinding) : "Not derived"}
+                        </span>
+                      </div>
+                      <div className="data-list-row">
+                        <span className="data-list-label">Runtime capability</span>
+                        <span className="data-list-value mono muted">
+                          {roleBinding?.runtime_binding?.capability?.lane || "Not derived"}
+                        </span>
+                      </div>
+                      <div className="data-list-row">
+                        <span className="data-list-label">Tool execution</span>
+                        <span className="data-list-value mono muted">
+                          {roleBinding ? formatRoleBindingRuntimeCapabilitySummary(roleBinding) : "Not derived"}
                         </span>
                       </div>
                       <div className="data-list-row">

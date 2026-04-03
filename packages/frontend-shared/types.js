@@ -26,6 +26,14 @@ export function formatRoleBindingRuntimeSummary(roleBindingSummary) {
   return `${runner} / ${provider} / ${model}`;
 }
 
+export function formatRoleBindingRuntimeCapabilitySummary(roleBindingSummary) {
+  const capability = roleBindingSummary?.runtime_binding?.capability;
+  if (!capability) {
+    return "- / -";
+  }
+  return `${capability.lane} / ${capability.tool_execution}`;
+}
+
 function splitTaskPackList(raw) {
   return String(raw)
     .split(/\r?\n|,/g)

@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from cortexpilot_orch.contract.compiler import compile_plan, sync_role_contract
+from cortexpilot_orch.contract.role_config_registry import build_runtime_capability_summary
 from cortexpilot_orch.contract.validator import ContractValidator
 from cortexpilot_orch.config import get_runner_config
 from cortexpilot_orch.scheduler import approval_flow
@@ -979,6 +980,13 @@ class IntakeService:
             "search_queries": search_query_list,
             "predicted_reports": predicted_reports,
             "predicted_artifacts": predicted_artifacts,
+            "runtime_capability_summary": build_runtime_capability_summary(
+                (
+                    contract_preview.get("role_contract", {}).get("runtime_binding")
+                    if isinstance(contract_preview.get("role_contract"), dict)
+                    else {}
+                )
+            ),
             "requires_human_approval": requires_human_approval,
             "plan": plan,
             "plan_bundle": plan_bundle,

@@ -206,6 +206,14 @@ Work in CortexPilot as a contract-first engineering agent:
   bindings for those routes, and the rule that `Agents` becomes the control
   desk while `Contracts` stays inspector-first and `task_contract` remains the
   only execution authority
+- when a Prompt 10 follow-up slice adds derived runtime capability posture to
+  intake previews, run manifests, operator-copilot briefs, or the
+  dashboard/desktop `Contracts` and `Run Detail` surfaces, sync the root
+  AI/docs entrypoints in the same patch; current examples include the derived
+  `runtime_capability_summary` on `execution_plan_report`, the
+  `role_binding_read_model.runtime_binding.capability` summary in generated
+  frontend contracts, and the explicit fail-closed wording that keeps chat
+  compatibility distinct from tool execution parity
 
 ## Local Overrides
 
