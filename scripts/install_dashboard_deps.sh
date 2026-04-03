@@ -204,6 +204,7 @@ run_install() {
     unset NODE_ENV
     export npm_config_production=false
     export NPM_CONFIG_PRODUCTION=false
+    mkdir -p "$(dirname "$INSTALL_LOG")"
     local install_args=(
       --ignore-workspace
       --force

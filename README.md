@@ -106,6 +106,11 @@ This repository combines:
   runtime capability summary (`lane`, `compat_api_mode`, `provider_status`,
   `tool_execution`) so runtime/provider posture is readable without pretending
   the system already has full tool parity or runtime replaceability
+- **Prompt 10 smoke-gate hardening**: staged dashboard smoke builds now keep
+  their dependency-install log path recreated on each run, and
+  `apps/dashboard/lib/types.ts` now explicitly re-exports task-pack/runtime
+  helper values so UI-audit builds fail on product regressions instead of
+  brittle staging/export drift
 
 ## Quickstart
 

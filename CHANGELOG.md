@@ -50,6 +50,17 @@ All notable changes to this repository will be documented in this file.
   `Contracts` + `Run Detail` operator surfaces while keeping `task_contract`
   as the only execution authority and preserving fail-closed tool/runtime
   posture
+- opened Prompt 10 Wave 3 by hardening the repo-owned frontend starter path:
+  `@cortexpilot/frontend-api-client` now documents and exports
+  `createControlPlaneStarter(...)`, the package ships a runnable local example
+  at `packages/frontend-api-client/examples/control_plane_starter.local.mjs`,
+  and the builder/API/docs entrypoints now describe that preview-first starter
+  loop without overclaiming a hosted SDK or marketplace surface
+- hardened the Prompt 10 follow-up smoke gates by ensuring dashboard dependency
+  installs always recreate their runtime log directory and by making
+  `apps/dashboard/lib/types.ts` explicitly re-export task-pack/runtime helpers
+  for staged UI-audit builds instead of relying on a fragile wildcard-only
+  surface
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

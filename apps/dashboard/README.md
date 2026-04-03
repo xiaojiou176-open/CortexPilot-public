@@ -57,6 +57,11 @@ finished consumer product.
   posture (`lane`, `compat_api_mode`, `provider_status`, `tool_execution`) so
   operators can read chat-style compatibility vs fail-closed tool execution
   without overstating the current runtime boundary.
+- The staged UI-audit/dashboard-build path now depends on
+  `apps/dashboard/lib/types.ts` explicitly re-exporting task-pack/runtime
+  helper values and on `scripts/install_dashboard_deps.sh` recreating its
+  runtime log directory before each install attempt, so smoke failures track
+  product regressions instead of staging drift.
 - Builder/public discovery: the home builder section now surfaces direct
   `Read-only MCP quickstart` and `API and contract quickstart` entry cards so
   operators can jump from the web control surface into the truthful public
