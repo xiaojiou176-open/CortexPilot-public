@@ -12,7 +12,7 @@ from cortexpilot_orch.contract.validator import (
     _validate_ref_path,
     validate_role_config_fields,
 )
-from cortexpilot_orch.runners.provider_resolution import (
+from cortexpilot_orch.runners.provider_capability import (
     ProviderResolutionError,
     resolve_compat_api_mode,
     resolve_runtime_base_url_from_env,

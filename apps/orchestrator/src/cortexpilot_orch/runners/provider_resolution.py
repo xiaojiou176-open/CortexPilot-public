@@ -1,39 +1,26 @@
 from __future__ import annotations
 
 import importlib
-import json
 import os
 import time
 from dataclasses import dataclass
-from functools import lru_cache
-from pathlib import Path
 from typing import Any, Mapping
-from urllib.parse import urlparse
 from uuid import uuid4
 
 import httpx
 
+from cortexpilot_orch.runners.provider_capability import (
+    PROVIDER_UNSUPPORTED_ERROR,
+    _is_switchyard_runtime_base_url,
+    _provider_gateway_ids,
+    ProviderResolutionError,
+    resolve_compat_api_mode,
+    resolve_runtime_base_url_from_env,
+    resolve_runtime_provider,
+)
 
-PROVIDER_UNSUPPORTED_ERROR = "PROVIDER_UNSUPPORTED"
-_PROVIDER_ALIASES = {
-    "gemini": "gemini",
-    "google": "gemini",
-    "google-genai": "gemini",
-    "google_genai": "gemini",
-    "openai": "openai",
-    "openai-compatible": "openai",
-    "openai_compatible": "openai",
-    "oai": "openai",
-    "anthropic": "anthropic",
-    "claude": "anthropic",
-    "anthropic-claude": "anthropic",
-    "anthropic_claude": "anthropic",
-}
 _PROVIDER_ENV_KEYS = (
     "CORTEXPILOT_PROVIDER",
-)
-_PROVIDER_BASE_URL_ENV_KEYS = (
-    "CORTEXPILOT_PROVIDER_BASE_URL",
 )
 _PROVIDER_MODEL_ENV_KEYS = (
     "CORTEXPILOT_PROVIDER_MODEL",
@@ -44,15 +31,8 @@ _PROVIDER_DEFAULT_MODELS = {
     "anthropic": "claude-3-5-sonnet-latest",
 }
 _LITELLM_ENABLE_ENV_KEYS = ("CORTEXPILOT_PROVIDER_USE_LITELLM",)
-_REPO_ROOT = Path(__file__).resolve().parents[5]
 _SWITCHYARD_RUNTIME_INVOKE_PATH = "/v1/runtime/invoke"
 _SWITCHYARD_WEB_PROVIDERS = {"chatgpt", "gemini", "claude", "grok", "qwen"}
-
-
-class ProviderResolutionError(RuntimeError):
-    def __init__(self, code: str, message: str) -> None:
-        self.code = code
-        super().__init__(f"[{code}] {message}")
 
 
 @dataclass(frozen=True)
@@ -152,25 +132,6 @@ class SwitchyardCompatClient:
                 output_text=output_text,
             )
         )
-
-
-def _is_switchyard_runtime_base_url(base_url: str | None) -> bool:
-    candidate = str(base_url or "").strip()
-    if not candidate:
-        return False
-    try:
-        parsed = urlparse(candidate)
-    except Exception:
-        return False
-    path = parsed.path.rstrip("/") or "/"
-    return path == _SWITCHYARD_RUNTIME_INVOKE_PATH
-
-
-def resolve_compat_api_mode(default_api: str | None, *, base_url: str | None = None) -> str:
-    if _is_switchyard_runtime_base_url(base_url):
-        return "chat_completions"
-    normalized = str(default_api or "").strip()
-    return normalized or "responses"
 
 
 def resolve_compat_api_key(
@@ -420,29 +381,6 @@ def _build_switchyard_chat_completion_chunk(*, completion: Any, output_text: str
         }
     )
 
-
-@lru_cache(maxsize=1)
-def _provider_gateway_ids() -> set[str]:
-    inventory_path = _REPO_ROOT / "configs" / "upstream_inventory.json"
-    if not inventory_path.exists():
-        return set()
-    try:
-        payload = json.loads(inventory_path.read_text(encoding="utf-8"))
-    except Exception:
-        return set()
-    upstreams = payload.get("upstreams")
-    if not isinstance(upstreams, list):
-        return set()
-    gateways: set[str] = set()
-    for entry in upstreams:
-        if not isinstance(entry, dict):
-            continue
-        upstream_id = str(entry.get("id") or "").strip().lower()
-        if upstream_id.startswith("provider-gateway:"):
-            gateways.add(upstream_id.split(":", 1)[1].strip())
-    return gateways
-
-
 def resolve_provider_credentials(env: Mapping[str, str] | None = None) -> ProviderCredentials:
     source = os.environ if env is None else env
     gemini_api_key = str(source.get("GEMINI_API_KEY", "")).strip()
@@ -500,22 +438,6 @@ def merge_provider_credentials(primary: ProviderCredentials, fallback: ProviderC
         equilibrium_api_key=primary.equilibrium_api_key or fallback.equilibrium_api_key,
     )
 
-
-def resolve_runtime_provider(raw_provider: str | None) -> str:
-    candidate = str(raw_provider or "").strip().lower()
-    if not candidate:
-        return "gemini"
-    normalized = _PROVIDER_ALIASES.get(candidate)
-    if normalized:
-        return normalized
-    if candidate in _provider_gateway_ids():
-        return candidate
-    raise ProviderResolutionError(
-        PROVIDER_UNSUPPORTED_ERROR,
-        f"provider `{candidate}` is not allowlisted; register provider-gateway:{candidate} first",
-    )
-
-
 def resolve_provider_inventory_id(provider: str | None) -> str:
     normalized = resolve_runtime_provider(provider)
     if normalized in {"gemini", "openai", "anthropic"}:
@@ -547,16 +469,6 @@ def resolve_runtime_provider_from_contract(
         if candidate:
             return resolve_runtime_provider(candidate)
     return resolve_runtime_provider_from_env(env)
-
-
-def resolve_runtime_base_url_from_env(env: Mapping[str, str] | None = None) -> str:
-    source = os.environ if env is None else env
-    for key in _PROVIDER_BASE_URL_ENV_KEYS:
-        value = str(source.get(key, "")).strip()
-        if value:
-            return value
-    return ""
-
 
 def resolve_runtime_model_from_env(provider: str | None = None, env: Mapping[str, str] | None = None) -> str:
     source = os.environ if env is None else env

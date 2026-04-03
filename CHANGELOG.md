@@ -64,6 +64,11 @@ All notable changes to this repository will be documented in this file.
 - restored clean-room frontend-api-client recovery by making
   `scripts/check_clean_room_recovery.sh` reinstall package-local
   `frontend-api-client` dependencies before it runs the node smoke bundle
+- hardened the Prompt 10 control-plane CI path by extracting lightweight
+  provider-capability helpers for role-config runtime summaries, registering
+  the governed env reads in `configs/env_direct_read_allowlist.json`, and
+  adding a regression that proves the role-config read surface still imports
+  when `httpx` is unavailable on quick-path governance runners
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

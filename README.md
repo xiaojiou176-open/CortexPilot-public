@@ -115,6 +115,10 @@ This repository combines:
   reinstalls package-local `frontend-api-client` dependencies before it runs
   the node smoke bundle, so clean-room verification keeps testing the package
   itself instead of failing on missing local installs
+- **Quick Feedback light path**: role-config runtime capability summaries now
+  resolve through a lightweight provider-capability helper, so control-plane
+  previews keep their fail-closed provider posture without forcing GitHub
+  quick-path governance checks to import full runtime transport dependencies
 
 ## Quickstart
 

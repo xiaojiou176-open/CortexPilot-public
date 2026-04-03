@@ -121,6 +121,10 @@ bash scripts/run_orchestrator_cli.sh --help
   a derived runtime capability summary (`lane`, `compat_api_mode`,
   `provider_status`, `tool_execution`) so runtime/provider posture is readable
   from repo-owned control-plane reads without implying full tool parity
+- the role-config runtime capability preview now resolves through
+  `src/cortexpilot_orch/runners/provider_capability.py`, which keeps the
+  advisory control-plane lane honest without forcing GitHub-hosted quick
+  hygiene checks to import the full provider transport runtime
 - `/api/contracts` now normalizes contract artifact rows into a read-only
   bundle/runtime inspector payload instead of leaving dashboard/desktop pages
   to guess from heterogeneous raw JSON blobs

@@ -135,12 +135,6 @@
       ]
     },
     {
-      "path": "apps/orchestrator/src/cortexpilot_orch/contract/role_config_registry.py",
-      "keys": [
-        "CORTEXPILOT_ROLE_CONFIG_REGISTRY"
-      ]
-    },
-    {
       "path": "apps/orchestrator/src/cortexpilot_orch/contract/validator.py",
       "keys": [
         "CORTEXPILOT_AGENT_REGISTRY",
@@ -243,6 +237,12 @@
         "CORTEXPILOT_WEB_PROFILE_MODE",
         "CORTEXPILOT_WEB_PROFILE_NAME",
         "CORTEXPILOT_WEB_STEALTH_MODE"
+      ]
+    },
+    {
+      "path": "apps/orchestrator/src/cortexpilot_orch/runners/provider_capability.py",
+      "keys": [
+        "CORTEXPILOT_PROVIDER_BASE_URL"
       ]
     },
     {
