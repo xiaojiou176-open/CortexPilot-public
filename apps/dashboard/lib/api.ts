@@ -17,6 +17,9 @@ import type {
   PmSessionStatus,
   PmSessionSummary,
   ReportRecord,
+  RoleConfigApplyResponse,
+  RoleConfigPreviewResponse,
+  RoleConfigSurface,
   RunDetailPayload,
   RunSummary,
   QueueItemRecord,
@@ -241,6 +244,18 @@ export async function fetchAgents() {
 
 export async function fetchAgentStatus(runId?: string) {
   return delegateGetApi<AgentStatusPayload>(() => sharedDashboardApi.fetchAgentStatus(runId));
+}
+
+export async function fetchRoleConfig(role: string) {
+  return delegateGetApi<RoleConfigSurface>(() => sharedDashboardApi.fetchRoleConfig(role));
+}
+
+export async function previewRoleConfig(role: string, payload: Record<string, JsonValue>) {
+  return delegateApi<RoleConfigPreviewResponse>(() => sharedDashboardApi.previewRoleConfig(role, payload));
+}
+
+export async function applyRoleConfig(role: string, payload: Record<string, JsonValue>) {
+  return delegateApi<RoleConfigApplyResponse>(() => sharedDashboardApi.applyRoleConfig(role, payload));
 }
 
 export async function fetchPolicies() {

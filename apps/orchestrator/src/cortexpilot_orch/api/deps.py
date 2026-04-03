@@ -60,6 +60,9 @@ class RunsRouteDeps:
     list_tests: AnyHandler
     list_agents: AnyHandler
     list_agents_status: AnyHandler
+    get_role_config: AnyHandler
+    preview_role_config: AnyHandler
+    apply_role_config: AnyHandler
     list_policies: AnyHandler
     list_locks: AnyHandler
     list_worktrees: AnyHandler
@@ -146,6 +149,9 @@ def build_runs_route_deps_from_mapping(mapping: Mapping[str, Any]) -> RunsRouteD
         list_tests=_bind_handler(mapping, "list_tests", "runs"),
         list_agents=_bind_handler(mapping, "list_agents", "runs"),
         list_agents_status=_bind_handler(mapping, "list_agents_status", "runs"),
+        get_role_config=_bind_handler(mapping, "get_role_config", "runs"),
+        preview_role_config=_bind_handler(mapping, "preview_role_config", "runs"),
+        apply_role_config=_bind_handler(mapping, "apply_role_config", "runs"),
         list_policies=_bind_handler(mapping, "list_policies", "runs"),
         list_locks=_bind_handler(mapping, "list_locks", "runs"),
         list_worktrees=_bind_handler(mapping, "list_worktrees", "runs"),

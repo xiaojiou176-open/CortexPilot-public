@@ -165,6 +165,14 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   catalog, the normalized `/api/contracts` inspector payload, and the same
   read-only authority/advisory wording carried through both web and desktop
   operator shells
+- when a Prompt 10-style slice turns those read-only catalog surfaces into a
+  repo-owned role-configuration control plane, keep this file, the root
+  AI/docs entrypoints, and the module READMEs aligned in the same patch;
+  current examples include `policies/role_config_registry.json`, the
+  role-config preview/apply routes under `/api/agents/roles/{role}/config*`,
+  the generated frontend contract bindings for those routes, and the rule that
+  `Agents` becomes the control desk while `Contracts` stays inspector-first and
+  `task_contract` remains the only execution authority
 
 ## Key Commands
 

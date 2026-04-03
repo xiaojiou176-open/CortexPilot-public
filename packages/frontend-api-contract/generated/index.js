@@ -40,6 +40,9 @@ export const FRONTEND_API_CONTRACT = {
     "runReports": "/api/runs/{run_id}/reports",
     "agents": "/api/agents",
     "agentStatus": "/api/agents/status",
+    "roleConfig": "/api/agents/roles/{role}/config",
+    "roleConfigPreview": "/api/agents/roles/{role}/config/preview",
+    "roleConfigApply": "/api/agents/roles/{role}/config/apply",
     "contracts": "/api/contracts",
     "queue": "/api/queue",
     "workflows": "/api/workflows",
@@ -89,6 +92,37 @@ export const FRONTEND_API_CONTRACT = {
     "roleBindingSources": [
       "persisted from contract",
       "derived from compiled role_contract and runtime inputs; not an execution authority surface"
+    ],
+    "roleConfigAuthorities": [
+      "repo-owned-role-config"
+    ],
+    "roleConfigFieldModes": [
+      "editable-now",
+      "derived-read-only",
+      "authority-source",
+      "reserved-for-later"
+    ],
+    "roleConfigOverlayStates": [
+      "repo-owned-defaults"
+    ],
+    "roleConfigValidationModes": [
+      "fail-closed"
+    ],
+    "runtimeCapabilityStatuses": [
+      "previewable"
+    ],
+    "runtimeCapabilityLanes": [
+      "standard-provider-path",
+      "switchyard-chat-compatible"
+    ],
+    "runtimeCapabilityProviderStatuses": [
+      "unresolved",
+      "allowlisted",
+      "unsupported"
+    ],
+    "runtimeCapabilityToolExecutionStates": [
+      "provider-path-required",
+      "fail-closed"
     ],
     "workflowCaseAuthorities": [
       "workflow-case-read-model"

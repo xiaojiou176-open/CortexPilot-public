@@ -37,6 +37,13 @@ All notable changes to this repository will be documented in this file.
   generated frontend contract now covers agents/contracts catalog routes, and
   dashboard/desktop `Agents` + `Contracts` pages project the same advisory
   bundle/runtime posture without becoming execution-authority controls
+- opened Prompt 10 Wave 1 by adding a repo-owned role configuration control
+  plane: `policies/role_config_registry.json` plus role-config schemas now own
+  mutable role defaults, `/api/agents/roles/{role}/config` exposes
+  read/preview/apply surfaces, generated frontend contracts/client paths now
+  cover those routes, dashboard/desktop `Agents` pages now host the minimal
+  preview/apply desk, and `Contracts` remains inspector-first while
+  `task_contract` stays the only execution authority
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

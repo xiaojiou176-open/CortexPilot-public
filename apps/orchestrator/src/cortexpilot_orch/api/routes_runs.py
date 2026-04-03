@@ -54,6 +54,19 @@ class QueueRunNextPayload(BaseModel):
     mock: bool = False
 
 
+class RoleConfigRuntimeBindingPayload(BaseModel):
+    runner: str | None = None
+    provider: str | None = None
+    model: str | None = None
+
+
+class RoleConfigPayload(BaseModel):
+    system_prompt_ref: str | None = None
+    skills_bundle_ref: str | None = None
+    mcp_bundle_ref: str | None = None
+    runtime_binding: RoleConfigRuntimeBindingPayload
+
+
 def _route_deps_not_configured_http_error(exc: api_deps.RouteDepsNotConfiguredError, *, operation: str) -> HTTPException:
     return HTTPException(
         status_code=503,
@@ -319,6 +332,34 @@ def list_agents_status(
     runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
 ) -> dict[str, Any]:
     return runs_deps.list_agents_status(run_id=run_id)
+
+
+@router.get("/agents/roles/{role}/config")
+def get_role_config(
+    role: str,
+    runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
+) -> dict[str, Any]:
+    return runs_deps.get_role_config(role)
+
+
+@router.post("/agents/roles/{role}/config/preview")
+def preview_role_config(
+    role: str,
+    payload: RoleConfigPayload,
+    runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
+) -> dict[str, Any]:
+    return runs_deps.preview_role_config(role, payload.model_dump())
+
+
+@router.post("/agents/roles/{role}/config/apply")
+def apply_role_config(
+    role: str,
+    payload: RoleConfigPayload,
+    request: Request,
+    runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
+) -> dict[str, Any]:
+    _enforce_mutation_rbac(request)
+    return runs_deps.apply_role_config(role, payload.model_dump())
 
 
 @router.get("/policies")

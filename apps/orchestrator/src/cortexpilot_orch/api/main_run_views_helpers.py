@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from typing import Any, Callable
 
+from cortexpilot_orch.contract.role_config_registry import effective_role_contract_defaults
+
 
 def _normalize_optional_text(value: Any) -> str | None:
     text = str(value or "").strip()
@@ -122,7 +124,11 @@ def list_agents(
     role_contracts = registry.get("role_contracts") if isinstance(registry.get("role_contracts"), dict) else {}
     role_catalog: list[dict[str, Any]] = []
     for role in sorted(set(role_map) | set(role_contracts)):
-        role_defaults = role_contracts.get(role) if isinstance(role_contracts.get(role), dict) else {}
+        try:
+            role_defaults = effective_role_contract_defaults(role, registry=registry)
+        except ValueError:
+            fallback_defaults = role_contracts.get(role) if isinstance(role_contracts.get(role), dict) else {}
+            role_defaults = fallback_defaults
         role_agents = role_map.get(role, [])
         role_catalog.append(
             {

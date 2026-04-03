@@ -149,6 +149,14 @@
       "sha256": "26944733cd476dfa113f0746d4e240e2999800f8ef7296421f30e5974bf1dfc7",
       "bytes": 1934
     },
+    "role_config_registry.schema.json": {
+      "sha256": "561812e1a5fb6aec690b88ea3c424b0f2a5b3c8a6ee9c6c7107087287e032c94",
+      "bytes": 1966
+    },
+    "role_config_registry.v1.json": {
+      "sha256": "d0ca6c9ea453e286982057aa5e6e9e6eb57fb355883e8d3136eccef46287f28d",
+      "bytes": 1962
+    },
     "run_compare_report.schema.json": {
       "sha256": "e2630395ea5df3b3a3cd3ef8073448394401ad2aa98dd39f85287d427fb8215c",
       "bytes": 1505

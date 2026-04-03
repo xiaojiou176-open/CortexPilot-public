@@ -42,6 +42,10 @@ finished consumer product.
 
 - PM workspace: registry-driven task-pack selection plus `execution_plan_report`
   preview before execution starts.
+- Agents: the first-screen role catalog now also hosts a repo-owned role
+  configuration desk for previewing and saving future compiled defaults
+  (`system_prompt_ref`, bundle refs, and role-level runtime binding) while
+  `task_contract` remains the only execution authority.
 - Workflow views: workflow-case summaries derived from run manifests and PM
   session bindings, now with queue/SLA read surfaces and a read-only
   `Workflow read model` card sourced from `workflow_case_read_model`.
@@ -114,4 +118,5 @@ finished consumer product.
   into individual agent seats or scheduler backlog.
 - Contracts now acts as a bundle/runtime inspector: each card keeps the task
   contract envelope visible while projecting the derived bundle/runtime summary
-  as read-only operator context rather than a control surface.
+  as read-only operator context rather than a control surface; role-default
+  edits belong on `Agents`, not on the contract inspector.

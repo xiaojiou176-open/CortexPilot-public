@@ -12,6 +12,11 @@ from fastapi.responses import StreamingResponse
 
 from cortexpilot_orch.api import search_payload_helpers
 from cortexpilot_orch.contract.compiler import build_role_binding_summary
+from cortexpilot_orch.contract.role_config_registry import (
+    apply_role_config_entry,
+    build_role_config_surface,
+    preview_role_config_entry,
+)
 from tooling.search_pipeline import build_evidence_bundle
 
 
@@ -145,6 +150,15 @@ def build_runs_handlers(
             if text:
                 normalized.append(text)
         return normalized
+
+    def _normalize_role(role: Any) -> str:
+        normalized = str(role or "").strip().upper()
+        if not normalized:
+            raise HTTPException(status_code=400, detail={"code": "ROLE_CONFIG_ROLE_REQUIRED"})
+        return normalized
+
+    def _role_config_error(status_code: int, code: str, reason: str) -> HTTPException:
+        return HTTPException(status_code=status_code, detail={"code": code, "reason": reason})
 
     def _is_rejected_diff_gate(event: dict[str, Any]) -> bool:
         name = str(event.get("event") or "")
@@ -918,6 +932,30 @@ def build_runs_handlers(
                 contracts.append(item)
         return contracts
 
+    def get_role_config(role: str) -> dict[str, Any]:
+        role_key = _normalize_role(role)
+        try:
+            return build_role_config_surface(role_key)
+        except ValueError as exc:
+            raise _role_config_error(404, "ROLE_CONFIG_ROLE_UNKNOWN", str(exc)) from exc
+
+    def preview_role_config(role: str, payload: dict[str, Any]) -> dict[str, Any]:
+        role_key = _normalize_role(role)
+        try:
+            return preview_role_config_entry(role_key, payload)
+        except ValueError as exc:
+            raise _role_config_error(400, "ROLE_CONFIG_PREVIEW_INVALID", str(exc)) from exc
+
+    def apply_role_config(role: str, payload: dict[str, Any]) -> dict[str, Any]:
+        role_key = _normalize_role(role)
+        try:
+            return apply_role_config_entry(role_key, payload)
+        except ValueError as exc:
+            error_text = str(exc)
+            if "unknown role" in error_text.lower():
+                raise _role_config_error(404, "ROLE_CONFIG_ROLE_UNKNOWN", error_text) from exc
+            raise _role_config_error(400, "ROLE_CONFIG_APPLY_INVALID", error_text) from exc
+
     def list_events(limit: int = 200) -> list[dict]:
         items: list[dict] = []
         for run_dir in runs_root_fn().glob("*"):
@@ -964,6 +1002,9 @@ def build_runs_handlers(
         "list_tests": list_tests_fn,
         "list_agents": list_agents_fn,
         "list_agents_status": list_agents_status,
+        "get_role_config": get_role_config,
+        "preview_role_config": preview_role_config,
+        "apply_role_config": apply_role_config,
         "list_policies": list_policies_fn,
         "list_locks": list_locks_fn,
         "list_worktrees": list_worktrees_fn,

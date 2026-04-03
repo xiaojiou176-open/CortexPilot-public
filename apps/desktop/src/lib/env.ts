@@ -11,7 +11,7 @@ type ProcessEnvCarrier = {
 };
 
 function readViteEnv(
-  keyName: "VITE_CORTEXPILOT_API_BASE" | "VITE_CORTEXPILOT_API_TOKEN",
+  keyName: "VITE_CORTEXPILOT_API_BASE" | "VITE_CORTEXPILOT_API_TOKEN" | "VITE_CORTEXPILOT_OPERATOR_ROLE",
 ): string {
   const env = (import.meta as unknown as ImportMetaLike).env || {};
   const fromVite = String(env[keyName] || "").trim();
@@ -35,4 +35,9 @@ export function resolveDesktopApiBase(): string {
 
 export function resolveDesktopApiToken(): string {
   return readViteEnv("VITE_CORTEXPILOT_API_TOKEN");
+}
+
+export function resolveDesktopOperatorRoleEnv(): string {
+  const role = readViteEnv("VITE_CORTEXPILOT_OPERATOR_ROLE");
+  return role ? role.toUpperCase() : "";
 }

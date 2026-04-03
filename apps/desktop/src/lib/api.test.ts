@@ -318,6 +318,42 @@ describe("desktop api client", () => {
     expect(urls[1]).toContain("/api/agents/status?run_id=run-1");
   });
 
+  it("uses contract-backed role-config paths and desktop operator role for mutations", async () => {
+    const previousRole = process.env.VITE_CORTEXPILOT_OPERATOR_ROLE;
+    process.env.VITE_CORTEXPILOT_OPERATOR_ROLE = "ops";
+    vi.resetModules();
+
+    const fetchSpy = vi.fn(async () => jsonResponse({ ok: true }));
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const api = await import("./api");
+    await api.fetchRoleConfig("worker");
+    await api.previewRoleConfig("worker", { system_prompt_ref: "policies/agents/codex/roles/50_worker_core.md" } as any);
+    await api.applyRoleConfig("worker", { system_prompt_ref: "policies/agents/codex/roles/50_worker_core.md" } as any);
+
+    const calls = fetchSpy.mock.calls as unknown as Array<[unknown, RequestInit | undefined]>;
+    const urls = calls.map(([input]) => {
+      if (typeof input === "string") {
+        return input;
+      }
+      if (input instanceof URL) {
+        return input.toString();
+      }
+      return typeof input === "object" && input !== null && "url" in input
+        ? String((input as { url?: unknown }).url || "")
+        : String(input);
+    });
+    expect(urls[0]).toContain("/api/agents/roles/worker/config");
+    expect(urls[1]).toContain("/api/agents/roles/worker/config/preview");
+    expect(urls[2]).toContain("/api/agents/roles/worker/config/apply");
+    expect((calls[1][1]?.headers as Record<string, string>)["x-cortexpilot-role"]).toBe("OPS");
+    expect((calls[2][1]?.headers as Record<string, string>)["x-cortexpilot-role"]).toBe("OPS");
+    expect(api.mutationExecutionCapability()).toEqual({ executable: true, operatorRole: "OPS" });
+
+    if (previousRole === undefined) delete process.env.VITE_CORTEXPILOT_OPERATOR_ROLE;
+    else process.env.VITE_CORTEXPILOT_OPERATOR_ROLE = previousRole;
+  });
+
   it("includes trimmed baseline_run_id in replay payload when provided", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => jsonResponse({ ok: true })));
     await replayRun("run-1", " baseline-1 ");

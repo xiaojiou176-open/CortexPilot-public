@@ -35,6 +35,9 @@ export declare const FRONTEND_API_CONTRACT: {
     readonly runReports: "/api/runs/{run_id}/reports";
     readonly agents: "/api/agents";
     readonly agentStatus: "/api/agents/status";
+    readonly roleConfig: "/api/agents/roles/{role}/config";
+    readonly roleConfigPreview: "/api/agents/roles/{role}/config/preview";
+    readonly roleConfigApply: "/api/agents/roles/{role}/config/apply";
     readonly contracts: "/api/contracts";
     readonly queue: "/api/queue";
     readonly workflows: "/api/workflows";
@@ -53,6 +56,14 @@ export declare const FRONTEND_API_CONTRACT: {
     readonly runtimeBindingSourceModels: readonly ["env.CORTEXPILOT_CODEX_MODEL", "env.CORTEXPILOT_PROVIDER_MODEL", "role_contract.runtime_binding.model", "unresolved"];
     readonly roleBindingAuthorities: readonly ["contract-derived-read-model"];
     readonly roleBindingSources: readonly ["persisted from contract", "derived from compiled role_contract and runtime inputs; not an execution authority surface"];
+    readonly roleConfigAuthorities: readonly ["repo-owned-role-config"];
+    readonly roleConfigFieldModes: readonly ["editable-now", "derived-read-only", "authority-source", "reserved-for-later"];
+    readonly roleConfigOverlayStates: readonly ["repo-owned-defaults"];
+    readonly roleConfigValidationModes: readonly ["fail-closed"];
+    readonly runtimeCapabilityStatuses: readonly ["previewable"];
+    readonly runtimeCapabilityLanes: readonly ["standard-provider-path", "switchyard-chat-compatible"];
+    readonly runtimeCapabilityProviderStatuses: readonly ["unresolved", "allowlisted", "unsupported"];
+    readonly runtimeCapabilityToolExecutionStates: readonly ["provider-path-required", "fail-closed"];
     readonly workflowCaseAuthorities: readonly ["workflow-case-read-model"];
     readonly workflowCaseSources: readonly ["latest linked run manifest.role_binding_summary"];
   };
@@ -81,6 +92,14 @@ export type RuntimeBindingSourceProvider = "runtime_options.provider" | "role_co
 export type RuntimeBindingSourceModel = "env.CORTEXPILOT_CODEX_MODEL" | "env.CORTEXPILOT_PROVIDER_MODEL" | "role_contract.runtime_binding.model" | "unresolved";
 export type RoleBindingReadModelAuthority = "contract-derived-read-model";
 export type RoleBindingReadModelSource = "persisted from contract" | "derived from compiled role_contract and runtime inputs; not an execution authority surface";
+export type RoleConfigAuthority = "repo-owned-role-config";
+export type RoleConfigFieldMode = "editable-now" | "derived-read-only" | "authority-source" | "reserved-for-later";
+export type RoleConfigOverlayState = "repo-owned-defaults";
+export type RoleConfigValidationMode = "fail-closed";
+export type RuntimeCapabilityStatus = "previewable";
+export type RuntimeCapabilityLane = "standard-provider-path" | "switchyard-chat-compatible";
+export type RuntimeCapabilityProviderStatus = "unresolved" | "allowlisted" | "unsupported";
+export type RuntimeCapabilityToolExecutionState = "provider-path-required" | "fail-closed";
 export type WorkflowCaseReadModelAuthority = "workflow-case-read-model";
 export type WorkflowCaseReadModelSource = "latest linked run manifest.role_binding_summary";
 export type RuntimeBindingSourceSummary = {
@@ -92,6 +111,21 @@ export type RuntimeBindingValueSummary = {
   runner: string | null;
   provider: string | null;
   model: string | null;
+};
+export type RoleConfigEditableValues = {
+  system_prompt_ref: string | null;
+  skills_bundle_ref: string | null;
+  mcp_bundle_ref: string | null;
+  runtime_binding: RuntimeBindingValueSummary;
+};
+export type RuntimeCapabilitySummary = {
+  status: RuntimeCapabilityStatus;
+  lane: RuntimeCapabilityLane;
+  compat_api_mode: string;
+  provider_status: RuntimeCapabilityProviderStatus;
+  provider_inventory_id: string | null;
+  tool_execution: RuntimeCapabilityToolExecutionState;
+  notes: string[];
 };
 export type SkillsBundleReadModel = {
   status: BindingReadModelStatus;
@@ -176,6 +210,52 @@ export type AgentStatusRecord = {
 };
 export type AgentStatusPayload = {
   agents: AgentStatusRecord[];
+};
+export type RoleConfigFieldModeMap = {
+  purpose: RoleConfigFieldMode;
+  system_prompt_ref: RoleConfigFieldMode;
+  skills_bundle_ref: RoleConfigFieldMode;
+  mcp_bundle_ref: RoleConfigFieldMode;
+  runtime_binding: RoleConfigFieldMode;
+  role_binding_summary: RoleConfigFieldMode;
+  role_binding_read_model: RoleConfigFieldMode;
+  workflow_case_read_model: RoleConfigFieldMode;
+  execution_authority: RoleConfigFieldMode;
+};
+export type RoleConfigSurface = {
+  authority: RoleConfigAuthority;
+  persisted_source: string;
+  overlay_state: RoleConfigOverlayState;
+  field_modes: RoleConfigFieldModeMap;
+  editable_now: RoleConfigEditableValues;
+  registry_defaults: RoleConfigEditableValues;
+  persisted_values: RoleConfigEditableValues;
+  validation: RoleConfigValidationMode;
+  preview_supported: boolean;
+  apply_supported: boolean;
+  execution_authority: ExecutionAuthority;
+  runtime_capability: RuntimeCapabilitySummary;
+};
+export type RoleConfigPreviewChange = {
+  field: string;
+  mode: RoleConfigFieldMode;
+  current: string | null;
+  next: string | null;
+};
+export type RoleConfigPreviewResponse = {
+  role: string;
+  authority: RoleConfigAuthority;
+  validation: RoleConfigValidationMode;
+  can_apply: boolean;
+  current_surface: RoleConfigSurface;
+  preview_surface: RoleConfigSurface;
+  changes: RoleConfigPreviewChange[];
+};
+export type RoleConfigApplyResponse = {
+  role: string;
+  saved: boolean;
+  validation: RoleConfigValidationMode;
+  surface: RoleConfigSurface;
 };
 export type ContractCatalogRecordStatus = "structured" | "raw" | "read-failed";
 export type ContractCatalogRecord = {

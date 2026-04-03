@@ -119,6 +119,14 @@ def build_index_dts(ext: dict) -> str:
     runtime_model_tuple, runtime_model_union = _tuple_union(read_models["runtimeBindingSourceModels"])
     role_binding_authority_tuple, role_binding_authority_union = _tuple_union(read_models["roleBindingAuthorities"])
     role_binding_source_tuple, role_binding_source_union = _tuple_union(read_models["roleBindingSources"])
+    role_config_authority_tuple, role_config_authority_union = _tuple_union(read_models["roleConfigAuthorities"])
+    role_config_field_mode_tuple, role_config_field_mode_union = _tuple_union(read_models["roleConfigFieldModes"])
+    role_config_overlay_state_tuple, role_config_overlay_state_union = _tuple_union(read_models["roleConfigOverlayStates"])
+    role_config_validation_tuple, role_config_validation_union = _tuple_union(read_models["roleConfigValidationModes"])
+    runtime_capability_status_tuple, runtime_capability_status_union = _tuple_union(read_models["runtimeCapabilityStatuses"])
+    runtime_capability_lane_tuple, runtime_capability_lane_union = _tuple_union(read_models["runtimeCapabilityLanes"])
+    runtime_capability_provider_status_tuple, runtime_capability_provider_status_union = _tuple_union(read_models["runtimeCapabilityProviderStatuses"])
+    runtime_capability_tool_exec_tuple, runtime_capability_tool_exec_union = _tuple_union(read_models["runtimeCapabilityToolExecutionStates"])
     workflow_authority_tuple, workflow_authority_union = _tuple_union(read_models["workflowCaseAuthorities"])
     workflow_source_tuple, workflow_source_union = _tuple_union(read_models["workflowCaseSources"])
     return f"""// GENERATED FILE. DO NOT EDIT.
@@ -158,6 +166,9 @@ export declare const FRONTEND_API_CONTRACT: {{
     readonly runReports: "{ext["paths"]["runReports"]}";
     readonly agents: "{ext["paths"]["agents"]}";
     readonly agentStatus: "{ext["paths"]["agentStatus"]}";
+    readonly roleConfig: "{ext["paths"]["roleConfig"]}";
+    readonly roleConfigPreview: "{ext["paths"]["roleConfigPreview"]}";
+    readonly roleConfigApply: "{ext["paths"]["roleConfigApply"]}";
     readonly contracts: "{ext["paths"]["contracts"]}";
     readonly queue: "{ext["paths"]["queue"]}";
     readonly workflows: "{ext["paths"]["workflows"]}";
@@ -176,6 +187,14 @@ export declare const FRONTEND_API_CONTRACT: {{
     readonly runtimeBindingSourceModels: readonly [{runtime_model_tuple}];
     readonly roleBindingAuthorities: readonly [{role_binding_authority_tuple}];
     readonly roleBindingSources: readonly [{role_binding_source_tuple}];
+    readonly roleConfigAuthorities: readonly [{role_config_authority_tuple}];
+    readonly roleConfigFieldModes: readonly [{role_config_field_mode_tuple}];
+    readonly roleConfigOverlayStates: readonly [{role_config_overlay_state_tuple}];
+    readonly roleConfigValidationModes: readonly [{role_config_validation_tuple}];
+    readonly runtimeCapabilityStatuses: readonly [{runtime_capability_status_tuple}];
+    readonly runtimeCapabilityLanes: readonly [{runtime_capability_lane_tuple}];
+    readonly runtimeCapabilityProviderStatuses: readonly [{runtime_capability_provider_status_tuple}];
+    readonly runtimeCapabilityToolExecutionStates: readonly [{runtime_capability_tool_exec_tuple}];
     readonly workflowCaseAuthorities: readonly [{workflow_authority_tuple}];
     readonly workflowCaseSources: readonly [{workflow_source_tuple}];
   }};
@@ -204,6 +223,14 @@ export type RuntimeBindingSourceProvider = {runtime_provider_union};
 export type RuntimeBindingSourceModel = {runtime_model_union};
 export type RoleBindingReadModelAuthority = {role_binding_authority_union};
 export type RoleBindingReadModelSource = {role_binding_source_union};
+export type RoleConfigAuthority = {role_config_authority_union};
+export type RoleConfigFieldMode = {role_config_field_mode_union};
+export type RoleConfigOverlayState = {role_config_overlay_state_union};
+export type RoleConfigValidationMode = {role_config_validation_union};
+export type RuntimeCapabilityStatus = {runtime_capability_status_union};
+export type RuntimeCapabilityLane = {runtime_capability_lane_union};
+export type RuntimeCapabilityProviderStatus = {runtime_capability_provider_status_union};
+export type RuntimeCapabilityToolExecutionState = {runtime_capability_tool_exec_union};
 export type WorkflowCaseReadModelAuthority = {workflow_authority_union};
 export type WorkflowCaseReadModelSource = {workflow_source_union};
 export type RuntimeBindingSourceSummary = {{
@@ -215,6 +242,21 @@ export type RuntimeBindingValueSummary = {{
   runner: string | null;
   provider: string | null;
   model: string | null;
+}};
+export type RoleConfigEditableValues = {{
+  system_prompt_ref: string | null;
+  skills_bundle_ref: string | null;
+  mcp_bundle_ref: string | null;
+  runtime_binding: RuntimeBindingValueSummary;
+}};
+export type RuntimeCapabilitySummary = {{
+  status: RuntimeCapabilityStatus;
+  lane: RuntimeCapabilityLane;
+  compat_api_mode: string;
+  provider_status: RuntimeCapabilityProviderStatus;
+  provider_inventory_id: string | null;
+  tool_execution: RuntimeCapabilityToolExecutionState;
+  notes: string[];
 }};
 export type SkillsBundleReadModel = {{
   status: BindingReadModelStatus;
@@ -299,6 +341,52 @@ export type AgentStatusRecord = {{
 }};
 export type AgentStatusPayload = {{
   agents: AgentStatusRecord[];
+}};
+export type RoleConfigFieldModeMap = {{
+  purpose: RoleConfigFieldMode;
+  system_prompt_ref: RoleConfigFieldMode;
+  skills_bundle_ref: RoleConfigFieldMode;
+  mcp_bundle_ref: RoleConfigFieldMode;
+  runtime_binding: RoleConfigFieldMode;
+  role_binding_summary: RoleConfigFieldMode;
+  role_binding_read_model: RoleConfigFieldMode;
+  workflow_case_read_model: RoleConfigFieldMode;
+  execution_authority: RoleConfigFieldMode;
+}};
+export type RoleConfigSurface = {{
+  authority: RoleConfigAuthority;
+  persisted_source: string;
+  overlay_state: RoleConfigOverlayState;
+  field_modes: RoleConfigFieldModeMap;
+  editable_now: RoleConfigEditableValues;
+  registry_defaults: RoleConfigEditableValues;
+  persisted_values: RoleConfigEditableValues;
+  validation: RoleConfigValidationMode;
+  preview_supported: boolean;
+  apply_supported: boolean;
+  execution_authority: ExecutionAuthority;
+  runtime_capability: RuntimeCapabilitySummary;
+}};
+export type RoleConfigPreviewChange = {{
+  field: string;
+  mode: RoleConfigFieldMode;
+  current: string | null;
+  next: string | null;
+}};
+export type RoleConfigPreviewResponse = {{
+  role: string;
+  authority: RoleConfigAuthority;
+  validation: RoleConfigValidationMode;
+  can_apply: boolean;
+  current_surface: RoleConfigSurface;
+  preview_surface: RoleConfigSurface;
+  changes: RoleConfigPreviewChange[];
+}};
+export type RoleConfigApplyResponse = {{
+  role: string;
+  saved: boolean;
+  validation: RoleConfigValidationMode;
+  surface: RoleConfigSurface;
 }};
 export type ContractCatalogRecordStatus = "structured" | "raw" | "read-failed";
 export type ContractCatalogRecord = {{

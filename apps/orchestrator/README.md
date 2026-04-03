@@ -111,6 +111,12 @@ bash scripts/run_orchestrator_cli.sh --help
   the same `build_role_binding_summary(...)` authority/source grammar, so
   agents surfaces can inspect role defaults without inventing a second truth
   surface
+- `/api/agents/roles/{role}/config` plus `preview` / `apply` sibling routes now
+  expose the repo-owned role configuration desk for future compiled defaults;
+  these routes validate refs and runtime bindings fail-closed, preview the
+  derived readback, and persist changes into
+  `policies/role_config_registry.json` without promoting that surface into
+  execution authority
 - `/api/contracts` now normalizes contract artifact rows into a read-only
   bundle/runtime inspector payload instead of leaving dashboard/desktop pages
   to guess from heterogeneous raw JSON blobs

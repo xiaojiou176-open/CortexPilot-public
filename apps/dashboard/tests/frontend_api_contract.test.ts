@@ -7,6 +7,9 @@ import type {
   ContractCatalogRecord as CanonicalContractCatalogRecord,
   McpBundleReadModel as CanonicalMcpBundleReadModel,
   RoleBindingReadModel as CanonicalRoleBindingReadModel,
+  RoleConfigApplyResponse as CanonicalRoleConfigApplyResponse,
+  RoleConfigPreviewResponse as CanonicalRoleConfigPreviewResponse,
+  RoleConfigSurface as CanonicalRoleConfigSurface,
   RuntimeBindingReadModel as CanonicalRuntimeBindingReadModel,
   SkillsBundleReadModel as CanonicalSkillsBundleReadModel,
   WorkflowCaseReadModel as CanonicalWorkflowCaseReadModel,
@@ -18,6 +21,9 @@ import type {
   ContractRecord as SharedContractCatalogRecord,
   McpBundleReadModel as SharedMcpBundleReadModel,
   RoleBindingReadModel as SharedRoleBindingReadModel,
+  RoleConfigApplyResponse as SharedRoleConfigApplyResponse,
+  RoleConfigPreviewResponse as SharedRoleConfigPreviewResponse,
+  RoleConfigSurface as SharedRoleConfigSurface,
   RuntimeBindingReadModel as SharedRuntimeBindingReadModel,
   SkillsBundleReadModel as SharedSkillsBundleReadModel,
   WorkflowCaseReadModel as SharedWorkflowCaseReadModel,
@@ -50,6 +56,9 @@ describe("frontendApiContract re-export mapping", () => {
     expect(localContract.paths.runReports).toBe("/api/runs/{run_id}/reports");
     expect(localContract.paths.agents).toBe("/api/agents");
     expect(localContract.paths.agentStatus).toBe("/api/agents/status");
+    expect(localContract.paths.roleConfig).toBe("/api/agents/roles/{role}/config");
+    expect(localContract.paths.roleConfigPreview).toBe("/api/agents/roles/{role}/config/preview");
+    expect(localContract.paths.roleConfigApply).toBe("/api/agents/roles/{role}/config/apply");
     expect(localContract.paths.contracts).toBe("/api/contracts");
     expect(localContract.paths.workflows).toBe("/api/workflows");
     expect(localContract.paths.workflowDetail).toBe("/api/workflows/{workflow_id}");
@@ -81,6 +90,9 @@ describe("frontendApiContract re-export mapping", () => {
     expectTypeOf<SharedAgentCatalogPayload>().toEqualTypeOf<CanonicalAgentCatalogPayload>();
     expectTypeOf<SharedAgentStatusPayload>().toEqualTypeOf<CanonicalAgentStatusPayload>();
     expectTypeOf<SharedContractCatalogRecord>().toEqualTypeOf<CanonicalContractCatalogRecord>();
+    expectTypeOf<SharedRoleConfigSurface>().toEqualTypeOf<CanonicalRoleConfigSurface>();
+    expectTypeOf<SharedRoleConfigPreviewResponse>().toEqualTypeOf<CanonicalRoleConfigPreviewResponse>();
+    expectTypeOf<SharedRoleConfigApplyResponse>().toEqualTypeOf<CanonicalRoleConfigApplyResponse>();
     expectTypeOf<SharedSkillsBundleReadModel["validation"]>().toEqualTypeOf<CanonicalBindingValidationMode>();
   });
 });
