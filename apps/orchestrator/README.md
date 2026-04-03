@@ -117,6 +117,10 @@ bash scripts/run_orchestrator_cli.sh --help
   derived readback, and persist changes into
   `policies/role_config_registry.json` without promoting that surface into
   execution authority
+- the role-config runtime capability preview now resolves through
+  `src/cortexpilot_orch/runners/provider_capability.py`, which keeps the
+  advisory control-plane lane honest without forcing GitHub-hosted quick
+  hygiene checks to import the full provider transport runtime
 - `/api/contracts` now normalizes contract artifact rows into a read-only
   bundle/runtime inspector payload instead of leaving dashboard/desktop pages
   to guess from heterogeneous raw JSON blobs

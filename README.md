@@ -101,6 +101,10 @@ This repository combines:
   `mcp_bundle_ref`, and role-level `runtime_binding`; the `Agents` pages act as
   the primary control desk while `Contracts` stays inspector-first and
   `task_contract` remains the only execution authority
+- **Quick Feedback light path**: role-config runtime capability summaries now
+  resolve through a lightweight provider-capability helper, so control-plane
+  previews keep their fail-closed provider posture without forcing GitHub
+  quick-path governance checks to import full runtime transport dependencies
 
 ## Quickstart
 
