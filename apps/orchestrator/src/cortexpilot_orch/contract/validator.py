@@ -37,6 +37,7 @@ _FRAGMENT_REF_LABEL_SUFFIXES = ("mcp_bundle_ref", "skills_bundle_ref")
 _FRAGMENT_REF_MAX_BYTES = 256 * 1024
 _FRAGMENT_REF_ALLOWED_PATHS = {
     "role_contract.mcp_bundle_ref": {"policies/agent_registry.json"},
+    "role_contract.skills_bundle_ref": {"policies/skills_bundle_registry.json"},
 }
 _ROLE_SELECTOR_RE = re.compile(r"^(?P<name>[A-Za-z0-9_:-]+)\(role=(?P<role>[A-Za-z0-9_:-]+)\)$")
 
@@ -386,6 +387,14 @@ def _validate_ref_path(raw: Any, label: str) -> None:
         ):
             raise ValueError(
                 f"Contract validation failed: {label} must resolve to non-empty mcp_tools list"
+            )
+    if label.endswith("skills_bundle_ref"):
+        skills = resolved.get("skills") if isinstance(resolved, dict) else None
+        if not isinstance(skills, list) or not any(
+            isinstance(item, str) and item.strip() for item in skills
+        ):
+            raise ValueError(
+                f"Contract validation failed: {label} must resolve to non-empty skills list"
             )
 
 

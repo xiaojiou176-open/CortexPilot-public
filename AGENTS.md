@@ -172,6 +172,12 @@ Work in CortexPilot as a contract-first engineering agent:
   `docs/mcp/index.html`, `docs/api/index.html`, the dashboard-home AI section
   CTA, and root navigation that points readers toward read-only MCP and API
   quickstarts without implying hosted/write-capable MCP
+- when Prompt 6-style skills-bundle and workflow/control-plane read-model work
+  lands, sync the root AI/docs entrypoints in the same patch; current examples
+  include `policies/skills_bundle_registry.json`, enriched
+  `role_binding_summary.skills_bundle_ref` metadata, and
+  `workflow_case_read_model` on workflow/control-plane reads that stay
+  explicitly non-authoritative
 
 ## Local Overrides
 

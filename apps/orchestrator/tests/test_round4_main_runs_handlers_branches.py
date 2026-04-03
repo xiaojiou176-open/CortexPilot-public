@@ -199,6 +199,14 @@ def test_round4_workflow_listing_and_detail_branches(tmp_path: Path) -> None:
     workflows = {
         "wf-recent": {
             "workflow_id": "wf-recent",
+            "workflow_case_read_model": {
+                "authority": "workflow-case-read-model",
+                "source": "latest linked run manifest.role_binding_summary",
+                "execution_authority": "task_contract",
+                "workflow_id": "wf-recent",
+                "source_run_id": "run-a",
+                "role_binding_summary": {"authority": "contract-derived-read-model"},
+            },
             "runs": [
                 {"run_id": "run-a", "created_at": "2026-03-08T02:00:00Z"},
                 {"run_id": "run-b", "created_at": "bad-ts"},
@@ -233,6 +241,7 @@ def test_round4_workflow_listing_and_detail_branches(tmp_path: Path) -> None:
 
     detail = handlers["get_workflow"]("wf-recent")
     assert detail["workflow"]["workflow_id"] == "wf-recent"
+    assert detail["workflow"]["workflow_case_read_model"]["source_run_id"] == "run-a"
     assert all(isinstance(item, dict) for item in detail["events"])
     assert any(item.get("_run_id") == "run-a" for item in detail["events"])
 

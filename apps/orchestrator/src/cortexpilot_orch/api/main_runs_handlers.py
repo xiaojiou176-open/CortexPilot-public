@@ -32,6 +32,20 @@ class _NoOpQueueStore:
         return None
 
 
+def _is_valid_role_binding_summary_payload(payload: object) -> bool:
+    if not isinstance(payload, dict):
+        return False
+    required = {
+        "authority",
+        "source",
+        "execution_authority",
+        "skills_bundle_ref",
+        "mcp_bundle_ref",
+        "runtime_binding",
+    }
+    return required.issubset(payload.keys())
+
+
 def build_runs_handlers(
     *,
     runs_root_fn: Callable[[], Path],
@@ -521,6 +535,11 @@ def build_runs_handlers(
         contract_path = run_dir / "contract.json"
         contract = _safe_load_json(contract_path) if contract_path.exists() else {}
         normalized_contract = _normalize_contract(contract)
+        persisted_role_binding = (
+            manifest.get("role_binding_summary")
+            if _is_valid_role_binding_summary_payload(manifest.get("role_binding_summary"))
+            else {}
+        )
         status = str(manifest.get("status") or "")
         events = _read_events_light(run_dir)
         failure_attrs = _infer_failure_fields(
@@ -539,7 +558,8 @@ def build_runs_handlers(
             "allowed_paths": allowed_paths,
             "contract": normalized_contract,
             "manifest": manifest,
-            "role_binding_read_model": build_role_binding_summary(normalized_contract),
+            "role_binding_read_model": persisted_role_binding
+            or build_role_binding_summary(normalized_contract),
             **failure_attrs,
             **outcome,
         }

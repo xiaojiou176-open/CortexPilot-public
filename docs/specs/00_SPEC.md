@@ -271,6 +271,10 @@
 - Read-only run surfaces may project that same contract-derived binding view as
   `role_binding_read_model`, but those projections remain read models layered
   on top of the task contract rather than replacement execution authority.
+- Workflow/control-plane reads may project a `workflow_case_read_model` derived
+  from the latest linked run's persisted `role_binding_summary`, but that
+  projection must remain explicitly read-only and must keep
+  `execution_authority = task_contract`.
 
 ### 6.2 Output-Side Contracts (Results / Reports)
 

@@ -17,6 +17,11 @@ All notable changes to this repository will be documented in this file.
 - deepened Prompt 5 by adding a stable `role_binding_read_model` on run detail
   and read-only MCP surfaces plus resolved MCP tool-set visibility, while
   keeping the execution authority anchored to the task contract itself
+- opened Prompt 6 by formalizing `skills_bundle_ref` around a repo-owned
+  `policies/skills_bundle_registry.json` authority artifact, enriching
+  `role_binding_summary.skills_bundle_ref` with bundle metadata, and adding a
+  `workflow_case_read_model` on workflow/control-plane reads while keeping
+  `execution_authority = task_contract`
 - added a Switchyard runtime-first adapter for chat-only orchestrator paths,
   forcing `chat_completions` on intake/operator flows while keeping MCP tool
   execution fail-closed until a tool-capable provider path exists, and synced

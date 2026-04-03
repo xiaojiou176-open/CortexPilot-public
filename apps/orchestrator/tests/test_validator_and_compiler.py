@@ -256,6 +256,14 @@ def test_compile_plan_searcher_role_contract_accepts_registry_backed_mcp_bundle(
     )
 
 
+def test_compile_plan_worker_role_contract_accepts_registry_backed_skills_bundle() -> None:
+    contract = compile_plan(_plan_base())
+    assert (
+        contract["role_contract"]["skills_bundle_ref"]
+        == "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1"
+    )
+
+
 def test_compile_plan_rejects_missing_mcp_bundle_fragment(monkeypatch, tmp_path: Path) -> None:
     registry = json.loads(_registry_path().read_text(encoding="utf-8"))
     registry["role_contracts"]["WORKER"]["mcp_bundle_ref"] = (
@@ -272,6 +280,14 @@ def test_compile_plan_rejects_missing_mcp_bundle_fragment(monkeypatch, tmp_path:
 def test_validate_contract_rejects_non_allowlisted_mcp_bundle_fragment() -> None:
     contract = compile_plan(_plan_base())
     contract["role_contract"]["mcp_bundle_ref"] = "schemas/agent_registry.v1.json#/title"
+
+    with pytest.raises(ValueError, match="fragment source must be allowlisted"):
+        ContractValidator().validate_contract(contract)
+
+
+def test_validate_contract_rejects_non_allowlisted_skills_bundle_fragment() -> None:
+    contract = compile_plan(_plan_base())
+    contract["role_contract"]["skills_bundle_ref"] = "policies/agent_registry.json#role_contracts.WORKER"
 
     with pytest.raises(ValueError, match="fragment source must be allowlisted"):
         ContractValidator().validate_contract(contract)

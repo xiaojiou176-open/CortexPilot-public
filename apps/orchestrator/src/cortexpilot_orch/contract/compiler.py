@@ -9,6 +9,11 @@ from typing import Any
 from cortexpilot_orch.contract.validator import ContractValidator, resolve_agent_registry_path
 
 _FORBIDDEN_POLICY_FILE = "policies/forbidden_actions.json"
+_SKILLS_BUNDLE_REGISTRY_FILE = "policies/skills_bundle_registry.json"
+_REGISTRY_BACKED_REF_PREFIXES = (
+    "policies/agent_registry.json#",
+    f"{_SKILLS_BUNDLE_REGISTRY_FILE}#",
+)
 
 # NOTE: Default shell policy stays `deny` to preserve the SSOT minimum-permission baseline.
 _DEFAULT_TOOL_PERMISSIONS: dict[str, Any] = {
@@ -234,9 +239,50 @@ def _runtime_binding(contract: dict[str, Any]) -> dict[str, Any]:
 def _binding_summary_status(ref: str | None) -> str:
     if not ref:
         return "unresolved"
-    if ref.startswith("policies/agent_registry.json#"):
+    if any(ref.startswith(prefix) for prefix in _REGISTRY_BACKED_REF_PREFIXES):
         return "registry-backed"
     return "resolved"
+
+
+def _resolve_fragment(payload: Any, fragment: str) -> Any:
+    current = payload
+    for token in fragment.split("."):
+        part = token.strip()
+        if not part:
+            raise ValueError("fragment segment invalid")
+        if isinstance(current, dict):
+            if part not in current:
+                raise ValueError(f"fragment segment missing: {part}")
+            current = current[part]
+            continue
+        raise ValueError(f"fragment segment invalid: {part}")
+    return current
+
+
+def _resolve_skills_bundle_summary(ref: str | None) -> dict[str, Any]:
+    if not ref or not ref.startswith(f"{_SKILLS_BUNDLE_REGISTRY_FILE}#"):
+        return {"bundle_id": None, "resolved_skill_set": []}
+    path_text, fragment = ref.split("#", 1)
+    bundle_path = Path(__file__).resolve().parents[5] / path_text
+    try:
+        payload = json.loads(bundle_path.read_text(encoding="utf-8"))
+        resolved = _resolve_fragment(payload, fragment)
+    except (OSError, json.JSONDecodeError, ValueError):
+        return {"bundle_id": None, "resolved_skill_set": []}
+    if not isinstance(resolved, dict):
+        return {"bundle_id": None, "resolved_skill_set": []}
+    raw_skills = resolved.get("skills", [])
+    skills_list = raw_skills if isinstance(raw_skills, list) else []
+    skills = [
+        str(item).strip()
+        for item in skills_list
+        if isinstance(item, str) and str(item).strip()
+    ]
+    bundle_id = str(resolved.get("bundle_id") or "").strip() or None
+    return {
+        "bundle_id": bundle_id,
+        "resolved_skill_set": skills,
+    }
 
 
 def _runtime_binding_sources(contract: dict[str, Any], runtime_binding: dict[str, Any]) -> dict[str, str]:
@@ -281,6 +327,7 @@ def build_role_binding_summary(contract: dict[str, Any]) -> dict[str, Any]:
     if not role_contract:
         role_contract = _build_role_contract(contract, _load_agent_registry())
     skills_bundle_ref = _normalize_optional_ref(role_contract.get("skills_bundle_ref"))
+    skills_bundle_summary = _resolve_skills_bundle_summary(skills_bundle_ref)
     mcp_bundle_ref = _normalize_optional_ref(role_contract.get("mcp_bundle_ref"))
     resolved_mcp_tools = _normalize_string_list(role_contract.get("resolved_mcp_tool_set"))
     runtime_binding_raw = role_contract.get("runtime_binding") if isinstance(role_contract.get("runtime_binding"), dict) else {}
@@ -296,6 +343,8 @@ def build_role_binding_summary(contract: dict[str, Any]) -> dict[str, Any]:
         "skills_bundle_ref": {
             "status": _binding_summary_status(skills_bundle_ref),
             "ref": skills_bundle_ref,
+            "bundle_id": skills_bundle_summary.get("bundle_id"),
+            "resolved_skill_set": skills_bundle_summary.get("resolved_skill_set", []),
             "validation": "fail-closed",
         },
         "mcp_bundle_ref": {

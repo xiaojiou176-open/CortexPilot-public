@@ -260,6 +260,8 @@ def collect_workflows(
                 "_has_failure": False,
                 "_has_running": False,
                 "_has_pending_approval": False,
+                "_latest_role_binding_ts": datetime.min.replace(tzinfo=timezone.utc),
+                "_latest_role_binding_key": (datetime.min.replace(tzinfo=timezone.utc), ""),
             },
         )
         created_raw = manifest.get("created_at") or manifest.get("start_ts")
@@ -280,6 +282,23 @@ def collect_workflows(
             }
         )
         current_run_id = str(manifest.get("run_id") or run_dir.name).strip()
+        role_binding_summary = (
+            manifest.get("role_binding_summary")
+            if isinstance(manifest.get("role_binding_summary"), dict)
+            else {}
+        )
+        latest_role_binding_key = (created_at, current_run_id)
+        if role_binding_summary and latest_role_binding_key > entry["_latest_role_binding_key"]:
+            entry["_latest_role_binding_ts"] = created_at
+            entry["_latest_role_binding_key"] = latest_role_binding_key
+            entry["workflow_case_read_model"] = {
+                "authority": "workflow-case-read-model",
+                "source": "latest linked run manifest.role_binding_summary",
+                "execution_authority": "task_contract",
+                "workflow_id": workflow_id,
+                "source_run_id": current_run_id,
+                "role_binding_summary": role_binding_summary,
+            }
         for metadata in session_meta_by_run.get(current_run_id, []):
             session_id = str(metadata.get("pm_session_id") or "").strip()
             if session_id and session_id not in entry["pm_session_ids"]:
@@ -339,6 +358,10 @@ def collect_workflows(
         for key in ["objective", "owner_pm", "project_key", "summary", "verdict"]:
             if not entry.get(key) and str(persisted.get(key) or "").strip():
                 entry[key] = str(persisted.get(key) or "").strip()
+        if not entry.get("workflow_case_read_model") and isinstance(
+            persisted.get("workflow_case_read_model"), dict
+        ):
+            entry["workflow_case_read_model"] = persisted["workflow_case_read_model"]
         merged_case = {
             "workflow_id": entry["workflow_id"],
             "namespace": entry.get("namespace", ""),
@@ -352,6 +375,8 @@ def collect_workflows(
             "pm_session_ids": list(entry.get("pm_session_ids") or []),
             "run_ids": [str(run.get("run_id") or "") for run in entry.get("runs", []) if str(run.get("run_id") or "").strip()],
         }
+        if isinstance(entry.get("workflow_case_read_model"), dict):
+            merged_case["workflow_case_read_model"] = entry["workflow_case_read_model"]
         if persist_case_snapshot:
             persisted_case = case_store.write(str(entry["workflow_id"]), merged_case)
             entry["case_source"] = str(persisted_case.get("case_source") or "persisted")
@@ -360,4 +385,6 @@ def collect_workflows(
             entry["case_source"] = str(persisted.get("case_source") or "derived")
             entry["case_updated_at"] = str(persisted.get("updated_at") or "")
         entry.pop("_latest_ts", None)
+        entry.pop("_latest_role_binding_ts", None)
+        entry.pop("_latest_role_binding_key", None)
     return workflows
