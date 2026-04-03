@@ -342,6 +342,8 @@ export type WorkflowRun = {
 
 export type WorkflowRecord = {
   workflow_id: string;
+  name?: string;
+  title?: string;
   status?: string;
   namespace?: string;
   task_queue?: string;
@@ -350,6 +352,8 @@ export type WorkflowRecord = {
   project_key?: string;
   verdict?: string;
   summary?: string;
+  updated_at?: string;
+  created_at?: string;
   pm_session_ids?: string[];
   run_ids?: string[];
   case_source?: string;
@@ -357,6 +361,40 @@ export type WorkflowRecord = {
   workflow_case_read_model?: WorkflowCaseReadModel;
   runs?: WorkflowRun[];
 };
+
+function bindingReadModelLabel(
+  ref: string | null | undefined,
+  bundleId: string | null | undefined,
+  status: string | undefined,
+): string {
+  const normalizedRef = String(ref || "").trim();
+  const normalizedBundleId = String(bundleId || "").trim();
+  const label = normalizedBundleId || normalizedRef || "-";
+  return `${label} (${String(status || "-")})`;
+}
+
+export function formatBindingReadModelLabel(
+  binding: SkillsBundleReadModel | McpBundleReadModel | null | undefined,
+): string {
+  if (!binding) {
+    return "- (-)";
+  }
+  return bindingReadModelLabel(
+    binding.ref,
+    "bundle_id" in binding ? binding.bundle_id : null,
+    binding.status,
+  );
+}
+
+export function formatRoleBindingRuntimeSummary(
+  roleBindingSummary: RoleBindingReadModel | null | undefined,
+): string {
+  const runtimeSummary = roleBindingSummary?.runtime_binding?.summary;
+  const runner = String(runtimeSummary?.runner || "-");
+  const provider = String(runtimeSummary?.provider || "-");
+  const model = String(runtimeSummary?.model || "-");
+  return `${runner} / ${provider} / ${model}`;
+}
 
 export type QueueItemRecord = {
   queue_id: string;
