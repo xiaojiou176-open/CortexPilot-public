@@ -70,6 +70,13 @@ This repository combines:
   `role_binding_read_model` so persisted bundle/runtime state is readable from
   read-only surfaces by projecting `contract.json` without promoting that read
   model into execution authority
+- **Skills bundle surface**: qualifying delivery roles now resolve
+  `skills_bundle_ref` from the repo-owned `policies/skills_bundle_registry.json`
+  surface, so bundle status is no longer a placeholder-only field
+- **Workflow case read model**: control-plane workflow reads now expose a
+  `workflow_case_read_model` that points back to the latest linked run's
+  persisted `role_binding_summary`, keeping workflow/control-plane reads
+  stable without inventing a second execution authority
 
 ## Quickstart
 

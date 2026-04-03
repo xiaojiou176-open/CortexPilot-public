@@ -31,6 +31,9 @@ flowchart LR
 - The same role-binding read model now persists into `manifest.json` as
   `role_binding_summary`, so post-run/read-only surfaces can inspect the same
   bundle/runtime state without promoting that summary into execution authority.
+- Role contracts for qualifying delivery roles now resolve `skills_bundle_ref`
+  from the repo-owned `policies/skills_bundle_registry.json` surface, keeping
+  skills bundle truth separate from agent defaults and MCP bundle truth.
 - Pack registry truth lives under `contracts/packs/`; dashboard and desktop
   intake surfaces consume that metadata, while runtime execution keeps the real
   output truth under run bundles.
@@ -41,6 +44,9 @@ flowchart LR
   `.runtime-cache/cortexpilot/workflow-cases/<workflow_id>/case.json`; API and
   operator surfaces still derive fields from runs/PM sessions, but now write a
   stable case snapshot for downstream compare/queue/proof flows.
+- Workflow/control-plane reads now also expose `workflow_case_read_model`,
+  which reuses the latest linked run's persisted `role_binding_summary` instead
+  of inventing a second execution authority surface.
 - Runtime artifacts (`manifest`, `events.jsonl`, reports) are generated per run.
 - Run detail views may now include derived decision packs such as
   `incident_pack.json`, while approval queues synthesize `approval_pack`

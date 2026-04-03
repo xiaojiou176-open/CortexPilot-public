@@ -219,6 +219,8 @@
           "required": [
             "status",
             "ref",
+            "bundle_id",
+            "resolved_skill_set",
             "validation"
           ],
           "properties": {
@@ -235,6 +237,18 @@
                 "string",
                 "null"
               ]
+            },
+            "bundle_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "resolved_skill_set": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             },
             "validation": {
               "type": "string",

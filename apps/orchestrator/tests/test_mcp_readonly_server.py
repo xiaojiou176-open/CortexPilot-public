@@ -116,6 +116,39 @@ def test_mcp_readonly_server_cli_supports_runs_reports_and_keeps_read_only(tmp_p
             "status": "FAILURE",
             "created_at": "2026-03-31T10:00:00Z",
             "failure_reason": "diff gate rejected",
+            "role_binding_summary": {
+                "authority": "contract-derived-read-model",
+                "source": "persisted from contract",
+                "execution_authority": "task_contract",
+                "skills_bundle_ref": {
+                    "status": "registry-backed",
+                    "ref": "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+                    "bundle_id": "worker_delivery_core_v1",
+                    "resolved_skill_set": [
+                        "contract_alignment",
+                        "bounded_change_execution",
+                        "artifact_hygiene",
+                        "verification_evidence"
+                    ],
+                    "validation": "fail-closed"
+                },
+                "mcp_bundle_ref": {
+                    "status": "registry-backed",
+                    "ref": "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools",
+                    "resolved_mcp_tool_set": ["search-01-tavily"],
+                    "validation": "fail-closed"
+                },
+                "runtime_binding": {
+                    "status": "contract-derived",
+                    "authority_scope": "contract-derived-read-model",
+                    "source": {
+                        "runner": "runtime_options.runner",
+                        "provider": "runtime_options.provider",
+                        "model": "role_contract.runtime_binding.model"
+                    },
+                    "summary": {"runner": "agents", "provider": "cliproxyapi", "model": "gpt-5.4"}
+                }
+            },
             "workflow": {
                 "workflow_id": "wf-alpha",
                 "status": "FAILED",
@@ -130,7 +163,7 @@ def test_mcp_readonly_server_cli_supports_runs_reports_and_keeps_read_only(tmp_p
             "task_id": "task_alpha",
             "allowed_paths": ["apps/dashboard"],
             "role_contract": {
-                "skills_bundle_ref": None,
+                "skills_bundle_ref": "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
                 "mcp_bundle_ref": "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools",
                 "runtime_binding": {"runner": "agents", "provider": "cliproxyapi", "model": "gpt-5.4"},
                 "resolved_mcp_tool_set": ["search-01-tavily"],
@@ -222,6 +255,12 @@ def test_mcp_readonly_server_cli_supports_runs_reports_and_keeps_read_only(tmp_p
         )
         workflow_response = stream.read_until_id(5, 15.0)
         assert workflow_response["result"]["structuredContent"]["workflow_detail"]["workflow"]["workflow_id"] == "wf-alpha"
+        workflow_case_read_model = workflow_response["result"]["structuredContent"]["workflow_detail"]["workflow"][
+            "workflow_case_read_model"
+        ]
+        assert workflow_case_read_model["workflow_id"] == "wf-alpha"
+        assert workflow_case_read_model["source_run_id"] == "run_alpha"
+        assert workflow_case_read_model["role_binding_summary"]["execution_authority"] == "task_contract"
 
         send_json(
             proc,

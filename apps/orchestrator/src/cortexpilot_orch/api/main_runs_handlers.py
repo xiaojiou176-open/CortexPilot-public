@@ -521,6 +521,11 @@ def build_runs_handlers(
         contract_path = run_dir / "contract.json"
         contract = _safe_load_json(contract_path) if contract_path.exists() else {}
         normalized_contract = _normalize_contract(contract)
+        persisted_role_binding = (
+            manifest.get("role_binding_summary")
+            if isinstance(manifest.get("role_binding_summary"), dict)
+            else {}
+        )
         status = str(manifest.get("status") or "")
         events = _read_events_light(run_dir)
         failure_attrs = _infer_failure_fields(
@@ -539,7 +544,8 @@ def build_runs_handlers(
             "allowed_paths": allowed_paths,
             "contract": normalized_contract,
             "manifest": manifest,
-            "role_binding_read_model": build_role_binding_summary(normalized_contract),
+            "role_binding_read_model": persisted_role_binding
+            or build_role_binding_summary(normalized_contract),
             **failure_attrs,
             **outcome,
         }

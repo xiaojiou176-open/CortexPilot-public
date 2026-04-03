@@ -463,12 +463,12 @@ def test_run_intake_strips_intake_only_template_fields_before_execution(monkeypa
     assert observed_contract["runtime_options"]["strict_acceptance"] is True
 
 
-def test_build_role_binding_summary_only_marks_registry_refs_as_registry_backed() -> None:
+def test_build_role_binding_summary_marks_skills_and_mcp_registry_refs_as_registry_backed() -> None:
     summary = build_role_binding_summary(
         {
             "runtime_options": {"provider": "cliproxyapi"},
             "role_contract": {
-                "skills_bundle_ref": "bundles/skills.json#/worker",
+                "skills_bundle_ref": "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
                 "mcp_bundle_ref": "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools",
                 "runtime_binding": {"runner": None, "provider": "cliproxyapi", "model": None},
             }
@@ -476,8 +476,15 @@ def test_build_role_binding_summary_only_marks_registry_refs_as_registry_backed(
     )
 
     assert summary["skills_bundle_ref"] == {
-        "status": "resolved",
-        "ref": "bundles/skills.json#/worker",
+        "status": "registry-backed",
+        "ref": "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+        "bundle_id": "worker_delivery_core_v1",
+        "resolved_skill_set": [
+            "contract_alignment",
+            "bounded_change_execution",
+            "artifact_hygiene",
+            "verification_evidence",
+        ],
         "validation": "fail-closed",
     }
     assert summary["mcp_bundle_ref"] == {

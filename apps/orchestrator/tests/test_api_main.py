@@ -37,21 +37,28 @@ def test_api_list_runs_and_get_run(tmp_path: Path, monkeypatch) -> None:
     run_a = runs_root / "run_a"
     run_b = runs_root / "run_b"
     (runs_root / "run_empty").mkdir(parents=True, exist_ok=True)
-    _write_manifest(run_a, {"run_id": "run_a", "task_id": "task_a", "status": "SUCCESS", "created_at": (now - timedelta(minutes=5)).isoformat()})
-    _write_manifest(run_b, {"run_id": "run_b", "task_id": "task_b", "status": "FAILURE", "created_at": now.isoformat()})
-    _write_contract(
+    contract_payload = {
+        "allowed_paths": ["README.md"],
+        "task_id": "task_a",
+        "role_contract": {
+            "skills_bundle_ref": "policies/skills_bundle_registry.json#bundles.worker_delivery_core_v1",
+            "mcp_bundle_ref": "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools",
+            "runtime_binding": {"runner": "agents", "provider": "cliproxyapi", "model": "gpt-5.4"},
+            "resolved_mcp_tool_set": ["search-01-tavily"],
+        },
+    }
+    _write_manifest(
         run_a,
         {
-            "allowed_paths": ["README.md"],
+            "run_id": "run_a",
             "task_id": "task_a",
-            "role_contract": {
-                "skills_bundle_ref": None,
-                "mcp_bundle_ref": "policies/agent_registry.json#agents(role=SEARCHER).capabilities.mcp_tools",
-                "runtime_binding": {"runner": "agents", "provider": "cliproxyapi", "model": "gpt-5.4"},
-                "resolved_mcp_tool_set": ["search-01-tavily"],
-            },
+            "status": "SUCCESS",
+            "created_at": (now - timedelta(minutes=5)).isoformat(),
+            "role_binding_summary": build_role_binding_summary(contract_payload),
         },
     )
+    _write_manifest(run_b, {"run_id": "run_b", "task_id": "task_b", "status": "FAILURE", "created_at": now.isoformat()})
+    _write_contract(run_a, contract_payload)
 
     client = TestClient(api_main.app)
     resp = client.get("/api/runs")
@@ -64,7 +71,7 @@ def test_api_list_runs_and_get_run(tmp_path: Path, monkeypatch) -> None:
     data = resp.json()
     assert data["run_id"] == "run_a"
     assert data["allowed_paths"] == ["README.md"]
-    assert data["role_binding_read_model"] == build_role_binding_summary(data["contract"])
+    assert data["role_binding_read_model"] == data["manifest"]["role_binding_summary"]
 
     missing = client.get("/api/runs/missing")
     assert missing.status_code == 404

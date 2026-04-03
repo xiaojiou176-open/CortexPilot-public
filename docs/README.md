@@ -75,9 +75,11 @@ navigation set.
 - `docs/api/index.html`: public API / contract quickstart page for OpenAPI, frontend client, and contract-facing types
 - `apps/desktop/README.md`: desktop-owned module note for operator-surface locale/status hardening when desktop wording contracts change
 - `policies/agent_registry.json`: machine SSOT for role-contract defaults such as purpose, prompt ref, MCP bundle ref, downstream-role expectations, and fail-closed posture
+- `policies/skills_bundle_registry.json`: repo-owned authority surface for named skills bundles used by qualifying role contracts
 - `configs/env_direct_read_allowlist.json`: machine allowlist for governed backend direct env reads; update this alongside docs when a role/runtime helper legitimately reads env-backed model metadata
 - `apps/orchestrator/src/cortexpilot_orch/api/main_pm_intake_helpers.py`: PM-facing helper surface that now returns a contract-derived `role_binding_summary`, and the same read model now persists into run manifests for stable post-run inspection without becoming execution authority
 - `apps/orchestrator/src/cortexpilot_orch/api/main_runs_handlers.py`: run-detail helper surface that now returns a stable `role_binding_read_model` derived from persisted contract truth for read-only inspection
+- `apps/orchestrator/src/cortexpilot_orch/api/main_state_store_helpers.py`: workflow aggregation helper that now projects `workflow_case_read_model` from the latest linked run's persisted binding summary for control-plane/workflow reads
 
 ## Public CI Contract
 
