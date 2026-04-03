@@ -1,11 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 import type { AgentCatalogPayload, AgentCatalogRecord, AgentStatusPayload, AgentStatusRecord, RoleCatalogRecord } from "../lib/types";
 import { fetchAgents, fetchAgentStatus } from "../lib/api";
-import { badgeClass } from "../lib/statusPresentation";
+import { stageVariant } from "../lib/statusPresentation";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { Card } from "../components/ui/Card";
 import { formatBindingReadModelLabel, formatRoleBindingRuntimeSummary } from "../lib/types";
+
+function stageBadgeVariant(stage: string | null | undefined): "default" | "success" | "warning" | "info" | "running" {
+  const variant = stageVariant(stage);
+  if (variant === "todo") return "warning";
+  if (variant === "active") return "running";
+  if (variant === "verify") return "info";
+  if (variant === "done") return "success";
+  return "default";
+}
 
 export function AgentsPage() {
   const [agents, setAgents] = useState<AgentCatalogPayload>({ agents: [], locks: [], role_catalog: [] });
@@ -53,7 +62,7 @@ export function AgentsPage() {
       <tr key={`${snapshot.run_id || "run"}-${snapshot.agent_id || "agent"}-${index}`}>
         <td className="mono">{String(snapshot.agent_id || "-")}</td>
         <td>{String(snapshot.role || "-")}</td>
-        <td><Badge className={badgeClass(snapshot.stage)}>{String(snapshot.stage || "-")}</Badge></td>
+        <td><Badge variant={stageBadgeVariant(snapshot.stage)}>{String(snapshot.stage || "-")}</Badge></td>
         <td className="mono">{String(snapshot.run_id || "-").slice(0, 12)}</td>
       </tr>
     );

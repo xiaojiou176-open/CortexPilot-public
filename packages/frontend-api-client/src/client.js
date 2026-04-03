@@ -200,11 +200,12 @@ function createClient(options = {}) {
   }
 
   async function fetchAgentStatus(runId) {
+    const normalizedRunId = typeof runId === "string" ? runId.trim() : "";
     const params = new URLSearchParams();
-    if (typeof runId === "string" && runId.trim()) {
-      params.set("run_id", runId.trim());
+    if (normalizedRunId) {
+      params.set("run_id", normalizedRunId);
     }
-    return http.getJson(withQuery(paths.agentStatus, params), runId ? { runId } : {});
+    return http.getJson(withQuery(paths.agentStatus, params), normalizedRunId ? { runId: normalizedRunId } : {});
   }
 
   async function fetchPolicies() {

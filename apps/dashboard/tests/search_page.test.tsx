@@ -259,6 +259,8 @@ describe("search page copy and interaction", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Promote to evidence bundle" }));
 
-    expect(await screen.findByTestId("search-promote-status-message")).toHaveTextContent("Promotion failed: network issue. Try again later.");
+    await waitFor(() => {
+      expect(screen.getByTestId("search-promote-status-message")).toHaveTextContent("Promotion failed: network issue. Try again later.");
+    });
   });
 });
