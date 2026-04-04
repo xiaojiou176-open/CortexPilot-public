@@ -140,7 +140,7 @@ export default function DashboardHomeStorySections({
           </div>
           <nav aria-label="Integration and skills actions">
             <Button asChild variant="secondary">
-              <Link href={resolveHomeHref(homePhase2Copy.integrationActionHref)}>{homePhase2Copy.integrationActionLabel}</Link>
+              <Link href={resolveHomeHref(homePhase2Copy.proofFirstActionHref)}>{homePhase2Copy.proofFirstActionLabel}</Link>
             </Button>
             <Button asChild variant="secondary">
               <Link href={resolveHomeHref(homePhase2Copy.aiSurfacesActionHref)}>{homePhase2Copy.aiSurfacesActionLabel}</Link>
@@ -166,34 +166,6 @@ export default function DashboardHomeStorySections({
             {homePhase2Copy.builderQuickstartCtaLabel}
           </Link>.
         </p>
-      </section>
-
-      <section className="app-section" aria-labelledby="dashboard-case-gallery-baseline-title">
-        <div className="section-header">
-          <div>
-            <h2 id="dashboard-case-gallery-baseline-title" className="section-title">
-              {homePhase2Copy.caseGalleryBaselineTitle}
-            </h2>
-            <p>{homePhase2Copy.caseGalleryBaselineDescription}</p>
-          </div>
-          <nav aria-label="Public case gallery actions">
-            <Button asChild variant="secondary">
-              <Link href={resolveHomeHref(homePhase2Copy.caseGalleryGuideHref)}>
-                {homePhase2Copy.caseGalleryGuideCtaLabel}
-              </Link>
-            </Button>
-          </nav>
-        </div>
-        <div className="quick-grid">
-          {homePhase2Copy.caseGalleryBaselineCards.map((item) => (
-            <Link key={item.title} href={resolveHomeHref(item.href)} className="quick-card">
-              <span className="quick-card-title">{item.title}</span>
-              <span className="quick-card-desc">{item.desc}</span>
-              <span className="cell-sub mono">{item.evidence}</span>
-              <span className="cell-sub mono">{item.shareMode}</span>
-            </Link>
-          ))}
-        </div>
       </section>
 
       {showFirstTaskGuide ? (

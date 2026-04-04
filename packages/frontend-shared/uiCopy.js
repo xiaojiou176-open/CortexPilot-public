@@ -128,8 +128,8 @@ const UI_COPY = {
         integrationTitle: "Choose the right adoption path",
         integrationDescription:
           "Use the compatibility matrix as the front-door router, then open protocol, playbooks, packages, or AI surfaces only after the real job is clear.",
-        integrationActionLabel: "Open compatibility matrix",
-        integrationActionHref: "/compatibility/",
+        proofFirstActionLabel: "Open use-case guide",
+        proofFirstActionHref: "/use-cases/",
         integrationCards: [
           {
             badge: "Decision layer",
@@ -215,34 +215,6 @@ const UI_COPY = {
             href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md",
           },
         ],
-        caseGalleryBaselineTitle: "Public case gallery baseline",
-        caseGalleryBaselineDescription:
-          "These cards stay grounded in the tracked public packs and their evidence contracts. They are gallery-ready archetypes, not invented showcase data.",
-        caseGalleryBaselineCards: [
-          {
-            href: "/pm?template=news_digest",
-            title: "News digest gallery card",
-            desc: "Release-proven case archetype for a proof-first public recap.",
-            evidence: "Primary report: news_digest_result.json",
-            shareMode: "Share mode: proof-first recap",
-          },
-          {
-            href: "/pm?template=topic_brief",
-            title: "Topic brief gallery card",
-            desc: "Public showcase case archetype for a narrow, search-backed brief.",
-            evidence: "Primary report: topic_brief_result.json",
-            shareMode: "Share mode: research recap",
-          },
-          {
-            href: "/pm?template=page_brief",
-            title: "Page brief gallery card",
-            desc: "Browser-backed case archetype for one URL and one focused brief.",
-            evidence: "Primary report: page_brief_result.json",
-            shareMode: "Share mode: source-page review",
-          },
-        ],
-        caseGalleryGuideCtaLabel: "Open use-case guide",
-        caseGalleryGuideHref: "/use-cases/",
         liveCaseGalleryTitle: "Live Workflow Case gallery",
         liveCaseGalleryDescription:
           "Use real Workflow Cases as lightweight showcase assets. This baseline links to live case detail and share-ready recap instead of inventing demo-only gallery data.",
@@ -870,8 +842,8 @@ const UI_COPY = {
         integrationTitle: "选择正确的采用路径",
         integrationDescription:
           "先把 compatibility matrix 当成前门路由层，再在真正任务已经明确后进入协议、playbook、package 或 AI 页面，而不是在首页一次性读完所有说明。",
-        integrationActionLabel: "打开 compatibility matrix",
-        integrationActionHref: "/compatibility/",
+        proofFirstActionLabel: "打开 use-case 指南",
+        proofFirstActionHref: "/use-cases/",
         integrationCards: [
           {
             badge: "决策入口",
@@ -957,34 +929,6 @@ const UI_COPY = {
             href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md",
           },
         ],
-        caseGalleryBaselineTitle: "公开案例画廊基线",
-        caseGalleryBaselineDescription:
-          "这些卡片继续锚定在已跟踪的公开包和证据契约上。它们是可进入画廊的案例原型，不是凭空编出来的展示数据。",
-        caseGalleryBaselineCards: [
-          {
-            href: "/pm?template=news_digest",
-            title: "News digest 画廊卡片",
-            desc: "用于 proof-first 公开 recap 的发布级案例原型。",
-            evidence: "主报告：news_digest_result.json",
-            shareMode: "分享模式：proof-first recap",
-          },
-          {
-            href: "/pm?template=topic_brief",
-            title: "Topic brief 画廊卡片",
-            desc: "用于窄范围、搜索证据驱动简报的公开展示原型。",
-            evidence: "主报告：topic_brief_result.json",
-            shareMode: "分享模式：research recap",
-          },
-          {
-            href: "/pm?template=page_brief",
-            title: "Page brief 画廊卡片",
-            desc: "用于单页聚焦简报的浏览器证据原型。",
-            evidence: "主报告：page_brief_result.json",
-            shareMode: "分享模式：source-page review",
-          },
-        ],
-        caseGalleryGuideCtaLabel: "打开 use-case 指南",
-        caseGalleryGuideHref: "/use-cases/",
         liveCaseGalleryTitle: "真实 Workflow Case 画廊",
         liveCaseGalleryDescription:
           "把真实 Workflow Cases 作为轻量 showcase asset 来使用。这里会直接链接 live case detail 和可分享 recap，而不是伪造 demo-only 画廊数据。",
