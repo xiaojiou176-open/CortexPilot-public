@@ -238,3 +238,99 @@ def test_queue_store_markers_keep_explicit_queue_id(tmp_path: Path, monkeypatch:
     assert done["queue_id"] == "queue-markers"
     items = {item["task_id"]: item for item in store.list_items()}
     assert items["task-markers"]["queue_id"] == "queue-markers"
+
+
+def test_queue_store_preview_enqueue_coerces_invalid_metadata(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+
+    store = QueueStore()
+    contract_path = tmp_path / "contract.json"
+    contract_path.write_text(json.dumps(_valid_contract()), encoding="utf-8")
+
+    preview_without_dict = store.preview_enqueue(contract_path, "task-preview-raw", owner="agent-1", metadata="ignored")
+    assert preview_without_dict["priority"] == 0
+    assert preview_without_dict["eligible"] is True
+    assert preview_without_dict["sla_state"] == "on_track"
+
+    preview_with_invalid_values = store.preview_enqueue(
+        contract_path,
+        "task-preview-invalid",
+        owner="agent-1",
+        metadata={
+            "priority": "not-a-number",
+            "scheduled_at": "not-a-date",
+            "deadline_at": "still-not-a-date",
+        },
+    )
+    assert preview_with_invalid_values["priority"] == 0
+    assert preview_with_invalid_values["eligible"] is True
+    assert preview_with_invalid_values["sla_state"] == "on_track"
+
+
+def test_queue_store_cancel_branch_matrix(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+
+    store = QueueStore()
+    contract_path = tmp_path / "contract.json"
+    contract_path.write_text(json.dumps(_valid_contract()), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="queue_id is required"):
+        store.cancel("")
+
+    store.enqueue(contract_path, "task-first", owner="agent-1", metadata={"queue_id": "queue-first"})
+    store.enqueue(contract_path, "task-second", owner="agent-1", metadata={"queue_id": "queue-second"})
+    store.enqueue(contract_path, "task-claimed", owner="agent-1", metadata={"queue_id": "queue-claimed"})
+    store.mark_claimed("task-claimed", run_id="run-claimed", queue_id="queue-claimed")
+
+    cancelled = store.cancel("queue-second")
+    assert cancelled["queue_id"] == "queue-second"
+    assert cancelled["status"] == "CANCELLED"
+    assert cancelled["queue_state"] == "closed"
+    assert "reason" not in cancelled
+    assert "cancelled_by" not in cancelled
+
+    with pytest.raises(KeyError, match="queue item `queue-missing` not found"):
+        store.cancel("queue-missing")
+
+    with pytest.raises(ValueError, match="queue item `queue-claimed` is not pending"):
+        store.cancel("queue-claimed")
+
+
+def test_queue_store_preview_and_cancel_surface_preserves_reason_metadata(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+
+    store = QueueStore()
+    contract_path = tmp_path / "contract.json"
+    contract_path.write_text(json.dumps(_valid_contract()), encoding="utf-8")
+
+    preview = store.preview_enqueue(
+        contract_path,
+        "task-preview",
+        owner="agent-1",
+        metadata={"priority": 500, "scheduled_at": (datetime.now(timezone.utc) + timedelta(minutes=5)).isoformat()},
+    )
+    assert preview["priority"] == 100
+    assert preview["queue_state"] == "waiting"
+    assert preview["waiting_reason"] == "scheduled_for_future"
+
+    enqueued = store.enqueue(
+        contract_path,
+        "task-cancel",
+        owner="agent-1",
+        metadata={"queue_id": "queue-cancel", "priority": -500},
+    )
+    assert enqueued["priority"] == -100
+
+    cancelled = store.cancel("queue-cancel", reason="operator_request", cancelled_by="pm-1")
+    assert cancelled["status"] == "CANCELLED"
+    assert cancelled["queue_state"] == "closed"
+    assert cancelled["sla_state"] == "ended"
+    assert cancelled["reason"] == "operator_request"
+    assert cancelled["cancelled_by"] == "pm-1"
+
+    items = {item["task_id"]: item for item in store.list_items()}
+    assert items["task-cancel"]["reason"] == "operator_request"
+    assert items["task-cancel"]["cancelled_by"] == "pm-1"
