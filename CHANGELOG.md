@@ -20,6 +20,10 @@ All notable changes to this repository will be documented in this file.
   `#65-#84` with rationale, leaving the active closeout branch/PR as the only
   remaining GitHub work item while keeping browser/profile and Docker hygiene
   rules institutionalized in the root AI guidance
+- aligned the command-tower reliability guard with the new locale-driven page
+  source and kept the current closeout head carrying an explicit changelog
+  entry so PR doc-sync gates can trace the final dashboard/desktop/operator
+  follow-up fixes on the same branch head they validate
 - closed Prompt 3 by formalizing `Role Contract v1` across schema, policy,
   compiler, validator, intake preview, and handoff summary surfaces while
   syncing the root/orchestrator/docs entrypoints and env-read governance with
