@@ -152,8 +152,8 @@
         </nav>
         <h1>Skills quickstart for coding-agent teams.</h1>
         <p class="lede">
-          CortexPilot already ships a repo-owned skill pack under <code>.agents/skills/</code>. The truthful adoption path today is:
-          <strong>reuse repo-local playbooks</strong> for Codex / Claude Code workflows, and adapt the same playbooks for adjacent tools such as OpenClaw without pretending there is an official plugin marketplace.
+          CortexPilot already ships a public, repo-owned skills quickstart here. The truthful adoption path today is:
+          <strong>reuse repo-owned playbooks</strong> for Codex / Claude Code workflows, and adapt the same playbooks for adjacent tools such as OpenClaw without pretending there is an official plugin marketplace.
         </p>
         <div class="actions">
           <a class="button primary" href="#how-to-use-skills-today">Open the adoption path</a>
@@ -188,11 +188,35 @@
       <section class="section">
         <h2>How to use skills today</h2>
         <ol>
-          <li>Pick the closest skill in <code>.agents/skills/</code> for the job you want to do.</li>
-          <li>Read the skill before you start broad exploration or code changes.</li>
+          <li>Start from this public guide, then choose the closest adoption lane: protocol, skills, builder packages, or proof-first cases.</li>
+          <li>Read the tracked repo entrypoints before you start broad exploration or code changes.</li>
           <li>Use the skill together with the repo's truthful entrypoints: read-only MCP, API/client packages, docs, and Task Board.</li>
-          <li>Keep the skill boundary honest: if a skill says hosted or write-MCP is frozen, treat that as a real stop sign.</li>
+          <li>Keep the skill boundary honest: if a playbook says hosted or write-MCP is frozen, treat that as a real stop sign.</li>
         </ol>
+      </section>
+
+      <section class="section">
+        <h2>Three public playbooks to start with</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="badge">Protocol-first</span>
+            <h3>Read-only MCP first</h3>
+            <p>Best when your team needs machine-readable inspection first. Start at the MCP quickstart, then move to API or builders only after the protocol boundary is clear.</p>
+            <p><a href="../mcp/">Open MCP quickstart</a></p>
+          </article>
+          <article class="card">
+            <span class="badge">Workflow-first</span>
+            <h3>Proof and case review first</h3>
+            <p>Best when a coding-agent team needs the fastest trustworthy demo. Start with the first-run cases, then come back here once the review loop already makes sense.</p>
+            <p><a href="../use-cases/">Open first-run guide</a></p>
+          </article>
+          <article class="card">
+            <span class="badge">Builder-first</span>
+            <h3>Packages and contracts first</h3>
+            <p>Best when your team already knows it needs typed client entrypoints. Start with the builder quickstart, then pair it with this page for repeatable repo-owned playbooks.</p>
+            <p><a href="../builders/">Open builder quickstart</a></p>
+          </article>
+        </div>
       </section>
 
       <section class="section">
@@ -235,11 +259,11 @@
 
       <section class="section" id="fast-path-for-maintainers">
         <h2>Fast path for maintainers</h2>
-        <pre><code>find .agents/skills -maxdepth 2 -name SKILL.md | sort
-sed -n '1,220p' .agents/skills/repo-mainline-explanation/SKILL.md
-sed -n '1,220p' .agents/skills/closeout-live-truth-verdict/SKILL.md</code></pre>
+        <pre><code>sed -n '1,220p' README.md
+sed -n '1,220p' docs/README.md
+sed -n '1,220p' AGENTS.md</code></pre>
         <p>
-          Those three steps are often enough to understand how the repo wants an agent to explain the product, continue a wave, and keep closeout truthful.
+          Those three tracked files are enough to understand the public product spine, the docs inventory, and the repo-owned AI working contract without depending on local-only overlays.
         </p>
       </section>
     </main>
