@@ -233,6 +233,16 @@ Work in CortexPilot as a contract-first engineering agent:
   `packages/frontend-api-client/examples/control_plane_starter.local.mjs`, the
   package-facing `createControlPlaneStarter(...)` bootstrap flow, and the rule
   that this starter remains below hosted SDK / marketplace claims
+- when the Final-100 / Wave 4 follow-up slice adds hosted pilot readiness or
+  queue-first mutation groundwork, sync the root AI/docs entrypoints in the
+  same patch; current examples include `render.yaml`, the
+  `docs/runbooks/render-hosted-operator-pilot.md` deploy contract, the hosted
+  `CORTEXPILOT_API_ALLOWED_ORIGINS` env wiring across `.env.example`,
+  `apps/orchestrator/.env.example`, `configs/env.registry.json`, and
+  `configs/env_direct_read_allowlist.json`, plus the rule that
+  `apps/orchestrator/src/cortexpilot_orch/mcp_queue_pilot_server.py` and queue
+  preview/cancel routes stay repo-owned operator groundwork rather than live
+  hosted proof or public write-capable MCP
 - when staged dashboard smoke builds change their dependency-install or
   `apps/dashboard/lib/types.ts` export bridge semantics, sync the root AI/docs
   entrypoints in the same patch so pre-push and UI-audit gates can distinguish
