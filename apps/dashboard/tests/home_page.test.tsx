@@ -78,9 +78,7 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByText("Release-proven first run")).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: /news_digest/i })[0]).toHaveAttribute("href", "/pm?template=news_digest");
     expect(screen.getByText("Proof state: official public baseline")).toBeInTheDocument();
-    expect(screen.getByText("Works with today's coding-agent ecosystem")).toBeInTheDocument();
-    expect(screen.getByText("Integrations and skills adoption")).toBeInTheDocument();
-    expect(screen.getByText("AI surfaces in the real workflow")).toBeInTheDocument();
+    expect(screen.getByText("Choose the right adoption path")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open compatibility matrix" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/"
@@ -101,7 +99,6 @@ describe("dashboard home run-summary clarity", () => {
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/"
     );
-    expect(screen.getByText("@cortexpilot/frontend-api-client")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open ecosystem map" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/"
@@ -109,10 +106,6 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByRole("link", { name: "Open builder quickstart" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/builders/"
-    );
-    expect(screen.getByText("@cortexpilot/frontend-api-contract").closest("a")).toHaveAttribute(
-      "href",
-      "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/docs/README.md"
     );
     expect(screen.getByText("Read-only MCP quickstart").closest("a")).toHaveAttribute(
       "href",
@@ -202,7 +195,7 @@ describe("dashboard home run-summary clarity", () => {
       "href",
       "https://docs.example/cortexpilot/use-cases/"
     );
-    expect(screen.getByText("OpenHands and comparison layer").closest("a")).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open ecosystem map" })).toHaveAttribute(
       "href",
       "https://docs.example/cortexpilot/ecosystem/"
     );
@@ -233,8 +226,7 @@ describe("dashboard home run-summary clarity", () => {
 
     expect(screen.getByRole("heading", { name: "面向 Codex 和 Claude Code 工作流的指挥塔" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "启动首个任务" })).toHaveAttribute("href", "/pm");
-    expect(screen.getByText("与当前 coding-agent 生态的关系")).toBeInTheDocument();
-    expect(screen.getByText("AI 功能已经进入主工作流")).toBeInTheDocument();
+    expect(screen.getByText("选择正确的采用路径")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "打开 AI + MCP + API 页面" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/"
@@ -243,7 +235,6 @@ describe("dashboard home run-summary clarity", () => {
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/builders/"
     );
-    expect(screen.getByText("集成与技能采用")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "打开 compatibility matrix" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/"

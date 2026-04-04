@@ -155,6 +155,30 @@
         gap: 14px;
       }
 
+      .mini-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .mini-nav a {
+        color: var(--accent-dark);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .mini-nav a:hover,
+      .mini-nav a:focus-visible {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      .mini-nav a:focus-visible {
+        outline: 2px solid var(--accent-dark);
+        outline-offset: 2px;
+      }
+
       .actions a {
         text-decoration: none;
         border-radius: 999px;
@@ -241,6 +265,13 @@
     <main>
       <section class="hero">
         <span class="eyebrow">Public landing source for CortexPilot</span>
+        <nav class="mini-nav" aria-label="Top navigation">
+          <a href="./compatibility/">Compatibility matrix</a>
+          <a href="./integrations/">Integration guide</a>
+          <a href="./skills/">Skills quickstart</a>
+          <a href="./builders/">Builder quickstart</a>
+          <a href="./mcp/">Read-only MCP quickstart</a>
+        </nav>
         <h1>Command Tower for Codex and Claude Code workflows.</h1>
         <p class="lede">
           CortexPilot is for teams that need more than “the agent replied.” Route Codex- and
@@ -257,12 +288,12 @@
           <a class="primary" href="./use-cases/">Open first success path</a>
           <a class="secondary" href="./compatibility/">Start with compatibility matrix</a>
           <a class="secondary" href="./ai-surfaces/">See AI + MCP + API surfaces</a>
-          <a class="secondary" href="https://github.com/xiaojiou176-open/CortexPilot-public/releases">Track first public release</a>
-          <a class="secondary" href="https://github.com/xiaojiou176-open/CortexPilot-public">Open repository home</a>
         </div>
         <p class="caption">
           Using Codex, Claude Code, OpenClaw, skills, or builders and not sure which door to open first?
-          Start with the <a href="./compatibility/">compatibility matrix</a>. Need the repo map too? Read the
+          Start with the <a href="./compatibility/">compatibility matrix</a>. Need release notes, the repo home, or the docs map instead? Open the
+          <a href="https://github.com/xiaojiou176-open/CortexPilot-public/releases">release page</a>, the
+          <a href="https://github.com/xiaojiou176-open/CortexPilot-public">repository</a>, the
           <a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/README.md">docs map</a>
           or
           <a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/architecture/runtime-topology.md">runtime topology</a>.
@@ -306,8 +337,7 @@
       <section class="section">
         <h2>Choose your path</h2>
         <p>
-          New here? Use this as the quick decision layer. It helps you pick the right
-          entrypoint without reading the whole repo map first.
+          New here? Use this as the only decision layer on the homepage. Let the deeper pages carry the detail once you know which door fits the job.
         </p>
         <div class="grid">
           <article class="grid-card">
@@ -316,29 +346,14 @@
             <p><a href="./use-cases/">Open use-case guide</a></p>
           </article>
           <article class="grid-card">
-            <h3>I need the protocol boundary</h3>
-            <p>Start with the read-only MCP quickstart if you want the shortest truthful map of what external tools can inspect today.</p>
-            <p><a href="./mcp/">Open read-only MCP quickstart</a></p>
-          </article>
-          <article class="grid-card">
-            <h3>I need API and package entrypoints</h3>
-            <p>Start with the API and builder quickstarts if you want OpenAPI, contract-facing types, thin client helpers, and the shared frontend substrate.</p>
-            <p><a href="./api/">Open API and contract quickstart</a> · <a href="./builders/">Open builder quickstart</a></p>
-          </article>
-          <article class="grid-card">
-            <h3>I run AI ops or platform workflows</h3>
-            <p>Start with the AI + MCP + API map if you need the operator brief, protocol boundary, and builder surfaces in one truthful control-plane overview.</p>
-            <p><a href="./ai-surfaces/">Open AI + MCP + API map</a></p>
-          </article>
-          <article class="grid-card">
-            <h3>I want to understand the ecosystem fit</h3>
-            <p>Start with the ecosystem map if you want to see why Codex, Claude Code, and read-only MCP stay in the front door while adjacent tools stay in comparison-only layers.</p>
-            <p><a href="./ecosystem/">Open ecosystem map</a></p>
-          </article>
-          <article class="grid-card">
             <h3>I need the compatibility matrix</h3>
             <p>Start here if your main question is “I use Codex, Claude Code, OpenClaw, skills, or builders. Which CortexPilot surface should I open first?”</p>
             <p><a href="./compatibility/">Open compatibility matrix</a></p>
+          </article>
+          <article class="grid-card">
+            <h3>I need the protocol boundary</h3>
+            <p>Start with the read-only MCP quickstart if you want the shortest truthful map of what external tools can inspect today.</p>
+            <p><a href="./mcp/">Open read-only MCP quickstart</a></p>
           </article>
           <article class="grid-card">
             <h3>I want the agent-integration map</h3>
@@ -346,11 +361,16 @@
             <p><a href="./integrations/">Open integration guide</a></p>
           </article>
           <article class="grid-card">
-            <h3>I need reusable skill playbooks</h3>
-            <p>Start with the skills guide if you want repo-owned playbooks for coding-agent teams instead of guessing from the `.agents/skills/` tree.</p>
-            <p><a href="./skills/">Open skills quickstart</a></p>
+            <h3>I need package entrypoints</h3>
+            <p>Start with the API and builder quickstarts if you want OpenAPI, contract-facing types, thin client helpers, and the shared frontend substrate.</p>
+            <p><a href="./api/">Open API and contract quickstart</a> · <a href="./builders/">Open builder quickstart</a></p>
           </article>
         </div>
+        <p class="caption">
+          Need the repo-owned playbook layer? Open the <a href="./skills/">skills quickstart</a>. Need the broader ecosystem framing?
+          Open the <a href="./ecosystem/">ecosystem map</a>. Need the operator-layer overview? Open
+          <a href="./ai-surfaces/"> AI + MCP + API surfaces</a>.
+        </p>
       </section>
 
       <section class="section">
@@ -381,22 +401,6 @@
       </section>
 
       <section class="section">
-        <h2>API and MCP quickstarts</h2>
-        <div class="grid">
-          <article class="grid-card">
-            <h3>Read-only MCP quickstart</h3>
-            <p>Use the MCP quickstart when you want the smallest truthful map for read-only MCP inspection across runs, Workflow Cases, compare, and proof.</p>
-            <p><a href="./mcp/">Open MCP quickstart</a></p>
-          </article>
-          <article class="grid-card">
-            <h3>API and contract quickstart</h3>
-            <p>Use the API quickstart when you want the shortest path into OpenAPI, the thin frontend API client, and contract-facing types.</p>
-            <p><a href="./api/">Open API quickstart</a></p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section">
         <h2>First success path</h2>
         <p>
           This file is the tracked source for the live GitHub Pages landing surface. The main calls to
@@ -412,10 +416,6 @@
           Official first public path: start with <code>news_digest</code> if you want the smallest release-proven
           proof loop, then use <code>topic_brief</code> and <code>page_brief</code> as public showcase expansions.
         </p>
-      </section>
-
-      <section class="section">
-        <h2>Three public first-run cases</h2>
         <div class="grid">
           <article class="grid-card">
             <h3>news_digest</h3>
@@ -431,142 +431,6 @@
             <h3>page_brief</h3>
             <p>Best for a single URL with browser-backed evidence and a read-only workflow case wrapper.</p>
             <p><strong>Proof state:</strong> public showcase, browser-backed path.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section">
-        <h2>Why this is more than another agent demo</h2>
-        <div class="grid">
-          <article class="grid-card">
-            <h3>Read-only MCP access</h3>
-            <p>External agents and tools can now inspect runs, workflows, queue state, approvals, and proof without mutation.</p>
-          </article>
-          <article class="grid-card">
-            <h3>AI operator brief</h3>
-            <p>The operator surface can now explain run failures, compare deltas, queue risk, and the next action without pretending to execute recovery.</p>
-          </article>
-          <article class="grid-card">
-            <h3>Share-ready Workflow Cases</h3>
-            <p>Workflow Cases are moving from detail pages to reusable review assets with recap, proof, and replay highlights.</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section">
-        <h2>Works with today's coding-agent ecosystem</h2>
-        <div class="grid">
-          <article class="grid-card">
-            <h3>Codex workflows</h3>
-            <p>Use CortexPilot when a Codex-driven workflow needs one command tower, one case record, and one replayable proof path.</p>
-          </article>
-          <article class="grid-card">
-            <h3>Claude Code workflows</h3>
-            <p>The same operator surface works for Claude Code-style coding loops that need governed visibility, approvals, and evidence before promotion.</p>
-          </article>
-          <article class="grid-card">
-            <h3>Read-only MCP surface</h3>
-            <p>MCP is a real protocol surface here, but the current boundary is intentionally read-only. External tools can inspect truth; they cannot mutate it.</p>
-          </article>
-          <article class="grid-card">
-            <h3>Adjacent ecosystem</h3>
-            <p>OpenHands belongs in the broader ecosystem layer, while OpenCode stays comparison-only. OpenClaw is a different product category and stays out of the main front door.</p>
-          </article>
-        </div>
-        <p class="caption">
-          Read the current ecosystem and builder map in
-          <a href="./ecosystem/">the ecosystem page</a>.
-        </p>
-        <p class="caption">
-          Need the sharper truthful adoption story for coding-agent teams? Pair it with
-          <a href="./integrations/">the integration guide</a> and
-          <a href="./skills/">the skills quickstart</a>.
-        </p>
-      </section>
-
-      <section class="section">
-        <h2>AI surfaces already in the workflow</h2>
-        <div class="grid">
-          <article class="grid-card">
-            <h3>Flight Plan copilot</h3>
-            <p>PM intake can already generate a bounded pre-run brief before execution starts, so approval and evidence expectations are visible early.</p>
-          </article>
-          <article class="grid-card">
-            <h3>Workflow copilot</h3>
-            <p>Workflow Cases already expose a workflow-scoped brief that explains queue posture, latest run context, and the next operator action.</p>
-          </article>
-          <article class="grid-card">
-            <h3>Run and compare operator brief</h3>
-            <p>Run Detail and compare surfaces already explain deltas, proof, incident context, and the next action without pretending to execute recovery.</p>
-          </article>
-        </div>
-        <p class="caption">
-          Open the combined product surface at
-          <a href="./ai-surfaces/">AI + MCP + API surfaces</a>
-          if you want the truthful map for operator copilot, read-only MCP, and builder entrypoints in one page.
-        </p>
-      </section>
-
-      <section class="section">
-        <h2>AI, MCP, and API surfaces</h2>
-        <div class="grid">
-          <article class="grid-card">
-            <h3>Explain-only operator copilot</h3>
-            <p>Flight Plan, workflow, run detail, and compare surfaces already reuse the same bounded operator brief instead of inventing a second truth source.</p>
-          </article>
-          <article class="grid-card">
-            <h3>Read-only MCP node</h3>
-            <p>The current MCP surface is real and useful for structured control-plane reads, but it stays read-only and does not mutate runs, approvals, or queue state.</p>
-          </article>
-          <article class="grid-card">
-            <h3>Thin API and contract layers</h3>
-            <p>The frontend API client and contract package already provide a documented integration edge for dashboard, desktop, and future web consumers.</p>
-          </article>
-        </div>
-        <p class="caption">
-          This is the truthful “works today” layer for AI operator guidance, MCP inspection, and frontend API integration. It is not a hosted service and not a full SDK platform.
-        </p>
-      </section>
-
-      <section class="section">
-        <h2>Builder entrypoints</h2>
-        <div class="grid">
-          <article class="grid-card">
-            <h3>Frontend API client</h3>
-            <p>A thin client layer for dashboard, desktop, and web consumers that need runs, Workflow Cases, command-tower overviews, and PM intake routes.</p>
-            <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md">Open package README</a></p>
-          </article>
-          <article class="grid-card">
-            <h3>API contract surface</h3>
-            <p>Use the generated contract package when you want the current API-facing type boundary without importing backend modules directly.</p>
-            <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/docs/README.md">Open contract package guide</a></p>
-          </article>
-          <article class="grid-card">
-            <h3>Shared UI substrate</h3>
-            <p>Brand copy, locale helpers, status presentation, and frontend-only shared types already live in one place instead of staying trapped inside the dashboard or desktop shells.</p>
-            <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md">Open shared README</a></p>
-          </article>
-        </div>
-        <p class="caption">
-          Want the human-readable onboarding path? Start at the
-          <a href="./builders/">builder quickstart</a>.
-        </p>
-      </section>
-
-      <section class="section">
-        <h2>Use cases and share-ready assets</h2>
-        <div class="grid">
-          <article class="grid-card">
-            <h3>news_digest</h3>
-            <p>The release-proven first public baseline when you want the smallest proof-first run.</p>
-          </article>
-          <article class="grid-card">
-            <h3>topic_brief</h3>
-            <p>A bounded topic brief for search-backed evidence without widening scope.</p>
-          </article>
-          <article class="grid-card">
-            <h3>page_brief</h3>
-            <p>A browser-backed brief over one URL with a read-only Workflow Case wrapper.</p>
           </article>
         </div>
         <p class="caption">

@@ -71,15 +71,15 @@ finished consumer product.
   `Read-only MCP quickstart` and `API and contract quickstart` entry cards so
   operators can jump from the web control surface into the truthful public
   onboarding ladder before diving into package-level docs.
-- Home discovery now also surfaces a dedicated integrations/skills adoption
-  section, and the dashboard public-docs resolver treats `/integrations/` and
-  `/skills/` as first-class public docs routes so public-docs base overrides do
-  not strand those CTA links on app-local paths.
-- The same home adoption layer now also surfaces a compatibility matrix CTA,
-  and the dashboard public-docs resolver treats `/compatibility/` as a
-  first-class public docs route so teams can choose the right Codex / Claude
-  Code / OpenClaw / skills / builders ladder before they leave the operator
-  surface.
+- Home discovery now compresses the old ecosystem / integrations / AI surfaces /
+  builder sprawl into one adoption-path section so the dashboard front door
+  behaves more like a router than a wall of repeated summaries.
+- That same adoption layer now treats `/compatibility/` as the primary routing
+  decision and keeps `/integrations/`, `/skills/`, `/mcp/`, `/api/`, and
+  `/builders/` as the deeper branches once the job is clear.
+- The dashboard public-docs resolver still treats `/integrations/`,
+  `/skills/`, and `/compatibility/` as first-class public docs routes so
+  public-docs base overrides do not strand those CTA links on app-local paths.
 - The contract-facing builder card now points to the repo-owned
   `packages/frontend-api-contract/docs/README.md` guide instead of only the raw
   generated `.d.ts` surface, so builders get a human-readable package entrypoint

@@ -188,6 +188,13 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `apps/dashboard/lib/env.ts`, and the dashboard-home integration layer now
   pointing teams toward a compatibility ladder before they choose protocol,
   skills, builders, or proof-first onboarding
+- when a later polish wave compresses the public homepage or dashboard-home
+  discovery stack into a clearer route page, keep this file, `AGENTS.md`, and
+  the root/docs/dashboard entrypoints aligned in the same patch; current
+  examples include the homepage mini-nav, reduced hero CTA set,
+  compatibility-first routing, and the dashboard-home adoption layer
+  consolidating ecosystem / integrations / AI / builders into one smaller
+  decision surface
 - when the next Phase 2 wave deepens public `MCP` / `API` discoverability,
   keep this file, `AGENTS.md`, and the root/docs entrypoints aligned in the
   same patch; current examples include `docs/mcp/index.html`,

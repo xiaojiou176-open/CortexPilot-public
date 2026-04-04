@@ -21,6 +21,11 @@ to broader AI ops / platform teams. The front door should ride the heat around
 those ecosystems without pretending CortexPilot is already a hosted operator
 service.
 
+The public homepage now stays intentionally compressed: start with the first
+success path, use the compatibility matrix as the main router, and let the
+deeper MCP / integration / skills / builder pages carry the detailed
+explanations.
+
 The product name stays **CortexPilot**. If `cortexpilot.ai` is later claimed,
 treat it as a marketing/front-door domain, not as a product rename.
 

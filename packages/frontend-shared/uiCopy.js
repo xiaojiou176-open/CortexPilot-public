@@ -125,9 +125,9 @@ const UI_COPY = {
             href: "/ecosystem/",
           },
         ],
-        integrationTitle: "Integrations and skills adoption",
+        integrationTitle: "Choose the right adoption path",
         integrationDescription:
-          "Once the ecosystem fit is clear, the next question is practical adoption. This layer should answer how Codex, Claude Code, and adjacent tools use the repo truthfully without fake plugin claims.",
+          "Use the compatibility matrix as the front-door router, then open protocol, playbooks, packages, or AI surfaces only after the real job is clear.",
         integrationActionLabel: "Open compatibility matrix",
         integrationActionHref: "/compatibility/",
         integrationCards: [
@@ -867,9 +867,9 @@ const UI_COPY = {
             href: "/ecosystem/",
           },
         ],
-        integrationTitle: "集成与技能采用",
+        integrationTitle: "选择正确的采用路径",
         integrationDescription:
-          "当生态位置已经说清楚后，下一步就是采用路径。这里要回答的是 Codex、Claude Code 和相邻工具该怎么 truthfully 接入，而不是虚构 plugin 商店故事。",
+          "先把 compatibility matrix 当成前门路由层，再在真正任务已经明确后进入协议、playbook、package 或 AI 页面，而不是在首页一次性读完所有说明。",
         integrationActionLabel: "打开 compatibility matrix",
         integrationActionHref: "/compatibility/",
         integrationCards: [
