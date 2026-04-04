@@ -23,6 +23,10 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `README.md` instead of duplicating the list here
 - when dashboard dependency lock refreshes land, keep the app-local dashboard
   lockfile aligned with the root workspace lock updates and document the change
+- the current security-only dashboard lock refresh keeps `lodash-es@4.18.1`
+  pinned through the repo-owned override layer so `lighthouse@13.0.3` does not
+  drift back onto the vulnerable `lodash-es@4.17.23` transitive path, without
+  expanding this maintenance slice into a broader Lighthouse upgrade
 - when dashboard or desktop lock maintenance changes the shipped dependency
   contract, update the root docs entrypoints in the same patch so doc-sync and
   closeout gates describe the live state

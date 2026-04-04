@@ -8,6 +8,7 @@ overrides:
   basic-ftp: 5.2.0
   brace-expansion@5: 5.0.5
   cosmiconfig@7.1.0>yaml: 1.10.3
+  lodash-es: 4.18.1
   minimatch@3: 3.1.4
   minimatch@7: 7.4.8
   minimatch@9: 9.0.7
@@ -1617,8 +1618,8 @@ packages:
     resolution: {integrity: sha512-BASOg+YwO2C+346x3LZOeoovTIoTrRqEsqMa6fmfAV0P+U9mFr9NsyOEpiYvFjbc64NMrSswhV50WdXzdb/Z5A==}
     engines: {node: '>=4'}
 
-  axios@1.13.6:
-    resolution: {integrity: sha512-ChTCHMouEe2kn713WHbQGcuYrr6fXTBiu460OTwWrWob16g1bXn4vtz07Ope7ewMozJAnEquLk5lWQWtBig9DQ==}
+  axios@1.14.0:
+    resolution: {integrity: sha512-3Y8yrqLSwjuzpXuZ0oIYZ/XGgLwUIBU3uLvbcpb0pidD9ctpShJd43KSlEEkVQg6DS0G9NKyzOvBfUtDKEyHvQ==}
 
   b4a@1.8.0:
     resolution: {integrity: sha512-qRuSmNSkGQaHwNbM7J78Wwy+ghLEYF1zNrSeMxj4Kgw6y33O3mXcQ6Ie9fRvfU/YnxWkOchPXbaLb73TkIsfdg==}
@@ -1731,8 +1732,8 @@ packages:
     engines: {node: '>=12.13.0'}
     hasBin: true
 
-  chromedriver@147.0.0:
-    resolution: {integrity: sha512-/k7gBpbo6im5UnTUFSNRtHggcKThoxDMYsclYveNFxWyCgkjrPqWO/K+ZTZGSP5DCLmDTu9bzdNB3gDFz26PXA==}
+  chromedriver@147.0.1:
+    resolution: {integrity: sha512-bGmw/dtwI5VX5BwbK4Vlotl9Yfm+np/FV54GG6IAXJDZUdGVCa5ABM8NjHpPzRzoum6bAvGTpPOdDtMpxSvalg==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -2390,8 +2391,8 @@ packages:
     resolution: {integrity: sha512-NXYBzinNrblfraPGyrbPoD19C1h9lfI/1mzgWYvXUTe414Gz/X1FD2XBZSZM7rRTrMA8JL3OtAaGifrIKhQ5yQ==}
     engines: {node: '>= 12.0.0'}
 
-  lodash-es@4.17.23:
-    resolution: {integrity: sha512-kVI48u3PZr38HdYz98UmfPnXl2DXrpdctLrFLCd3kOx1xUkOmpFPx7gCWWM5MPkL/fD8zb+Ph0QzjGFs4+hHWg==}
+  lodash-es@4.18.1:
+    resolution: {integrity: sha512-J8xewKD/Gk22OZbhpOVSwcs60zhd95ESDwezOFuA3/099925PdHJ7OFHNTGtajL3AlZkykD32HykiMo+BIBI8A==}
 
   longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
@@ -3423,7 +3424,7 @@ snapshots:
     dependencies:
       '@axe-core/webdriverjs': 4.11.1(selenium-webdriver@4.22.0)
       axe-core: 4.10.3
-      chromedriver: 147.0.0
+      chromedriver: 147.0.1
       colors: 1.4.0
       commander: 9.5.0
       dotenv: 16.6.1
@@ -4744,11 +4745,11 @@ snapshots:
 
   axe-core@4.11.1: {}
 
-  axios@1.13.6:
+  axios@1.14.0:
     dependencies:
       follow-redirects: 1.15.11
       form-data: 4.0.5
-      proxy-from-env: 1.1.0
+      proxy-from-env: 2.1.0
     transitivePeerDependencies:
       - debug
 
@@ -4840,10 +4841,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  chromedriver@147.0.0:
+  chromedriver@147.0.1:
     dependencies:
       '@testim/chrome-version': 1.1.4
-      axios: 1.13.6
+      axios: 1.14.0
       compare-versions: 6.1.1
       extract-zip: 2.0.1
       proxy-agent: 6.5.0
@@ -5468,7 +5469,7 @@ snapshots:
       js-library-detector: 6.7.0
       lighthouse-logger: 2.0.2
       lighthouse-stack-packs: 1.12.3
-      lodash-es: 4.17.23
+      lodash-es: 4.18.1
       lookup-closest-locale: 6.2.0
       open: 8.4.2
       puppeteer-core: 24.40.0
@@ -5536,7 +5537,7 @@ snapshots:
       lightningcss-win32-arm64-msvc: 1.32.0
       lightningcss-win32-x64-msvc: 1.32.0
 
-  lodash-es@4.17.23: {}
+  lodash-es@4.18.1: {}
 
   longest-streak@3.1.0: {}
 

@@ -88,6 +88,11 @@ Work in CortexPilot as a contract-first engineering agent:
 - when dashboard dependency lock refreshes land, update
   `apps/dashboard/pnpm-lock.yaml` together with the root `package.json` /
   `pnpm-lock.yaml` change set and sync the dashboard-facing docs
+- the current security-only dashboard/root lock refresh keeps
+  `lodash-es@4.18.1` pinned through the repo-owned override layer so
+  `lighthouse@13.0.3` does not drift back onto the vulnerable
+  `lodash-es@4.17.23` transitive path, without forcing a broader Lighthouse
+  upgrade just to clear the tracked alerts
 - when dashboard or desktop transitive security fixes change the maintained
   lock surfaces, sync the root AI/docs entrypoints in the same change set so
   doc-sync gates stay aligned with the live maintenance contract
