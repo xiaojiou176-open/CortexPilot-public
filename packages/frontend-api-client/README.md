@@ -148,6 +148,8 @@ here:
 
 - [Integration guide](https://xiaojiou176-open.github.io/CortexPilot-public/integrations/)
 - [Compatibility matrix](https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/)
+- [Read-only MCP quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/mcp/)
+- [API quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/api/)
 - [Builder quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/)
 - [Contract package guide](../frontend-api-contract/docs/README.md)
 - [Skills quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/skills/)

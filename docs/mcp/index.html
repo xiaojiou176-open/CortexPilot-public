@@ -6,11 +6,11 @@
     <title>CortexPilot | Read-only MCP quickstart</title>
     <meta
       name="description"
-      content="Read-only MCP quickstart for CortexPilot: what the current Model Context Protocol surface exposes, how it stays truthful, and where the frozen write boundary remains."
+      content="Read-only MCP quickstart for CortexPilot: what the current Model Context Protocol surface exposes, who should use it first, and where the frozen write boundary remains."
     />
     <meta
       name="keywords"
-      content="CortexPilot, MCP, Model Context Protocol, read-only MCP, Codex MCP, Claude Code MCP, operator control plane"
+      content="CortexPilot, MCP, Model Context Protocol, read-only MCP, Codex MCP, Claude Code MCP, OpenClaw MCP, workflow inspection"
     />
     <link rel="canonical" href="https://xiaojiou176-open.github.io/CortexPilot-public/mcp/" />
     <meta property="og:title" content="CortexPilot | Read-only MCP quickstart" />
@@ -20,12 +20,14 @@
     />
     <meta property="og:url" content="https://xiaojiou176-open.github.io/CortexPilot-public/mcp/" />
     <meta property="og:type" content="article" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="CortexPilot | Read-only MCP quickstart" />
     <meta
       name="twitter:description"
-      content="Truthful read-only MCP quickstart for CortexPilot and the current frozen write boundary."
+      content="Truthful read-only MCP quickstart for CortexPilot, plus the current frozen write boundary."
     />
+    <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -35,84 +37,347 @@
         "description": "Truthful read-only MCP quickstart for CortexPilot across runs, Workflow Cases, approvals, compare, proof, and incident summaries."
       }
     </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is the current CortexPilot MCP surface read-only?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The current public MCP contract is read-only. It exposes machine-readable inspection over runs, Workflow Cases, approvals, compare, proof, and incident summaries without enabling write-capable mutation."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Who should open the MCP quickstart first?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Teams should start here when their first question is about protocol-level inspection, machine-readable workflow truth, or how external tools can safely read CortexPilot state before they touch API or builder packages."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this page imply write-capable MCP or hosted operator accounts?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The page explains the current read-only MCP contract only. It does not imply write-capable MCP, hosted operator accounts, or a replacement for the orchestration runtime."
+            }
+          }
+        ]
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4efe7;
+        --panel: #fffaf2;
+        --ink: #17232c;
+        --muted: #536370;
+        --line: rgba(23, 35, 44, 0.12);
+        --accent: #1f5d75;
+        --accent-soft: rgba(31, 93, 117, 0.1);
+        --warn: #92400e;
+        --warn-soft: rgba(146, 64, 14, 0.1);
+        --shadow: 0 22px 52px rgba(23, 35, 44, 0.1);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, rgba(31, 93, 117, 0.1), transparent 28%),
+          linear-gradient(180deg, #f8f3eb 0%, #efe6da 100%);
+        color: var(--ink);
+        font: 16px/1.65 "Inter", "Segoe UI", system-ui, sans-serif;
+      }
+
+      main {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 40px 20px 72px;
+      }
+
+      a { color: var(--accent); }
+      a:hover { color: #12485c; }
+
+      .hero,
+      .section,
+      .table-shell {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero,
+      .section {
+        padding: 28px;
+      }
+
+      .section { margin-top: 24px; }
+
+      .eyebrow,
+      .badge {
+        display: inline-flex;
+        width: fit-content;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .eyebrow {
+        background: rgba(23, 35, 44, 0.08);
+        color: var(--muted);
+      }
+
+      .badge.primary { background: var(--accent-soft); color: var(--accent); }
+      .badge.warn { background: var(--warn-soft); color: var(--warn); }
+
+      h1, h2, h3 { margin: 0; line-height: 1.15; }
+      h1 { font-size: clamp(2.4rem, 4.2vw, 3.9rem); max-width: 12ch; }
+      h2 { font-size: 1.7rem; margin-bottom: 12px; }
+      p, li, td { color: var(--muted); }
+      .lede { font-size: 1.08rem; max-width: 78ch; }
+
+      .mini-nav,
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 16px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .button.primary { background: var(--accent); color: white; }
+      .button.secondary {
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--ink);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: white;
+        padding: 18px;
+      }
+
+      .table-shell {
+        margin-top: 24px;
+        overflow: hidden;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        font-size: 13px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        background: rgba(23, 35, 44, 0.04);
+      }
+
+      tr:last-child td { border-bottom: none; }
+
+      code {
+        background: rgba(23, 35, 44, 0.06);
+        border-radius: 6px;
+        padding: 2px 6px;
+        font-family: "SFMono-Regular", Menlo, monospace;
+      }
+
+      pre {
+        overflow-x: auto;
+        padding: 16px;
+        border-radius: 18px;
+        background: #f1f5f8;
+      }
+    </style>
   </head>
   <body>
-    <main style="max-width:960px;margin:0 auto;padding:40px 20px;font:16px/1.7 system-ui,sans-serif;color:#17232c;">
-      <p>
-        <a href="../">Back to the public landing page</a>
-        · <a href="../compatibility/">Compatibility matrix</a>
-        · <a href="../ai-surfaces/">AI + MCP + API surfaces</a>
-        · <a href="../integrations/">Integration guide</a>
-        · <a href="../skills/">Skills quickstart</a>
-        · <a href="../api/">API and contract quickstart</a>
-        · <a href="../ecosystem/">Ecosystem map</a>
-      </p>
+    <main>
+      <section class="hero">
+        <span class="eyebrow">Read-only protocol quickstart</span>
+        <nav class="mini-nav" aria-label="Top navigation">
+          <a href="../">Back to the public landing page</a>
+          <a href="../compatibility/">Compatibility matrix</a>
+          <a href="../ai-surfaces/">AI + MCP + API surfaces</a>
+          <a href="../integrations/">Integration guide</a>
+          <a href="../skills/">Skills quickstart</a>
+          <a href="../api/">API and contract quickstart</a>
+          <a href="../builders/">Builder quickstart</a>
+        </nav>
+        <h1>Read-only MCP quickstart.</h1>
+        <p class="lede">
+          CortexPilot already exposes a real <strong>Model Context Protocol (MCP)</strong> surface, but the public contract is intentionally
+          <strong>read-only</strong>. This page exists so teams searching for MCP, Codex, Claude Code, or OpenClaw adoption paths can find the truthful protocol story quickly instead of guessing from source files.
+        </p>
+        <p class="lede">
+          Use this page when your first question is: <strong>“What can external tools safely inspect right now?”</strong>
+          If your first question is instead about package imports, builder bootstrap, or repo-owned skills, this page should route you to the better next click.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="#fast-adoption-path">Open the protocol path</a>
+          <a class="button secondary" href="../compatibility/">Open compatibility matrix</a>
+          <a class="button secondary" href="../api/">Open API quickstart</a>
+          <a class="button secondary" href="../integrations/">Open integration guide</a>
+          <a class="button secondary" href="../skills/">Open skills quickstart</a>
+        </div>
+      </section>
 
-      <h1>Read-only MCP quickstart</h1>
-      <p>
-        CortexPilot already exposes a real <strong>Model Context Protocol (MCP)</strong> surface, but the current contract is intentionally
-        <strong>read-only</strong>. This page exists so people searching for MCP, Codex, and Claude Code integrations can find the truthful
-        surface quickly instead of guessing from source files.
-      </p>
+      <section class="section">
+        <h2>What the current MCP surface is for</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="badge primary">Inspection</span>
+            <h3>Read workflow truth</h3>
+            <p>Inspect runs, Workflow Cases, approvals, compare outputs, proof packs, and incident summaries without mutating anything.</p>
+          </article>
+          <article class="card">
+            <span class="badge primary">Machine-readable</span>
+            <h3>Return structured JSON</h3>
+            <p>Expose a repo-owned protocol boundary that other tools and agents can consume safely instead of screen-scraping dashboard pages.</p>
+          </article>
+          <article class="card">
+            <span class="badge warn">Boundary</span>
+            <h3>Stay below execution authority</h3>
+            <p>Keep operator truth readable without inventing a second control plane, a hosted account layer, or write-capable MCP claims.</p>
+          </article>
+        </div>
+      </section>
 
-      <h2>What the current MCP surface is for</h2>
-      <ul>
-        <li>inspect runs, Workflow Cases, approvals, compare outputs, proof packs, and incident summaries</li>
-        <li>return structured JSON that other tools and agents can consume safely</li>
-        <li>keep operator truth readable without creating a second control plane</li>
-      </ul>
+      <section class="section" id="fast-adoption-path">
+        <h2>Fast adoption path</h2>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>My first question</th>
+                <th>Start here</th>
+                <th>Why</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>I need the shortest truthful protocol boundary</td>
+                <td>This page</td>
+                <td>Use MCP first when your team needs machine-readable inspection before packages or builder code.</td>
+              </tr>
+              <tr>
+                <td>I need the “which adoption ladder fits us?” answer</td>
+                <td><a href="../compatibility/">Compatibility matrix</a></td>
+                <td>Use it when the main question is whether you should start from MCP, skills, builders, or proof-first cases.</td>
+              </tr>
+              <tr>
+                <td>I also need HTTP, types, or a thin JS client</td>
+                <td><a href="../api/">API and contract quickstart</a></td>
+                <td>Use the API page when you want the route/type/client edge in addition to the protocol story.</td>
+              </tr>
+              <tr>
+                <td>I need repo-owned builder packages</td>
+                <td><a href="../builders/">Builder quickstart</a></td>
+                <td>Use it when you are ready to import package-level helpers rather than only understand the protocol boundary.</td>
+              </tr>
+              <tr>
+                <td>I need coding-agent team guidance</td>
+                <td><a href="../integrations/">Integration guide</a> and <a href="../skills/">skills quickstart</a></td>
+                <td>Use these when your real question is how a Codex / Claude Code / OpenClaw team should adopt the repo truthfully.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-      <h2>Fast adoption path</h2>
-      <ol>
-        <li>Use this page when you want the shortest truthful explanation of what the current MCP surface exposes.</li>
-        <li>Jump to the <a href="../compatibility/">compatibility matrix</a> if your team first needs the “which adoption ladder fits our stack?” answer.</li>
-        <li>Jump to the <a href="../api/">API and contract quickstart</a> when you also need OpenAPI, route/type boundaries, or the thin client package.</li>
-        <li>Jump to the <a href="../builders/">builder quickstart</a> when you are ready to import package-level helpers instead of only understanding the protocol boundary.</li>
-        <li>Jump to the <a href="../integrations/">integration guide</a> or the <a href="../skills/">skills quickstart</a> when your real question is how a coding-agent team should adopt this surface truthfully.</li>
-      </ol>
+      <section class="section">
+        <h2>Try the current server</h2>
+        <p>
+          The current server is a repo-owned <strong>stdio JSON-RPC</strong> node. Run it from the repo root when you want the shortest proof that the public MCP story is real:
+        </p>
+        <pre><code>PYTHONPATH=apps/orchestrator/src python3 -m cortexpilot_orch.cli mcp-readonly-server</code></pre>
+        <p>
+          Current tool set:
+          <code>list_runs</code>,
+          <code>get_run</code>,
+          <code>get_run_events</code>,
+          <code>get_run_reports</code>,
+          <code>list_workflows</code>,
+          <code>get_workflow</code>,
+          <code>list_queue</code>,
+          <code>get_pending_approvals</code>,
+          <code>get_diff_gate_state</code>,
+          <code>get_compare_summary</code>,
+          <code>get_proof_summary</code>,
+          and <code>get_incident_summary</code>.
+        </p>
+      </section>
 
-      <h2>Try the current server</h2>
-      <p>
-        The current server is a repo-owned <strong>stdio JSON-RPC</strong> node.
-        Run it from the repo root when you want the shortest proof that the
-        public MCP story is real:
-      </p>
-      <pre><code>PYTHONPATH=apps/orchestrator/src python3 -m cortexpilot_orch.cli mcp-readonly-server</code></pre>
-      <p>
-        Current tool set: <code>list_runs</code>, <code>get_run</code>,
-        <code>get_run_events</code>, <code>get_run_reports</code>,
-        <code>list_workflows</code>, <code>get_workflow</code>,
-        <code>list_queue</code>, <code>get_pending_approvals</code>,
-        <code>get_diff_gate_state</code>, <code>get_compare_summary</code>,
-        <code>get_proof_summary</code>, and <code>get_incident_summary</code>.
-      </p>
+      <section class="section">
+        <h2>What it does not do yet</h2>
+        <ul>
+          <li>no write-capable MCP mutations</li>
+          <li>no hosted operator account or managed login layer</li>
+          <li>no claim that MCP replaces the orchestration runtime itself</li>
+        </ul>
+      </section>
 
-      <h2>What it does not do yet</h2>
-      <ul>
-        <li>no write-capable MCP mutations</li>
-        <li>no hosted operator account or managed login layer</li>
-        <li>no claim that MCP replaces the orchestration runtime itself</li>
-      </ul>
+      <section class="section">
+        <h2>Why this matters for different audiences</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="badge primary">Codex</span>
+            <h3>Protocol-first inspection</h3>
+            <p>Useful when a Codex-facing workflow needs one machine-readable place to inspect workflow truth before promoting package or skills adoption.</p>
+          </article>
+          <article class="card">
+            <span class="badge primary">Claude Code</span>
+            <h3>MCP-compatible workflow context</h3>
+            <p>Useful when a Claude Code team wants the protocol layer to stay honest about what can be read today without implying write-enabled MCP.</p>
+          </article>
+          <article class="card">
+            <span class="badge primary">OpenClaw</span>
+            <h3>Adjacent protocol layer</h3>
+            <p>Useful as a read-oriented integration boundary around OpenClaw workflows, while plugin-ready wording stays separate from the current MCP story.</p>
+          </article>
+        </div>
+      </section>
 
-      <h2>Where to read the current contract</h2>
-      <ul>
-        <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/apps/orchestrator/src/cortexpilot_orch/mcp_readonly_server.py">read-only MCP server implementation</a></li>
-        <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/apps/orchestrator/README.md">orchestrator README</a></li>
-        <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/architecture/mcp-and-operator-copilot-v1.md">MCP architecture baseline</a></li>
-        <li><a href="../ai-surfaces/">AI + MCP + API surfaces</a> for the broader product map</li>
-      </ul>
-
-      <h2>Why this matters for Codex and Claude Code workflows</h2>
-      <p>
-        MCP is the connective tissue that lets external tools inspect workflow truth without granting them control they do not yet have. That is
-        useful for teams running Codex-style or Claude Code-style operator loops, because you can keep evidence readable without pretending the
-        system is already a write-enabled MCP platform.
-      </p>
-
-      <p>
-        Need the surrounding HTTP/package map as well? Pair this page with the <a href="../api/">API and contract quickstart</a> and the
-        <a href="../builders/">builder quickstart</a> so protocol readers and frontend builders stay on the same truthful boundary.
-      </p>
+      <section class="section">
+        <h2>Where to read the current contract</h2>
+        <ul>
+          <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/apps/orchestrator/src/cortexpilot_orch/mcp_readonly_server.py">read-only MCP server implementation</a></li>
+          <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/apps/orchestrator/README.md">orchestrator README</a></li>
+          <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/architecture/mcp-and-operator-copilot-v1.md">MCP architecture baseline</a></li>
+          <li><a href="../ai-surfaces/">AI + MCP + API surfaces</a> for the broader product map</li>
+        </ul>
+      </section>
     </main>
   </body>
 </html>
