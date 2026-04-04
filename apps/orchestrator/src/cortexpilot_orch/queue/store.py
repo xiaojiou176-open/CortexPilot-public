@@ -255,6 +255,7 @@ class QueueStore:
         view["eligible"] = eligible
         view["waiting_reason"] = next_wait_reason
         view["created_at"] = str(item.get("created_at") or item.get("ts") or "")
+        view["cancelled_at"] = str(item.get("cancelled_at") or "")
         if item.get("reason"):
             view["reason"] = str(item.get("reason") or "")
         if item.get("cancelled_by"):

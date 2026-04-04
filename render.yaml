@@ -3,7 +3,7 @@ services:
     name: cortexpilot-api
     runtime: python
     plan: free
-    buildCommand: python -m pip install --upgrade pip && python -m pip install -e apps/orchestrator
+    buildCommand: python -m pip install --upgrade pip && python -m pip install -r apps/orchestrator/requirements.txt && python -m pip install -e apps/orchestrator
     startCommand: PYTHONPATH=apps/orchestrator/src python -m cortexpilot_orch.cli serve --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
@@ -38,8 +38,6 @@ services:
     startCommand: corepack enable pnpm && pnpm --dir apps/dashboard exec next start -p $PORT -H 0.0.0.0
     envVars:
       - key: NEXT_PUBLIC_CORTEXPILOT_API_BASE
-        sync: false
-      - key: NEXT_PUBLIC_CORTEXPILOT_API_TOKEN
         sync: false
       - key: CORTEXPILOT_API_TOKEN
         sync: false

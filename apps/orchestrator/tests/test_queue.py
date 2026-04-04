@@ -288,6 +288,7 @@ def test_queue_store_cancel_branch_matrix(tmp_path: Path, monkeypatch: pytest.Mo
     assert cancelled["queue_id"] == "queue-second"
     assert cancelled["status"] == "CANCELLED"
     assert cancelled["queue_state"] == "closed"
+    assert cancelled["cancelled_at"]
     assert "reason" not in cancelled
     assert "cancelled_by" not in cancelled
 
@@ -328,9 +329,11 @@ def test_queue_store_preview_and_cancel_surface_preserves_reason_metadata(tmp_pa
     assert cancelled["status"] == "CANCELLED"
     assert cancelled["queue_state"] == "closed"
     assert cancelled["sla_state"] == "ended"
+    assert cancelled["cancelled_at"]
     assert cancelled["reason"] == "operator_request"
     assert cancelled["cancelled_by"] == "pm-1"
 
     items = {item["task_id"]: item for item in store.list_items()}
+    assert items["task-cancel"]["cancelled_at"]
     assert items["task-cancel"]["reason"] == "operator_request"
     assert items["task-cancel"]["cancelled_by"] == "pm-1"

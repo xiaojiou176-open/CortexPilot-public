@@ -268,12 +268,14 @@ def test_api_queue_preview_and_cancel_roundtrip(tmp_path: Path, monkeypatch) -> 
     cancel_payload = cancel.json()
     assert cancel_payload["status"] == "CANCELLED"
     assert cancel_payload["queue_state"] == "closed"
+    assert cancel_payload["cancelled_at"]
     assert cancel_payload["reason"] == "operator aborted pilot"
     assert cancel_payload["cancelled_by"] == "OWNER"
 
     queue_after = client.get("/api/queue", params={"workflow_id": "wf-queue"})
     assert queue_after.status_code == 200
     assert queue_after.json()[0]["status"] == "CANCELLED"
+    assert queue_after.json()[0]["cancelled_at"]
 
 
 def test_api_queue_rejects_naive_schedule_input(tmp_path: Path, monkeypatch) -> None:

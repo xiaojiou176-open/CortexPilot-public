@@ -56,7 +56,8 @@ Service intent:
 2. `cortexpilot-dashboard`
    - Node/Next.js web service
    - builds the repo-owned dashboard shell
-   - requires the API base URL and the operator token to be injected
+   - requires the public API base URL plus a server-side operator token for
+     dashboard-originated proxy requests
 
 ## Required environment contract
 
@@ -78,7 +79,6 @@ Service intent:
 ### Dashboard service
 
 - `NEXT_PUBLIC_CORTEXPILOT_API_BASE`
-- `NEXT_PUBLIC_CORTEXPILOT_API_TOKEN`
 - `CORTEXPILOT_API_TOKEN`
 
 ## Manual Render steps that still require a human
@@ -90,8 +90,10 @@ Service intent:
 5. Deploy once to obtain the public API URL.
 6. Copy that API URL into `NEXT_PUBLIC_CORTEXPILOT_API_BASE`.
 7. Set `CORTEXPILOT_API_ALLOWED_ORIGINS` to the dashboard URL.
-8. Re-deploy the dashboard so browser calls use the final API origin.
-9. If a custom domain is desired, configure DNS and validate it in Render.
+8. Keep `CORTEXPILOT_API_TOKEN` server-only; do not mirror it through any
+   `NEXT_PUBLIC_*` variable.
+9. Re-deploy the dashboard so browser calls use the final API origin.
+10. If a custom domain is desired, configure DNS and validate it in Render.
 
 ## Live verification checklist
 
@@ -120,4 +122,3 @@ Do not call this hosted-ready if any of these are still missing:
 - auth verification
 - support/security/privacy wording update
 - live smoke receipts
-
