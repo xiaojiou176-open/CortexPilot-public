@@ -52,7 +52,7 @@ const preview = await starter.previewRoleDefaults("WORKER", {
 });
 ```
 
-## External integration starter
+## Workspace integration starter
 
 Use `createControlPlaneStarter(...)` when another dashboard, desktop shell, or
 builder tool inside the same repo, a shared workspace, or a vendored internal
