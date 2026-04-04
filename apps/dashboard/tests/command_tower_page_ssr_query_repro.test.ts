@@ -9,7 +9,8 @@ describe("command tower page SSR query reproduction", () => {
     const source = fs.readFileSync(pagePath, "utf8");
 
     expect(source).toContain("safeLoad(() => fetchPmSessions({ limit: 40 })");
-    expect(source).toContain("export default function CommandTowerPage()");
+    expect(source).toContain("export default async function CommandTowerPage()");
+    expect(source).toContain("const cookieStore = await cookies()");
     expect(source).not.toContain("searchParams");
     expect(source).not.toContain("project_key");
     expect(source).not.toContain("status[]");
