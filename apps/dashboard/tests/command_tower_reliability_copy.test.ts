@@ -4,15 +4,15 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("command tower reliability copy", () => {
-  it("keeps the degraded live-overview callout wording in the page source", () => {
+  it("keeps the degraded live-overview callout wired through shared locale copy", () => {
     const pagePath = path.resolve(process.cwd(), "app/command-tower/page.tsx");
     const source = fs.readFileSync(pagePath, "utf8");
 
-    expect(source).toContain("Command Tower live overview is unavailable");
-    expect(source).toContain("Command Tower is running with partial truth");
-    expect(source).toContain("Partial context");
-    expect(source).toContain("Live data missing");
-    expect(source).toContain("Reload Command Tower");
-    expect(source).toContain("View runs");
+    expect(source).toContain("getUiCopy(locale).dashboard.commandTowerPage");
+    expect(source).toContain("commandTowerCopy.unavailableTitle");
+    expect(source).toContain("commandTowerCopy.partialTitle");
+    expect(source).toContain("commandTowerCopy.unavailableBadge");
+    expect(source).toContain("commandTowerCopy.partialBadge");
+    expect(source).toContain("commandTowerCopy.actions.viewRuns");
   });
 });
