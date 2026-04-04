@@ -3,6 +3,10 @@
 Shared frontend-only presentation helpers and types for the dashboard and
 desktop operator surfaces.
 
+Current package boundary: this package is still a `private` workspace package.
+The truthful adoption path today is repo-local consumption, clone-and-reuse,
+or vendored internal reuse, not registry install from npm.
+
 ## What lives here
 
 - `uiCopy`: shared brand, shell, operator, approval, and page-level copy
@@ -24,6 +28,7 @@ desktop operator surfaces.
   public SDK.
 - Public API contract types stay in `@cortexpilot/frontend-api-contract`.
 - Client entry points stay in `@cortexpilot/frontend-api-client`.
+- This package is not published for public registry install today.
 
 ## Human-readable entrypoints
 

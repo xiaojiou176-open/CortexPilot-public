@@ -3,6 +3,10 @@
 `@cortexpilot/frontend-api-contract` is the repo-owned contract package for
 frontend-safe CortexPilot route names, query shapes, and generated types.
 
+Current package boundary: this package is still a `private` workspace package.
+The truthful adoption path today is repo-local consumption, clone-and-reuse,
+or vendored internal reuse, not registry install from npm.
+
 ## What lives here
 
 - `index.d.ts`: stable root entrypoint that re-exports the generated contract
@@ -35,7 +39,7 @@ Use this package when you want:
 1. Start with the public [compatibility matrix](https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/) when your team still needs the shortest “which adoption ladder fits us?” answer.
 2. Continue to the public [API quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/api/) when you want the human-readable HTTP boundary.
 3. Continue to the public [builder quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/) when you want the package map.
-4. Import `@cortexpilot/frontend-api-contract` when you need generated route/query/type truth without backend imports.
+4. Import `@cortexpilot/frontend-api-contract` when you are working inside the same repo or a vendored workspace copy and need generated route/query/type truth without backend imports.
 
 ## Key entrypoints
 

@@ -243,6 +243,9 @@
         <p class="lede">
           If your team already understands the workflow and protocol boundary and now wants the shortest repo-owned package path, this page is the right next click.
         </p>
+        <p class="lede">
+          Current package boundary: the package names referenced here are still <strong>private workspace packages</strong>. External teams should treat the current adoption path as clone/workspace reuse or vendor copy until a real publish path exists.
+        </p>
         <div class="actions">
           <a class="button primary" href="#choose-the-shortest-builder-entry">Choose the shortest builder entry</a>
           <a class="button secondary" href="../api/">Open API quickstart</a>
@@ -266,17 +269,17 @@
               <tr>
                 <td><strong>Convenience client</strong></td>
                 <td><code>@cortexpilot/frontend-api-client</code></td>
-                <td>Use it when you want overview, runs, Workflow Cases, approvals, and bootstrap reads through one thin helper layer.</td>
+                <td>Use it when you are working inside a clone or shared workspace copy and want overview, runs, Workflow Cases, approvals, and bootstrap reads through one thin helper layer.</td>
               </tr>
               <tr>
                 <td><strong>Route/type boundary</strong></td>
                 <td><code>@cortexpilot/frontend-api-contract</code></td>
-                <td>Use it when your real need is generated contract-facing types without backend imports.</td>
+                <td>Use it when your real need is generated contract-facing types without backend imports inside the same repo or a vendored package copy.</td>
               </tr>
               <tr>
                 <td><strong>Shared presentation</strong></td>
                 <td><code>@cortexpilot/frontend-shared</code></td>
-                <td>Use it when you need repo-owned copy, locale, and status-presentation substrate for dashboard, desktop, and future web consumers.</td>
+                <td>Use it when you need repo-owned copy, locale, and status-presentation substrate for dashboard, desktop, and future web consumers inside the same workspace story.</td>
               </tr>
               <tr>
                 <td><strong>Protocol before packages</strong></td>
@@ -294,7 +297,7 @@
           <article class="card">
             <span class="badge primary">Client</span>
             <h3>Frontend API client</h3>
-            <p>Use the repo-owned client when you want convenience helpers for command-tower overview, runs, Workflow Cases, approvals, and role-config preview reads.</p>
+            <p>Use the repo-owned client when you are consuming CortexPilot from a clone or vendored workspace and want convenience helpers for command-tower overview, runs, Workflow Cases, approvals, and role-config preview reads.</p>
             <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md">Open package README</a></p>
           </article>
           <article class="card">
@@ -313,6 +316,11 @@
             <span class="badge warn">Boundary</span>
             <h3>Still repo-owned</h3>
             <p>These are real builder entrypoints, but they do not turn CortexPilot into a hosted SDK platform, marketplace artifact, or write-capable MCP product.</p>
+          </article>
+          <article class="card">
+            <span class="badge warn">Boundary</span>
+            <h3>Not registry-installable yet</h3>
+            <p>The current package names are still <code>private</code> workspace packages. Until a real publish happens, the truthful external path is clone/workspace reuse or vendor copy.</p>
           </article>
         </div>
       </section>
