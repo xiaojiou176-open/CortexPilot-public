@@ -251,6 +251,12 @@ Work in CortexPilot as a contract-first engineering agent:
   hero CTA set, compatibility-first routing, and the dashboard-home adoption
   layer consolidating ecosystem / integrations / AI / builders into one
   smaller decision surface
+- when a follow-up CTA polish slice changes that dashboard adoption layer
+  again, sync the root AI/docs entrypoints in the same patch; current examples
+  include keeping `/compatibility/` as the main routing card, restoring a
+  lighter `/use-cases/` proof-first side door, and updating the adoption-nav
+  accessibility label so the dashboard no longer advertises the old
+  integration-only action group
 - when the next Phase 2 wave deepens public `MCP` / `API` discoverability,
   sync the root AI/docs entrypoints in the same patch; current examples include
   `docs/mcp/index.html`, `docs/api/index.html`, the dashboard-home AI section

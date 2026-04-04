@@ -9,6 +9,10 @@ All notable changes to this repository will be documented in this file.
 - compressed the public homepage and dashboard-home discovery layer so the
   front door now behaves more like a route page: fewer competing hero actions,
   compatibility-first routing, and less repeated subpage summary copy
+- kept the dashboard follow-up truthful by turning the proof-first CTA into a
+  lighter `Use Cases` side door, removing the dead dashboard case-gallery
+  baseline copy, and syncing the dashboard/module/root docs so CI doc-sync
+  gates can trace the same adoption contract
 - added the homepage mini-nav plus tighter dashboard adoption-path routing so
   Codex / Claude Code / OpenClaw visitors can choose the right path without
   rereading the same MCP / builders / integrations story twice

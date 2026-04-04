@@ -79,10 +79,11 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getAllByRole("link", { name: /news_digest/i })[0]).toHaveAttribute("href", "/pm?template=news_digest");
     expect(screen.getByText("Proof state: official public baseline")).toBeInTheDocument();
     expect(screen.getByText("Choose the right adoption path")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open compatibility matrix" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open use-case guide" })).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/"
+      "https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/"
     );
+    expect(screen.queryByRole("link", { name: "Open compatibility matrix" })).not.toBeInTheDocument();
     expect(screen.getByText("Compatibility matrix").closest("a")).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/"
@@ -115,14 +116,12 @@ describe("dashboard home run-summary clarity", () => {
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/api/"
     );
-    expect(screen.getAllByText("Public case gallery baseline").length).toBeGreaterThan(0);
     expect(screen.getByText("Live Workflow Case gallery")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open Workflow Cases" })).toHaveAttribute("href", "/workflows");
     expect(screen.getByRole("link", { name: "Open use-case guide" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/"
     );
-    expect(screen.getByText("News digest gallery card")).toBeInTheDocument();
-    expect(screen.getByText("Primary report: news_digest_result.json")).toBeInTheDocument();
     expect(screen.getByText("Risk summary")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Governance entry: open runs" })).toHaveAttribute("href", "/runs");
     expect(screen.getByText("Stable: no recent failed runs (0%)")).toHaveClass("badge--success");
@@ -141,7 +140,6 @@ describe("dashboard home run-summary clarity", () => {
     expect(zh.publicTemplateCards).toHaveLength(en.publicTemplateCards.length);
     expect(zh.publicAdvantageCards).toHaveLength(en.publicAdvantageCards.length);
     expect(zh.integrationCards).toHaveLength(en.integrationCards.length);
-    expect(zh.caseGalleryBaselineCards).toHaveLength(en.caseGalleryBaselineCards.length);
     expect(zh.firstTaskGuideSteps).toHaveLength(en.firstTaskGuideSteps.length);
     expect(en.aiSurfacesActionHref).toBe("/ai-surfaces/");
     expect(en.publicTemplatesActionHref).toBe("/pm");
@@ -167,9 +165,9 @@ describe("dashboard home run-summary clarity", () => {
       "href",
       "https://docs.example/cortexpilot/builders/"
     );
-    expect(screen.getByRole("link", { name: "Open compatibility matrix" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open use-case guide" })).toHaveAttribute(
       "href",
-      "https://docs.example/cortexpilot/compatibility/"
+      "https://docs.example/cortexpilot/use-cases/"
     );
     expect(screen.getByText("Compatibility matrix").closest("a")).toHaveAttribute(
       "href",
@@ -190,10 +188,6 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByText("API and contract quickstart").closest("a")).toHaveAttribute(
       "href",
       "https://docs.example/cortexpilot/api/"
-    );
-    expect(screen.getByRole("link", { name: "Open use-case guide" })).toHaveAttribute(
-      "href",
-      "https://docs.example/cortexpilot/use-cases/"
     );
     expect(screen.getByRole("link", { name: "Open ecosystem map" })).toHaveAttribute(
       "href",
@@ -235,10 +229,11 @@ describe("dashboard home run-summary clarity", () => {
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/builders/"
     );
-    expect(screen.getByRole("link", { name: "打开 compatibility matrix" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "打开 use-case 指南" })).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/"
+      "https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/"
     );
+    expect(screen.queryByRole("link", { name: "打开 compatibility matrix" })).not.toBeInTheDocument();
     expect(screen.getByText("Compatibility matrix").closest("a")).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/"

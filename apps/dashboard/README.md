@@ -75,11 +75,17 @@ finished consumer product.
   builder sprawl into one adoption-path section so the dashboard front door
   behaves more like a router than a wall of repeated summaries.
 - That same adoption layer now treats `/compatibility/` as the primary routing
-  decision and keeps `/integrations/`, `/skills/`, `/mcp/`, `/api/`, and
-  `/builders/` as the deeper branches once the job is clear.
+  decision card, swaps the redundant compatibility action button for a lighter
+  `/use-cases/` proof-first CTA, and keeps `/integrations/`, `/skills/`,
+  `/mcp/`, `/api/`, and `/builders/` as the deeper branches once the job is
+  clear.
 - The dashboard public-docs resolver still treats `/integrations/`,
   `/skills/`, and `/compatibility/` as first-class public docs routes so
   public-docs base overrides do not strand those CTA links on app-local paths.
+- The same public-home polish keeps the explicit `Open use-case guide` side
+  door routed through the public-docs resolver, so the proof-first walkthrough
+  stays visible without turning the dashboard back into a second full routing
+  matrix.
 - The contract-facing builder card now points to the repo-owned
   `packages/frontend-api-contract/docs/README.md` guide instead of only the raw
   generated `.d.ts` surface, so builders get a human-readable package entrypoint
