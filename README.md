@@ -441,7 +441,8 @@ paired with the root `package.json` / `pnpm-lock.yaml` update.
 The current security-only refresh also pins `lodash-es@4.18.1` through the
 repo-owned override layer so `lighthouse@13.0.3` no longer resolves the
 vulnerable `lodash-es@4.17.23` path on either the root or dashboard lock
-surface.
+surface, which keeps the Dependabot follow-up narrow instead of turning it
+into a broader Lighthouse upgrade.
 Current lock maintenance also removes the optional dashboard `depcheck`
 dependency and pins patched `picomatch` / `brace-expansion` paths so GitHub
 security findings do not linger on an otherwise unused dependency chain.

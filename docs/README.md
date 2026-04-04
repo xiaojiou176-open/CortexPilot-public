@@ -135,7 +135,9 @@ navigation set.
 - the current security-only dashboard/root lock refresh keeps
   `lodash-es@4.18.1` pinned through the repo-owned override layer so the
   tracked `lighthouse@13.0.3` transitive path does not drift back to the
-  vulnerable `lodash-es@4.17.23` resolution on either maintained lock surface
+  vulnerable `lodash-es@4.17.23` resolution on either maintained lock surface,
+  which keeps the current security repair truthful without widening into a
+  general Lighthouse upgrade
 - when dashboard or desktop dependency maintenance changes the shipped build
   contract, sync the root docs entrypoints in the same patch; the current
   examples are the optional dashboard `depcheck` removal from the maintained
