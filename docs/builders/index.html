@@ -8,20 +8,26 @@
       name="description"
       content="Builder quickstart for CortexPilot: current client entrypoints, contract-facing types, and shared presentation substrate for dashboard and desktop consumers."
     />
+    <meta
+      name="keywords"
+      content="CortexPilot builder quickstart, frontend API client, frontend API contract, shared UI substrate, Codex builders, Claude Code builders, OpenClaw builders"
+    />
     <link rel="canonical" href="https://xiaojiou176-open.github.io/CortexPilot-public/builders/" />
     <meta property="og:title" content="CortexPilot | Builder quickstart" />
     <meta
       property="og:description"
       content="Builder quickstart for the current CortexPilot API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
     />
+    <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
     <meta property="og:url" content="https://xiaojiou176-open.github.io/CortexPilot-public/builders/" />
     <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="CortexPilot | Builder quickstart" />
     <meta
       name="twitter:description"
       content="Current builder entrypoints for the CortexPilot API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
     />
+    <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -29,6 +35,38 @@
         "headline": "CortexPilot builder quickstart",
         "url": "https://xiaojiou176-open.github.io/CortexPilot-public/builders/",
         "description": "Current builder entrypoints for the CortexPilot API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is the builder layer the same thing as a full SDK platform?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. CortexPilot already exposes useful builder entrypoints, but the public builder story remains a thin client, contract package, and shared frontend substrate rather than a full SDK platform."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Who should open the builder quickstart first?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Open the builder quickstart when your team already knows it wants package-level adoption. If the team still needs a protocol or compatibility decision first, start with the read-only MCP quickstart or the compatibility matrix."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are queue preview and role-config apply part of the default external builder contract?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Those helpers remain guarded operator-only add-ons for trusted repo maintainers and do not change the public MCP or hosted-product boundary."
+            }
+          }
+        ]
       }
     </script>
   </head>
@@ -174,6 +212,13 @@ const preview = await starter.previewRoleDefaults("WORKER", {
         <a href="../ai-surfaces/">AI + MCP + API surface guide</a>, or the
         <a href="../use-cases/">use-case guide</a>.
       </p>
+
+      <h2>FAQ</h2>
+      <ul>
+        <li><strong>Is this the same thing as a full SDK platform?</strong> No. The current builder layer is a useful package edge, not a promise that every runtime or mutation path is packaged as a public SDK.</li>
+        <li><strong>Should builders start here or with MCP/API?</strong> Start here when package-level adoption is the real task. Start with MCP or API when you still need the protocol or HTTP contract boundary first.</li>
+        <li><strong>Do queue preview or role-config apply change the public builder promise?</strong> No. They remain trusted repo-operator helpers outside the default external builder ladder.</li>
+      </ul>
     </main>
   </body>
 </html>

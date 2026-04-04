@@ -18,14 +18,16 @@
       property="og:description"
       content="Read-only MCP quickstart for CortexPilot across runs, Workflow Cases, approvals, compare, proof, and incident summaries."
     />
+    <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
     <meta property="og:url" content="https://xiaojiou176-open.github.io/CortexPilot-public/mcp/" />
     <meta property="og:type" content="article" />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="CortexPilot | Read-only MCP quickstart" />
     <meta
       name="twitter:description"
       content="Truthful read-only MCP quickstart for CortexPilot and the current frozen write boundary."
     />
+    <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -33,6 +35,38 @@
         "headline": "CortexPilot read-only MCP quickstart",
         "url": "https://xiaojiou176-open.github.io/CortexPilot-public/mcp/",
         "description": "Truthful read-only MCP quickstart for CortexPilot across runs, Workflow Cases, approvals, compare, proof, and incident summaries."
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does CortexPilot ship a real MCP surface today?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. CortexPilot ships a real read-only MCP surface for runs, Workflow Cases, approvals, compare, proof, and incident summaries."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is the current MCP contract write-capable?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The public MCP contract remains read-only. Guarded queue or operator mutation groundwork does not change that public promise."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Who should open this page first?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Open this page first when your team wants the shortest truthful explanation of CortexPilot's current MCP boundary before deciding between API, builder, skills, or proof-first adoption paths."
+            }
+          }
+        ]
       }
     </script>
   </head>
@@ -113,6 +147,13 @@
         Need the surrounding HTTP/package map as well? Pair this page with the <a href="../api/">API and contract quickstart</a> and the
         <a href="../builders/">builder quickstart</a> so protocol readers and frontend builders stay on the same truthful boundary.
       </p>
+
+      <h2>FAQ</h2>
+      <ul>
+        <li><strong>Is this a real MCP server?</strong> Yes. The current public contract is read-only, but the server surface itself is real and runnable from the repo.</li>
+        <li><strong>Does MCP support writes?</strong> No. The public promise remains read-only even though guarded queue/operator mutation groundwork exists elsewhere in the repo.</li>
+        <li><strong>Should teams start here or with API/package docs?</strong> Start here when protocol inspection is the first job; move to API or builder docs when package or HTTP integration becomes the real next step.</li>
+      </ul>
     </main>
   </body>
 </html>

@@ -18,14 +18,16 @@
       property="og:description"
       content="API and contract quickstart for CortexPilot across OpenAPI, thin frontend API helpers, and contract-facing types."
     />
+    <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
     <meta property="og:url" content="https://xiaojiou176-open.github.io/CortexPilot-public/api/" />
     <meta property="og:type" content="article" />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="CortexPilot | API and contract quickstart" />
     <meta
       name="twitter:description"
       content="OpenAPI, frontend API client, and contract-facing type quickstart for CortexPilot."
     />
+    <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -33,6 +35,38 @@
         "headline": "CortexPilot API and contract quickstart",
         "url": "https://xiaojiou176-open.github.io/CortexPilot-public/api/",
         "description": "API and contract quickstart for CortexPilot across OpenAPI, thin frontend API helpers, and contract-facing types."
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is this a full SDK platform?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. CortexPilot already exposes a useful API and contract edge, but the public builder story remains a thin client, contract, and shared presentation substrate rather than a full SDK platform."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Should a new team start with API or MCP?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Start with MCP when protocol inspection is the first job. Start with API and builder docs when the team already knows it needs HTTP routes, package imports, or frontend integration helpers."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are role config and queue routes part of the default public builder promise?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Those routes are guarded operator-only add-ons and do not upgrade the public story into hosted mutation, public write-capable MCP, or a full SDK platform."
+            }
+          }
+        ]
       }
     </script>
   </head>
@@ -136,6 +170,13 @@
         want a trusted repo-operator flow to persist repo-owned role defaults
         through the same starter path.
       </p>
+
+      <h2>FAQ</h2>
+      <ul>
+        <li><strong>Is this a full SDK?</strong> No. It is a truthful API and contract quickstart over the current thin client, generated contract package, and shared frontend substrate.</li>
+        <li><strong>Should I start here or with MCP?</strong> Start here when HTTP and package integration is your first task; start with MCP when protocol inspection is the first task.</li>
+        <li><strong>Do guarded operator routes change the public promise?</strong> No. Queue preview/cancel and role-config preview/apply remain guarded operator routes outside the default external builder promise.</li>
+      </ul>
     </main>
   </body>
 </html>
