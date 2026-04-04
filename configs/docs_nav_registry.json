@@ -156,6 +156,15 @@
       "listed_in_primary_navigation": true
     },
     {
+      "path": "docs/compatibility/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
       "path": "docs/use-cases/index.html",
       "kind": "entrypoint",
       "status": "active",

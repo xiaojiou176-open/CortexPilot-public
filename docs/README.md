@@ -28,18 +28,19 @@ These are the active registered docs that stay in the primary docs navigation.
 
 1. [index.html](index.html)
 2. [ecosystem/index.html](ecosystem/index.html)
-3. [use-cases/index.html](use-cases/index.html)
-4. [ai-surfaces/index.html](ai-surfaces/index.html)
-5. [integrations/index.html](integrations/index.html)
-6. [skills/index.html](skills/index.html)
-7. [mcp/index.html](mcp/index.html)
-8. [api/index.html](api/index.html)
-9. [builders/index.html](builders/index.html)
-10. [architecture/runtime-topology.md](architecture/runtime-topology.md)
-11. [specs/00_SPEC.md](specs/00_SPEC.md)
-12. [runbooks/onboarding-30min.md](runbooks/onboarding-30min.md)
-13. [runbooks/space-governance.md](runbooks/space-governance.md)
-14. [architecture/mcp-and-operator-copilot-v1.md](architecture/mcp-and-operator-copilot-v1.md)
+3. [compatibility/index.html](compatibility/index.html)
+4. [use-cases/index.html](use-cases/index.html)
+5. [ai-surfaces/index.html](ai-surfaces/index.html)
+6. [integrations/index.html](integrations/index.html)
+7. [skills/index.html](skills/index.html)
+8. [mcp/index.html](mcp/index.html)
+9. [api/index.html](api/index.html)
+10. [builders/index.html](builders/index.html)
+11. [architecture/runtime-topology.md](architecture/runtime-topology.md)
+12. [specs/00_SPEC.md](specs/00_SPEC.md)
+13. [runbooks/onboarding-30min.md](runbooks/onboarding-30min.md)
+14. [runbooks/space-governance.md](runbooks/space-governance.md)
+15. [architecture/mcp-and-operator-copilot-v1.md](architecture/mcp-and-operator-copilot-v1.md)
 
 ## Supplemental Registered Docs
 
@@ -75,6 +76,7 @@ navigation set.
 - `docs/runbooks/render-hosted-operator-pilot.md`: repo-side Git-backed hosted operator blueprint for future guarded Render pilots; use it to stage env/health/rollback/support/security requirements without implying a live hosted service
 - `docs/builders/index.html`: public builder quickstart hub for current client/contract/shared entrypoints, including the repo-owned control-plane starter path and its runnable local example
 - `docs/ecosystem/index.html`: public ecosystem positioning page for Codex / Claude Code / MCP plus adjacent comparison layers
+- `docs/compatibility/index.html`: public adoption matrix for choosing between Codex / Claude Code / OpenClaw / skills / builders / proof-first onboarding paths
 - `docs/use-cases/index.html`: public first-run, proof, and share-ready asset guide
 - `docs/ai-surfaces/index.html`: public AI operator / read-only MCP / API entrypoint map for truthful discoverability
 - `docs/mcp/index.html`: public read-only MCP quickstart page for truthful protocol discovery

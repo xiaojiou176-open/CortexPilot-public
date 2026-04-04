@@ -110,7 +110,7 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   integrations section in `apps/dashboard/components/DashboardHomeStorySections.tsx`,
   and the docs-base resolver now honoring `/integrations/` and `/skills/`
 - when a later Phase 2 wave adds dedicated public sub-entrypoints (for example
-  `/ecosystem/`, `/builders/`, `/use-cases/`) or moves additional dashboard home
+  `/ecosystem/`, `/builders/`, `/use-cases/`, `/compatibility/`) or moves additional dashboard home
   hero/ecosystem/AI/builder copy into the shared locale substrate, sync the
   root AI/docs entrypoints in the same patch so doc-sync gates can trace the
   new discoverability surfaces without guessing
@@ -150,11 +150,12 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
 - when a front-door discoverability wave adds or reprioritizes public
   integration/skills/SEO entrypoints, keep this file, `AGENTS.md`, and the
   root/docs entrypoints aligned in the same patch; current examples include
-  `docs/integrations/index.html`, `docs/skills/index.html`, `docs/robots.txt`,
-  `docs/sitemap.xml`, the docs-navigation registry move that now treats
-  ecosystem/use-cases/AI/MCP/API/builders as primary public entrypoints, and
-  the skills quickstart CTA shift toward in-page adoption/maintainer anchors
-  instead of a dead public-repo tree link
+  `docs/integrations/index.html`, `docs/compatibility/index.html`,
+  `docs/skills/index.html`, `docs/robots.txt`, `docs/sitemap.xml`, the
+  docs-navigation registry move that now treats
+  ecosystem/use-cases/AI/MCP/API/builders/compatibility as primary public
+  entrypoints, and the skills quickstart CTA shift toward in-page
+  adoption/maintainer anchors instead of a dead public-repo tree link
 - when dashboard route-level discoverability or Workflow Case list locale
   coverage changes, keep this file, `AGENTS.md`, and the root/docs entrypoints
   aligned in the same patch; current examples include route metadata on
@@ -175,6 +176,14 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   regression coverage, and the repo-owned
   `packages/frontend-api-contract/docs/README.md` guide that now sits between
   the public API quickstart and the raw generated `.d.ts` files
+- when a later discoverability wave adds a public compatibility/adoption
+  matrix, keep this file, `AGENTS.md`, and the root/docs/dashboard entrypoints
+  aligned in the same patch; current examples include
+  `docs/compatibility/index.html`, `configs/docs_nav_registry.json`,
+  `docs/sitemap.xml`, the dashboard public-docs allowlist in
+  `apps/dashboard/lib/env.ts`, and the dashboard-home integration layer now
+  pointing teams toward a compatibility ladder before they choose protocol,
+  skills, builders, or proof-first onboarding
 - when the next Phase 2 wave deepens public `MCP` / `API` discoverability,
   keep this file, `AGENTS.md`, and the root/docs entrypoints aligned in the
   same patch; current examples include `docs/mcp/index.html`,

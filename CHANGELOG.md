@@ -6,6 +6,13 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- opened Extreme Polish Wave 3 by adding a public compatibility matrix for
+  Codex / Claude Code / OpenClaw / skills / builders / proof-first onboarding,
+  wiring that adoption ladder through the GitHub Pages landing page,
+  integration/skills/ecosystem/API/MCP/builder docs, the docs navigation
+  registry and sitemap, dashboard home discoverability, package-facing human
+  entrypoints, and the root AI guidance so teams can choose the right truthful
+  path without fake plugin or marketplace claims
 - opened Extreme Polish Wave 1 by adding truthful public `integrations` and
   `skills` entrypoints plus `robots.txt` / `sitemap.xml`, promoting the
   ecosystem/use-cases/AI/MCP/API/builder ladder into primary docs navigation,

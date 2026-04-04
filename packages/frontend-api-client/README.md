@@ -147,6 +147,7 @@ repo's truthful public explanation before you read the package internals, start
 here:
 
 - [Integration guide](https://xiaojiou176-open.github.io/CortexPilot-public/integrations/)
+- [Compatibility matrix](https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/)
 - [Builder quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/)
 - [Contract package guide](../frontend-api-contract/docs/README.md)
 - [Skills quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/skills/)

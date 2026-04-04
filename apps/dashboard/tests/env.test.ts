@@ -96,6 +96,7 @@ describe("dashboard env helpers", () => {
 
     expect(resolveDashboardPublicDocsBaseUrl()).toBe("https://docs.example/cortexpilot");
     expect(resolveDashboardPublicDocsHref("/builders/")).toBe("https://docs.example/cortexpilot/builders/");
+    expect(resolveDashboardPublicDocsHref("/compatibility/")).toBe("https://docs.example/cortexpilot/compatibility/");
     expect(resolveDashboardPublicDocsHref("/integrations/")).toBe("https://docs.example/cortexpilot/integrations/");
     expect(resolveDashboardPublicDocsHref("/skills/")).toBe("https://docs.example/cortexpilot/skills/");
   });

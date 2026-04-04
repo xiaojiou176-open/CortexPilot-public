@@ -32,9 +32,10 @@ Use this package when you want:
 
 ## Shortest truthful onboarding order
 
-1. Start with the public [API quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/api/) when you want the human-readable HTTP boundary.
-2. Continue to the public [builder quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/) when you want the package map.
-3. Import `@cortexpilot/frontend-api-contract` when you need generated route/query/type truth without backend imports.
+1. Start with the public [compatibility matrix](https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/) when your team still needs the shortest “which adoption ladder fits us?” answer.
+2. Continue to the public [API quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/api/) when you want the human-readable HTTP boundary.
+3. Continue to the public [builder quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/) when you want the package map.
+4. Import `@cortexpilot/frontend-api-contract` when you need generated route/query/type truth without backend imports.
 
 ## Key entrypoints
 

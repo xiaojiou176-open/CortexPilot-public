@@ -75,6 +75,11 @@ finished consumer product.
   section, and the dashboard public-docs resolver treats `/integrations/` and
   `/skills/` as first-class public docs routes so public-docs base overrides do
   not strand those CTA links on app-local paths.
+- The same home adoption layer now also surfaces a compatibility matrix CTA,
+  and the dashboard public-docs resolver treats `/compatibility/` as a
+  first-class public docs route so teams can choose the right Codex / Claude
+  Code / OpenClaw / skills / builders ladder before they leave the operator
+  surface.
 - The contract-facing builder card now points to the repo-owned
   `packages/frontend-api-contract/docs/README.md` guide instead of only the raw
   generated `.d.ts` surface, so builders get a human-readable package entrypoint
