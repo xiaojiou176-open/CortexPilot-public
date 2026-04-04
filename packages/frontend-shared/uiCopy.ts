@@ -977,13 +977,19 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         integrationTitle: "Integrations and skills adoption",
         integrationDescription:
           "Once the ecosystem fit is clear, the next question is practical adoption. This layer should answer how Codex, Claude Code, and adjacent tools use the repo truthfully without fake plugin claims.",
-        integrationActionLabel: "Open integration guide",
-        integrationActionHref: "/integrations/",
+        integrationActionLabel: "Open compatibility matrix",
+        integrationActionHref: "/compatibility/",
         integrationCards: [
+          {
+            badge: "Decision layer",
+            title: "Compatibility matrix",
+            desc: "Use one routing page to compare Codex, Claude Code, OpenClaw, read-only MCP, skills, and builder entrypoints before you choose a deeper path.",
+            href: "/compatibility/",
+          },
           {
             badge: "Truthful adoption map",
             title: "Integration guide",
-            desc: "Use the integration guide when you need the shortest truthful answer for Codex, Claude Code, and OpenClaw positioning.",
+            desc: "Use the integration guide when you need the deeper truthful answer for Codex, Claude Code, and OpenClaw positioning.",
             href: "/integrations/",
           },
           {
@@ -991,12 +997,6 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
             title: "Skills quickstart",
             desc: "Use the skills guide when your team needs repeatable playbooks instead of guessing from the `.agents/skills/` tree.",
             href: "/skills/",
-          },
-          {
-            badge: "Compatibility boundary",
-            title: "OpenClaw stays adjacent",
-            desc: "OpenClaw can stay bundle-compatible and review-oriented without being inflated into a first-class official plugin claim.",
-            href: "/integrations/",
           },
         ],
         aiSurfacesTitle: "AI surfaces in the real workflow",
@@ -2057,13 +2057,19 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         integrationTitle: "集成与技能采用",
         integrationDescription:
           "当生态位置已经说清楚后，下一步就是采用路径。这里要回答的是 Codex、Claude Code 和相邻工具该怎么 truthfully 接入，而不是虚构 plugin 商店故事。",
-        integrationActionLabel: "打开 integration guide",
-        integrationActionHref: "/integrations/",
+        integrationActionLabel: "打开 compatibility matrix",
+        integrationActionHref: "/compatibility/",
         integrationCards: [
+          {
+            badge: "决策入口",
+            title: "Compatibility matrix",
+            desc: "如果你想先用一页看懂 Codex、Claude Code、OpenClaw、只读 MCP、skills 和 builder 入口的关系，就从这里开始。",
+            href: "/compatibility/",
+          },
           {
             badge: "真实采用地图",
             title: "Integration guide",
-            desc: "如果你要最短、最真实地理解 Codex、Claude Code 和 OpenClaw 的定位边界，就从这里开始。",
+            desc: "如果你需要更深入地理解 Codex、Claude Code 和 OpenClaw 的定位边界，而不是只看路由摘要，就看这里。",
             href: "/integrations/",
           },
           {
@@ -2071,12 +2077,6 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
             title: "Skills quickstart",
             desc: "如果你的团队需要可复用的 agent playbook，而不是自己从 `.agents/skills/` 猜规则，就从这里开始。",
             href: "/skills/",
-          },
-          {
-            badge: "兼容边界",
-            title: "OpenClaw 保持相邻层",
-            desc: "OpenClaw 可以维持 bundle-compatible 和 review-oriented 的位置，但不应该被夸大成 first-class official plugin。",
-            href: "/integrations/",
           },
         ],
         aiSurfacesTitle: "AI 功能已经进入主工作流",

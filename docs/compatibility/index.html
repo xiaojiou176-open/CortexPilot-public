@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CortexPilot | Compatibility matrix for Codex, Claude Code, OpenClaw, MCP, and skills</title>
+    <meta
+      name="description"
+      content="Compatibility matrix for CortexPilot across Codex, Claude Code, OpenClaw, read-only MCP, repo-owned skills, builder packages, Workflow Cases, and truthful plugin boundaries."
+    />
+    <meta
+      name="keywords"
+      content="CortexPilot, compatibility matrix, Codex, Claude Code, OpenClaw, MCP, skills, plugin boundary, Workflow Cases, Proof and Replay"
+    />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/" />
+    <meta
+      property="og:title"
+      content="CortexPilot | Compatibility matrix for Codex, Claude Code, OpenClaw, MCP, and skills"
+    />
+    <meta
+      property="og:description"
+      content="One truthful map for how Codex, Claude Code, OpenClaw, read-only MCP, repo-owned skills, and builder packages fit into CortexPilot today."
+    />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/" />
+    <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="CortexPilot | Compatibility matrix for Codex, Claude Code, OpenClaw, MCP, and skills"
+    />
+    <meta
+      name="twitter:description"
+      content="One truthful map for how Codex, Claude Code, OpenClaw, read-only MCP, repo-owned skills, and builder packages fit into CortexPilot today."
+    />
+    <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "CortexPilot compatibility matrix for Codex, Claude Code, OpenClaw, MCP, and skills",
+        "url": "https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/",
+        "description": "Truthful compatibility matrix for Codex, Claude Code, OpenClaw, read-only MCP, repo-owned skills, builder packages, Workflow Cases, and Proof & Replay."
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is CortexPilot an official Codex or Claude Code plugin?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The truthful story today is governed workflow compatibility through read-only MCP, repo-owned skills, Workflow Cases, Proof & Replay, and builder packages."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does OpenClaw have first-class native support in CortexPilot today?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. OpenClaw stays in the adjacent coding-agent layer unless a mapped bundle or native plugin path is explicitly shipped and tested."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is the shipped MCP surface write-capable?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The current public MCP contract is read-only. Queue and operator mutation groundwork stays guarded and outside the public promise."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What should a new team open first?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Choose the first path based on the job: read-only MCP for protocol inspection, skills quickstart for repeatable playbooks, builder quickstart for package adoption, or use cases for the first proof-first run."
+            }
+          }
+        ]
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f0e8;
+        --panel: #fffaf4;
+        --ink: #17232c;
+        --muted: #52616d;
+        --line: rgba(23, 35, 44, 0.12);
+        --accent: #8b4513;
+        --accent-soft: rgba(139, 69, 19, 0.1);
+        --accent-alt: #155e75;
+        --accent-alt-soft: rgba(21, 94, 117, 0.1);
+        --warn: #92400e;
+        --warn-soft: rgba(146, 64, 14, 0.1);
+        --shadow: 0 24px 60px rgba(23, 35, 44, 0.1);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, rgba(139, 69, 19, 0.1), transparent 28%),
+          radial-gradient(circle at top right, rgba(21, 94, 117, 0.1), transparent 24%),
+          linear-gradient(180deg, #f8f3eb 0%, #efe6da 100%);
+        color: var(--ink);
+        font: 16px/1.65 "Inter", "Segoe UI", system-ui, sans-serif;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 40px 20px 72px;
+      }
+
+      a { color: var(--accent-alt); }
+      a:hover { color: #0f4d60; }
+
+      .hero,
+      .section,
+      .table-shell {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero,
+      .section {
+        padding: 28px;
+      }
+
+      .section {
+        margin-top: 24px;
+      }
+
+      .eyebrow,
+      .badge {
+        display: inline-flex;
+        width: fit-content;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .eyebrow {
+        background: rgba(23, 35, 44, 0.08);
+        color: var(--muted);
+      }
+
+      .badge.primary { background: var(--accent-soft); color: var(--accent); }
+      .badge.protocol { background: var(--accent-alt-soft); color: var(--accent-alt); }
+      .badge.warn { background: var(--warn-soft); color: var(--warn); }
+
+      h1, h2, h3 {
+        margin: 0;
+        line-height: 1.15;
+      }
+
+      h1 {
+        font-size: clamp(2.4rem, 4.3vw, 4.1rem);
+        max-width: 12ch;
+      }
+
+      h2 {
+        font-size: 1.7rem;
+        margin-bottom: 12px;
+      }
+
+      p, li, td { color: var(--muted); }
+      .lede { font-size: 1.08rem; max-width: 78ch; }
+      .actions, .mini-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 16px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .button.primary { background: var(--accent); color: white; }
+      .button.secondary {
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--ink);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: white;
+        padding: 18px;
+      }
+
+      .table-shell {
+        margin-top: 24px;
+        overflow: hidden;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        font-size: 13px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        background: rgba(23, 35, 44, 0.04);
+      }
+
+      tr:last-child td { border-bottom: none; }
+
+      code {
+        background: rgba(23, 35, 44, 0.06);
+        border-radius: 6px;
+        padding: 2px 6px;
+        font-family: "SFMono-Regular", Menlo, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <span class="eyebrow">Compatibility and adoption ladder</span>
+        <nav class="mini-nav" aria-label="Top navigation">
+          <a href="../">Back to the public landing page</a>
+          <a href="../integrations/">Integration guide</a>
+          <a href="../skills/">Skills quickstart</a>
+          <a href="../builders/">Builder quickstart</a>
+          <a href="../mcp/">Read-only MCP quickstart</a>
+        </nav>
+        <h1>One truthful compatibility matrix for modern coding-agent teams.</h1>
+        <p class="lede">
+          CortexPilot already fits real <strong>Codex</strong> and <strong>Claude Code</strong>
+          workflows, and it can still sit next to adjacent tools such as
+          <strong>OpenClaw</strong> without inventing fake plugin claims. This page exists so a team can answer
+          one practical question fast: <strong>what works today, what should we open first, and what should we not overclaim?</strong>
+        </p>
+        <p class="lede">
+          The shortest honest story is: <strong>Command Tower</strong>,
+          <strong>Workflow Cases</strong>, <strong>Proof &amp; Replay</strong>,
+          <strong>read-only MCP</strong>, <strong>repo-owned skills</strong>,
+          and <strong>builder packages</strong>. The current public boundary is
+          still not a hosted operator product and still not a write-capable MCP story.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="#compatibility-matrix">Open the compatibility matrix</a>
+          <a class="button secondary" href="../use-cases/">See the first proof-first run</a>
+          <a class="button secondary" href="../ai-surfaces/">See AI + MCP + API surfaces</a>
+          <a class="button secondary" href="../ecosystem/">See the ecosystem map</a>
+        </div>
+      </section>
+
+      <section class="section" id="compatibility-matrix">
+        <h2>The shortest compatibility matrix</h2>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Surface</th>
+                <th>Codex</th>
+                <th>Claude Code</th>
+                <th>OpenClaw</th>
+                <th>Truthful boundary</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Command Tower + Workflow Cases</strong></td>
+                <td>Primary workflow fit</td>
+                <td>Primary workflow fit</td>
+                <td>Adjacent review surface only</td>
+                <td>Use these as the shared operating record. Do not turn them into hosted-team-account claims.</td>
+              </tr>
+              <tr>
+                <td><strong>Proof &amp; Replay</strong></td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>Yes, if explicitly mapped through the same review loop</td>
+                <td>Proof and compare are real today. They do not imply a broader plugin marketplace.</td>
+              </tr>
+              <tr>
+                <td><strong>Read-only MCP</strong></td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>Yes, as a read-oriented protocol layer</td>
+                <td>The shipped public MCP contract is read-only only.</td>
+              </tr>
+              <tr>
+                <td><strong>Repo-owned skills</strong></td>
+                <td>Direct fit</td>
+                <td>Direct fit</td>
+                <td>Adaptation layer</td>
+                <td>Skills are repo-owned playbooks, not official plugin listings.</td>
+              </tr>
+              <tr>
+                <td><strong>Builder packages</strong></td>
+                <td>Thin client + contract + shared substrate</td>
+                <td>Thin client + contract + shared substrate</td>
+                <td>Usable when explicitly mapped</td>
+                <td>Useful package entrypoints today, but not a full SDK platform.</td>
+              </tr>
+              <tr>
+                <td><strong>Official plugin/store path</strong></td>
+                <td>No current CortexPilot claim</td>
+                <td>No current CortexPilot claim</td>
+                <td>No current CortexPilot claim</td>
+                <td>Do not say CortexPilot already ships an official plugin for any of these ecosystems.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Choose your first move</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="badge protocol">Protocol</span>
+            <h3>Start with read-only MCP</h3>
+            <p>If your team needs inspection first, start with the protocol boundary and confirm what agents can read before you talk about packages or skills.</p>
+            <p><a href="../mcp/">Open read-only MCP quickstart</a></p>
+          </article>
+          <article class="card">
+            <span class="badge primary">Playbooks</span>
+            <h3>Start with repo-owned skills</h3>
+            <p>If the main problem is repeatable agent behavior, start with the skill pack and reuse the repo's own playbooks instead of inventing plugin language.</p>
+            <p><a href="../skills/">Open skills quickstart</a></p>
+          </article>
+          <article class="card">
+            <span class="badge primary">Packages</span>
+            <h3>Start with builder entrypoints</h3>
+            <p>If you need a thin client, contract-facing types, or shared frontend substrate, move down the builder ladder after the protocol boundary is clear.</p>
+            <p><a href="../builders/">Open builder quickstart</a></p>
+          </article>
+          <article class="card">
+            <span class="badge warn">Proof</span>
+            <h3>Start with use cases</h3>
+            <p>If you need to prove the story to a team first, use the public proof-first loop and share-ready Workflow Case surfaces before deeper adoption.</p>
+            <p><a href="../use-cases/">Open use-case guide</a></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Good framing vs bad framing</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="badge primary">Good framing</span>
+            <p>"CortexPilot works with Codex and Claude Code workflows through Workflow Cases, Proof &amp; Replay, read-only MCP, repo-owned skills, and builder entrypoints."</p>
+          </article>
+          <article class="card">
+            <span class="badge warn">Bad framing</span>
+            <p>"CortexPilot already ships the official Codex, Claude Code, or OpenClaw plugin."</p>
+          </article>
+          <article class="card">
+            <span class="badge primary">Good framing</span>
+            <p>"OpenClaw stays adjacent and can use the same review/proof layer when an explicit mapping is shipped and tested."</p>
+          </article>
+          <article class="card">
+            <span class="badge warn">Bad framing</span>
+            <p>"OpenClaw is a first-class native surface inside CortexPilot today."</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>FAQ</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Is this an official plugin page?</h3>
+            <p>No. This is a truthful compatibility and adoption page for repo-owned surfaces that already exist today.</p>
+          </article>
+          <article class="card">
+            <h3>Does MCP support writes?</h3>
+            <p>No. The public MCP contract remains read-only. Guarded queue and operator mutation groundwork does not change that public promise.</p>
+          </article>
+          <article class="card">
+            <h3>Should a builder start with packages or protocol?</h3>
+            <p>Usually protocol first, then packages. Start with MCP or API if you need the truth boundary, then move to builder packages once the fit is clear.</p>
+          </article>
+          <article class="card">
+            <h3>Where does OpenClaw fit?</h3>
+            <p>OpenClaw belongs in the adjacent coding-agent layer unless a real mapped bundle or native path is explicitly shipped and tested.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

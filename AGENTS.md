@@ -171,7 +171,7 @@ Work in CortexPilot as a contract-first engineering agent:
   integrations section in `apps/dashboard/components/DashboardHomeStorySections.tsx`,
   and the docs-base resolver now honoring `/integrations/` and `/skills/`
 - when a later Phase 2 wave adds dedicated public sub-entrypoints (for example
-  `/ecosystem/`, `/builders/`, `/use-cases/`) or moves additional dashboard home
+  `/ecosystem/`, `/builders/`, `/use-cases/`, `/compatibility/`) or moves additional dashboard home
   hero/ecosystem/AI/builder copy into the shared locale substrate, sync the
   root AI/docs entrypoints in the same patch so doc-sync gates can trace the
   new discoverability surfaces without guessing
@@ -209,11 +209,12 @@ Work in CortexPilot as a contract-first engineering agent:
 - when a front-door discoverability wave adds or reprioritizes public
   integration/skills/SEO entrypoints, sync the root AI/docs entrypoints in the
   same patch; current examples include `docs/integrations/index.html`,
-  `docs/skills/index.html`, `docs/robots.txt`, `docs/sitemap.xml`, the
-  docs-navigation registry move that now treats ecosystem/use-cases/AI/MCP/API/
-  builders as primary public entrypoints instead of supplemental side doors,
-  and the skills quickstart CTA shift toward in-page adoption/maintainer
-  anchors instead of a dead public-repo tree link
+  `docs/compatibility/index.html`, `docs/skills/index.html`, `docs/robots.txt`,
+  `docs/sitemap.xml`, the docs-navigation registry move that now treats
+  ecosystem/use-cases/AI/MCP/API/builders/compatibility as primary public
+  entrypoints instead of supplemental side doors, and the skills quickstart CTA
+  shift toward in-page adoption/maintainer anchors instead of a dead
+  public-repo tree link
 - when dashboard route-level discoverability or Workflow Case list locale
   coverage changes, sync the root AI/docs entrypoints in the same patch;
   current examples include route metadata on `apps/dashboard/app/command-tower/page.tsx`,
@@ -232,6 +233,13 @@ Work in CortexPilot as a contract-first engineering agent:
   the matching env/home regression coverage, and the repo-owned
   `packages/frontend-api-contract/docs/README.md` guide that now sits between
   the public API quickstart and the raw generated `.d.ts` files
+- when a later discoverability wave adds a public compatibility/adoption
+  matrix, sync the root AI/docs entrypoints in the same patch; current
+  examples include `docs/compatibility/index.html`,
+  `configs/docs_nav_registry.json`, `docs/sitemap.xml`,
+  `apps/dashboard/lib/env.ts`, and the dashboard-home integration layer now
+  pointing teams toward a compatibility ladder before they choose protocol,
+  skills, builders, or proof-first onboarding
 - when the next Phase 2 wave deepens public `MCP` / `API` discoverability,
   sync the root AI/docs entrypoints in the same patch; current examples include
   `docs/mcp/index.html`, `docs/api/index.html`, the dashboard-home AI section

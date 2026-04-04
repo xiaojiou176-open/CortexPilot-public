@@ -81,7 +81,15 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByText("Works with today's coding-agent ecosystem")).toBeInTheDocument();
     expect(screen.getByText("Integrations and skills adoption")).toBeInTheDocument();
     expect(screen.getByText("AI surfaces in the real workflow")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open integration guide" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open compatibility matrix" })).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/"
+    );
+    expect(screen.getByText("Compatibility matrix").closest("a")).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/"
+    );
+    expect(screen.getByText("Integration guide").closest("a")).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/integrations/"
     );
@@ -166,7 +174,15 @@ describe("dashboard home run-summary clarity", () => {
       "href",
       "https://docs.example/cortexpilot/builders/"
     );
-    expect(screen.getByRole("link", { name: "Open integration guide" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open compatibility matrix" })).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/compatibility/"
+    );
+    expect(screen.getByText("Compatibility matrix").closest("a")).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/compatibility/"
+    );
+    expect(screen.getByText("Integration guide").closest("a")).toHaveAttribute(
       "href",
       "https://docs.example/cortexpilot/integrations/"
     );
@@ -228,7 +244,15 @@ describe("dashboard home run-summary clarity", () => {
       "https://xiaojiou176-open.github.io/CortexPilot-public/builders/"
     );
     expect(screen.getByText("集成与技能采用")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "打开 integration guide" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "打开 compatibility matrix" })).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/"
+    );
+    expect(screen.getByText("Compatibility matrix").closest("a")).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/"
+    );
+    expect(screen.getByText("Integration guide").closest("a")).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/integrations/"
     );
