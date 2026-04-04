@@ -50,6 +50,10 @@ class QueueRunPayload(BaseModel):
         return text
 
 
+class QueueCancelPayload(BaseModel):
+    reason: str | None = None
+
+
 class QueueRunNextPayload(BaseModel):
     mock: bool = False
 
@@ -150,6 +154,17 @@ def enqueue_run_queue(
     return runs_deps.enqueue_run_queue(_validated_run_id(run_id), payload.model_dump())
 
 
+@router.post("/queue/from-run/{run_id}/preview")
+def preview_enqueue_run_queue(
+    run_id: str,
+    payload: QueueRunPayload,
+    request: Request,
+    runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
+) -> dict[str, Any]:
+    _enforce_mutation_rbac(request)
+    return runs_deps.preview_enqueue_run_queue(_validated_run_id(run_id), payload.model_dump())
+
+
 @router.post("/queue/run-next")
 def run_next_queue(
     payload: QueueRunNextPayload,
@@ -158,6 +173,23 @@ def run_next_queue(
 ) -> dict[str, Any]:
     _enforce_mutation_rbac(request)
     return runs_deps.run_next_queue(payload.model_dump())
+
+
+@router.post("/queue/{queue_id}/cancel")
+def cancel_queue_item(
+    queue_id: str,
+    payload: QueueCancelPayload,
+    request: Request,
+    runs_deps: api_deps.RunsRouteDeps = Depends(api_deps.get_runs_route_deps),
+) -> dict[str, Any]:
+    _enforce_mutation_rbac(request)
+    return runs_deps.cancel_queue_item(
+        queue_id,
+        {
+            "reason": payload.reason,
+            "cancelled_by": _request_role(request),
+        },
+    )
 
 
 @router.get("/workflows")

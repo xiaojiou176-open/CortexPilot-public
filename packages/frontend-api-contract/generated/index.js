@@ -45,6 +45,8 @@ export const FRONTEND_API_CONTRACT = {
     "roleConfigApply": "/api/agents/roles/{role}/config/apply",
     "contracts": "/api/contracts",
     "queue": "/api/queue",
+    "queueEnqueuePreview": "/api/queue/from-run/{run_id}/preview",
+    "queueCancel": "/api/queue/{queue_id}/cancel",
     "workflows": "/api/workflows",
     "workflowDetail": "/api/workflows/{workflow_id}",
     "pmSessions": "/api/pm/sessions",

@@ -18,6 +18,7 @@ from cortexpilot_orch.api.main import app as api_app
 from cortexpilot_orch.contract.compiler import compile_plan
 from cortexpilot_orch.contract.validator import ContractValidator
 from cortexpilot_orch.config import load_config
+from cortexpilot_orch.mcp_queue_pilot_server import serve_queue_pilot_mcp
 from cortexpilot_orch.mcp_readonly_server import serve_readonly_mcp
 from cortexpilot_orch.planning.coverage_chain import (
     DEFAULT_COVERAGE_JSON,
@@ -505,6 +506,11 @@ def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
 @app.command("mcp-readonly-server")
 def mcp_readonly_server() -> None:
     serve_readonly_mcp()
+
+
+@app.command("mcp-queue-pilot-server")
+def mcp_queue_pilot_server() -> None:
+    serve_queue_pilot_mcp()
 
 
 if __name__ == "__main__":

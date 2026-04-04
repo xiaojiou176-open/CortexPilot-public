@@ -209,6 +209,75 @@ def test_api_queue_list_enqueue_and_run_next(tmp_path: Path, monkeypatch) -> Non
     assert run_next.json()["run_id"] == "run_from_queue"
 
 
+def test_api_queue_preview_and_cancel_roundtrip(tmp_path: Path, monkeypatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    runs_root = runtime_root / "runs"
+    monkeypatch.setenv("CORTEXPILOT_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+
+    run_dir = runs_root / "run_source"
+    _write_manifest(
+        run_dir,
+        {
+            "run_id": "run_source",
+            "task_id": "task_source",
+            "status": "SUCCESS",
+            "workflow": {"workflow_id": "wf-queue", "task_queue": "cortexpilot-orch", "namespace": "default", "status": "SUCCESS"},
+        },
+    )
+    _write_contract(
+        run_dir,
+        {
+            "task_id": "task_source",
+            "owner_agent": {"agent_id": "agent-1", "role": "WORKER"},
+            "allowed_paths": ["apps/dashboard"],
+        },
+    )
+
+    client = TestClient(api_main.app)
+
+    preview = client.post(
+        "/api/queue/from-run/run_source/preview",
+        json={"priority": 3},
+        headers={"x-cortexpilot-role": "OWNER"},
+    )
+    assert preview.status_code == 200
+    preview_payload = preview.json()
+    assert preview_payload["run_id"] == "run_source"
+    assert preview_payload["preview_item"]["status"] == "PENDING"
+    assert preview_payload["pending_matches"] == []
+
+    queue_before = client.get("/api/queue", params={"workflow_id": "wf-queue"})
+    assert queue_before.status_code == 200
+    assert queue_before.json() == []
+
+    enqueue = client.post(
+        "/api/queue/from-run/run_source",
+        json={"priority": 3},
+        headers={"x-cortexpilot-role": "OWNER"},
+    )
+    assert enqueue.status_code == 200
+    queue_id = enqueue.json()["queue_id"]
+
+    cancel = client.post(
+        f"/api/queue/{queue_id}/cancel",
+        json={"reason": "operator aborted pilot"},
+        headers={"x-cortexpilot-role": "OWNER"},
+    )
+    assert cancel.status_code == 200
+    cancel_payload = cancel.json()
+    assert cancel_payload["status"] == "CANCELLED"
+    assert cancel_payload["queue_state"] == "closed"
+    assert cancel_payload["cancelled_at"]
+    assert cancel_payload["reason"] == "operator aborted pilot"
+    assert cancel_payload["cancelled_by"] == "OWNER"
+
+    queue_after = client.get("/api/queue", params={"workflow_id": "wf-queue"})
+    assert queue_after.status_code == 200
+    assert queue_after.json()[0]["status"] == "CANCELLED"
+    assert queue_after.json()[0]["cancelled_at"]
+
+
 def test_api_queue_rejects_naive_schedule_input(tmp_path: Path, monkeypatch) -> None:
     runtime_root = tmp_path / "runtime"
     runs_root = runtime_root / "runs"

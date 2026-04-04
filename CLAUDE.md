@@ -202,6 +202,22 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   the package-facing `createControlPlaneStarter(...)` bootstrap flow, and the
   rule that the starter remains a repo-owned integration edge rather than a
   hosted SDK or marketplace claim
+- when the Final-100 / Wave 4 follow-up slice adds hosted pilot readiness or
+  queue-first mutation groundwork, keep this file, `AGENTS.md`, and the root
+  AI/docs entrypoints aligned in the same patch; current examples include
+  `render.yaml`, `docs/runbooks/render-hosted-operator-pilot.md`, the hosted
+  `CORTEXPILOT_API_ALLOWED_ORIGINS` env wiring across `.env.example`,
+  `apps/orchestrator/.env.example`, `configs/env.registry.json`, and
+  `configs/env_direct_read_allowlist.json`, plus the rule that
+  `apps/orchestrator/src/cortexpilot_orch/mcp_queue_pilot_server.py` and queue
+  preview/cancel routes remain repo-owned operator groundwork instead of live
+  hosted proof or public write-capable MCP
+- when a Final-100 hosted/operator follow-up only moves governance,
+  queue-pilot, or API posture files after the public docs already moved, keep
+  this file and `AGENTS.md` updated in the same patch so the ci-diff doc-sync
+  gate can see the root AI navigation layer refresh above
+  `configs/env_direct_read_allowlist.json`, `render.yaml`, and the guarded
+  queue preview/cancel operator surfaces instead of flagging logic-only drift
 - when staged dashboard smoke builds change their dependency-install behavior
   or the `apps/dashboard/lib/types.ts` export bridge, keep this file and the
   root/module docs aligned in the same patch so UI-audit / pre-push failures

@@ -60,6 +60,8 @@ It gives external consumers one place to:
 - preview role-default changes without inventing a second client wrapper
 - apply role-default changes with the same mutation-role header discipline the
   existing operator surfaces already use
+- preview queue enqueue changes and cancel pending queue items through the same
+  repo-owned HTTP control-plane boundary
 - stay inside the truthful boundary where role defaults are configurable but
   `task_contract` remains the execution authority
 
@@ -108,6 +110,8 @@ The example stays inside the truthful boundary:
 - apply only happens when you pass `--apply`
 - it does not imply hosted SDK behavior
 - it does not replace the backend orchestration runtime
+- queue preview/cancel remain repo-owned operator HTTP surfaces; they do not
+  promote the public MCP contract into write-capable MCP
 - `task_contract` remains the execution authority even when role-default apply
   is available through the same client under local operator policy
 
@@ -120,6 +124,8 @@ The example stays inside the truthful boundary:
   second handwritten path map.
 - It does not replace the backend orchestration runtime or the read-only MCP
   server.
+- Queue preview/cancel and the queue-only MCP pilot server are later-gated
+  operator mutation groundwork, not public write-capable MCP.
 - The control-plane starter is a builder convenience layer, not a second
   execution authority or a hosted SDK runtime.
 - Prompt 7-style frontend slices should treat `role_binding_read_model` and

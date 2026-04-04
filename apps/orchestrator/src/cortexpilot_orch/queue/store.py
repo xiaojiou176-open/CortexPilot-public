@@ -92,6 +92,29 @@ class QueueStore:
             payload["priority"] = _coerce_priority(payload.get("priority"))
         return self._append(payload)
 
+    def preview_enqueue(
+        self,
+        contract_path: Path,
+        task_id: str,
+        owner: str = "",
+        *,
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        payload = {
+            "event": "QUEUE_PREVIEW",
+            "status": "PENDING",
+            "task_id": task_id,
+            "owner": owner,
+            "contract_path": str(contract_path),
+            "priority": 0,
+            "queue_id": uuid.uuid4().hex,
+            "ts": _now_ts(),
+        }
+        if isinstance(metadata, dict):
+            payload.update(metadata)
+            payload["priority"] = _coerce_priority(payload.get("priority"))
+        return self._queue_item_view(payload)
+
     def mark_claimed(self, task_id: str, run_id: str, *, queue_id: str = "") -> dict[str, Any]:
         payload = {
             "event": "QUEUE_CLAIM",
@@ -115,6 +138,44 @@ class QueueStore:
         if queue_id:
             payload["queue_id"] = queue_id
         return self._append(payload)
+
+    def cancel(self, queue_id: str, *, reason: str = "", cancelled_by: str = "") -> dict[str, Any]:
+        normalized_queue_id = str(queue_id or "").strip()
+        if not normalized_queue_id:
+            raise ValueError("queue_id is required")
+        with self._locked_handle("a+") as handle:
+            handle.seek(0)
+            order, state = self._load_state_from_lines(handle.read().splitlines())
+            matched_task_id = ""
+            matched_item: dict[str, Any] | None = None
+            for task_id in order:
+                item = state.get(task_id, {})
+                if str(item.get("queue_id") or "").strip() == normalized_queue_id:
+                    matched_task_id = task_id
+                    matched_item = dict(item)
+                    break
+            if matched_item is None:
+                raise KeyError(f"queue item `{normalized_queue_id}` not found")
+            if str(matched_item.get("status") or "").strip().upper() != "PENDING":
+                raise ValueError(f"queue item `{normalized_queue_id}` is not pending")
+            cancel_payload = {
+                "event": "QUEUE_CANCEL",
+                "status": "CANCELLED",
+                "task_id": matched_task_id,
+                "queue_id": normalized_queue_id,
+                "cancelled_at": _now_ts(),
+            }
+            if reason:
+                cancel_payload["reason"] = str(reason).strip()
+            if cancelled_by:
+                cancel_payload["cancelled_by"] = str(cancelled_by).strip()
+            handle.seek(0, os.SEEK_END)
+            handle.write(json.dumps(cancel_payload, ensure_ascii=False) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+            merged = dict(matched_item)
+            merged.update(cancel_payload)
+            return self._queue_item_view(merged)
 
     def _load_state_from_lines(self, lines: list[str]) -> tuple[list[str], dict[str, dict[str, Any]]]:
         order: list[str] = []
@@ -153,7 +214,7 @@ class QueueStore:
             sla_state = "in_progress"
         elif status in {"SUCCESS", "DONE", "COMPLETED"}:
             sla_state = "completed"
-        elif status in {"FAILURE", "FAILED", "ERROR", "REJECTED"}:
+        elif status in {"FAILURE", "FAILED", "ERROR", "REJECTED", "CANCELLED"}:
             sla_state = "ended"
         elif scheduled_at and scheduled_at > now:
             sla_state = "scheduled"
@@ -194,6 +255,11 @@ class QueueStore:
         view["eligible"] = eligible
         view["waiting_reason"] = next_wait_reason
         view["created_at"] = str(item.get("created_at") or item.get("ts") or "")
+        view["cancelled_at"] = str(item.get("cancelled_at") or "")
+        if item.get("reason"):
+            view["reason"] = str(item.get("reason") or "")
+        if item.get("cancelled_by"):
+            view["cancelled_by"] = str(item.get("cancelled_by") or "")
         return view
 
     def _next_pending_candidate(self, order: list[str], state: dict[str, dict[str, Any]]) -> dict[str, Any] | None:

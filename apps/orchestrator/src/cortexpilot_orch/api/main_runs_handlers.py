@@ -521,6 +521,58 @@ def build_runs_handlers(
         )
         return queue_item
 
+    def preview_enqueue_run_queue(run_id: str, payload: dict | None = None) -> dict[str, Any]:
+        run_dir = runs_root_fn() / run_id
+        manifest_path = run_dir / "manifest.json"
+        contract_path = run_dir / "contract.json"
+        if not manifest_path.exists() or not contract_path.exists():
+            raise HTTPException(status_code=404, detail=error_detail_fn("RUN_NOT_FOUND"))
+        manifest = _safe_load_json(manifest_path) or {}
+        contract = _safe_load_json(contract_path) or {}
+        owner_agent = contract.get("owner_agent") if isinstance(contract.get("owner_agent"), dict) else {}
+        workflow_meta = manifest.get("workflow") if isinstance(manifest.get("workflow"), dict) else {}
+        queue_options = payload if isinstance(payload, dict) else {}
+        task_id = str(contract.get("task_id") or manifest.get("task_id") or run_id).strip() or run_id
+        owner = str(owner_agent.get("agent_id") or manifest.get("owner_agent_id") or "").strip()
+        queue_store = queue_store_cls()
+        preview_item = queue_store.preview_enqueue(
+            contract_path.resolve(),
+            task_id,
+            owner=owner,
+            metadata={
+                "workflow_id": str(workflow_meta.get("workflow_id") or "").strip(),
+                "source_run_id": run_id,
+                "priority": queue_options.get("priority", 0),
+                "scheduled_at": queue_options.get("scheduled_at"),
+                "deadline_at": queue_options.get("deadline_at"),
+            },
+        )
+        pending_matches = [
+            item
+            for item in queue_store.list_items()
+            if str(item.get("source_run_id") or "").strip() == run_id
+            and str(item.get("status") or "").strip().upper() == "PENDING"
+        ]
+        return {
+            "run_id": run_id,
+            "validation": "fail-closed",
+            "can_apply": True,
+            "preview_item": preview_item,
+            "pending_matches": pending_matches,
+            "changes": [
+                {
+                    "field": "queue",
+                    "current": "already-pending" if pending_matches else "not-enqueued",
+                    "next": "pending",
+                }
+            ],
+            "boundary": {
+                "pilot": "queue-enqueue-from-run-only",
+                "execution_authority": "task_contract",
+                "approval_mode": "manual-owner-default-off",
+            },
+        }
+
     def run_next_queue(payload: dict | None = None) -> dict[str, Any]:
         options = payload if isinstance(payload, dict) else {}
         mock_mode = bool(options.get("mock"))
@@ -534,6 +586,17 @@ def build_runs_handlers(
         final_status = read_manifest_status_fn(run_id)
         store.mark_done(task_id, run_id, final_status, queue_id=str(item.get("queue_id") or ""))
         return {"ok": True, "run_id": run_id, "status": final_status, "queue_item": item}
+
+    def cancel_queue_item(queue_id: str, payload: dict | None = None) -> dict[str, Any]:
+        options = payload if isinstance(payload, dict) else {}
+        reason = str(options.get("reason") or "").strip()
+        cancelled_by = str(options.get("cancelled_by") or "").strip()
+        try:
+            return queue_store_cls().cancel(queue_id, reason=reason, cancelled_by=cancelled_by)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail={"code": "QUEUE_ITEM_NOT_FOUND"}) from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=409, detail={"code": "QUEUE_ITEM_NOT_CANCELLABLE", "reason": str(exc)}) from exc
 
     def get_workflow(workflow_id: str) -> dict:
         workflows = collect_workflows_fn()
@@ -976,7 +1039,9 @@ def build_runs_handlers(
     return {
         "list_runs": list_runs,
         "list_queue": list_queue,
+        "preview_enqueue_run_queue": preview_enqueue_run_queue,
         "enqueue_run_queue": enqueue_run_queue,
+        "cancel_queue_item": cancel_queue_item,
         "run_next_queue": run_next_queue,
         "list_workflows": list_workflows,
         "get_workflow": get_workflow,

@@ -323,6 +323,9 @@ The current stage freeze keeps two high-risk directions explicitly constrained:
   an agent-facing write capability.
 - If this is ever reopened, the smallest safe move is one owner-only,
   manual-only, default-off queue mutation pilot with explicit audit evidence.
+- Repo-side groundwork for that later-gated pilot can include queue preview,
+  queue cancel, and a queue-only MCP pilot server, but those do not by
+  themselves upgrade the public product contract into write-capable MCP.
 
 - **Hosted operator surface** remains **No-Go**.
 - `cortexpilot.ai` is still a weak marketing/holding domain, not a production
@@ -331,6 +334,8 @@ The current stage freeze keeps two high-risk directions explicitly constrained:
   operator/demo surfaces, not as a hosted service.
 - Reopen hosted only if the public boundary, support contract, privacy/security
   wording, and live front door materially change together.
+- A repo-side Render blueprint may exist for future guarded pilots, but that is
+  not evidence of a live hosted operator surface by itself.
 
 ## Repository Surfaces
 
@@ -513,7 +518,8 @@ The public release surface now has a live baseline. Use these entrypoints:
 3. [Engineering spec](docs/specs/00_SPEC.md)
 4. [Public release checklist](docs/runbooks/public-release-checklist.md)
 5. [Storefront share kit](docs/runbooks/storefront-share-kit.md)
-6. [Apps overview](apps/README.md)
+6. [Render hosted pilot blueprint](docs/runbooks/render-hosted-operator-pilot.md)
+7. [Apps overview](apps/README.md)
 
 ## FAQ
 

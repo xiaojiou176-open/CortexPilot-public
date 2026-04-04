@@ -67,6 +67,8 @@ export type FrontendApiClient = {
   fetchWorkflow: (workflowId: string) => Promise<unknown>;
   fetchQueue: (workflowId?: string, status?: string) => Promise<unknown>;
   enqueueRunQueue: (runId: string, payload?: Record<string, JsonValue>) => Promise<unknown>;
+  previewEnqueueRunQueue: (runId: string, payload?: Record<string, JsonValue>) => Promise<unknown>;
+  cancelQueueItem: (queueId: string, payload?: Record<string, JsonValue>) => Promise<unknown>;
   runNextQueue: (payload?: Record<string, JsonValue>) => Promise<unknown>;
   fetchPmSessions: (options?: RequestControlOptions & {
     status?: string | string[];

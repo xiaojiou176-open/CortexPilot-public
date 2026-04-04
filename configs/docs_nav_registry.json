@@ -129,6 +129,15 @@
       "listed_in_primary_navigation": false
     },
     {
+      "path": "docs/runbooks/render-hosted-operator-pilot.md",
+      "kind": "runbook",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    },
+    {
       "path": "docs/builders/index.html",
       "kind": "entrypoint",
       "status": "active",

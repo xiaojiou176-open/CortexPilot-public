@@ -2,6 +2,7 @@ import hashlib
 import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import pytest
 from fastapi import FastAPI, HTTPException
@@ -450,6 +451,8 @@ def test_api_auth_required_for_api_routes(tmp_path: Path, monkeypatch) -> None:
 
     health = client.get("/health")
     assert health.status_code == 200
+    api_health = client.get("/api/health")
+    assert api_health.status_code == 200
 
     missing = client.get("/api/runs")
     assert missing.status_code == 401
@@ -519,6 +522,27 @@ def test_api_auth_skips_options_preflight(tmp_path: Path, monkeypatch) -> None:
         },
     )
     assert blocked.headers.get("access-control-allow-origin") is None
+
+
+def test_resolve_allow_origins_includes_configured_public_origins() -> None:
+    resolved = api_main._resolve_allow_origins(  # noqa: SLF001
+        "3100",
+        (
+            "https://dashboard.example.com/",
+            "https://dashboard.example.com",
+            "https://ops.example.com",
+        ),
+    )
+    assert "http://localhost:3100" in resolved
+    assert "http://127.0.0.1:3100" in resolved
+    resolved_https_hosts = {
+        (parts.scheme, parts.netloc)
+        for item in resolved
+        if (parts := urlsplit(item)).scheme == "https"
+    }
+    assert ("https", "dashboard.example.com") in resolved_https_hosts
+    assert ("https", "ops.example.com") in resolved_https_hosts
+    assert len([item for item in resolved_https_hosts if item == ("https", "dashboard.example.com")]) == 1
 
 
 def test_api_runs_role_header_requires_trusted_auth_context(monkeypatch) -> None:

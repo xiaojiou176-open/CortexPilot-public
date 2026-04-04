@@ -267,6 +267,23 @@ function createClient(options = {}) {
     return http.postJson(`/api/queue/from-run/${encodeRunId(runId)}`, payload, "Queue enqueue failed", { runId });
   }
 
+  async function previewEnqueueRunQueue(runId, payload = {}) {
+    return http.postJson(
+      FRONTEND_API_CONTRACT.paths.queueEnqueuePreview.replace("{run_id}", encodeRunId(runId)),
+      payload,
+      "Queue enqueue preview failed",
+      { runId },
+    );
+  }
+
+  async function cancelQueueItem(queueId, payload = {}) {
+    return http.postJson(
+      FRONTEND_API_CONTRACT.paths.queueCancel.replace("{queue_id}", encodeURIComponent(queueId)),
+      payload,
+      "Queue cancel failed",
+    );
+  }
+
   async function runNextQueue(payload = {}) {
     return http.postJson("/api/queue/run-next", payload, "Queue run-next failed");
   }
@@ -410,6 +427,8 @@ function createClient(options = {}) {
     fetchWorkflow,
     fetchQueue,
     enqueueRunQueue,
+    previewEnqueueRunQueue,
+    cancelQueueItem,
     runNextQueue,
     fetchPmSessions,
     fetchPmSession,

@@ -101,6 +101,12 @@ All notable changes to this repository will be documented in this file.
   bundle on every PR-bound pre-push refresh, keeping the local governance
   manifest strict while making repeated CI-fix pushes finish inside the worker
   execution window
+- hardened the Final-100 Wave 4/public-truth layer by tightening proof-state
+  wording across the use-case/ecosystem/builder docs, adding a repo-side Render
+  hosted-pilot blueprint plus runbook, wiring `/api/health` and configurable
+  public API origins for future hosted pilots, and landing queue preview/cancel
+  groundwork plus a confirm-gated queue-only MCP pilot server without promoting
+  the public contract into write-capable MCP
 - cleaned the remaining Wave 1 review-thread blockers by dropping the unused
   fallback assignment in `role_config_registry.py`, keeping
   `provider_resolution` as a dead-code-clean compatibility export surface for
