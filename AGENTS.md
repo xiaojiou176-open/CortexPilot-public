@@ -281,7 +281,7 @@ Work in CortexPilot as a contract-first engineering agent:
 - when dashboard dependency verification learns about new runtime-critical
   packages for quick/clean-room lanes, sync the root AI/docs entrypoints in the
   same patch; current examples include `scripts/install_dashboard_deps.sh`
-  verifying `jsdom` and `data-urls` alongside Next/lighthouse toolchain checks
+  verifying that `jsdom` itself loads successfully alongside Next/lighthouse toolchain checks
   so partial dashboard installs fail fast before `npm run test:quick` claims a
   clean quick lane
 - when the Final-100 / Wave 4 follow-up slice adds hosted pilot readiness or

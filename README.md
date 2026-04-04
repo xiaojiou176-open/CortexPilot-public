@@ -374,6 +374,10 @@ npm run test:quick
 bash scripts/check_repo_hygiene.sh
 ```
 
+`npm run test:quick` now expects the dashboard clean-room install gate to
+prove `jsdom` itself can load, instead of pinning success to the presence of a
+specific transitive dependency layout such as `data-urls`.
+
 Recent operator-surface upgrades now include:
 
 - persisted `workflow case` snapshots under `.runtime-cache/cortexpilot/workflow-cases/`

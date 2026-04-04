@@ -21,8 +21,9 @@ All notable changes to this repository will be documented in this file.
   coverage for metadata and `zh-CN` rendering so the main operator spine no
   longer falls back to a page-local English island
 - tightened dashboard quick-lane dependency verification by teaching
-  `scripts/install_dashboard_deps.sh` to require `jsdom` and `data-urls`
-  alongside the existing Next/lighthouse toolchain checks, so partial
+  `scripts/install_dashboard_deps.sh` to validate `jsdom` itself, instead of
+  pinning the gate to a transitive `data-urls` layout, alongside the existing
+  Next/lighthouse toolchain checks so partial
   dashboard installs fail fast and recover before `npm run test:quick`
   reports a green lane
 - fixed governance manifest receipt reuse so `refresh_governance_evidence_manifest.py`

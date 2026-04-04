@@ -229,8 +229,8 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
 - when dashboard dependency verification learns about new runtime-critical
   packages for quick/clean-room lanes, keep this file, `AGENTS.md`, and the
   relevant package/docs entrypoints aligned in the same patch; current examples
-  include `scripts/install_dashboard_deps.sh` verifying `jsdom` and
-  `data-urls` so partial dashboard installs fail fast before the quick lane
+  include `scripts/install_dashboard_deps.sh` verifying that `jsdom` itself
+  loads successfully so partial dashboard installs fail fast before the quick lane
   claims success
 - when the Final-100 / Wave 4 follow-up slice adds hosted pilot readiness or
   queue-first mutation groundwork, keep this file, `AGENTS.md`, and the root
