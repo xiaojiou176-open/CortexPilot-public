@@ -104,8 +104,9 @@ bash scripts/run_orchestrator_cli.sh --help
   workflows, approvals, queue state, or provider state
 - the queue pilot server stays outside the public product contract; it only
   supports `preview_enqueue_from_run` plus a single confirm-gated
-  `enqueue_from_run` mutation, while queue cancel remains an HTTP control-plane
-  recovery path
+  `enqueue_from_run` mutation, and that mutation stays default-off until
+  `CORTEXPILOT_MCP_QUEUE_PILOT_ENABLE_APPLY=1` is set in a trusted operator
+  environment; queue cancel remains an HTTP control-plane recovery path
 - shared control-plane reads flow through
   `src/cortexpilot_orch/services/control_plane_read_service.py`
 - workflow/control-plane reads now also carry `workflow_case_read_model`, which

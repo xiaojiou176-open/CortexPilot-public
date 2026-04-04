@@ -35,6 +35,11 @@ npm run docker:runtime:audit
   orchestrator `.venv`, and desktop `dist`.
 - Repo-external strong-related surfaces are limited to the CortexPilot machine
   cache namespace under `~/.cache/cortexpilot`.
+- Heavy machine-scoped temp producers also belong to that same governed
+  namespace: local `docker_ci` host runner temp now defaults to
+  `~/.cache/cortexpilot/tmp/docker-ci/runner-temp-*`, while clean-room
+  recovery uses `~/.cache/cortexpilot/tmp/clean-room-machine-cache.*` and
+  `~/.cache/cortexpilot/tmp/clean-room-preserve.*`.
 - Shared ecosystem layers such as Docker Desktop, global Cargo/Rustup, global
   uv, and global Playwright remain observation-only unless a separate audit
   proves safe attribution.
@@ -83,8 +88,17 @@ totals remain observation-only and are not apply targets for this lane.
   move to the next.
 - `wave3` is for `~/.cache/cortexpilot` and requires explicit shared-cache
   confirmation. The preferred apply targets are child paths such as
-  `pnpm-store/dashboard`, `pnpm-store/desktop`, `pnpm-store/v10`, and
-  `playwright`, not the rollup root.
+  `pnpm-store/dashboard`, `pnpm-store/desktop`, `pnpm-store/v10`,
+  `playwright`, and the governed machine-temp roots under `tmp/`, not the
+  rollup root.
+- The repo-owned machine-temp roots are part of `wave3`, not generic system
+  temp cleanup. Current examples are:
+  - `tmp/docker-ci/runner-temp-*`
+  - `tmp/clean-room-machine-cache.*`
+  - `tmp/clean-room-preserve.*`
+- These paths stay `repo_external_related`, must resolve inside
+  `~/.cache/cortexpilot/tmp/**`, and must fail closed if they escape into
+  unrelated temp roots or shared/system-owned browser temp trees.
 - Docker runtime is now a separate operator lane rather than part of the
   generic wave cleanup:
   - `npm run docker:runtime:audit`

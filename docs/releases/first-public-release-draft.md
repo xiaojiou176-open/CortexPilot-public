@@ -49,17 +49,20 @@ happy-path baseline for proof-oriented copy and future benchmark publication.
 - repo-side Prompt 4 now also includes read-only MCP and operator-brief docs in
   `docs/architecture/mcp-and-operator-copilot-v1.md`
 
-## Live Publication State
+## Live Publication Checks Still Require Fresh Verification
 
-- GitHub social preview still needs to be confirmed in repository settings
-- GitHub Discussions are enabled on the live repository
-- the live GitHub Release is
+- confirm the GitHub social preview in repository settings before calling the
+  release live-public complete
+- verify the current GitHub Release page at
   `https://github.com/xiaojiou176-open/CortexPilot-public/releases/tag/v0.1.0-alpha.1`
-- no broader multi-round benchmark artifact is published yet
-- GitHub Pages is enabled from `/docs`, and the live site is
-  `https://xiaojiou176-open.github.io/CortexPilot-public/`
-- the live release body now follows the current Pages URL and the updated
-  `Codex / Claude Code` command-tower positioning
+  still matches this repo-side draft instead of assuming it does
+- verify the live GitHub Pages site at
+  `https://xiaojiou176-open.github.io/CortexPilot-public/` is serving the
+  current landing copy instead of inferring that from git alone
+- verify whether GitHub Discussions, release visibility, and subscriber flows
+  are currently enabled in the live repository settings
+- keep the “no broader multi-round benchmark artifact is published yet” note as
+  a release-time check until a fresh live/public proof bundle says otherwise
 
 ## Verification
 
@@ -74,3 +77,5 @@ TMPDIR=/path/to/tmpdir bash scripts/check_repo_hygiene.sh
 - do not describe degraded local captures as healthy end-to-end evidence
 - do not quote benchmark numbers outside the tracked artifact or without keeping
   the current single-run scope explicit
+- do not turn last-known live repository settings into repo-side current truth;
+  live/public checks must be re-verified at release time

@@ -199,6 +199,239 @@ export type UiCopy = {
       statusApproved: string;
       statusFailed: (message: string) => string;
     };
+    commandTowerPage: {
+      unavailableTitle: string;
+      unavailableNextAction: string;
+      unavailableBadge: string;
+      partialTitle: string;
+      partialNextAction: string;
+      partialBadge: string;
+      actions: {
+        reload: string;
+        viewRuns: string;
+        startFromPm: string;
+        openRuns: string;
+        openWorkflowCases: string;
+      };
+      fallbackLoading: string;
+      srTitle: string;
+      srSubtitle: string;
+      liveHome: {
+        loadingContextPanelAriaLabel: string;
+        loadingContextPanelTitle: string;
+        loadingContextPanelBody: string;
+        loadingSessionBoard: string;
+        focusModeLabels: {
+          all: string;
+          highRisk: string;
+          blocked: string;
+          running: string;
+        };
+        liveStatus: {
+          paused: string;
+          backoff: string;
+          degraded: string;
+          running: string;
+        };
+        refreshHealth: {
+          fullHealthy: string;
+          refreshFailed: string;
+          partialDegradation: (okCount: number) => string;
+        };
+        snapshot: {
+          refreshFailed: string;
+          partialDegradation: string;
+          paused: string;
+        };
+        freshness: {
+          noSuccessfulRefresh: string;
+          sourceFallback: (source: string) => string;
+          lastSuccessfulSeconds: (seconds: number) => string;
+          lastSuccessfulMinutes: (minutes: number) => string;
+          lastSuccessfulHours: (hours: number) => string;
+        };
+        actionFeedback: {
+          collapsedDrawer: string;
+          expandedDrawer: string;
+          pinnedDrawer: string;
+          unpinnedDrawer: string;
+          retryRefreshStart: string;
+          retryRefreshPartial: string;
+          retryRefreshSuccess: string;
+          retryRefreshFailure: string;
+          focusSwitchStart: string;
+          focusSwitchPartial: string;
+          focusSwitchSuccess: (modeLabel: string) => string;
+          focusSwitchFailure: string;
+          copiedCurrentView: string;
+          copyUnavailable: string;
+          copyFailedManual: string;
+          resumedLiveRefresh: string;
+          pausedLiveRefresh: string;
+          exportedFailedSessions: string;
+          focusedProjectKeyInput: string;
+          appliedDraftFilters: (count: number) => string;
+          draftFiltersAlreadyMatch: string;
+        };
+        layout: {
+          overviewAriaLabel: string;
+          overviewTitle: string;
+          overviewDescription: string;
+          sloDegraded: string;
+          sloWarning: string;
+          focusButtonActive: string;
+          focusButtonInactive: string;
+          focusButtonActiveAriaLabel: string;
+          focusButtonInactiveAriaLabel: string;
+          focusButtonActiveTitle: string;
+          focusButtonInactiveTitle: string;
+          focusButtonActiveHint: string;
+          primaryActionOpenRisk: string;
+          primaryActionGoToPm: string;
+          failureEvents: string;
+          filterDrawerHint: string;
+          degradedRefreshFailed: string;
+          degradedPartial: string;
+          snapshotTimestampOnly: (label: string) => string;
+          degradedActionsAriaLabel: string;
+          reviewFailureEvents: string;
+          reviewRuns: string;
+          reload: string;
+          riskSampleSummary: (total: number, failed: number, blocked: number, running: number) => string;
+          noLiveData: string;
+          dataUnavailable: string;
+          dataUnavailableActionsAriaLabel: string;
+          sessionBoardAriaLabel: string;
+          sessionBoardMeta: (visible: number, total: number) => string;
+          cachedSnapshotBadge: string;
+          sessionBoardListAriaLabel: string;
+          laneQuickActionsAriaLabel: (laneTitle: string) => string;
+          liveLaneSwitchToLive: string;
+          liveLaneSwitchToPaused: string;
+          riskLaneRestoreFullView: string;
+          riskLaneSwitchToHighRisk: string;
+          actionsLaneOpenFirstRisk: string;
+          laneNote: string;
+        };
+        drawer: {
+          projectKeyPlaceholder: string;
+          focusViewSwitcherAriaLabel: string;
+        };
+        viewModel: {
+          quickActions: {
+            refreshDescription: string;
+            liveDescription: string;
+            exportDescription: string;
+            copyDescription: string;
+            focusDescription: string;
+            toggleDrawerDescription: string;
+            togglePinDescription: string;
+            applyDescription: string;
+            pauseAction: string;
+            resumeAction: string;
+            exportAction: string;
+            focusAction: string;
+            expandAction: string;
+            collapseAction: string;
+            pinAction: string;
+            unpinAction: string;
+          };
+          contextHealth: {
+            liveEngine: string;
+            runningValue: (intervalMs: number) => string;
+            pausedValue: string;
+            sloHealth: string;
+            focusHit: string;
+            filterState: string;
+            filtersApplied: (count: number) => string;
+            filtersOff: string;
+          };
+          drawerPrompts: {
+            criticalAlerts: (count: number) => string;
+            currentIssue: (label: string) => string;
+            unappliedDraftFilters: (count: number) => string;
+            riskCounts: (failed: number, blocked: number) => string;
+            paused: string;
+            stable: string;
+          };
+          priorityLanes: {
+            liveTitle: string;
+            liveSummary: (status: string, intervalMs: number) => string;
+            riskTitle: string;
+            riskSummary: (failed: number, blocked: number, critical: number) => string;
+            actionsTitle: string;
+            draftFiltersWaiting: (count: number) => string;
+            refreshFirst: string;
+            primaryActionsReady: string;
+            liveBadge: string;
+            pausedBadge: string;
+            pendingBadge: string;
+            convergingBadge: string;
+            readyBadge: string;
+          };
+        };
+      };
+    };
+    runDetailPage: {
+      title: string;
+      subtitle: string;
+      openCompareSurface: string;
+      degradedTitle: string;
+      degradedNextAction: string;
+      degradedBadge: string;
+      reloadAction: string;
+      backToRunsAction: string;
+      compareDecisionTitle: string;
+      compareMissing: string;
+      compareAligned: string;
+      compareNeedsReview: string;
+      compareNextStepMissing: string;
+      compareNextStepAligned: string;
+      compareNextStepNeedsReview: string;
+      incidentActionTitle: string;
+      incidentMissing: string;
+      incidentNextStepFallback: string;
+      proofActionTitle: string;
+      proofMissing: string;
+      proofNextStepFallback: string;
+    };
+    workflowDetailPage: {
+      title: string;
+      subtitle: string;
+      riskSummaryAriaLabel: string;
+      highRiskLabel: string;
+      normalRiskLabel: string;
+      shareAssetCta: string;
+      degradedTitle: string;
+      degradedNextAction: string;
+      degradedBadge: string;
+      degradedIdentityTitle: string;
+      degradedRunMappingTitle: string;
+      degradedRunMappingEmpty: string;
+      degradedRunMappingReadonlyNote: string;
+      degradedEventTimelineTitle: string;
+      degradedEventTimelineReadonlyNote: string;
+      retryLoadAction: string;
+      backToWorkflowListAction: string;
+      governanceEntryDisabled: string;
+      summaryStatus: string;
+      summaryRunMappings: string;
+      summaryEvents: string;
+      summaryRunMappingsHint: string;
+      summaryEventsHint: string;
+      queuePostureNote: string;
+      caseFieldLabels: {
+        workflowId: string;
+        name: string;
+        updatedAt: string;
+        namespace: string;
+        taskQueue: string;
+        owner: string;
+        project: string;
+        verdict: string;
+        runs: string;
+      };
+    };
     sectionPrimary: string;
     sectionAdvanced: string;
     labels: DashboardNavLabels;
@@ -427,6 +660,65 @@ export type UiCopy = {
         testReportTitle: string;
         reviewReportTitle: string;
         evidenceReportTitle: string;
+      };
+    };
+    workflowDetail: {
+      backToList: string;
+      queuePriority: string;
+      queueScheduledAt: string;
+      queueDeadlineAt: string;
+      operatorRoleLabel: string;
+      roleGateReason: string;
+      queueSummary: (queueCount: number, eligibleCount: number) => string;
+      queueLatestRun: string;
+      runNextQueuedTask: string;
+      queueingTask: string;
+      runningTask: string;
+      noRunAvailable: string;
+      queuedNotice: (taskId: string) => string;
+      startedNotice: (runId: string) => string;
+      invalidScheduledAt: string;
+      invalidDeadlineAt: string;
+      queueEmptyReason: string;
+      workflowCopilotTitle: string;
+      workflowCopilotIntro: string;
+      workflowCopilotButton: string;
+      workflowCopilotTakeaways: string;
+      workflowCopilotPosture: string;
+      workflowCopilotQuestions: string[];
+      nextOperatorActionTitle: string;
+      nextOperatorActionHint: string;
+      recommendedActionQueued: string;
+      recommendedActionNoQueue: string;
+      recommendedActionNoRun: string;
+      summaryTitle: string;
+      readModelTitle: string;
+      noReadModel: string;
+      relatedRunsTitle: (count: number) => string;
+      noRelatedRuns: string;
+      eventsTitle: (count: number) => string;
+      noEvents: string;
+      queueSlaTitle: (count: number) => string;
+      noQueuedWork: string;
+      queueMeta: (priority: string, sla: string) => string;
+      summaryLabels: {
+        status: string;
+        objective: string;
+        owner: string;
+        project: string;
+        verdict: string;
+        pmSessions: string;
+        summary: string;
+      };
+      readModelLabels: {
+        authority: string;
+        executionAuthority: string;
+        source: string;
+        sourceRunId: string;
+        skillsBundle: string;
+        mcpBundle: string;
+        runtimeBinding: string;
+        readOnlyNote: string;
       };
     };
     overview: {
@@ -856,6 +1148,251 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         statusApproved: "Approved.",
         statusFailed: (message: string) => `Failed: ${message}`,
       },
+      commandTowerPage: {
+        unavailableTitle: "Command Tower live overview is unavailable",
+        unavailableNextAction:
+          "Reload first. If live data is still missing, inspect runs for the latest verified state or start from PM to rebuild the active path.",
+        unavailableBadge: "Live data missing",
+        partialTitle: "Command Tower is running with partial truth",
+        partialNextAction:
+          "Use the visible overview as a partial snapshot only. Confirm runs or Workflow Cases directly before taking approval, rollback, or release decisions.",
+        partialBadge: "Partial context",
+        actions: {
+          reload: "Reload Command Tower",
+          viewRuns: "View runs",
+          startFromPm: "Start from PM",
+          openRuns: "Open runs",
+          openWorkflowCases: "Open Workflow Cases",
+        },
+        fallbackLoading: "Loading Command Tower live overview...",
+        srTitle: "Command Tower",
+        srSubtitle: "Review risk and blockers first, then move into session handling.",
+        liveHome: {
+          loadingContextPanelAriaLabel: "Command Tower context panel",
+          loadingContextPanelTitle: "Context",
+          loadingContextPanelBody: "Loading the context panel...",
+          loadingSessionBoard: "Loading the session board...",
+          focusModeLabels: {
+            all: "all",
+            highRisk: "high risk",
+            blocked: "blocked",
+            running: "running",
+          },
+          liveStatus: {
+            paused: "Live refresh paused",
+            backoff: "Live refresh is backing off and retrying",
+            degraded: "Live refresh is running with partial degradation",
+            running: "Live refresh is running",
+          },
+          refreshHealth: {
+            fullHealthy: "Full refresh healthy",
+            refreshFailed: "Refresh failed",
+            partialDegradation: (okCount: number) => `Partial degradation (${okCount}/3)`,
+          },
+          snapshot: {
+            refreshFailed: "Cached snapshot (refresh failed, auto updates paused)",
+            partialDegradation: "Cached snapshot (partial degradation, live updates may lag)",
+            paused: "Cached snapshot (live refresh paused)",
+          },
+          freshness: {
+            noSuccessfulRefresh: "No successful refresh yet",
+            sourceFallback: (source: string) => `Last refresh source: ${source}`,
+            lastSuccessfulSeconds: (seconds: number) => `Last successful refresh ${seconds}s ago`,
+            lastSuccessfulMinutes: (minutes: number) => `Last successful refresh ${minutes}m ago`,
+            lastSuccessfulHours: (hours: number) => `Last successful refresh ${hours}h ago`,
+          },
+          actionFeedback: {
+            collapsedDrawer: "Collapsed the right context drawer",
+            expandedDrawer: "Expanded the right context drawer",
+            pinnedDrawer: "Pinned the right drawer",
+            unpinnedDrawer: "Unpinned the right drawer",
+            retryRefreshStart: "Retrying live refresh...",
+            retryRefreshPartial: "Retry completed, but some data is still degraded",
+            retryRefreshSuccess: "Retry succeeded and the live overview is updated",
+            retryRefreshFailure: "Retry failed. Review failure events.",
+            focusSwitchStart: "Refreshing the focus view...",
+            focusSwitchPartial: "Focus view switched, but some data is degraded",
+            focusSwitchSuccess: (modeLabel: string) => `Switched focus view to ${modeLabel}`,
+            focusSwitchFailure: "Failed to switch the focus view. Review failure events.",
+            copiedCurrentView: "Copied the current view link",
+            copyUnavailable: "This environment cannot copy the current view link",
+            copyFailedManual: "Copy failed. Copy the address bar link manually.",
+            resumedLiveRefresh: "Resumed live refresh",
+            pausedLiveRefresh: "Paused live refresh",
+            exportedFailedSessions: "Exported failed sessions",
+            focusedProjectKeyInput: "Focused the project key input",
+            appliedDraftFilters: (count: number) => `Applied draft filters (${count} items)`,
+            draftFiltersAlreadyMatch: "Draft filters already match the applied state",
+          },
+          layout: {
+            overviewAriaLabel: "Command Tower workspace overview",
+            overviewTitle: "Live posture and action entrypoints",
+            overviewDescription: "The first screen keeps risk signals and primary actions visible. Detailed filters live in the right drawer.",
+            sloDegraded: "SLO: degraded",
+            sloWarning: "SLO: warning",
+            focusButtonActive: "High-risk focused (click to show all)",
+            focusButtonInactive: "Focus high-risk sessions",
+            focusButtonActiveAriaLabel: "High-risk sessions are focused. Click again to restore all sessions.",
+            focusButtonInactiveAriaLabel: "Focus high-risk sessions",
+            focusButtonActiveTitle: "Only high-risk sessions are visible. Click again to restore all.",
+            focusButtonInactiveTitle: "Show only high-risk sessions. Click again to restore all.",
+            focusButtonActiveHint: "Only high-risk sessions are visible. Click the focus button again to restore the full list.",
+            primaryActionOpenRisk: "Open first high-risk session",
+            primaryActionGoToPm: "Go to PM and start a request",
+            failureEvents: "Failure events",
+            filterDrawerHint: "The filter console lives in the right context drawer (Alt+Shift+D)",
+            degradedRefreshFailed: "Refresh failed: the list has switched to a cached snapshot. Review failure events before reloading.",
+            degradedPartial: "Refresh is partially degraded: the list is running from a cached snapshot. Review failure events before proceeding.",
+            snapshotTimestampOnly: (label: string) => `${label}. Timestamps only show when the snapshot was generated, not the live state.`,
+            degradedActionsAriaLabel: "Degraded-state actions",
+            reviewFailureEvents: "Review failure events",
+            reviewRuns: "Review runs",
+            reload: "Reload",
+            riskSampleSummary: (total: number, failed: number, blocked: number, running: number) =>
+              `Risk sample: ${total} sessions (high risk ${failed}, blocked ${blocked}, running ${running}).`,
+            noLiveData: "Live data is unavailable right now. Start a new session or retry refresh later.",
+            dataUnavailable: "Live data is unavailable right now. Start a new session or retry refresh later.",
+            dataUnavailableActionsAriaLabel: "Degraded-state primary actions",
+            sessionBoardAriaLabel: "Command Tower session board",
+            sessionBoardMeta: (visible: number, total: number) =>
+              `This list stays in sync with the quick actions above and currently shows ${visible} / ${total} sessions with risk-first ordering.`,
+            cachedSnapshotBadge: "Cached snapshot",
+            sessionBoardListAriaLabel: "Session board list",
+            laneQuickActionsAriaLabel: (laneTitle: string) => `${laneTitle} quick actions`,
+            liveLaneSwitchToLive: "Switch to live refresh",
+            liveLaneSwitchToPaused: "Switch to paused analysis",
+            riskLaneRestoreFullView: "Restore full view",
+            riskLaneSwitchToHighRisk: "Switch to high-risk view",
+            actionsLaneOpenFirstRisk: "Open first risk session",
+            laneNote: "Each lane card exposes quick actions so you can jump straight into live control, risk focus, or the next operator step.",
+          },
+          drawer: {
+            projectKeyPlaceholder: "e.g. cortexpilot",
+            focusViewSwitcherAriaLabel: "Focus view switcher",
+          },
+          viewModel: {
+            quickActions: {
+              refreshDescription: "Pull overview, sessions, and alerts immediately.",
+              liveDescription: "Control the live refresh cadence so you can pause on the current snapshot.",
+              exportDescription: "Export failed sessions as JSON for triage or review.",
+              copyDescription: "Share the current filters, focus mode, and live state with collaborators.",
+              focusDescription: "Jump to the project key input to tighten the filter flow.",
+              toggleDrawerDescription: "Change the right drawer density to favor the workspace or the context tools.",
+              togglePinDescription: "Toggle whether the drawer stays pinned or scrolls with the page.",
+              applyDescription: "Promote the draft state into the applied filters and trigger a refresh.",
+              pauseAction: "Pause live",
+              resumeAction: "Resume live",
+              exportAction: "Export failed sessions",
+              focusAction: "Focus",
+              expandAction: "Expand",
+              collapseAction: "Collapse",
+              pinAction: "Pin",
+              unpinAction: "Unpin",
+            },
+            contextHealth: {
+              liveEngine: "Live engine",
+              runningValue: (intervalMs: number) => `Running (${intervalMs}ms)`,
+              pausedValue: "Paused",
+              sloHealth: "SLO health",
+              focusHit: "Focus hit",
+              filterState: "Filter state",
+              filtersApplied: (count: number) => `${count} filters applied`,
+              filtersOff: "Filters off",
+            },
+            drawerPrompts: {
+              criticalAlerts: (count: number) => `Detected ${count} critical alerts. Triage them first and verify the suggested actions.`,
+              currentIssue: (label: string) => `Current issue: ${label}. Run Refresh now first to confirm whether it persists.`,
+              unappliedDraftFilters: (count: number) => `Detected ${count} unapplied draft filters. Apply them before judging the risk trend.`,
+              riskCounts: (failed: number, blocked: number) =>
+                `High-risk sessions ${failed}, blocked sessions ${blocked}. Use the focus switcher to narrow quickly.`,
+              paused: "Live refresh is paused. Resume live monitoring after the current analysis.",
+              stable: "The current posture is stable. Run a routine refresh, then spot-check session details for hidden blockers.",
+            },
+            priorityLanes: {
+              liveTitle: "Live Lane",
+              liveSummary: (status: string, intervalMs: number) => `${status} · interval ${intervalMs}ms`,
+              riskTitle: "Risk Lane",
+              riskSummary: (failed: number, blocked: number, critical: number) =>
+                `Failed ${failed} · Blocked ${blocked} · critical ${critical}`,
+              actionsTitle: "Action Lane",
+              draftFiltersWaiting: (count: number) => `${count} draft filters waiting`,
+              refreshFirst: "Refresh first and focus high-risk sessions",
+              primaryActionsReady: "Primary actions are ready",
+              liveBadge: "Live",
+              pausedBadge: "Paused",
+              pendingBadge: "Pending",
+              convergingBadge: "Converging",
+              readyBadge: "Ready",
+            },
+          },
+        },
+      },
+      runDetailPage: {
+        title: "Run detail",
+        subtitle: "Follow one run across status, event evidence, and replay comparison.",
+        openCompareSurface: "Open compare surface",
+        degradedTitle: "Run detail is partially degraded",
+        degradedNextAction:
+          "Retry this page first. If the same source is still unavailable, inspect the surviving Run Detail tabs and then return to the run list.",
+        degradedBadge: "Partial data",
+        reloadAction: "Reload run detail",
+        backToRunsAction: "Back to run list",
+        compareDecisionTitle: "Compare decision",
+        compareMissing: "No structured compare report is attached yet.",
+        compareAligned: "Current run looks aligned with the selected baseline.",
+        compareNeedsReview: "Compare found deltas that need operator review before you trust this run.",
+        compareNextStepMissing: "Next step: Generate or refresh a compare report for this run.",
+        compareNextStepAligned: "Next step: Review proof and finalize the outcome.",
+        compareNextStepNeedsReview:
+          "Next step: Open compare and decide whether to replay, investigate, or keep the run blocked.",
+        incidentActionTitle: "Incident action",
+        incidentMissing: "No incident pack is attached yet.",
+        incidentNextStepFallback: "Use reports and timeline to determine the next operator action.",
+        proofActionTitle: "Proof action",
+        proofMissing: "No proof pack is attached yet.",
+        proofNextStepFallback: "Inspect the run reports before promoting or sharing any result.",
+      },
+      workflowDetailPage: {
+        title: "Workflow Case detail",
+        subtitle:
+          "Classify risk first, then confirm the case summary, run mapping, queue posture, and event timeline before taking governance action.",
+        riskSummaryAriaLabel: "Workflow risk summary",
+        highRiskLabel: "High-risk state",
+        normalRiskLabel: "Normal state",
+        shareAssetCta: "Open share-ready case asset",
+        degradedTitle: "Workflow Case is in read-only degraded mode",
+        degradedNextAction:
+          "Use the visible case identity, event timeline, and run mapping for diagnosis only. Wait for the data path to recover before taking approval, rollback, replay, or queue actions.",
+        degradedBadge: "Read-only",
+        degradedIdentityTitle: "Identity snapshot (degraded)",
+        degradedRunMappingTitle: "Run mapping samples (degraded)",
+        degradedRunMappingEmpty: "No verifiable run mapping is available in degraded mode.",
+        degradedRunMappingReadonlyNote:
+          "Read-only note: use the run chain for assessment only, not for direct governance actions.",
+        degradedEventTimelineTitle: "Event timeline sample (degraded)",
+        degradedEventTimelineReadonlyNote:
+          "Events remain visible, but governance actions should wait until the data path is restored.",
+        retryLoadAction: "Retry load",
+        backToWorkflowListAction: "Back to workflow list",
+        governanceEntryDisabled: "Governance entry (disabled in degraded mode)",
+        summaryStatus: "Current status",
+        summaryRunMappings: "Run mappings",
+        summaryEvents: "Events",
+        summaryRunMappingsHint: "Use this to locate the current execution path.",
+        summaryEventsHint: "Filter failed and rollback events first.",
+        queuePostureNote: "The web surface can now advance the queue directly when an operator role is configured.",
+        caseFieldLabels: {
+          workflowId: "workflow_id",
+          name: "Name",
+          updatedAt: "Updated at",
+          namespace: "Namespace",
+          taskQueue: "Task queue",
+          owner: "Owner",
+          project: "Project",
+          verdict: "Verdict",
+          runs: "Runs",
+        },
+      },
       sectionPrimary: "Primary",
       sectionAdvanced: "Advanced",
       labels: {
@@ -1105,6 +1642,77 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           testReportTitle: "test_report.json",
           reviewReportTitle: "review_report.json",
           evidenceReportTitle: "evidence_report.json",
+        },
+      },
+      workflowDetail: {
+        backToList: "Back to workflow list",
+        queuePriority: "Queue priority",
+        queueScheduledAt: "Queue scheduled at",
+        queueDeadlineAt: "Queue deadline at",
+        operatorRoleLabel: "Operator role",
+        roleGateReason: "NEXT_PUBLIC_CORTEXPILOT_OPERATOR_ROLE is not configured in this environment, so queue actions stay read-only.",
+        queueSummary: (queueCount: number, eligibleCount: number) =>
+          `Queued items visible: ${queueCount}. Ready now: ${eligibleCount}.`,
+        queueLatestRun: "Queue latest run contract",
+        runNextQueuedTask: "Run next queued task",
+        queueingTask: "Queueing...",
+        runningTask: "Running...",
+        noRunAvailable: "No run is available to enqueue.",
+        queuedNotice: (taskId: string) => `Queued ${taskId}. Refreshing the workflow view...`,
+        startedNotice: (runId: string) => `Started queued work as run ${runId}. Refreshing the workflow view...`,
+        invalidScheduledAt: "Queue scheduled at must be a valid local date/time.",
+        invalidDeadlineAt: "Queue deadline at must be a valid local date/time.",
+        queueEmptyReason: "queue empty",
+        workflowCopilotTitle: "Workflow Case copilot",
+        workflowCopilotIntro:
+          "Generate one bounded workflow brief grounded in workflow status, queue posture, the latest linked run, proof, compare, incident, and approval truth.",
+        workflowCopilotButton: "Explain this workflow case",
+        workflowCopilotTakeaways: "Latest run gap, proof, and truth coverage",
+        workflowCopilotPosture: "Queue, SLA, and approval posture",
+        workflowCopilotQuestions: [
+          "What is the most important workflow case risk right now?",
+          "What is the queue and SLA posture for this workflow case?",
+          "What is the biggest gap between the latest run and the current workflow state?",
+          "What should the operator do first to move this workflow case forward?",
+          "Which truth surfaces are still missing or partial?",
+        ],
+        nextOperatorActionTitle: "Next Operator Action",
+        nextOperatorActionHint: "Workflow Cases should be operated as case records, not as detached run rows.",
+        recommendedActionQueued:
+          "Queued work already exists. The next high-value action is to run the next queued task and watch the case move.",
+        recommendedActionNoQueue:
+          "No queued work exists yet. Queue the latest run contract to move this Workflow Case into SLA tracking.",
+        recommendedActionNoRun:
+          "No run is available yet. Start or resume a run before you queue this Workflow Case.",
+        summaryTitle: "Workflow Case Summary",
+        readModelTitle: "Workflow read model",
+        noReadModel: "No workflow read model is attached yet.",
+        relatedRunsTitle: (count: number) => `Related Runs (${count})`,
+        noRelatedRuns: "No related runs",
+        eventsTitle: (count: number) => `Events (${count})`,
+        noEvents: "No events",
+        queueSlaTitle: (count: number) => `Queue / SLA (${count})`,
+        noQueuedWork: "No queued work for this workflow case.",
+        queueMeta: (priority: string, sla: string) => `priority ${priority} / sla ${sla}`,
+        summaryLabels: {
+          status: "status",
+          objective: "objective",
+          owner: "owner",
+          project: "project",
+          verdict: "verdict",
+          pmSessions: "pm_sessions",
+          summary: "summary",
+        },
+        readModelLabels: {
+          authority: "authority",
+          executionAuthority: "execution_authority",
+          source: "source",
+          sourceRunId: "source_run_id",
+          skillsBundle: "skills_bundle",
+          mcpBundle: "mcp_bundle",
+          runtimeBinding: "runtime_binding",
+          readOnlyNote:
+            "Read-only note: this workflow summary mirrors the latest linked run binding summary. The task contract still owns execution authority.",
         },
       },
       overview: {
@@ -1561,6 +2169,247 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         statusApproved: "已批准。",
         statusFailed: (message: string) => `失败：${message}`,
       },
+      commandTowerPage: {
+        unavailableTitle: "指挥塔实时总览暂不可用",
+        unavailableNextAction:
+          "先重试。如果实时数据仍然缺失，就打开运行记录确认最后一个已验证状态，或从 PM 入口重新建立主路径。",
+        unavailableBadge: "实时数据缺失",
+        partialTitle: "指挥塔当前只提供部分真相",
+        partialNextAction:
+          "当前可见总览只能算部分快照。做审批、回滚或发布判断前，先直接核对 Runs 或 Workflow Cases。",
+        partialBadge: "上下文不完整",
+        actions: {
+          reload: "重载指挥塔",
+          viewRuns: "查看运行记录",
+          startFromPm: "从 PM 入口开始",
+          openRuns: "打开运行记录",
+          openWorkflowCases: "打开工作流案例",
+        },
+        fallbackLoading: "正在加载指挥塔实时总览...",
+        srTitle: "指挥塔",
+        srSubtitle: "先查看风险与阻塞，再进入会话处理。",
+        liveHome: {
+          loadingContextPanelAriaLabel: "指挥塔上下文面板",
+          loadingContextPanelTitle: "上下文",
+          loadingContextPanelBody: "正在加载上下文面板...",
+          loadingSessionBoard: "正在加载会话面板...",
+          focusModeLabels: {
+            all: "全部",
+            highRisk: "高风险",
+            blocked: "阻塞",
+            running: "运行中",
+          },
+          liveStatus: {
+            paused: "实时刷新已暂停",
+            backoff: "实时刷新正在退避并重试",
+            degraded: "实时刷新正在运行，但当前只拿到部分数据",
+            running: "实时刷新运行中",
+          },
+          refreshHealth: {
+            fullHealthy: "完整刷新健康",
+            refreshFailed: "刷新失败",
+            partialDegradation: (okCount: number) => `部分降级（${okCount}/3）`,
+          },
+          snapshot: {
+            refreshFailed: "缓存快照（刷新失败，自动更新已暂停）",
+            partialDegradation: "缓存快照（部分降级，实时更新可能滞后）",
+            paused: "缓存快照（实时刷新已暂停）",
+          },
+          freshness: {
+            noSuccessfulRefresh: "还没有成功刷新记录",
+            sourceFallback: (source: string) => `最近刷新来源：${source}`,
+            lastSuccessfulSeconds: (seconds: number) => `上次成功刷新距今 ${seconds} 秒`,
+            lastSuccessfulMinutes: (minutes: number) => `上次成功刷新距今 ${minutes} 分钟`,
+            lastSuccessfulHours: (hours: number) => `上次成功刷新距今 ${hours} 小时`,
+          },
+          actionFeedback: {
+            collapsedDrawer: "已收起右侧上下文抽屉",
+            expandedDrawer: "已展开右侧上下文抽屉",
+            pinnedDrawer: "已固定右侧抽屉",
+            unpinnedDrawer: "已取消固定右侧抽屉",
+            retryRefreshStart: "正在重试实时刷新...",
+            retryRefreshPartial: "重试已完成，但仍有部分数据降级",
+            retryRefreshSuccess: "重试成功，实时总览已更新",
+            retryRefreshFailure: "重试失败。请查看失败事件。",
+            focusSwitchStart: "正在刷新焦点视图...",
+            focusSwitchPartial: "焦点视图已切换，但仍有部分数据降级",
+            focusSwitchSuccess: (modeLabel: string) => `已切换到 ${modeLabel}`,
+            focusSwitchFailure: "焦点视图切换失败。请查看失败事件。",
+            copiedCurrentView: "已复制当前视图链接",
+            copyUnavailable: "当前环境无法复制当前视图链接",
+            copyFailedManual: "复制失败，请手动复制地址栏链接。",
+            resumedLiveRefresh: "已恢复实时刷新",
+            pausedLiveRefresh: "已暂停实时刷新",
+            exportedFailedSessions: "已导出失败会话",
+            focusedProjectKeyInput: "已聚焦项目键输入框",
+            appliedDraftFilters: (count: number) => `已应用草稿筛选（${count} 项）`,
+            draftFiltersAlreadyMatch: "当前草稿筛选与已应用状态一致",
+          },
+          layout: {
+            overviewAriaLabel: "指挥塔工作区总览",
+            overviewTitle: "实时态势与动作入口",
+            overviewDescription: "第一屏始终把风险信号和主动作放在最前面，细筛选放在右侧抽屉。",
+            sloDegraded: "SLO：降级",
+            sloWarning: "SLO：告警",
+            focusButtonActive: "已聚焦高风险（点击查看全部）",
+            focusButtonInactive: "聚焦高风险会话",
+            focusButtonActiveAriaLabel: "当前只显示高风险会话。再次点击可恢复全部会话。",
+            focusButtonInactiveAriaLabel: "聚焦高风险会话",
+            focusButtonActiveTitle: "当前只显示高风险会话。再次点击可恢复全部。",
+            focusButtonInactiveTitle: "只显示高风险会话。再次点击可恢复全部。",
+            focusButtonActiveHint: "当前只显示高风险会话。再次点击焦点按钮即可恢复完整列表。",
+            primaryActionOpenRisk: "打开首个高风险会话",
+            primaryActionGoToPm: "前往 PM 并发起请求",
+            failureEvents: "失败事件",
+            filterDrawerHint: "筛选控制台位于右侧上下文抽屉（Alt+Shift+D）",
+            degradedRefreshFailed: "刷新失败：列表已切换到缓存快照。重新加载前请先查看失败事件。",
+            degradedPartial: "刷新出现部分降级：列表当前运行在缓存快照上。继续之前请先查看失败事件。",
+            snapshotTimestampOnly: (label: string) => `${label}。时间戳只表示快照生成时间，不代表实时状态。`,
+            degradedActionsAriaLabel: "降级状态动作",
+            reviewFailureEvents: "查看失败事件",
+            reviewRuns: "查看运行记录",
+            reload: "重新加载",
+            riskSampleSummary: (total: number, failed: number, blocked: number, running: number) =>
+              `风险样本：共 ${total} 个会话（高风险 ${failed}、阻塞 ${blocked}、运行中 ${running}）。`,
+            noLiveData: "当前没有实时数据。先启动一个新会话，或稍后再重试刷新。",
+            dataUnavailable: "当前没有实时数据。先启动一个新会话，或稍后再重试刷新。",
+            dataUnavailableActionsAriaLabel: "降级主动作",
+            sessionBoardAriaLabel: "指挥塔会话面板",
+            sessionBoardMeta: (visible: number, total: number) =>
+              `这个列表会和上方快捷动作保持同步，当前按风险优先顺序显示 ${visible} / ${total} 个会话。`,
+            cachedSnapshotBadge: "缓存快照",
+            sessionBoardListAriaLabel: "会话面板列表",
+            laneQuickActionsAriaLabel: (laneTitle: string) => `${laneTitle} 快捷动作`,
+            liveLaneSwitchToLive: "切到实时刷新",
+            liveLaneSwitchToPaused: "切到暂停分析",
+            riskLaneRestoreFullView: "恢复完整视图",
+            riskLaneSwitchToHighRisk: "切到高风险视图",
+            actionsLaneOpenFirstRisk: "打开首个风险会话",
+            laneNote: "每张 lane 卡都暴露了快捷动作，这样你可以直接跳到实时控制、风险聚焦或下一步操作。",
+          },
+          drawer: {
+            projectKeyPlaceholder: "例如 cortexpilot",
+            focusViewSwitcherAriaLabel: "焦点视图切换器",
+          },
+          viewModel: {
+            quickActions: {
+              refreshDescription: "立即拉取总览、会话和告警。",
+              liveDescription: "控制实时刷新节奏，这样你可以停在当前快照上做分析。",
+              exportDescription: "把失败会话导出成 JSON，方便排查或复核。",
+              copyDescription: "把当前筛选、焦点模式和实时状态分享给协作者。",
+              focusDescription: "快速跳到项目键输入框，缩短筛选路径。",
+              toggleDrawerDescription: "切换右侧抽屉密度，在主工作区和上下文工具之间取舍。",
+              togglePinDescription: "切换抽屉是固定在页面上，还是跟随页面滚动。",
+              applyDescription: "把草稿筛选提升为已应用筛选，并触发一次刷新。",
+              pauseAction: "暂停实时",
+              resumeAction: "恢复实时",
+              exportAction: "导出失败会话",
+              focusAction: "聚焦",
+              expandAction: "展开",
+              collapseAction: "收起",
+              pinAction: "固定",
+              unpinAction: "取消固定",
+            },
+            contextHealth: {
+              liveEngine: "实时引擎",
+              runningValue: (intervalMs: number) => `运行中（${intervalMs}ms）`,
+              pausedValue: "已暂停",
+              sloHealth: "SLO 健康度",
+              focusHit: "焦点命中",
+              filterState: "筛选状态",
+              filtersApplied: (count: number) => `已应用 ${count} 个筛选`,
+              filtersOff: "筛选关闭",
+            },
+            drawerPrompts: {
+              criticalAlerts: (count: number) => `检测到 ${count} 个严重告警。先处理它们，再核对建议动作是否成立。`,
+              currentIssue: (label: string) => `当前问题：${label}。先执行一次“立即刷新”，确认它是否仍然存在。`,
+              unappliedDraftFilters: (count: number) => `检测到 ${count} 个未应用的草稿筛选。先应用，再判断风险趋势。`,
+              riskCounts: (failed: number, blocked: number) =>
+                `高风险会话 ${failed} 个，阻塞会话 ${blocked} 个。用焦点切换器先收窄范围。`,
+              paused: "实时刷新当前已暂停。完成这一轮分析后，记得恢复实时监控。",
+              stable: "当前态势稳定。先做一次例行刷新，再抽查几个会话详情，防止隐藏阻塞。",
+            },
+            priorityLanes: {
+              liveTitle: "实时 Lane",
+              liveSummary: (status: string, intervalMs: number) => `${status} · 间隔 ${intervalMs}ms`,
+              riskTitle: "风险 Lane",
+              riskSummary: (failed: number, blocked: number, critical: number) =>
+                `失败 ${failed} · 阻塞 ${blocked} · 严重 ${critical}`,
+              actionsTitle: "动作 Lane",
+              draftFiltersWaiting: (count: number) => `有 ${count} 个草稿筛选待应用`,
+              refreshFirst: "先刷新，再聚焦高风险会话",
+              primaryActionsReady: "主动作已就绪",
+              liveBadge: "实时",
+              pausedBadge: "暂停",
+              pendingBadge: "待处理",
+              convergingBadge: "收敛中",
+              readyBadge: "已就绪",
+            },
+          },
+        },
+      },
+      runDetailPage: {
+        title: "运行详情",
+        subtitle: "沿着状态、事件证据和回放对比，完整跟踪这一条 Run。",
+        openCompareSurface: "打开对比视图",
+        degradedTitle: "运行详情当前处于部分降级状态",
+        degradedNextAction:
+          "先重试当前页面。如果同一数据源仍不可用，就先查看还能显示的 Run Detail 标签页，再回到运行列表。",
+        degradedBadge: "部分数据",
+        reloadAction: "重新加载运行详情",
+        backToRunsAction: "返回运行列表",
+        compareDecisionTitle: "对比判断",
+        compareMissing: "当前还没有附带结构化 compare 报告。",
+        compareAligned: "当前 Run 与所选基线看起来是一致的。",
+        compareNeedsReview: "Compare 发现了差异，在信任这个 Run 之前仍需要操作员复核。",
+        compareNextStepMissing: "下一步：为这个 Run 生成或刷新 compare 报告。",
+        compareNextStepAligned: "下一步：复核 proof 并完成最终结论。",
+        compareNextStepNeedsReview: "下一步：打开 compare，决定是重放、调查，还是继续阻塞这个 Run。",
+        incidentActionTitle: "事件处置",
+        incidentMissing: "当前还没有附带 incident pack。",
+        incidentNextStepFallback: "先结合报告和时间线判断下一步操作。",
+        proofActionTitle: "证明动作",
+        proofMissing: "当前还没有附带 proof pack。",
+        proofNextStepFallback: "在提升或分享任何结果前，先检查当前 Run 报告。",
+      },
+      workflowDetailPage: {
+        title: "工作流案例详情",
+        subtitle: "先判断风险，再确认案例摘要、Run 映射、队列姿态和事件时间线，然后再做治理动作。",
+        riskSummaryAriaLabel: "工作流风险摘要",
+        highRiskLabel: "高风险状态",
+        normalRiskLabel: "正常状态",
+        shareAssetCta: "打开可分享案例资产",
+        degradedTitle: "工作流案例当前处于只读降级模式",
+        degradedNextAction:
+          "现在只能用可见的案例身份、事件时间线和 Run 映射来做诊断。在数据链路恢复前，不要执行审批、回滚、重放或队列动作。",
+        degradedBadge: "只读",
+        degradedIdentityTitle: "身份快照（降级）",
+        degradedRunMappingTitle: "Run 映射样本（降级）",
+        degradedRunMappingEmpty: "降级模式下当前没有可验证的 Run 映射。",
+        degradedRunMappingReadonlyNote: "只读说明：这里只能拿 Run 链路做判断，不能直接拿来执行治理动作。",
+        degradedEventTimelineTitle: "事件时间线样本（降级）",
+        degradedEventTimelineReadonlyNote: "事件仍可见，但治理动作应等数据链路恢复后再进行。",
+        retryLoadAction: "重新加载",
+        backToWorkflowListAction: "返回工作流列表",
+        governanceEntryDisabled: "治理入口（降级模式已禁用）",
+        summaryStatus: "当前状态",
+        summaryRunMappings: "Run 映射",
+        summaryEvents: "事件数",
+        summaryRunMappingsHint: "用它来定位当前执行路径。",
+        summaryEventsHint: "先过滤失败和回滚事件。",
+        queuePostureNote: "当操作角色已配置时，Web 面已经可以直接推进队列。",
+        caseFieldLabels: {
+          workflowId: "workflow_id",
+          name: "名称",
+          updatedAt: "更新时间",
+          namespace: "命名空间",
+          taskQueue: "任务队列",
+          owner: "负责人",
+          project: "项目",
+          verdict: "结论",
+          runs: "Runs",
+        },
+      },
       sectionPrimary: "主路径",
       sectionAdvanced: "高级",
       labels: {
@@ -1810,6 +2659,74 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           testReportTitle: "test_report.json",
           reviewReportTitle: "review_report.json",
           evidenceReportTitle: "evidence_report.json",
+        },
+      },
+      workflowDetail: {
+        backToList: "返回工作流列表",
+        queuePriority: "队列优先级",
+        queueScheduledAt: "计划执行时间",
+        queueDeadlineAt: "截止时间",
+        operatorRoleLabel: "操作角色",
+        roleGateReason: "当前环境没有配置 NEXT_PUBLIC_CORTEXPILOT_OPERATOR_ROLE，所以队列动作保持只读。",
+        queueSummary: (queueCount: number, eligibleCount: number) =>
+          `当前可见队列项：${queueCount}。现在可执行：${eligibleCount}。`,
+        queueLatestRun: "排入最新 Run 合约",
+        runNextQueuedTask: "运行下一条排队任务",
+        queueingTask: "加入队列中...",
+        runningTask: "运行中...",
+        noRunAvailable: "当前没有可加入队列的 Run。",
+        queuedNotice: (taskId: string) => `已将 ${taskId} 加入队列，正在刷新工作流视图...`,
+        startedNotice: (runId: string) => `已启动排队工作，Run 为 ${runId}。正在刷新工作流视图...`,
+        invalidScheduledAt: "计划执行时间必须是有效的本地日期时间。",
+        invalidDeadlineAt: "截止时间必须是有效的本地日期时间。",
+        queueEmptyReason: "队列为空",
+        workflowCopilotTitle: "AI 工作流副驾驶",
+        workflowCopilotIntro:
+          "生成一份有边界的工作流摘要，基于 workflow 状态、队列姿态、最新 linked run、proof、compare、incident 与 approval 真相。",
+        workflowCopilotButton: "解释这个工作流案例",
+        workflowCopilotTakeaways: "最新 Run 差距、证据与真相覆盖",
+        workflowCopilotPosture: "队列、SLA 与审批姿态",
+        workflowCopilotQuestions: [
+          "当前最重要的工作流案例风险是什么？",
+          "这个工作流案例当前的队列和 SLA 姿态如何？",
+          "最新 Run 和当前工作流状态之间最大的差距是什么？",
+          "操作员下一步最应该先做什么？",
+          "还有哪些真相面仍然缺失或不完整？",
+        ],
+        nextOperatorActionTitle: "下一步操作",
+        nextOperatorActionHint: "工作流案例应该作为案例记录来运营，而不是孤立的 Run 行。",
+        recommendedActionQueued: "已有排队工作。下一步最有价值的动作是运行下一条排队任务并观察案例前进。",
+        recommendedActionNoQueue: "当前还没有排队工作。先把最新 Run 合约加入队列，让这个工作流案例进入 SLA 跟踪。",
+        recommendedActionNoRun: "当前没有可用 Run。先启动或恢复一个 Run，再把这个工作流案例送入队列。",
+        summaryTitle: "工作流案例摘要",
+        readModelTitle: "工作流只读模型",
+        noReadModel: "当前还没有附加工作流只读模型。",
+        relatedRunsTitle: (count: number) => `相关 Run（${count}）`,
+        noRelatedRuns: "当前没有相关 Run",
+        eventsTitle: (count: number) => `事件（${count}）`,
+        noEvents: "当前没有事件",
+        queueSlaTitle: (count: number) => `队列 / SLA（${count}）`,
+        noQueuedWork: "这个工作流案例当前没有排队工作。",
+        queueMeta: (priority: string, sla: string) => `优先级 ${priority} / SLA ${sla}`,
+        summaryLabels: {
+          status: "状态",
+          objective: "目标",
+          owner: "负责人",
+          project: "项目",
+          verdict: "结论",
+          pmSessions: "PM 会话",
+          summary: "摘要",
+        },
+        readModelLabels: {
+          authority: "权威来源",
+          executionAuthority: "执行权威",
+          source: "来源",
+          sourceRunId: "来源 Run",
+          skillsBundle: "技能包",
+          mcpBundle: "MCP 包",
+          runtimeBinding: "运行时绑定",
+          readOnlyNote:
+            "只读说明：这里展示的是最新 linked run 的绑定摘要镜像；`task_contract` 仍然掌握执行权威。",
         },
       },
       overview: {

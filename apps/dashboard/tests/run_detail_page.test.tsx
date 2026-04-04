@@ -1,6 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const { mockCookies } = vi.hoisted(() => ({
+  mockCookies: vi.fn(),
+}));
+
 vi.mock("../lib/api", () => ({
   fetchDiff: vi.fn(),
   fetchEvents: vi.fn(),
@@ -13,12 +17,20 @@ vi.mock("../components/RunDetail", () => ({
   default: ({ run }: { run: { run_id?: string } }) => <div data-testid="run-detail-stub">{run?.run_id || "-"}</div>,
 }));
 
+vi.mock("next/headers", () => ({
+  cookies: mockCookies,
+}));
+
 import RunDetailPage from "../app/runs/[id]/page";
 import { fetchDiff, fetchEvents, fetchReports, fetchRun } from "../lib/api";
 
 describe("run detail page copy", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockCookies.mockResolvedValue({
+      get: () => undefined,
+      toString: () => "",
+    });
     vi.mocked(fetchRun).mockResolvedValue({ run_id: "run-1", status: "RUNNING" } as never);
     vi.mocked(fetchEvents).mockResolvedValue([] as never[]);
     vi.mocked(fetchDiff).mockResolvedValue({ diff: "" } as never);
@@ -33,6 +45,19 @@ describe("run detail page copy", () => {
     expect(screen.getByText("AI operator copilot")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Generate operator brief" })).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-stub")).toHaveTextContent("run-1");
+  });
+
+  it("switches page-level copy with the zh-CN locale cookie", async () => {
+    mockCookies.mockResolvedValueOnce({
+      get: () => ({ value: "zh-CN" }),
+      toString: () => "cortexpilot.ui.locale=zh-CN",
+    });
+
+    render(await RunDetailPage({ params: Promise.resolve({ id: "run-zh" }) }));
+
+    expect(screen.getByTestId("run-detail-title")).toHaveTextContent("运行详情");
+    expect(screen.getByText("沿着状态、事件证据和回放对比，完整跟踪这一条 Run。")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "打开对比视图" })).toHaveAttribute("href", "/runs/run-zh/compare");
   });
 
   it("shows English safeLoad warning copy when one data source degrades", async () => {

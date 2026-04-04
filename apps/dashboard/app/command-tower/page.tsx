@@ -1,12 +1,17 @@
-import { Suspense } from "react";
+import { cookies } from "next/headers";
+import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@cortexpilot/frontend-shared/uiLocale";
 import Link from "next/link";
+import { Suspense } from "react";
 import CommandTowerHomeLiveClient from "./CommandTowerHomeLiveClient";
 import ControlPlaneStatusCallout from "../../components/control-plane/ControlPlaneStatusCallout";
 import { fetchCommandTowerOverview, fetchPmSessions } from "../../lib/api";
 import { safeLoad } from "../../lib/serverPageData";
 import type { CommandTowerOverviewPayload, PmSessionSummary } from "../../lib/types";
+import type { UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 
-async function CommandTowerHomeSection() {
+async function CommandTowerHomeSection({ locale }: { locale: UiLocale }) {
+  const commandTowerCopy = getUiCopy(locale).dashboard.commandTowerPage;
   const fallbackOverview: CommandTowerOverviewPayload = {
     generated_at: new Date().toISOString(),
     total_sessions: 0,
@@ -48,57 +53,61 @@ async function CommandTowerHomeSection() {
     <>
       {warning && !hasLiveData ? (
         <ControlPlaneStatusCallout
-          title="Command Tower live overview is unavailable"
+          title={commandTowerCopy.unavailableTitle}
           summary={warning}
-          nextAction="Reload first. If live data is still missing, inspect runs for the latest verified state or start from PM to rebuild the active path."
+          nextAction={commandTowerCopy.unavailableNextAction}
           tone="warning"
-          badgeLabel="Live data missing"
+          badgeLabel={commandTowerCopy.unavailableBadge}
           actions={[
-            { href: "/command-tower", label: "Reload Command Tower" },
-            { href: "/runs", label: "View runs" },
-            { href: "/pm", label: "Start from PM" },
+            { href: "/command-tower", label: commandTowerCopy.actions.reload },
+            { href: "/runs", label: commandTowerCopy.actions.viewRuns },
+            { href: "/pm", label: commandTowerCopy.actions.startFromPm },
           ]}
         />
       ) : null}
       {warning && hasLiveData ? (
         <ControlPlaneStatusCallout
-          title="Command Tower is running with partial truth"
+          title={commandTowerCopy.partialTitle}
           summary={warning}
-          nextAction="Use the visible overview as a partial snapshot only. Confirm runs or Workflow Cases directly before taking approval, rollback, or release decisions."
+          nextAction={commandTowerCopy.partialNextAction}
           tone="warning"
-          badgeLabel="Partial context"
+          badgeLabel={commandTowerCopy.partialBadge}
           actions={[
-            { href: "/runs", label: "Open runs" },
-            { href: "/workflows", label: "Open Workflow Cases" },
+            { href: "/runs", label: commandTowerCopy.actions.openRuns },
+            { href: "/workflows", label: commandTowerCopy.actions.openWorkflowCases },
           ]}
         />
       ) : null}
       <section aria-label="Command Tower live overview" aria-describedby="command-tower-page-subtitle">
-        <CommandTowerHomeLiveClient initialOverview={overview} initialSessions={sessions} />
+        <CommandTowerHomeLiveClient initialOverview={overview} initialSessions={sessions} locale={locale} />
       </section>
     </>
   );
 }
 
-function CommandTowerHomeSectionFallback() {
+function CommandTowerHomeSectionFallback({ locale }: { locale: UiLocale }) {
+  const commandTowerCopy = getUiCopy(locale).dashboard.commandTowerPage;
   return (
     <section aria-label="Command Tower live overview" aria-describedby="command-tower-page-subtitle" aria-busy="true">
-      <p className="mono" role="status">Loading Command Tower live overview...</p>
+      <p className="mono" role="status">{commandTowerCopy.fallbackLoading}</p>
     </section>
   );
 }
 
-export default function CommandTowerPage() {
+export default async function CommandTowerPage() {
+  const cookieStore = await cookies();
+  const locale = normalizeUiLocale(cookieStore.get(UI_LOCALE_STORAGE_KEY)?.value);
+  const commandTowerCopy = getUiCopy(locale).dashboard.commandTowerPage;
   return (
     <main className="grid" aria-labelledby="command-tower-page-title" aria-describedby="command-tower-page-subtitle">
       <h1 id="command-tower-page-title" className="sr-only">
-        Command Tower
+        {commandTowerCopy.srTitle}
       </h1>
       <p id="command-tower-page-subtitle" className="sr-only">
-        Review risk and blockers first, then move into session handling.
+        {commandTowerCopy.srSubtitle}
       </p>
-      <Suspense fallback={<CommandTowerHomeSectionFallback />}>
-        <CommandTowerHomeSection />
+      <Suspense fallback={<CommandTowerHomeSectionFallback locale={locale} />}>
+        <CommandTowerHomeSection locale={locale} />
       </Suspense>
     </main>
   );

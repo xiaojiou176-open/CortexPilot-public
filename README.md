@@ -324,8 +324,12 @@ The current stage freeze keeps two high-risk directions explicitly constrained:
 - If this is ever reopened, the smallest safe move is one owner-only,
   manual-only, default-off queue mutation pilot with explicit audit evidence.
 - Repo-side groundwork for that later-gated pilot can include queue preview,
-  queue cancel, and a queue-only MCP pilot server, but those do not by
-  themselves upgrade the public product contract into write-capable MCP.
+  queue cancel, and a queue-only MCP pilot server. That pilot now also keeps
+  `enqueue_from_run` behind an explicit
+  `CORTEXPILOT_MCP_QUEUE_PILOT_ENABLE_APPLY=1` trusted-operator gate, so the
+  preview surface can exist without silently turning mutation on by default.
+  These repo-owned controls do not by themselves upgrade the public product
+  contract into write-capable MCP.
 
 - **Hosted operator surface** remains **No-Go**.
 - `cortexpilot.ai` is still a weak marketing/holding domain, not a production
@@ -470,6 +474,11 @@ reclaim bytes, and post-cleanup verification metadata. Repo-external apply
 scope remains limited to `~/.cache/cortexpilot`; Docker Desktop, global
 Cargo/Rustup, global uv, global npm, and global Playwright remain observation
 only.
+Heavy machine-scoped temp producers now also stay under the governed
+`~/.cache/cortexpilot/tmp/` subtree by default. Current examples include local
+`docker_ci` host runner temp roots and clean-room recovery machine cache /
+preserve roots, so Darwin `TMPDIR` is no longer the default heavy temp landing
+zone for those repo-owned surfaces.
 Docker-heavy local CI residue now has its own operator lane:
 
 - `npm run docker:runtime:audit`

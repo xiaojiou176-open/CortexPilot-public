@@ -46,6 +46,10 @@ npm --prefix apps/desktop run tauri:dev
   substrate. Current examples include run-detail tabs, replay/compare empty
   states, action-bar copy, and locale-aware recent-exception labels in the
   Overview page.
+- Desktop `Workflow Detail` now also routes its page-level labels and queue
+  control copy through the shared locale substrate, so the desktop case view
+  stays aligned with the dashboard's bilingual operator wording instead of
+  keeping a separate page-local literal map.
 - Desktop `Run Detail` and `Overview` now keep their high-frequency operator
   copy on the shared `@cortexpilot/frontend-shared/uiCopy` contract and route
   status labels through shared status-presentation helpers, so `en` / `zh-CN`

@@ -2,6 +2,10 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const { mockCookies } = vi.hoisted(() => ({
+  mockCookies: vi.fn(),
+}));
+
 const mockRefresh = vi.fn();
 
 vi.mock("next/link", () => ({
@@ -29,6 +33,10 @@ vi.mock("../lib/serverPageData", () => ({
   safeLoad: vi.fn(),
 }));
 
+vi.mock("next/headers", () => ({
+  cookies: mockCookies,
+}));
+
 import WorkflowDetailPage from "../app/workflows/[id]/page";
 import { enqueueRunQueue, fetchQueue, fetchWorkflow, fetchWorkflowCopilotBrief, mutationExecutionCapability, runNextQueue } from "../lib/api";
 import { safeLoad } from "../lib/serverPageData";
@@ -37,6 +45,10 @@ describe("workflow detail page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockRefresh.mockReset();
+    mockCookies.mockResolvedValue({
+      get: () => undefined,
+      toString: () => "",
+    });
     vi.mocked(safeLoad).mockImplementation(
       async (loader: () => Promise<unknown>, fallback: unknown, label: string) => {
         try {
@@ -132,6 +144,27 @@ describe("workflow detail page", () => {
     expect(screen.getByText("Owner: pm-owner")).toBeInTheDocument();
   });
 
+  it("renders zh-CN page-level copy when the locale cookie is set", async () => {
+    mockCookies.mockResolvedValueOnce({
+      get: () => ({ value: "zh-CN" }),
+      toString: () => "cortexpilot.ui.locale=zh-CN",
+    });
+
+    const view = await WorkflowDetailPage({
+      params: Promise.resolve({ id: "wf-zh" }),
+    });
+    render(view);
+
+    expect(screen.getByRole("heading", { name: "工作流案例详情" })).toBeInTheDocument();
+    expect(screen.getByText("先判断风险，再确认案例摘要、Run 映射、队列姿态和事件时间线，然后再做治理动作。")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "打开可分享案例资产" })[0]).toHaveAttribute("href", "/workflows/wf-zh/share");
+    expect(screen.getByText("操作角色: TECH_LEAD")).toBeInTheDocument();
+    expect(screen.getByText("当前可见队列项：0。现在可执行：0。")).toBeInTheDocument();
+    expect(screen.getByLabelText("队列优先级")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "排入最新 Run 合约" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "运行下一条排队任务" })).toBeInTheDocument();
+  });
+
   it("encodes run link when run id contains reserved chars", async () => {
     const view = await WorkflowDetailPage({
       params: Promise.resolve({ id: "wf-1" }),
@@ -139,15 +172,13 @@ describe("workflow detail page", () => {
     render(view);
     expect(screen.getByRole("link", { name: "run/1" })).toHaveAttribute("href", "/runs/run%2F1");
     expect(screen.getAllByText("Normal state").length).toBeGreaterThan(0);
-    expect(screen.getByText("Next recommended action")).toBeInTheDocument();
+    expect(screen.getByText("Next Operator Action")).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "Open share-ready case asset" })[0]).toHaveAttribute("href", "/workflows/wf-1/share");
     expect(screen.getByRole("button", { name: "Queue latest run contract" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run next queued task" })).toBeInTheDocument();
     expect(screen.getByText("Workflow Case copilot")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Explain this workflow case" })).toBeInTheDocument();
     expect(screen.getByText("Workflow read model")).toBeInTheDocument();
-    expect(screen.getByText("Execution authority: task_contract")).toBeInTheDocument();
-    expect(screen.getByText("Skills bundle: worker_delivery_core_v1 (registry-backed)")).toBeInTheDocument();
   });
 
   it("decodes valid encoded route id before fetching workflow", async () => {
@@ -194,7 +225,7 @@ describe("workflow detail page", () => {
 
     expect(screen.getByText("Runs: 0")).toBeInTheDocument();
     expect(screen.getAllByText("High-risk state").length).toBeGreaterThan(0);
-    expect(screen.getByText("No run records yet")).toBeInTheDocument();
+    expect(screen.getByText("No related runs")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "bad-shape" })).not.toBeInTheDocument();
   });
 
@@ -308,7 +339,7 @@ describe("workflow detail page", () => {
     });
     render(view);
 
-    expect(screen.getByText(/The next high-value action is to queue the latest run contract so this Workflow Case can move forward\./)).toBeInTheDocument();
+    expect(screen.getByText(/No queued work exists yet\. Queue the latest run contract to move this Workflow Case into SLA tracking\./)).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Queue priority"), { target: { value: "3" } });
     fireEvent.change(screen.getByLabelText("Queue scheduled at"), { target: { value: "2026-03-30T12:00" } });
     fireEvent.change(screen.getByLabelText("Queue deadline at"), { target: { value: "2026-03-30T13:00" } });

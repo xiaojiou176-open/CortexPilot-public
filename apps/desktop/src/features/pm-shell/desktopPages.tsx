@@ -202,6 +202,7 @@ export function renderDesktopPage({
           workflowId={detailWorkflowId}
           onBack={() => setActivePage("workflows")}
           onNavigateToRun={navigateToRun}
+          locale={uiLocale}
         />
       );
     case "events":

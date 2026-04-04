@@ -57,6 +57,28 @@ Work in CortexPilot as a contract-first engineering agent:
 - update docs when commands, APIs, or public behavior change
 - keep public docs English-first and minimal
 - keep runtime output under `.runtime-cache/`
+- treat Chrome/Chromium/Playwright/Safari/browser profiles as machine-shared resources:
+  use repo-scoped or ephemeral state only, never reuse tabs/windows/profiles
+  opened by other repos or other L1s, and close browser sessions when the
+  current verification pass ends
+- prefer background/no-focus browser verification paths whenever possible; do
+  not steal desktop focus unless the current workflow truly requires a visible
+  foreground browser step
+- before opening a new Chrome/Chromium-class browser instance, check current
+  machine browser load; if more than 4 browser instances are already running,
+  wait for other repo workers to release resources instead of opening another
+- treat a missing login/session as a blocker after 1-2 repo-scoped attempts;
+  do not keep spawning fresh browsers or profile clones once the current repo's
+  real profile is confirmed logged out
+- clean repo-owned browser temp state and Docker residue after verification:
+  do not leave cloned browser profiles, idle tabs, orphaned Chromium
+  instances, or repo-owned Docker containers/images/volumes/caches behind;
+  if cleanup cannot happen immediately, record the residue, owner, and reason
+  in the active task board
+- never perform write actions against external accounts or dashboards
+  (GitHub settings, Render apply/deploy, npm publish, marketplace submission,
+  browser-clicked account mutations) unless the user explicitly authorizes that
+  exact class of write
 - prefer repo-owned scripts over ad-hoc shell glue
 - keep public CI hosted-first: fork PRs stay low-privilege on GitHub-hosted
   lanes, and sensitive verification stays on protected manual dispatch lanes
@@ -120,7 +142,11 @@ Work in CortexPilot as a contract-first engineering agent:
   `log_lane_summary` + `space_bridge` in `retention_report.json`, serial-only
   heavy cleanup execution ordering, cleanup inventory consistency checks, and
   the rule that repo-external apply scope stays inside `~/.cache/cortexpilot`
-  while shared observation layers remain report-only
+  while shared observation layers remain report-only; current machine-temp
+  examples also include `~/.cache/cortexpilot/tmp/docker-ci/runner-temp-*`,
+  `~/.cache/cortexpilot/tmp/clean-room-machine-cache.*`, and
+  `~/.cache/cortexpilot/tmp/clean-room-preserve.*`, which stay
+  repo-external-related under wave3 instead of defaulting to Darwin `TMPDIR`
 - when workflow-case / proof-pack / compare / task-pack / queue-scheduling
   contracts change, sync the root AI/docs entrypoints in the same patch; the
   current examples are `.runtime-cache/cortexpilot/workflow-cases/`,

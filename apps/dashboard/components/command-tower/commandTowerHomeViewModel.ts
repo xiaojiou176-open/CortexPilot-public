@@ -1,5 +1,6 @@
 import type { CommandTowerPriorityLane } from "../../lib/frontendApiContract";
 import type { CommandTowerAlertsPayload } from "../../lib/types";
+import type { UiCopy } from "@cortexpilot/frontend-shared/uiCopy";
 import type { StatusVariant } from "@cortexpilot/frontend-shared/statusPresentation";
 
 export type SortMode = "updated_desc" | "created_desc" | "failed_desc" | "blocked_desc";
@@ -58,11 +59,18 @@ type BuildArgs = {
   showFocusEmptyState: boolean;
   showGlobalEmptyState: boolean;
   onRunQuickAction: (id: QuickActionId) => void;
+  sectionStatusText: {
+    overview: (statusLabel: string) => string;
+    sessions: (statusLabel: string) => string;
+    alerts: (statusLabel: string) => string;
+  };
   sectionStatusLabel: (status: SectionFetchStatus) => string;
   sectionStatusBadgeVariant: (status: SectionFetchStatus) => StatusVariant;
   homeLiveBadgeText: (mode: LiveMode) => string;
   homeLiveBadgeVariant: (mode: LiveMode) => StatusVariant;
   alertsBadgeVariant: (status: CommandTowerAlertsPayload["status"]) => StatusVariant;
+  commandTowerCopy: UiCopy["desktop"]["commandTower"];
+  liveHomeCopy: UiCopy["dashboard"]["commandTowerPage"]["liveHome"];
 };
 
 export function buildHomeViewModel(args: BuildArgs): {
@@ -106,58 +114,64 @@ export function buildHomeViewModel(args: BuildArgs): {
     {
       id: "refresh",
       shortcut: "Alt+Shift+R",
-      description: "Pull overview, sessions, and alerts immediately.",
-      actionLabel: args.isRefreshing ? "Refreshing..." : "Refresh now",
+      description: args.liveHomeCopy.viewModel.quickActions.refreshDescription,
+      actionLabel: args.isRefreshing ? args.commandTowerCopy.actions.refreshing : args.commandTowerCopy.refreshNow,
       onAction: () => args.onRunQuickAction("refresh"),
       disabled: args.isRefreshing,
     },
     {
       id: "live",
       shortcut: "Alt+Shift+L",
-      description: "Control the live refresh cadence so you can pause on the current snapshot.",
-      actionLabel: args.liveEnabled ? "Pause live" : "Resume live",
+      description: args.liveHomeCopy.viewModel.quickActions.liveDescription,
+      actionLabel: args.liveEnabled
+        ? args.liveHomeCopy.viewModel.quickActions.pauseAction
+        : args.liveHomeCopy.viewModel.quickActions.resumeAction,
       onAction: () => args.onRunQuickAction("live"),
     },
     {
       id: "export",
       shortcut: "Alt+Shift+E",
-      description: "Export failed sessions as JSON for triage or review.",
-      actionLabel: "Export failed",
+      description: args.liveHomeCopy.viewModel.quickActions.exportDescription,
+      actionLabel: args.liveHomeCopy.viewModel.quickActions.exportAction,
       onAction: () => args.onRunQuickAction("export"),
     },
     {
       id: "copy",
       shortcut: "Alt+Shift+C",
-      description: "Share the current filters, focus mode, and live state with collaborators.",
-      actionLabel: "Copy",
+      description: args.liveHomeCopy.viewModel.quickActions.copyDescription,
+      actionLabel: args.commandTowerCopy.drawer.copy,
       onAction: () => args.onRunQuickAction("copy"),
     },
     {
       id: "focus-filter",
       shortcut: "Alt+Shift+F",
-      description: "Jump to the project key input to tighten the filter flow.",
-      actionLabel: "Focus",
+      description: args.liveHomeCopy.viewModel.quickActions.focusDescription,
+      actionLabel: args.liveHomeCopy.viewModel.quickActions.focusAction,
       onAction: () => args.onRunQuickAction("focus-filter"),
     },
     {
       id: "toggle-drawer",
       shortcut: "Alt+Shift+D",
-      description: "Change the right drawer density to favor the workspace or the context tools.",
-      actionLabel: args.drawerCollapsed ? "Expand" : "Collapse",
+      description: args.liveHomeCopy.viewModel.quickActions.toggleDrawerDescription,
+      actionLabel: args.drawerCollapsed
+        ? args.liveHomeCopy.viewModel.quickActions.expandAction
+        : args.liveHomeCopy.viewModel.quickActions.collapseAction,
       onAction: () => args.onRunQuickAction("toggle-drawer"),
     },
     {
       id: "toggle-pin",
       shortcut: "Alt+Shift+P",
-      description: "Toggle whether the drawer stays pinned or scrolls with the page.",
-      actionLabel: args.drawerPinned ? "Unpin" : "Pin",
+      description: args.liveHomeCopy.viewModel.quickActions.togglePinDescription,
+      actionLabel: args.drawerPinned
+        ? args.liveHomeCopy.viewModel.quickActions.unpinAction
+        : args.liveHomeCopy.viewModel.quickActions.pinAction,
       onAction: () => args.onRunQuickAction("toggle-pin"),
     },
     {
       id: "apply-filter",
       shortcut: "Enter (while a filter input is focused)",
-      description: "Promote the draft state into the applied filters and trigger a refresh.",
-      actionLabel: "Apply",
+      description: args.liveHomeCopy.viewModel.quickActions.applyDescription,
+      actionLabel: args.commandTowerCopy.apply,
       onAction: () => args.onRunQuickAction("apply-filter"),
     },
   ];
@@ -178,72 +192,74 @@ export function buildHomeViewModel(args: BuildArgs): {
   }> = [
     {
       id: "engine",
-      label: "Live engine",
-      value: args.liveEnabled ? `Running (${args.intervalMs}ms)` : "Paused",
+      label: args.liveHomeCopy.viewModel.contextHealth.liveEngine,
+      value: args.liveEnabled
+        ? args.liveHomeCopy.viewModel.contextHealth.runningValue(args.intervalMs)
+        : args.liveHomeCopy.viewModel.contextHealth.pausedValue,
       badgeVariant: drawerLiveBadgeVariant,
-      badgeLabel: args.liveEnabled ? "RUNNING" : "PAUSED",
+      badgeLabel: args.liveEnabled ? args.commandTowerCopy.drawer.running : args.commandTowerCopy.drawer.paused,
     },
     {
       id: "slo",
-      label: "SLO health",
+      label: args.liveHomeCopy.viewModel.contextHealth.sloHealth,
       value: args.alertsStatus,
       badgeVariant: args.alertsBadgeVariant(args.alertsStatus),
       badgeLabel: args.alertsStatus.toUpperCase(),
     },
     {
       id: "focus",
-      label: "Focus hit",
+      label: args.liveHomeCopy.viewModel.contextHealth.focusHit,
       value: `${args.focusLabel} (${args.visibleSessionCount}/${args.filteredSessionsSummary.total})`,
       badgeVariant: "success",
-      badgeLabel: "FOCUS",
+      badgeLabel: args.commandTowerCopy.drawer.focusHits,
     },
     {
       id: "filter",
-      label: "Filter state",
-      value: args.hasAppliedFilters ? `${args.appliedFilterCount} filters applied` : "Filters off",
+      label: args.liveHomeCopy.viewModel.contextHealth.filterState,
+      value: args.hasAppliedFilters
+        ? args.liveHomeCopy.viewModel.contextHealth.filtersApplied(args.appliedFilterCount)
+        : args.liveHomeCopy.viewModel.contextHealth.filtersOff,
       badgeVariant: args.hasAppliedFilters ? "running" : "warning",
-      badgeLabel: args.hasAppliedFilters ? "FILTERED" : "ALL",
+      badgeLabel: args.hasAppliedFilters ? args.commandTowerCopy.drawer.filterState : args.commandTowerCopy.drawer.allFilters,
     },
   ];
 
   const sectionStatusItems: Array<{ id: string; text: string; badgeVariant: StatusVariant }> = [
     {
       id: "overview",
-      text: `Overview ${args.sectionStatusLabel(args.sectionStatus.overview)}`,
+      text: args.sectionStatusText.overview(args.sectionStatusLabel(args.sectionStatus.overview)),
       badgeVariant: args.sectionStatusBadgeVariant(args.sectionStatus.overview),
     },
     {
       id: "sessions",
-      text: `Sessions ${args.sectionStatusLabel(args.sectionStatus.sessions)}`,
+      text: args.sectionStatusText.sessions(args.sectionStatusLabel(args.sectionStatus.sessions)),
       badgeVariant: args.sectionStatusBadgeVariant(args.sectionStatus.sessions),
     },
     {
       id: "alerts",
-      text: `Alerts ${args.sectionStatusLabel(args.sectionStatus.alerts)}`,
+      text: args.sectionStatusText.alerts(args.sectionStatusLabel(args.sectionStatus.alerts)),
       badgeVariant: args.sectionStatusBadgeVariant(args.sectionStatus.alerts),
     },
   ];
 
   const drawerPromptItems: string[] = [];
   if (args.alertsSeveritySummary.critical > 0) {
-    drawerPromptItems.push(`Detected ${args.alertsSeveritySummary.critical} critical alerts. Triage them first and verify the suggested actions.`);
+    drawerPromptItems.push(args.liveHomeCopy.viewModel.drawerPrompts.criticalAlerts(args.alertsSeveritySummary.critical));
   }
   if (args.errorMessage) {
-    drawerPromptItems.push(`Current issue: ${args.errorMetaLabel}. Run Refresh now first to confirm whether it persists.`);
+    drawerPromptItems.push(args.liveHomeCopy.viewModel.drawerPrompts.currentIssue(args.errorMetaLabel));
   }
   if (args.draftChanged) {
-    drawerPromptItems.push(`Detected ${args.draftFilterCount} unapplied draft filters. Apply them before judging the risk trend.`);
+    drawerPromptItems.push(args.liveHomeCopy.viewModel.drawerPrompts.unappliedDraftFilters(args.draftFilterCount));
   }
   if (args.filteredSessionsSummary.failed > 0 || args.filteredSessionsSummary.blocked > 0) {
-    drawerPromptItems.push(
-      `High-risk sessions ${args.filteredSessionsSummary.failed}, blocked sessions ${args.filteredSessionsSummary.blocked}. Use the focus switcher to narrow quickly.`,
-    );
+    drawerPromptItems.push(args.liveHomeCopy.viewModel.drawerPrompts.riskCounts(args.filteredSessionsSummary.failed, args.filteredSessionsSummary.blocked));
   }
   if (!args.liveEnabled) {
-    drawerPromptItems.push("Live refresh is paused. Resume live monitoring after the current analysis.");
+    drawerPromptItems.push(args.liveHomeCopy.viewModel.drawerPrompts.paused);
   }
   if (drawerPromptItems.length === 0) {
-    drawerPromptItems.push("The current posture is stable. Run a routine refresh, then spot-check session details for hidden blockers.");
+    drawerPromptItems.push(args.liveHomeCopy.viewModel.drawerPrompts.stable);
   }
 
   const priorityLanes: Array<{
@@ -255,40 +271,50 @@ export function buildHomeViewModel(args: BuildArgs): {
   }> = [
     {
       lane: "live" as const,
-      title: "Live Lane",
-      summary: `${args.homeLiveBadgeText(args.liveMode)} · interval ${args.intervalMs}ms`,
+      title: args.liveHomeCopy.viewModel.priorityLanes.liveTitle,
+      summary: args.liveHomeCopy.viewModel.priorityLanes.liveSummary(args.homeLiveBadgeText(args.liveMode), args.intervalMs),
       badgeVariant: args.homeLiveBadgeVariant(args.liveMode),
-      badgeText: args.liveEnabled ? "Live" : "Paused",
+      badgeText: args.liveEnabled
+        ? args.liveHomeCopy.viewModel.priorityLanes.liveBadge
+        : args.liveHomeCopy.viewModel.priorityLanes.pausedBadge,
     },
     {
       lane: "risk" as const,
-      title: "Risk Lane",
-      summary: `Failed ${args.filteredSessionsSummary.failed} · Blocked ${args.filteredSessionsSummary.blocked} · critical ${args.alertsSeveritySummary.critical}`,
+      title: args.liveHomeCopy.viewModel.priorityLanes.riskTitle,
+      summary: args.liveHomeCopy.viewModel.priorityLanes.riskSummary(
+        args.filteredSessionsSummary.failed,
+        args.filteredSessionsSummary.blocked,
+        args.alertsSeveritySummary.critical,
+      ),
       badgeVariant: args.alertsBadgeVariant(args.alertsStatus),
       badgeText: args.alertsStatus,
     },
     {
       lane: "actions" as const,
-      title: "Action Lane",
+      title: args.liveHomeCopy.viewModel.priorityLanes.actionsTitle,
       summary: args.draftChanged
-        ? `${args.draftFilterCount} draft filters waiting`
+        ? args.liveHomeCopy.viewModel.priorityLanes.draftFiltersWaiting(args.draftFilterCount)
         : args.errorMessage || args.alertsStatus !== "healthy"
-          ? "Refresh first and focus high-risk sessions"
-          : "Primary actions are ready",
+          ? args.liveHomeCopy.viewModel.priorityLanes.refreshFirst
+          : args.liveHomeCopy.viewModel.priorityLanes.primaryActionsReady,
       badgeVariant: args.draftChanged
         ? "warning"
         : args.errorMessage || args.alertsStatus !== "healthy"
           ? "warning"
           : "success",
-      badgeText: args.draftChanged ? "Pending" : args.errorMessage || args.alertsStatus !== "healthy" ? "Converging" : "Ready",
+      badgeText: args.draftChanged
+        ? args.liveHomeCopy.viewModel.priorityLanes.pendingBadge
+        : args.errorMessage || args.alertsStatus !== "healthy"
+          ? args.liveHomeCopy.viewModel.priorityLanes.convergingBadge
+          : args.liveHomeCopy.viewModel.priorityLanes.readyBadge,
     },
   ];
 
   const focusOptionsForDrawer = [
-    { value: "all" as const, label: "All", count: args.filteredSessionsSummary.total },
-    { value: "high_risk" as const, label: "High risk", count: args.filteredSessionsSummary.failed },
-    { value: "blocked" as const, label: "Blocked", count: args.filteredSessionsSummary.blocked },
-    { value: "running" as const, label: "Running", count: args.filteredSessionsSummary.running },
+    { value: "all" as const, label: args.commandTowerCopy.focusLabels.all, count: args.filteredSessionsSummary.total },
+    { value: "high_risk" as const, label: args.commandTowerCopy.focusLabels.highRisk, count: args.filteredSessionsSummary.failed },
+    { value: "blocked" as const, label: args.commandTowerCopy.focusLabels.blocked, count: args.filteredSessionsSummary.blocked },
+    { value: "running" as const, label: args.commandTowerCopy.focusLabels.running, count: args.filteredSessionsSummary.running },
   ];
 
   const homeStateSignalLabel = args.isRefreshing

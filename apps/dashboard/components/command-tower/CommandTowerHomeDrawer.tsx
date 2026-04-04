@@ -1,4 +1,5 @@
 import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from "react";
+import type { UiCopy } from "@cortexpilot/frontend-shared/uiCopy";
 import { Badge, type BadgeVariant } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Input, Select } from "../ui/input";
@@ -72,6 +73,8 @@ type CommandTowerHomeDrawerProps = {
   onResetFilters: () => void;
   onFocusModeChange: (value: string) => void;
   onClose: () => void;
+  commandTowerCopy: UiCopy["desktop"]["commandTower"];
+  liveHomeCopy: UiCopy["dashboard"]["commandTowerPage"]["liveHome"];
 };
 
 export default function CommandTowerHomeDrawer({
@@ -106,22 +109,24 @@ export default function CommandTowerHomeDrawer({
   onResetFilters,
   onFocusModeChange,
   onClose,
+  commandTowerCopy,
+  liveHomeCopy,
 }: CommandTowerHomeDrawerProps) {
   return (
     <div
       id="ct-home-drawer-shell"
       className="ct-drawer-panel"
       role="region"
-      aria-label="Command Tower context panel"
+      aria-label={liveHomeCopy.loadingContextPanelAriaLabel}
     >
       <div className="ct-drawer-header">
-        <h3 className="ct-drawer-title">Context and filters</h3>
+        <h3 className="ct-drawer-title">{commandTowerCopy.drawer.title}</h3>
         <Button
           type="button"
           variant="ghost"
           className="btn-icon"
           onClick={onClose}
-          aria-label="Close panel"
+          aria-label={commandTowerCopy.drawer.close}
           aria-keyshortcuts="Alt+Shift+D"
         >
           &times;
@@ -141,7 +146,7 @@ export default function CommandTowerHomeDrawer({
       </div>
 
       <div className="ct-drawer-section">
-        <h4 className="ct-drawer-section-title">Quick actions</h4>
+        <h4 className="ct-drawer-section-title">{commandTowerCopy.drawer.quickActions}</h4>
         <div className="ct-quick-actions-compact">
           {quickActionItems.map((item) => {
             const descriptionId = `ct-home-quick-action-desc-${item.id}`;
@@ -179,21 +184,25 @@ export default function CommandTowerHomeDrawer({
           <div className="ct-home-filter-header">
             <div>
               <h4 id="ct-home-filter-title" className="ct-home-filter-title">
-                Filter console
+                {commandTowerCopy.filterTitle}
               </h4>
               <p id="ct-home-filter-desc" className="ct-home-filter-desc">
-                Lower-priority detail controls. Adjust them only when you need finer triage.
+                {commandTowerCopy.filterHint}
               </p>
             </div>
             {draftChanged ? (
-              <Badge variant="warning">Draft not applied</Badge>
+              <Badge variant="warning">{commandTowerCopy.draftNotApplied}</Badge>
             ) : (
-              <Badge>{appliedFilterCount > 0 ? `${appliedFilterCount} filters applied` : "Filters off"}</Badge>
+              <Badge>
+                {appliedFilterCount > 0
+                  ? liveHomeCopy.viewModel.contextHealth.filtersApplied(appliedFilterCount)
+                  : liveHomeCopy.viewModel.contextHealth.filtersOff}
+              </Badge>
             )}
           </div>
           <div className="ct-home-filter-grid">
-            <fieldset className="ct-home-status-filter" aria-label="Status filters">
-              <legend className="ct-home-status-filter-legend">Status</legend>
+            <fieldset className="ct-home-status-filter" aria-label={commandTowerCopy.statusLegend}>
+              <legend className="ct-home-status-filter-legend">{commandTowerCopy.statusLegend}</legend>
               {statusOptions.map((status) => (
                 <label key={status} className="ct-home-status-filter-item">
                   <input
@@ -206,19 +215,19 @@ export default function CommandTowerHomeDrawer({
               ))}
             </fieldset>
             <label className="ct-home-filter-label ct-home-filter-label-project">
-              <span className="ct-home-filter-label-text">Project key</span>
+              <span className="ct-home-filter-label-text">{commandTowerCopy.projectKey}</span>
               <Input
                 ref={projectInputRef}
                 className="ct-home-filter-input"
                 value={draftProjectKey}
                 onChange={(event) => onDraftProjectKeyChange(event.target.value)}
                 onKeyDown={onFilterKeyDown}
-                placeholder="e.g. cortexpilot"
+                placeholder={liveHomeCopy.drawer.projectKeyPlaceholder}
                 aria-keyshortcuts="Alt+Shift+F"
               />
             </label>
             <label className="ct-home-filter-label ct-home-filter-label-sort">
-              <span className="ct-home-filter-label-text">Sort</span>
+              <span className="ct-home-filter-label-text">{commandTowerCopy.sort}</span>
               <Select
                 className="ct-home-filter-input"
                 value={draftSort}
@@ -240,7 +249,7 @@ export default function CommandTowerHomeDrawer({
                 disabled={!draftChanged}
                 aria-controls="command-tower-session-board-region"
               >
-                Apply filters
+                {commandTowerCopy.apply}
               </Button>
               <Button
                 type="button"
@@ -248,11 +257,11 @@ export default function CommandTowerHomeDrawer({
                 onClick={onResetFilters}
                 aria-controls="command-tower-session-board-region"
               >
-                Reset filters
+                {commandTowerCopy.reset}
               </Button>
             </div>
           </div>
-          <div role="group" aria-label="Focus view switcher" className="ct-home-focus-switch">
+          <div role="group" aria-label={liveHomeCopy.drawer.focusViewSwitcherAriaLabel} className="ct-home-focus-switch">
             {focusOptions.map((option) => (
               <Button
                 key={option.value}
@@ -270,7 +279,7 @@ export default function CommandTowerHomeDrawer({
       </div>
 
       <div className="ct-drawer-section">
-        <h4 className="ct-drawer-section-title">Health</h4>
+        <h4 className="ct-drawer-section-title">{commandTowerCopy.drawer.health}</h4>
         <div className="ct-health-grid">
           {contextHealthItems.map((item) => (
             <div key={item.id} className="ct-health-row">
@@ -291,7 +300,7 @@ export default function CommandTowerHomeDrawer({
       </div>
 
       <div className="ct-drawer-section">
-        <h4 className="ct-drawer-section-title">Inspection prompts</h4>
+        <h4 className="ct-drawer-section-title">{commandTowerCopy.drawer.inspectionPrompts}</h4>
         <ul className="ct-prompt-list">
           {drawerPromptItems.map((item) => (
             <li key={item} className="ct-prompt-item">
@@ -305,15 +314,15 @@ export default function CommandTowerHomeDrawer({
 
       <div className="ct-drawer-section">
         <div className="ct-drawer-section-header">
-          <h4 className="ct-drawer-section-title">Alerts</h4>
+          <h4 className="ct-drawer-section-title">{commandTowerCopy.drawer.alerts}</h4>
           <Badge>
-            {criticalAlerts > 0 ? `${criticalAlerts} critical` : `${alerts.length} total`}
+            {criticalAlerts > 0 ? commandTowerCopy.drawer.criticalCount(criticalAlerts) : commandTowerCopy.drawer.records(alerts.length)}
           </Badge>
         </div>
         {alerts.length === 0 ? (
-          <p className="ct-empty-hint">System healthy. No alerts.</p>
+          <p className="ct-empty-hint">{commandTowerCopy.drawer.noAlerts}</p>
         ) : (
-          <div className="ct-alert-list" role="list" aria-label="Alert list">
+          <div className="ct-alert-list" role="list" aria-label={commandTowerCopy.drawer.alerts}>
             {alerts.map((item) => {
               const severity =
                 typeof item?.severity === "string" && item.severity.trim()

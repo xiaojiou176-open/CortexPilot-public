@@ -3,7 +3,7 @@ from __future__ import annotations
 from cortexpilot_orch.mcp_queue_pilot_server import CortexPilotQueuePilotMcpServer
 
 
-def test_mcp_queue_pilot_server_lists_tools_and_requires_confirm_for_apply() -> None:
+def test_mcp_queue_pilot_server_lists_tools_and_requires_confirm_for_apply(monkeypatch) -> None:
     captured: dict[str, object] = {}
 
     def _preview(run_id: str, payload: dict[str, object]) -> dict[str, object]:
@@ -43,6 +43,14 @@ def test_mcp_queue_pilot_server_lists_tools_and_requires_confirm_for_apply() -> 
     )
     assert preview_response is not None
     assert preview_response["result"]["structuredContent"]["preview_item"]["status"] == "PENDING"
+    assert preview_response["result"]["structuredContent"]["can_apply"] is False
+    assert preview_response["result"]["structuredContent"]["mutation_gate"] == "default-off"
+    assert preview_response["result"]["structuredContent"]["required_apply_inputs"] == [
+        "confirm",
+        "actor_role",
+        "requested_by",
+        "approval_reason",
+    ]
     assert captured["preview"] == {"run_id": "run-1", "payload": {"priority": 5}}
 
     blocked_apply = server.handle_message(
@@ -52,12 +60,21 @@ def test_mcp_queue_pilot_server_lists_tools_and_requires_confirm_for_apply() -> 
             "method": "tools/call",
             "params": {
                 "name": "enqueue_from_run",
-                "arguments": {"run_id": "run-1", "priority": 5, "confirm": False},
+                "arguments": {
+                    "run_id": "run-1",
+                    "priority": 5,
+                    "actor_role": "OWNER",
+                    "requested_by": "omega-worker",
+                    "approval_reason": "queue-only pilot",
+                    "confirm": False,
+                },
             },
         }
     )
     assert blocked_apply is not None
     assert blocked_apply["result"]["isError"] is True
+
+    monkeypatch.setenv("CORTEXPILOT_MCP_QUEUE_PILOT_ENABLE_APPLY", "1")
 
     apply_response = server.handle_message(
         {
@@ -66,10 +83,48 @@ def test_mcp_queue_pilot_server_lists_tools_and_requires_confirm_for_apply() -> 
             "method": "tools/call",
             "params": {
                 "name": "enqueue_from_run",
-                "arguments": {"run_id": "run-1", "priority": 5, "confirm": True},
+                "arguments": {
+                    "run_id": "run-1",
+                    "priority": 5,
+                    "actor_role": "OWNER",
+                    "requested_by": "omega-worker",
+                    "approval_reason": "queue-only pilot",
+                    "confirm": True,
+                },
             },
         }
     )
     assert apply_response is not None
     assert apply_response["result"]["structuredContent"]["queue_id"] == "queue-1"
-    assert captured["apply"] == {"run_id": "run-1", "payload": {"priority": 5}}
+    assert captured["apply"] == {
+        "run_id": "run-1",
+        "payload": {
+            "priority": 5,
+            "requested_by": "omega-worker",
+            "actor_role": "OWNER",
+            "approval_reason": "queue-only pilot",
+            "approval_mode": "manual-owner-default-off",
+            "pilot_source": "mcp_queue_pilot_server",
+        },
+    }
+
+    rejected_role = server.handle_message(
+        {
+            "jsonrpc": "2.0",
+            "id": 5,
+            "method": "tools/call",
+            "params": {
+                "name": "enqueue_from_run",
+                "arguments": {
+                    "run_id": "run-1",
+                    "priority": 5,
+                    "actor_role": "WORKER",
+                    "requested_by": "omega-worker",
+                    "approval_reason": "queue-only pilot",
+                    "confirm": True,
+                },
+            },
+        }
+    )
+    assert rejected_role is not None
+    assert rejected_role["result"]["isError"] is True

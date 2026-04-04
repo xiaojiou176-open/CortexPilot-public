@@ -49,6 +49,11 @@ finished consumer product.
 - Workflow views: workflow-case summaries derived from run manifests and PM
   session bindings, now with queue/SLA read surfaces and a read-only
   `Workflow read model` card sourced from `workflow_case_read_model`.
+- Dashboard `Run Detail` and `Workflow Case detail` now resolve page-level
+  title/subtitle/degraded-state copy from the shared locale substrate via the
+  UI locale cookie, so the high-value detail routes stay aligned with the
+  English-first / `zh-CN` operator contract instead of drifting through
+  page-local literals.
 - Run Detail: incident packs, approval summaries, replay compare reports, and a
   read-only role-binding summary in the existing `Status & Contract` card, so
   bundle/runtime posture is visible on the main run surface without creating a

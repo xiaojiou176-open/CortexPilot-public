@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { type KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 import type { StatusVariant } from "@cortexpilot/frontend-shared/statusPresentation";
 
 import { fetchCommandTowerAlerts, fetchCommandTowerOverview, fetchPmSessions } from "../../lib/api";
@@ -40,6 +41,7 @@ const HOME_DRAWER_PINNED_KEY = "cortexpilot.commandTower.home.drawerPinned";
 type CommandTowerHomeLiveProps = {
   initialOverview: CommandTowerOverviewPayload;
   initialSessions: PmSessionSummary[];
+  locale?: UiLocale;
 };
 
 type RefreshNowOptions = {
@@ -86,48 +88,32 @@ function sessionPriorityScore(session: PmSessionSummary): number {
   return 3;
 }
 
-function focusModeActionLabel(mode: FocusMode): string {
+function focusModeActionLabel(
+  mode: FocusMode,
+  focusModeLabels: ReturnType<typeof getUiCopy>["dashboard"]["commandTowerPage"]["liveHome"]["focusModeLabels"],
+): string {
   if (mode === "high_risk") {
-    return "high-risk sessions";
+    return focusModeLabels.highRisk;
   }
   if (mode === "blocked") {
-    return "blocked sessions";
+    return focusModeLabels.blocked;
   }
   if (mode === "running") {
-    return "running sessions";
+    return focusModeLabels.running;
   }
-  return "all sessions";
+  return focusModeLabels.all;
 }
-
-const LazyCommandTowerHomeDrawer = dynamic(() => import("./CommandTowerHomeDrawer"), {
-  ssr: false,
-  loading: () => (
-    <div id="ct-home-drawer-shell" className="ct-drawer-panel" role="region" aria-label="Command Tower context panel" aria-busy="true">
-      <div className="ct-drawer-header">
-        <h3 className="ct-drawer-title">Context</h3>
-      </div>
-      <div className="ct-drawer-section">
-        <p className="mono" role="status">Loading the context panel...</p>
-      </div>
-    </div>
-  ),
-});
-
-const LazySessionBoard = dynamic(() => import("./SessionBoard"), {
-  ssr: false,
-  loading: () => (
-    <div className="compact-status-card" role="status" aria-live="polite">
-      <p className="ct-home-empty-text">Loading the session board...</p>
-    </div>
-  ),
-});
 
 export { alertsBadgeVariant, classifyErrorMessage, homeLiveBadgeVariant, homeLiveBadgeText };
 
 export default function CommandTowerHomeLive({
   initialOverview,
   initialSessions,
+  locale = "en",
 }: CommandTowerHomeLiveProps) {
+  const uiCopy = getUiCopy(locale);
+  const commandTowerCopy = uiCopy.desktop.commandTower;
+  const liveHomeCopy = uiCopy.dashboard.commandTowerPage.liveHome;
   const [overview, setOverview] = useState(initialOverview);
   const [sessions, setSessions] = useState(initialSessions);
   const [alerts, setAlerts] = useState<CommandTowerAlert[]>([]);
@@ -152,8 +138,49 @@ export default function CommandTowerHomeLive({
   const projectInputRef = useRef<HTMLInputElement | null>(null);
   const previousRefreshTokenRef = useRef(0);
   const refreshRequestIdRef = useRef(0);
-  const SessionBoardComponent = process.env.NODE_ENV === "test" ? SessionBoard : LazySessionBoard;
-  const DrawerComponent = process.env.NODE_ENV === "test" ? CommandTowerHomeDrawer : LazyCommandTowerHomeDrawer;
+  const SessionBoardComponent = useMemo(
+    () =>
+      process.env.NODE_ENV === "test"
+        ? SessionBoard
+        : dynamic(() => import("./SessionBoard"), {
+            ssr: false,
+            loading: () => (
+              <div className="compact-status-card" role="status" aria-live="polite">
+                <p className="ct-home-empty-text">{liveHomeCopy.loadingSessionBoard}</p>
+              </div>
+            ),
+          }),
+    [liveHomeCopy.loadingSessionBoard],
+  );
+  const DrawerComponent = useMemo(
+    () =>
+      process.env.NODE_ENV === "test"
+        ? CommandTowerHomeDrawer
+        : dynamic(() => import("./CommandTowerHomeDrawer"), {
+            ssr: false,
+            loading: () => (
+              <div
+                id="ct-home-drawer-shell"
+                className="ct-drawer-panel"
+                role="region"
+                aria-label={liveHomeCopy.loadingContextPanelAriaLabel}
+                aria-busy="true"
+              >
+                <div className="ct-drawer-header">
+                  <h3 className="ct-drawer-title">{liveHomeCopy.loadingContextPanelTitle}</h3>
+                </div>
+                <div className="ct-drawer-section">
+                  <p className="mono" role="status">{liveHomeCopy.loadingContextPanelBody}</p>
+                </div>
+              </div>
+            ),
+          }),
+    [
+      liveHomeCopy.loadingContextPanelAriaLabel,
+      liveHomeCopy.loadingContextPanelBody,
+      liveHomeCopy.loadingContextPanelTitle,
+    ],
+  );
   const {
     draftStatuses,
     draftProjectKey,
@@ -188,18 +215,18 @@ export default function CommandTowerHomeLive({
   const toggleDrawerCollapsed = useCallback(() => {
     setDrawerCollapsed((prev) => {
       const next = !prev;
-      setActionFeedback(next ? "Collapsed the right context drawer" : "Expanded the right context drawer");
+      setActionFeedback(next ? liveHomeCopy.actionFeedback.collapsedDrawer : liveHomeCopy.actionFeedback.expandedDrawer);
       return next;
     });
-  }, []);
+  }, [liveHomeCopy.actionFeedback.collapsedDrawer, liveHomeCopy.actionFeedback.expandedDrawer]);
 
   const toggleDrawerPinned = useCallback(() => {
     setDrawerPinned((prev) => {
       const next = !prev;
-      setActionFeedback(next ? "Pinned the right drawer" : "Unpinned the right drawer");
+      setActionFeedback(next ? liveHomeCopy.actionFeedback.pinnedDrawer : liveHomeCopy.actionFeedback.unpinnedDrawer);
       return next;
     });
-  }, []);
+  }, [liveHomeCopy.actionFeedback.pinnedDrawer, liveHomeCopy.actionFeedback.unpinnedDrawer]);
 
   const handleFilterKeyDown = (event: ReactKeyboardEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (event.key === "Enter") {
@@ -311,7 +338,7 @@ export default function CommandTowerHomeLive({
         setLastSuccessfulUpdated(new Date().toISOString());
       }
       if (successCount === 0) {
-        throw new Error(firstErrorMessage || "Refresh failed: every request was unsuccessful");
+        throw new Error(firstErrorMessage || liveHomeCopy.refreshHealth.refreshFailed);
       }
 
       return {
@@ -328,16 +355,16 @@ export default function CommandTowerHomeLive({
     const defaultFeedback =
       feedbackMode === "focus_switch"
         ? {
-            start: "Refreshing the focus view...",
-            partial: "Focus view switched, but some data is degraded",
-            success: "Focus view switched and the session list is updated",
-            failure: "Failed to switch the focus view. Review failure events.",
+            start: liveHomeCopy.actionFeedback.focusSwitchStart,
+            partial: liveHomeCopy.actionFeedback.focusSwitchPartial,
+            success: liveHomeCopy.actionFeedback.focusSwitchSuccess(liveHomeCopy.focusModeLabels.all),
+            failure: liveHomeCopy.actionFeedback.focusSwitchFailure,
           }
         : {
-            start: "Retrying live refresh...",
-            partial: "Retry completed, but some data is still degraded",
-            success: "Retry succeeded and the live overview is updated",
-            failure: "Retry failed. Review failure events.",
+            start: liveHomeCopy.actionFeedback.retryRefreshStart,
+            partial: liveHomeCopy.actionFeedback.retryRefreshPartial,
+            success: liveHomeCopy.actionFeedback.retryRefreshSuccess,
+            failure: liveHomeCopy.actionFeedback.retryRefreshFailure,
           };
     const controller = new AbortController();
     setIsRefreshing(true);
@@ -399,7 +426,7 @@ export default function CommandTowerHomeLive({
   const copyCurrentViewLink = useCallback(async () => {
     const shareUrl = buildShareUrl();
     if (!shareUrl) {
-      setActionFeedback("This environment cannot copy the current view link");
+      setActionFeedback(liveHomeCopy.actionFeedback.copyUnavailable);
       return;
     }
 
@@ -416,11 +443,16 @@ export default function CommandTowerHomeLive({
         document.execCommand("copy");
         document.body.removeChild(textarea);
       }
-      setActionFeedback("Copied the current view link");
+      setActionFeedback(liveHomeCopy.actionFeedback.copiedCurrentView);
     } catch {
-      setActionFeedback("Copy failed. Copy the address bar link manually.");
+      setActionFeedback(liveHomeCopy.actionFeedback.copyFailedManual);
     }
-  }, [buildShareUrl]);
+  }, [
+    buildShareUrl,
+    liveHomeCopy.actionFeedback.copyFailedManual,
+    liveHomeCopy.actionFeedback.copyUnavailable,
+    liveHomeCopy.actionFeedback.copiedCurrentView,
+  ]);
 
   const handleFocusModeChange = useCallback(
     (nextMode: FocusMode, feedback?: string) => {
@@ -433,16 +465,17 @@ export default function CommandTowerHomeLive({
       if (!modeChanged) {
         return;
       }
-      const focusSwitchFeedback = feedback || `Switched focus view to ${focusModeActionLabel(nextMode)}`;
-      setActionFeedback(`${focusSwitchFeedback}. Refreshing the session list...`);
+      const focusSwitchFeedback =
+        feedback || liveHomeCopy.actionFeedback.focusSwitchSuccess(focusModeActionLabel(nextMode, liveHomeCopy.focusModeLabels));
+      setActionFeedback(liveHomeCopy.actionFeedback.focusSwitchStart);
       void refreshNow({
         feedbackMode: "focus_switch",
         skipStartFeedback: true,
-        successFeedback: `${focusSwitchFeedback}. Session list updated.`,
-        partialFeedback: `${focusSwitchFeedback}. Some data is degraded.`,
+        successFeedback: focusSwitchFeedback,
+        partialFeedback: liveHomeCopy.actionFeedback.focusSwitchPartial,
       });
     },
-    [focusMode, refreshNow, setFocusModeState],
+    [focusMode, liveHomeCopy.actionFeedback.focusSwitchPartial, liveHomeCopy.actionFeedback.focusSwitchStart, liveHomeCopy.actionFeedback.focusSwitchSuccess, liveHomeCopy.focusModeLabels, refreshNow, setFocusModeState],
   );
 
   const toggleHighRiskFocus = useCallback(() => {
@@ -587,7 +620,7 @@ export default function CommandTowerHomeLive({
         event.preventDefault();
         setLiveEnabled((prev) => {
           const next = !prev;
-          setActionFeedback(next ? "Resumed live refresh" : "Paused live refresh");
+          setActionFeedback(next ? liveHomeCopy.actionFeedback.resumedLiveRefresh : liveHomeCopy.actionFeedback.pausedLiveRefresh);
           return next;
         });
         return;
@@ -595,7 +628,7 @@ export default function CommandTowerHomeLive({
       if (key === "e") {
         event.preventDefault();
         exportFailedSessions();
-        setActionFeedback("Exported failed sessions");
+        setActionFeedback(liveHomeCopy.actionFeedback.exportedFailedSessions);
         return;
       }
       if (key === "c") {
@@ -606,7 +639,7 @@ export default function CommandTowerHomeLive({
       if (key === "f") {
         event.preventDefault();
         projectInputRef.current?.focus();
-        setActionFeedback("Focused the project key input");
+        setActionFeedback(liveHomeCopy.actionFeedback.focusedProjectKeyInput);
         return;
       }
       if (key === "d") {
@@ -621,22 +654,22 @@ export default function CommandTowerHomeLive({
       }
       if (key === "1") {
         event.preventDefault();
-        handleFocusModeChange("all", "Switched focus view to all");
+        handleFocusModeChange("all");
         return;
       }
       if (key === "2") {
         event.preventDefault();
-        handleFocusModeChange("high_risk", "Switched focus view to high risk");
+        handleFocusModeChange("high_risk");
         return;
       }
       if (key === "3") {
         event.preventDefault();
-        handleFocusModeChange("blocked", "Switched focus view to blocked");
+        handleFocusModeChange("blocked");
         return;
       }
       if (key === "4") {
         event.preventDefault();
-        handleFocusModeChange("running", "Switched focus view to running");
+        handleFocusModeChange("running");
       }
     };
 
@@ -646,12 +679,12 @@ export default function CommandTowerHomeLive({
 
   const liveStatusText =
     liveMode === "paused"
-      ? "Live refresh paused"
+      ? liveHomeCopy.liveStatus.paused
       : liveMode === "backoff"
-        ? "Live refresh is backing off and retrying"
+        ? liveHomeCopy.liveStatus.backoff
         : alertsStatus !== "healthy"
-          ? "Live refresh is running with partial degradation"
-          : "Live refresh is running";
+          ? liveHomeCopy.liveStatus.degraded
+          : liveHomeCopy.liveStatus.running;
   const draftChanged =
     draftSort !== appliedSort ||
     draftProjectKey.trim() !== appliedProjectKey ||
@@ -705,64 +738,70 @@ export default function CommandTowerHomeLive({
   const visibleSummary = useMemo(() => summarizeSessions(prioritizedVisibleSessions), [prioritizedVisibleSessions]);
   const visibleSessionCount = prioritizedVisibleSessions.length;
   const focusLabel =
-    FOCUS_OPTIONS.find((option) => option.value === focusMode)?.label || "All";
+    focusMode === "high_risk"
+      ? liveHomeCopy.focusModeLabels.highRisk
+      : focusMode === "blocked"
+        ? liveHomeCopy.focusModeLabels.blocked
+        : focusMode === "running"
+          ? liveHomeCopy.focusModeLabels.running
+          : liveHomeCopy.focusModeLabels.all;
   const hasAppliedFilters = appliedFilterCount > 0;
   const showFilterEmptyState = sessions.length === 0 && hasAppliedFilters;
   const showFocusEmptyState = visibleSessions.length === 0 && sessions.length > 0 && focusMode !== "all";
   const refreshHealthSummary = useMemo(() => {
     const okCount = Object.values(sectionStatus).filter((status) => status === "ok").length;
     if (okCount === 3 && !errorMessage && alertsStatus === "healthy") {
-      return { label: "Full refresh healthy", badgeVariant: "success" as StatusVariant };
+      return { label: liveHomeCopy.refreshHealth.fullHealthy, badgeVariant: "success" as StatusVariant };
     }
     if (okCount === 0) {
-      return { label: "Refresh failed", badgeVariant: "failed" as StatusVariant };
+      return { label: liveHomeCopy.refreshHealth.refreshFailed, badgeVariant: "failed" as StatusVariant };
     }
-    return { label: `Partial degradation (${okCount}/3)`, badgeVariant: "warning" as StatusVariant };
-  }, [alertsStatus, errorMessage, sectionStatus]);
+    return { label: liveHomeCopy.refreshHealth.partialDegradation(okCount), badgeVariant: "warning" as StatusVariant };
+  }, [alertsStatus, errorMessage, liveHomeCopy.refreshHealth, sectionStatus]);
   const snapshotStatus = useMemo(() => {
     if (refreshHealthSummary.badgeVariant === "failed") {
       return {
         enabled: true,
-        label: "Cached snapshot (refresh failed, auto updates paused)",
+        label: liveHomeCopy.snapshot.refreshFailed,
       };
     }
     if (refreshHealthSummary.badgeVariant === "warning") {
       return {
         enabled: true,
-        label: "Cached snapshot (partial degradation, live updates may lag)",
+        label: liveHomeCopy.snapshot.partialDegradation,
       };
     }
     if (liveMode === "paused") {
       return {
         enabled: true,
-        label: "Cached snapshot (live refresh paused)",
+        label: liveHomeCopy.snapshot.paused,
       };
     }
     return {
       enabled: false,
       label: "",
     };
-  }, [liveMode, refreshHealthSummary.badgeVariant]);
+  }, [liveHomeCopy.snapshot, liveMode, refreshHealthSummary.badgeVariant]);
   const refreshFreshnessSummary = useMemo(() => {
     const source = lastSuccessfulUpdated || lastUpdated;
     if (!source) {
-      return "No successful refresh yet";
+      return liveHomeCopy.freshness.noSuccessfulRefresh;
     }
     const timestamp = Date.parse(source);
     if (Number.isNaN(timestamp)) {
-      return `Last refresh source: ${source}`;
+      return liveHomeCopy.freshness.sourceFallback(source);
     }
     const diffSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
     if (diffSeconds < 60) {
-      return `Last successful refresh ${diffSeconds}s ago`;
+      return liveHomeCopy.freshness.lastSuccessfulSeconds(diffSeconds);
     }
     const diffMinutes = Math.floor(diffSeconds / 60);
     if (diffMinutes < 60) {
-      return `Last successful refresh ${diffMinutes}m ago`;
+      return liveHomeCopy.freshness.lastSuccessfulMinutes(diffMinutes);
     }
     const diffHours = Math.floor(diffMinutes / 60);
-    return `Last successful refresh ${diffHours}h ago`;
-  }, [lastSuccessfulUpdated, lastUpdated, refreshToken, liveMode]);
+    return liveHomeCopy.freshness.lastSuccessfulHours(diffHours);
+  }, [lastSuccessfulUpdated, lastUpdated, liveHomeCopy.freshness, refreshToken, liveMode]);
   const runQuickAction = useCallback(
     async (actionId: QuickActionId) => {
       if (actionId === "refresh") {
@@ -772,14 +811,14 @@ export default function CommandTowerHomeLive({
       if (actionId === "live") {
         setLiveEnabled((prev) => {
           const next = !prev;
-          setActionFeedback(next ? "Resumed live refresh" : "Paused live refresh");
+          setActionFeedback(next ? liveHomeCopy.actionFeedback.resumedLiveRefresh : liveHomeCopy.actionFeedback.pausedLiveRefresh);
           return next;
         });
         return;
       }
       if (actionId === "export") {
         exportFailedSessions();
-        setActionFeedback("Exported failed sessions");
+        setActionFeedback(liveHomeCopy.actionFeedback.exportedFailedSessions);
         return;
       }
       if (actionId === "copy") {
@@ -788,7 +827,7 @@ export default function CommandTowerHomeLive({
       }
       if (actionId === "focus-filter") {
         projectInputRef.current?.focus();
-        setActionFeedback("Focused the project key input");
+        setActionFeedback(liveHomeCopy.actionFeedback.focusedProjectKeyInput);
         return;
       }
       if (actionId === "toggle-drawer") {
@@ -801,9 +840,9 @@ export default function CommandTowerHomeLive({
       }
       if (draftChanged) {
         applyFilters();
-        setActionFeedback(`Applied draft filters (${draftFilterCount} items)`);
+        setActionFeedback(liveHomeCopy.actionFeedback.appliedDraftFilters(draftFilterCount));
       } else {
-        setActionFeedback("Draft filters already match the applied state");
+        setActionFeedback(liveHomeCopy.actionFeedback.draftFiltersAlreadyMatch);
       }
     },
     [
@@ -812,6 +851,7 @@ export default function CommandTowerHomeLive({
       draftChanged,
       draftFilterCount,
       exportFailedSessions,
+      liveHomeCopy.actionFeedback,
       refreshNow,
       toggleDrawerCollapsed,
       toggleDrawerPinned,
@@ -854,11 +894,18 @@ export default function CommandTowerHomeLive({
     onRunQuickAction: (id) => {
       void runQuickAction(id);
     },
+    sectionStatusText: {
+      overview: (statusLabel) => `${commandTowerCopy.sectionLabels.overview} ${statusLabel}`,
+      sessions: (statusLabel) => `${commandTowerCopy.sectionLabels.sessions} ${statusLabel}`,
+      alerts: (statusLabel) => `${commandTowerCopy.sectionLabels.alerts} ${statusLabel}`,
+    },
     sectionStatusLabel,
     sectionStatusBadgeVariant,
     homeLiveBadgeText,
     homeLiveBadgeVariant,
     alertsBadgeVariant,
+    commandTowerCopy,
+    liveHomeCopy,
   });
 
   const refreshHealthSummaryForLayout = useMemo(
@@ -925,6 +972,8 @@ export default function CommandTowerHomeLive({
       onRunQuickAction={(id) => {
         void runQuickAction(id);
       }}
+      commandTowerCopy={commandTowerCopy}
+      liveHomeCopy={liveHomeCopy}
     />
   );
 }

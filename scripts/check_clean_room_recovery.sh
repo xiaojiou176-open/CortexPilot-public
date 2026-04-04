@@ -15,11 +15,14 @@ case " ${existing_pytest_addopts} " in
     ;;
 esac
 
-MACHINE_CACHE_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/cortexpilot-clean-room-machine-cache.XXXXXX")"
+MACHINE_TMP_ROOT="$(cortexpilot_machine_tmp_root "$ROOT_DIR")"
+mkdir -p "$MACHINE_TMP_ROOT"
+MACHINE_CACHE_ROOT="$(mktemp -d "$MACHINE_TMP_ROOT/clean-room-machine-cache.XXXXXX")"
 export CORTEXPILOT_MACHINE_CACHE_ROOT="$MACHINE_CACHE_ROOT"
 export CORTEXPILOT_TOOLCHAIN_CACHE_ROOT="$MACHINE_CACHE_ROOT/toolchains"
 export CORTEXPILOT_PNPM_STORE_DIR="$MACHINE_CACHE_ROOT/pnpm-store"
 export PLAYWRIGHT_BROWSERS_PATH="$MACHINE_CACHE_ROOT/playwright"
+export CORTEXPILOT_CLEAN_ROOM_MACHINE_TMP_ROOT="$MACHINE_TMP_ROOT"
 unset CORTEXPILOT_PYTHON
 unset VIRTUAL_ENV
 
@@ -28,7 +31,7 @@ CLEAN_ROOM_STATUS="fail"
 
 write_clean_room_report() {
   local exit_code="$1"
-  python3 - <<'PY' "$CLEAN_ROOM_REPORT_PATH" "$exit_code" "$CLEAN_ROOM_STATUS"
+  python3 - <<'PY' "$CLEAN_ROOM_REPORT_PATH" "$exit_code" "$CLEAN_ROOM_STATUS" "${CORTEXPILOT_CLEAN_ROOM_MACHINE_TMP_ROOT:-}" "${CORTEXPILOT_MACHINE_CACHE_ROOT:-}" "${CORTEXPILOT_CLEAN_ROOM_PRESERVE_ROOT:-}"
 import json
 import sys
 from datetime import datetime, timezone
@@ -37,6 +40,9 @@ from pathlib import Path
 report_path = Path(sys.argv[1])
 exit_code = int(sys.argv[2])
 status = sys.argv[3]
+machine_tmp_root = sys.argv[4]
+machine_cache_root = sys.argv[5]
+preserve_root = sys.argv[6]
 report_path.parent.mkdir(parents=True, exist_ok=True)
 report_path.write_text(
     json.dumps(
@@ -46,6 +52,9 @@ report_path.write_text(
             "exit_code": exit_code,
             "runtime_root": ".runtime-cache",
             "command": "bash scripts/check_clean_room_recovery.sh",
+            "machine_tmp_root": machine_tmp_root,
+            "machine_cache_root": machine_cache_root,
+            "preserve_root": preserve_root,
         },
         ensure_ascii=False,
         indent=2,
@@ -67,8 +76,9 @@ PRESERVE_RUNTIME_STATE=0
 CLEAN_ROOM_PRESERVE_ROOT=""
 if [[ "$skip_governance_scorecard" == "1" ]]; then
   PRESERVE_RUNTIME_STATE=1
-  CLEAN_ROOM_PRESERVE_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/cortexpilot-clean-room-preserve.XXXXXX")"
+  CLEAN_ROOM_PRESERVE_ROOT="$(mktemp -d "$MACHINE_TMP_ROOT/clean-room-preserve.XXXXXX")"
 fi
+export CORTEXPILOT_CLEAN_ROOM_PRESERVE_ROOT="$CLEAN_ROOM_PRESERVE_ROOT"
 
 preserve_runtime_path() {
   local rel_path="$1"

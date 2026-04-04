@@ -80,7 +80,11 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   is the repo-external strong-related root while shared ecosystem layers stay
   observe-only; current Docker runtime lane changes must keep cleanup scoped to
   CortexPilot-owned images/containers/volumes while workstation-global
-  Docker/cache totals stay audit-only
+  Docker/cache totals stay audit-only; current machine-temp examples also
+  include `~/.cache/cortexpilot/tmp/docker-ci/runner-temp-*`,
+  `~/.cache/cortexpilot/tmp/clean-room-machine-cache.*`, and
+  `~/.cache/cortexpilot/tmp/clean-room-preserve.*`, which stay
+  repo-external-related under wave3 instead of defaulting to Darwin `TMPDIR`
 - when workflow-case / proof-pack / compare / task-pack / queue-scheduling
   contracts change, sync the root AI/docs entrypoints in the same patch; the
   current examples are `.runtime-cache/cortexpilot/workflow-cases/`,
