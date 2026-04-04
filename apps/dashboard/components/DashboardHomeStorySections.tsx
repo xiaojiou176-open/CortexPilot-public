@@ -138,7 +138,7 @@ export default function DashboardHomeStorySections({
             </h2>
             <p>{homePhase2Copy.integrationDescription}</p>
           </div>
-          <nav aria-label="Integration and skills actions">
+          <nav aria-label="Adoption and proof-first actions">
             <Button asChild variant="secondary">
               <Link href={resolveHomeHref(homePhase2Copy.proofFirstActionHref)}>{homePhase2Copy.proofFirstActionLabel}</Link>
             </Button>
