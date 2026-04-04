@@ -246,6 +246,9 @@
         <p class="lede">
           If your first question is instead about protocol-level inspection, read-only MCP, or how a coding-agent team should adopt the system truthfully, this page should route you to the better next click instead of making you reverse-engineer the package story from source.
         </p>
+        <p class="lede">
+          Current package boundary: the package names referenced here are still <strong>private workspace packages</strong>. The truthful external adoption path today is clone-and-reuse or vendor-and-adapt, not registry install.
+        </p>
         <div class="actions">
           <a class="button primary" href="#choose-the-shortest-starting-point">Open the builder path</a>
           <a class="button secondary" href="../compatibility/">Open compatibility matrix</a>
@@ -285,7 +288,7 @@
               <tr>
                 <td>I need repo-owned builder packages</td>
                 <td><a href="../builders/">Builder quickstart</a></td>
-                <td>Use it when you already know you want the package layer rather than the protocol or proof-first story.</td>
+                <td>Use it when you already know you want the workspace-local package layer rather than the protocol or proof-first story.</td>
               </tr>
             </tbody>
           </table>
@@ -304,19 +307,19 @@
           <article class="card">
             <span class="badge primary">Client</span>
             <h3>Thin frontend API helpers</h3>
-            <p>Use <code>@cortexpilot/frontend-api-client</code> when you want convenience helpers over runs, Workflow Cases, approvals, and command-tower reads.</p>
+            <p>Use <code>@cortexpilot/frontend-api-client</code> when you are working inside a clone, shared workspace, or vendored internal package path and want convenience helpers over runs, Workflow Cases, approvals, and command-tower reads.</p>
             <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md">Open client README</a></p>
           </article>
           <article class="card">
             <span class="badge primary">Contract</span>
             <h3>Generated type boundary</h3>
-            <p>Use <code>@cortexpilot/frontend-api-contract</code> when you want route/query/type boundaries without importing backend modules.</p>
+            <p>Use <code>@cortexpilot/frontend-api-contract</code> when you are inside the same repo or a vendored workspace copy and want route/query/type boundaries without importing backend modules.</p>
             <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/docs/README.md">Open contract guide</a></p>
           </article>
           <article class="card">
             <span class="badge primary">Shared substrate</span>
             <h3>Locale and presentation reuse</h3>
-            <p>Use <code>@cortexpilot/frontend-shared</code> when you need shared copy, locale helpers, and status presentation across dashboard and desktop surfaces.</p>
+            <p>Use <code>@cortexpilot/frontend-shared</code> when you are reusing CortexPilot from a clone or vendored workspace and need shared copy, locale helpers, and status presentation across dashboard and desktop surfaces.</p>
             <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md">Open shared README</a></p>
           </article>
         </div>
@@ -325,7 +328,7 @@
       <section class="section">
         <h2>Repo-owned starter path</h2>
         <p>
-          External teams that want the shortest repo-owned starter should begin with <code>createControlPlaneStarter(...)</code> on top of the client, because it bundles the current overview + agents + contracts + role config bootstrap path without implying a hosted SDK platform.
+          Teams that want the shortest repo-owned starter should begin with <code>createControlPlaneStarter(...)</code> on top of the client when they are working inside a clone or vendored workspace copy, because it bundles the current overview + agents + contracts + role config bootstrap path without implying a hosted SDK platform.
         </p>
         <p>
           The repo-owned <a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/examples/control_plane_starter.local.mjs">starter example</a> shows the same bootstrap + preview path as runnable code instead of leaving builders to reconstruct it from prose alone.
@@ -367,6 +370,11 @@
             <span class="badge warn">Boundary</span>
             <h3>Guarded add-ons stay guarded</h3>
             <p>Role-config preview/apply and queue preview/cancel stay operator-only helpers, not the primary external onboarding promise.</p>
+          </article>
+          <article class="card">
+            <span class="badge warn">Boundary</span>
+            <h3>Private workspace packages</h3>
+            <p>These package names are still <code>private</code> workspace packages. Until a real public publish exists, the truthful external path is clone/workspace reuse or vendor copy, not <code>npm install</code>.</p>
           </article>
         </div>
       </section>

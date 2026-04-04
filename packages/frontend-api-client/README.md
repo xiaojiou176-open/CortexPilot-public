@@ -3,6 +3,10 @@
 `@cortexpilot/frontend-api-client` is the thin JavaScript/TypeScript client
 layer for CortexPilot frontend consumers.
 
+Current package boundary: this package is still a `private` workspace package.
+The truthful adoption path today is repo-local consumption, clone-and-reuse,
+or vendored internal reuse, not registry install from npm.
+
 ## What it exposes today
 
 - `createFrontendApiClient`
@@ -48,13 +52,13 @@ const preview = await starter.previewRoleDefaults("WORKER", {
 });
 ```
 
-## External integration starter
+## Workspace integration starter
 
 Use `createControlPlaneStarter(...)` when another dashboard, desktop shell, or
-builder tool needs the shortest repo-owned path into the current control-plane
-story.
+builder tool inside the same repo, a shared workspace, or a vendored internal
+copy needs the shortest repo-owned path into the current control-plane story.
 
-It gives external consumers one place to:
+It gives repo-local or vendored consumers one place to:
 
 - bootstrap Command Tower overview + agents + contracts + optional role config
 - preview role-default changes without inventing a second client wrapper
@@ -136,6 +140,7 @@ The example stays inside the truthful boundary:
   operator mutation groundwork, not public write-capable MCP.
 - The control-plane starter is a builder convenience layer, not a second
   execution authority or a hosted SDK runtime.
+- This package is not published for public registry install today.
 - Prompt 7-style frontend slices should treat `role_binding_read_model` and
   `workflow_case_read_model` as read-only operator surfaces; the task contract
   remains the execution authority.
