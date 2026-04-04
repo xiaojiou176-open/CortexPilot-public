@@ -25,6 +25,10 @@ All notable changes to this repository will be documented in this file.
   alongside the existing Next/lighthouse toolchain checks, so partial
   dashboard installs fail fast and recover before `npm run test:quick`
   reports a green lane
+- fixed governance manifest receipt reuse so `refresh_governance_evidence_manifest.py`
+  now accepts the shell-authored clean-room `status = "ok"` token in the same
+  path as `pass` / `passed`, preventing pre-push refresh from rerunning the
+  full clean-room bundle when a fresh healthy local receipt already exists
 - continued the Omega closeout hardening line by moving the dashboard
   `Run detail` / `Workflow Case detail` page-level copy onto the shared
   locale substrate, keeping the command-tower/operator story aligned across

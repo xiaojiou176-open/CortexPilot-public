@@ -213,7 +213,10 @@ bash scripts/run_orchestrator_cli.sh --help
 - Governance evidence refresh now also reuses a fresh
   `clean_room_recovery.json` receipt when that report already passed inside the
   freshness window, which keeps repeated PR-bound CI-fix pushes from rerunning
-  the full clean-room bundle just to restate the same healthy local receipt.
+  the full clean-room bundle just to restate the same healthy local receipt;
+  shell-written clean-room receipts now count `status = "ok"` the same way as
+  `pass` / `passed`, so pre-push governance refresh does not ignore a healthy
+  local receipt just because the shell script used a different success token.
 - Mainline live-provider probes keep the stricter credential contract: process
   env first, `~/.codex/config.toml` second, while repo-local dotenv files and
   shell-export fallback stay disabled on `CI` / strict mainline contexts.
