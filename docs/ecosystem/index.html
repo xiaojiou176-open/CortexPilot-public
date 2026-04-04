@@ -360,8 +360,9 @@
         <h2>Official platform reality</h2>
         <p>
           The ecosystem names in this front door are real, but their platform
-          surfaces are not interchangeable. Keep the protocol layer, plugin
-          directories, and publishing workflows separate.
+          surfaces are not interchangeable. Keep workflow integrations,
+          protocol surfaces, plugin systems, and publishing workflows separate
+          instead of collapsing them into one vague “plugin” story.
         </p>
         <table>
           <thead>
@@ -374,25 +375,31 @@
           <tbody>
             <tr>
               <td><strong>Codex</strong></td>
-              <td>Codex has a real plugin system and directory surface.</td>
-              <td>Do not describe Codex as having a documented public self-serve plugin publishing marketplace today.</td>
+              <td>Codex has real workflow integration surfaces such as the Codex SDK, GitHub Action, and Slack integration.</td>
+              <td>Do not turn those integration surfaces into a claim that CortexPilot is already an official Codex plugin or directory listing.</td>
             </tr>
             <tr>
               <td><strong>Claude Code</strong></td>
-              <td>Claude Code has official plugin docs, an official plugin directory, and documented marketplace/submission paths.</td>
-              <td>Do not turn that into a claim that CortexPilot is already an official Claude plugin or partner-managed surface.</td>
+              <td>Claude Code has official MCP, subagent, hook, and project-configuration surfaces for governed coding workflows.</td>
+              <td>Do not turn those workflow surfaces into a claim that CortexPilot is already an official Claude Code plugin or marketplace listing.</td>
             </tr>
             <tr>
               <td><strong>MCP</strong></td>
               <td>MCP is an open protocol, and there is now an official MCP Registry for servers.</td>
               <td>Do not collapse “MCP Registry” into “universal plugin store” language; registry/server discovery is not the same thing as a client marketplace.</td>
             </tr>
+            <tr>
+              <td><strong>OpenClaw</strong></td>
+              <td>OpenClaw has official plugins and skills surfaces, including a public skills registry, so plugin-ready wording is real in that ecosystem.</td>
+              <td>Do not turn that into a claim that CortexPilot itself already ships as an official OpenClaw plugin unless a real package and tested path are published.</td>
+            </tr>
           </tbody>
         </table>
         <p class="caption">
           CortexPilot can truthfully map itself to these surfaces, but it should
           not pretend that repo-owned builder/docs assets are already a live
-          plugin marketplace or a hosted platform product.
+          plugin marketplace, a Codex/Claude official plugin, or a hosted
+          platform product.
         </p>
       </section>
 
