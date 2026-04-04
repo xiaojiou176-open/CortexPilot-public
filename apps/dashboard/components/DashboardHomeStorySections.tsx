@@ -31,20 +31,10 @@ export default function DashboardHomeStorySections({
   const resolveHomeHref = (href: string) => resolveDashboardPublicDocsHref(href);
   const adoptionCards = [
     homePhase2Copy.integrationCards[0],
-    {
-      badge: homePhase2Copy.builderCards[0].badge,
-      title: homePhase2Copy.builderCards[0].title,
-      desc: homePhase2Copy.builderCards[0].desc,
-      href: homePhase2Copy.builderCards[0].href,
-    },
+    homePhase2Copy.builderCards[0],
     homePhase2Copy.integrationCards[1],
     homePhase2Copy.integrationCards[2],
-    {
-      badge: homePhase2Copy.builderCards[1].badge,
-      title: homePhase2Copy.builderCards[1].title,
-      desc: homePhase2Copy.builderCards[1].desc,
-      href: homePhase2Copy.builderCards[1].href,
-    },
+    homePhase2Copy.builderCards[1],
   ];
 
   const primaryActionLabel = hasRunHistory
