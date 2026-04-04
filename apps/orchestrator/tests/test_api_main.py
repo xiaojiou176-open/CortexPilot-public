@@ -2,6 +2,7 @@ import hashlib
 import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import pytest
 from fastapi import FastAPI, HTTPException
@@ -534,9 +535,14 @@ def test_resolve_allow_origins_includes_configured_public_origins() -> None:
     )
     assert "http://localhost:3100" in resolved
     assert "http://127.0.0.1:3100" in resolved
-    assert "https://dashboard.example.com" in resolved
-    assert "https://ops.example.com" in resolved
-    assert len([item for item in resolved if item == "https://dashboard.example.com"]) == 1
+    resolved_https_hosts = {
+        (parts.scheme, parts.netloc)
+        for item in resolved
+        if (parts := urlsplit(item)).scheme == "https"
+    }
+    assert ("https", "dashboard.example.com") in resolved_https_hosts
+    assert ("https", "ops.example.com") in resolved_https_hosts
+    assert len([item for item in resolved_https_hosts if item == ("https", "dashboard.example.com")]) == 1
 
 
 def test_api_runs_role_header_requires_trusted_auth_context(monkeypatch) -> None:
