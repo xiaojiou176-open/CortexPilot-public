@@ -451,6 +451,8 @@ def evaluate_cleanup_gate(
                     "size_bytes": entry["size_bytes"],
                     "expected_reclaim_bytes": entry["size_bytes"],
                     "classification": entry["recommendation"],
+                    "producer": entry.get("producer", ""),
+                    "lifecycle": entry.get("lifecycle", ""),
                     "rebuild_entrypoints": entry["required_rebuild_commands"],
                     "post_cleanup_verification_commands": entry["post_cleanup_verification_commands"],
                     "apply_serial_only": bool(entry.get("apply_serial_only", False)),
@@ -484,6 +486,8 @@ def evaluate_cleanup_gate(
                         "size_bytes": candidate["size_bytes"],
                         "expected_reclaim_bytes": candidate["size_bytes"],
                         "classification": entry["recommendation"],
+                        "producer": entry.get("producer", ""),
+                        "lifecycle": entry.get("lifecycle", ""),
                         "rebuild_entrypoints": entry["required_rebuild_commands"],
                         "post_cleanup_verification_commands": entry["post_cleanup_verification_commands"],
                         "apply_serial_only": bool(entry.get("apply_serial_only", False)),
@@ -578,6 +582,23 @@ def render_space_governance_markdown(report: dict[str, Any]) -> str:
             lines.append(
                 f"- `{entry['path']}`: {entry['type']} / {entry['recommendation']} / "
                 f"sharedness={entry['sharedness']} / ownership={entry['ownership_confidence']}"
+            )
+    machine_tmp_entries = [entry for entry in report["entries"] if str(entry.get("lifecycle", "")).strip() == "machine_tmp"]
+    lines.extend(["", "## Machine Temp Surfaces", ""])
+    if not machine_tmp_entries:
+        lines.append("- none")
+    else:
+        lines.extend(
+            [
+                "| Path | Producer | Lifecycle | Size | Recommendation |",
+                "| --- | --- | --- | ---: | --- |",
+            ]
+        )
+        for entry in sorted(machine_tmp_entries, key=lambda item: item["size_bytes"], reverse=True):
+            lines.append(
+                f"| `{entry['path']}` | `{entry.get('producer', '') or 'unknown'}` | "
+                f"`{entry.get('lifecycle', '') or 'unknown'}` | {entry['size_human']} | "
+                f"`{entry['recommendation']}` |"
             )
     lines.extend(["", "## Environment Drift Signals", ""])
     if not report.get("environment_drift_signals"):
@@ -723,6 +744,8 @@ def inspect_path_entry(
         "expected_rebuild_cost_class": infer_rebuild_cost_class(entry_spec["rebuildability"]),
         "expected_rebuild_commands": expected_rebuild_commands,
         "apply_serial_only": bool(entry_spec.get("apply_serial_only", False)),
+        "producer": str(entry_spec.get("producer", "")).strip(),
+        "lifecycle": str(entry_spec.get("lifecycle", "")).strip(),
         "risk": entry_spec["risk"],
         "evidence": entry_spec["evidence"],
         "notes": entry_spec.get("notes", ""),
@@ -961,10 +984,28 @@ def resolve_policy_paths(*, raw_path: str, repo_root: Path) -> list[Path]:
 
 def resolve_policy_path(*, raw_path: str, repo_root: Path) -> Path:
     normalized = raw_path.replace("$REPO_ROOT", str(repo_root))
+    normalized = expand_policy_env_defaults(normalized)
     expanded = Path(os.path.expandvars(os.path.expanduser(normalized)))
     if expanded.is_absolute():
         return expanded
     return repo_root / expanded
+
+
+def expand_policy_env_defaults(raw_path: str) -> str:
+    normalized = raw_path
+    for env_name in ("CORTEXPILOT_MACHINE_CACHE_ROOT",):
+        if os.environ.get(env_name):
+            continue
+        default_value = default_policy_env_value(env_name)
+        normalized = normalized.replace(f"${{{env_name}}}", default_value)
+        normalized = normalized.replace(f"${env_name}", default_value)
+    return normalized
+
+
+def default_policy_env_value(env_name: str) -> str:
+    if env_name == "CORTEXPILOT_MACHINE_CACHE_ROOT":
+        return str(Path.home() / ".cache" / "cortexpilot")
+    raise SpaceGovernancePolicyError(f"unsupported policy env default: {env_name}")
 
 
 def path_size_bytes(path: Path) -> int:

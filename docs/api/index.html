@@ -77,8 +77,9 @@
         pilot shape:
         <code>/api/queue/from-run/{run_id}/preview</code> and
         <code>/api/queue/{queue_id}/cancel</code> exist as repo-owned HTTP
-        control-plane routes. Treat them as guarded operator mutation surfaces,
-        not as public write-capable MCP.
+        control-plane routes. Treat them as guarded operator mutation surfaces
+        for trusted repo operators, not as default external builder onboarding
+        and not as public write-capable MCP.
       </p>
 
       <h2>3. Contract-facing types</h2>
@@ -97,7 +98,7 @@
       <ul>
         <li>useful builder edge today, not a full SDK platform</li>
         <li>read-oriented integration story, not a hosted operator service</li>
-        <li>queue preview/cancel routes are repo-owned operator HTTP surfaces, not public write-capable MCP</li>
+        <li>queue preview/cancel routes are repo-owned operator HTTP surfaces, not public write-capable MCP and not the primary external builder promise</li>
         <li>best read alongside the <a href="../mcp/">read-only MCP quickstart</a> and the <a href="../ai-surfaces/">AI + MCP + API map</a></li>
       </ul>
 
@@ -117,7 +118,8 @@
       <p>
         This example is preview-first by default. Use
         <code>--apply</code> only when you intentionally
-        want to persist repo-owned role defaults through the same starter path.
+        want a trusted repo-operator flow to persist repo-owned role defaults
+        through the same starter path.
       </p>
     </main>
   </body>

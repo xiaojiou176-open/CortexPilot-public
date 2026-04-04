@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$ROOT_DIR/scripts/lib/toolchain_env.sh"
 IMAGE_NAME="cortexpilot-ci-core:local"
 DESKTOP_NATIVE_IMAGE_NAME="cortexpilot-ci-desktop-native:local"
 CONTAINER_RUN_ARGS=()
@@ -290,7 +291,8 @@ resolve_targetarch_or_fail() {
 }
 
 prepare_runner_temp_mount() {
-  local default_host_runner_temp="${TMPDIR:-/tmp}/cortexpilot-docker-ci/runner-temp-$(id -u)"
+  # Keep heavy local CI runner temp under the repo-owned machine cache instead of Darwin TMPDIR.
+  local default_host_runner_temp="$(cortexpilot_machine_tmp_root "$ROOT_DIR")/docker-ci/runner-temp-$(id -u)"
   local host_runner_temp="${CORTEXPILOT_DOCKER_CI_RUNNER_TEMP_HOST:-${RUNNER_TEMP:-${default_host_runner_temp}}}"
   mkdir -p "${host_runner_temp}"
   export CORTEXPILOT_DOCKER_CI_RUNNER_TEMP_HOST="${host_runner_temp}"

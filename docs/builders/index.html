@@ -87,6 +87,7 @@
         <li>The MCP story is real, but the current public boundary stays read-only.</li>
         <li>The package surface is useful today, but it should not be described as a complete SDK platform.</li>
         <li>The current packages remain repo-owned/private integration surfaces; do not describe them as published marketplace artifacts or official plugin packages.</li>
+        <li>Any repo-owned mutation examples below are operator-only control-plane paths, not the default external builder onboarding contract.</li>
       </ul>
 
       <h2>Minimal example</h2>
@@ -125,12 +126,13 @@ const preview = await starter.previewRoleDefaults("WORKER", {
         marketplace/distribution product.
       </p>
       <p>
-        The optional <code>--apply</code> flag mutates repo-owned role defaults
-        through the same HTTP control-plane surface the dashboard and desktop
-        already use. It does <strong>not</strong> mean write-capable MCP is
-        generally available.
+        The optional <code>--apply</code> flag is an operator-only,
+        repo-owned control-plane action for trusted maintainers working inside
+        this repository. It is outside the default external builder contract and
+        does <strong>not</strong> mean write-capable MCP or general external
+        mutation is available.
       </p>
-      <p>Apply stays opt-in. Pass <code>--apply</code> only when you intentionally want the example to persist repo-owned role defaults.</p>
+      <p>Apply stays opt-in. Pass <code>--apply</code> only when you intentionally want a trusted operator flow to persist repo-owned role defaults inside this repo.</p>
 
       <h2>Fast onboarding order</h2>
       <ol>

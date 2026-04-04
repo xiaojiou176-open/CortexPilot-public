@@ -20,6 +20,7 @@ import AppNav from "../components/AppNav";
 import BlockerPanel from "../components/command-tower/BlockerPanel";
 import ConversationGraph from "../components/command-tower/ConversationGraph";
 import SessionBoard from "../components/command-tower/SessionBoard";
+import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
 
 function getRequiredSessionRow(sessionId: string): HTMLTableRowElement {
   const sessionLink = document.querySelector(`a[href="/command-tower/sessions/${sessionId}"]`);
@@ -225,6 +226,18 @@ describe("command tower ui surfaces", () => {
     expect(screen.getByRole("navigation", { name: "控制台导航" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "指挥塔" })).toBeInTheDocument();
     expect(screen.getByText(/低频工具\s*11/)).toBeInTheDocument();
+  });
+
+  it("keeps command tower page copy aligned across locales", () => {
+    const en = getUiCopy("en").dashboard.commandTowerPage;
+    const zh = getUiCopy("zh-CN").dashboard.commandTowerPage;
+
+    expect(en.actions.reload).toBe("Reload Command Tower");
+    expect(zh.actions.reload).toBe("重载指挥塔");
+    expect(en.actions.openWorkflowCases).toBe("Open Workflow Cases");
+    expect(zh.actions.openWorkflowCases).toBe("打开工作流案例");
+    expect(en.fallbackLoading).toContain("Command Tower");
+    expect(zh.fallbackLoading).toContain("指挥塔");
   });
 
   it("renders empty conversation graph state", () => {

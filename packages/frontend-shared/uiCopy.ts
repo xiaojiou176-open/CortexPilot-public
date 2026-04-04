@@ -199,6 +199,84 @@ export type UiCopy = {
       statusApproved: string;
       statusFailed: (message: string) => string;
     };
+    commandTowerPage: {
+      unavailableTitle: string;
+      unavailableNextAction: string;
+      unavailableBadge: string;
+      partialTitle: string;
+      partialNextAction: string;
+      partialBadge: string;
+      actions: {
+        reload: string;
+        viewRuns: string;
+        startFromPm: string;
+        openRuns: string;
+        openWorkflowCases: string;
+      };
+      fallbackLoading: string;
+      srTitle: string;
+      srSubtitle: string;
+    };
+    runDetailPage: {
+      title: string;
+      subtitle: string;
+      openCompareSurface: string;
+      degradedTitle: string;
+      degradedNextAction: string;
+      degradedBadge: string;
+      reloadAction: string;
+      backToRunsAction: string;
+      compareDecisionTitle: string;
+      compareMissing: string;
+      compareAligned: string;
+      compareNeedsReview: string;
+      compareNextStepMissing: string;
+      compareNextStepAligned: string;
+      compareNextStepNeedsReview: string;
+      incidentActionTitle: string;
+      incidentMissing: string;
+      incidentNextStepFallback: string;
+      proofActionTitle: string;
+      proofMissing: string;
+      proofNextStepFallback: string;
+    };
+    workflowDetailPage: {
+      title: string;
+      subtitle: string;
+      riskSummaryAriaLabel: string;
+      highRiskLabel: string;
+      normalRiskLabel: string;
+      shareAssetCta: string;
+      degradedTitle: string;
+      degradedNextAction: string;
+      degradedBadge: string;
+      degradedIdentityTitle: string;
+      degradedRunMappingTitle: string;
+      degradedRunMappingEmpty: string;
+      degradedRunMappingReadonlyNote: string;
+      degradedEventTimelineTitle: string;
+      degradedEventTimelineReadonlyNote: string;
+      retryLoadAction: string;
+      backToWorkflowListAction: string;
+      governanceEntryDisabled: string;
+      summaryStatus: string;
+      summaryRunMappings: string;
+      summaryEvents: string;
+      summaryRunMappingsHint: string;
+      summaryEventsHint: string;
+      queuePostureNote: string;
+      caseFieldLabels: {
+        workflowId: string;
+        name: string;
+        updatedAt: string;
+        namespace: string;
+        taskQueue: string;
+        owner: string;
+        project: string;
+        verdict: string;
+        runs: string;
+      };
+    };
     sectionPrimary: string;
     sectionAdvanced: string;
     labels: DashboardNavLabels;
@@ -427,6 +505,59 @@ export type UiCopy = {
         testReportTitle: string;
         reviewReportTitle: string;
         evidenceReportTitle: string;
+      };
+    };
+    workflowDetail: {
+      backToList: string;
+      queuePriority: string;
+      queueScheduledAt: string;
+      queueDeadlineAt: string;
+      queueLatestRun: string;
+      runNextQueuedTask: string;
+      runningTask: string;
+      noRunAvailable: string;
+      queuedNotice: (taskId: string) => string;
+      startedNotice: (runId: string) => string;
+      queueEmptyReason: string;
+      workflowCopilotTitle: string;
+      workflowCopilotIntro: string;
+      workflowCopilotButton: string;
+      workflowCopilotTakeaways: string;
+      workflowCopilotPosture: string;
+      workflowCopilotQuestions: string[];
+      nextOperatorActionTitle: string;
+      nextOperatorActionHint: string;
+      recommendedActionQueued: string;
+      recommendedActionNoQueue: string;
+      recommendedActionNoRun: string;
+      summaryTitle: string;
+      readModelTitle: string;
+      noReadModel: string;
+      relatedRunsTitle: (count: number) => string;
+      noRelatedRuns: string;
+      eventsTitle: (count: number) => string;
+      noEvents: string;
+      queueSlaTitle: (count: number) => string;
+      noQueuedWork: string;
+      queueMeta: (priority: string, sla: string) => string;
+      summaryLabels: {
+        status: string;
+        objective: string;
+        owner: string;
+        project: string;
+        verdict: string;
+        pmSessions: string;
+        summary: string;
+      };
+      readModelLabels: {
+        authority: string;
+        executionAuthority: string;
+        source: string;
+        sourceRunId: string;
+        skillsBundle: string;
+        mcpBundle: string;
+        runtimeBinding: string;
+        readOnlyNote: string;
       };
     };
     overview: {
@@ -856,6 +987,92 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         statusApproved: "Approved.",
         statusFailed: (message: string) => `Failed: ${message}`,
       },
+      commandTowerPage: {
+        unavailableTitle: "Command Tower live overview is unavailable",
+        unavailableNextAction:
+          "Reload first. If live data is still missing, inspect runs for the latest verified state or start from PM to rebuild the active path.",
+        unavailableBadge: "Live data missing",
+        partialTitle: "Command Tower is running with partial truth",
+        partialNextAction:
+          "Use the visible overview as a partial snapshot only. Confirm runs or Workflow Cases directly before taking approval, rollback, or release decisions.",
+        partialBadge: "Partial context",
+        actions: {
+          reload: "Reload Command Tower",
+          viewRuns: "View runs",
+          startFromPm: "Start from PM",
+          openRuns: "Open runs",
+          openWorkflowCases: "Open Workflow Cases",
+        },
+        fallbackLoading: "Loading Command Tower live overview...",
+        srTitle: "Command Tower",
+        srSubtitle: "Review risk and blockers first, then move into session handling.",
+      },
+      runDetailPage: {
+        title: "Run detail",
+        subtitle: "Follow one run across status, event evidence, and replay comparison.",
+        openCompareSurface: "Open compare surface",
+        degradedTitle: "Run detail is partially degraded",
+        degradedNextAction:
+          "Retry this page first. If the same source is still unavailable, inspect the surviving Run Detail tabs and then return to the run list.",
+        degradedBadge: "Partial data",
+        reloadAction: "Reload run detail",
+        backToRunsAction: "Back to run list",
+        compareDecisionTitle: "Compare decision",
+        compareMissing: "No structured compare report is attached yet.",
+        compareAligned: "Current run looks aligned with the selected baseline.",
+        compareNeedsReview: "Compare found deltas that need operator review before you trust this run.",
+        compareNextStepMissing: "Next step: Generate or refresh a compare report for this run.",
+        compareNextStepAligned: "Next step: Review proof and finalize the outcome.",
+        compareNextStepNeedsReview:
+          "Next step: Open compare and decide whether to replay, investigate, or keep the run blocked.",
+        incidentActionTitle: "Incident action",
+        incidentMissing: "No incident pack is attached yet.",
+        incidentNextStepFallback: "Use reports and timeline to determine the next operator action.",
+        proofActionTitle: "Proof action",
+        proofMissing: "No proof pack is attached yet.",
+        proofNextStepFallback: "Inspect the run reports before promoting or sharing any result.",
+      },
+      workflowDetailPage: {
+        title: "Workflow Case detail",
+        subtitle:
+          "Classify risk first, then confirm the case summary, run mapping, queue posture, and event timeline before taking governance action.",
+        riskSummaryAriaLabel: "Workflow risk summary",
+        highRiskLabel: "High-risk state",
+        normalRiskLabel: "Normal state",
+        shareAssetCta: "Open share-ready case asset",
+        degradedTitle: "Workflow Case is in read-only degraded mode",
+        degradedNextAction:
+          "Use the visible case identity, event timeline, and run mapping for diagnosis only. Wait for the data path to recover before taking approval, rollback, replay, or queue actions.",
+        degradedBadge: "Read-only",
+        degradedIdentityTitle: "Identity snapshot (degraded)",
+        degradedRunMappingTitle: "Run mapping samples (degraded)",
+        degradedRunMappingEmpty: "No verifiable run mapping is available in degraded mode.",
+        degradedRunMappingReadonlyNote:
+          "Read-only note: use the run chain for assessment only, not for direct governance actions.",
+        degradedEventTimelineTitle: "Event timeline sample (degraded)",
+        degradedEventTimelineReadonlyNote:
+          "Events remain visible, but governance actions should wait until the data path is restored.",
+        retryLoadAction: "Retry load",
+        backToWorkflowListAction: "Back to workflow list",
+        governanceEntryDisabled: "Governance entry (disabled in degraded mode)",
+        summaryStatus: "Current status",
+        summaryRunMappings: "Run mappings",
+        summaryEvents: "Events",
+        summaryRunMappingsHint: "Use this to locate the current execution path.",
+        summaryEventsHint: "Filter failed and rollback events first.",
+        queuePostureNote: "The web surface can now advance the queue directly when an operator role is configured.",
+        caseFieldLabels: {
+          workflowId: "workflow_id",
+          name: "Name",
+          updatedAt: "Updated at",
+          namespace: "Namespace",
+          taskQueue: "Task queue",
+          owner: "Owner",
+          project: "Project",
+          verdict: "Verdict",
+          runs: "Runs",
+        },
+      },
       sectionPrimary: "Primary",
       sectionAdvanced: "Advanced",
       labels: {
@@ -1105,6 +1322,70 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           testReportTitle: "test_report.json",
           reviewReportTitle: "review_report.json",
           evidenceReportTitle: "evidence_report.json",
+        },
+      },
+      workflowDetail: {
+        backToList: "Back to workflow list",
+        queuePriority: "Queue priority",
+        queueScheduledAt: "Queue scheduled at",
+        queueDeadlineAt: "Queue deadline at",
+        queueLatestRun: "Queue latest run contract",
+        runNextQueuedTask: "Run next queued task",
+        runningTask: "Running...",
+        noRunAvailable: "No run is available to enqueue.",
+        queuedNotice: (taskId: string) => `Queued ${taskId}.`,
+        startedNotice: (runId: string) => `Started ${runId}.`,
+        queueEmptyReason: "queue empty",
+        workflowCopilotTitle: "Workflow Case copilot",
+        workflowCopilotIntro:
+          "Generate one bounded workflow brief grounded in workflow status, queue posture, the latest linked run, proof, compare, incident, and approval truth.",
+        workflowCopilotButton: "Explain this workflow case",
+        workflowCopilotTakeaways: "Latest run gap, proof, and truth coverage",
+        workflowCopilotPosture: "Queue, SLA, and approval posture",
+        workflowCopilotQuestions: [
+          "What is the most important workflow case risk right now?",
+          "What is the queue and SLA posture for this workflow case?",
+          "What is the biggest gap between the latest run and the current workflow state?",
+          "What should the operator do first to move this workflow case forward?",
+          "Which truth surfaces are still missing or partial?",
+        ],
+        nextOperatorActionTitle: "Next Operator Action",
+        nextOperatorActionHint: "Workflow Cases should be operated as case records, not as detached run rows.",
+        recommendedActionQueued:
+          "Queued work already exists. The next high-value action is to run the next queued task and watch the case move.",
+        recommendedActionNoQueue:
+          "No queued work exists yet. Queue the latest run contract to move this Workflow Case into SLA tracking.",
+        recommendedActionNoRun:
+          "No run is available yet. Start or resume a run before you queue this Workflow Case.",
+        summaryTitle: "Workflow Case Summary",
+        readModelTitle: "Workflow read model",
+        noReadModel: "No workflow read model is attached yet.",
+        relatedRunsTitle: (count: number) => `Related Runs (${count})`,
+        noRelatedRuns: "No related runs",
+        eventsTitle: (count: number) => `Events (${count})`,
+        noEvents: "No events",
+        queueSlaTitle: (count: number) => `Queue / SLA (${count})`,
+        noQueuedWork: "No queued work for this workflow case.",
+        queueMeta: (priority: string, sla: string) => `priority ${priority} / sla ${sla}`,
+        summaryLabels: {
+          status: "status",
+          objective: "objective",
+          owner: "owner",
+          project: "project",
+          verdict: "verdict",
+          pmSessions: "pm_sessions",
+          summary: "summary",
+        },
+        readModelLabels: {
+          authority: "authority",
+          executionAuthority: "execution_authority",
+          source: "source",
+          sourceRunId: "source_run_id",
+          skillsBundle: "skills_bundle",
+          mcpBundle: "mcp_bundle",
+          runtimeBinding: "runtime_binding",
+          readOnlyNote:
+            "Read-only note: this workflow summary mirrors the latest linked run binding summary. The task contract still owns execution authority.",
         },
       },
       overview: {
@@ -1561,6 +1842,88 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         statusApproved: "已批准。",
         statusFailed: (message: string) => `失败：${message}`,
       },
+      commandTowerPage: {
+        unavailableTitle: "指挥塔实时总览暂不可用",
+        unavailableNextAction:
+          "先重试。如果实时数据仍然缺失，就打开运行记录确认最后一个已验证状态，或从 PM 入口重新建立主路径。",
+        unavailableBadge: "实时数据缺失",
+        partialTitle: "指挥塔当前只提供部分真相",
+        partialNextAction:
+          "当前可见总览只能算部分快照。做审批、回滚或发布判断前，先直接核对 Runs 或 Workflow Cases。",
+        partialBadge: "上下文不完整",
+        actions: {
+          reload: "重载指挥塔",
+          viewRuns: "查看运行记录",
+          startFromPm: "从 PM 入口开始",
+          openRuns: "打开运行记录",
+          openWorkflowCases: "打开工作流案例",
+        },
+        fallbackLoading: "正在加载指挥塔实时总览...",
+        srTitle: "指挥塔",
+        srSubtitle: "先查看风险与阻塞，再进入会话处理。",
+      },
+      runDetailPage: {
+        title: "运行详情",
+        subtitle: "沿着状态、事件证据和回放对比，完整跟踪这一条 Run。",
+        openCompareSurface: "打开对比视图",
+        degradedTitle: "运行详情当前处于部分降级状态",
+        degradedNextAction:
+          "先重试当前页面。如果同一数据源仍不可用，就先查看还能显示的 Run Detail 标签页，再回到运行列表。",
+        degradedBadge: "部分数据",
+        reloadAction: "重新加载运行详情",
+        backToRunsAction: "返回运行列表",
+        compareDecisionTitle: "对比判断",
+        compareMissing: "当前还没有附带结构化 compare 报告。",
+        compareAligned: "当前 Run 与所选基线看起来是一致的。",
+        compareNeedsReview: "Compare 发现了差异，在信任这个 Run 之前仍需要操作员复核。",
+        compareNextStepMissing: "下一步：为这个 Run 生成或刷新 compare 报告。",
+        compareNextStepAligned: "下一步：复核 proof 并完成最终结论。",
+        compareNextStepNeedsReview: "下一步：打开 compare，决定是重放、调查，还是继续阻塞这个 Run。",
+        incidentActionTitle: "事件处置",
+        incidentMissing: "当前还没有附带 incident pack。",
+        incidentNextStepFallback: "先结合报告和时间线判断下一步操作。",
+        proofActionTitle: "证明动作",
+        proofMissing: "当前还没有附带 proof pack。",
+        proofNextStepFallback: "在提升或分享任何结果前，先检查当前 Run 报告。",
+      },
+      workflowDetailPage: {
+        title: "工作流案例详情",
+        subtitle: "先判断风险，再确认案例摘要、Run 映射、队列姿态和事件时间线，然后再做治理动作。",
+        riskSummaryAriaLabel: "工作流风险摘要",
+        highRiskLabel: "高风险状态",
+        normalRiskLabel: "正常状态",
+        shareAssetCta: "打开可分享案例资产",
+        degradedTitle: "工作流案例当前处于只读降级模式",
+        degradedNextAction:
+          "现在只能用可见的案例身份、事件时间线和 Run 映射来做诊断。在数据链路恢复前，不要执行审批、回滚、重放或队列动作。",
+        degradedBadge: "只读",
+        degradedIdentityTitle: "身份快照（降级）",
+        degradedRunMappingTitle: "Run 映射样本（降级）",
+        degradedRunMappingEmpty: "降级模式下当前没有可验证的 Run 映射。",
+        degradedRunMappingReadonlyNote: "只读说明：这里只能拿 Run 链路做判断，不能直接拿来执行治理动作。",
+        degradedEventTimelineTitle: "事件时间线样本（降级）",
+        degradedEventTimelineReadonlyNote: "事件仍可见，但治理动作应等数据链路恢复后再进行。",
+        retryLoadAction: "重新加载",
+        backToWorkflowListAction: "返回工作流列表",
+        governanceEntryDisabled: "治理入口（降级模式已禁用）",
+        summaryStatus: "当前状态",
+        summaryRunMappings: "Run 映射",
+        summaryEvents: "事件数",
+        summaryRunMappingsHint: "用它来定位当前执行路径。",
+        summaryEventsHint: "先过滤失败和回滚事件。",
+        queuePostureNote: "当操作角色已配置时，Web 面已经可以直接推进队列。",
+        caseFieldLabels: {
+          workflowId: "workflow_id",
+          name: "名称",
+          updatedAt: "更新时间",
+          namespace: "命名空间",
+          taskQueue: "任务队列",
+          owner: "负责人",
+          project: "项目",
+          verdict: "结论",
+          runs: "Runs",
+        },
+      },
       sectionPrimary: "主路径",
       sectionAdvanced: "高级",
       labels: {
@@ -1810,6 +2173,67 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           testReportTitle: "test_report.json",
           reviewReportTitle: "review_report.json",
           evidenceReportTitle: "evidence_report.json",
+        },
+      },
+      workflowDetail: {
+        backToList: "返回工作流列表",
+        queuePriority: "队列优先级",
+        queueScheduledAt: "计划执行时间",
+        queueDeadlineAt: "截止时间",
+        queueLatestRun: "排入最新 Run 合约",
+        runNextQueuedTask: "运行下一条排队任务",
+        runningTask: "运行中...",
+        noRunAvailable: "当前没有可加入队列的 Run。",
+        queuedNotice: (taskId: string) => `已加入队列：${taskId}。`,
+        startedNotice: (runId: string) => `已启动 ${runId}。`,
+        queueEmptyReason: "队列为空",
+        workflowCopilotTitle: "AI 工作流副驾驶",
+        workflowCopilotIntro:
+          "生成一份有边界的工作流摘要，基于 workflow 状态、队列姿态、最新 linked run、proof、compare、incident 与 approval 真相。",
+        workflowCopilotButton: "解释这个工作流案例",
+        workflowCopilotTakeaways: "最新 Run 差距、证据与真相覆盖",
+        workflowCopilotPosture: "队列、SLA 与审批姿态",
+        workflowCopilotQuestions: [
+          "当前最重要的工作流案例风险是什么？",
+          "这个工作流案例当前的队列和 SLA 姿态如何？",
+          "最新 Run 和当前工作流状态之间最大的差距是什么？",
+          "操作员下一步最应该先做什么？",
+          "还有哪些真相面仍然缺失或不完整？",
+        ],
+        nextOperatorActionTitle: "下一步操作",
+        nextOperatorActionHint: "工作流案例应该作为案例记录来运营，而不是孤立的 Run 行。",
+        recommendedActionQueued: "已有排队工作。下一步最有价值的动作是运行下一条排队任务并观察案例前进。",
+        recommendedActionNoQueue: "当前还没有排队工作。先把最新 Run 合约加入队列，让这个工作流案例进入 SLA 跟踪。",
+        recommendedActionNoRun: "当前没有可用 Run。先启动或恢复一个 Run，再把这个工作流案例送入队列。",
+        summaryTitle: "工作流案例摘要",
+        readModelTitle: "工作流只读模型",
+        noReadModel: "当前还没有附加工作流只读模型。",
+        relatedRunsTitle: (count: number) => `相关 Run（${count}）`,
+        noRelatedRuns: "当前没有相关 Run",
+        eventsTitle: (count: number) => `事件（${count}）`,
+        noEvents: "当前没有事件",
+        queueSlaTitle: (count: number) => `队列 / SLA（${count}）`,
+        noQueuedWork: "这个工作流案例当前没有排队工作。",
+        queueMeta: (priority: string, sla: string) => `优先级 ${priority} / SLA ${sla}`,
+        summaryLabels: {
+          status: "状态",
+          objective: "目标",
+          owner: "负责人",
+          project: "项目",
+          verdict: "结论",
+          pmSessions: "PM 会话",
+          summary: "摘要",
+        },
+        readModelLabels: {
+          authority: "权威来源",
+          executionAuthority: "执行权威",
+          source: "来源",
+          sourceRunId: "来源 Run",
+          skillsBundle: "技能包",
+          mcpBundle: "MCP 包",
+          runtimeBinding: "运行时绑定",
+          readOnlyNote:
+            "只读说明：这里展示的是最新 linked run 的绑定摘要镜像；`task_contract` 仍然掌握执行权威。",
         },
       },
       overview: {

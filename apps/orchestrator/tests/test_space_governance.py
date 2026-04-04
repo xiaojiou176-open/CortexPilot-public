@@ -13,6 +13,7 @@ from cortexpilot_orch.runtime.space_governance import (
     evaluate_cleanup_gate,
     load_space_governance_policy,
     policy_hash,
+    resolve_policy_path,
 )
 
 SCRIPT_ROOT = Path(__file__).resolve().parents[3]
@@ -141,6 +142,62 @@ def _base_policy(repo_root: Path, home_root: Path) -> dict:
             },
         },
     }
+
+
+def test_toolchain_env_machine_tmp_root_defaults_and_respects_machine_cache_override(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    helper_path = SCRIPT_ROOT / "scripts" / "lib" / "toolchain_env.sh"
+    home_root = tmp_path / "home"
+
+    env = os.environ.copy()
+    env["HOME"] = str(home_root)
+    env.pop("XDG_CACHE_HOME", None)
+    env.pop("CORTEXPILOT_MACHINE_CACHE_ROOT", None)
+
+    proc = subprocess.run(
+        ["bash", "-lc", f"source '{helper_path}' && cortexpilot_machine_tmp_root '{repo_root}'"],
+        capture_output=True,
+        text=True,
+        check=True,
+        env=env,
+    )
+    assert proc.stdout.strip() == str(home_root / ".cache" / "cortexpilot" / "tmp")
+
+    env["CORTEXPILOT_MACHINE_CACHE_ROOT"] = str(tmp_path / "machine-cache")
+    proc = subprocess.run(
+        ["bash", "-lc", f"source '{helper_path}' && cortexpilot_machine_tmp_root '{repo_root}'"],
+        capture_output=True,
+        text=True,
+        check=True,
+        env=env,
+    )
+    assert proc.stdout.strip() == str(tmp_path / "machine-cache" / "tmp")
+
+
+def test_resolve_policy_path_uses_machine_cache_root_placeholder_defaults_and_override(
+    tmp_path: Path, monkeypatch
+) -> None:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    home_root = tmp_path / "home"
+
+    monkeypatch.setenv("HOME", str(home_root))
+    monkeypatch.delenv("XDG_CACHE_HOME", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_MACHINE_CACHE_ROOT", raising=False)
+
+    resolved = resolve_policy_path(
+        raw_path="${CORTEXPILOT_MACHINE_CACHE_ROOT}/tmp/docker-ci/runner-temp-1000",
+        repo_root=repo_root,
+    )
+    assert resolved == home_root / ".cache" / "cortexpilot" / "tmp" / "docker-ci" / "runner-temp-1000"
+
+    monkeypatch.setenv("CORTEXPILOT_MACHINE_CACHE_ROOT", str(tmp_path / "machine-cache"))
+    resolved = resolve_policy_path(
+        raw_path="${CORTEXPILOT_MACHINE_CACHE_ROOT}/tmp/clean-room-machine-cache.test",
+        repo_root=repo_root,
+    )
+    assert resolved == tmp_path / "machine-cache" / "tmp" / "clean-room-machine-cache.test"
 
 
 def test_space_governance_report_marks_shared_symlink_targets(tmp_path: Path) -> None:
@@ -435,6 +492,193 @@ def test_space_governance_report_uses_exclusive_summary_for_external_rollup(tmp_
     assert root_entry["counted_in_summary"] is True
     assert child_entry["counted_in_summary"] is False
     assert child_entry["summary_exclusion_reason"] == "breakdown-only"
+
+
+def test_wave3_reports_machine_tmp_entries_with_producer_and_lifecycle(
+    tmp_path: Path, monkeypatch
+) -> None:
+    repo_root = tmp_path / "repo"
+    home_root = tmp_path / "home"
+    _write_file(
+        repo_root / "package.json",
+        json.dumps({"scripts": {"bootstrap": "echo ok", "test:quick": "echo quick"}}),
+    )
+    _write_file(repo_root / "scripts" / "docker_ci.sh", "#!/usr/bin/env bash\n")
+    _write_file(repo_root / "scripts" / "check_clean_room_recovery.sh", "#!/usr/bin/env bash\n")
+
+    docker_runner_file = (
+        home_root / ".cache" / "cortexpilot" / "tmp" / "docker-ci" / "runner-temp-1000" / "marker.txt"
+    )
+    clean_room_file = (
+        home_root / ".cache" / "cortexpilot" / "tmp" / "clean-room-machine-cache.ABCD" / "marker.txt"
+    )
+    preserve_file = (
+        home_root / ".cache" / "cortexpilot" / "tmp" / "clean-room-preserve.WXYZ" / "marker.txt"
+    )
+    _write_file(docker_runner_file, "runner")
+    _write_file(clean_room_file, "clean-room")
+    _write_file(preserve_file, "preserve")
+    _age(docker_runner_file.parent, hours=96)
+    _age(clean_room_file.parent, hours=96)
+    _age(preserve_file.parent, hours=96)
+
+    monkeypatch.setenv("HOME", str(home_root))
+    monkeypatch.delenv("XDG_CACHE_HOME", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_MACHINE_CACHE_ROOT", raising=False)
+
+    policy_payload = _base_policy(repo_root, home_root)
+    policy_payload["rebuild_commands"].extend(
+        [
+            {
+                "id": "docker_ci_test_quick",
+                "kind": "shell_script",
+                "path": "scripts/docker_ci.sh",
+                "args": ["test-quick"],
+                "description": "docker_ci quick",
+            },
+            {
+                "id": "clean_room_recovery",
+                "kind": "shell_script",
+                "path": "scripts/check_clean_room_recovery.sh",
+                "args": ["--skip-governance-scorecard"],
+                "description": "clean room recovery",
+            },
+        ]
+    )
+    policy_payload["layers"]["repo_external_related"].insert(
+        0,
+        {
+            "id": "external_machine_cache_root",
+            "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}",
+            "type": "machine cache root",
+            "ownership": "repo external root",
+            "ownership_confidence": "High",
+            "sharedness": "repo_machine_shared",
+            "summary_role": "rollup_root",
+            "rebuildability": "rebuildable",
+            "recommendation": "needs_verification",
+            "cleanup_mode": "observe-only",
+            "risk": "medium",
+            "rebuild_command_ids": ["bootstrap"],
+            "evidence": ["scripts/lib/toolchain_env.sh"],
+        },
+    )
+    policy_payload["layers"]["repo_external_related"].extend(
+        [
+            {
+                "id": "external_tmp_docker_ci_runner_temp",
+                "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/tmp/docker-ci/runner-temp-*",
+                "type": "docker_ci runner temp",
+                "ownership": "repo-owned docker_ci temp",
+                "ownership_confidence": "High",
+                "sharedness": "repo_machine_shared",
+                "summary_role": "breakdown_only",
+                "rebuildability": "rebuildable",
+                "recommendation": "needs_verification",
+                "cleanup_mode": "remove-path",
+                "risk": "medium",
+                "rebuild_command_ids": ["docker_ci_test_quick"],
+                "post_cleanup_command_ids": ["docker_ci_test_quick"],
+                "apply_serial_only": True,
+                "producer": "docker_ci_runner_temp",
+                "lifecycle": "machine_tmp",
+                "evidence": ["scripts/docker_ci.sh"],
+                "notes": "repo-owned docker_ci tmp",
+            },
+            {
+                "id": "external_tmp_clean_room_machine_cache",
+                "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/tmp/clean-room-machine-cache.*",
+                "type": "clean-room machine cache",
+                "ownership": "repo-owned clean-room temp",
+                "ownership_confidence": "High",
+                "sharedness": "repo_machine_shared",
+                "summary_role": "breakdown_only",
+                "rebuildability": "rebuildable",
+                "recommendation": "needs_verification",
+                "cleanup_mode": "remove-path",
+                "risk": "medium",
+                "rebuild_command_ids": ["clean_room_recovery"],
+                "post_cleanup_command_ids": ["clean_room_recovery"],
+                "apply_serial_only": True,
+                "producer": "clean_room_recovery",
+                "lifecycle": "machine_tmp",
+                "evidence": ["scripts/check_clean_room_recovery.sh"],
+                "notes": "repo-owned clean-room machine cache",
+            },
+            {
+                "id": "external_tmp_clean_room_preserve",
+                "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/tmp/clean-room-preserve.*",
+                "type": "clean-room preserve temp",
+                "ownership": "repo-owned clean-room preserve temp",
+                "ownership_confidence": "High",
+                "sharedness": "repo_machine_shared",
+                "summary_role": "breakdown_only",
+                "rebuildability": "rebuildable",
+                "recommendation": "needs_verification",
+                "cleanup_mode": "remove-path",
+                "risk": "medium",
+                "rebuild_command_ids": ["clean_room_recovery"],
+                "post_cleanup_command_ids": ["clean_room_recovery"],
+                "apply_serial_only": True,
+                "producer": "clean_room_recovery",
+                "lifecycle": "machine_tmp",
+                "evidence": ["scripts/check_clean_room_recovery.sh"],
+                "notes": "repo-owned clean-room preserve temp",
+            },
+        ]
+    )
+    policy_payload["wave_targets"]["wave3"] = {
+        "target_ids": [
+            "external_tmp_docker_ci_runner_temp",
+            "external_tmp_clean_room_machine_cache",
+            "external_tmp_clean_room_preserve",
+        ],
+        "process_groups": ["node", "python"],
+        "process_path_hints": ["${CORTEXPILOT_MACHINE_CACHE_ROOT}/tmp"],
+        "process_command_hints": ["scripts/docker_ci.sh", "scripts/check_clean_room_recovery.sh"],
+        "required_rebuild_commands": ["docker_ci_test_quick", "clean_room_recovery"],
+    }
+    policy_path = tmp_path / "space_policy.json"
+    policy_path.write_text(json.dumps(policy_payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    policy = load_space_governance_policy(policy_path)
+
+    report = build_space_governance_report(repo_root=repo_root, policy=policy, ps_lines=[])
+    docker_entry = next(item for item in report["entries"] if item["policy_entry_id"] == "external_tmp_docker_ci_runner_temp")
+    clean_room_entry = next(
+        item for item in report["entries"] if item["policy_entry_id"] == "external_tmp_clean_room_machine_cache"
+    )
+    preserve_entry = next(
+        item for item in report["entries"] if item["policy_entry_id"] == "external_tmp_clean_room_preserve"
+    )
+
+    assert docker_entry["layer"] == "repo_external_related"
+    assert docker_entry["producer"] == "docker_ci_runner_temp"
+    assert docker_entry["lifecycle"] == "machine_tmp"
+    assert clean_room_entry["producer"] == "clean_room_recovery"
+    assert clean_room_entry["lifecycle"] == "machine_tmp"
+    assert preserve_entry["producer"] == "clean_room_recovery"
+
+    gate = evaluate_cleanup_gate(
+        repo_root=repo_root,
+        policy=policy,
+        report=report,
+        wave="wave3",
+        allow_recent=True,
+        allow_shared=True,
+        ps_lines=[],
+    )
+    assert gate["status"] == "pass"
+    eligible = {item["entry_id"]: item for item in gate["eligible_targets"]}
+    deferred_ids = {item["entry_id"] for item in gate["deferred_targets"]}
+    surfaced_ids = set(eligible) | deferred_ids
+    assert surfaced_ids == {
+        "external_tmp_docker_ci_runner_temp",
+        "external_tmp_clean_room_machine_cache",
+        "external_tmp_clean_room_preserve",
+    }
+    for item in gate["eligible_targets"]:
+        assert item["lifecycle"] == "machine_tmp"
+        assert item["producer"] in {"docker_ci_runner_temp", "clean_room_recovery"}
 
 
 def test_cleanup_gate_defers_additional_serial_only_targets(tmp_path: Path) -> None:

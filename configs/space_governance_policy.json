@@ -116,6 +116,24 @@
         "playwright"
       ],
       "description": "Playwright browser bootstrap"
+    },
+    {
+      "id": "docker_ci_test_quick",
+      "kind": "shell_script",
+      "path": "scripts/docker_ci.sh",
+      "args": [
+        "test-quick"
+      ],
+      "description": "local docker_ci quick verification"
+    },
+    {
+      "id": "clean_room_recovery",
+      "kind": "shell_script",
+      "path": "scripts/check_clean_room_recovery.sh",
+      "args": [
+        "--skip-governance-scorecard"
+      ],
+      "description": "clean-room recovery verification"
     }
   ],
   "layers": {
@@ -618,7 +636,7 @@
     "repo_external_related": [
       {
         "id": "external_machine_cache_root",
-        "path": "~/.cache/cortexpilot",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}",
         "type": "machine-scoped cache namespace",
         "ownership": "repo-owned external cache namespace",
         "ownership_confidence": "High",
@@ -640,7 +658,7 @@
       },
       {
         "id": "external_pnpm_store",
-        "path": "~/.cache/cortexpilot/pnpm-store",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/pnpm-store",
         "type": "machine-scoped pnpm store",
         "ownership": "repo-controlled external pnpm cache",
         "ownership_confidence": "High",
@@ -663,7 +681,7 @@
       },
       {
         "id": "external_pnpm_store_dashboard",
-        "path": "~/.cache/cortexpilot/pnpm-store/dashboard",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/pnpm-store/dashboard",
         "type": "dashboard-scoped pnpm store branch",
         "ownership": "repo-controlled external dashboard pnpm cache",
         "ownership_confidence": "High",
@@ -688,7 +706,7 @@
       },
       {
         "id": "external_pnpm_store_desktop",
-        "path": "~/.cache/cortexpilot/pnpm-store/desktop",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/pnpm-store/desktop",
         "type": "desktop-scoped pnpm store branch",
         "ownership": "repo-controlled external desktop pnpm cache",
         "ownership_confidence": "High",
@@ -713,7 +731,7 @@
       },
       {
         "id": "external_pnpm_store_v10",
-        "path": "~/.cache/cortexpilot/pnpm-store/v10",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/pnpm-store/v10",
         "type": "pnpm content-addressed store root",
         "ownership": "repo-controlled external pnpm store content-addressed cache",
         "ownership_confidence": "High",
@@ -741,7 +759,7 @@
       },
       {
         "id": "external_pnpm_store_local",
-        "path": "~/.cache/cortexpilot/pnpm-store-local-*",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/pnpm-store-local-*",
         "type": "derived pnpm retry/local store",
         "ownership": "repo-derived temporary pnpm store namespace",
         "ownership_confidence": "High",
@@ -767,8 +785,102 @@
         "notes": "Treat as temporary derived cache, but still require shared-cache confirmation."
       },
       {
+        "id": "external_tmp_docker_ci_runner_temp",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/tmp/docker-ci/runner-temp-*",
+        "type": "machine-scoped docker_ci runner temp root",
+        "ownership": "repo-owned docker_ci host runner temp",
+        "ownership_confidence": "High",
+        "sharedness": "repo_machine_shared",
+        "summary_role": "breakdown_only",
+        "rebuildability": "rebuildable by local docker_ci quick verification",
+        "recommendation": "needs_verification",
+        "cleanup_mode": "remove-path",
+        "risk": "medium",
+        "rebuild_command_ids": [
+          "docker_ci_test_quick"
+        ],
+        "post_cleanup_command_ids": [
+          "docker_ci_test_quick"
+        ],
+        "apply_serial_only": true,
+        "producer": "docker_ci_runner_temp",
+        "lifecycle": "machine_tmp",
+        "process_command_hints": [
+          "scripts/docker_ci.sh",
+          "cortexpilot-docker-ci",
+          "runner-temp"
+        ],
+        "evidence": [
+          "scripts/docker_ci.sh",
+          "scripts/lib/toolchain_env.sh"
+        ],
+        "notes": "Repo-owned heavy local CI runner temp surface. Keep it under the CortexPilot machine tmp root instead of Darwin TMPDIR."
+      },
+      {
+        "id": "external_tmp_clean_room_machine_cache",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/tmp/clean-room-machine-cache.*",
+        "type": "machine-scoped clean-room machine cache",
+        "ownership": "repo-owned clean-room recovery machine cache",
+        "ownership_confidence": "High",
+        "sharedness": "repo_machine_shared",
+        "summary_role": "breakdown_only",
+        "rebuildability": "rebuildable by clean-room recovery verification",
+        "recommendation": "needs_verification",
+        "cleanup_mode": "remove-path",
+        "risk": "medium",
+        "rebuild_command_ids": [
+          "clean_room_recovery"
+        ],
+        "post_cleanup_command_ids": [
+          "clean_room_recovery"
+        ],
+        "apply_serial_only": true,
+        "producer": "clean_room_recovery",
+        "lifecycle": "machine_tmp",
+        "process_command_hints": [
+          "scripts/check_clean_room_recovery.sh",
+          "clean-room-machine-cache"
+        ],
+        "evidence": [
+          "scripts/check_clean_room_recovery.sh",
+          "scripts/lib/toolchain_env.sh"
+        ],
+        "notes": "Repo-owned clean-room machine cache root. This is a machine temp surface, not a shared browser/system temp."
+      },
+      {
+        "id": "external_tmp_clean_room_preserve",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/tmp/clean-room-preserve.*",
+        "type": "machine-scoped clean-room preserve root",
+        "ownership": "repo-owned clean-room preserve temp root",
+        "ownership_confidence": "High",
+        "sharedness": "repo_machine_shared",
+        "summary_role": "breakdown_only",
+        "rebuildability": "rebuildable by clean-room recovery verification",
+        "recommendation": "needs_verification",
+        "cleanup_mode": "remove-path",
+        "risk": "medium",
+        "rebuild_command_ids": [
+          "clean_room_recovery"
+        ],
+        "post_cleanup_command_ids": [
+          "clean_room_recovery"
+        ],
+        "apply_serial_only": true,
+        "producer": "clean_room_recovery",
+        "lifecycle": "machine_tmp",
+        "process_command_hints": [
+          "scripts/check_clean_room_recovery.sh",
+          "clean-room-preserve"
+        ],
+        "evidence": [
+          "scripts/check_clean_room_recovery.sh",
+          "scripts/lib/toolchain_env.sh"
+        ],
+        "notes": "Repo-owned clean-room preserve temp root. This should stay under the CortexPilot machine tmp root rather than Darwin TMPDIR."
+      },
+      {
         "id": "external_playwright",
-        "path": "~/.cache/cortexpilot/playwright",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/playwright",
         "type": "machine-scoped Playwright browser cache",
         "ownership": "repo-controlled external browser download root",
         "ownership_confidence": "High",
@@ -793,7 +905,7 @@
       },
       {
         "id": "external_cargo",
-        "path": "~/.cache/cortexpilot/cargo",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/cargo",
         "type": "machine-scoped Cargo cache",
         "ownership": "repo-controlled external Cargo home",
         "ownership_confidence": "High",
@@ -818,7 +930,7 @@
       },
       {
         "id": "external_python_toolchain_current",
-        "path": "~/.cache/cortexpilot/toolchains/python/current",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/toolchains/python/current",
         "type": "shared python toolchain root",
         "ownership": "repo-related but potentially cross-repo shared Python toolchain",
         "ownership_confidence": "Medium",
@@ -1037,6 +1149,9 @@
         "external_pnpm_store_desktop",
         "external_pnpm_store_v10",
         "external_pnpm_store_local",
+        "external_tmp_docker_ci_runner_temp",
+        "external_tmp_clean_room_machine_cache",
+        "external_tmp_clean_room_preserve",
         "external_playwright",
         "external_cargo"
       ],
@@ -1049,14 +1164,21 @@
         "docker"
       ],
       "process_path_hints": [
-        "~/.cache/cortexpilot",
-        "~/.cache/cortexpilot/pnpm-store",
-        "~/.cache/cortexpilot/playwright",
-        "~/.cache/cortexpilot/cargo"
+        "${CORTEXPILOT_MACHINE_CACHE_ROOT}",
+        "${CORTEXPILOT_MACHINE_CACHE_ROOT}/pnpm-store",
+        "${CORTEXPILOT_MACHINE_CACHE_ROOT}/tmp",
+        "${CORTEXPILOT_MACHINE_CACHE_ROOT}/tmp/docker-ci",
+        "${CORTEXPILOT_MACHINE_CACHE_ROOT}/playwright",
+        "${CORTEXPILOT_MACHINE_CACHE_ROOT}/cargo"
       ],
       "process_command_hints": [
         "CortexPilot",
         ".cache/cortexpilot",
+        "scripts/docker_ci.sh",
+        "scripts/check_clean_room_recovery.sh",
+        "cortexpilot-docker-ci",
+        "clean-room-machine-cache",
+        "clean-room-preserve",
         "pnpm-store",
         "playwright",
         "cargo"
@@ -1066,6 +1188,8 @@
         "desktop_deps",
         "desktop_tauri_build",
         "bootstrap_playwright",
+        "docker_ci_test_quick",
+        "clean_room_recovery",
         "bootstrap"
       ]
     }

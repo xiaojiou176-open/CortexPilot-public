@@ -25,6 +25,13 @@ cortexpilot_toolchain_cache_root() {
   printf '%s\n' "${machine_root}/toolchains"
 }
 
+cortexpilot_machine_tmp_root() {
+  local root_dir="${1:?root_dir required}"
+  local machine_root
+  machine_root="$(cortexpilot_machine_cache_root "$root_dir")"
+  printf '%s\n' "${machine_root}/tmp"
+}
+
 cortexpilot_bootstrap_python_bin() {
   if [[ -n "${CORTEXPILOT_BOOTSTRAP_PYTHON:-}" ]] && command -v "${CORTEXPILOT_BOOTSTRAP_PYTHON}" >/dev/null 2>&1; then
     command -v "${CORTEXPILOT_BOOTSTRAP_PYTHON}"

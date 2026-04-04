@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { getUiCopy, type UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
 import {
   formatBindingReadModelLabel,
   formatRoleBindingRuntimeSummary,
@@ -6,22 +7,14 @@ import {
   type WorkflowDetailPayload,
 } from "../lib/types";
 import { enqueueRunQueue, fetchQueue, fetchWorkflow, fetchWorkflowCopilotBrief, runNextQueue } from "../lib/api";
-import { statusLabelZh, statusVariant } from "../lib/statusPresentation";
+import { formatDesktopDateTime, statusLabelDesktop, statusVariant } from "../lib/statusPresentation";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { Card, CardBody, CardHeader, CardTitle } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { DesktopCopilotPanel } from "../components/copilot/DesktopCopilotPanel";
 
-const WORKFLOW_COPILOT_QUESTIONS = [
-  "What is the most important workflow case risk right now?",
-  "What is the queue and SLA posture for this workflow case?",
-  "What is the biggest gap between the latest run and the current workflow state?",
-  "What should the operator do first to move this workflow case forward?",
-  "Which truth surfaces are still missing or partial?",
-];
-
-type Props = { workflowId: string; onBack: () => void; onNavigateToRun: (runId: string) => void };
+type Props = { workflowId: string; onBack: () => void; onNavigateToRun: (runId: string) => void; locale?: UiLocale };
 
 function toUtcIsoOrEmpty(value: string): string {
   const trimmed = value.trim();
@@ -32,7 +25,7 @@ function toUtcIsoOrEmpty(value: string): string {
   return Number.isNaN(parsed.getTime()) ? "" : parsed.toISOString();
 }
 
-export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Props) {
+export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun, locale = "en" }: Props) {
   const [data, setData] = useState<WorkflowDetailPayload | null>(null);
   const [queueItems, setQueueItems] = useState<QueueItemRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,12 +56,13 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
   const roleBindingSummary = workflowCaseReadModel?.role_binding_summary;
   const skillsBundle = roleBindingSummary?.skills_bundle_ref;
   const mcpBundle = roleBindingSummary?.mcp_bundle_ref;
+  const workflowDetailCopy = getUiCopy(locale).desktop.workflowDetail;
   const recommendedAction =
     queueItems.length > 0
-      ? "Queued work already exists. The next high-value action is to run the next queued task and watch the case move."
+      ? workflowDetailCopy.recommendedActionQueued
       : workflowData.runs.length > 0
-      ? "No queued work exists yet. Queue the latest run contract to move this Workflow Case into SLA tracking."
-      : "No run is available yet. Start or resume a run before you queue this Workflow Case.";
+      ? workflowDetailCopy.recommendedActionNoQueue
+      : workflowDetailCopy.recommendedActionNoRun;
 
   function resolveLatestRunId(): string {
     const runs = [...workflowData.runs];
@@ -83,7 +77,7 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
   async function handleQueueLatestRun() {
     const latestRunId = resolveLatestRunId();
     if (!latestRunId) {
-      setQueueNotice("No run is available to enqueue.");
+      setQueueNotice(workflowDetailCopy.noRunAvailable);
       return;
     }
     setQueueBusy(true);
@@ -103,7 +97,7 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
         payload.deadline_at = deadlineAtIso;
       }
       const result = await enqueueRunQueue(latestRunId, payload);
-      setQueueNotice(`Queued ${String(result.task_id || latestRunId)}.`);
+      setQueueNotice(workflowDetailCopy.queuedNotice(String(result.task_id || latestRunId)));
       await load();
     } catch (err) {
       setQueueNotice(err instanceof Error ? err.message : String(err));
@@ -117,7 +111,11 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
     setQueueNotice("");
     try {
       const result = await runNextQueue({});
-      setQueueNotice(result?.ok ? `Started ${String(result.run_id || "-")}.` : String(result?.reason || "queue empty"));
+      setQueueNotice(
+        result?.ok
+          ? workflowDetailCopy.startedNotice(String(result.run_id || "-"))
+          : String(result?.reason || workflowDetailCopy.queueEmptyReason),
+      );
       await load();
     } catch (err) {
       setQueueNotice(err instanceof Error ? err.message : String(err));
@@ -128,91 +126,91 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
 
   return (
     <div className="content">
-      <Button variant="ghost" className="mb-2" onClick={onBack}>Back to workflow list</Button>
-      <div className="section-header"><div><h1 className="page-title mono">{workflowData.workflow.workflow_id}</h1></div><Badge variant={statusVariant(workflowData.workflow.status)}>{statusLabelZh(workflowData.workflow.status)}</Badge></div>
+      <Button variant="ghost" className="mb-2" onClick={onBack}>{workflowDetailCopy.backToList}</Button>
+      <div className="section-header"><div><h1 className="page-title mono">{workflowData.workflow.workflow_id}</h1></div><Badge variant={statusVariant(workflowData.workflow.status)}>{statusLabelDesktop(workflowData.workflow.status, locale)}</Badge></div>
       <div className="row-gap-2 mb-2">
         <Input
           type="number"
-          aria-label="Queue priority"
+          aria-label={workflowDetailCopy.queuePriority}
           value={queuePriority}
           onChange={(event) => setQueuePriority(event.target.value)}
-          placeholder="Priority"
+          placeholder={workflowDetailCopy.queuePriority}
         />
         <Input
           type="datetime-local"
-          aria-label="Queue scheduled at"
+          aria-label={workflowDetailCopy.queueScheduledAt}
           value={queueScheduledAt}
           onChange={(event) => setQueueScheduledAt(event.target.value)}
-          placeholder="Scheduled at"
+          placeholder={workflowDetailCopy.queueScheduledAt}
         />
         <Input
           type="datetime-local"
-          aria-label="Queue deadline at"
+          aria-label={workflowDetailCopy.queueDeadlineAt}
           value={queueDeadlineAt}
           onChange={(event) => setQueueDeadlineAt(event.target.value)}
-          placeholder="Deadline at"
+          placeholder={workflowDetailCopy.queueDeadlineAt}
         />
-        <Button variant="secondary" onClick={() => void handleQueueLatestRun()} disabled={queueBusy || workflowData.runs.length === 0}>Queue latest run contract</Button>
-        <Button variant="secondary" onClick={() => void handleRunNextQueue()} disabled={queueBusy}>{queueBusy ? "Running..." : "Run next queued task"}</Button>
+        <Button variant="secondary" onClick={() => void handleQueueLatestRun()} disabled={queueBusy || workflowData.runs.length === 0}>{workflowDetailCopy.queueLatestRun}</Button>
+        <Button variant="secondary" onClick={() => void handleRunNextQueue()} disabled={queueBusy}>{queueBusy ? workflowDetailCopy.runningTask : workflowDetailCopy.runNextQueuedTask}</Button>
       </div>
       {queueNotice ? <div className="alert alert-warning">{queueNotice}</div> : null}
       <div className="mb-4">
         <DesktopCopilotPanel
-          title="Workflow Case copilot"
-          intro="Generate one bounded workflow brief grounded in workflow status, queue posture, the latest linked run, proof, compare, incident, and approval truth."
-          buttonLabel="Explain this workflow case"
-          questionSet={WORKFLOW_COPILOT_QUESTIONS}
-          takeawaysHeading="Latest run gap, proof, and truth coverage"
-          postureHeading="Queue, SLA, and approval posture"
+          title={workflowDetailCopy.workflowCopilotTitle}
+          intro={workflowDetailCopy.workflowCopilotIntro}
+          buttonLabel={workflowDetailCopy.workflowCopilotButton}
+          questionSet={workflowDetailCopy.workflowCopilotQuestions}
+          takeawaysHeading={workflowDetailCopy.workflowCopilotTakeaways}
+          postureHeading={workflowDetailCopy.workflowCopilotPosture}
           loadBrief={() => fetchWorkflowCopilotBrief(workflowId)}
         />
       </div>
       <div className="grid-2">
         <Card>
           <CardHeader>
-            <CardTitle>Next Operator Action</CardTitle>
+            <CardTitle>{workflowDetailCopy.nextOperatorActionTitle}</CardTitle>
           </CardHeader>
           <CardBody>
             <div className="stack-gap-2">
               <div className="mono">{recommendedAction}</div>
-              <div className="muted">Workflow Cases should be operated as case records, not as detached run rows.</div>
+              <div className="muted">{workflowDetailCopy.nextOperatorActionHint}</div>
             </div>
           </CardBody>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Workflow Case Summary</CardTitle>
+            <CardTitle>{workflowDetailCopy.summaryTitle}</CardTitle>
           </CardHeader>
           <CardBody>
             <div className="stack-gap-2">
-              <div className="mono">status: {workflowData.workflow.status || "-"}</div>
-              <div className="mono">objective: {workflowData.workflow.objective || "-"}</div>
-              <div className="mono">owner: {workflowData.workflow.owner_pm || "-"}</div>
-              <div className="mono">project: {workflowData.workflow.project_key || "-"}</div>
-              <div className="mono">verdict: {workflowData.workflow.verdict || "-"}</div>
-              <div className="mono">pm_sessions: {(workflowData.workflow.pm_session_ids || []).join(", ") || "-"}</div>
-              <div className="mono">summary: {workflowData.workflow.summary || "-"}</div>
+              <div className="mono">{workflowDetailCopy.summaryLabels.status}: {statusLabelDesktop(workflowData.workflow.status || "-", locale)}</div>
+              <div className="mono">{workflowDetailCopy.summaryLabels.objective}: {workflowData.workflow.objective || "-"}</div>
+              <div className="mono">{workflowDetailCopy.summaryLabels.owner}: {workflowData.workflow.owner_pm || "-"}</div>
+              <div className="mono">{workflowDetailCopy.summaryLabels.project}: {workflowData.workflow.project_key || "-"}</div>
+              <div className="mono">{workflowDetailCopy.summaryLabels.verdict}: {workflowData.workflow.verdict || "-"}</div>
+              <div className="mono">{workflowDetailCopy.summaryLabels.pmSessions}: {(workflowData.workflow.pm_session_ids || []).join(", ") || "-"}</div>
+              <div className="mono">{workflowDetailCopy.summaryLabels.summary}: {workflowData.workflow.summary || "-"}</div>
             </div>
           </CardBody>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Workflow read model</CardTitle>
+            <CardTitle>{workflowDetailCopy.readModelTitle}</CardTitle>
           </CardHeader>
           <CardBody>
             {!workflowCaseReadModel ? (
-              <div className="mono">No workflow read model is attached yet.</div>
+              <div className="mono">{workflowDetailCopy.noReadModel}</div>
             ) : (
               <div className="stack-gap-2">
-                <div className="mono">authority: {String(workflowCaseReadModel.authority || "-")}</div>
-                <div className="mono">execution_authority: {String(workflowCaseReadModel.execution_authority || "-")}</div>
-                <div className="mono">source: {String(workflowCaseReadModel.source || "-")}</div>
-                <div className="mono">source_run_id: {String(workflowCaseReadModel.source_run_id || "-")}</div>
-                <div className="mono">skills_bundle: {formatBindingReadModelLabel(skillsBundle)}</div>
-                <div className="mono">mcp_bundle: {formatBindingReadModelLabel(mcpBundle)}</div>
-                <div className="mono">runtime_binding: {formatRoleBindingRuntimeSummary(roleBindingSummary)}</div>
+                <div className="mono">{workflowDetailCopy.readModelLabels.authority}: {String(workflowCaseReadModel.authority || "-")}</div>
+                <div className="mono">{workflowDetailCopy.readModelLabels.executionAuthority}: {String(workflowCaseReadModel.execution_authority || "-")}</div>
+                <div className="mono">{workflowDetailCopy.readModelLabels.source}: {String(workflowCaseReadModel.source || "-")}</div>
+                <div className="mono">{workflowDetailCopy.readModelLabels.sourceRunId}: {String(workflowCaseReadModel.source_run_id || "-")}</div>
+                <div className="mono">{workflowDetailCopy.readModelLabels.skillsBundle}: {formatBindingReadModelLabel(skillsBundle)}</div>
+                <div className="mono">{workflowDetailCopy.readModelLabels.mcpBundle}: {formatBindingReadModelLabel(mcpBundle)}</div>
+                <div className="mono">{workflowDetailCopy.readModelLabels.runtimeBinding}: {formatRoleBindingRuntimeSummary(roleBindingSummary)}</div>
                 <div className="muted">
-                  Read-only note: this workflow summary mirrors the latest linked run binding summary. The task contract still owns execution authority.
+                  {workflowDetailCopy.readModelLabels.readOnlyNote}
                 </div>
               </div>
             )}
@@ -220,15 +218,15 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Related Runs ({workflowData.runs.length})</CardTitle>
+            <CardTitle>{workflowDetailCopy.relatedRunsTitle(workflowData.runs.length)}</CardTitle>
           </CardHeader>
           <CardBody>
-            {workflowData.runs.length === 0 ? <p className="muted">No related runs</p> : (
+            {workflowData.runs.length === 0 ? <p className="muted">{workflowDetailCopy.noRelatedRuns}</p> : (
               <div className="stack-gap-2">
                 {workflowData.runs.map((r) => (
                   <div key={r.run_id} className="row-between py-2 border-bottom-subtle">
                     <Button variant="unstyled" className="run-link run-link-reset" onClick={() => onNavigateToRun(r.run_id)}>{r.run_id.slice(0, 12)}</Button>
-                    <Badge variant={statusVariant(r.status)}>{statusLabelZh(r.status)}</Badge>
+                    <Badge variant={statusVariant(r.status)}>{statusLabelDesktop(r.status, locale)}</Badge>
                   </div>
                 ))}
               </div>
@@ -237,14 +235,14 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Events ({workflowData.events.length})</CardTitle>
+            <CardTitle>{workflowDetailCopy.eventsTitle(workflowData.events.length)}</CardTitle>
           </CardHeader>
           <CardBody>
-            {workflowData.events.length === 0 ? <p className="muted">No events</p> : (
+            {workflowData.events.length === 0 ? <p className="muted">{workflowDetailCopy.noEvents}</p> : (
               <div className="stack-gap-2 max-h-400 overflow-auto">
                 {workflowData.events.map((evt, i) => (
                   <div key={`${evt.ts}-${i}`} className="row-between text-xs py-1 border-bottom-subtle">
-                    <span className="muted">{evt.ts ? new Date(evt.ts).toLocaleString("zh-CN") : "-"}</span>
+                    <span className="muted">{evt.ts ? formatDesktopDateTime(evt.ts, locale) : "-"}</span>
                     <span>{evt.event || evt.event_type || "-"}</span>
                   </div>
                 ))}
@@ -254,18 +252,18 @@ export function WorkflowDetailPage({ workflowId, onBack, onNavigateToRun }: Prop
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Queue / SLA ({queueItems.length})</CardTitle>
+            <CardTitle>{workflowDetailCopy.queueSlaTitle(queueItems.length)}</CardTitle>
           </CardHeader>
           <CardBody>
-            {queueItems.length === 0 ? <p className="muted">No queued work for this workflow case.</p> : (
+            {queueItems.length === 0 ? <p className="muted">{workflowDetailCopy.noQueuedWork}</p> : (
               <div className="stack-gap-2">
                 {queueItems.map((item) => (
                   <div key={item.queue_id} className="row-between py-2 border-bottom-subtle">
                     <div className="mono">
                       <div>{item.task_id}</div>
-                      <div className="muted">priority {String(item.priority ?? "-")} / sla {String(item.sla_state || "-")}</div>
+                      <div className="muted">{workflowDetailCopy.queueMeta(String(item.priority ?? "-"), String(item.sla_state || "-"))}</div>
                     </div>
-                    <Badge variant={statusVariant(item.status)}>{statusLabelZh(item.status)}</Badge>
+                    <Badge variant={statusVariant(item.status)}>{statusLabelDesktop(item.status, locale)}</Badge>
                   </div>
                 ))}
               </div>

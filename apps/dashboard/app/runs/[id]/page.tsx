@@ -1,3 +1,6 @@
+import { cookies } from "next/headers";
+import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@cortexpilot/frontend-shared/uiLocale";
 import RunDetail from "../../../components/RunDetail";
 import { Badge } from "../../../components/ui/badge";
 import { Card } from "../../../components/ui/card";
@@ -24,6 +27,11 @@ export default async function RunDetailPage({
 }: {
   params: Promise<RunDetailPageParams>;
 }) {
+  const cookieStore = await cookies();
+  const locale = normalizeUiLocale(cookieStore.get(UI_LOCALE_STORAGE_KEY)?.value);
+  const uiCopy = getUiCopy(locale);
+  const runDetailPageCopy = uiCopy.dashboard.runDetailPage;
+  const runDetailCopy = uiCopy.desktop.runDetail;
   const { id } = await params;
   const { data: run, warning: runWarning } = await safeLoad(() => fetchRun(id), { run_id: id, status: "UNKNOWN" } as any, "Run detail");
   const { data: events, warning: eventsWarning } = await safeLoad(() => fetchEvents(id), [] as any[], "Run events");
@@ -46,55 +54,55 @@ export default async function RunDetailPage({
       <section className="app-section">
         <div className="section-header">
           <div>
-            <h1 id="run-detail-page-title" data-testid="run-detail-title">Run detail</h1>
-            <p>Follow one run across status, event evidence, and replay comparison.</p>
+            <h1 id="run-detail-page-title" data-testid="run-detail-title">{runDetailPageCopy.title}</h1>
+            <p>{runDetailPageCopy.subtitle}</p>
           </div>
           <div className="toolbar">
             <Badge className="mono">{id}</Badge>
-            <Link href={`/runs/${encodeURIComponent(id)}/compare`}>Open compare surface</Link>
+            <Link href={`/runs/${encodeURIComponent(id)}/compare`}>{runDetailPageCopy.openCompareSurface}</Link>
           </div>
         </div>
         {warning ? (
           <ControlPlaneStatusCallout
-            title="Run detail is partially degraded"
+            title={runDetailPageCopy.degradedTitle}
             summary={warning}
-            nextAction="Retry this page first. If the same source is still unavailable, inspect the surviving Run Detail tabs and then return to the run list."
+            nextAction={runDetailPageCopy.degradedNextAction}
             tone="warning"
-            badgeLabel="Partial data"
+            badgeLabel={runDetailPageCopy.degradedBadge}
             actions={[
-              { href: `/runs/${encodeURIComponent(id)}`, label: "Reload run detail" },
-              { href: "/runs", label: "Back to run list" },
+              { href: `/runs/${encodeURIComponent(id)}`, label: runDetailPageCopy.reloadAction },
+              { href: "/runs", label: runDetailPageCopy.backToRunsAction },
             ]}
           />
         ) : null}
         {(Object.keys(incidentPack).length > 0 || Object.keys(proofPack).length > 0 || hasCompareSummary) ? (
           <div className="grid grid-3">
             <Card>
-              <h3>Compare decision</h3>
+              <h3>{runDetailPageCopy.compareDecisionTitle}</h3>
               <p className="muted">
                 {!hasCompareSummary
-                  ? "No structured compare report is attached yet."
+                  ? runDetailPageCopy.compareMissing
                   : compareDeltaCount === 0
-                  ? "Current run looks aligned with the selected baseline."
-                  : "Compare found deltas that need operator review before you trust this run."}
+                  ? runDetailPageCopy.compareAligned
+                  : runDetailPageCopy.compareNeedsReview}
               </p>
               <p className="mono">
-                Next step: {!hasCompareSummary
-                  ? "Generate or refresh a compare report for this run."
+                {!hasCompareSummary
+                  ? runDetailPageCopy.compareNextStepMissing
                   : compareDeltaCount === 0
-                  ? "Review proof and finalize the outcome."
-                  : "Open compare and decide whether to replay, investigate, or keep the run blocked."}
+                  ? runDetailPageCopy.compareNextStepAligned
+                  : runDetailPageCopy.compareNextStepNeedsReview}
               </p>
             </Card>
             <Card>
-              <h3>Incident action</h3>
-              <p className="muted">{String(incidentPack.summary || "No incident pack is attached yet.")}</p>
-              <p className="mono">Next step: {String(incidentPack.next_action || "Use reports and timeline to determine the next operator action.")}</p>
+              <h3>{runDetailPageCopy.incidentActionTitle}</h3>
+              <p className="muted">{String(incidentPack.summary || runDetailPageCopy.incidentMissing)}</p>
+              <p className="mono">{runDetailCopy.fieldLabels.nextAction}: {String(incidentPack.next_action || runDetailPageCopy.incidentNextStepFallback)}</p>
             </Card>
             <Card>
-              <h3>Proof action</h3>
-              <p className="muted">{String(proofPack.summary || "No proof pack is attached yet.")}</p>
-              <p className="mono">Next step: {String(proofPack.next_action || "Inspect the run reports before promoting or sharing any result.")}</p>
+              <h3>{runDetailPageCopy.proofActionTitle}</h3>
+              <p className="muted">{String(proofPack.summary || runDetailPageCopy.proofMissing)}</p>
+              <p className="mono">{runDetailCopy.fieldLabels.nextAction}: {String(proofPack.next_action || runDetailPageCopy.proofNextStepFallback)}</p>
             </Card>
           </div>
         ) : null}

@@ -55,6 +55,11 @@ user's ambient Python environment.
   canonical core and desktop-native local CI images plus optional repo-prefixed
   volumes, while keeping workstation-global Docker/cache totals strictly
   observation-only.
+- `docker_ci.sh` and `check_clean_room_recovery.sh` now keep their heavy
+  machine-scoped temp roots under `~/.cache/cortexpilot/tmp/` by default
+  (for example `tmp/docker-ci/runner-temp-*` and
+  `tmp/clean-room-machine-cache.*`) so Darwin `TMPDIR` is no longer the
+  default landing zone for those repo-owned heavy temp surfaces.
 - `e2e_external_web_probe.py` no longer persists `run_id` in its JSON status
   and report artifacts; its JSON writer helpers no longer accept `run_id` as an
   input, and probe receipts now persist epoch timing fields, stage/category

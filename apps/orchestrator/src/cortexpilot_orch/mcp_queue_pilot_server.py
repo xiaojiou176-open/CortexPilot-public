@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from dataclasses import dataclass
 from typing import Any, Callable, TextIO
@@ -12,6 +13,8 @@ except Exception:  # noqa: BLE001
 
 
 JSONRPC_VERSION = "2.0"
+_DEFAULT_MUTATION_ROLES = {"OWNER", "ARCHITECT", "OPS", "TECH_LEAD"}
+_APPLY_ENABLE_ENV = "CORTEXPILOT_MCP_QUEUE_PILOT_ENABLE_APPLY"
 SERVER_INFO = {
     "name": "cortexpilot-queue-pilot",
     "title": "CortexPilot Queue Pilot MCP",
@@ -42,6 +45,26 @@ def _text_arg(arguments: dict[str, Any], key: str) -> str:
 def _optional_text_arg(arguments: dict[str, Any], key: str) -> str | None:
     value = str(arguments.get(key) or "").strip()
     return value or None
+
+
+def _mutation_roles() -> set[str]:
+    raw = os.getenv("CORTEXPILOT_APPROVAL_ALLOWED_ROLES", "").strip()
+    if not raw:
+        return set(_DEFAULT_MUTATION_ROLES)
+    parsed = {item.strip().upper() for item in raw.split(",") if item.strip()}
+    return parsed or set(_DEFAULT_MUTATION_ROLES)
+
+
+def _required_role_arg(arguments: dict[str, Any]) -> str:
+    role = _text_arg(arguments, "actor_role").upper()
+    if role not in _mutation_roles():
+        raise ValueError(f"`actor_role` must be one of: {', '.join(sorted(_mutation_roles()))}")
+    return role
+
+
+def _apply_mutation_enabled() -> bool:
+    raw = str(os.getenv(_APPLY_ENABLE_ENV, "")).strip().lower()
+    return raw in {"1", "true", "yes", "on"}
 
 
 def _tool_result(name: str, payload: dict[str, Any], *, is_error: bool = False) -> dict[str, Any]:
@@ -134,18 +157,19 @@ class CortexPilotQueuePilotMcpServer:
                         "validation": {"type": "string"},
                         "can_apply": {"type": "boolean"},
                         "preview_item": {"type": "object"},
+                        "required_apply_inputs": {"type": "array", "items": {"type": "string"}},
+                        "allowed_roles": {"type": "array", "items": {"type": "string"}},
+                        "mutation_gate": {"type": "string"},
+                        "next_step": {"type": "string"},
                     },
                     required=["run_id", "validation", "can_apply", "preview_item"],
                 ),
-                handler=lambda arguments: self._preview_enqueue_fn(
-                    _text_arg(arguments, "run_id"),
-                    _queue_payload(arguments),
-                ),
+                handler=self._preview_tool_handler,
             ),
             QueuePilotToolSpec(
                 name="enqueue_from_run",
                 title="Enqueue from run",
-                description="Apply the narrow queue-first pilot by appending one queue item derived from an existing run. Requires explicit confirm=true.",
+                description="Apply the narrow queue-first pilot by appending one queue item derived from an existing run. Requires explicit confirm=true plus trusted operator metadata.",
                 read_only=False,
                 input_schema=_schema_object(
                     properties={
@@ -153,9 +177,12 @@ class CortexPilotQueuePilotMcpServer:
                         "priority": {"type": "integer"},
                         "scheduled_at": {"type": "string"},
                         "deadline_at": {"type": "string"},
+                        "actor_role": {"type": "string", "minLength": 1},
+                        "requested_by": {"type": "string", "minLength": 1},
+                        "approval_reason": {"type": "string", "minLength": 1},
                         "confirm": {"type": "boolean"},
                     },
-                    required=["run_id", "confirm"],
+                    required=["run_id", "actor_role", "requested_by", "approval_reason", "confirm"],
                 ),
                 output_schema=_schema_object(
                     properties={
@@ -170,10 +197,43 @@ class CortexPilotQueuePilotMcpServer:
         ]
         self._tool_map = {tool.name: tool for tool in self._tools}
 
+    def _preview_tool_handler(self, arguments: dict[str, Any]) -> dict[str, Any]:
+        result = self._preview_enqueue_fn(
+            _text_arg(arguments, "run_id"),
+            _queue_payload(arguments),
+        )
+        result.setdefault("required_apply_inputs", ["confirm", "actor_role", "requested_by", "approval_reason"])
+        result.setdefault("allowed_roles", sorted(_mutation_roles()))
+        if not _apply_mutation_enabled():
+            result["can_apply"] = False
+            result.setdefault("mutation_gate", "default-off")
+            result.setdefault(
+                "next_step",
+                f"Set {_APPLY_ENABLE_ENV}=1 in a trusted operator environment before calling `enqueue_from_run`.",
+            )
+        return result
+
     def _enqueue_tool_handler(self, arguments: dict[str, Any]) -> dict[str, Any]:
+        if not _apply_mutation_enabled():
+            raise ValueError(
+                f"`enqueue_from_run` is default-off until {_APPLY_ENABLE_ENV}=1 is set in the trusted operator environment"
+            )
         if not bool(arguments.get("confirm")):
             raise ValueError("`confirm=true` is required for enqueue_from_run mutations")
-        return self._enqueue_fn(_text_arg(arguments, "run_id"), _queue_payload(arguments))
+        actor_role = _required_role_arg(arguments)
+        requested_by = _text_arg(arguments, "requested_by")
+        approval_reason = _text_arg(arguments, "approval_reason")
+        payload = _queue_payload(arguments)
+        payload.update(
+            {
+                "requested_by": requested_by,
+                "actor_role": actor_role,
+                "approval_reason": approval_reason,
+                "approval_mode": "manual-owner-default-off",
+                "pilot_source": "mcp_queue_pilot_server",
+            }
+        )
+        return self._enqueue_fn(_text_arg(arguments, "run_id"), payload)
 
     def _initialize_result(self) -> dict[str, Any]:
         return {

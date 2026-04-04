@@ -143,4 +143,22 @@ describe("workflow queue controls", () => {
     });
     expect(await screen.findByText("Queued task-queue.")).toBeInTheDocument();
   });
+
+  it("renders locale-aware workflow detail labels when zh-CN is requested", async () => {
+    render(<WorkflowDetailPage workflowId="wf-queue" onBack={vi.fn()} onNavigateToRun={vi.fn()} locale="zh-CN" />);
+
+    expect(await screen.findByRole("button", { name: "返回工作流列表" })).toBeInTheDocument();
+    expect(screen.getByText("AI 工作流副驾驶")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "解释这个工作流案例" })).toBeInTheDocument();
+    expect(screen.getByText("下一步操作")).toBeInTheDocument();
+    expect(screen.getByText("工作流案例摘要")).toBeInTheDocument();
+    expect(screen.getByText("工作流只读模型")).toBeInTheDocument();
+    expect(screen.getByText("相关 Run（1）")).toBeInTheDocument();
+    expect(screen.getByText("事件（0）")).toBeInTheDocument();
+    expect(screen.getByText("队列 / SLA（1）")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "排入最新 Run 合约" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "运行下一条排队任务" })).toBeInTheDocument();
+    expect(screen.getByText("优先级 5 / SLA at_risk")).toBeInTheDocument();
+    expect(screen.getAllByText("运行中").length).toBeGreaterThan(0);
+  });
 });
