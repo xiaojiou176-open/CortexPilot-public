@@ -963,7 +963,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         ],
         integrationTitle: "Choose the right adoption path",
         integrationDescription:
-          "Use the compatibility matrix as the front-door router, then open protocol, playbooks, packages, or AI surfaces only after the real job is clear.",
+          "Use the compatibility matrix as the front-door router, keep the use-case guide as the lighter proof-first side door, then open protocol, playbooks, packages, or AI surfaces only after the real job is clear.",
         proofFirstActionLabel: "Open use-case guide",
         proofFirstActionHref: "/use-cases/",
         integrationCards: [
@@ -2015,7 +2015,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         ],
         integrationTitle: "选择正确的采用路径",
         integrationDescription:
-          "先把 compatibility matrix 当成前门路由层，再在真正任务已经明确后进入协议、playbook、package 或 AI 页面，而不是在首页一次性读完所有说明。",
+          "先把 compatibility matrix 当成前门主路由，把 use-case guide 当成更轻的 proof-first 侧门，再在真正任务已经明确后进入协议、playbook、package 或 AI 页面，而不是在首页一次性读完所有说明。",
         proofFirstActionLabel: "打开 use-case 指南",
         proofFirstActionHref: "/use-cases/",
         integrationCards: [
