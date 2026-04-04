@@ -135,6 +135,9 @@ finished consumer product.
 - Command Tower regression tests now treat the English-first labels, drawer
   names, and quick-action copy as the canonical operator contract; update the
   dashboard tests in the same patch whenever those public-facing labels move.
+- Search page regression tests should wait for the terminal promote-status copy
+  instead of the first rendered status node because the UI intentionally passes
+  through `Promoting evidence...` before it settles on success or failure.
 - The current CI unblock patch also keeps the PM and RunDetail regression suite
   aligned with the English-first operator surface, including Command Tower
   session copy, PM composer controls, and RunDetail tab/status wording.
