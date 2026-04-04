@@ -153,6 +153,8 @@ test("dashboard client uses contract workflow and queue paths", async () => {
   await client.fetchWorkflows();
   await client.fetchWorkflow("wf/1");
   await client.fetchQueue("wf/1", "running");
+  await client.previewEnqueueRunQueue("run/1", { priority: 3 });
+  await client.cancelQueueItem("queue/1", { reason: "operator aborted pilot" });
 
   const workflowPath = FRONTEND_API_CONTRACT.paths.workflows;
   const queuePath = FRONTEND_API_CONTRACT.paths.queue;
@@ -166,6 +168,14 @@ test("dashboard client uses contract workflow and queue paths", async () => {
   assert.equal(queueUrl.pathname, queuePath);
   assert.equal(queueUrl.searchParams.get("workflow_id"), "wf/1");
   assert.equal(queueUrl.searchParams.get("status"), "running");
+  assert.equal(
+    calls[3].url,
+    `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.queueEnqueuePreview.replace("{run_id}", "run%2F1")}`,
+  );
+  assert.equal(
+    calls[4].url,
+    `http://127.0.0.1:10000${FRONTEND_API_CONTRACT.paths.queueCancel.replace("{queue_id}", "queue%2F1")}`,
+  );
 });
 
 test("dashboard client uses contract-backed agents and contracts paths", async () => {

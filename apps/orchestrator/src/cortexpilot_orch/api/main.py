@@ -43,13 +43,27 @@ from cortexpilot_orch.store import run_store as run_store_fallback
 from cortexpilot_orch.worktrees import manager as worktree_manager
 
 app = FastAPI(title="CortexPilot Orchestrator API")
-_dashboard_port = get_api_runtime_config().dashboard_port
-_allow_origins = {
-    "http://localhost:3100",
-    "http://127.0.0.1:3100",
-    f"http://localhost:{_dashboard_port}",
-    f"http://127.0.0.1:{_dashboard_port}",
-}
+_api_runtime_config = get_api_runtime_config()
+
+
+def _resolve_allow_origins(dashboard_port: str, configured_origins: tuple[str, ...]) -> set[str]:
+    allow_origins = {
+        "http://localhost:3100",
+        "http://127.0.0.1:3100",
+        f"http://localhost:{dashboard_port}",
+        f"http://127.0.0.1:{dashboard_port}",
+    }
+    for origin in configured_origins:
+        normalized = origin.strip().rstrip("/")
+        if normalized:
+            allow_origins.add(normalized)
+    return allow_origins
+
+
+_allow_origins = _resolve_allow_origins(
+    _api_runtime_config.dashboard_port,
+    _api_runtime_config.allowed_origins,
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=sorted(_allow_origins),
@@ -325,6 +339,11 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/api/health")
+def api_health() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 def _runs_root() -> Path:
     return load_config().runs_root
 
@@ -576,7 +595,9 @@ _runs_handler_map = main_runs_handlers.build_runs_handlers(
 # Explicit symbol export for test shims and direct-call compatibility.
 list_runs = _runs_handler_map["list_runs"]
 list_queue = _runs_handler_map["list_queue"]
+preview_enqueue_run_queue = _runs_handler_map["preview_enqueue_run_queue"]
 enqueue_run_queue = _runs_handler_map["enqueue_run_queue"]
+cancel_queue_item = _runs_handler_map["cancel_queue_item"]
 run_next_queue = _runs_handler_map["run_next_queue"]
 list_workflows = _runs_handler_map["list_workflows"]
 get_workflow = _runs_handler_map["get_workflow"]

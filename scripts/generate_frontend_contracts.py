@@ -171,6 +171,8 @@ export declare const FRONTEND_API_CONTRACT: {{
     readonly roleConfigApply: "{ext["paths"]["roleConfigApply"]}";
     readonly contracts: "{ext["paths"]["contracts"]}";
     readonly queue: "{ext["paths"]["queue"]}";
+    readonly queueEnqueuePreview: "{ext["paths"]["queueEnqueuePreview"]}";
+    readonly queueCancel: "{ext["paths"]["queueCancel"]}";
     readonly workflows: "{ext["paths"]["workflows"]}";
     readonly workflowDetail: "{ext["paths"]["workflowDetail"]}";
     readonly pmSessions: "{ext["paths"]["pmSessions"]}";

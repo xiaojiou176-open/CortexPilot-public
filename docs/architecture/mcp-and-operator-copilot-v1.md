@@ -203,6 +203,9 @@ Smallest safe next move if reopened later:
 - one mutation type only
 - explicit audit/actor evidence
 - deny by default outside the pilot path
+- repo-side groundwork may include queue preview/cancel plus a confirm-gated
+  queue-only MCP pilot server, but those do not change the public read-only MCP
+  verdict until live operator policy and mutation proof are promoted explicitly
 
 ### Hosted operator surface verdict: No-Go
 

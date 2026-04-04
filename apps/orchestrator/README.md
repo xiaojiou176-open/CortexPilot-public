@@ -99,8 +99,13 @@ bash scripts/run_orchestrator_cli.sh --help
 ## Read-Only MCP + Copilot Notes
 
 - the repo-local MCP entry is `python -m cortexpilot_orch.cli mcp-readonly-server`
+- the later-gated queue write pilot entry is `python -m cortexpilot_orch.cli mcp-queue-pilot-server`
 - the MCP surface is intentionally **read-only only** and must not mutate runs,
   workflows, approvals, queue state, or provider state
+- the queue pilot server stays outside the public product contract; it only
+  supports `preview_enqueue_from_run` plus a single confirm-gated
+  `enqueue_from_run` mutation, while queue cancel remains an HTTP control-plane
+  recovery path
 - shared control-plane reads flow through
   `src/cortexpilot_orch/services/control_plane_read_service.py`
 - workflow/control-plane reads now also carry `workflow_case_read_model`, which
@@ -167,6 +172,10 @@ bash scripts/run_orchestrator_cli.sh --help
   `/api/queue/run-next`, so the control plane can queue an existing run
   contract with `priority`, `scheduled_at`, and `deadline_at`, then derive
   queue/SLA state before execution starts.
+- Queue preview/cancel groundwork now also exists under
+  `/api/queue/from-run/{run_id}/preview` and `/api/queue/{queue_id}/cancel`, so
+  later-gated queue pilots can prove preview + rejection semantics without
+  jumping straight to execution.
 - Pending approval views now synthesize an `approval_pack` summary from run
   events plus manifest metadata instead of exposing only the raw
   `HUMAN_APPROVAL_REQUIRED` payload.

@@ -450,6 +450,8 @@ def test_api_auth_required_for_api_routes(tmp_path: Path, monkeypatch) -> None:
 
     health = client.get("/health")
     assert health.status_code == 200
+    api_health = client.get("/api/health")
+    assert api_health.status_code == 200
 
     missing = client.get("/api/runs")
     assert missing.status_code == 401
@@ -519,6 +521,22 @@ def test_api_auth_skips_options_preflight(tmp_path: Path, monkeypatch) -> None:
         },
     )
     assert blocked.headers.get("access-control-allow-origin") is None
+
+
+def test_resolve_allow_origins_includes_configured_public_origins() -> None:
+    resolved = api_main._resolve_allow_origins(  # noqa: SLF001
+        "3100",
+        (
+            "https://dashboard.example.com/",
+            "https://dashboard.example.com",
+            "https://ops.example.com",
+        ),
+    )
+    assert "http://localhost:3100" in resolved
+    assert "http://127.0.0.1:3100" in resolved
+    assert "https://dashboard.example.com" in resolved
+    assert "https://ops.example.com" in resolved
+    assert len([item for item in resolved if item == "https://dashboard.example.com"]) == 1
 
 
 def test_api_runs_role_header_requires_trusted_auth_context(monkeypatch) -> None:

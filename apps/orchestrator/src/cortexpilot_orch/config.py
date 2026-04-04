@@ -71,6 +71,7 @@ class LoggingConfig:
 class ApiRuntimeConfig:
     dashboard_port: str
     canary_percent: float
+    allowed_origins: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -209,6 +210,19 @@ def _env_value(raw: str | None, default: str = "") -> str:
         return default
     stripped = raw.strip()
     return stripped or default
+
+
+def _env_csv(name: str) -> tuple[str, ...]:
+    raw = os.getenv(name, "")
+    values: list[str] = []
+    seen: set[str] = set()
+    for item in raw.split(","):
+        normalized = item.strip().rstrip("/")
+        if not normalized or normalized in seen:
+            continue
+        values.append(normalized)
+        seen.add(normalized)
+    return tuple(values)
 
 
 def _repo_root() -> Path:
@@ -476,6 +490,7 @@ def load_config() -> CortexPilotConfig:
             or "3100"
         ),
         canary_percent=_env_percent("CORTEXPILOT_CANARY_PERCENT", 0.0),
+        allowed_origins=_env_csv("CORTEXPILOT_API_ALLOWED_ORIGINS"),
     )
 
     provider_credentials = resolve_provider_credentials()

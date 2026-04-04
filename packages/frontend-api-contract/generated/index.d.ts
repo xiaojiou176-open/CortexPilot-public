@@ -40,6 +40,8 @@ export declare const FRONTEND_API_CONTRACT: {
     readonly roleConfigApply: "/api/agents/roles/{role}/config/apply";
     readonly contracts: "/api/contracts";
     readonly queue: "/api/queue";
+    readonly queueEnqueuePreview: "/api/queue/from-run/{run_id}/preview";
+    readonly queueCancel: "/api/queue/{queue_id}/cancel";
     readonly workflows: "/api/workflows";
     readonly workflowDetail: "/api/workflows/{workflow_id}";
     readonly pmSessions: "/api/pm/sessions";

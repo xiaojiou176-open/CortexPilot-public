@@ -86,6 +86,7 @@
         <li>This is a builder entrypoint layer, not a hosted operator product.</li>
         <li>The MCP story is real, but the current public boundary stays read-only.</li>
         <li>The package surface is useful today, but it should not be described as a complete SDK platform.</li>
+        <li>The current packages remain repo-owned/private integration surfaces; do not describe them as published marketplace artifacts or official plugin packages.</li>
       </ul>
 
       <h2>Minimal example</h2>
@@ -124,9 +125,12 @@ const preview = await starter.previewRoleDefaults("WORKER", {
         marketplace/distribution product.
       </p>
       <p>
-        Apply stays opt-in. Pass <code>--apply</code> only when you
-        intentionally want the example to persist repo-owned role defaults.
+        The optional <code>--apply</code> flag mutates repo-owned role defaults
+        through the same HTTP control-plane surface the dashboard and desktop
+        already use. It does <strong>not</strong> mean write-capable MCP is
+        generally available.
       </p>
+      <p>Apply stays opt-in. Pass <code>--apply</code> only when you intentionally want the example to persist repo-owned role defaults.</p>
 
       <h2>Fast onboarding order</h2>
       <ol>
