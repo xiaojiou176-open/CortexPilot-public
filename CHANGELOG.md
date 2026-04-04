@@ -31,16 +31,12 @@ All notable changes to this repository will be documented in this file.
   path as `pass` / `passed`, preventing pre-push refresh from rerunning the
   full clean-room bundle when a fresh healthy local receipt already exists
 - opened Extreme Polish Wave 2 by rendering the dashboard-home
-  `Integrations and skills adoption` section, teaching the dashboard docs-base
-  resolver to honor `/integrations/` and `/skills/`, and replacing raw
-  `@cortexpilot/frontend-api-contract` type-file links with the legal human
-  guide under `packages/frontend-api-contract/docs/README.md`
-- opened Extreme Polish Wave 2 by adding a repo-owned
-  `packages/frontend-api-contract/docs/README.md` guide, lifting
-  integrations/skills adoption into the dashboard home discovery ladder, and
-  extending the dashboard public-docs resolver so `/integrations/` and
-  `/skills/` follow the configured public-docs base instead of falling back to
-  app-local paths
+  `Integrations and skills adoption` section, lifting integrations/skills
+  adoption into the dashboard home discovery ladder, adding the repo-owned
+  `packages/frontend-api-contract/docs/README.md` guide to replace raw
+  `@cortexpilot/frontend-api-contract` type-file links, and extending the
+  dashboard public-docs resolver so `/integrations/` and `/skills/` follow the
+  configured public-docs base instead of falling back to app-local paths
 - continued the Omega closeout hardening line by moving the dashboard
   `Run detail` / `Workflow Case detail` page-level copy onto the shared
   locale substrate, keeping the command-tower/operator story aligned across

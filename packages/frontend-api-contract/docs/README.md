@@ -5,8 +5,13 @@ frontend-safe CortexPilot route names, query shapes, and generated types.
 
 ## What lives here
 
-- `index.d.ts`: generated contract-facing exports for the main API surface
-- `ui-flow.d.ts`: generated UI-flow-facing exports
+- `index.d.ts`: stable root entrypoint that re-exports the generated contract
+  surface for the main API layer
+- `ui-flow.d.ts`: stable root entrypoint that re-exports generated UI-flow
+  types for frontend consumers
+- `generated/index.d.ts`: current generated contract-facing exports for the
+  main API surface
+- `generated/ui-flow.d.ts`: current generated UI-flow-facing exports
 - stable import boundaries for frontend packages that should not import backend
   modules directly
 
