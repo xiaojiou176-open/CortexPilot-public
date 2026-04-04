@@ -6,7 +6,7 @@ Use this checklist when applying the remaining GitHub UI changes for CortexPilot
 
 Recommended About text:
 
-> Governed AI task orchestration with evidence, replay, and operator visibility.
+> AI Work Command Tower for Codex and Claude Code workflows with Model Context Protocol (MCP)-readable proof, replay, and Workflow Cases.
 
 Website field:
 
@@ -59,7 +59,7 @@ If Discussions are disabled again in the future:
 
 Recommended release title:
 
-> CortexPilot v0.1.0-alpha.1 — public storefront baseline
+> CortexPilot v0.1.0-alpha.1 - public storefront baseline
 
 Draft notes source:
 
