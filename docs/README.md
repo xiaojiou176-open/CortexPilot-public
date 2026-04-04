@@ -60,7 +60,7 @@ navigation set.
 
 ## What Each File Is For
 
-- `docs/index.html`: search-facing landing source for the live GitHub Pages/docs surface
+- `docs/index.html`: search-facing landing source for the live GitHub Pages/docs surface; keep it acting like a route page, not a wall of repeated subpage summaries
 - `docs/architecture/runtime-topology.md`: system layout and major boundaries
 - `docs/specs/00_SPEC.md`: active product and contract baseline
 - `docs/runbooks/onboarding-30min.md`: shortest contributor handoff path

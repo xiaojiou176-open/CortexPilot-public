@@ -245,6 +245,12 @@ Work in CortexPilot as a contract-first engineering agent:
   `apps/dashboard/lib/env.ts`, and the dashboard-home integration layer now
   pointing teams toward a compatibility ladder before they choose protocol,
   skills, builders, or proof-first onboarding
+- when a later polish wave compresses the public homepage or dashboard-home
+  discovery stack into a clearer route page, sync the root AI/docs entrypoints
+  in the same patch; current examples include the homepage mini-nav, reduced
+  hero CTA set, compatibility-first routing, and the dashboard-home adoption
+  layer consolidating ecosystem / integrations / AI / builders into one
+  smaller decision surface
 - when the next Phase 2 wave deepens public `MCP` / `API` discoverability,
   sync the root AI/docs entrypoints in the same patch; current examples include
   `docs/mcp/index.html`, `docs/api/index.html`, the dashboard-home AI section

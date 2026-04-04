@@ -6,6 +6,12 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- compressed the public homepage and dashboard-home discovery layer so the
+  front door now behaves more like a route page: fewer competing hero actions,
+  compatibility-first routing, and less repeated subpage summary copy
+- added the homepage mini-nav plus tighter dashboard adoption-path routing so
+  Codex / Claude Code / OpenClaw visitors can choose the right path without
+  rereading the same MCP / builders / integrations story twice
 - opened Extreme Polish Wave 3 by adding a public compatibility matrix for
   Codex / Claude Code / OpenClaw / skills / builders / proof-first onboarding,
   wiring that adoption ladder through the GitHub Pages landing page,
