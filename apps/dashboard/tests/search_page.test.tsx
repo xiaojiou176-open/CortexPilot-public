@@ -73,7 +73,9 @@ describe("search page copy and interaction", () => {
     await waitFor(() => {
       expect(mockPromoteEvidence).toHaveBeenCalledWith("run-123");
     });
-    expect(await screen.findByTestId("search-promote-status-message")).toHaveTextContent("Promoted to EvidenceBundle");
+    await waitFor(() => {
+      expect(screen.getByTestId("search-promote-status-message")).toHaveTextContent("Promoted to EvidenceBundle");
+    });
     expect(screen.getByTestId("search-evidence-bundle-card")).toHaveTextContent("bundle-1");
   });
 
@@ -88,7 +90,9 @@ describe("search page copy and interaction", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Promote to evidence bundle" }));
 
-    expect(await screen.findByTestId("search-promote-status-message")).toHaveTextContent("Promotion failed");
+    await waitFor(() => {
+      expect(screen.getByTestId("search-promote-status-message")).toHaveTextContent("Promotion failed");
+    });
   });
 
   it("clears loaded result and returns to initial empty-state guidance", async () => {

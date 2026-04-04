@@ -37,6 +37,46 @@
         "description": "Repo-owned skills quickstart for Codex, Claude Code, and adjacent coding-agent workflows using CortexPilot."
       }
     </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Are CortexPilot skills the same thing as a plugin marketplace?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. CortexPilot skills are repo-owned playbooks that guide agent behavior around the repo's real docs, MCP, contracts, and workflow boundaries."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can Codex and Claude Code teams use these skills today?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The public skills quickstart is designed for Codex and Claude Code style workflows that need repeatable operating playbooks on top of the current Command Tower and proof surfaces."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How should OpenClaw teams interpret this page?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "OpenClaw belongs in the adjacent coding-agent layer. Use this page as an adaptation guide for repo truth, not as a claim that CortexPilot already ships an official OpenClaw plugin package."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this page imply a hosted skill registry or write-capable MCP?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The current public story is repo-owned skills plus read-only MCP and current builder entrypoints, not a hosted skill registry or public write-capable MCP."
+            }
+          }
+        ]
+      }
+    </script>
     <style>
       :root {
         color-scheme: light;
@@ -153,7 +193,7 @@
         <h1>Skills quickstart for coding-agent teams.</h1>
         <p class="lede">
           CortexPilot already ships a public, repo-owned skills quickstart here. The truthful adoption path today is:
-          <strong>reuse repo-owned playbooks</strong> for Codex / Claude Code workflows, and adapt the same playbooks for adjacent tools such as OpenClaw without pretending there is an official plugin marketplace.
+          <strong>reuse repo-owned playbooks</strong> for Codex / Claude Code workflows, and adapt the same playbooks for adjacent tools such as OpenClaw without pretending CortexPilot is already a listed or shipped item inside those official plugin ecosystems.
         </p>
         <div class="actions">
           <a class="button primary" href="#how-to-use-skills-today">Open the adoption path</a>
@@ -265,6 +305,28 @@ sed -n '1,220p' AGENTS.md</code></pre>
         <p>
           Those three tracked files are enough to understand the public product spine, the docs inventory, and the repo-owned AI working contract without depending on local-only overlays.
         </p>
+      </section>
+
+      <section class="section">
+        <h2>FAQ</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Are skills the same as a plugin marketplace?</h3>
+            <p>No. CortexPilot skills are repo-owned playbooks that guide agent behavior around the repo's real docs, MCP, contracts, and workflow boundaries.</p>
+          </article>
+          <article class="card">
+            <h3>Can Codex and Claude Code teams use these today?</h3>
+            <p>Yes. The public skills quickstart is designed for Codex and Claude Code style workflows that need repeatable operating playbooks on top of the current Command Tower and proof surfaces.</p>
+          </article>
+          <article class="card">
+            <h3>How should OpenClaw teams interpret this page?</h3>
+            <p>OpenClaw belongs in the adjacent coding-agent layer. Use this page as an adaptation guide for repo truth, not as a claim that CortexPilot already ships an official OpenClaw plugin package.</p>
+          </article>
+          <article class="card">
+            <h3>Does this page imply a hosted skill registry or write-capable MCP?</h3>
+            <p>No. The current public story is repo-owned skills plus read-only MCP and current builder entrypoints, not a hosted skill registry or public write-capable MCP.</p>
+          </article>
+        </div>
       </section>
     </main>
   </body>
