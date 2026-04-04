@@ -212,6 +212,12 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `apps/orchestrator/src/cortexpilot_orch/mcp_queue_pilot_server.py` and queue
   preview/cancel routes remain repo-owned operator groundwork instead of live
   hosted proof or public write-capable MCP
+- when a Final-100 hosted/operator follow-up only moves governance,
+  queue-pilot, or API posture files after the public docs already moved, keep
+  this file and `AGENTS.md` updated in the same patch so the ci-diff doc-sync
+  gate can see the root AI navigation layer refresh above
+  `configs/env_direct_read_allowlist.json`, `render.yaml`, and the guarded
+  queue preview/cancel operator surfaces instead of flagging logic-only drift
 - when staged dashboard smoke builds change their dependency-install behavior
   or the `apps/dashboard/lib/types.ts` export bridge, keep this file and the
   root/module docs aligned in the same patch so UI-audit / pre-push failures

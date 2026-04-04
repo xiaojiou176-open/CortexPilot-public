@@ -243,6 +243,13 @@ Work in CortexPilot as a contract-first engineering agent:
   `apps/orchestrator/src/cortexpilot_orch/mcp_queue_pilot_server.py` and queue
   preview/cancel routes stay repo-owned operator groundwork rather than live
   hosted proof or public write-capable MCP
+- when a Final-100 hosted/operator follow-up only changes governance,
+  queue-pilot, or API posture files after the main public docs already moved,
+  still update `AGENTS.md` and `CLAUDE.md` in the same patch so the ci-diff
+  doc-sync gate sees the root AI navigation layer refresh on top of
+  `configs/env_direct_read_allowlist.json`, `render.yaml`, and the guarded
+  queue preview/cancel operator surfaces instead of treating the change as
+  logic-only drift
 - when staged dashboard smoke builds change their dependency-install or
   `apps/dashboard/lib/types.ts` export bridge semantics, sync the root AI/docs
   entrypoints in the same patch so pre-push and UI-audit gates can distinguish
