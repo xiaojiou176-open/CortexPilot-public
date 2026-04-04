@@ -125,6 +125,31 @@ const UI_COPY = {
             href: "/ecosystem/",
           },
         ],
+        integrationTitle: "Integrations and skills adoption",
+        integrationDescription:
+          "Once the ecosystem fit is clear, the next question is practical adoption. This layer should answer how Codex, Claude Code, and adjacent tools use the repo truthfully without fake plugin claims.",
+        integrationActionLabel: "Open integration guide",
+        integrationActionHref: "/integrations/",
+        integrationCards: [
+          {
+            badge: "Truthful adoption map",
+            title: "Integration guide",
+            desc: "Use the integration guide when you need the shortest truthful answer for Codex, Claude Code, and OpenClaw positioning.",
+            href: "/integrations/",
+          },
+          {
+            badge: "Repo-owned playbooks",
+            title: "Skills quickstart",
+            desc: "Use the skills guide when your team needs repeatable playbooks instead of guessing from the `.agents/skills/` tree.",
+            href: "/skills/",
+          },
+          {
+            badge: "Compatibility boundary",
+            title: "OpenClaw stays adjacent",
+            desc: "OpenClaw can stay bundle-compatible and review-oriented without being inflated into a first-class official plugin claim.",
+            href: "/integrations/",
+          },
+        ],
         aiSurfacesTitle: "AI surfaces in the real workflow",
         aiSurfacesDescription:
           "AI in CortexPilot is not a floating chat box. It already shows up as a pre-run advisor, a workflow-level explainer, and a run/compare operator brief.",
@@ -180,8 +205,8 @@ const UI_COPY = {
           {
             badge: "Contract-facing",
             title: "@cortexpilot/frontend-api-contract",
-            desc: "Use the generated contract-facing types and route/query names when you need stable API imports without backend modules.",
-            href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/index.d.ts",
+            desc: "Use the contract package README first when you want the human guide to the generated API boundary before opening raw type files.",
+            href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/docs/README.md",
           },
           {
             badge: "Presentation substrate",
@@ -842,6 +867,31 @@ const UI_COPY = {
             href: "/ecosystem/",
           },
         ],
+        integrationTitle: "集成与技能采用",
+        integrationDescription:
+          "当生态位置已经说清楚后，下一步就是采用路径。这里要回答的是 Codex、Claude Code 和相邻工具该怎么 truthfully 接入，而不是虚构 plugin 商店故事。",
+        integrationActionLabel: "打开 integration guide",
+        integrationActionHref: "/integrations/",
+        integrationCards: [
+          {
+            badge: "真实采用地图",
+            title: "Integration guide",
+            desc: "如果你要最短、最真实地理解 Codex、Claude Code 和 OpenClaw 的定位边界，就从这里开始。",
+            href: "/integrations/",
+          },
+          {
+            badge: "Repo-owned playbook",
+            title: "Skills quickstart",
+            desc: "如果你的团队需要可复用的 agent playbook，而不是自己从 `.agents/skills/` 猜规则，就从这里开始。",
+            href: "/skills/",
+          },
+          {
+            badge: "兼容边界",
+            title: "OpenClaw 保持相邻层",
+            desc: "OpenClaw 可以维持 bundle-compatible 和 review-oriented 的位置，但不应该被夸大成 first-class official plugin。",
+            href: "/integrations/",
+          },
+        ],
         aiSurfacesTitle: "AI 功能已经进入主工作流",
         aiSurfacesDescription:
           "CortexPilot 里的 AI 不是漂浮聊天框。它已经分别出现在执行前建议、工作流解释，以及运行/对比的操作摘要里。",
@@ -897,8 +947,8 @@ const UI_COPY = {
           {
             badge: "契约层",
             title: "@cortexpilot/frontend-api-contract",
-            desc: "当你需要稳定的 API 类型和 route/query 名称，而不想直接导入后端模块时，用这个包。",
-            href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/index.d.ts",
+            desc: "如果你想先看生成契约边界的人类说明，再决定要不要打开原始类型文件，就先从这个 README 开始。",
+            href: "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/docs/README.md",
           },
           {
             badge: "表现层 substrate",

@@ -170,6 +170,34 @@ export default function DashboardHomeStorySections({
         </div>
       </section>
 
+      <section className="app-section" aria-labelledby="dashboard-integration-adoption-title">
+        <div className="section-header">
+          <div>
+            <h2 id="dashboard-integration-adoption-title" className="section-title">
+              {homePhase2Copy.integrationTitle}
+            </h2>
+            <p>{homePhase2Copy.integrationDescription}</p>
+          </div>
+          <nav aria-label="Integration and skills actions">
+            <Button asChild variant="secondary">
+              <Link href={resolveHomeHref(homePhase2Copy.integrationActionHref)}>{homePhase2Copy.integrationActionLabel}</Link>
+            </Button>
+          </nav>
+        </div>
+        <div className="quick-grid">
+          {homePhase2Copy.integrationCards.map((item) => {
+            const href = resolveHomeHref(item.href);
+            return (
+              <Link key={item.title} href={href} className="quick-card" prefetch={item.prefetch ?? href.startsWith("/")}>
+                <span className="quick-card-desc">{item.badge}</span>
+                <span className="quick-card-title">{item.title}</span>
+                <span className="quick-card-desc">{item.desc}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
       <section className="app-section" aria-labelledby="dashboard-ai-surfaces-title">
         <div className="section-header">
           <div>
