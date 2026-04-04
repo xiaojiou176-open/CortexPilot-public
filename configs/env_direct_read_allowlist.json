@@ -57,6 +57,13 @@
       ]
     },
     {
+      "path": "apps/orchestrator/src/cortexpilot_orch/mcp_queue_pilot_server.py",
+      "keys": [
+        "CORTEXPILOT_APPROVAL_ALLOWED_ROLES",
+        "CORTEXPILOT_MCP_QUEUE_PILOT_ENABLE_APPLY"
+      ]
+    },
+    {
       "path": "apps/orchestrator/src/cortexpilot_orch/config.py",
       "keys": [
         "ANTHROPIC_BASE_URL",
@@ -250,6 +257,12 @@
       "path": "apps/orchestrator/src/cortexpilot_orch/queue/store.py",
       "keys": [
         "CORTEXPILOT_RUNTIME_ROOT"
+      ]
+    },
+    {
+      "path": "apps/orchestrator/src/cortexpilot_orch/runtime/space_governance.py",
+      "keys": [
+        "CORTEXPILOT_MACHINE_CACHE_ROOT"
       ]
     },
     {

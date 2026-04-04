@@ -993,12 +993,10 @@ def resolve_policy_path(*, raw_path: str, repo_root: Path) -> Path:
 
 def expand_policy_env_defaults(raw_path: str) -> str:
     normalized = raw_path
-    for env_name in ("CORTEXPILOT_MACHINE_CACHE_ROOT",):
-        if os.environ.get(env_name):
-            continue
-        default_value = default_policy_env_value(env_name)
-        normalized = normalized.replace(f"${{{env_name}}}", default_value)
-        normalized = normalized.replace(f"${env_name}", default_value)
+    if not os.getenv("CORTEXPILOT_MACHINE_CACHE_ROOT"):
+        default_value = default_policy_env_value("CORTEXPILOT_MACHINE_CACHE_ROOT")
+        normalized = normalized.replace("${CORTEXPILOT_MACHINE_CACHE_ROOT}", default_value)
+        normalized = normalized.replace("$CORTEXPILOT_MACHINE_CACHE_ROOT", default_value)
     return normalized
 
 
