@@ -6,6 +6,20 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- continued the Omega closeout hardening line by moving the dashboard
+  `Run detail` / `Workflow Case detail` page-level copy onto the shared
+  locale substrate, keeping the command-tower/operator story aligned across
+  English-first and `zh-CN` operator views while syncing the dashboard and
+  desktop module READMEs to the same detail-route contract
+- tightened the later-gated queue-only MCP pilot into a truly default-off
+  operator path: `enqueue_from_run` now requires explicit operator metadata and
+  also stays disabled unless `CORTEXPILOT_MCP_QUEUE_PILOT_ENABLE_APPLY=1` is
+  enabled in a trusted operator environment, with env governance, examples,
+  and docs updated in the same change set
+- closed the stale dependabot maintenance shell by explicitly closing PRs
+  `#65-#84` with rationale, leaving the active closeout branch/PR as the only
+  remaining GitHub work item while keeping browser/profile and Docker hygiene
+  rules institutionalized in the root AI guidance
 - closed Prompt 3 by formalizing `Role Contract v1` across schema, policy,
   compiler, validator, intake preview, and handoff summary surfaces while
   syncing the root/orchestrator/docs entrypoints and env-read governance with
