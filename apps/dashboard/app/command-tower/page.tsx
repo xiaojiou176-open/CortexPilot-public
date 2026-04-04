@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
 import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@cortexpilot/frontend-shared/uiLocale";
@@ -9,6 +10,12 @@ import { fetchCommandTowerOverview, fetchPmSessions } from "../../lib/api";
 import { safeLoad } from "../../lib/serverPageData";
 import type { CommandTowerOverviewPayload, PmSessionSummary } from "../../lib/types";
 import type { UiLocale } from "@cortexpilot/frontend-shared/uiCopy";
+
+export const metadata: Metadata = {
+  title: "Command Tower | CortexPilot",
+  description:
+    "Monitor live operator visibility, PM sessions, and governed coding-agent work from the CortexPilot Command Tower with linked Workflow Cases.",
+};
 
 async function CommandTowerHomeSection({ locale }: { locale: UiLocale }) {
   const commandTowerCopy = getUiCopy(locale).dashboard.commandTowerPage;

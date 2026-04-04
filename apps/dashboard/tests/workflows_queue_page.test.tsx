@@ -2,6 +2,10 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+const { mockCookies } = vi.hoisted(() => ({
+  mockCookies: vi.fn(),
+}));
+
 const mockRefresh = vi.fn();
 
 vi.mock("next/link", () => ({
@@ -16,6 +20,10 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: mockRefresh }),
 }));
 
+vi.mock("next/headers", () => ({
+  cookies: mockCookies,
+}));
+
 vi.mock("../lib/api", () => ({
   enqueueRunQueue: vi.fn(),
   fetchQueue: vi.fn(),
@@ -28,7 +36,7 @@ vi.mock("../lib/serverPageData", () => ({
   safeLoad: vi.fn(),
 }));
 
-import WorkflowsPage from "../app/workflows/page";
+import WorkflowsPage, { metadata as workflowsMetadata } from "../app/workflows/page";
 import { fetchQueue, fetchWorkflows, mutationExecutionCapability, runNextQueue } from "../lib/api";
 import { safeLoad } from "../lib/serverPageData";
 
@@ -36,6 +44,10 @@ describe("workflows queue page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockRefresh.mockReset();
+    mockCookies.mockResolvedValue({
+      get: () => undefined,
+      toString: () => "",
+    });
     vi.mocked(safeLoad).mockImplementation(async (loader: () => Promise<unknown>, fallback: unknown) => {
       try {
         return { data: await loader(), warning: "" };
@@ -66,6 +78,11 @@ describe("workflows queue page", () => {
     vi.mocked(mutationExecutionCapability).mockReturnValue({ executable: true, operatorRole: "TECH_LEAD" } as never);
   });
 
+  it("exports workflow list metadata for route-level discoverability", () => {
+    expect(workflowsMetadata.title).toBe("Workflow Cases | CortexPilot");
+    expect(workflowsMetadata.description).toContain("queue posture");
+  });
+
   it("renders queue summary alongside workflows", async () => {
     const view = await WorkflowsPage();
     render(view);
@@ -77,6 +94,22 @@ describe("workflows queue page", () => {
     expect(screen.getByText("queue: 1 / SLA at_risk")).toBeInTheDocument();
     expect(screen.getByText("Drive queue layer")).toBeInTheDocument();
     expect(screen.getByText(/operator role/i)).toHaveTextContent("TECH_LEAD");
+  });
+
+  it("uses shared locale copy for the workflow list surface", async () => {
+    mockCookies.mockResolvedValue({
+      get: () => ({ value: "zh-CN" }),
+      toString: () => "cortexpilot.ui-locale=zh-CN",
+    });
+
+    const view = await WorkflowsPage();
+    render(view);
+
+    expect(screen.getByRole("heading", { name: "工作流案例" })).toBeInTheDocument();
+    expect(screen.getByText("1 个工作流 / 1 个队列项")).toBeInTheDocument();
+    expect(screen.getByText("已有排队工作的案例：1")).toBeInTheDocument();
+    expect(screen.getByText("队列：1 / SLA at_risk")).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "工作流 ID" })).toBeInTheDocument();
   });
 
   it("runs next queued task from the web workflow surface", async () => {

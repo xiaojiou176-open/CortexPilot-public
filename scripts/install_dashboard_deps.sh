@@ -153,11 +153,14 @@ verify_dashboard_build_toolchain() {
     test -f "node_modules/next/dist/compiled/babel/code-frame.js"
     test -f "node_modules/axe-core/axe.min.js"
     test -f "node_modules/is-wsl/package.json"
+    test -f "node_modules/jsdom/package.json"
     test -f "node_modules/lighthouse/package.json"
     test -f "node_modules/chrome-launcher/dist/utils.js"
     pnpm exec next --version >/dev/null 2>&1
     pnpm exec tsc --version >/dev/null 2>&1
     node -e 'require.resolve("@next/env/package.json")' >/dev/null 2>&1
+    node -e 'require.resolve("jsdom/package.json")' >/dev/null 2>&1
+    node --input-type=module -e 'await import("jsdom")' >/dev/null 2>&1
     node --input-type=module -e 'await import("chrome-launcher")' >/dev/null 2>&1
   )
 }
@@ -369,6 +372,7 @@ if ! verify_dashboard_build_toolchain; then
       "$APP_DIR/node_modules/next/dist/compiled/babel/code-frame.js" \
       "$APP_DIR/node_modules/axe-core/axe.min.js" \
       "$APP_DIR/node_modules/is-wsl/package.json" \
+      "$APP_DIR/node_modules/jsdom/package.json" \
       "$APP_DIR/node_modules/lighthouse/package.json" \
       "$APP_DIR/node_modules/chrome-launcher/dist/utils.js" >&2 || true
     print_install_log_tail 80

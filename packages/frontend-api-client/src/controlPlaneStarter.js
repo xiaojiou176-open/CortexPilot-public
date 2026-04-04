@@ -9,6 +9,8 @@ function assertFrontendApiClient(client) {
     "fetchRoleConfig",
     "previewRoleConfig",
     "applyRoleConfig",
+    "previewEnqueueRunQueue",
+    "cancelQueueItem",
   ];
   for (const method of requiredMethods) {
     if (typeof client[method] !== "function") {
@@ -19,6 +21,14 @@ function assertFrontendApiClient(client) {
 
 function normalizeRole(role) {
   return typeof role === "string" ? role.trim() : "";
+}
+
+function normalizeRequiredId(label, value) {
+  const normalized = typeof value === "string" ? value.trim() : "";
+  if (!normalized) {
+    throw new TypeError(`Control plane starter requires a non-empty ${label}.`);
+  }
+  return normalized;
 }
 
 export function createControlPlaneStarter(client) {
@@ -67,6 +77,12 @@ export function createControlPlaneStarter(client) {
     },
     applyRoleDefaults(role, payload = {}) {
       return client.applyRoleConfig(normalizeRole(role), payload);
+    },
+    previewQueueEnqueue(runId, payload = {}) {
+      return client.previewEnqueueRunQueue(normalizeRequiredId("run id", runId), payload);
+    },
+    cancelPendingQueueItem(queueId, payload = {}) {
+      return client.cancelQueueItem(normalizeRequiredId("queue id", queueId), payload);
     },
   };
 }

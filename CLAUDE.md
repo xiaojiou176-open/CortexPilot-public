@@ -140,6 +140,26 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `@cortexpilot/frontend-shared`, keep the root AI entrypoints aligned in the
   same patch; current examples include locale-aware desktop status labels,
   shared-copy Run Detail table/action chrome, and zh-CN regression coverage
+- when a front-door discoverability wave adds or reprioritizes public
+  integration/skills/SEO entrypoints, keep this file, `AGENTS.md`, and the
+  root/docs entrypoints aligned in the same patch; current examples include
+  `docs/integrations/index.html`, `docs/skills/index.html`, `docs/robots.txt`,
+  `docs/sitemap.xml`, the docs-navigation registry move that now treats
+  ecosystem/use-cases/AI/MCP/API/builders as primary public entrypoints, and
+  the skills quickstart CTA shift toward in-page adoption/maintainer anchors
+  instead of a dead public-repo tree link
+- when dashboard route-level discoverability or Workflow Case list locale
+  coverage changes, keep this file, `AGENTS.md`, and the root/docs entrypoints
+  aligned in the same patch; current examples include route metadata on
+  `apps/dashboard/app/command-tower/page.tsx`,
+  `apps/dashboard/app/workflows/page.tsx`, and
+  `apps/dashboard/app/workflows/[id]/page.tsx`, plus the shared-copy workflow
+  list substrate and the matching metadata/locale regression coverage in
+  `apps/dashboard/tests/command_tower_page_ssr_query_repro.test.ts`,
+  `apps/dashboard/tests/workflow_detail_page.test.tsx`, and
+  `apps/dashboard/tests/workflows_queue_page.test.tsx`
+  list substrate now carried through `packages/frontend-shared/uiCopy.ts` and
+  `packages/frontend-shared/uiCopy.js`
 - when the next Phase 2 wave deepens public `MCP` / `API` discoverability,
   keep this file, `AGENTS.md`, and the root/docs entrypoints aligned in the
   same patch; current examples include `docs/mcp/index.html`,
@@ -206,6 +226,12 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   the package-facing `createControlPlaneStarter(...)` bootstrap flow, and the
   rule that the starter remains a repo-owned integration edge rather than a
   hosted SDK or marketplace claim
+- when dashboard dependency verification learns about new runtime-critical
+  packages for quick/clean-room lanes, keep this file, `AGENTS.md`, and the
+  relevant package/docs entrypoints aligned in the same patch; current examples
+  include `scripts/install_dashboard_deps.sh` verifying that `jsdom` itself
+  loads successfully so partial dashboard installs fail fast before the quick lane
+  claims success
 - when the Final-100 / Wave 4 follow-up slice adds hosted pilot readiness or
   queue-first mutation groundwork, keep this file, `AGENTS.md`, and the root
   AI/docs entrypoints aligned in the same patch; current examples include

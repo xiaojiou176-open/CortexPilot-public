@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import type { Metadata } from "next";
 import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
 import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@cortexpilot/frontend-shared/uiLocale";
 import Link from "next/link";
@@ -72,6 +73,21 @@ function resolveLatestRunId(runs: Array<Record<string, unknown>>): string {
     return (Number.isFinite(rightTs) ? rightTs : 0) - (Number.isFinite(leftTs) ? leftTs : 0);
   });
   return String(sortedRuns[0]?.run_id || "").trim();
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<WorkflowDetailPageParams>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const workflowId = safeDecodeParam(id);
+  const titleSuffix = workflowId ? ` · ${workflowId}` : "";
+  return {
+    title: `Workflow Case detail${titleSuffix} | CortexPilot`,
+    description:
+      "Inspect one Workflow Case across risk, queue posture, linked runs, event timeline, and the next operator action inside CortexPilot.",
+  };
 }
 
 export default async function WorkflowDetailPage({

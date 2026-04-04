@@ -27,11 +27,19 @@ repository entrypoint rather than a registered docs page.
 These are the active registered docs that stay in the primary docs navigation.
 
 1. [index.html](index.html)
-2. [architecture/runtime-topology.md](architecture/runtime-topology.md)
-3. [specs/00_SPEC.md](specs/00_SPEC.md)
-4. [runbooks/onboarding-30min.md](runbooks/onboarding-30min.md)
-5. [runbooks/space-governance.md](runbooks/space-governance.md)
-6. [architecture/mcp-and-operator-copilot-v1.md](architecture/mcp-and-operator-copilot-v1.md)
+2. [ecosystem/index.html](ecosystem/index.html)
+3. [use-cases/index.html](use-cases/index.html)
+4. [ai-surfaces/index.html](ai-surfaces/index.html)
+5. [integrations/index.html](integrations/index.html)
+6. [skills/index.html](skills/index.html)
+7. [mcp/index.html](mcp/index.html)
+8. [api/index.html](api/index.html)
+9. [builders/index.html](builders/index.html)
+10. [architecture/runtime-topology.md](architecture/runtime-topology.md)
+11. [specs/00_SPEC.md](specs/00_SPEC.md)
+12. [runbooks/onboarding-30min.md](runbooks/onboarding-30min.md)
+13. [runbooks/space-governance.md](runbooks/space-governance.md)
+14. [architecture/mcp-and-operator-copilot-v1.md](architecture/mcp-and-operator-copilot-v1.md)
 
 ## Supplemental Registered Docs
 
@@ -46,12 +54,8 @@ navigation set.
 6. [assets/storefront/benchmark-methodology.md](assets/storefront/benchmark-methodology.md)
 7. [architecture/ecosystem-and-builder-surfaces-v1.md](architecture/ecosystem-and-builder-surfaces-v1.md)
 8. [runbooks/render-hosted-operator-pilot.md](runbooks/render-hosted-operator-pilot.md)
-9. [builders/index.html](builders/index.html)
-10. [ecosystem/index.html](ecosystem/index.html)
-11. [use-cases/index.html](use-cases/index.html)
-12. [ai-surfaces/index.html](ai-surfaces/index.html)
-13. [mcp/index.html](mcp/index.html)
-14. [api/index.html](api/index.html)
+9. [robots.txt](robots.txt)
+10. [sitemap.xml](sitemap.xml)
 
 ## What Each File Is For
 
@@ -75,6 +79,8 @@ navigation set.
 - `docs/ai-surfaces/index.html`: public AI operator / read-only MCP / API entrypoint map for truthful discoverability
 - `docs/mcp/index.html`: public read-only MCP quickstart page for truthful protocol discovery
 - `docs/api/index.html`: public API / contract quickstart page for OpenAPI, frontend client, and contract-facing types
+- `docs/integrations/index.html`: truthful coding-agent integration map for Codex / Claude Code / OpenClaw, including the no-fake-plugin boundary
+- `docs/skills/index.html`: repo-owned skills quickstart for teams adopting CortexPilot playbooks with coding agents
 - `apps/dashboard/README.md`: dashboard-owned module note for operator-surface wording, staged UI-audit build behavior, and control-plane/runtime-capability presentation changes
 - `apps/desktop/README.md`: desktop-owned module note for operator-surface locale/status hardening when desktop wording contracts change
 - `policies/agent_registry.json`: machine SSOT for role-contract defaults such as purpose, prompt ref, MCP bundle ref, downstream-role expectations, and fail-closed posture
@@ -86,6 +92,7 @@ navigation set.
 - `schemas/role_config_registry.v1.json`: schema-first contract for the repo-owned role configuration overlay used by Prompt 10 role-default preview/apply surfaces
 - `packages/frontend-api-contract/generated/index.d.ts`: generated TypeScript contract surface for frontend-safe run/workflow routes and read-model types; avoid hand-maintaining parallel overlays when this file changes
 - `scripts/check_clean_room_recovery.sh`: clean-room bootstrap/verification path that now reinstalls package-local frontend-api-client deps before its node smoke bundle and runs the repo-owned workspace-module cleanup before the broader runtime delete sweep; that cleanup path can quarantine stubborn dashboard module residue before deletion when recursive removal alone is not enough
+- `scripts/install_dashboard_deps.sh`: dashboard clean-room install gate that now proves `jsdom` itself can load, so quick-lane success does not depend on a specific transitive dependency layout such as `data-urls`
 - `apps/orchestrator/src/cortexpilot_orch/api/main_pm_intake_helpers.py`: PM-facing helper surface that now returns a contract-derived `role_binding_summary`, and the same read model now persists into run manifests for stable post-run inspection without becoming execution authority
 - `schemas/execution_plan_report.v1.json` / `schemas/run_manifest.v1.json`: schema-owned runtime capability summaries (`lane`, `compat_api_mode`, `provider_status`, `tool_execution`) that keep preview/manifests honest about chat-compatible vs fail-closed tool posture
 - `apps/orchestrator/src/cortexpilot_orch/api/main_runs_handlers.py`: run-detail helper surface that now returns a stable `role_binding_read_model` derived from persisted contract truth for read-only inspection

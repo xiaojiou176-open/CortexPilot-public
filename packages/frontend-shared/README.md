@@ -24,3 +24,11 @@ desktop operator surfaces.
   public SDK.
 - Public API contract types stay in `@cortexpilot/frontend-api-contract`.
 - Client entry points stay in `@cortexpilot/frontend-api-client`.
+
+## Human-readable entrypoints
+
+If you want the public explanation for how this shared substrate fits into
+Codex / Claude Code / OpenClaw workflows, use:
+
+- [Integration guide](https://xiaojiou176-open.github.io/CortexPilot-public/integrations/)
+- [Skills quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/skills/)

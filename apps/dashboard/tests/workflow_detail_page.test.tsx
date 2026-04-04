@@ -37,7 +37,7 @@ vi.mock("next/headers", () => ({
   cookies: mockCookies,
 }));
 
-import WorkflowDetailPage from "../app/workflows/[id]/page";
+import WorkflowDetailPage, { generateMetadata } from "../app/workflows/[id]/page";
 import { enqueueRunQueue, fetchQueue, fetchWorkflow, fetchWorkflowCopilotBrief, mutationExecutionCapability, runNextQueue } from "../lib/api";
 import { safeLoad } from "../lib/serverPageData";
 
@@ -132,6 +132,14 @@ describe("workflow detail page", () => {
     vi.mocked(runNextQueue).mockResolvedValue({ ok: true, run_id: "run-queued-1" } as never);
     vi.mocked(enqueueRunQueue).mockResolvedValue({ ok: true, task_id: "task-queue" } as never);
     vi.mocked(mutationExecutionCapability).mockReturnValue({ executable: true, operatorRole: "TECH_LEAD" } as never);
+  });
+
+  it("exports workflow detail metadata with the workflow id", async () => {
+    await expect(
+      generateMetadata({ params: Promise.resolve({ id: "wf-1" }) }),
+    ).resolves.toMatchObject({
+      title: "Workflow Case detail · wf-1 | CortexPilot",
+    });
   });
 
   it("falls back to raw id when route id is malformed percent-encoding", async () => {

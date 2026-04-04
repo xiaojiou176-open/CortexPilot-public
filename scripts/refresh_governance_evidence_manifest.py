@@ -295,7 +295,7 @@ def _reuse_clean_room_recovery_record(check: dict[str, object]) -> dict[str, obj
         return None
     if not isinstance(payload, dict):
         return None
-    if str(payload.get("status") or "").strip().lower() not in {"pass", "passed"}:
+    if str(payload.get("status") or "").strip().lower() not in {"ok", "pass", "passed"}:
         return None
 
     stat = path.stat()

@@ -124,6 +124,41 @@ test("control plane starter forwards preview/apply role config mutations", async
   });
 });
 
+test("control plane starter forwards guarded queue helpers", async () => {
+  const calls = [];
+  const client = createDashboardApiClient({
+    baseUrl: "http://127.0.0.1:10000",
+    resolveMutationRole: () => "tech_lead",
+    fetchImpl: async (url, init) => {
+      calls.push({ url, init });
+      return createJsonResponse({ ok: true, url });
+    },
+  });
+
+  const starter = createControlPlaneStarter(client);
+  const preview = await starter.previewQueueEnqueue("run/1", { priority: 3 });
+  const cancelled = await starter.cancelPendingQueueItem("queue/1", { reason: "operator aborted pilot" });
+
+  assert.equal(
+    calls[0].url,
+    "http://127.0.0.1:10000/api/queue/from-run/run%2F1/preview",
+  );
+  assert.equal(
+    calls[1].url,
+    "http://127.0.0.1:10000/api/queue/queue%2F1/cancel",
+  );
+  assert.equal(calls[0].init.headers["x-cortexpilot-role"], "TECH_LEAD");
+  assert.equal(calls[1].init.headers["x-cortexpilot-role"], "TECH_LEAD");
+  assert.deepEqual(preview, {
+    ok: true,
+    url: "http://127.0.0.1:10000/api/queue/from-run/run%2F1/preview",
+  });
+  assert.deepEqual(cancelled, {
+    ok: true,
+    url: "http://127.0.0.1:10000/api/queue/queue%2F1/cancel",
+  });
+});
+
 test("control plane starter rejects incomplete clients early", () => {
   assert.throws(
     () => createControlPlaneStarter({ fetchAgents() {} }),
