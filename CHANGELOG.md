@@ -13,6 +13,10 @@ All notable changes to this repository will be documented in this file.
   registry and sitemap, dashboard home discoverability, package-facing human
   entrypoints, and the root AI guidance so teams can choose the right truthful
   path without fake plugin or marketplace claims
+- added a minimal `lodash-es@4.18.1` override on both the root workspace and
+  `apps/dashboard` package surfaces so the tracked `lighthouse@13.0.3`
+  transitive chain can clear the current Dependabot alerts without forcing a
+  broader Lighthouse toolchain upgrade
 - opened Extreme Polish Wave 1 by adding truthful public `integrations` and
   `skills` entrypoints plus `robots.txt` / `sitemap.xml`, promoting the
   ecosystem/use-cases/AI/MCP/API/builder ladder into primary docs navigation,
