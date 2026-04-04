@@ -438,6 +438,10 @@ file, and keep this README as the only handwritten summary:
 Dashboard dependency lock refreshes are repo-owned maintenance work. When a
 transitive patch touches `apps/dashboard/pnpm-lock.yaml`, keep the change set
 paired with the root `package.json` / `pnpm-lock.yaml` update.
+The current security-only refresh also pins `lodash-es@4.18.1` through the
+repo-owned override layer so `lighthouse@13.0.3` no longer resolves the
+vulnerable `lodash-es@4.17.23` path on either the root or dashboard lock
+surface.
 Current lock maintenance also removes the optional dashboard `depcheck`
 dependency and pins patched `picomatch` / `brace-expansion` paths so GitHub
 security findings do not linger on an otherwise unused dependency chain.
