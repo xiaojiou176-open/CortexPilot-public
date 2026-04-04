@@ -26,6 +26,11 @@ success path, use the compatibility matrix as the main router, and let the
 deeper MCP / integration / skills / builder pages carry the detailed
 explanations.
 
+The dashboard public-home now mirrors that same rule: keep the compatibility
+card as the main routing layer, but keep a lighter **Use Cases** side door for
+the fastest proof-first walkthrough instead of rebuilding a second routing
+grid inside the operator surface.
+
 The product name stays **CortexPilot**. If `cortexpilot.ai` is later claimed,
 treat it as a marketing/front-door domain, not as a product rename.
 

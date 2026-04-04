@@ -195,6 +195,13 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   compatibility-first routing, and the dashboard-home adoption layer
   consolidating ecosystem / integrations / AI / builders into one smaller
   decision surface
+- when a follow-up CTA polish slice changes that dashboard adoption layer
+  again, keep this file, `AGENTS.md`, `README.md`, `CHANGELOG.md`,
+  `docs/README.md`, and `apps/dashboard/README.md` aligned in the same patch;
+  current examples include keeping `/compatibility/` as the main routing card,
+  restoring a lighter `/use-cases/` proof-first side door, and updating the
+  adoption-nav accessibility label so the dashboard no longer advertises the
+  old integration-only action group
 - when the next Phase 2 wave deepens public `MCP` / `API` discoverability,
   keep this file, `AGENTS.md`, and the root/docs entrypoints aligned in the
   same patch; current examples include `docs/mcp/index.html`,
