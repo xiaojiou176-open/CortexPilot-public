@@ -239,7 +239,14 @@ export default async function WorkflowDetailPage({
                 ? workflowDetailCopy.recommendedActionNoQueue
                 : workflowDetailCopy.recommendedActionNoRun}
             </div>
-            <WorkflowQueueMutationControls latestRunId={latestRunId} queueCount={queueItems.length} eligibleCount={eligibleQueueCount} showQueueLatest disableRunNextWhenEmpty />
+            <WorkflowQueueMutationControls
+              latestRunId={latestRunId}
+              queueCount={queueItems.length}
+              eligibleCount={eligibleQueueCount}
+              showQueueLatest
+              disableRunNextWhenEmpty
+              locale={locale}
+            />
           </Card>
           <Card>
             <h3>{workflowDetailCopy.summaryTitle}</h3>

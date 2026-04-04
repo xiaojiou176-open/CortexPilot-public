@@ -16,8 +16,8 @@ import type { CommandTowerAlertsPayload, CommandTowerOverviewPayload } from "../
 describe("command tower async hardening (home)", () => {
   const mocks = getCommandTowerAsyncMocks();
   const { mockFetchCommandTowerOverview, mockFetchPmSessions, mockFetchCommandTowerAlerts } = mocks;
-  const pauseLiveButtonName = /Pause Live/i;
-  const resumeLiveButtonName = /Resume Live/i;
+  const pauseLiveButtonName = /Pause auto-refresh|Pause Live/i;
+  const resumeLiveButtonName = /Resume auto-refresh|Resume Live/i;
   const focusToggleGroupName = /Focus view switcher|focus/i;
   const drawerRegionName = /Command Tower context panel|Context and filters/i;
   const statusContains = (pattern: RegExp): boolean =>
@@ -100,7 +100,7 @@ describe("command tower async hardening (home)", () => {
       target: { value: "failed_desc" },
     });
     fireEvent.click(
-      within(screen.getByRole("region", { name: /Filter console/i })).getByRole("button", { name: /Apply filters|Apply/i }),
+      within(screen.getByRole("region", { name: /Filter console|Filters/i })).getByRole("button", { name: /Apply filters|Apply/i }),
     );
 
     await waitFor(() => {
@@ -166,7 +166,7 @@ describe("command tower async hardening (home)", () => {
     );
 
     await ensureDrawerOpen();
-    const filterRegion = screen.getByRole("region", { name: /Filter console/i });
+    const filterRegion = screen.getByRole("region", { name: /Filter console|Filters/i });
     const projectInput = screen.getByPlaceholderText(/e\.g\. cortexpilot|cortexpilot/i);
     fireEvent.change(projectInput, { target: { value: "cortexpilot" } });
 
@@ -212,7 +212,7 @@ describe("command tower async hardening (home)", () => {
     fireEvent.click(blockedButton);
     expect(blockedButton).toHaveAttribute("aria-pressed", "true");
     await waitFor(() => {
-      expect(screen.getByText(/No sessions match the current focus view|no match/i)).toBeInTheDocument();
+      expect(screen.getByText(/No sessions match the current focus (view|mode)|no match/i)).toBeInTheDocument();
     });
 
     fireEvent.click(allFocusButton);
@@ -512,7 +512,7 @@ describe("command tower async hardening (home)", () => {
       expect(screen.getAllByText(/SLO:\s*warning/i).length).toBeGreaterThan(0);
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /Export failed/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Export(?:ed)? failed/i }));
     expect(createUrl).toHaveBeenCalledTimes(1);
     expect(clickSpy).toHaveBeenCalledTimes(1);
     expect(revokeUrl).toHaveBeenCalledTimes(1);
@@ -580,7 +580,7 @@ describe("command tower async hardening (home)", () => {
     fireEvent.click(screen.getByRole("button", { name: /Export failed sessions|export/i }));
 
     expect(screen.getAllByText(/SLO:/).length).toBeGreaterThan(0);
-    expect(screen.getByText(/System healthy\. No alerts\./i)).toBeInTheDocument();
+    expect(screen.getByText(/System healthy\. No alerts( right now)?\./i)).toBeInTheDocument();
   });
 
   it("covers home partial failures with non-Error reasons", async () => {
@@ -694,7 +694,7 @@ describe("command tower async hardening (home)", () => {
       expect(statusContains(/Expanded the right context drawer/i)).toBe(true);
       expect(screen.getByRole("region", { name: drawerRegionName })).toBeInTheDocument();
     });
-    expect(screen.getByRole("button", { name: /Close panel/ })).toHaveAttribute("aria-keyshortcuts", "Alt+Shift+D");
+    expect(screen.getByRole("button", { name: /Close panel|Close drawer/ })).toHaveAttribute("aria-keyshortcuts", "Alt+Shift+D");
 
     fireEvent.keyDown(window, { key: "p", altKey: true, shiftKey: true });
     await waitFor(() => {
@@ -705,6 +705,26 @@ describe("command tower async hardening (home)", () => {
     await waitFor(() => {
       expect(statusContains(/Collapsed the right context drawer/i)).toBe(true);
       expect(screen.queryByRole("region", { name: drawerRegionName })).toBeNull();
+    });
+  });
+
+  it("renders zh-CN live feedback copy when locale is provided", async () => {
+    render(
+      <CommandTowerHomeLive
+        initialOverview={baseOverview()}
+        initialSessions={[baseSessionSummary("active")]}
+        locale="zh-CN"
+      />,
+    );
+
+    fireEvent.keyDown(window, { key: "d", altKey: true, shiftKey: true });
+    await waitFor(() => {
+      expect(statusContains(/已展开右侧上下文抽屉/)).toBe(true);
+    });
+
+    fireEvent.keyDown(window, { key: "2", altKey: true, shiftKey: true });
+    await waitFor(() => {
+      expect(statusContains(/已切换到 高风险会话|高风险会话/)).toBe(true);
     });
   });
 

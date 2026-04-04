@@ -158,6 +158,11 @@ describe("workflow detail page", () => {
     expect(screen.getByRole("heading", { name: "工作流案例详情" })).toBeInTheDocument();
     expect(screen.getByText("先判断风险，再确认案例摘要、Run 映射、队列姿态和事件时间线，然后再做治理动作。")).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "打开可分享案例资产" })[0]).toHaveAttribute("href", "/workflows/wf-zh/share");
+    expect(screen.getByText("操作角色: TECH_LEAD")).toBeInTheDocument();
+    expect(screen.getByText("当前可见队列项：0。现在可执行：0。")).toBeInTheDocument();
+    expect(screen.getByLabelText("队列优先级")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "排入最新 Run 合约" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "运行下一条排队任务" })).toBeInTheDocument();
   });
 
   it("encodes run link when run id contains reserved chars", async () => {

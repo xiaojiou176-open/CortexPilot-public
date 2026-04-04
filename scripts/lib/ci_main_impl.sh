@@ -17,6 +17,14 @@ source "$ROOT_DIR/scripts/lib/ci_step84_helpers.sh"
 source "$ROOT_DIR/scripts/lib/ci_step856_helpers.sh"
 source "$ROOT_DIR/scripts/lib/ci_step88_helpers.sh"
 source "$ROOT_DIR/scripts/lib/ci_step89_helpers.sh"
+
+is_truthy() {
+  local raw="${1:-}"
+  local normalized
+  normalized="$(printf '%s' "$raw" | tr '[:upper:]' '[:lower:]')"
+  [[ "${normalized}" == "1" || "${normalized}" == "true" || "${normalized}" == "yes" || "${normalized}" == "on" ]]
+}
+
 PYTHON="$(cortexpilot_python_bin "$ROOT_DIR" || true)"
 PYTHON_LOCKFILE="apps/orchestrator/uv.lock"
 declare -a ORCH_CRITICAL_COV_ARGS=()

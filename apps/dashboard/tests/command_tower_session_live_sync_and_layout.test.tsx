@@ -1,6 +1,7 @@
 import { createRef, type ComponentProps } from "react";
 import { act, fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
 
 import CommandTowerHomeLayout from "../components/command-tower/CommandTowerHomeLayout";
 import { useDrawerPreferences } from "../components/command-tower/hooks/useDrawerPreferences";
@@ -64,6 +65,7 @@ function HookProbe(props: HookProbeProps) {
 function buildHomeLayoutProps(
   overrides: Partial<ComponentProps<typeof CommandTowerHomeLayout>> = {},
 ): ComponentProps<typeof CommandTowerHomeLayout> {
+  const uiCopy = getUiCopy("en");
   return {
     drawerCollapsed: true,
     liveMode: "running",
@@ -118,6 +120,8 @@ function buildHomeLayoutProps(
     setDraftSort: vi.fn(),
     handleFilterKeyDown: vi.fn(),
     applyFilters: vi.fn(),
+    commandTowerCopy: uiCopy.desktop.commandTower,
+    liveHomeCopy: uiCopy.dashboard.commandTowerPage.liveHome,
     ...overrides,
   };
 }

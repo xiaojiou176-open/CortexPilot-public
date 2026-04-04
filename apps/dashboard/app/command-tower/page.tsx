@@ -79,7 +79,7 @@ async function CommandTowerHomeSection({ locale }: { locale: UiLocale }) {
         />
       ) : null}
       <section aria-label="Command Tower live overview" aria-describedby="command-tower-page-subtitle">
-        <CommandTowerHomeLiveClient initialOverview={overview} initialSessions={sessions} />
+        <CommandTowerHomeLiveClient initialOverview={overview} initialSessions={sessions} locale={locale} />
       </section>
     </>
   );

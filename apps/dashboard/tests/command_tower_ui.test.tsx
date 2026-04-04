@@ -238,6 +238,10 @@ describe("command tower ui surfaces", () => {
     expect(zh.actions.openWorkflowCases).toBe("打开工作流案例");
     expect(en.fallbackLoading).toContain("Command Tower");
     expect(zh.fallbackLoading).toContain("指挥塔");
+    expect(en.liveHome.focusModeLabels.highRisk).toBe("high risk");
+    expect(zh.liveHome.focusModeLabels.highRisk).toBe("高风险");
+    expect(en.liveHome.layout.overviewTitle).toBe("Live posture and action entrypoints");
+    expect(zh.liveHome.layout.overviewTitle).toBe("实时态势与动作入口");
   });
 
   it("renders empty conversation graph state", () => {

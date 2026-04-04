@@ -144,7 +144,7 @@ def _base_policy(repo_root: Path, home_root: Path) -> dict:
     }
 
 
-def test_toolchain_env_machine_tmp_root_defaults_and_respects_machine_cache_override(tmp_path: Path) -> None:
+def test_toolchain_env_machine_tmp_root_defaults_ci_and_override(tmp_path: Path) -> None:
     repo_root = tmp_path / "repo"
     repo_root.mkdir(parents=True, exist_ok=True)
     helper_path = SCRIPT_ROOT / "scripts" / "lib" / "toolchain_env.sh"
@@ -154,6 +154,9 @@ def test_toolchain_env_machine_tmp_root_defaults_and_respects_machine_cache_over
     env["HOME"] = str(home_root)
     env.pop("XDG_CACHE_HOME", None)
     env.pop("CORTEXPILOT_MACHINE_CACHE_ROOT", None)
+    env.pop("CI", None)
+    env.pop("GITHUB_ACTIONS", None)
+    env.pop("RUNNER_TEMP", None)
 
     proc = subprocess.run(
         ["bash", "-lc", f"source '{helper_path}' && cortexpilot_machine_tmp_root '{repo_root}'"],
@@ -163,6 +166,18 @@ def test_toolchain_env_machine_tmp_root_defaults_and_respects_machine_cache_over
         env=env,
     )
     assert proc.stdout.strip() == str(home_root / ".cache" / "cortexpilot" / "tmp")
+
+    env["RUNNER_TEMP"] = str(tmp_path / "runner-temp")
+    env["CI"] = "1"
+    env["GITHUB_ACTIONS"] = "true"
+    proc = subprocess.run(
+        ["bash", "-lc", f"source '{helper_path}' && cortexpilot_machine_tmp_root '{repo_root}'"],
+        capture_output=True,
+        text=True,
+        check=True,
+        env=env,
+    )
+    assert proc.stdout.strip() == str(tmp_path / "runner-temp" / "cortexpilot-machine-cache" / "tmp")
 
     env["CORTEXPILOT_MACHINE_CACHE_ROOT"] = str(tmp_path / "machine-cache")
     proc = subprocess.run(

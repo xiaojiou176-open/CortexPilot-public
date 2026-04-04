@@ -47,8 +47,8 @@ function makeSession(pmSessionId: string) {
   } as any;
 }
 
-const pauseLiveButtonName = /Pause Live|Pause live/;
-const resumeLiveButtonName = /Resume Live|Resume live/;
+const pauseLiveButtonName = /Pause auto-refresh|Pause Live|Pause live/;
+const resumeLiveButtonName = /Resume auto-refresh|Resume Live|Resume live/;
 
 async function ensureDrawerOpen() {
   const drawerRegionName = /Command Tower context panel|Context and filters/i;
@@ -326,7 +326,7 @@ describe("CommandTowerHomeLive refresh sequencing", () => {
 
     fireEvent.keyDown(window, { key: "2", altKey: true, shiftKey: true });
     await waitFor(() => {
-      expect(screen.getByText(/Switched focus view to high risk/)).toBeInTheDocument();
+      expect(screen.getByText(/Switched focus view to high[- ]risk/)).toBeInTheDocument();
     });
 
     const beforeIgnoredKeys = overviewSpy.mock.calls.length;
@@ -385,8 +385,8 @@ describe("CommandTowerHomeLive refresh sequencing", () => {
     fireEvent.click(within(filterRegion).getByRole("button", { name: /Apply filters|Apply/ }));
 
     await waitFor(() => {
-      expect(screen.getAllByText(/Partial degradation \(([12])\/3\)/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Partial degradation \(([12])\/3\)|部分降级（[12]\/3）/).length).toBeGreaterThan(0);
     });
-    expect(screen.getByText("SLO: warning")).toBeInTheDocument();
+    expect(screen.getByText(/SLO:\s*warning|SLO：\s*warning/)).toBeInTheDocument();
   });
 });
