@@ -102,6 +102,13 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   package-facing `frontend-api-client` / `frontend-shared` READMEs, and the
   dashboard home/docs landing sections that explain Codex / Claude Code /
   read-only MCP plus the first-run -> proof -> share loop
+- when a follow-up builder/adoption slice adds a legal contract-package guide
+  or surfaces integrations/skills adoption more directly on the dashboard home,
+  keep this file, `AGENTS.md`, and the root/docs entrypoints aligned in the
+  same patch; current examples include
+  `packages/frontend-api-contract/docs/README.md`, the dashboard-home
+  integrations section in `apps/dashboard/components/DashboardHomeStorySections.tsx`,
+  and the docs-base resolver now honoring `/integrations/` and `/skills/`
 - when a later Phase 2 wave adds dedicated public sub-entrypoints (for example
   `/ecosystem/`, `/builders/`, `/use-cases/`) or moves additional dashboard home
   hero/ecosystem/AI/builder copy into the shared locale substrate, sync the
@@ -160,6 +167,14 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `apps/dashboard/tests/workflows_queue_page.test.tsx`
   list substrate now carried through `packages/frontend-shared/uiCopy.ts` and
   `packages/frontend-shared/uiCopy.js`
+- when dashboard home discoverability grows a new integrations/skills adoption
+  layer or package-contract CTA path, keep this file, `AGENTS.md`, and the
+  root/docs entrypoints aligned in the same patch; current examples include
+  `apps/dashboard/components/DashboardHomeStorySections.tsx`, the public-docs
+  resolver allowlist in `apps/dashboard/lib/env.ts`, the matching env/home
+  regression coverage, and the repo-owned
+  `packages/frontend-api-contract/docs/README.md` guide that now sits between
+  the public API quickstart and the raw generated `.d.ts` files
 - when the next Phase 2 wave deepens public `MCP` / `API` discoverability,
   keep this file, `AGENTS.md`, and the root/docs entrypoints aligned in the
   same patch; current examples include `docs/mcp/index.html`,

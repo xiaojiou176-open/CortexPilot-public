@@ -79,7 +79,16 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getAllByRole("link", { name: /news_digest/i })[0]).toHaveAttribute("href", "/pm?template=news_digest");
     expect(screen.getByText("Proof state: official public baseline")).toBeInTheDocument();
     expect(screen.getByText("Works with today's coding-agent ecosystem")).toBeInTheDocument();
+    expect(screen.getByText("Integrations and skills adoption")).toBeInTheDocument();
     expect(screen.getByText("AI surfaces in the real workflow")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open integration guide" })).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/integrations/"
+    );
+    expect(screen.getByText("Skills quickstart").closest("a")).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/skills/"
+    );
     expect(screen.getByRole("link", { name: "Open AI + MCP + API surfaces" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/"
@@ -92,6 +101,10 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByRole("link", { name: "Open builder quickstart" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/builders/"
+    );
+    expect(screen.getByText("@cortexpilot/frontend-api-contract").closest("a")).toHaveAttribute(
+      "href",
+      "https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/docs/README.md"
     );
     expect(screen.getByText("Read-only MCP quickstart").closest("a")).toHaveAttribute(
       "href",
@@ -126,6 +139,7 @@ describe("dashboard home run-summary clarity", () => {
     expect(zh.productSpineCards).toHaveLength(en.productSpineCards.length);
     expect(zh.publicTemplateCards).toHaveLength(en.publicTemplateCards.length);
     expect(zh.publicAdvantageCards).toHaveLength(en.publicAdvantageCards.length);
+    expect(zh.integrationCards).toHaveLength(en.integrationCards.length);
     expect(zh.caseGalleryBaselineCards).toHaveLength(en.caseGalleryBaselineCards.length);
     expect(zh.firstTaskGuideSteps).toHaveLength(en.firstTaskGuideSteps.length);
     expect(en.aiSurfacesActionHref).toBe("/ai-surfaces/");
@@ -151,6 +165,14 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByRole("link", { name: "Open builder quickstart" })).toHaveAttribute(
       "href",
       "https://docs.example/cortexpilot/builders/"
+    );
+    expect(screen.getByRole("link", { name: "Open integration guide" })).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/integrations/"
+    );
+    expect(screen.getByText("Skills quickstart").closest("a")).toHaveAttribute(
+      "href",
+      "https://docs.example/cortexpilot/skills/"
     );
     expect(screen.getByText("Read-only MCP quickstart").closest("a")).toHaveAttribute(
       "href",
@@ -204,6 +226,11 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByRole("link", { name: "打开 builder 快速入口" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/CortexPilot-public/builders/"
+    );
+    expect(screen.getByText("集成与技能采用")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "打开 integration guide" })).toHaveAttribute(
+      "href",
+      "https://xiaojiou176-open.github.io/CortexPilot-public/integrations/"
     );
     expect(screen.getAllByText("Read-only MCP quickstart").length).toBeGreaterThan(0);
     expect(screen.getAllByText("API and contract quickstart").length).toBeGreaterThan(0);

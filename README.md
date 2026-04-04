@@ -24,7 +24,7 @@ service.
 The product name stays **CortexPilot**. If `cortexpilot.ai` is later claimed,
 treat it as a marketing/front-door domain, not as a product rename.
 
-[Quickstart](#quickstart) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [Ecosystem Map](https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/) · [Integration Guide](https://xiaojiou176-open.github.io/CortexPilot-public/integrations/) · [Skills Guide](https://xiaojiou176-open.github.io/CortexPilot-public/skills/) · [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/) · [MCP Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/mcp/) · [API Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/api/) · [Builder Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/) · [Use Cases](https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/) · [Client Entry Points](packages/frontend-api-client/README.md) · [Spec](docs/specs/00_SPEC.md) · [Releases](https://github.com/xiaojiou176-open/CortexPilot-public/releases)
+[Quickstart](#quickstart) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [Ecosystem Map](https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/) · [Integration Guide](https://xiaojiou176-open.github.io/CortexPilot-public/integrations/) · [Skills Guide](https://xiaojiou176-open.github.io/CortexPilot-public/skills/) · [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/) · [MCP Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/mcp/) · [API Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/api/) · [Builder Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/) · [Use Cases](https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/) · [Client Entry Points](packages/frontend-api-client/README.md) · [Contract Entry Points](packages/frontend-api-contract/docs/README.md) · [Spec](docs/specs/00_SPEC.md) · [Releases](https://github.com/xiaojiou176-open/CortexPilot-public/releases)
 
 ![CortexPilot studio preview card](docs/assets/storefront/cortexpilot-studio-preview.svg)
 
@@ -287,7 +287,7 @@ These are the current public-facing entry points for teams that want to build
 around CortexPilot without pretending a full SDK platform already exists:
 
 - [packages/frontend-api-client/README.md](packages/frontend-api-client/README.md): thin JavaScript/TypeScript client entry points for dashboard, desktop, and web surfaces, including the repo-owned `createControlPlaneStarter(...)` bootstrap path for overview + agents + contracts + role-config integration.
-- [packages/frontend-api-contract/index.d.ts](packages/frontend-api-contract/index.d.ts): generated contract surface and stable import boundary for API-facing types.
+- [packages/frontend-api-contract/docs/README.md](packages/frontend-api-contract/docs/README.md): human-readable contract package guide for generated frontend-safe route/query/type imports.
 - [packages/frontend-shared/README.md](packages/frontend-shared/README.md): shared UI copy, locale, status, and frontend-only presentation helpers.
 - [docs/architecture/ecosystem-and-builder-surfaces-v1.md](docs/architecture/ecosystem-and-builder-surfaces-v1.md): the human-readable map that explains how Codex / Claude Code / MCP / public packs / share-ready Workflow Cases fit together.
 

@@ -96,6 +96,8 @@ describe("dashboard env helpers", () => {
 
     expect(resolveDashboardPublicDocsBaseUrl()).toBe("https://docs.example/cortexpilot");
     expect(resolveDashboardPublicDocsHref("/builders/")).toBe("https://docs.example/cortexpilot/builders/");
+    expect(resolveDashboardPublicDocsHref("/integrations/")).toBe("https://docs.example/cortexpilot/integrations/");
+    expect(resolveDashboardPublicDocsHref("/skills/")).toBe("https://docs.example/cortexpilot/skills/");
   });
 
   it("allows same-origin public docs routes when the override is slash", () => {

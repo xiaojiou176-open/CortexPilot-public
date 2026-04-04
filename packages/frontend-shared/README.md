@@ -31,4 +31,5 @@ If you want the public explanation for how this shared substrate fits into
 Codex / Claude Code / OpenClaw workflows, use:
 
 - [Integration guide](https://xiaojiou176-open.github.io/CortexPilot-public/integrations/)
+- [Contract package guide](../frontend-api-contract/docs/README.md)
 - [Skills quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/skills/)

@@ -71,6 +71,14 @@ finished consumer product.
   `Read-only MCP quickstart` and `API and contract quickstart` entry cards so
   operators can jump from the web control surface into the truthful public
   onboarding ladder before diving into package-level docs.
+- Home discovery now also surfaces a dedicated integrations/skills adoption
+  section, and the dashboard public-docs resolver treats `/integrations/` and
+  `/skills/` as first-class public docs routes so public-docs base overrides do
+  not strand those CTA links on app-local paths.
+- The contract-facing builder card now points to the repo-owned
+  `packages/frontend-api-contract/docs/README.md` guide instead of only the raw
+  generated `.d.ts` surface, so builders get a human-readable package entrypoint
+  before opening the generated types.
 
 ## Strongest Signals
 
