@@ -115,6 +115,10 @@ finished consumer product.
 - Current lock maintenance also pins patched `picomatch` / `brace-expansion`
   transitive paths through the repo-owned override set so GitHub security
   receipts and the dashboard lockfile stay aligned.
+- Current security-only lock maintenance also pins `lodash-es@4.18.1` through
+  both the root workspace and `apps/dashboard` override surfaces so the
+  tracked `lighthouse@13.0.3` transitive chain does not fall back to the
+  vulnerable `lodash-es@4.17.23` path on either maintained lockfile.
 - When a dashboard security-only lock refresh lands, keep this module README in
   the same change set so doc-drift gates can trace the maintenance decision to
   the dashboard surface that actually owns the lockfile.
