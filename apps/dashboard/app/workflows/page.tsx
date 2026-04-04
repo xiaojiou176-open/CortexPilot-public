@@ -1,24 +1,21 @@
+import { cookies } from "next/headers";
+import type { Metadata } from "next";
+import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@cortexpilot/frontend-shared/uiLocale";
 import Link from "next/link";
 import type { BadgeVariant } from "../../components/ui/badge";
 import { Badge } from "../../components/ui/badge";
 import { Card } from "../../components/ui/card";
 import { fetchQueue, fetchWorkflows } from "../../lib/api";
 import { safeLoad } from "../../lib/serverPageData";
+import { statusLabel } from "../../lib/statusPresentation";
 import WorkflowQueueMutationControls from "./WorkflowQueueMutationControls";
 
-function statusLabelEn(status: string | undefined): string {
-  const normalized = String(status || "").trim().toLowerCase();
-  if (!normalized) {
-    return "Unknown";
-  }
-  if (["success", "done", "passed", "completed", "approved"].includes(normalized)) return "Completed";
-  if (["failed", "failure", "error"].includes(normalized)) return "Failed";
-  if (["running", "active", "in_progress"].includes(normalized)) return "Running";
-  if (["blocked", "warning", "paused"].includes(normalized)) return "Blocked";
-  if (["queued", "pending"].includes(normalized)) return "Queued";
-  if (["ready"].includes(normalized)) return "Ready";
-  return normalized.replace(/_/g, " ");
-}
+export const metadata: Metadata = {
+  title: "Workflow Cases | CortexPilot",
+  description:
+    "Review Workflow Cases, queue posture, linked runs, and next operator actions inside the CortexPilot Command Tower.",
+};
 
 function statusBadgeVariant(status: string | undefined): BadgeVariant {
   const s = String(status || "").toLowerCase();
@@ -30,6 +27,9 @@ function statusBadgeVariant(status: string | undefined): BadgeVariant {
 }
 
 export default async function WorkflowsPage() {
+  const cookieStore = await cookies();
+  const locale = normalizeUiLocale(cookieStore.get(UI_LOCALE_STORAGE_KEY)?.value);
+  const workflowListPageCopy = getUiCopy(locale).dashboard.workflowListPage;
   const { data: workflows, warning } = await safeLoad(fetchWorkflows, [] as Record<string, unknown>[], "Workflow list");
   const { data: queueItems } = await safeLoad(fetchQueue, [] as Record<string, unknown>[], "Queue list");
 
@@ -57,38 +57,38 @@ export default async function WorkflowsPage() {
   ).size;
   const recommendedActionText =
     eligibleQueueCount > 0
-      ? "Run the next queued task to move the active Workflow Case chain forward."
+      ? workflowListPageCopy.recommendedActions.runNext
       : queueItems.length > 0
-      ? "Review queue timing and SLA state, then dispatch when the next case becomes eligible."
+      ? workflowListPageCopy.recommendedActions.reviewTiming
       : workflows.length > 0
-      ? "Open a Workflow Case and queue the latest run contract to start the next operator loop."
-      : "Create the first Workflow Case from PM intake, then return here to dispatch queued work.";
+      ? workflowListPageCopy.recommendedActions.openWorkflow
+      : workflowListPageCopy.recommendedActions.createFirstWorkflow;
 
   return (
     <main className="grid" aria-labelledby="workflows-page-title">
       <header className="app-section">
         <div className="section-header">
           <div>
-            <h1 id="workflows-page-title" className="page-title">Workflow Cases</h1>
-            <p className="page-subtitle">Workflow Cases are the operating record tying queue, linked runs, verdict, and later Proof &amp; Replay decisions to the same objective.</p>
+            <h1 id="workflows-page-title" className="page-title">{workflowListPageCopy.title}</h1>
+            <p className="page-subtitle">{workflowListPageCopy.subtitle}</p>
           </div>
-          <Badge>{workflows.length} workflows / {queueItems.length} queue items</Badge>
+          <Badge>{workflowListPageCopy.countsBadge(workflows.length, queueItems.length)}</Badge>
         </div>
         <WorkflowQueueMutationControls queueCount={queueItems.length} eligibleCount={eligibleQueueCount} compact />
       </header>
-      <section className="stats-grid" aria-label="Workflow Case operator summary">
+      <section className="stats-grid" aria-label={workflowListPageCopy.summaryAriaLabel}>
         <article className="metric-card">
-          <p className="metric-label">Workflow Cases</p>
+          <p className="metric-label">{workflowListPageCopy.metricLabels.workflowCases}</p>
           <p className="metric-value">{workflows.length}</p>
-          <p className="cell-sub mono muted">Cases with queued work: {queuedWorkflowCount}</p>
+          <p className="cell-sub mono muted">{workflowListPageCopy.casesWithQueuedWork(queuedWorkflowCount)}</p>
         </article>
         <article className="metric-card">
-          <p className="metric-label">Queue / SLA</p>
+          <p className="metric-label">{workflowListPageCopy.metricLabels.queueSla}</p>
           <p className="metric-value">{queueItems.length}</p>
-          <p className="cell-sub mono muted">Eligible now: {eligibleQueueCount} / at risk: {atRiskQueueCount}</p>
+          <p className="cell-sub mono muted">{workflowListPageCopy.eligibleNow(eligibleQueueCount, atRiskQueueCount)}</p>
         </article>
         <article className="metric-card">
-          <p className="metric-label">Next recommended action</p>
+          <p className="metric-label">{workflowListPageCopy.metricLabels.nextRecommendedAction}</p>
           <p className="cell-sub mono muted">{recommendedActionText}</p>
         </article>
       </section>
@@ -97,21 +97,21 @@ export default async function WorkflowsPage() {
         {workflows.length === 0 ? (
           <Card>
             <div className="empty-state-stack">
-              <span className="muted">No workflow cases yet</span>
-              <span className="mono muted">A Workflow Case is opened automatically on first execution.</span>
+              <span className="muted">{workflowListPageCopy.emptyTitle}</span>
+              <span className="mono muted">{workflowListPageCopy.emptyHint}</span>
             </div>
           </Card>
         ) : (
           <Card variant="table">
             <table className="run-table">
-              <caption className="sr-only">Workflow list</caption>
+              <caption className="sr-only">{workflowListPageCopy.tableCaption}</caption>
               <thead>
                 <tr>
-                  <th scope="col">Workflow ID</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Namespace</th>
-                  <th scope="col">Task queue</th>
-                  <th scope="col">Runs</th>
+                  <th scope="col">{workflowListPageCopy.tableHeaders.workflowId}</th>
+                  <th scope="col">{workflowListPageCopy.tableHeaders.status}</th>
+                  <th scope="col">{workflowListPageCopy.tableHeaders.namespace}</th>
+                  <th scope="col">{workflowListPageCopy.tableHeaders.taskQueue}</th>
+                  <th scope="col">{workflowListPageCopy.tableHeaders.runs}</th>
                 </tr>
               </thead>
               <tbody>
@@ -133,9 +133,9 @@ export default async function WorkflowsPage() {
                       </th>
                       <td>
                         <Badge variant={statusBadgeVariant(workflow.status as string)}>
-                          {statusLabelEn(workflow.status as string)}
+                          {statusLabel(workflow.status as string, locale)}
                         </Badge>
-                        {verdict ? <span className="cell-sub mono muted">verdict: {verdict}</span> : null}
+                        {verdict ? <span className="cell-sub mono muted">{workflowListPageCopy.verdictPrefix}: {verdict}</span> : null}
                       </td>
                       <td><span className="mono">{String(workflow.namespace || "-")}</span></td>
                       <td><span className="mono">{String(workflow.task_queue || "-")}</span></td>
@@ -148,7 +148,10 @@ export default async function WorkflowsPage() {
                         ))}
                         {queueItemsForWorkflow.length > 0 ? (
                           <span className="cell-sub mono muted">
-                            queue: {queueItemsForWorkflow.length} / SLA {String(queueItemsForWorkflow[0]?.sla_state || "-")}
+                            {workflowListPageCopy.queueSummary(
+                              queueItemsForWorkflow.length,
+                              String(queueItemsForWorkflow[0]?.sla_state || "-"),
+                            )}
                           </span>
                         ) : null}
                       </td>

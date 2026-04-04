@@ -27,11 +27,19 @@ repository entrypoint rather than a registered docs page.
 These are the active registered docs that stay in the primary docs navigation.
 
 1. [index.html](index.html)
-2. [architecture/runtime-topology.md](architecture/runtime-topology.md)
-3. [specs/00_SPEC.md](specs/00_SPEC.md)
-4. [runbooks/onboarding-30min.md](runbooks/onboarding-30min.md)
-5. [runbooks/space-governance.md](runbooks/space-governance.md)
-6. [architecture/mcp-and-operator-copilot-v1.md](architecture/mcp-and-operator-copilot-v1.md)
+2. [ecosystem/index.html](ecosystem/index.html)
+3. [use-cases/index.html](use-cases/index.html)
+4. [ai-surfaces/index.html](ai-surfaces/index.html)
+5. [integrations/index.html](integrations/index.html)
+6. [skills/index.html](skills/index.html)
+7. [mcp/index.html](mcp/index.html)
+8. [api/index.html](api/index.html)
+9. [builders/index.html](builders/index.html)
+10. [architecture/runtime-topology.md](architecture/runtime-topology.md)
+11. [specs/00_SPEC.md](specs/00_SPEC.md)
+12. [runbooks/onboarding-30min.md](runbooks/onboarding-30min.md)
+13. [runbooks/space-governance.md](runbooks/space-governance.md)
+14. [architecture/mcp-and-operator-copilot-v1.md](architecture/mcp-and-operator-copilot-v1.md)
 
 ## Supplemental Registered Docs
 
@@ -46,12 +54,8 @@ navigation set.
 6. [assets/storefront/benchmark-methodology.md](assets/storefront/benchmark-methodology.md)
 7. [architecture/ecosystem-and-builder-surfaces-v1.md](architecture/ecosystem-and-builder-surfaces-v1.md)
 8. [runbooks/render-hosted-operator-pilot.md](runbooks/render-hosted-operator-pilot.md)
-9. [builders/index.html](builders/index.html)
-10. [ecosystem/index.html](ecosystem/index.html)
-11. [use-cases/index.html](use-cases/index.html)
-12. [ai-surfaces/index.html](ai-surfaces/index.html)
-13. [mcp/index.html](mcp/index.html)
-14. [api/index.html](api/index.html)
+9. [robots.txt](robots.txt)
+10. [sitemap.xml](sitemap.xml)
 
 ## What Each File Is For
 
@@ -75,6 +79,8 @@ navigation set.
 - `docs/ai-surfaces/index.html`: public AI operator / read-only MCP / API entrypoint map for truthful discoverability
 - `docs/mcp/index.html`: public read-only MCP quickstart page for truthful protocol discovery
 - `docs/api/index.html`: public API / contract quickstart page for OpenAPI, frontend client, and contract-facing types
+- `docs/integrations/index.html`: truthful coding-agent integration map for Codex / Claude Code / OpenClaw, including the no-fake-plugin boundary
+- `docs/skills/index.html`: repo-owned skills quickstart for teams adopting CortexPilot playbooks with coding agents
 - `apps/dashboard/README.md`: dashboard-owned module note for operator-surface wording, staged UI-audit build behavior, and control-plane/runtime-capability presentation changes
 - `apps/desktop/README.md`: desktop-owned module note for operator-surface locale/status hardening when desktop wording contracts change
 - `policies/agent_registry.json`: machine SSOT for role-contract defaults such as purpose, prompt ref, MCP bundle ref, downstream-role expectations, and fail-closed posture

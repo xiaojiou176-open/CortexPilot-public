@@ -22,12 +22,23 @@
       name="twitter:description"
       content="Current builder entrypoints for the CortexPilot API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
     />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "CortexPilot builder quickstart",
+        "url": "https://xiaojiou176-open.github.io/CortexPilot-public/builders/",
+        "description": "Current builder entrypoints for the CortexPilot API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
+      }
+    </script>
   </head>
   <body>
     <main style="max-width:960px;margin:0 auto;padding:40px 20px;font:16px/1.6 system-ui,sans-serif;color:#17232c;">
       <p>
         <a href="../">Back to the public landing page</a>
         · <a href="../ai-surfaces/">AI + MCP + API surfaces</a>
+        · <a href="../integrations/">Integration guide</a>
+        · <a href="../skills/">Skills quickstart</a>
         · <a href="../ecosystem/">Ecosystem map</a>
         · <a href="../use-cases/">Use cases</a>
       </p>
@@ -62,7 +73,8 @@
         The current shortest integration path is the package's
         <code>createControlPlaneStarter(...)</code> helper, which bootstraps
         Command Tower overview + agents + contracts + optional role config
-        reads without inventing a second client wrapper.
+        reads without inventing a second client wrapper or implying hosted
+        operator accounts.
       </p>
       <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md">Open package README</a></p>
 
@@ -87,7 +99,7 @@
         <li>The MCP story is real, but the current public boundary stays read-only.</li>
         <li>The package surface is useful today, but it should not be described as a complete SDK platform.</li>
         <li>The current packages remain repo-owned/private integration surfaces; do not describe them as published marketplace artifacts or official plugin packages.</li>
-        <li>Any repo-owned mutation examples below are operator-only control-plane paths, not the default external builder onboarding contract.</li>
+        <li>Any repo-owned mutation helpers below are operator-only control-plane add-ons, not the default external builder onboarding contract.</li>
       </ul>
 
       <h2>Minimal example</h2>
@@ -125,12 +137,23 @@ const preview = await starter.previewRoleDefaults("WORKER", {
         preview without claiming hosted accounts, write-capable MCP, or a full
         marketplace/distribution product.
       </p>
+
+      <h2>Guarded operator-only add-ons</h2>
+      <p>
+        Some repo-owned helpers sit next to the builder path, but they should be
+        read as trusted maintainer tools rather than default external onboarding.
+      </p>
       <p>
         The optional <code>--apply</code> flag is an operator-only,
         repo-owned control-plane action for trusted maintainers working inside
         this repository. It is outside the default external builder contract and
         does <strong>not</strong> mean write-capable MCP or general external
         mutation is available.
+      </p>
+      <p>
+        The base client also carries queue preview/cancel helpers for the same
+        trusted repo-operator policy layer. Keep that story separate from the
+        default “read the protocol, then adopt the packages” builder ladder.
       </p>
       <p>Apply stays opt-in. Pass <code>--apply</code> only when you intentionally want a trusted operator flow to persist repo-owned role defaults inside this repo.</p>
 

@@ -6,6 +6,25 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- opened Extreme Polish Wave 1 by adding truthful public `integrations` and
+  `skills` entrypoints plus `robots.txt` / `sitemap.xml`, promoting the
+  ecosystem/use-cases/AI/MCP/API/builder ladder into primary docs navigation,
+  sharpening the GitHub Pages hero toward the first success path, separating
+  default builder onboarding from trusted operator-only mutation add-ons, and
+  aligning the frontend starter facade with guarded queue preview/cancel helpers
+  plus package tests instead of letting the docs overclaim the starter surface;
+  the skills quickstart CTA now stays inside truthful public docs instead of
+  linking to a dead public-repo tree path
+- hardened dashboard discoverability by adding route-level metadata for
+  `Command Tower`, `Workflow Cases`, and `Workflow Case detail`, then moving the
+  Workflow Cases list surface onto the shared locale substrate with regression
+  coverage for metadata and `zh-CN` rendering so the main operator spine no
+  longer falls back to a page-local English island
+- tightened dashboard quick-lane dependency verification by teaching
+  `scripts/install_dashboard_deps.sh` to require `jsdom` and `data-urls`
+  alongside the existing Next/lighthouse toolchain checks, so partial
+  dashboard installs fail fast and recover before `npm run test:quick`
+  reports a green lane
 - continued the Omega closeout hardening line by moving the dashboard
   `Run detail` / `Workflow Case detail` page-level copy onto the shared
   locale substrate, keeping the command-tower/operator story aligned across

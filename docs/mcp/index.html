@@ -26,12 +26,23 @@
       name="twitter:description"
       content="Truthful read-only MCP quickstart for CortexPilot and the current frozen write boundary."
     />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "CortexPilot read-only MCP quickstart",
+        "url": "https://xiaojiou176-open.github.io/CortexPilot-public/mcp/",
+        "description": "Truthful read-only MCP quickstart for CortexPilot across runs, Workflow Cases, approvals, compare, proof, and incident summaries."
+      }
+    </script>
   </head>
   <body>
     <main style="max-width:960px;margin:0 auto;padding:40px 20px;font:16px/1.7 system-ui,sans-serif;color:#17232c;">
       <p>
         <a href="../">Back to the public landing page</a>
         · <a href="../ai-surfaces/">AI + MCP + API surfaces</a>
+        · <a href="../integrations/">Integration guide</a>
+        · <a href="../skills/">Skills quickstart</a>
         · <a href="../api/">API and contract quickstart</a>
         · <a href="../ecosystem/">Ecosystem map</a>
       </p>
@@ -55,7 +66,24 @@
         <li>Use this page when you want the shortest truthful explanation of what the current MCP surface exposes.</li>
         <li>Jump to the <a href="../api/">API and contract quickstart</a> when you also need OpenAPI, route/type boundaries, or the thin client package.</li>
         <li>Jump to the <a href="../builders/">builder quickstart</a> when you are ready to import package-level helpers instead of only understanding the protocol boundary.</li>
+        <li>Jump to the <a href="../integrations/">integration guide</a> or the <a href="../skills/">skills quickstart</a> when your real question is how a coding-agent team should adopt this surface truthfully.</li>
       </ol>
+
+      <h2>Try the current server</h2>
+      <p>
+        The current server is a repo-owned <strong>stdio JSON-RPC</strong> node.
+        Run it from the repo root when you want the shortest proof that the
+        public MCP story is real:
+      </p>
+      <pre><code>PYTHONPATH=apps/orchestrator/src python3 -m cortexpilot_orch.cli mcp-readonly-server</code></pre>
+      <p>
+        Current tool set: <code>list_runs</code>, <code>get_run</code>,
+        <code>get_run_events</code>, <code>get_run_reports</code>,
+        <code>list_workflows</code>, <code>get_workflow</code>,
+        <code>list_queue</code>, <code>get_pending_approvals</code>,
+        <code>get_diff_gate_state</code>, <code>get_compare_summary</code>,
+        <code>get_proof_summary</code>, and <code>get_incident_summary</code>.
+      </p>
 
       <h2>What it does not do yet</h2>
       <ul>
@@ -68,6 +96,7 @@
       <ul>
         <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/apps/orchestrator/src/cortexpilot_orch/mcp_readonly_server.py">read-only MCP server implementation</a></li>
         <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/apps/orchestrator/README.md">orchestrator README</a></li>
+        <li><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/architecture/mcp-and-operator-copilot-v1.md">MCP architecture baseline</a></li>
         <li><a href="../ai-surfaces/">AI + MCP + API surfaces</a> for the broader product map</li>
       </ul>
 

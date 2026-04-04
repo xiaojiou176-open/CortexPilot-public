@@ -131,6 +131,8 @@ export type ControlPlaneStarter = {
   fetchRoleWorkspace: (role: string) => Promise<ControlPlaneStarterRoleWorkspace>;
   previewRoleDefaults: (role: string, payload?: Record<string, JsonValue>) => Promise<RoleConfigPreviewResponse>;
   applyRoleDefaults: (role: string, payload?: Record<string, JsonValue>) => Promise<RoleConfigApplyResponse>;
+  previewQueueEnqueue: (runId: string, payload?: Record<string, JsonValue>) => Promise<unknown>;
+  cancelPendingQueueItem: (queueId: string, payload?: Record<string, JsonValue>) => Promise<unknown>;
 };
 
 export declare function createControlPlaneStarter(client: FrontendApiClient): ControlPlaneStarter;

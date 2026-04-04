@@ -432,6 +432,37 @@ export type UiCopy = {
         runs: string;
       };
     };
+    workflowListPage: {
+      title: string;
+      subtitle: string;
+      summaryAriaLabel: string;
+      countsBadge: (workflowCount: number, queueCount: number) => string;
+      metricLabels: {
+        workflowCases: string;
+        queueSla: string;
+        nextRecommendedAction: string;
+      };
+      casesWithQueuedWork: (count: number) => string;
+      eligibleNow: (eligibleCount: number, atRiskCount: number) => string;
+      recommendedActions: {
+        runNext: string;
+        reviewTiming: string;
+        openWorkflow: string;
+        createFirstWorkflow: string;
+      };
+      emptyTitle: string;
+      emptyHint: string;
+      tableCaption: string;
+      tableHeaders: {
+        workflowId: string;
+        status: string;
+        namespace: string;
+        taskQueue: string;
+        runs: string;
+      };
+      verdictPrefix: string;
+      queueSummary: (count: number, slaState: string) => string;
+    };
     sectionPrimary: string;
     sectionAdvanced: string;
     labels: DashboardNavLabels;
@@ -1392,6 +1423,40 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           verdict: "Verdict",
           runs: "Runs",
         },
+      },
+      workflowListPage: {
+        title: "Workflow Cases",
+        subtitle:
+          "Workflow Cases keep queue posture, linked runs, verdict, and later Proof & Replay decisions attached to the same operating record.",
+        summaryAriaLabel: "Workflow Case operator summary",
+        countsBadge: (workflowCount: number, queueCount: number) =>
+          `${workflowCount} workflows / ${queueCount} queue items`,
+        metricLabels: {
+          workflowCases: "Workflow Cases",
+          queueSla: "Queue / SLA",
+          nextRecommendedAction: "Next recommended action",
+        },
+        casesWithQueuedWork: (count: number) => `Cases with queued work: ${count}`,
+        eligibleNow: (eligibleCount: number, atRiskCount: number) =>
+          `Eligible now: ${eligibleCount} / at risk: ${atRiskCount}`,
+        recommendedActions: {
+          runNext: "Run the next queued task to move the active Workflow Case chain forward.",
+          reviewTiming: "Review queue timing and SLA state, then dispatch when the next case becomes eligible.",
+          openWorkflow: "Open a Workflow Case and queue the latest run contract to start the next operator loop.",
+          createFirstWorkflow: "Create the first Workflow Case from PM intake, then return here to dispatch queued work.",
+        },
+        emptyTitle: "No workflow cases yet",
+        emptyHint: "A Workflow Case is opened automatically on first execution.",
+        tableCaption: "Workflow list",
+        tableHeaders: {
+          workflowId: "Workflow ID",
+          status: "Status",
+          namespace: "Namespace",
+          taskQueue: "Task queue",
+          runs: "Runs",
+        },
+        verdictPrefix: "verdict",
+        queueSummary: (count: number, slaState: string) => `queue: ${count} / SLA ${slaState}`,
       },
       sectionPrimary: "Primary",
       sectionAdvanced: "Advanced",
@@ -2409,6 +2474,40 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           verdict: "结论",
           runs: "Runs",
         },
+      },
+      workflowListPage: {
+        title: "工作流案例",
+        subtitle:
+          "工作流案例会把队列姿态、关联 Runs、结论，以及后续的 Proof & Replay 决策都绑在同一条操作记录上。",
+        summaryAriaLabel: "工作流案例操作摘要",
+        countsBadge: (workflowCount: number, queueCount: number) =>
+          `${workflowCount} 个工作流 / ${queueCount} 个队列项`,
+        metricLabels: {
+          workflowCases: "工作流案例",
+          queueSla: "队列 / SLA",
+          nextRecommendedAction: "下一步建议动作",
+        },
+        casesWithQueuedWork: (count: number) => `已有排队工作的案例：${count}`,
+        eligibleNow: (eligibleCount: number, atRiskCount: number) =>
+          `当前可执行：${eligibleCount} / 有风险：${atRiskCount}`,
+        recommendedActions: {
+          runNext: "直接运行下一条排队任务，把当前工作流案例链继续往前推进。",
+          reviewTiming: "先检查队列时机和 SLA 状态，等下一条案例变成可执行后再派发。",
+          openWorkflow: "先打开一个工作流案例，再把最新 Run 合约排进队列，启动下一轮操作闭环。",
+          createFirstWorkflow: "先从 PM intake 创建第一条工作流案例，然后再回到这里派发排队工作。",
+        },
+        emptyTitle: "当前还没有工作流案例",
+        emptyHint: "第一次执行时会自动创建工作流案例。",
+        tableCaption: "工作流列表",
+        tableHeaders: {
+          workflowId: "工作流 ID",
+          status: "状态",
+          namespace: "命名空间",
+          taskQueue: "任务队列",
+          runs: "Runs",
+        },
+        verdictPrefix: "结论",
+        queueSummary: (count: number, slaState: string) => `队列：${count} / SLA ${slaState}`,
       },
       sectionPrimary: "主路径",
       sectionAdvanced: "高级",

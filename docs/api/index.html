@@ -26,12 +26,22 @@
       name="twitter:description"
       content="OpenAPI, frontend API client, and contract-facing type quickstart for CortexPilot."
     />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "CortexPilot API and contract quickstart",
+        "url": "https://xiaojiou176-open.github.io/CortexPilot-public/api/",
+        "description": "API and contract quickstart for CortexPilot across OpenAPI, thin frontend API helpers, and contract-facing types."
+      }
+    </script>
   </head>
   <body>
     <main style="max-width:960px;margin:0 auto;padding:40px 20px;font:16px/1.7 system-ui,sans-serif;color:#17232c;">
       <p>
         <a href="../">Back to the public landing page</a>
         · <a href="../ai-surfaces/">AI + MCP + API surfaces</a>
+        · <a href="../integrations/">Integration guide</a>
         · <a href="../builders/">Builder quickstart</a>
         · <a href="../mcp/">read-only MCP quickstart</a>
       </p>
@@ -72,15 +82,6 @@
         shows the same bootstrap + preview path as runnable code instead of
         leaving builders to reconstruct it from prose alone.
       </p>
-      <p>
-        The current contract now also includes a queue-first operator mutation
-        pilot shape:
-        <code>/api/queue/from-run/{run_id}/preview</code> and
-        <code>/api/queue/{queue_id}/cancel</code> exist as repo-owned HTTP
-        control-plane routes. Treat them as guarded operator mutation surfaces
-        for trusted repo operators, not as default external builder onboarding
-        and not as public write-capable MCP.
-      </p>
 
       <h2>3. Contract-facing types</h2>
       <p>
@@ -94,11 +95,22 @@
         when you need shared copy, locale helpers, and status presentation instead of rebuilding those primitives in each app.
       </p>
 
+      <h2>5. Guarded operator-only add-ons</h2>
+      <p>
+        A few extra HTTP surfaces exist for trusted repo operators, but they are
+        intentionally outside the default external builder promise.
+      </p>
+      <ul>
+        <li><code>/api/agents/roles/{role}/config/preview</code> and <code>/apply</code> stay repo-owned role-default control-plane paths.</li>
+        <li><code>/api/queue/from-run/{run_id}/preview</code> and <code>/api/queue/{queue_id}/cancel</code> stay queue-only operator routes for trusted maintainers.</li>
+        <li>These guarded routes do <strong>not</strong> upgrade the public story into hosted mutation, public write-capable MCP, or a full SDK platform.</li>
+      </ul>
+
       <h2>Current boundary</h2>
       <ul>
         <li>useful builder edge today, not a full SDK platform</li>
         <li>read-oriented integration story, not a hosted operator service</li>
-        <li>queue preview/cancel routes are repo-owned operator HTTP surfaces, not public write-capable MCP and not the primary external builder promise</li>
+        <li>role-config preview/apply and queue preview/cancel are guarded operator HTTP add-ons, not the primary external builder promise</li>
         <li>best read alongside the <a href="../mcp/">read-only MCP quickstart</a> and the <a href="../ai-surfaces/">AI + MCP + API map</a></li>
       </ul>
 

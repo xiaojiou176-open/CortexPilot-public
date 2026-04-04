@@ -200,6 +200,25 @@ Work in CortexPilot as a contract-first engineering agent:
   `@cortexpilot/frontend-shared`, keep the root AI entrypoints aligned in the
   same patch; current examples include locale-aware desktop status labels,
   shared-copy Run Detail table/action chrome, and zh-CN regression coverage
+- when a front-door discoverability wave adds or reprioritizes public
+  integration/skills/SEO entrypoints, sync the root AI/docs entrypoints in the
+  same patch; current examples include `docs/integrations/index.html`,
+  `docs/skills/index.html`, `docs/robots.txt`, `docs/sitemap.xml`, the
+  docs-navigation registry move that now treats ecosystem/use-cases/AI/MCP/API/
+  builders as primary public entrypoints instead of supplemental side doors,
+  and the skills quickstart CTA shift toward in-page adoption/maintainer
+  anchors instead of a dead public-repo tree link
+- when dashboard route-level discoverability or Workflow Case list locale
+  coverage changes, sync the root AI/docs entrypoints in the same patch;
+  current examples include route metadata on `apps/dashboard/app/command-tower/page.tsx`,
+  `apps/dashboard/app/workflows/page.tsx`, and
+  `apps/dashboard/app/workflows/[id]/page.tsx`, plus the shared-copy workflow
+  list substrate now carried through `packages/frontend-shared/uiCopy.ts`, and
+  the matching metadata/locale regression coverage in
+  `apps/dashboard/tests/command_tower_page_ssr_query_repro.test.ts`,
+  `apps/dashboard/tests/workflow_detail_page.test.tsx`, and
+  `apps/dashboard/tests/workflows_queue_page.test.tsx`
+  `packages/frontend-shared/uiCopy.js`
 - when the next Phase 2 wave deepens public `MCP` / `API` discoverability,
   sync the root AI/docs entrypoints in the same patch; current examples include
   `docs/mcp/index.html`, `docs/api/index.html`, the dashboard-home AI section
@@ -259,6 +278,12 @@ Work in CortexPilot as a contract-first engineering agent:
   `packages/frontend-api-client/examples/control_plane_starter.local.mjs`, the
   package-facing `createControlPlaneStarter(...)` bootstrap flow, and the rule
   that this starter remains below hosted SDK / marketplace claims
+- when dashboard dependency verification learns about new runtime-critical
+  packages for quick/clean-room lanes, sync the root AI/docs entrypoints in the
+  same patch; current examples include `scripts/install_dashboard_deps.sh`
+  verifying `jsdom` and `data-urls` alongside Next/lighthouse toolchain checks
+  so partial dashboard installs fail fast before `npm run test:quick` claims a
+  clean quick lane
 - when the Final-100 / Wave 4 follow-up slice adds hosted pilot readiness or
   queue-first mutation groundwork, sync the root AI/docs entrypoints in the
   same patch; current examples include `render.yaml`, the

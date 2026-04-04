@@ -144,7 +144,7 @@
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
-      "listed_in_primary_navigation": false
+      "listed_in_primary_navigation": true
     },
     {
       "path": "docs/ecosystem/index.html",
@@ -153,7 +153,7 @@
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
-      "listed_in_primary_navigation": false
+      "listed_in_primary_navigation": true
     },
     {
       "path": "docs/use-cases/index.html",
@@ -162,7 +162,7 @@
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
-      "listed_in_primary_navigation": false
+      "listed_in_primary_navigation": true
     },
     {
       "path": "docs/ai-surfaces/index.html",
@@ -171,7 +171,7 @@
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
-      "listed_in_primary_navigation": false
+      "listed_in_primary_navigation": true
     },
     {
       "path": "docs/mcp/index.html",
@@ -180,11 +180,47 @@
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
-      "listed_in_primary_navigation": false
+      "listed_in_primary_navigation": true
     },
     {
       "path": "docs/api/index.html",
       "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/integrations/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/skills/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/robots.txt",
+      "kind": "reference",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    },
+    {
+      "path": "docs/sitemap.xml",
+      "kind": "reference",
       "status": "active",
       "canonical": true,
       "generated": false,

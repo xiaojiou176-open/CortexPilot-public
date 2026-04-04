@@ -60,10 +60,18 @@ It gives external consumers one place to:
 - preview role-default changes without inventing a second client wrapper
 - apply role-default changes with the same mutation-role header discipline the
   existing operator surfaces already use
-- preview queue enqueue changes and cancel pending queue items through the same
-  repo-owned HTTP control-plane boundary
 - stay inside the truthful boundary where role defaults are configurable but
   `task_contract` remains the execution authority
+
+The starter also exposes guarded queue helpers for trusted repo operators:
+
+- preview queue enqueue changes from one run through the same repo-owned HTTP
+  control-plane boundary
+- cancel a pending queue item through the same mutation-role header discipline
+
+Those queue helpers stay outside the default public builder promise. They are
+repo-owned operator add-ons, not a claim that the public MCP contract is
+write-capable.
 
 ## Repo-owned starter example
 
@@ -131,3 +139,13 @@ The example stays inside the truthful boundary:
 - Prompt 7-style frontend slices should treat `role_binding_read_model` and
   `workflow_case_read_model` as read-only operator surfaces; the task contract
   remains the execution authority.
+
+## Human-readable entrypoints
+
+If you are onboarding a Codex / Claude Code / OpenClaw workflow and want the
+repo's truthful public explanation before you read the package internals, start
+here:
+
+- [Integration guide](https://xiaojiou176-open.github.io/CortexPilot-public/integrations/)
+- [Builder quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/)
+- [Skills quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/skills/)

@@ -20,6 +20,7 @@ import AppNav from "../components/AppNav";
 import BlockerPanel from "../components/command-tower/BlockerPanel";
 import ConversationGraph from "../components/command-tower/ConversationGraph";
 import SessionBoard from "../components/command-tower/SessionBoard";
+import { metadata as commandTowerMetadata } from "../app/command-tower/page";
 import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
 
 function getRequiredSessionRow(sessionId: string): HTMLTableRowElement {
@@ -242,6 +243,11 @@ describe("command tower ui surfaces", () => {
     expect(zh.liveHome.focusModeLabels.highRisk).toBe("高风险");
     expect(en.liveHome.layout.overviewTitle).toBe("Live posture and action entrypoints");
     expect(zh.liveHome.layout.overviewTitle).toBe("实时态势与动作入口");
+  });
+
+  it("exports command tower metadata for route-level discoverability", () => {
+    expect(commandTowerMetadata.title).toBe("Command Tower | CortexPilot");
+    expect(commandTowerMetadata.description).toContain("Workflow Cases");
   });
 
   it("renders empty conversation graph state", () => {
