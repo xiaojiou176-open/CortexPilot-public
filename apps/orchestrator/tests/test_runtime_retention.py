@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import cortexpilot_orch.config as config_module
 from cortexpilot_orch.config import load_config
 from cortexpilot_orch.runtime.retention import apply_retention_plan, build_retention_plan, write_retention_report
 
@@ -90,3 +91,110 @@ def test_retention_dry_plan_and_apply(tmp_path: Path, monkeypatch) -> None:
         or not cache_non_contract_old.exists()
     )
     assert "cache" in result["removed"]
+
+
+def test_machine_cache_summary_excludes_repo_browser_root_from_cap_pressure(tmp_path: Path, monkeypatch) -> None:
+    repo_root = tmp_path / "repo"
+    runtime_root = repo_root / ".runtime-cache" / "cortexpilot"
+    machine_root = tmp_path / "machine-cache"
+    browser_profile = machine_root / "browser" / "chrome-user-data" / "Profile 1"
+    playwright_root = machine_root / "playwright"
+
+    monkeypatch.setenv("CORTEXPILOT_REPO_ROOT", str(repo_root))
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CORTEXPILOT_MACHINE_CACHE_ROOT", str(machine_root))
+    monkeypatch.setenv("CORTEXPILOT_RETENTION_MACHINE_CACHE_CAP_BYTES", "50")
+    config_module._ENV_LOADED = False
+    config_module._CONFIG_CACHE = None
+
+    (repo_root / "scripts").mkdir(parents=True, exist_ok=True)
+    (repo_root / "scripts" / "bootstrap.sh").write_text("#!/usr/bin/env bash\n", encoding="utf-8")
+    (repo_root / "package.json").write_text(json.dumps({"scripts": {"bootstrap": "echo ok"}}), encoding="utf-8")
+    (repo_root / "configs").mkdir(parents=True, exist_ok=True)
+    (repo_root / "configs" / "space_governance_policy.json").write_text(
+        json.dumps(
+            {
+                "version": 1,
+                "recent_activity_hours": 24,
+                "apply_gate_max_age_minutes": 15,
+                    "machine_cache_retention_policy": {
+                        "default_cap_bytes": 50,
+                        "auto_prune_interval_sec": 1800,
+                        "protected_prefixes": [
+                            "${CORTEXPILOT_MACHINE_CACHE_ROOT}/browser",
+                        ],
+                        "cap_excluded_prefixes": [
+                            "${CORTEXPILOT_MACHINE_CACHE_ROOT}/browser",
+                    ],
+                },
+                "shared_realpath_prefixes": [],
+                "process_groups": {"python": {"patterns": ["\\bpython\\b"]}},
+                "rebuild_commands": [
+                    {
+                        "id": "bootstrap_playwright",
+                        "kind": "shell_script",
+                        "path": "scripts/bootstrap.sh",
+                        "args": ["playwright"],
+                        "description": "Playwright bootstrap",
+                    }
+                ],
+                "layers": {
+                    "repo_internal": [],
+                    "shared_observation": [],
+                    "repo_external_related": [
+                        {
+                            "id": "external_playwright",
+                            "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/playwright",
+                            "type": "machine-scoped Playwright browser cache",
+                            "ownership": "repo-controlled external browser download root",
+                            "ownership_confidence": "High",
+                            "sharedness": "repo_machine_shared",
+                            "summary_role": "breakdown_only",
+                            "rebuildability": "rebuildable by Playwright install",
+                            "recommendation": "needs_verification",
+                            "cleanup_mode": "remove-path",
+                            "retention_auto_cleanup": True,
+                            "retention_ttl_hours": 168,
+                            "risk": "low_medium",
+                            "rebuild_command_ids": ["bootstrap_playwright"],
+                            "post_cleanup_command_ids": ["bootstrap_playwright"],
+                            "apply_serial_only": True,
+                            "evidence": ["scripts/bootstrap.sh"],
+                            "notes": "Repo-owned browser cache.",
+                        }
+                    ],
+                },
+                "wave_targets": {
+                    "wave1": {
+                        "target_ids": ["external_playwright"],
+                        "process_groups": ["python"],
+                        "required_rebuild_commands": ["bootstrap_playwright"],
+                    }
+                },
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    browser_profile.mkdir(parents=True, exist_ok=True)
+    (browser_profile / "Cookies").write_text("x" * 200, encoding="utf-8")
+    playwright_root.mkdir(parents=True, exist_ok=True)
+    (playwright_root / "marker.txt").write_text("y" * 80, encoding="utf-8")
+    _age(playwright_root / "marker.txt", hours=200)
+
+    cfg = load_config()
+    plan = build_retention_plan(cfg)
+    report_path = write_retention_report(cfg, plan, applied=False, apply_result=None)
+    payload = json.loads(report_path.read_text(encoding="utf-8"))
+    machine_cache_summary = payload["machine_cache_summary"]
+
+    assert machine_cache_summary["total_size_bytes"] >= 230
+    assert machine_cache_summary["cap_tracked_total_bytes"] == 80
+    assert machine_cache_summary["cap_excluded_total_bytes"] >= 200
+    assert machine_cache_summary["over_cap_bytes"] == 30
+    assert machine_cache_summary["candidate_count"] == 1
+    assert machine_cache_summary["candidates"][0]["policy_entry_id"] == "external_playwright"
+    assert machine_cache_summary["entries"][0]["protected"] is False
+    assert machine_cache_summary["entries"][0]["cap_excluded"] is False

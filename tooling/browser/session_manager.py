@@ -6,6 +6,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
+from tooling.browser.repo_chrome_singleton import (
+    DEFAULT_PROFILE_DISPLAY_NAME,
+    default_cdp_host,
+    default_cdp_port,
+    default_repo_chrome_user_data_dir,
+    ensure_repo_chrome_singleton,
+    resolve_real_chrome_executable_path,
+)
+
 
 def _first_non_empty(*values: str | None) -> str:
     for value in values:
@@ -37,13 +46,6 @@ def _normalize_profile_mode(raw: str, default_mode: str) -> str:
     return mapping.get(value, "ephemeral")
 
 
-def _default_chrome_profile_dir() -> Path | None:
-    chrome_dir = Path.home() / "Library" / "Application Support" / "Google" / "Chrome"
-    if chrome_dir.exists():
-        return chrome_dir.resolve()
-    return None
-
-
 def _local_profile_defaults_enabled() -> bool:
     if _truthy_env("CI", "GITHUB_ACTIONS", "CORTEXPILOT_CI_CONTAINER"):
         return False
@@ -52,7 +54,7 @@ def _local_profile_defaults_enabled() -> bool:
         os.getenv("CORTEXPILOT_CLEAN_ROOM_PRESERVE_ROOT"),
     ):
         return False
-    return _default_chrome_profile_dir() is not None
+    return True
 
 
 def _default_profile_mode(default_mode: str) -> str:
@@ -66,7 +68,7 @@ def _default_profile_mode(default_mode: str) -> str:
 
 def _default_profile_name(profile_mode: str) -> str:
     if profile_mode == "allow_profile" and _local_profile_defaults_enabled():
-        return "cortexpilot"
+        return DEFAULT_PROFILE_DISPLAY_NAME
     return "Default"
 
 
@@ -78,56 +80,6 @@ def _forced_ephemeral_reason() -> str:
         os.getenv("CORTEXPILOT_CLEAN_ROOM_PRESERVE_ROOT"),
     ):
         return "clean_room"
-    return ""
-
-
-def _load_local_state_profile_cache(chrome_root: Path) -> dict[str, dict[str, Any]]:
-    local_state_path = chrome_root / "Local State"
-    if not local_state_path.exists():
-        return {}
-    try:
-        payload = json.loads(local_state_path.read_text(encoding="utf-8"))
-    except Exception:  # noqa: BLE001
-        return {}
-    profile_payload = payload.get("profile") if isinstance(payload, dict) else {}
-    info_cache = profile_payload.get("info_cache") if isinstance(profile_payload, dict) else {}
-    if not isinstance(info_cache, dict):
-        return {}
-    return {str(key): value for key, value in info_cache.items() if isinstance(value, dict)}
-
-
-def _resolve_profile_directory_name(chrome_root: Path, profile_name: str) -> str | None:
-    requested = str(profile_name or "").strip() or "Default"
-    direct_candidate = chrome_root / requested
-    if direct_candidate.exists():
-        return requested
-    requested_folded = requested.casefold()
-    info_cache = _load_local_state_profile_cache(chrome_root)
-    for directory_name, info in info_cache.items():
-        if directory_name.casefold() == requested_folded:
-            return directory_name
-        display_name = str(info.get("name", "")).strip()
-        if display_name and display_name.casefold() == requested_folded:
-            return directory_name
-    return None
-
-
-def _is_executable_file(path: str | Path) -> bool:
-    candidate = Path(path).expanduser()
-    return candidate.is_file() and os.access(candidate, os.X_OK)
-
-
-def _resolve_real_chrome_executable_path() -> str:
-    env_candidate = _first_non_empty(os.getenv("CHROME_PATH"))
-    if env_candidate and _is_executable_file(env_candidate):
-        return str(Path(env_candidate).expanduser())
-    candidates = [
-        Path("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"),
-        Path.home() / "Applications" / "Google Chrome.app" / "Contents" / "MacOS" / "Google Chrome",
-    ]
-    for candidate in candidates:
-        if _is_executable_file(candidate):
-            return str(candidate.expanduser())
     return ""
 
 
@@ -146,6 +98,13 @@ def _load_cookie_file(path: Path) -> list[dict[str, Any]]:
         if isinstance(item, dict):
             cookies.append(item)
     return cookies
+
+
+def _close_page_only(page: Any) -> None:
+    try:
+        page.close()
+    except Exception:  # noqa: BLE001
+        return
 
 
 @dataclass
@@ -195,7 +154,7 @@ class BrowserSessionManager:
         profile_dir_raw = profile_ref.get("profile_dir") if isinstance(profile_ref.get("profile_dir"), str) else ""
         profile_dir = Path(profile_dir_raw).expanduser().resolve() if profile_dir_raw else None
         if profile_dir is None and profile_mode == "allow_profile":
-            profile_dir = _default_chrome_profile_dir()
+            profile_dir = default_repo_chrome_user_data_dir().resolve()
 
         profile_name_raw = profile_ref.get("profile_name") if isinstance(profile_ref.get("profile_name"), str) else ""
         profile_name = profile_name_raw.strip() or _default_profile_name(profile_mode)
@@ -239,7 +198,7 @@ class BrowserSessionManager:
         )
         profile_dir = Path(raw_profile_dir).expanduser().resolve() if raw_profile_dir else None
         if profile_dir is None and profile_mode == "allow_profile":
-            profile_dir = _default_chrome_profile_dir()
+            profile_dir = default_repo_chrome_user_data_dir().resolve()
 
         raw_profile_name = _first_non_empty(
             os.getenv("CORTEXPILOT_BROWSER_PROFILE_NAME"),
@@ -277,6 +236,10 @@ class BrowserSessionManager:
                 "profile_directory": metadata.get("profile_directory"),
                 "cookie_path": metadata.get("cookie_path"),
                 "chrome_executable_path": metadata.get("chrome_executable_path"),
+                "connection_mode": metadata.get("connection_mode"),
+                "cdp_endpoint": metadata.get("cdp_endpoint"),
+                "requested_headless": metadata.get("requested_headless"),
+                "actual_headless": metadata.get("actual_headless"),
             },
         }
 
@@ -285,31 +248,38 @@ class BrowserSessionManager:
         mode = self.profile_mode
 
         if mode == "allow_profile":
-            if self.profile_dir is None or not self.profile_dir.exists():
-                raise RuntimeError("chrome profile not found")
-            resolved_profile_directory = _resolve_profile_directory_name(self.profile_dir, self.profile_name)
-            if not resolved_profile_directory:
-                raise RuntimeError(f"chrome profile directory not found for profile `{self.profile_name}`")
-            args = [*launch_args, f"--profile-directory={resolved_profile_directory}"]
-            chrome_executable_path = _resolve_real_chrome_executable_path()
+            if self.profile_dir is None:
+                raise RuntimeError("repo Chrome root not configured")
+            chrome_executable_path = resolve_real_chrome_executable_path()
             if not chrome_executable_path:
                 raise RuntimeError("real Chrome executable not found for allow_profile mode")
-            context = playwright.chromium.launch_persistent_context(
-                user_data_dir=str(self.profile_dir),
-                headless=self.headless,
-                args=args,
-                executable_path=chrome_executable_path,
+            instance = ensure_repo_chrome_singleton(
+                chrome_executable_path=chrome_executable_path,
+                user_data_dir=self.profile_dir,
+                profile_name=self.profile_name,
+                cdp_host=default_cdp_host(),
+                cdp_port=default_cdp_port(),
+                extra_launch_args=launch_args,
+                requested_headless=self.headless,
             )
+            browser = playwright.chromium.connect_over_cdp(instance.cdp_endpoint)
+            contexts = list(getattr(browser, "contexts", []))
+            if not contexts:
+                raise RuntimeError("repo Chrome CDP attach returned no browser contexts")
+            context = contexts[0]
             page = context.new_page()
             metadata = {
                 "mode": "allow_profile",
-                "profile_dir": str(self.profile_dir),
-                "profile_name": self.profile_name,
-                "profile_directory": resolved_profile_directory,
-                "chrome_executable_path": chrome_executable_path or None,
-                "headless": self.headless,
+                "profile_dir": instance.user_data_dir,
+                "profile_name": instance.profile_name,
+                "profile_directory": instance.profile_directory,
+                "chrome_executable_path": instance.chrome_executable_path,
+                "connection_mode": instance.connection_mode,
+                "cdp_endpoint": instance.cdp_endpoint,
+                "requested_headless": instance.requested_headless,
+                "actual_headless": instance.actual_headless,
             }
-            return BrowserSessionHandle(page=page, context=context, metadata=metadata, _close_fn=context.close)
+            return BrowserSessionHandle(page=page, context=context, metadata=metadata, _close_fn=lambda: _close_page_only(page))
 
         if mode == "cookie_file":
             if self.cookie_file is None or not self.cookie_file.exists():

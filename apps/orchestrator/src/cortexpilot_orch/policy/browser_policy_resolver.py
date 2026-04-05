@@ -4,6 +4,12 @@ import os
 from pathlib import Path
 from typing import Any
 
+from tooling.browser.repo_chrome_singleton import (
+    DEFAULT_PROFILE_DISPLAY_NAME,
+    default_repo_browser_root,
+    default_repo_chrome_user_data_dir,
+)
+
 
 _ALLOWED_TASK_OVERRIDE_FIELDS = {"stealth_mode", "human_behavior"}
 _ALLOWED_PROFILE_MODES = {"ephemeral", "allow_profile", "cookie_file"}
@@ -153,10 +159,7 @@ def _env_default_policy() -> dict[str, Any]:
 
 
 def _default_chrome_profile_dir() -> Path | None:
-    chrome_dir = Path.home() / "Library" / "Application Support" / "Google" / "Chrome"
-    if chrome_dir.exists():
-        return chrome_dir.resolve()
-    return None
+    return default_repo_chrome_user_data_dir().resolve()
 
 
 def _local_profile_defaults_enabled() -> bool:
@@ -168,7 +171,7 @@ def _local_profile_defaults_enabled() -> bool:
         default="",
     ):
         return False
-    return _default_chrome_profile_dir() is not None
+    return True
 
 
 def _default_profile_mode() -> str:
@@ -177,7 +180,7 @@ def _default_profile_mode() -> str:
 
 def _default_profile_name(profile_mode: str) -> str:
     if profile_mode == "allow_profile" and _local_profile_defaults_enabled():
-        return "cortexpilot"
+        return DEFAULT_PROFILE_DISPLAY_NAME
     return "Default"
 
 
@@ -257,10 +260,7 @@ def _profile_allowlist_roots() -> list[Path]:
     if configured:
         items = [item.strip() for item in configured.split(",") if item.strip()]
     else:
-        items = [".runtime-cache/browser-profiles", ".runtime-cache/cortexpilot/browser-profiles"]
-        default_chrome_dir = _default_chrome_profile_dir()
-        if default_chrome_dir is not None:
-            items.append(str(default_chrome_dir))
+        items = [str(default_repo_browser_root())]
     roots: list[Path] = []
     seen: set[str] = set()
     for item in items:

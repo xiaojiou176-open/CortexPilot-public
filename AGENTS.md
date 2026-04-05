@@ -157,9 +157,11 @@ Work in CortexPilot as a contract-first engineering agent:
   repo-owned Docker runtime receipt at
   `.runtime-cache/cortexpilot/reports/space_governance/docker_runtime.json`,
   repo-owned buildx local cache under
-  `~/.cache/cortexpilot/docker-buildx-cache/`, and the local-only real Chrome
-  profile default (`allow_profile` + display name `cortexpilot`) that now
-  fails closed back to `ephemeral` on CI / docker / clean-room lanes
+  `~/.cache/cortexpilot/docker-buildx-cache/`, plus the repo-owned singleton
+  Chrome root under `~/.cache/cortexpilot/browser/chrome-user-data/` that
+  `allow_profile` now attaches to over the fixed CDP endpoint instead of
+  reusing the default Chrome root; CI / docker / clean-room lanes still fail
+  closed back to `ephemeral`
 - when workflow-case / proof-pack / compare / task-pack / queue-scheduling
   contracts change, sync the root AI/docs entrypoints in the same patch; the
   current examples are `.runtime-cache/cortexpilot/workflow-cases/`,

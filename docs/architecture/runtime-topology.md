@@ -85,17 +85,21 @@ flowchart LR
 - Codex diagnostic-mode runs may legitimately materialize under `.runtime-cache/cortexpilot/runs_diagnostic/`; this is a governed parallel run-root for diagnostic-only execution, not a replacement for the primary `.runtime-cache/cortexpilot/runs/` surface.
 - Browser profile runtime state is allowed only under `.runtime-cache/cortexpilot/browser-profiles/`; the older root `.runtime-cache/browser-profiles/` is a legacy compatibility surface and must not be treated as the preferred runtime root.
 - Local host development now defaults browser policy to `allow_profile` against
-  the real Chrome root (`~/Library/Application Support/Google/Chrome`) with
-  the preferred profile label `cortexpilot`; CI, repo CI containers, and
+  the repo-owned Chrome user-data root
+  `~/.cache/cortexpilot/browser/chrome-user-data`; CI, repo CI containers, and
   clean-room recovery lanes still fail closed to ephemeral browser state so
   they never depend on an existing login session.
-- When an allow-profile request uses a Chrome display name instead of an
-  on-disk directory, the runtime resolves it through Chrome `Local State`
-  `profile.info_cache` before launching real Chrome; it does not silently
-  fall back to Playwright-bundled Chromium for that mode.
-- If that display-name lookup still cannot resolve a real profile directory,
-  the local host path now fails closed instead of guessing or creating a fresh
-  profile directory under the shared Chrome root.
+- The one-time migrate step copies the default-Chrome display name
+  `cortexpilot` into that repo-owned root as `Profile 1`, together with a
+  rewritten `Local State` that points only at the repo-owned profile.
+- `allow_profile` is now attach-first: the runtime checks the fixed CDP
+  endpoint `127.0.0.1:9334`, verifies that the owning Chrome process really
+  uses the repo-owned root, and only launches a new headed Chrome instance when
+  that singleton is absent.
+- If the singleton CDP port is owned by another root, the repo-owned root is
+  occupied by a Chrome process without CDP, or the repo-owned profile cannot be
+  resolved to `Profile 1`, the local host path fails closed instead of guessing
+  or second-launching the default Chrome root.
 - Contract artifact cleanup scope follows configured `CORTEXPILOT_RUNTIME_CONTRACT_ROOT` inside `.runtime-cache/cortexpilot/contracts/`.
 - Root cleanliness and runtime artifact routing are SSOT-driven by `configs/root_allowlist.json` + `configs/runtime_artifact_policy.json`; root-noise directories such as root `logs/`, root `.next/`, and root coverage artifacts are treated as governance violations rather than acceptable steady state.
 - JS runtime machine state is app- or package-local and explicit: only `apps/dashboard/node_modules`, `apps/dashboard/.next`, `apps/dashboard/tsconfig.tsbuildinfo`, `apps/dashboard/tsconfig.typecheck.tsbuildinfo`, `apps/desktop/node_modules`, `apps/desktop/dist`, `apps/desktop/tsconfig.tsbuildinfo`, and `packages/frontend-api-client/node_modules` are allowed repo-local machine-managed surfaces; root `node_modules` remains forbidden.
@@ -114,6 +118,9 @@ flowchart LR
   root by reclaiming only repo-owned child paths explicitly marked for
   auto-clean in `configs/space_governance_policy.json`; observe-only entries
   such as `toolchains/python/current` stay outside automatic apply scope.
+- The repo-owned browser singleton subtree under
+  `~/.cache/cortexpilot/browser/` is explicitly protected and cap-excluded. It
+  stays auditable, but it never becomes a TTL/cap cleanup candidate.
 - Repo-owned Docker build cache now also has a governed home under
   `~/.cache/cortexpilot/docker-buildx-cache/` when `docker buildx` is
   available. That turns rebuildable local CI image cache into a first-class

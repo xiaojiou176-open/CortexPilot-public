@@ -113,7 +113,7 @@
     },
     "repo_owned_external_machine_cache": {
       "root": "~/.cache/cortexpilot",
-      "description": "Repo-owned external caches such as pnpm-store, Playwright browser downloads, docker-ci runner temp, docker-buildx local cache, and clean-room machine temp belong under ~/.cache/cortexpilot/."
+      "description": "Repo-owned external caches and persistent browser state belong under ~/.cache/cortexpilot/. Reclaimable examples include pnpm-store, Playwright browser downloads, docker-ci runner temp, docker-buildx local cache, and clean-room machine temp; the repo-owned browser singleton subtree under ~/.cache/cortexpilot/browser/ is persistent and excluded from TTL/cap cleanup."
     },
     "build_dependency_exceptions": {
       "description": "Framework/build/dependency roots may remain outside .runtime-cache/, but they are explicit exceptions rather than part of the unified runtime cache story."

@@ -19,6 +19,10 @@ from tooling.browser.session_manager import BrowserSessionHandle, BrowserSession
 from tooling.browser.stealth_provider import StealthProvider
 
 
+def _close_browser_session_strict(session: BrowserSessionHandle) -> None:
+    session.close()
+
+
 def _mock_results(query: str) -> list[dict[str, str]]:
     return [
         {"title": f"{query} - official", "href": "https://ai.google.dev/"},
@@ -46,29 +50,31 @@ def _browser_search(query: str, browser_policy: dict[str, Any] | None = None) ->
 
     try:
         with sync_playwright() as p:
-            session_manager = _web_session_manager(browser_policy)
-            stealth_provider = _web_stealth_provider(browser_policy)
-            session = session_manager.open_page(p, extra_launch_args=stealth_provider.launch_args())
-            page = session.page
-            stealth_provider.apply(page=page, context=session.context)
+            try:
+                session_manager = _web_session_manager(browser_policy)
+                stealth_provider = _web_stealth_provider(browser_policy)
+                session = session_manager.open_page(p, extra_launch_args=stealth_provider.launch_args())
+                page = session.page
+                stealth_provider.apply(page=page, context=session.context)
 
-            page.goto(url)
-            behavior = _web_human_behavior(browser_policy)
-            apply_human_behavior(page, enabled=behavior["enabled"], level=behavior["level"])
-            page.wait_for_timeout(1000)
-            results = page.evaluate(
-                """() => Array.from(document.querySelectorAll('a[data-testid=\"result-title-a\"]'))
-                    .slice(0, 3)
-                    .map(a => ({ title: a.textContent || '', href: a.href || '' }))"""
-            )
+                page.goto(url)
+                behavior = _web_human_behavior(browser_policy)
+                apply_human_behavior(page, enabled=behavior["enabled"], level=behavior["level"])
+                page.wait_for_timeout(1000)
+                results = page.evaluate(
+                    """() => Array.from(document.querySelectorAll('a[data-testid=\"result-title-a\"]'))
+                        .slice(0, 3)
+                        .map(a => ({ title: a.textContent || '', href: a.href || '' }))"""
+                )
+                session_to_close = session
+                session = None
+                _close_browser_session_strict(session_to_close)
+            finally:
+                if session is not None:
+                    _close_browser_session_strict(session)
+                    session = None
     except Exception as exc:  # noqa: BLE001
         return _mock_results(query), f"browser_ddg_failed: {exc}"
-    finally:
-        if session is not None:
-            try:
-                session.close()
-            except Exception:  # noqa: BLE001
-                pass
 
     if not isinstance(results, list):
         return _mock_results(query), "browser_parse_failed"
@@ -324,56 +330,65 @@ def _chat_provider_search(
 
     with sync_playwright() as p:
         try:
-            session_manager = _web_session_manager(browser_policy)
-            stealth_provider = _web_stealth_provider(browser_policy)
+            try:
+                session_manager = _web_session_manager(browser_policy)
+                stealth_provider = _web_stealth_provider(browser_policy)
 
-            session = session_manager.open_page(p, extra_launch_args=stealth_provider.launch_args())
-            context_meta = session.metadata
-            policy_events.append(session_manager.profile_event(context_meta))
+                session = session_manager.open_page(p, extra_launch_args=stealth_provider.launch_args())
+                context_meta = session.metadata
+                policy_events.append(session_manager.profile_event(context_meta))
 
-            page = session.page
-            stealth_meta = stealth_provider.apply(page=page, context=session.context)
-            policy_events.extend(stealth_meta.get("events", []))
+                page = session.page
+                stealth_meta = stealth_provider.apply(page=page, context=session.context)
+                policy_events.extend(stealth_meta.get("events", []))
 
-            page.goto(url, wait_until="domcontentloaded")
-            page.wait_for_timeout(1500)
+                page.goto(url, wait_until="domcontentloaded")
+                page.wait_for_timeout(1500)
 
-            behavior = _web_human_behavior(browser_policy)
-            behavior_meta = apply_human_behavior(page, enabled=behavior["enabled"], level=behavior["level"])
+                behavior = _web_human_behavior(browser_policy)
+                behavior_meta = apply_human_behavior(page, enabled=behavior["enabled"], level=behavior["level"])
 
-            locator = _pick_chat_input_locator(page)
-            if locator is None:
-                raise RuntimeError("input box not found")
-            locator.click()
-            locator.fill(query)
-            locator.press("Enter")
-            page.wait_for_timeout(3000)
+                locator = _pick_chat_input_locator(page)
+                if locator is None:
+                    raise RuntimeError("input box not found")
+                locator.click()
+                locator.fill(query)
+                locator.press("Enter")
+                page.wait_for_timeout(3000)
 
-            candidates = page.locator("[data-message-author-role='assistant']")
-            if candidates.count() == 0:
-                candidates = page.locator("article")
-            if candidates.count() == 0:
-                candidates = page.locator("main")
-            if candidates.count() > 0:
-                response_text = candidates.last.inner_text().strip()
+                candidates = page.locator("[data-message-author-role='assistant']")
+                if candidates.count() == 0:
+                    candidates = page.locator("article")
+                if candidates.count() == 0:
+                    candidates = page.locator("main")
+                if candidates.count() > 0:
+                    response_text = candidates.last.inner_text().strip()
 
-            screenshot_path = artifacts_dir / "screenshot.png"
-            html_path = artifacts_dir / "page.html"
-            page.screenshot(path=str(screenshot_path), full_page=True)
-            html_path.write_text(page.content(), encoding="utf-8")
+                screenshot_path = artifacts_dir / "screenshot.png"
+                html_path = artifacts_dir / "page.html"
+                page.screenshot(path=str(screenshot_path), full_page=True)
+                html_path.write_text(page.content(), encoding="utf-8")
 
-            results = [{"title": f"{provider} response", "href": url, "snippet": response_text[:2000]}]
-            meta = {
-                "artifacts": {
-                    "screenshot": str(screenshot_path),
-                    "html": str(html_path),
-                },
-                "context": context_meta,
-                "stealth": stealth_meta,
-                "human_behavior": behavior_meta,
-                "policy_events": policy_events,
-            }
-            return {"ok": True, "results": results, "meta": meta}
+                session_to_close = session
+                session = None
+                _close_browser_session_strict(session_to_close)
+
+                results = [{"title": f"{provider} response", "href": url, "snippet": response_text[:2000]}]
+                meta = {
+                    "artifacts": {
+                        "screenshot": str(screenshot_path),
+                        "html": str(html_path),
+                    },
+                    "context": context_meta,
+                    "stealth": stealth_meta,
+                    "human_behavior": behavior_meta,
+                    "policy_events": policy_events,
+                }
+                return {"ok": True, "results": results, "meta": meta}
+            finally:
+                if session is not None:
+                    _close_browser_session_strict(session)
+                    session = None
         except Exception as exc:  # noqa: BLE001
             artifacts = _write_web_error_artifacts(artifacts_dir, str(exc), page)
             return {
@@ -388,12 +403,6 @@ def _chat_provider_search(
                 },
                 "error": str(exc),
             }
-        finally:
-            if session is not None:
-                try:
-                    session.close()
-                except Exception:  # noqa: BLE001
-                    pass
 
 
 def _normalize_provider(provider: str) -> str:
