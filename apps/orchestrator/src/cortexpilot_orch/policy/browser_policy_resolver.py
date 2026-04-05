@@ -29,12 +29,12 @@ def _raw_to_bool(raw: str, default: bool = False) -> bool:
     return default
 
 
-def _truthy_env(*names: str) -> bool:
-    for name in names:
-        raw = os.getenv(name, "").strip().lower()
-        if raw in {"1", "true", "yes", "on"}:
-            return True
-    return False
+def _ci_or_container_env() -> bool:
+    return (
+        os.getenv("CI", "").strip().lower() in {"1", "true", "yes", "on"}
+        or os.getenv("GITHUB_ACTIONS", "").strip().lower() in {"1", "true", "yes", "on"}
+        or os.getenv("CORTEXPILOT_CI_CONTAINER", "").strip().lower() in {"1", "true", "yes", "on"}
+    )
 
 
 def _normalize_profile_mode(raw: Any, default: str = "ephemeral") -> str:
@@ -160,7 +160,7 @@ def _default_chrome_profile_dir() -> Path | None:
 
 
 def _local_profile_defaults_enabled() -> bool:
-    if _truthy_env("CI", "GITHUB_ACTIONS", "CORTEXPILOT_CI_CONTAINER"):
+    if _ci_or_container_env():
         return False
     if _non_empty_text(
         os.getenv("CORTEXPILOT_CLEAN_ROOM_MACHINE_TMP_ROOT", ""),
@@ -182,7 +182,7 @@ def _default_profile_name(profile_mode: str) -> str:
 
 
 def _forced_ephemeral_reason() -> str:
-    if _truthy_env("CI", "GITHUB_ACTIONS", "CORTEXPILOT_CI_CONTAINER"):
+    if _ci_or_container_env():
         return "ci_or_container"
     if _non_empty_text(
         os.getenv("CORTEXPILOT_CLEAN_ROOM_MACHINE_TMP_ROOT", ""),
