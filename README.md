@@ -534,7 +534,10 @@ under `~/.cache/cortexpilot/browser/chrome-user-data/`. Run
 `cortexpilot` into that root as `Profile 1`, then use
 `npm run browser:chrome:launch` when you want a manual singleton Chrome window
 that the repo's Playwright automation can later attach to over
-`127.0.0.1:9334`. CI / Docker / clean-room lanes still force `ephemeral`
+`127.0.0.1:9341`. The repo now avoids the usual login-loss pattern by keeping
+one persistent user-data root, attaching to the same headed instance instead of
+second-launching it, and closing automation pages before the Playwright runtime
+tears down. CI / Docker / clean-room lanes still force `ephemeral`
 browser state and must not depend on login state or on the local singleton
 root.
 When one closeout patch touches both dashboard and desktop packaging, expect the

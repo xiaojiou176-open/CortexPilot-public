@@ -18,7 +18,7 @@ from typing import Any
 DEFAULT_PROFILE_DISPLAY_NAME = "cortexpilot"
 DEFAULT_PROFILE_DIRECTORY = "Profile 1"
 DEFAULT_CDP_HOST = "127.0.0.1"
-DEFAULT_CDP_PORT = 9334
+DEFAULT_CDP_PORT = 9341
 SINGLETON_FILENAMES = ("SingletonLock", "SingletonCookie", "SingletonSocket")
 _CHROME_BROWSER_MARKER = "Google Chrome.app/Contents/MacOS/Google Chrome"
 _USER_DATA_DIR_RE = re.compile(r"--user-data-dir=([^\s]+)")

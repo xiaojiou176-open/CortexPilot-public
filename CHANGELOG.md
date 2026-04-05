@@ -12,7 +12,9 @@ All notable changes to this repository will be documented in this file.
   Playwright browser/search cleanup onto the live-CDP lifetime instead of
   post-teardown best effort, and marked the browser subtree as protected +
   cap-excluded so retention/governance reports keep it visible without
-  auto-pruning it
+  auto-pruning it; the default singleton CDP contract now uses port `9341`,
+  and the repo-safe machine browser pressure threshold now waits only after
+  more than 6 live browser instances instead of 4
 - hardened cache/browser closeout by unifying repo-authored runtime artifacts
   under `.runtime-cache/`, formalizing build/dependency exceptions, adding a
   default 20 GiB + TTL machine-cache retention contract for

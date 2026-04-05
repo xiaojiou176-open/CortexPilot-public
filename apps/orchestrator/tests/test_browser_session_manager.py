@@ -76,7 +76,7 @@ def test_open_page_allow_profile_attaches_to_repo_singleton(monkeypatch: pytest.
 
     class _Chromium:
         def connect_over_cdp(self, endpoint: str) -> _Browser:
-            assert endpoint == "http://127.0.0.1:9334"
+            assert endpoint == "http://127.0.0.1:9341"
             return _Browser()
 
     class _Playwright:
@@ -93,8 +93,8 @@ def test_open_page_allow_profile_attaches_to_repo_singleton(monkeypatch: pytest.
             profile_directory="Profile 1",
             profile_name="cortexpilot",
             cdp_host="127.0.0.1",
-            cdp_port=9334,
-            cdp_endpoint="http://127.0.0.1:9334",
+            cdp_port=9341,
+            cdp_endpoint="http://127.0.0.1:9341",
             chrome_executable_path="/preferred/chrome",
             browser_root=str(browser_root.parent),
             actual_headless=False,
@@ -156,7 +156,7 @@ def test_open_page_allow_profile_fails_closed_without_cdp_contexts(
 
     class _Chromium:
         def connect_over_cdp(self, endpoint: str) -> _Browser:
-            assert endpoint == "http://127.0.0.1:9334"
+            assert endpoint == "http://127.0.0.1:9341"
             return _Browser()
 
     class _Playwright:
@@ -173,8 +173,8 @@ def test_open_page_allow_profile_fails_closed_without_cdp_contexts(
             profile_directory="Profile 1",
             profile_name="cortexpilot",
             cdp_host="127.0.0.1",
-            cdp_port=9334,
-            cdp_endpoint="http://127.0.0.1:9334",
+            cdp_port=9341,
+            cdp_endpoint="http://127.0.0.1:9341",
             chrome_executable_path="/preferred/chrome",
             browser_root=str(browser_root.parent),
             actual_headless=False,

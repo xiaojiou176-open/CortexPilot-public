@@ -151,7 +151,7 @@ def test_ensure_repo_chrome_singleton_attaches_existing_matching_port(
         "find_chrome_process_by_remote_debugging_port",
         lambda port: singleton_module.ChromeProcessInfo(
             pid=123,
-            args="chrome --user-data-dir=/tmp/repo --remote-debugging-port=9334",
+            args="chrome --user-data-dir=/tmp/repo --remote-debugging-port=9341",
             user_data_dir=str(user_data_dir),
             remote_debugging_port=port,
             uses_default_root=False,
@@ -163,7 +163,7 @@ def test_ensure_repo_chrome_singleton_attaches_existing_matching_port(
         user_data_dir=user_data_dir,
         profile_name="cortexpilot",
         cdp_host="127.0.0.1",
-        cdp_port=9334,
+        cdp_port=9341,
         requested_headless=True,
     )
 
@@ -203,14 +203,14 @@ def test_ensure_repo_chrome_singleton_launches_when_no_instance_exists(
         user_data_dir=user_data_dir,
         profile_name="cortexpilot",
         cdp_host="127.0.0.1",
-        cdp_port=9334,
+        cdp_port=9341,
         extra_launch_args=["--disable-blink-features=AutomationControlled"],
     )
 
     assert instance.connection_mode == "launched"
     assert launches and f"--user-data-dir={user_data_dir.resolve()}" in launches[0]
     assert "--profile-directory=Profile 1" in launches[0]
-    assert "--remote-debugging-port=9334" in launches[0]
+    assert "--remote-debugging-port=9341" in launches[0]
 
 
 def test_ensure_repo_chrome_singleton_fails_when_other_root_owns_port(
@@ -233,7 +233,7 @@ def test_ensure_repo_chrome_singleton_fails_when_other_root_owns_port(
         "find_chrome_process_by_remote_debugging_port",
         lambda port: singleton_module.ChromeProcessInfo(
             pid=321,
-            args="chrome --user-data-dir=/tmp/other --remote-debugging-port=9334",
+            args="chrome --user-data-dir=/tmp/other --remote-debugging-port=9341",
             user_data_dir="/tmp/other",
             remote_debugging_port=port,
             uses_default_root=False,
@@ -246,7 +246,7 @@ def test_ensure_repo_chrome_singleton_fails_when_other_root_owns_port(
             user_data_dir=user_data_dir,
             profile_name="cortexpilot",
             cdp_host="127.0.0.1",
-            cdp_port=9334,
+            cdp_port=9341,
         )
 
 
@@ -265,7 +265,7 @@ def test_repo_chrome_singleton_cli_status_writes_json(monkeypatch: pytest.Monkey
         user_data_dir=user_data_dir,
         profile_name="cortexpilot",
         cdp_host="127.0.0.1",
-        cdp_port=9334,
+        cdp_port=9341,
     )
 
     assert payload["user_data_dir"] == str(user_data_dir)
