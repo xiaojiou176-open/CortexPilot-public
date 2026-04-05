@@ -24,7 +24,7 @@ DEFAULT_CDP_PORT = 9341
 SAFE_BROWSER_INSTANCE_THRESHOLD = 6
 SINGLETON_FILENAMES = ("SingletonLock", "SingletonCookie", "SingletonSocket")
 _CHROME_BROWSER_MARKER = "Google Chrome.app/Contents/MacOS/Google Chrome"
-_USER_DATA_DIR_RE = re.compile(r"--user-data-dir=([^\s]+)")
+_USER_DATA_DIR_RE = re.compile(r"--user-data-dir=(.+?)(?=\s--[A-Za-z0-9-]+=|\s--[A-Za-z0-9-]+\b|$)")
 _REMOTE_DEBUGGING_PORT_RE = re.compile(r"--remote-debugging-port=(\d+)")
 
 
@@ -645,8 +645,24 @@ def ensure_repo_chrome_singleton(
             cdp_port=cdp_port,
         )
     except RuntimeError:
-        _clear_stale_singleton_files_if_repo_root_is_offline(user_data_dir)
-        raise
+        stability_retry_allowed = (
+            sys.platform == "darwin"
+            and find_chrome_process_by_user_data_dir(user_data_dir) is None
+            and find_chrome_process_by_remote_debugging_port(cdp_port) is None
+        )
+        if stability_retry_allowed and _launch_repo_chrome_via_mac_open(
+            chrome_executable_path=chrome_executable_path,
+            launch_args=launch_args,
+        ):
+            wait_for_cdp_version(cdp_host, cdp_port, timeout_sec=cdp_timeout_sec)
+            _verify_repo_chrome_launch_stability(
+                user_data_dir=user_data_dir,
+                cdp_host=cdp_host,
+                cdp_port=cdp_port,
+            )
+        else:
+            _clear_stale_singleton_files_if_repo_root_is_offline(user_data_dir)
+            raise
     instance = RepoChromeInstance(
         connection_mode="launched",
         pid=launched_process.pid if launched_process is not None else proc.pid,

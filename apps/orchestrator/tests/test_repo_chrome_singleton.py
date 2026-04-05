@@ -131,6 +131,29 @@ def test_migrate_default_chrome_profile_fails_when_default_root_is_active(
         )
 
 
+def test_parse_chrome_process_line_preserves_user_data_dir_with_spaces() -> None:
+    line = (
+        "67422 "
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome "
+        "--disable-blink-features=AutomationControlled "
+        "--user-data-dir=/Users/yuyifeng/Documents/VS Code/1_Personal_Project/[账号池]codex-equilibrium/"
+        ".runtime-cache/temp/batch-auth-chrome-user-data/Profile-1-abc "
+        "--profile-directory=Profile 1 "
+        "--remote-debugging-port=9221 "
+        "--incognito about:blank"
+    )
+
+    parsed = singleton_module._parse_chrome_process_line(line)
+
+    assert parsed is not None
+    assert parsed.pid == 67422
+    assert parsed.remote_debugging_port == 9221
+    assert (
+        parsed.user_data_dir
+        == "/Users/yuyifeng/Documents/VS Code/1_Personal_Project/[账号池]codex-equilibrium/.runtime-cache/temp/batch-auth-chrome-user-data/Profile-1-abc"
+    )
+
+
 def test_ensure_repo_chrome_singleton_attaches_existing_matching_port(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -284,6 +307,72 @@ def test_ensure_repo_chrome_singleton_fails_closed_when_launch_does_not_stay_att
     assert launches and "--remote-debugging-port=9341" in launches[0]
     assert (user_data_dir / "SingletonLock").exists() is False
     assert singleton_module.singleton_state_path(user_data_dir).exists() is False
+
+
+def test_ensure_repo_chrome_singleton_retries_via_mac_open_when_stability_check_fails(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    user_data_dir = tmp_path / "browser" / "chrome-user-data"
+    (user_data_dir / "Profile 1").mkdir(parents=True, exist_ok=True)
+    (user_data_dir / "Local State").write_text(
+        json.dumps({"profile": {"info_cache": {"Profile 1": {"name": "cortexpilot"}}, "last_used": "Profile 1"}}),
+        encoding="utf-8",
+    )
+    launches: list[list[str]] = []
+    state = {"phase": "launching"}
+
+    class _Proc:
+        pid = 888
+
+    def _wait_for_cdp(host: str, port: int, timeout_sec: float = 15.0, poll_sec: float = 0.25) -> dict[str, bool]:
+        if state["phase"] == "launching":
+            state["phase"] = "stability_retry"
+            return {"ok": True}
+        state["phase"] = "ready"
+        return {"ok": True}
+
+    def _read_cdp(host: str, port: int, timeout_sec: float = 0.5) -> dict[str, object] | None:
+        if state["phase"] == "stability_retry":
+            return None
+        if state["phase"] == "ready":
+            return {"Browser": "Chrome"}
+        return None
+
+    def _find_by_port(port: int) -> singleton_module.ChromeProcessInfo | None:
+        if state["phase"] == "ready":
+            return singleton_module.ChromeProcessInfo(
+                pid=999,
+                args=f"chrome --user-data-dir={user_data_dir} --remote-debugging-port=9341",
+                user_data_dir=str(user_data_dir),
+                remote_debugging_port=port,
+                uses_default_root=False,
+            )
+        return None
+
+    monkeypatch.setattr(singleton_module.sys, "platform", "darwin")
+    monkeypatch.setattr(singleton_module, "read_cdp_version", _read_cdp)
+    monkeypatch.setattr(singleton_module, "_is_executable_file", lambda path: str(path) == "/preferred/chrome")
+    monkeypatch.setattr(singleton_module, "find_chrome_process_by_remote_debugging_port", _find_by_port)
+    monkeypatch.setattr(singleton_module, "find_chrome_process_by_user_data_dir", lambda root: None)
+    monkeypatch.setattr(singleton_module, "wait_for_cdp_version", _wait_for_cdp)
+    monkeypatch.setattr(singleton_module.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(
+        singleton_module.subprocess,
+        "Popen",
+        lambda args, stdout, stderr, start_new_session=None: launches.append(args) or _Proc(),
+    )
+    monkeypatch.setattr(singleton_module, "_launch_repo_chrome_via_mac_open", lambda **kwargs: True)
+
+    instance = singleton_module.ensure_repo_chrome_singleton(
+        chrome_executable_path="/preferred/chrome",
+        user_data_dir=user_data_dir,
+        profile_name="cortexpilot",
+        cdp_host="127.0.0.1",
+        cdp_port=9341,
+    )
+
+    assert instance.connection_mode == "launched"
+    assert launches and "--remote-debugging-port=9341" in launches[0]
 
 
 def test_ensure_repo_chrome_singleton_retries_via_open_on_macos_when_direct_launch_never_binds(
