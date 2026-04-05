@@ -16,6 +16,11 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
 - run real verification commands before claiming success
 - keep docs and code synchronized
 - keep runtime output out of tracked source
+- host-process safety is fail-closed: worker/test/orchestrator paths must not
+  use `killall`, `pkill`, process-group kills, negative/zero PID signals, or
+  AppleScript `System Events`; terminate only recorded child handles and stop
+  with manual cleanup instructions when stale repo-owned runtime state already
+  exists
 - keep public CI hosted-first: fork PRs stay low-privilege on GitHub-hosted
   lanes, and sensitive verification stays on protected manual dispatch lanes
 - treat `configs/github_control_plane_policy.json` as the machine SSOT for
@@ -320,6 +325,7 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
 - `npm run bootstrap`
 - `npm run test`
 - `npm run test:quick`
+- `npm run scan:host-process-risks`
 - `npm run space:audit`
 - `npm run docker:runtime:audit`
 - `bash scripts/check_repo_hygiene.sh`

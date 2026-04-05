@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import net from "node:net";
+import { terminateTrackedChild } from "./host-process-safety.mjs";
 import { configurePlaywrightTempDir } from "./playwright-tempdir.mjs";
 
 const playwrightTempDir = configurePlaywrightTempDir("desktop-first-entry-no-block-real");
@@ -423,40 +424,6 @@ function extractPmSessionIdFromMessageUrl(url) {
   return tail.slice(0, messagesIndex).trim();
 }
 
-async function terminateProcess(proc, timeoutMs = 8000) {
-  if (!proc) return;
-  if (proc.exitCode !== null || proc.signalCode !== null) return;
-  const supportsGroupKill = process.platform !== "win32";
-  const killTarget = supportsGroupKill ? -proc.pid : proc.pid;
-  try {
-    process.kill(killTarget, "SIGTERM");
-  } catch {
-    proc.kill("SIGTERM");
-  }
-  await new Promise((resolveDone) => {
-    let settled = false;
-    const finish = () => {
-      if (settled) return;
-      settled = true;
-      resolveDone(true);
-    };
-    const timer = setTimeout(() => {
-      if (proc.exitCode === null && proc.signalCode === null) {
-        try {
-          process.kill(killTarget, "SIGKILL");
-        } catch {
-          proc.kill("SIGKILL");
-        }
-      }
-      finish();
-    }, timeoutMs);
-    proc.once("exit", () => {
-      clearTimeout(timer);
-      finish();
-    });
-  });
-}
-
 async function run() {
   const apiPort = await findAvailablePort(18500, 200);
   const webPort = await findAvailablePort(19173, 200);
@@ -485,7 +452,6 @@ async function run() {
     ["-m", "cortexpilot_orch.cli", "serve", "--host", "127.0.0.1", "--port", String(apiPort)],
     {
       cwd: repoRoot,
-      detached: process.platform !== "win32",
       stdio: "ignore",
       env: {
         ...process.env,
@@ -502,7 +468,6 @@ async function run() {
     ["run", "dev", "--", "--host", "127.0.0.1", "--port", String(webPort), "--strictPort"],
     {
       cwd: desktopDir,
-      detached: process.platform !== "win32",
       stdio: "ignore",
       env: {
         ...process.env,
@@ -832,8 +797,8 @@ async function run() {
     writeFileSync(reportPath, JSON.stringify(report, null, 2));
     if (context) await context.close();
     if (browser) await browser.close();
-    await terminateProcess(webServer);
-    await terminateProcess(apiServer);
+    await terminateTrackedChild(webServer, 8000);
+    await terminateTrackedChild(apiServer, 8000);
   }
 }
 

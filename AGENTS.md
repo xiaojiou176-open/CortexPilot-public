@@ -22,6 +22,7 @@ Work in CortexPilot as a contract-first engineering agent:
 - bootstrap: `npm run bootstrap`
 - fast verification: `npm run test:quick`
 - main local gate: `npm run test`
+- host safety scan: `npm run scan:host-process-risks`
 - space audit: `npm run space:audit`
 - docker runtime audit: `npm run docker:runtime:audit`
 - hygiene: `bash scripts/check_repo_hygiene.sh`
@@ -75,6 +76,16 @@ Work in CortexPilot as a contract-first engineering agent:
   instances, or repo-owned Docker containers/images/volumes/caches behind;
   if cleanup cannot happen immediately, record the residue, owner, and reason
   in the active task board
+- host-process safety is fail-closed:
+  `worker-safe` is the default mode, and worker/test/orchestrator paths must
+  never use `killall`, `pkill`, `killpg(...)`, process-group kills,
+  negative/zero PID signals, `loginwindow` / Force Quit APIs, or AppleScript
+  `System Events`; terminate only the recorded child handle or another exact
+  repo-owned positive-PID record, and if stale repo-owned runtime state is
+  already present, stop with manual cleanup instructions instead of broad
+  process cleanup
+- detached browser/runtime launch is review-required only and must stay inside
+  repo-owned browser roots or directly held child handles
 - never perform write actions against external accounts or dashboards
   (GitHub settings, Render apply/deploy, npm publish, marketplace submission,
   browser-clicked account mutations) unless the user explicitly authorizes that

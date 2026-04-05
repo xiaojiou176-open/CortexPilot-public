@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import errno
 import json
 import os
 import re
@@ -22,6 +21,7 @@ DEFAULT_PROFILE_DISPLAY_NAME = "cortexpilot"
 DEFAULT_PROFILE_DIRECTORY = "Profile 1"
 DEFAULT_CDP_HOST = "127.0.0.1"
 DEFAULT_CDP_PORT = 9341
+SAFE_BROWSER_INSTANCE_THRESHOLD = 6
 SINGLETON_FILENAMES = ("SingletonLock", "SingletonCookie", "SingletonSocket")
 _CHROME_BROWSER_MARKER = "Google Chrome.app/Contents/MacOS/Google Chrome"
 _USER_DATA_DIR_RE = re.compile(r"--user-data-dir=([^\s]+)")
@@ -248,6 +248,31 @@ def find_chrome_process_by_remote_debugging_port(port: int) -> ChromeProcessInfo
     return None
 
 
+def _require_positive_pid(pid: int, *, context: str) -> int:
+    if not isinstance(pid, int) or pid <= 0:
+        raise RuntimeError(f"{context} requires a strictly positive PID, got: {pid!r}")
+    return pid
+
+
+def _find_live_chrome_process_by_pid(pid: int) -> ChromeProcessInfo | None:
+    expected_pid = _require_positive_pid(pid, context="chrome process lookup")
+    for process in list_chrome_processes():
+        if process.pid == expected_pid:
+            return process
+    return None
+
+
+def _chrome_process_matches(
+    process: ChromeProcessInfo,
+    *,
+    expected_user_data_dir: str,
+    expected_remote_debugging_port: int | None,
+) -> bool:
+    if _normalized_path_text(process.user_data_dir) != expected_user_data_dir:
+        return False
+    return process.remote_debugging_port == expected_remote_debugging_port
+
+
 def read_cdp_version(host: str, port: int, *, timeout_sec: float = 0.5) -> dict[str, Any] | None:
     url = f"http://{host}:{port}/json/version"
     try:
@@ -300,7 +325,6 @@ def _launch_chrome_process(args: list[str]) -> subprocess.Popen[Any]:
         args,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
-        start_new_session=True,
     )
 
 
@@ -331,37 +355,52 @@ def read_singleton_state(user_data_dir: Path | None = None) -> dict[str, Any]:
     return _load_json(singleton_state_path(user_data_dir))
 
 
-def _wait_for_process_exit(pid: int, *, timeout_sec: float = 10.0, poll_sec: float = 0.2) -> bool:
+def _wait_for_process_exit(process: ChromeProcessInfo, *, timeout_sec: float = 10.0, poll_sec: float = 0.2) -> bool:
+    expected_pid = _require_positive_pid(process.pid, context="Chrome exit wait")
+    expected_root = _normalized_path_text(process.user_data_dir)
     deadline = time.monotonic() + timeout_sec
     while time.monotonic() < deadline:
-        try:
-            os.kill(pid, 0)
-        except ProcessLookupError:
+        live_process = _find_live_chrome_process_by_pid(expected_pid)
+        if live_process is None:
             return True
-        except OSError as exc:
-            if exc.errno == errno.ESRCH:
-                return True
-            if exc.errno == errno.EPERM:
-                time.sleep(poll_sec)
-                continue
-            raise
+        if not _chrome_process_matches(
+            live_process,
+            expected_user_data_dir=expected_root,
+            expected_remote_debugging_port=process.remote_debugging_port,
+        ):
+            return True
         time.sleep(poll_sec)
     return False
 
 
 def _stop_repo_owned_root_process_for_relaunch(process: ChromeProcessInfo, *, timeout_sec: float = 10.0) -> None:
+    expected_pid = _require_positive_pid(process.pid, context="repo Chrome relaunch stop")
+    expected_root = _normalized_path_text(process.user_data_dir)
+    if not expected_root:
+        raise RuntimeError("refusing to stop repo Chrome process without a recorded repo-owned user-data-dir")
+    live_process = _find_live_chrome_process_by_pid(expected_pid)
+    if live_process is None:
+        return
+    if not _chrome_process_matches(
+        live_process,
+        expected_user_data_dir=expected_root,
+        expected_remote_debugging_port=process.remote_debugging_port,
+    ):
+        raise RuntimeError(
+            f"refusing to stop Chrome PID {expected_pid} because it no longer matches the repo-owned browser root"
+        )
     try:
-        os.kill(process.pid, signal.SIGTERM)
+        os.kill(expected_pid, signal.SIGTERM)
     except ProcessLookupError:
         return
     except OSError as exc:
         raise RuntimeError(
-            f"failed to stop repo Chrome process {process.pid} for relaunch after remote debugging port mismatch "
+            f"failed to stop repo Chrome process {expected_pid} for relaunch after remote debugging port mismatch "
             f"(actual port: {process.remote_debugging_port})"
         ) from exc
-    if not _wait_for_process_exit(process.pid, timeout_sec=timeout_sec):
+    if not _wait_for_process_exit(live_process, timeout_sec=timeout_sec):
         raise RuntimeError(
-            f"repo Chrome process {process.pid} using remote debugging port {process.remote_debugging_port} "
+            f"repo Chrome process {expected_pid} using remote debugging port {process.remote_debugging_port} "
             f"did not stop in time for relaunch after port mismatch; close it and relaunch via repo launcher"
         )
 
@@ -576,6 +615,51 @@ def repo_chrome_status(
     port_process = find_chrome_process_by_remote_debugging_port(cdp_port)
     root_process = find_chrome_process_by_user_data_dir(user_data_dir)
     endpoint_payload = read_cdp_version(cdp_host, cdp_port)
+    expected_root = _normalized_path_text(user_data_dir)
+    port_process_matches_root = (
+        port_process is not None and _normalized_path_text(port_process.user_data_dir) == expected_root
+    )
+    root_process_matches_root = (
+        root_process is not None and _normalized_path_text(root_process.user_data_dir) == expected_root
+    )
+    state_pid_raw = state.get("pid") if isinstance(state, dict) else None
+    try:
+        state_pid = int(state_pid_raw) if state_pid_raw is not None else None
+    except (TypeError, ValueError):
+        state_pid = None
+    state_matches_port_process = state_pid is not None and port_process is not None and state_pid == port_process.pid
+    state_matches_root_process = state_pid is not None and root_process is not None and state_pid == root_process.pid
+    machine_browser_process_count = len(list_chrome_processes())
+    new_launch_allowed = (
+        machine_browser_process_count <= SAFE_BROWSER_INSTANCE_THRESHOLD
+        or port_process_matches_root
+        or root_process_matches_root
+    )
+
+    if not state:
+        state_file_status = "absent"
+    elif state_matches_port_process or state_matches_root_process:
+        state_file_status = "live_match"
+    elif port_process is None and root_process is None and endpoint_payload is None:
+        state_file_status = "stale"
+    else:
+        state_file_status = "present_mismatch"
+
+    if not is_bootstrapped_repo_chrome_root(user_data_dir):
+        singleton_status = "not_bootstrapped"
+    elif endpoint_payload is not None and port_process_matches_root:
+        singleton_status = "cdp_live"
+    elif endpoint_payload is not None and not port_process_matches_root:
+        singleton_status = "foreign_port_owner"
+    elif root_process_matches_root and root_process is not None and root_process.remote_debugging_port != cdp_port:
+        singleton_status = "root_process_wrong_port"
+    elif root_process_matches_root and endpoint_payload is None:
+        singleton_status = "root_process_without_cdp"
+    elif state_file_status == "stale":
+        singleton_status = "offline_stale_state"
+    else:
+        singleton_status = "offline"
+
     return {
         "user_data_dir": str(user_data_dir),
         "browser_root": str(user_data_dir.parent),
@@ -586,6 +670,11 @@ def repo_chrome_status(
         "cdp_port": cdp_port,
         "cdp_ready": endpoint_payload is not None,
         "cdp_endpoint": f"http://{cdp_host}:{cdp_port}",
+        "singleton_status": singleton_status,
+        "state_file_status": state_file_status,
+        "machine_browser_process_count": machine_browser_process_count,
+        "launch_safe_threshold": SAFE_BROWSER_INSTANCE_THRESHOLD,
+        "new_launch_allowed": new_launch_allowed,
         "port_process": asdict(port_process) if port_process else None,
         "root_process": asdict(root_process) if root_process else None,
         "state_file": state,

@@ -195,7 +195,7 @@ def test_ensure_repo_chrome_singleton_launches_when_no_instance_exists(
     monkeypatch.setattr(
         singleton_module.subprocess,
         "Popen",
-        lambda args, stdout, stderr, start_new_session: launches.append(args) or _Proc(),
+        lambda args, stdout, stderr, start_new_session=None: launches.append(args) or _Proc(),
     )
 
     instance = singleton_module.ensure_repo_chrome_singleton(
@@ -351,7 +351,7 @@ def test_ensure_repo_chrome_singleton_relaunches_same_root_from_legacy_port(
     monkeypatch.setattr(
         singleton_module.subprocess,
         "Popen",
-        lambda args, stdout, stderr, start_new_session: launches.append(args) or _Proc(),
+        lambda args, stdout, stderr, start_new_session=None: launches.append(args) or _Proc(),
     )
 
     instance = singleton_module.ensure_repo_chrome_singleton(
@@ -465,6 +465,7 @@ def test_repo_chrome_singleton_cli_status_writes_json(monkeypatch: pytest.Monkey
     )
     monkeypatch.setattr(singleton_module, "find_chrome_process_by_remote_debugging_port", lambda port: None)
     monkeypatch.setattr(singleton_module, "find_chrome_process_by_user_data_dir", lambda root: None)
+    monkeypatch.setattr(singleton_module, "list_chrome_processes", lambda: [])
 
     payload = singleton_module.repo_chrome_status(
         user_data_dir=user_data_dir,
@@ -475,3 +476,69 @@ def test_repo_chrome_singleton_cli_status_writes_json(monkeypatch: pytest.Monkey
 
     assert payload["user_data_dir"] == str(user_data_dir)
     assert payload["cdp_ready"] is False
+    assert payload["singleton_status"] == "not_bootstrapped"
+    assert payload["state_file_status"] == "absent"
+    assert payload["machine_browser_process_count"] == 0
+    assert payload["new_launch_allowed"] is True
+
+
+def test_repo_chrome_singleton_status_reports_stale_state_when_state_file_survives(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    user_data_dir = tmp_path / "browser" / "chrome-user-data"
+    (user_data_dir / "Profile 1").mkdir(parents=True, exist_ok=True)
+    (user_data_dir / "Local State").write_text(
+        json.dumps({"profile": {"info_cache": {"Profile 1": {"name": "cortexpilot"}}, "last_used": "Profile 1"}}),
+        encoding="utf-8",
+    )
+    singleton_module.write_singleton_state(
+        singleton_module.RepoChromeInstance(
+            connection_mode="launched",
+            pid=20105,
+            user_data_dir=str(user_data_dir),
+            profile_directory="Profile 1",
+            profile_name="cortexpilot",
+            cdp_host="127.0.0.1",
+            cdp_port=9341,
+            cdp_endpoint="http://127.0.0.1:9341",
+            chrome_executable_path="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            browser_root=str(user_data_dir.parent),
+            actual_headless=False,
+            requested_headless=False,
+        )
+    )
+    monkeypatch.setattr(
+        singleton_module,
+        "read_cdp_version",
+        lambda host, port, timeout_sec=0.5: None,
+    )
+    monkeypatch.setattr(singleton_module, "find_chrome_process_by_remote_debugging_port", lambda port: None)
+    monkeypatch.setattr(singleton_module, "find_chrome_process_by_user_data_dir", lambda root: None)
+    monkeypatch.setattr(
+        singleton_module,
+        "list_chrome_processes",
+        lambda: [
+            singleton_module.ChromeProcessInfo(
+                pid=idx,
+                args=f"chrome --remote-debugging-port={9300 + idx}",
+                user_data_dir=f"/tmp/browser-{idx}",
+                remote_debugging_port=9300 + idx,
+                uses_default_root=False,
+            )
+            for idx in range(1, 8)
+        ],
+    )
+
+    payload = singleton_module.repo_chrome_status(
+        user_data_dir=user_data_dir,
+        profile_name="cortexpilot",
+        cdp_host="127.0.0.1",
+        cdp_port=9341,
+    )
+
+    assert payload["cdp_ready"] is False
+    assert payload["singleton_status"] == "offline_stale_state"
+    assert payload["state_file_status"] == "stale"
+    assert payload["machine_browser_process_count"] == 7
+    assert payload["new_launch_allowed"] is False

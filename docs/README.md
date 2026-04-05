@@ -55,8 +55,9 @@ navigation set.
 6. [assets/storefront/benchmark-methodology.md](assets/storefront/benchmark-methodology.md)
 7. [architecture/ecosystem-and-builder-surfaces-v1.md](architecture/ecosystem-and-builder-surfaces-v1.md)
 8. [runbooks/render-hosted-operator-pilot.md](runbooks/render-hosted-operator-pilot.md)
-9. [robots.txt](robots.txt)
-10. [sitemap.xml](sitemap.xml)
+9. [runbooks/write-mcp-queue-pilot.md](runbooks/write-mcp-queue-pilot.md)
+10. [robots.txt](robots.txt)
+11. [sitemap.xml](sitemap.xml)
 
 ## What Each File Is For
 
@@ -74,6 +75,7 @@ navigation set.
 - `docs/assets/storefront/benchmark-methodology.md`: public benchmark evidence contract and wording boundary
 - `docs/architecture/ecosystem-and-builder-surfaces-v1.md`: ecosystem binding, first-run distribution loop, and current builder/client entry points
 - `docs/runbooks/render-hosted-operator-pilot.md`: repo-side Git-backed hosted operator blueprint for future guarded Render pilots; use it to stage env/health/rollback/support/security requirements without implying a live hosted service
+- `docs/runbooks/write-mcp-queue-pilot.md`: repo-owned operator runbook for the smallest honest queue-only write-MCP pilot; keep it preview-first, default-off, and below the public read-only MCP contract
 - `docs/builders/index.html`: public builder quickstart hub for current client/contract/shared entrypoints, including the repo-owned control-plane starter path and its runnable local example
 - `docs/ecosystem/index.html`: public ecosystem positioning page for Codex / Claude Code / MCP plus adjacent comparison layers
 - `docs/compatibility/index.html`: public adoption matrix for choosing between Codex / Claude Code / OpenClaw / skills / builders / proof-first onboarding paths

@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import os
 import re
-import signal
 import socket
 import subprocess
 import time
@@ -13,6 +12,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
+from scripts.host_process_safety import terminate_tracked_child
 try:
     import fcntl
 except Exception:  # noqa: BLE001
@@ -134,7 +134,6 @@ def spawn_process(cmd: list[str], log_path: Path, env: dict[str, str] | None = N
         stdout=fp,
         stderr=subprocess.STDOUT,
         text=True,
-        start_new_session=True,
     )
 
 
@@ -143,23 +142,7 @@ def kill_process(proc: subprocess.Popen[str] | None) -> None:
         return
     if proc.poll() is not None:
         return
-    try:
-        os.killpg(proc.pid, signal.SIGTERM)
-    except Exception:
-        try:
-            proc.terminate()
-        except Exception:
-            pass
-    try:
-        proc.wait(timeout=5)
-    except Exception:
-        try:
-            os.killpg(proc.pid, signal.SIGKILL)
-        except Exception:
-            try:
-                proc.kill()
-            except Exception:
-                pass
+    terminate_tracked_child(proc, term_timeout_sec=5, kill_timeout_sec=3)
 
 
 def _probe_playwright_browser() -> None:
