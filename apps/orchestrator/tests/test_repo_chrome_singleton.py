@@ -554,6 +554,7 @@ def test_repo_chrome_singleton_cli_status_writes_json(monkeypatch: pytest.Monkey
     assert payload["singleton_status"] == "not_bootstrapped"
     assert payload["state_file_status"] == "absent"
     assert payload["machine_browser_process_count"] == 0
+    assert payload["machine_browser_processes"] == []
     assert payload["new_launch_allowed"] is True
 
 
@@ -616,4 +617,6 @@ def test_repo_chrome_singleton_status_reports_stale_state_when_state_file_surviv
     assert payload["singleton_status"] == "offline_stale_state"
     assert payload["state_file_status"] == "stale"
     assert payload["machine_browser_process_count"] == 7
+    assert len(payload["machine_browser_processes"]) == 7
+    assert payload["machine_browser_processes"][0]["remote_debugging_port"] == 9301
     assert payload["new_launch_allowed"] is False

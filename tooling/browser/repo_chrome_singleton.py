@@ -691,7 +691,8 @@ def repo_chrome_status(
         state_pid = None
     state_matches_port_process = state_pid is not None and port_process is not None and state_pid == port_process.pid
     state_matches_root_process = state_pid is not None and root_process is not None and state_pid == root_process.pid
-    machine_browser_process_count = len(list_chrome_processes())
+    machine_browser_processes = list_chrome_processes()
+    machine_browser_process_count = len(machine_browser_processes)
     new_launch_allowed = (
         machine_browser_process_count <= SAFE_BROWSER_INSTANCE_THRESHOLD
         or port_process_matches_root
@@ -735,6 +736,7 @@ def repo_chrome_status(
         "singleton_status": singleton_status,
         "state_file_status": state_file_status,
         "machine_browser_process_count": machine_browser_process_count,
+        "machine_browser_processes": [asdict(process) for process in machine_browser_processes],
         "launch_safe_threshold": SAFE_BROWSER_INSTANCE_THRESHOLD,
         "new_launch_allowed": new_launch_allowed,
         "port_process": asdict(port_process) if port_process else None,
