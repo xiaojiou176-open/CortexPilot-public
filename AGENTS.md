@@ -65,7 +65,7 @@ Work in CortexPilot as a contract-first engineering agent:
   not steal desktop focus unless the current workflow truly requires a visible
   foreground browser step
 - before opening a new Chrome/Chromium-class browser instance, check current
-  machine browser load; if more than 4 browser instances are already running,
+  machine browser load; if more than 6 browser instances are already running,
   wait for other repo workers to release resources instead of opening another
 - treat a missing login/session as a blocker after 1-2 repo-scoped attempts;
   do not keep spawning fresh browsers or profile clones once the current repo's

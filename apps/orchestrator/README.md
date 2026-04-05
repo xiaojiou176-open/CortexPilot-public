@@ -28,8 +28,14 @@
 - run `npm run browser:chrome:migrate` once to seed that root from the default
   Chrome display name `cortexpilot`; the repo rewrites it into `Profile 1`
 - `allow_profile` then behaves as attach-or-launch against the singleton CDP
-  endpoint `127.0.0.1:9334`, so manual and automated runs share the same
+  endpoint `127.0.0.1:9341`, so manual and automated runs share the same
   headed Chrome instance instead of re-launching the default Chrome root
+- login state persistence now relies on that single repo-owned user-data root
+  plus attach-first reuse; the runtime closes only automation-created pages, so
+  reopening the singleton should not require reseeding or second-launch copies
+- if that same repo-owned root is still running on the old legacy port, the
+  next launch treats it as a managed transition and relaunches it onto `9341`
+  instead of flagging it as a foreign occupant
 - CI, repo CI containers, and clean-room lanes force browser policy back to
   `ephemeral`; those paths must not depend on login state or on a copied host
   profile

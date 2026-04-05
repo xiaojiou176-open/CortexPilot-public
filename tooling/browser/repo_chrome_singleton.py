@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import copy
+import errno
 import json
 import os
 import re
+import signal
 import shutil
 import subprocess
 import time
@@ -18,7 +20,7 @@ from typing import Any
 DEFAULT_PROFILE_DISPLAY_NAME = "cortexpilot"
 DEFAULT_PROFILE_DIRECTORY = "Profile 1"
 DEFAULT_CDP_HOST = "127.0.0.1"
-DEFAULT_CDP_PORT = 9334
+DEFAULT_CDP_PORT = 9341
 SINGLETON_FILENAMES = ("SingletonLock", "SingletonCookie", "SingletonSocket")
 _CHROME_BROWSER_MARKER = "Google Chrome.app/Contents/MacOS/Google Chrome"
 _USER_DATA_DIR_RE = re.compile(r"--user-data-dir=([^\s]+)")
@@ -297,6 +299,41 @@ def read_singleton_state(user_data_dir: Path | None = None) -> dict[str, Any]:
     return _load_json(singleton_state_path(user_data_dir))
 
 
+def _wait_for_process_exit(pid: int, *, timeout_sec: float = 10.0, poll_sec: float = 0.2) -> bool:
+    deadline = time.monotonic() + timeout_sec
+    while time.monotonic() < deadline:
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return True
+        except OSError as exc:
+            if exc.errno == errno.ESRCH:
+                return True
+            if exc.errno == errno.EPERM:
+                time.sleep(poll_sec)
+                continue
+            raise
+        time.sleep(poll_sec)
+    return False
+
+
+def _stop_repo_owned_root_process_for_relaunch(process: ChromeProcessInfo, *, timeout_sec: float = 10.0) -> None:
+    try:
+        os.kill(process.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        return
+    except OSError as exc:
+        raise RuntimeError(
+            f"failed to stop repo Chrome process {process.pid} for relaunch after remote debugging port mismatch "
+            f"(actual port: {process.remote_debugging_port})"
+        ) from exc
+    if not _wait_for_process_exit(process.pid, timeout_sec=timeout_sec):
+        raise RuntimeError(
+            f"repo Chrome process {process.pid} using remote debugging port {process.remote_debugging_port} "
+            f"did not stop in time for relaunch after port mismatch; close it and relaunch via repo launcher"
+        )
+
+
 def migrate_default_chrome_profile(
     *,
     source_root: Path,
@@ -415,26 +452,31 @@ def ensure_repo_chrome_singleton(
     root_process = find_chrome_process_by_user_data_dir(user_data_dir)
     if root_process is not None:
         if root_process.remote_debugging_port != cdp_port:
-            raise RuntimeError(
-                "this repo Chrome root is already occupied by a non-managed Chrome process; close it or relaunch via repo launcher"
+            if root_process.remote_debugging_port == 9334 and cdp_port == 9341:
+                _stop_repo_owned_root_process_for_relaunch(root_process)
+            else:
+                raise RuntimeError(
+                    "this repo Chrome root is already occupied by a non-managed Chrome process; "
+                    "close it or relaunch via repo launcher"
+                )
+        else:
+            wait_for_cdp_version(cdp_host, cdp_port, timeout_sec=cdp_timeout_sec)
+            instance = RepoChromeInstance(
+                connection_mode="attached",
+                pid=root_process.pid,
+                user_data_dir=expected_root,
+                profile_directory=profile_directory,
+                profile_name=profile_name,
+                cdp_host=cdp_host,
+                cdp_port=cdp_port,
+                cdp_endpoint=f"http://{cdp_host}:{cdp_port}",
+                chrome_executable_path=chrome_executable_path,
+                browser_root=str(user_data_dir.parent),
+                actual_headless=False,
+                requested_headless=bool(requested_headless),
             )
-        endpoint_payload = wait_for_cdp_version(cdp_host, cdp_port, timeout_sec=cdp_timeout_sec)
-        instance = RepoChromeInstance(
-            connection_mode="attached",
-            pid=root_process.pid,
-            user_data_dir=expected_root,
-            profile_directory=profile_directory,
-            profile_name=profile_name,
-            cdp_host=cdp_host,
-            cdp_port=cdp_port,
-            cdp_endpoint=f"http://{cdp_host}:{cdp_port}",
-            chrome_executable_path=chrome_executable_path,
-            browser_root=str(user_data_dir.parent),
-            actual_headless=False,
-            requested_headless=bool(requested_headless),
-        )
-        write_singleton_state(instance)
-        return instance
+            write_singleton_state(instance)
+            return instance
 
     if port_process is not None and _normalized_path_text(port_process.user_data_dir) != expected_root:
         raise RuntimeError("another Chrome instance already owns the configured CDP port")

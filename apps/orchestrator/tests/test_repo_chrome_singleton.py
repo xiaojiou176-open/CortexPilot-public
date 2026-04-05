@@ -151,7 +151,7 @@ def test_ensure_repo_chrome_singleton_attaches_existing_matching_port(
         "find_chrome_process_by_remote_debugging_port",
         lambda port: singleton_module.ChromeProcessInfo(
             pid=123,
-            args="chrome --user-data-dir=/tmp/repo --remote-debugging-port=9334",
+            args="chrome --user-data-dir=/tmp/repo --remote-debugging-port=9341",
             user_data_dir=str(user_data_dir),
             remote_debugging_port=port,
             uses_default_root=False,
@@ -163,7 +163,7 @@ def test_ensure_repo_chrome_singleton_attaches_existing_matching_port(
         user_data_dir=user_data_dir,
         profile_name="cortexpilot",
         cdp_host="127.0.0.1",
-        cdp_port=9334,
+        cdp_port=9341,
         requested_headless=True,
     )
 
@@ -203,14 +203,14 @@ def test_ensure_repo_chrome_singleton_launches_when_no_instance_exists(
         user_data_dir=user_data_dir,
         profile_name="cortexpilot",
         cdp_host="127.0.0.1",
-        cdp_port=9334,
+        cdp_port=9341,
         extra_launch_args=["--disable-blink-features=AutomationControlled"],
     )
 
     assert instance.connection_mode == "launched"
     assert launches and f"--user-data-dir={user_data_dir.resolve()}" in launches[0]
     assert "--profile-directory=Profile 1" in launches[0]
-    assert "--remote-debugging-port=9334" in launches[0]
+    assert "--remote-debugging-port=9341" in launches[0]
 
 
 def test_ensure_repo_chrome_singleton_fails_when_other_root_owns_port(
@@ -233,7 +233,7 @@ def test_ensure_repo_chrome_singleton_fails_when_other_root_owns_port(
         "find_chrome_process_by_remote_debugging_port",
         lambda port: singleton_module.ChromeProcessInfo(
             pid=321,
-            args="chrome --user-data-dir=/tmp/other --remote-debugging-port=9334",
+            args="chrome --user-data-dir=/tmp/other --remote-debugging-port=9341",
             user_data_dir="/tmp/other",
             remote_debugging_port=port,
             uses_default_root=False,
@@ -246,7 +246,96 @@ def test_ensure_repo_chrome_singleton_fails_when_other_root_owns_port(
             user_data_dir=user_data_dir,
             profile_name="cortexpilot",
             cdp_host="127.0.0.1",
-            cdp_port=9334,
+            cdp_port=9341,
+        )
+
+
+def test_ensure_repo_chrome_singleton_relaunches_same_root_from_legacy_port(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    user_data_dir = tmp_path / "browser" / "chrome-user-data"
+    (user_data_dir / "Profile 1").mkdir(parents=True, exist_ok=True)
+    (user_data_dir / "Local State").write_text(
+        json.dumps({"profile": {"info_cache": {"Profile 1": {"name": "cortexpilot"}}, "last_used": "Profile 1"}}),
+        encoding="utf-8",
+    )
+    launches: list[list[str]] = []
+    stopped: list[int] = []
+
+    class _Proc:
+        pid = 555
+
+    monkeypatch.setattr(singleton_module, "_is_executable_file", lambda path: str(path) == "/preferred/chrome")
+    monkeypatch.setattr(singleton_module, "read_cdp_version", lambda host, port, timeout_sec=0.5: None)
+    monkeypatch.setattr(singleton_module, "find_chrome_process_by_remote_debugging_port", lambda port: None)
+    monkeypatch.setattr(
+        singleton_module,
+        "find_chrome_process_by_user_data_dir",
+        lambda root: singleton_module.ChromeProcessInfo(
+            pid=444,
+            args=f"chrome --user-data-dir={user_data_dir} --remote-debugging-port=9334",
+            user_data_dir=str(user_data_dir),
+            remote_debugging_port=9334,
+            uses_default_root=False,
+        ),
+    )
+    monkeypatch.setattr(
+        singleton_module,
+        "_stop_repo_owned_root_process_for_relaunch",
+        lambda process, timeout_sec=10.0: stopped.append(process.pid),
+    )
+    monkeypatch.setattr(singleton_module, "wait_for_cdp_version", lambda host, port, timeout_sec=15.0, poll_sec=0.25: {"ok": True})
+    monkeypatch.setattr(
+        singleton_module.subprocess,
+        "Popen",
+        lambda args, stdout, stderr, start_new_session: launches.append(args) or _Proc(),
+    )
+
+    instance = singleton_module.ensure_repo_chrome_singleton(
+        chrome_executable_path="/preferred/chrome",
+        user_data_dir=user_data_dir,
+        profile_name="cortexpilot",
+        cdp_host="127.0.0.1",
+        cdp_port=9341,
+    )
+
+    assert stopped == [444]
+    assert launches and "--remote-debugging-port=9341" in launches[0]
+    assert instance.connection_mode == "launched"
+    assert instance.cdp_port == 9341
+
+
+def test_ensure_repo_chrome_singleton_fails_closed_for_same_root_non_legacy_port(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    user_data_dir = tmp_path / "browser" / "chrome-user-data"
+    (user_data_dir / "Profile 1").mkdir(parents=True, exist_ok=True)
+    (user_data_dir / "Local State").write_text(
+        json.dumps({"profile": {"info_cache": {"Profile 1": {"name": "cortexpilot"}}, "last_used": "Profile 1"}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(singleton_module, "_is_executable_file", lambda path: str(path) == "/preferred/chrome")
+    monkeypatch.setattr(singleton_module, "read_cdp_version", lambda host, port, timeout_sec=0.5: None)
+    monkeypatch.setattr(singleton_module, "find_chrome_process_by_remote_debugging_port", lambda port: None)
+    monkeypatch.setattr(
+        singleton_module,
+        "find_chrome_process_by_user_data_dir",
+        lambda root: singleton_module.ChromeProcessInfo(
+            pid=777,
+            args=f"chrome --user-data-dir={user_data_dir} --remote-debugging-port=9444",
+            user_data_dir=str(user_data_dir),
+            remote_debugging_port=9444,
+            uses_default_root=False,
+        ),
+    )
+
+    with pytest.raises(RuntimeError, match="non-managed Chrome process"):
+        singleton_module.ensure_repo_chrome_singleton(
+            chrome_executable_path="/preferred/chrome",
+            user_data_dir=user_data_dir,
+            profile_name="cortexpilot",
+            cdp_host="127.0.0.1",
+            cdp_port=9341,
         )
 
 
@@ -265,7 +354,7 @@ def test_repo_chrome_singleton_cli_status_writes_json(monkeypatch: pytest.Monkey
         user_data_dir=user_data_dir,
         profile_name="cortexpilot",
         cdp_host="127.0.0.1",
-        cdp_port=9334,
+        cdp_port=9341,
     )
 
     assert payload["user_data_dir"] == str(user_data_dir)

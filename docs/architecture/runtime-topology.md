@@ -93,13 +93,20 @@ flowchart LR
   `cortexpilot` into that repo-owned root as `Profile 1`, together with a
   rewritten `Local State` that points only at the repo-owned profile.
 - `allow_profile` is now attach-first: the runtime checks the fixed CDP
-  endpoint `127.0.0.1:9334`, verifies that the owning Chrome process really
+  endpoint `127.0.0.1:9341`, verifies that the owning Chrome process really
   uses the repo-owned root, and only launches a new headed Chrome instance when
   that singleton is absent.
+- Login persistence now depends on keeping that repo-owned root stable and
+  reusing the same headed Chrome singleton. The runtime closes automation pages
+  before Playwright teardown instead of closing the entire browser or reseeding
+  the root on every run.
 - If the singleton CDP port is owned by another root, the repo-owned root is
   occupied by a Chrome process without CDP, or the repo-owned profile cannot be
   resolved to `Profile 1`, the local host path fails closed instead of guessing
   or second-launching the default Chrome root.
+- A same-root legacy-port process is now treated as a managed transition path:
+  the repo may stop that legacy singleton and relaunch the same root on `9341`
+  instead of misclassifying it as a foreign process.
 - Contract artifact cleanup scope follows configured `CORTEXPILOT_RUNTIME_CONTRACT_ROOT` inside `.runtime-cache/cortexpilot/contracts/`.
 - Root cleanliness and runtime artifact routing are SSOT-driven by `configs/root_allowlist.json` + `configs/runtime_artifact_policy.json`; root-noise directories such as root `logs/`, root `.next/`, and root coverage artifacts are treated as governance violations rather than acceptable steady state.
 - JS runtime machine state is app- or package-local and explicit: only `apps/dashboard/node_modules`, `apps/dashboard/.next`, `apps/dashboard/tsconfig.tsbuildinfo`, `apps/dashboard/tsconfig.typecheck.tsbuildinfo`, `apps/desktop/node_modules`, `apps/desktop/dist`, `apps/desktop/tsconfig.tsbuildinfo`, and `packages/frontend-api-client/node_modules` are allowed repo-local machine-managed surfaces; root `node_modules` remains forbidden.
