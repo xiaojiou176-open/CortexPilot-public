@@ -8,6 +8,7 @@ import re
 import signal
 import shutil
 import subprocess
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -286,6 +287,37 @@ def resolve_real_chrome_executable_path() -> str:
     return ""
 
 
+def _chrome_app_bundle_path(chrome_executable_path: str) -> str | None:
+    candidate = Path(chrome_executable_path).expanduser().resolve(strict=False)
+    for parent in (candidate, *candidate.parents):
+        if parent.suffix == ".app":
+            return str(parent)
+    return None
+
+
+def _launch_chrome_process(args: list[str]) -> subprocess.Popen[Any]:
+    return subprocess.Popen(  # noqa: S603
+        args,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+
+
+def _launch_repo_chrome_via_mac_open(
+    *,
+    chrome_executable_path: str,
+    launch_args: list[str],
+) -> bool:
+    if sys.platform != "darwin":
+        return False
+    bundle_path = _chrome_app_bundle_path(chrome_executable_path)
+    if not bundle_path:
+        return False
+    _launch_chrome_process(["open", "-na", bundle_path, "--args", *launch_args])
+    return True
+
+
 def write_singleton_state(instance: RepoChromeInstance) -> Path:
     path = singleton_state_path(Path(instance.user_data_dir))
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -453,6 +485,8 @@ def ensure_repo_chrome_singleton(
     if root_process is not None:
         if root_process.remote_debugging_port != cdp_port:
             if root_process.remote_debugging_port == 9334 and cdp_port == 9341:
+                if port_process is not None and _normalized_path_text(port_process.user_data_dir) != expected_root:
+                    raise RuntimeError("another Chrome instance already owns the configured CDP port")
                 _stop_repo_owned_root_process_for_relaunch(root_process)
             else:
                 raise RuntimeError(
@@ -481,8 +515,7 @@ def ensure_repo_chrome_singleton(
     if port_process is not None and _normalized_path_text(port_process.user_data_dir) != expected_root:
         raise RuntimeError("another Chrome instance already owns the configured CDP port")
 
-    args = [
-        chrome_executable_path,
+    launch_args = [
         f"--user-data-dir={expected_root}",
         f"--profile-directory={profile_directory}",
         f"--remote-debugging-address={cdp_host}",
@@ -494,14 +527,22 @@ def ensure_repo_chrome_singleton(
     ]
     for arg in extra_launch_args or []:
         if isinstance(arg, str) and arg.strip():
-            args.append(arg)
-    proc = subprocess.Popen(  # noqa: S603
-        args,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        start_new_session=True,
-    )
-    wait_for_cdp_version(cdp_host, cdp_port, timeout_sec=cdp_timeout_sec)
+            launch_args.append(arg)
+    proc = _launch_chrome_process([chrome_executable_path, *launch_args])
+    try:
+        wait_for_cdp_version(cdp_host, cdp_port, timeout_sec=cdp_timeout_sec)
+    except RuntimeError:
+        launch_retry_allowed = (
+            sys.platform == "darwin"
+            and find_chrome_process_by_user_data_dir(user_data_dir) is None
+            and find_chrome_process_by_remote_debugging_port(cdp_port) is None
+        )
+        if not launch_retry_allowed or not _launch_repo_chrome_via_mac_open(
+            chrome_executable_path=chrome_executable_path,
+            launch_args=launch_args,
+        ):
+            raise
+        wait_for_cdp_version(cdp_host, cdp_port, timeout_sec=cdp_timeout_sec)
     launched_process = find_chrome_process_by_remote_debugging_port(cdp_port)
     if launched_process is not None and _normalized_path_text(launched_process.user_data_dir) != expected_root:
         raise RuntimeError("launched Chrome did not bind to the expected repo browser root")

@@ -30,6 +30,10 @@
 - `allow_profile` then behaves as attach-or-launch against the singleton CDP
   endpoint `127.0.0.1:9341`, so manual and automated runs share the same
   headed Chrome instance instead of re-launching the default Chrome root
+- on macOS the launcher now retries once through `open -na "Google Chrome"`
+  when the direct Chrome executable does not bind CDP for the repo-owned root;
+  that keeps the singleton on the same `Profile 1` root instead of silently
+  giving up or falling back to a different browser state
 - login state persistence now relies on that single repo-owned user-data root
   plus attach-first reuse; the runtime closes only automation-created pages, so
   reopening the singleton should not require reseeding or second-launch copies
@@ -47,6 +51,9 @@
 - if the repo-owned root is missing, the singleton CDP port is owned by a
   different browser root, or the root is occupied by a Chrome process without
   CDP, the local host path fails closed instead of guessing or second-launching
+- the `browser_ddg` search provider now also fails closed on singleton attach,
+  Playwright, or browser-parse failures; it returns an explicit browser error
+  instead of fabricating mock search success when the real browser path is down
 - the current `gemini_web` prompt path supports both classic text inputs and
   `contenteditable` textbox surfaces, so provider DOM changes do not silently
   break the `news_digest` proof route again
