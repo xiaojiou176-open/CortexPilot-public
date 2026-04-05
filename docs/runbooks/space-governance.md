@@ -44,6 +44,10 @@ npm run docker:runtime:audit
   namespace, but only through repo-owned child paths that are explicitly marked
   in `configs/space_governance_policy.json`. The cap never turns the rollup root
   itself into an apply target.
+- `~/.cache/cortexpilot/browser/**` is a special-case repo-owned persistent
+  browser workspace. It stays visible in audit/report output, but it is both
+  `protected` and `cap-excluded`, so TTL/cap auto-prune never treats it as a
+  reclaim target.
 - Heavy machine-scoped temp producers also belong to that same governed
   namespace: local `docker_ci` host runner temp now defaults to
   `~/.cache/cortexpilot/tmp/docker-ci/runner-temp-*`, while clean-room
@@ -126,12 +130,20 @@ into an unsupported environment.
   first clears TTL-expired repo-owned child paths, then adds the oldest/largest
   eligible child paths under cap pressure until the projected total returns
   below the threshold or only protected surfaces remain.
+- The repo-owned singleton browser subtree under
+  `~/.cache/cortexpilot/browser/` is outside that cap-pressure math. It is a
+  persistent workspace for the single headed Chrome instance and must not be
+  treated as reclaimable machine cache.
 - These paths stay `repo_external_related`, must resolve inside
   `~/.cache/cortexpilot/tmp/**`, and must fail closed if they escape into
   unrelated temp roots or shared/system-owned browser temp trees.
 - `toolchains/python/current`, shared observation layers, and any
   `observe-only` entry remain reportable but never become automatic retention
   targets.
+- The repo-owned browser singleton uses these explicit operator commands:
+  - `npm run browser:chrome:migrate`
+  - `npm run browser:chrome:launch`
+  - `npm run browser:chrome:status`
 - Heavy producer entrypoints now run a rate-limited auto-prune hook before
   creating new external caches:
   - `scripts/bootstrap.sh`

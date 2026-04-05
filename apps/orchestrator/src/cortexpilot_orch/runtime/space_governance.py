@@ -70,6 +70,12 @@ def load_space_governance_policy(path: Path) -> dict[str, Any]:
             raise SpaceGovernancePolicyError(
                 "space governance policy machine_cache_retention_policy.auto_prune_interval_sec must be > 0"
             )
+        for list_key in ("protected_prefixes", "cap_excluded_prefixes"):
+            values = machine_cache_retention_policy.get(list_key, [])
+            if values and not isinstance(values, list):
+                raise SpaceGovernancePolicyError(
+                    f"space governance policy machine_cache_retention_policy.{list_key} must be a list"
+                )
 
     layers = payload.get("layers")
     if not isinstance(layers, dict):
@@ -577,6 +583,11 @@ def render_space_governance_markdown(report: dict[str, Any]) -> str:
                 f"**{machine_cache_summary.get('total_size_human', '0 B')}** total / "
                 f"cap **{machine_cache_summary.get('cap_human', '0 B')}** / "
                 f"candidates **{machine_cache_summary.get('candidate_count', 0)}**"
+            )
+            lines.append(
+                "- Machine cache cap scope: "
+                f"tracked **{machine_cache_summary.get('cap_tracked_total_human', '0 B')}** / "
+                f"excluded **{machine_cache_summary.get('cap_excluded_total_human', '0 B')}**"
             )
             lines.append(
                 "- Machine cache reclaimable: "

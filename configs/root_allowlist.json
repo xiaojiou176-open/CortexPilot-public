@@ -40,7 +40,8 @@
     "tooling"
   ],
   "local_allowed": [
-    ".git"
+    ".git",
+    ".serena"
   ],
   "compatibility_allowed": [],
   "forbidden_generated": [

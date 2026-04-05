@@ -528,9 +528,15 @@ structured receipt to
 That buildx cache path is a local-development accelerator, not a GitHub-hosted
 CI requirement; hosted/container lanes stay on the more conservative daemon
 path when local cache export is unsupported.
-Local browser development now defaults to the real Chrome profile display name
-`cortexpilot`, while CI / Docker / clean-room lanes force `ephemeral` browser
-state and must not depend on login state or on a copied local profile.
+Local browser development now defaults to the repo-owned singleton Chrome root
+under `~/.cache/cortexpilot/browser/chrome-user-data/`. Run
+`npm run browser:chrome:migrate` once to copy the default-Chrome display name
+`cortexpilot` into that root as `Profile 1`, then use
+`npm run browser:chrome:launch` when you want a manual singleton Chrome window
+that the repo's Playwright automation can later attach to over
+`127.0.0.1:9334`. CI / Docker / clean-room lanes still force `ephemeral`
+browser state and must not depend on login state or on the local singleton
+root.
 When one closeout patch touches both dashboard and desktop packaging, expect the
 root AI/docs entrypoints and the module READMEs to move together so doc-sync
 gates can trace the maintenance decision end to end.

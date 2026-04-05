@@ -7,7 +7,8 @@ from cortexpilot_orch.policy.browser_policy_resolver import resolve_browser_poli
 
 
 def test_resolver_local_dev_defaults_to_allow_profile(monkeypatch, tmp_path: Path) -> None:
-    chrome_root = tmp_path / "chrome-root"
+    browser_root = tmp_path / "browser-root"
+    chrome_root = browser_root / "chrome-user-data"
     chrome_root.mkdir(parents=True, exist_ok=True)
     monkeypatch.delenv("CI", raising=False)
     monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
@@ -16,6 +17,7 @@ def test_resolver_local_dev_defaults_to_allow_profile(monkeypatch, tmp_path: Pat
     monkeypatch.delenv("CORTEXPILOT_CLEAN_ROOM_PRESERVE_ROOT", raising=False)
     monkeypatch.delenv("CORTEXPILOT_BROWSER_PROFILE_ALLOWLIST", raising=False)
     monkeypatch.setattr(browser_policy_resolver, "_default_chrome_profile_dir", lambda: chrome_root)
+    monkeypatch.setattr(browser_policy_resolver, "default_repo_browser_root", lambda: browser_root)
 
     audit = resolve_browser_policy(
         contract_policy=None,
@@ -88,13 +90,13 @@ def test_resolver_force_ephemeral_environment_blocks_explicit_allow_profile(monk
     )
 
 
-def test_resolver_default_allowlist_includes_real_chrome_root(monkeypatch, tmp_path: Path) -> None:
-    chrome_root = tmp_path / "chrome-root"
-    chrome_root.mkdir(parents=True, exist_ok=True)
+def test_resolver_default_allowlist_includes_repo_browser_root(monkeypatch, tmp_path: Path) -> None:
+    browser_root = tmp_path / "repo-browser"
+    browser_root.mkdir(parents=True, exist_ok=True)
     monkeypatch.delenv("CORTEXPILOT_BROWSER_PROFILE_ALLOWLIST", raising=False)
-    monkeypatch.setattr(browser_policy_resolver, "_default_chrome_profile_dir", lambda: chrome_root)
+    monkeypatch.setattr(browser_policy_resolver, "default_repo_browser_root", lambda: browser_root)
 
-    assert chrome_root in browser_policy_resolver._profile_allowlist_roots()
+    assert browser_root in browser_policy_resolver._profile_allowlist_roots()
 
 
 def test_resolver_priority_and_task_override(monkeypatch, tmp_path: Path) -> None:

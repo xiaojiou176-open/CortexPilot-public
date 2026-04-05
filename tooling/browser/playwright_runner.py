@@ -27,6 +27,10 @@ def _safe_screenshot(page: Any, path: Path) -> None:
     page.screenshot(str(path), True)
 
 
+def _close_session_strict(session: BrowserSessionHandle) -> None:
+    session.close()
+
+
 class BrowserRunner:
     def __init__(
         self,
@@ -129,49 +133,56 @@ class BrowserRunner:
 
         try:
             with sync_playwright() as p:
-                session = self._session_manager.open_page(
-                    p,
-                    extra_launch_args=self._stealth_provider.launch_args(),
-                )
-                session_meta = session.metadata
-                policy_events.append(self._session_manager.profile_event(session_meta))
-                page = session.page
-                stealth_meta = self._stealth_provider.apply(page=page, context=session.context)
-                policy_events.extend(stealth_meta.get("events", []))
+                try:
+                    session = self._session_manager.open_page(
+                        p,
+                        extra_launch_args=self._stealth_provider.launch_args(),
+                    )
+                    session_meta = session.metadata
+                    policy_events.append(self._session_manager.profile_event(session_meta))
+                    page = session.page
+                    stealth_meta = self._stealth_provider.apply(page=page, context=session.context)
+                    policy_events.extend(stealth_meta.get("events", []))
 
-                page.set_default_timeout(self._timeout_ms)
-                page.goto(url)
+                    page.set_default_timeout(self._timeout_ms)
+                    page.goto(url)
 
-                behavior_meta = apply_human_behavior(
-                    page,
-                    enabled=self._human_behavior_enabled,
-                    level=self._human_behavior_level,
-                )
+                    behavior_meta = apply_human_behavior(
+                        page,
+                        enabled=self._human_behavior_enabled,
+                        level=self._human_behavior_level,
+                    )
 
-                result = None
-                if script_content.strip():
-                    result = page.evaluate(script_content)
+                    result = None
+                    if script_content.strip():
+                        result = page.evaluate(script_content)
 
-                _safe_screenshot(page, screenshot_path)
-                source_path.write_text(page.content(), encoding="utf-8")
-
-            return {
-                "ok": True,
-                "mode": "playwright",
-                "url": url,
-                "result": result,
-                "artifacts": {
-                    "screenshot": str(screenshot_path),
-                    "source": str(source_path),
-                },
-                "meta": {
-                    "session": session_meta,
-                    "stealth": stealth_meta,
-                    "human_behavior": behavior_meta,
-                },
-                "policy_events": policy_events,
-                "duration_ms": int((time.monotonic() - start) * 1000),
-            }
+                    _safe_screenshot(page, screenshot_path)
+                    source_path.write_text(page.content(), encoding="utf-8")
+                    session_to_close = session
+                    session = None
+                    _close_session_strict(session_to_close)
+                    return {
+                        "ok": True,
+                        "mode": "playwright",
+                        "url": url,
+                        "result": result,
+                        "artifacts": {
+                            "screenshot": str(screenshot_path),
+                            "source": str(source_path),
+                        },
+                        "meta": {
+                            "session": session_meta,
+                            "stealth": stealth_meta,
+                            "human_behavior": behavior_meta,
+                        },
+                        "policy_events": policy_events,
+                        "duration_ms": int((time.monotonic() - start) * 1000),
+                    }
+                finally:
+                    if session is not None:
+                        _close_session_strict(session)
+                        session = None
         except Exception as exc:  # noqa: BLE001
             error_path.write_text(str(exc), encoding="utf-8")
             if page is not None:
@@ -202,9 +213,3 @@ class BrowserRunner:
                 "policy_events": policy_events,
                 "duration_ms": int((time.monotonic() - start) * 1000),
             }
-        finally:
-            if session is not None:
-                try:
-                    session.close()
-                except Exception:  # noqa: BLE001
-                    pass

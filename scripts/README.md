@@ -14,6 +14,7 @@ CI, hygiene, and release tasks.
 - `check_schedule_boundary.py`
 - `docker_ci.sh`
 - `prune_docker_runtime.sh`
+- `repo_chrome_singleton.py`
 - `build_space_governance_report.py`
 - `check_space_cleanup_gate.py`
 - `check_space_governance_inventory.py`
@@ -66,6 +67,14 @@ user's ambient Python environment.
 - `docker_runtime_governance.py` is the structured report engine behind that
   lane. It writes `.runtime-cache/cortexpilot/reports/space_governance/docker_runtime.json`
   so Docker residue no longer exists only as shell stdout.
+- `repo_chrome_singleton.py` is the repo-owned browser entrypoint for the
+  local singleton Chrome model:
+  - `npm run browser:chrome:migrate` copies the named default-Chrome profile
+    into `~/.cache/cortexpilot/browser/chrome-user-data/` once
+  - `npm run browser:chrome:launch` attaches to or launches the repo-owned
+    Chrome singleton on the fixed CDP endpoint
+  - `npm run browser:chrome:status` reports whether the repo-owned root is
+    bootstrapped, which profile directory is active, and whether CDP is live
 - `docker_ci.sh` now prefers repo-owned local buildx cache directories under
   `~/.cache/cortexpilot/docker-buildx-cache/` when `docker buildx` is
   available, which turns rebuildable Docker image cache into a governed

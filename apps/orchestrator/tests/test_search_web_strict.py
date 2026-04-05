@@ -3,6 +3,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from tooling.search.search_engine import (
+    _browser_search,
     _pick_chat_input_locator,
     _url_allowed,
     _web_allowlist,
@@ -141,3 +142,59 @@ def test_pick_chat_input_locator_returns_none_when_no_supported_input_exists() -
             return DummyLocator()
 
     assert _pick_chat_input_locator(DummyPage()) is None
+
+
+def test_browser_search_closes_session_before_playwright_exit(monkeypatch, tmp_path: Path) -> None:
+    order: list[str] = []
+
+    class DummyPage:
+        def goto(self, url: str) -> None:  # noqa: ARG002
+            return None
+
+        def wait_for_timeout(self, ms: int) -> None:  # noqa: ARG002
+            return None
+
+        def evaluate(self, script: str):  # noqa: ARG002
+            return [{"title": "ok", "href": "https://example.com"}]
+
+    class DummySession:
+        def __init__(self) -> None:
+            self.page = DummyPage()
+            self.context = object()
+            self.metadata = {"mode": "allow_profile"}
+
+        def close(self) -> None:
+            order.append("session.close")
+
+    class DummyPlaywright:
+        chromium = object()
+
+    class DummyContextManager:
+        def __enter__(self) -> DummyPlaywright:
+            return DummyPlaywright()
+
+        def __exit__(self, exc_type, exc, tb) -> None:
+            order.append("playwright.exit")
+            return None
+
+    import sys
+    import types
+
+    dummy_module = types.ModuleType("playwright.sync_api")
+    setattr(dummy_module, "sync_playwright", lambda: DummyContextManager())
+    monkeypatch.setitem(sys.modules, "playwright.sync_api", dummy_module)
+    monkeypatch.setattr(
+        "tooling.search.search_engine._web_session_manager",
+        lambda browser_policy=None: types.SimpleNamespace(open_page=lambda _p, extra_launch_args=None: DummySession()),
+    )
+    monkeypatch.setattr(
+        "tooling.search.search_engine._web_stealth_provider",
+        lambda browser_policy=None: types.SimpleNamespace(launch_args=lambda: [], apply=lambda **_kwargs: {"events": []}),
+    )
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(tmp_path / ".runtime-cache" / "cortexpilot"))
+
+    results, error = _browser_search("cortexpilot")
+
+    assert error is None
+    assert results == [{"title": "ok", "href": "https://example.com"}]
+    assert order == ["session.close", "playwright.exit"]

@@ -6,9 +6,12 @@
     "default_cap_bytes": 21474836480,
     "auto_prune_interval_sec": 1800,
     "protected_prefixes": [
-      "${CORTEXPILOT_MACHINE_CACHE_ROOT}",
+      "${CORTEXPILOT_MACHINE_CACHE_ROOT}/browser",
       "${CORTEXPILOT_MACHINE_CACHE_ROOT}/toolchains",
       "${CORTEXPILOT_MACHINE_CACHE_ROOT}/toolchains/python/current"
+    ],
+    "cap_excluded_prefixes": [
+      "${CORTEXPILOT_MACHINE_CACHE_ROOT}/browser"
     ]
   },
   "shared_realpath_prefixes": [
@@ -674,6 +677,28 @@
           "configs/runtime_artifact_policy.json"
         ],
         "notes": "Top-level namespace is shared by multiple CortexPilot worktrees/branches on the same machine."
+      },
+      {
+        "id": "external_repo_browser_root",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/browser",
+        "type": "repo-owned persistent browser singleton root",
+        "ownership": "repo-owned Chrome singleton browser root",
+        "ownership_confidence": "High",
+        "sharedness": "repo_machine_dedicated",
+        "summary_role": "breakdown_only",
+        "rebuildability": "rebuildable only through the explicit repo browser migrate/bootstrap flow",
+        "recommendation": "observe_only",
+        "cleanup_mode": "observe-only",
+        "risk": "medium",
+        "rebuild_command_ids": [
+          "bootstrap"
+        ],
+        "evidence": [
+          "scripts/repo_chrome_singleton.py",
+          "tooling/browser/repo_chrome_singleton.py",
+          "apps/orchestrator/src/cortexpilot_orch/policy/browser_policy_resolver.py"
+        ],
+        "notes": "Persistent repo browser workspace rooted at ~/.cache/cortexpilot/browser. It stays auditable, but does not participate in TTL or cap-driven cleanup."
       },
       {
         "id": "external_pnpm_store",

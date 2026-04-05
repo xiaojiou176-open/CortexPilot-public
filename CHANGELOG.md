@@ -6,6 +6,13 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- replaced the old shared-root `allow_profile` model with a repo-owned Chrome
+  singleton workspace under `~/.cache/cortexpilot/browser/chrome-user-data`,
+  added explicit `browser:chrome:migrate|launch|status` entrypoints, moved
+  Playwright browser/search cleanup onto the live-CDP lifetime instead of
+  post-teardown best effort, and marked the browser subtree as protected +
+  cap-excluded so retention/governance reports keep it visible without
+  auto-pruning it
 - hardened cache/browser closeout by unifying repo-authored runtime artifacts
   under `.runtime-cache/`, formalizing build/dependency exceptions, adding a
   default 20 GiB + TTL machine-cache retention contract for

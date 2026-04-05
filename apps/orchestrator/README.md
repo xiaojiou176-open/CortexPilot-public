@@ -23,9 +23,13 @@
 ## Search And Browser Policy Notes
 
 - search-task execution resolves browser policy before a web provider runs
-- local host development defaults to `allow_profile` with the real Chrome
-  display name `cortexpilot`, resolving the actual `Profile N` directory from
-  Chrome `Local State` when needed
+- local host development defaults to `allow_profile` with the repo-owned
+  Chrome singleton root `~/.cache/cortexpilot/browser/chrome-user-data`
+- run `npm run browser:chrome:migrate` once to seed that root from the default
+  Chrome display name `cortexpilot`; the repo rewrites it into `Profile 1`
+- `allow_profile` then behaves as attach-or-launch against the singleton CDP
+  endpoint `127.0.0.1:9334`, so manual and automated runs share the same
+  headed Chrome instance instead of re-launching the default Chrome root
 - CI, repo CI containers, and clean-room lanes force browser policy back to
   `ephemeral`; those paths must not depend on login state or on a copied host
   profile
@@ -34,9 +38,9 @@
 - `allow_profile` prefers a real Chrome executable from `CHROME_PATH` or the
   standard macOS install path and fails closed instead of silently falling back
   to Playwright-bundled Chromium
-- if the configured profile label cannot be resolved to a real Chrome profile
-  directory, the local host path fails closed instead of silently creating or
-  guessing a fresh profile
+- if the repo-owned root is missing, the singleton CDP port is owned by a
+  different browser root, or the root is occupied by a Chrome process without
+  CDP, the local host path fails closed instead of guessing or second-launching
 - the current `gemini_web` prompt path supports both classic text inputs and
   `contenteditable` textbox surfaces, so provider DOM changes do not silently
   break the `news_digest` proof route again

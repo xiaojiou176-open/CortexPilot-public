@@ -95,6 +95,37 @@ def _path_size_bytes(path: Path) -> int:
     return total
 
 
+def _path_within_prefixes(path: Path, prefixes: list[Path]) -> bool:
+    resolved = path.resolve(strict=False)
+    for prefix in prefixes:
+        try:
+            resolved.relative_to(prefix.resolve(strict=False))
+            return True
+        except ValueError:
+            continue
+    return False
+
+
+def _path_size_bytes_excluding(path: Path, excluded_prefixes: list[Path]) -> int:
+    if not path.exists():
+        return 0
+    if _path_within_prefixes(path, excluded_prefixes):
+        return 0
+    if path.is_file():
+        try:
+            return path.stat().st_size
+        except OSError:
+            return 0
+    total = 0
+    for child in path.rglob("*"):
+        try:
+            if child.is_file() and not _path_within_prefixes(child, excluded_prefixes):
+                total += child.stat().st_size
+        except OSError:
+            continue
+    return total
+
+
 def human_size(num_bytes: int) -> str:
     value = float(num_bytes)
     for unit in ("B", "KiB", "MiB", "GiB", "TiB"):
@@ -257,20 +288,54 @@ def _space_bridge(cfg: CortexPilotConfig) -> dict[str, Any]:
     }
 
 
-def _machine_cache_retention_entries(cfg: CortexPilotConfig) -> list[dict[str, Any]]:
+def _load_machine_cache_policy(cfg: CortexPilotConfig) -> dict[str, Any] | None:
     policy_path = cfg.repo_root / "configs" / "space_governance_policy.json"
     if not policy_path.exists():
+        return None
+
+    from cortexpilot_orch.runtime.space_governance import load_space_governance_policy
+
+    return load_space_governance_policy(policy_path)
+
+
+def _machine_cache_policy_prefixes(cfg: CortexPilotConfig, key: str) -> list[Path]:
+    policy = _load_machine_cache_policy(cfg)
+    if not isinstance(policy, dict):
+        return []
+    machine_cache_policy = policy.get("machine_cache_retention_policy", {})
+    if not isinstance(machine_cache_policy, dict):
+        return []
+    raw_items = machine_cache_policy.get(key, [])
+    if not isinstance(raw_items, list):
+        return []
+    prefixes: list[Path] = []
+    seen: set[str] = set()
+    for raw_item in raw_items:
+        text = str(raw_item or "").strip()
+        if not text:
+            continue
+        text = text.replace("${CORTEXPILOT_MACHINE_CACHE_ROOT}", str(cfg.machine_cache_root))
+        path = Path(text).expanduser()
+        path = path.resolve() if path.is_absolute() else (cfg.repo_root / path).resolve()
+        normalized = str(path)
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        prefixes.append(path)
+    return prefixes
+
+
+def _machine_cache_retention_entries(cfg: CortexPilotConfig) -> list[dict[str, Any]]:
+    policy = _load_machine_cache_policy(cfg)
+    if not isinstance(policy, dict):
         return []
 
-    from cortexpilot_orch.runtime.space_governance import (
-        collect_process_matches,
-        expand_policy_entry,
-        load_space_governance_policy,
-    )
+    from cortexpilot_orch.runtime.space_governance import collect_process_matches, expand_policy_entry
 
-    policy = load_space_governance_policy(policy_path)
     current_time = _utc_now()
     recent_window_hours = int(policy.get("recent_activity_hours", 24))
+    protected_prefixes = _machine_cache_policy_prefixes(cfg, "protected_prefixes")
+    cap_excluded_prefixes = _machine_cache_policy_prefixes(cfg, "cap_excluded_prefixes")
     entries: list[dict[str, Any]] = []
     for entry_spec in policy.get("layers", {}).get("repo_external_related", []):
         if not bool(entry_spec.get("retention_auto_cleanup", False)):
@@ -303,6 +368,8 @@ def _machine_cache_retention_entries(cfg: CortexPilotConfig) -> list[dict[str, A
                 continue
             entry["retention_ttl_hours"] = ttl_hours
             entry["size_bytes"] = _path_size_bytes(Path(str(entry["path"])))
+            entry["retention_protected"] = _path_within_prefixes(Path(str(entry["path"])), protected_prefixes)
+            entry["retention_cap_excluded"] = _path_within_prefixes(Path(str(entry["path"])), cap_excluded_prefixes)
             process_blockers: list[dict[str, Any]] = []
             if entry.get("process_path_hints") or entry.get("process_command_hints"):
                 process_matches = collect_process_matches(
@@ -340,7 +407,8 @@ def _machine_cache_retention_candidates(
     if not entries:
         return []
 
-    total_size_bytes = _path_size_bytes(machine_cache_root)
+    cap_excluded_prefixes = _machine_cache_policy_prefixes(cfg, "cap_excluded_prefixes")
+    total_size_bytes = _path_size_bytes_excluding(machine_cache_root, cap_excluded_prefixes)
     cap_bytes = cfg.retention_machine_cache_cap_bytes
     current_time = _utc_now()
     selected: dict[str, MachineCacheCandidate] = {}
@@ -370,6 +438,8 @@ def _machine_cache_retention_candidates(
     for entry in ordered_entries:
         if bool(entry.get("retention_process_blocked", False)):
             continue
+        if bool(entry.get("retention_protected", False)) or bool(entry.get("retention_cap_excluded", False)):
+            continue
         candidate = _candidate_from_entry(entry, selection_reason="ttl_expired")
         if candidate.age_hours < float(candidate.ttl_hours):
             continue
@@ -389,6 +459,8 @@ def _machine_cache_retention_candidates(
         )
         for entry in cap_pressure_entries:
             if bool(entry.get("retention_process_blocked", False)):
+                continue
+            if bool(entry.get("retention_protected", False)) or bool(entry.get("retention_cap_excluded", False)):
                 continue
             candidate = _candidate_from_entry(entry, selection_reason="cap_pressure")
             key = str(candidate.path.resolve(strict=False))
@@ -412,6 +484,10 @@ def _machine_cache_summary(
 ) -> dict[str, Any]:
     machine_cache_root = cfg.machine_cache_root
     total_size_bytes = _path_size_bytes(machine_cache_root)
+    cap_excluded_prefixes = _machine_cache_policy_prefixes(cfg, "cap_excluded_prefixes")
+    protected_prefixes = _machine_cache_policy_prefixes(cfg, "protected_prefixes")
+    cap_tracked_total_bytes = _path_size_bytes_excluding(machine_cache_root, cap_excluded_prefixes)
+    cap_excluded_total_bytes = max(total_size_bytes - cap_tracked_total_bytes, 0)
     cap_bytes = cfg.retention_machine_cache_cap_bytes
     reclaim_bytes = sum(item.size_bytes for item in candidates)
     candidate_paths = {str(item.path.resolve(strict=False)) for item in candidates}
@@ -421,7 +497,7 @@ def _machine_cache_summary(
     for item in candidates:
         reason_counts[item.selection_reason] = reason_counts.get(item.selection_reason, 0) + 1
         bucket_counts[item.policy_entry_id] = bucket_counts.get(item.policy_entry_id, 0) + 1
-    projected_remaining_bytes = max(total_size_bytes - reclaim_bytes, 0)
+    projected_remaining_bytes = max(cap_tracked_total_bytes - reclaim_bytes, 0)
     return {
         "path": str(machine_cache_root),
         "exists": machine_cache_root.exists(),
@@ -429,8 +505,14 @@ def _machine_cache_summary(
         "cap_human": human_size(cap_bytes),
         "total_size_bytes": total_size_bytes,
         "total_size_human": human_size(total_size_bytes),
-        "over_cap_bytes": max(total_size_bytes - cap_bytes, 0),
-        "over_cap_human": human_size(max(total_size_bytes - cap_bytes, 0)),
+        "cap_tracked_total_bytes": cap_tracked_total_bytes,
+        "cap_tracked_total_human": human_size(cap_tracked_total_bytes),
+        "cap_excluded_total_bytes": cap_excluded_total_bytes,
+        "cap_excluded_total_human": human_size(cap_excluded_total_bytes),
+        "cap_excluded_prefixes": [str(path) for path in cap_excluded_prefixes],
+        "protected_prefixes": [str(path) for path in protected_prefixes],
+        "over_cap_bytes": max(cap_tracked_total_bytes - cap_bytes, 0),
+        "over_cap_human": human_size(max(cap_tracked_total_bytes - cap_bytes, 0)),
         "candidate_count": len(candidates),
         "candidate_reclaim_bytes": reclaim_bytes,
         "candidate_reclaim_human": human_size(reclaim_bytes),
@@ -461,6 +543,8 @@ def _machine_cache_summary(
                 "size_bytes": int(entry.get("size_bytes", 0)),
                 "cleanup_candidate": str(Path(str(entry.get("path", ""))).resolve(strict=False)) in candidate_paths,
                 "process_blocked": bool(entry.get("retention_process_blocked", False)),
+                "protected": bool(entry.get("retention_protected", False)),
+                "cap_excluded": bool(entry.get("retention_cap_excluded", False)),
             }
             for entry in entries
         ],
