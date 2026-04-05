@@ -2,35 +2,15 @@
 from __future__ import annotations
 
 import os
-import signal
 import subprocess
 import threading
-import time
 from pathlib import Path
 from typing import Any
 
-
-def _terminate_process_group(proc: subprocess.Popen[str]) -> None:
-    if proc.poll() is not None:
-        return
-
-    try:
-        os.killpg(proc.pid, signal.SIGTERM)
-    except ProcessLookupError:
-        return
-    except Exception:
-        proc.terminate()
-
-    time.sleep(0.2)
-    if proc.poll() is not None:
-        return
-
-    try:
-        os.killpg(proc.pid, signal.SIGKILL)
-    except ProcessLookupError:
-        return
-    except Exception:
-        proc.kill()
+try:
+    from scripts.host_process_safety import terminate_tracked_child
+except ModuleNotFoundError:
+    from host_process_safety import terminate_tracked_child
 
 
 def run_codex_once(
@@ -73,15 +53,23 @@ def run_codex_once(
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            start_new_session=True,
         )
         stdout, stderr = process.communicate(timeout=max(30, timeout_sec))
     except subprocess.TimeoutExpired:
-        _terminate_process_group(process)
+        termination_signal = terminate_tracked_child(
+            process,
+            term_timeout_sec=5,
+            kill_timeout_sec=3,
+        )
         return (
             False,
             f"timeout>{timeout_sec}s",
-            {"provider": "codex", "error_type": "timeout", "killed_process_group": True},
+            {
+                "provider": "codex",
+                "error_type": "timeout",
+                "terminated_tracked_child": True,
+                "termination_signal": termination_signal,
+            },
         )
     except FileNotFoundError:
         return (

@@ -239,6 +239,25 @@ The machine CI contract lives in `configs/ci_governance_policy.json`, and the
 live GitHub control-plane requirements live in
 `configs/github_control_plane_policy.json`.
 
+## Host Process Safety
+
+Before live desktop, browser, cleanup, or closeout commands, run:
+
+```bash
+npm run scan:host-process-risks
+```
+
+Worker/test/orchestrator paths fail closed on host-process safety:
+
+- no `killall`, `pkill`, process-group kills, or negative/zero PID signals
+- no AppleScript `System Events` for desktop-wide probing or control
+- only the recorded child handle started by the current script may be terminated
+- if stale repo-owned runtime state already exists, the script must stop with
+  manual cleanup instructions instead of broad process cleanup
+- repo-owned `scripts/*.py` entrypoints must keep shared helper imports usable
+  when executed directly as `python3 scripts/<name>.py`; they cannot assume the
+  repo root has already been injected into `PYTHONPATH`
+
 ## Current Public Task Slices
 
 The intentionally supported public task slices are:
@@ -340,6 +359,8 @@ The current stage freeze keeps two high-risk directions explicitly constrained:
   preview surface can exist without silently turning mutation on by default.
   These repo-owned controls do not by themselves upgrade the public product
   contract into write-capable MCP.
+- The repo-owned operator contract for that narrow pilot now lives in
+  [docs/runbooks/write-mcp-queue-pilot.md](docs/runbooks/write-mcp-queue-pilot.md).
 
 - **Hosted operator surface** remains **No-Go**.
 - `cortexpilot.ai` is still a weak marketing/holding domain, not a production
@@ -540,6 +561,12 @@ second-launching it, and closing automation pages before the Playwright runtime
 tears down. CI / Docker / clean-room lanes still force `ephemeral`
 browser state and must not depend on login state or on the local singleton
 root.
+If a launch only produces a short-lived singleton that falls back to stale or
+offline state before CDP stays up, the launcher now fails closed instead of
+reporting a false-positive success path.
+If the repo-owned root is already offline, stale singleton locks and stale
+singleton state metadata are now cleaned so status falls back to a clean
+`offline` state instead of pretending the last launch is still alive.
 If the same repo-owned root is still running on the old legacy port, the next
 launch now treats it as a managed transition and relaunches that same root onto
 `9341` instead of misclassifying it as a foreign browser occupant.
@@ -559,6 +586,7 @@ The public release surface now has a live baseline. Use these entrypoints:
 - [First public release draft](docs/releases/first-public-release-draft.md)
 - [Tracked healthy `news_digest` proof summary](docs/releases/assets/news-digest-healthy-proof-2026-03-27.md)
 - [Tracked `news_digest` baseline summary](docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md)
+- [Tracked `news_digest` Workflow Case recap](docs/releases/assets/news-digest-workflow-case-recap-2026-03-27.md)
 
 ## What’s Next
 

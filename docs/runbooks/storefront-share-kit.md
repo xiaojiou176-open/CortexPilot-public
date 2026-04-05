@@ -34,6 +34,7 @@ replay, read-only MCP access, and explainable operator guidance.
 - `docs/releases/assets/news-digest-healthy-proof-gemini-2026-03-27.png`
 - `docs/releases/assets/news-digest-healthy-proof-grok-2026-03-27.png`
 - `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md`
+- `docs/releases/assets/news-digest-workflow-case-recap-2026-03-27.md`
 
 ## Proof Status By Asset Type
 
@@ -44,6 +45,7 @@ replay, read-only MCP access, and explainable operator guidance.
 | Desktop snapshot preview | tracked | use as a UI preview, not as end-to-end proof |
 | Healthy backend-backed `news_digest` capture set | present | safe to reference as repo-tracked proof, not as proof of live GitHub publication |
 | Public benchmark artifact | present | safe to quote as a single-run baseline only |
+| Workflow Case recap asset | present | safe to reuse as the strongest public recap for the official first-run path |
 | GitHub Release card | present | safe to reference the live release page and the tracked draft together |
 
 ## Current Gaps

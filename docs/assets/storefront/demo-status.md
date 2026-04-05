@@ -20,6 +20,7 @@ ones that still need a real capture pass.
 - `docs/releases/assets/news-digest-healthy-proof-gemini-2026-03-27.png`: successful Gemini proof screenshot
 - `docs/releases/assets/news-digest-healthy-proof-grok-2026-03-27.png`: successful Grok proof screenshot
 - `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md`: first tracked public `news_digest` baseline summary
+- `docs/releases/assets/news-digest-workflow-case-recap-2026-03-27.md`: share-ready Workflow Case recap for the official first public baseline
 
 ## Current Proof Ledger
 
@@ -30,6 +31,7 @@ ones that still need a real capture pass.
 | Desktop preview capture | present | shows the shell surface only |
 | Healthy backend-backed `news_digest` public proof set | present | tracked proof summary: `docs/releases/assets/news-digest-healthy-proof-2026-03-27.md` |
 | Public benchmark artifact from a real tracked run | present | first tracked single-run baseline: `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md` |
+| Share-ready Workflow Case recap asset | present | tracked recap asset: `docs/releases/assets/news-digest-workflow-case-recap-2026-03-27.md` |
 | Published GitHub Release page/card | present | live release: `https://github.com/xiaojiou176-open/CortexPilot-public/releases/tag/v0.1.0-alpha.1` |
 
 ## Still Missing

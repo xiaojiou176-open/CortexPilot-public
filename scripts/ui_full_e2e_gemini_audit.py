@@ -561,9 +561,10 @@ def main() -> int:
             ).strip().lower()
             api_env["CORTEXPILOT_API_TOKEN"] = args.api_token
             api_env["CORTEXPILOT_DASHBOARD_PORT"] = str(resolved_dashboard_port)
+            api_python = sys.executable or str(ROOT / ".venv" / "bin" / "python")
             api_proc = spawn_process(
                 [
-                    str(ROOT / ".venv" / "bin" / "python"),
+                    api_python,
                     "-m",
                     "cortexpilot_orch.cli",
                     "serve",

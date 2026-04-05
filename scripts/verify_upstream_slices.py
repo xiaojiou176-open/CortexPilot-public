@@ -4,12 +4,16 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import signal
 import subprocess
 import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+
+try:
+    from scripts.host_process_safety import terminate_tracked_child
+except ModuleNotFoundError:
+    from host_process_safety import terminate_tracked_child
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -213,7 +217,6 @@ def _run_shell(command: str, *, extra_env: dict[str, str], timeout_sec: int, log
             stderr=tmp_log_handle,
             text=True,
             env=env,
-            start_new_session=True,
         )
         try:
             while True:
@@ -232,19 +235,15 @@ def _run_shell(command: str, *, extra_env: dict[str, str], timeout_sec: int, log
                     last_heartbeat = now
                 time.sleep(1)
         except subprocess.TimeoutExpired:
-            timeout_msg = f"command timed out after {timeout_sec}s"
-            try:
-                os.killpg(process.pid, signal.SIGTERM)
-            except ProcessLookupError:
-                pass
-            try:
-                process.wait(timeout=5)
-            except subprocess.TimeoutExpired:
-                try:
-                    os.killpg(process.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-                process.wait()
+            termination_signal = terminate_tracked_child(
+                process,
+                term_timeout_sec=5,
+                kill_timeout_sec=3,
+            )
+            timeout_msg = (
+                f"command timed out after {timeout_sec}s "
+                f"(termination={termination_signal})"
+            )
             tmp_log_handle.write(timeout_msg + "\n")
             tmp_log_handle.flush()
             print(f"⚠️ [verify-upstream-slices] {timeout_msg}", flush=True)

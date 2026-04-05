@@ -22,6 +22,10 @@ npm --prefix apps/desktop run tauri:dev
 
 - runtime output belongs under `.runtime-cache/`, not tracked source
 - public desktop support is currently limited to macOS
+- before real desktop/browser/cleanup flows, run `npm run scan:host-process-risks`
+- desktop real E2E helpers now fail closed on stale repo-owned runtime state;
+  they do not use AppleScript `System Events`, process-group kills, or broad
+  process cleanup
 - Linux/BSD desktop native smoke and GTK/WebKitGTK dependency chains are kept
   as manual or historical evidence only, not as default required support lanes
 - Desktop production builds run on Vite 8 / Rolldown, so vendor chunk splitting

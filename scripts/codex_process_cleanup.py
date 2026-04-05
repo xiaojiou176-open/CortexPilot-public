@@ -7,6 +7,7 @@ import os
 import re
 import signal
 import subprocess
+import sys
 import time
 from dataclasses import dataclass, asdict
 from datetime import datetime
@@ -83,8 +84,20 @@ def parse_ps_rows() -> list[ProcRow]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Clean stale Codex background processes safely.")
-    parser.add_argument("--dry-run", action="store_true", help="Only print candidates, do not kill.")
+    parser = argparse.ArgumentParser(
+        description="Audit stale Codex background processes; targeted apply is manual-only."
+    )
+    parser.add_argument(
+        "--apply",
+        action="store_true",
+        help="Apply cleanup to the exact PID list passed via --pid. Default mode is audit-only.",
+    )
+    parser.add_argument(
+        "--pid",
+        action="append",
+        default=[],
+        help="Exact PID to terminate when --apply is set. Repeatable.",
+    )
     parser.add_argument(
         "--min-age-sec",
         type=int,
@@ -146,31 +159,102 @@ def should_target_mcp_server(row: ProcRow, min_age_sec: int) -> bool:
     return True
 
 
-def terminate_pid(pid: int) -> str:
+def _require_positive_pid(pid: int, *, context: str) -> int:
+    if not isinstance(pid, int) or pid <= 0:
+        raise ValueError(f"{context} requires a strictly positive PID, got: {pid!r}")
+    return pid
+
+
+def _pid_exists(pid: int) -> bool:
+    safe_pid = _require_positive_pid(pid, context="pid existence check")
+    return any(row.pid == safe_pid for row in parse_ps_rows())
+
+
+def _matches_expected_target(current: ProcRow, expected: ProcRow) -> bool:
+    return (
+        current.pid == expected.pid
+        and current.ppid == expected.ppid
+        and current.command == expected.command
+    )
+
+
+def _resolve_live_cleanup_target(
+    expected: ProcRow,
+    *,
+    include_cursor: bool,
+    min_age_sec: int,
+    also_clean_mcp: bool,
+) -> ProcRow | None:
+    safe_pid = _require_positive_pid(expected.pid, context="cleanup target resolution")
+    for row in parse_ps_rows():
+        if row.pid != safe_pid:
+            continue
+        if _matches_expected_target(row, expected) and should_target_app_server(
+            row,
+            include_cursor,
+            min_age_sec,
+        ):
+            return row
+        if _matches_expected_target(row, expected) and also_clean_mcp and should_target_mcp_server(
+            row,
+            min_age_sec,
+        ):
+            return row
+    return None
+
+
+def terminate_pid(
+    target: ProcRow,
+    *,
+    include_cursor: bool,
+    min_age_sec: int,
+    also_clean_mcp: bool,
+) -> str:
+    safe_pid = _require_positive_pid(target.pid, context="cleanup terminate")
+    live_target = _resolve_live_cleanup_target(
+        target,
+        include_cursor=include_cursor,
+        min_age_sec=min_age_sec,
+        also_clean_mcp=also_clean_mcp,
+    )
+    if live_target is None:
+        return "ownership_mismatch"
     try:
-        os.kill(pid, signal.SIGTERM)
+        os.kill(safe_pid, signal.SIGTERM)
     except ProcessLookupError:
         return "gone"
     except PermissionError:
         return "permission_denied"
 
     time.sleep(0.5)
-    try:
-        os.kill(pid, 0)
-    except ProcessLookupError:
+    live_target = _resolve_live_cleanup_target(
+        target,
+        include_cursor=include_cursor,
+        min_age_sec=min_age_sec,
+        also_clean_mcp=also_clean_mcp,
+    )
+    if live_target is None:
+        if _pid_exists(safe_pid):
+            return "ownership_released"
         return "terminated"
 
     try:
-        os.kill(pid, signal.SIGKILL)
+        os.kill(safe_pid, signal.SIGKILL)
     except ProcessLookupError:
         return "terminated"
     except PermissionError:
         return "permission_denied"
 
     time.sleep(0.2)
-    try:
-        os.kill(pid, 0)
-    except ProcessLookupError:
+    live_target = _resolve_live_cleanup_target(
+        target,
+        include_cursor=include_cursor,
+        min_age_sec=min_age_sec,
+        also_clean_mcp=also_clean_mcp,
+    )
+    if live_target is None:
+        if _pid_exists(safe_pid):
+            return "ownership_released"
         return "killed"
     return "still_alive"
 
@@ -178,6 +262,21 @@ def terminate_pid(pid: int) -> str:
 def main(argv: Iterable[str] | None = None) -> int:
     args = build_parser().parse_args(list(argv) if argv is not None else None)
     log_path = Path(args.log_path).expanduser().resolve() if args.log_path else default_log_path()
+    requested_pids: set[int] = set()
+    for raw_pid in args.pid:
+        try:
+            pid = int(str(raw_pid).strip())
+        except ValueError:
+            print(f"❌ invalid --pid value: {raw_pid}", file=sys.stderr)
+            return 2
+        if pid <= 0:
+            print(f"❌ invalid --pid value (must be > 0): {raw_pid}", file=sys.stderr)
+            return 2
+        requested_pids.add(pid)
+
+    if args.apply and not requested_pids:
+        print("❌ manual apply requires at least one exact --pid value", file=sys.stderr)
+        return 2
 
     rows = parse_ps_rows()
     app_targets = [
@@ -187,32 +286,48 @@ def main(argv: Iterable[str] | None = None) -> int:
     targets = app_targets + mcp_targets
 
     print("🧹 Codex stale process cleanup")
-    print(f"- dry_run: {args.dry_run}")
+    print(f"- mode: {'apply' if args.apply else 'audit_only'}")
     print(f"- min_age_sec: {args.min_age_sec}")
     print(f"- include_cursor: {args.include_cursor}")
     print(f"- also_clean_mcp: {args.also_clean_mcp}")
     print(f"- candidates: {len(targets)}")
+    if requested_pids:
+        print(f"- requested_pids: {sorted(requested_pids)}")
 
     payload = {
         "ts": now_ts(),
         "event": "codex_cleanup_scan",
-        "dry_run": args.dry_run,
+        "mode": "apply" if args.apply else "audit_only",
         "min_age_sec": args.min_age_sec,
         "include_cursor": args.include_cursor,
         "also_clean_mcp": args.also_clean_mcp,
         "candidate_count": len(targets),
+        "requested_pids": sorted(requested_pids),
         "candidates": [asdict(row) for row in targets],
     }
 
     killed = 0
     results: list[dict] = []
+    selected_targets = [row for row in targets if row.pid in requested_pids] if args.apply else []
 
-    if args.dry_run:
+    if not args.apply:
         for row in targets:
             print(f"  - pid={row.pid} ppid={row.ppid} age={row.etimes}s :: {row.command[:140]}")
     else:
-        for row in targets:
-            status = terminate_pid(row.pid)
+        unresolved_pids = sorted(requested_pids - {row.pid for row in selected_targets})
+        if unresolved_pids:
+            print(
+                f"❌ requested pid(s) are not eligible cleanup candidates under the current filters: {unresolved_pids}",
+                file=sys.stderr,
+            )
+            return 2
+        for row in selected_targets:
+            status = terminate_pid(
+                row,
+                include_cursor=args.include_cursor,
+                min_age_sec=args.min_age_sec,
+                also_clean_mcp=args.also_clean_mcp,
+            )
             if status in {"terminated", "killed", "gone"}:
                 killed += 1
             results.append({"pid": row.pid, "status": status, "command": row.command})
@@ -224,6 +339,8 @@ def main(argv: Iterable[str] | None = None) -> int:
 
     print(f"- killed: {killed}")
     print(f"- log: {log_path}")
+    if not args.apply:
+        print("ℹ️ audit-only mode: no processes were terminated")
     return 0
 
 

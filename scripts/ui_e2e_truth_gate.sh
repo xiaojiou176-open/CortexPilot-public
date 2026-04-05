@@ -159,10 +159,11 @@ run_cmd_with_timeout_to_log() {
   shift 3
   python3 - "$timeout_sec" "$kill_grace_sec" "$log_path" "$@" <<'PY'
 import os
-import signal
 import subprocess
 import sys
 from pathlib import Path
+
+from scripts.host_process_safety import terminate_tracked_child
 
 timeout_sec = int(sys.argv[1])
 kill_grace_sec = int(sys.argv[2])
@@ -183,7 +184,6 @@ with log_path.open("w", encoding="utf-8", errors="replace") as log_handle:
         stdout=log_handle,
         stderr=subprocess.STDOUT,
         env=os.environ.copy(),
-        start_new_session=True,
     )
     exit_code = 0
     timed_out = False
@@ -194,22 +194,16 @@ with log_path.open("w", encoding="utf-8", errors="replace") as log_handle:
             exit_code = proc.wait()
     except subprocess.TimeoutExpired:
         timed_out = True
+        termination_signal = terminate_tracked_child(
+            proc,
+            term_timeout_sec=max(1, kill_grace_sec),
+            kill_timeout_sec=3,
+        )
         log_handle.write(
-            f"\n❌ [ui-closeout] step timeout after {timeout_sec}s, terminating process group\n"
+            f"\n❌ [ui-closeout] step timeout after {timeout_sec}s, terminating tracked child"
+            f" (termination={termination_signal})\n"
         )
         log_handle.flush()
-        try:
-            os.killpg(proc.pid, signal.SIGTERM)
-        except ProcessLookupError:
-            pass
-        try:
-            proc.wait(timeout=max(1, kill_grace_sec))
-        except subprocess.TimeoutExpired:
-            try:
-                os.killpg(proc.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-            proc.wait()
         exit_code = 124
     finally:
         log_handle.write(

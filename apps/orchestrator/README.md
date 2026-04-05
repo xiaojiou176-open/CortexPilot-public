@@ -30,6 +30,12 @@
 - `allow_profile` then behaves as attach-or-launch against the singleton CDP
   endpoint `127.0.0.1:9341`, so manual and automated runs share the same
   headed Chrome instance instead of re-launching the default Chrome root
+- if launch only creates a short-lived repo-owned Chrome process that never
+  stays attached to the expected CDP endpoint, the launcher now fails closed
+  instead of reporting a successful singleton launch
+- if the repo-owned root is already offline, stale singleton locks and the old
+  singleton state file are now cleared so status returns to a clean `offline`
+  result instead of preserving a misleading stale launch record
 - on macOS the launcher now retries once through `open -na "Google Chrome"`
   when the direct Chrome executable does not bind CDP for the repo-owned root;
   that keeps the singleton on the same `Profile 1` root instead of silently
@@ -134,6 +140,10 @@ bash scripts/run_orchestrator_cli.sh --help
   `enqueue_from_run` mutation, and that mutation stays default-off until
   `CORTEXPILOT_MCP_QUEUE_PILOT_ENABLE_APPLY=1` is set in a trusted operator
   environment; queue cancel remains an HTTP control-plane recovery path
+- the authoritative operator runbook for that later-gated mutation slice lives
+  at `docs/runbooks/write-mcp-queue-pilot.md`; treat that file as the truth
+  source for preview / approval / audit / rollback wording rather than
+  improvising broader write-capable MCP claims
 - shared control-plane reads flow through
   `src/cortexpilot_orch/services/control_plane_read_service.py`
 - workflow/control-plane reads now also carry `workflow_case_read_model`, which

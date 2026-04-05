@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import net from "node:net";
+import { terminateTrackedChild } from "./host-process-safety.mjs";
 
 const desktopDir = resolve(process.cwd());
 const repoRoot = resolve(desktopDir, "..", "..");
@@ -117,35 +118,13 @@ async function waitForPortClosed(port, timeoutMs = 6000, intervalMs = 300) {
   return false;
 }
 
-async function killPids(pids, signal) {
-  for (const pid of pids) {
-    try {
-      process.kill(pid, signal);
-    } catch {
-      // ignore dead/inaccessible process
-    }
-  }
-}
-
-async function forceKillPortOwners(port) {
-  const pids = await getPidsByPort(port);
-  if (pids.length === 0) return { cleaned: true, remainingPids: [] };
-  await killPids(pids, "SIGTERM");
-  await new Promise((resolveWait) => setTimeout(resolveWait, 800));
-  let remaining = await getPidsByPort(port);
-  if (remaining.length > 0) {
-    await killPids(remaining, "SIGKILL");
-    await new Promise((resolveWait) => setTimeout(resolveWait, 500));
-    remaining = await getPidsByPort(port);
-  }
-  return { cleaned: remaining.length === 0, remainingPids: remaining };
-}
-
-async function cleanupStaleRepoDesktopVite() {
+async function detectLingeringRepoDesktopProcesses() {
   const ps = await runCommand("ps", ["-Ao", "pid=,command="]);
-  if (ps.code !== 0) return { cleaned: true, killedPids: [], detail: ps.stderr || "ps failed" };
+  if (ps.code !== 0) {
+    return { clean: false, hits: [], detail: ps.stderr || "ps failed" };
+  }
   const lines = String(ps.stdout || "").split("\n");
-  const killedPids = [];
+  const hits = [];
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
@@ -160,72 +139,13 @@ async function cleanupStaleRepoDesktopVite() {
     const isRepoDesktopNative = command.includes("/apps/desktop/src-tauri/target/debug/cortexpilot-desktop")
       || command.includes("target/debug/cortexpilot-desktop");
     if (!isRepoDesktopVite && !isRepoDesktopNative) continue;
-    try {
-      process.kill(pid, "SIGTERM");
-      killedPids.push(pid);
-    } catch {
-      // ignore stale pid
-    }
+    hits.push({
+      pid,
+      kind: isRepoDesktopVite ? "desktop_vite" : "desktop_native",
+      command,
+    });
   }
-  if (killedPids.length > 0) {
-    await new Promise((resolveWait) => setTimeout(resolveWait, 900));
-  }
-  return { cleaned: true, killedPids, detail: "ok" };
-}
-
-async function detectNativeWindow() {
-  const listScript = [
-    'tell application "System Events"',
-    "set outNames to {}",
-    'repeat with p in (every process whose background only is false)',
-    "set end of outNames to (name of p as text)",
-    "end repeat",
-    "return outNames",
-    "end tell",
-  ];
-  const namesResult = await runCommand("osascript", listScript.flatMap((line) => ["-e", line]));
-  if (namesResult.code !== 0) {
-    return {
-      pass: false,
-      foundProcess: false,
-      windowCount: 0,
-      processNames: [],
-      matchedNames: [],
-      detail: namesResult.stderr || namesResult.stdout || "osascript failed",
-    };
-  }
-  const processNames = String(namesResult.stdout || "")
-    .split(",")
-    .map((name) => name.trim())
-    .filter(Boolean);
-  const matchedNames = processNames.filter((name) => /cortexpilot|tauri/i.test(name));
-
-  let windowCount = 0;
-  for (const name of matchedNames) {
-    const countScript = [
-      'tell application "System Events"',
-      `try`,
-      `return count of windows of process ${JSON.stringify(name)} as text`,
-      `on error`,
-      `return "0"`,
-      `end try`,
-      "end tell",
-    ];
-    const countResult = await runCommand("osascript", countScript.flatMap((line) => ["-e", line]));
-    const candidateCount = Number.parseInt(String(countResult.stdout || "0").trim(), 10) || 0;
-    if (candidateCount > windowCount) windowCount = candidateCount;
-  }
-  const foundProcess = matchedNames.length > 0;
-  const hasVisibleWindow = windowCount > 0;
-  return {
-    pass: foundProcess && hasVisibleWindow,
-    foundProcess,
-    hasVisibleWindow,
-    windowCount,
-    processNames: processNames.slice(0, 40),
-    matchedNames,
-    detail: "ok",
-  };
+  return { clean: hits.length === 0, hits, detail: "ok" };
 }
 
 async function detectCortexPilotDesktopRuntimeProcess() {
@@ -256,41 +176,13 @@ async function detectCortexPilotDesktopRuntimeProcess() {
   };
 }
 
-async function stopProcess(child, timeoutMs = 8000) {
-  if (!child) return;
-  if (child.exitCode !== null) return;
-  child.kill("SIGTERM");
-  if (typeof child.pid === "number" && child.pid > 0) {
-    try {
-      process.kill(-child.pid, "SIGTERM");
-    } catch {
-      // process group may not exist in all environments
-    }
-  }
-  const exited = await new Promise((resolveExit) => {
-    const timer = setTimeout(() => resolveExit(false), timeoutMs);
-    child.once("close", () => {
-      clearTimeout(timer);
-      resolveExit(true);
-    });
-  });
-  if (!exited && child.exitCode === null) {
-    child.kill("SIGKILL");
-    if (typeof child.pid === "number" && child.pid > 0) {
-      try {
-        process.kill(-child.pid, "SIGKILL");
-      } catch {
-        // process group may not exist in all environments
-      }
-    }
-    await new Promise((resolveExit) => {
-      const timer = setTimeout(() => resolveExit(false), 3000);
-      child.once("close", () => {
-        clearTimeout(timer);
-        resolveExit(true);
-      });
-    });
-  }
+async function describePortRelease(port) {
+  const portReleased = await waitForPortClosed(port, 5000, 250);
+  const remainingPids = portReleased ? [] : await getPidsByPort(port);
+  return {
+    cleaned: portReleased && remainingPids.length === 0,
+    remainingPids,
+  };
 }
 
 async function run() {
@@ -320,14 +212,17 @@ async function run() {
     error: "",
   };
 
-  const staleCleanup = await cleanupStaleRepoDesktopVite();
+  const staleCleanup = await detectLingeringRepoDesktopProcesses();
   report.checks.push({
-    name: "preflight should cleanup stale desktop vite processes",
+    name: "preflight should start from a clean repo-owned desktop runtime state",
     expected: true,
-    actual: staleCleanup.cleaned,
-    pass: staleCleanup.cleaned === true,
+    actual: staleCleanup.clean,
+    pass: staleCleanup.clean === true,
     detail: staleCleanup,
   });
+  if (!staleCleanup.clean) {
+    throw new Error("repo-owned desktop runtime already active; close it manually before running desktop tauri real e2e");
+  }
 
   const pythonBin = resolvePythonBin();
   const tauriConfig = JSON.stringify({
@@ -365,7 +260,6 @@ async function run() {
     ["run", "tauri:dev", "--", "--config", tauriConfig],
     {
       cwd: desktopDir,
-      detached: true,
       env: {
         ...process.env,
         VITE_CORTEXPILOT_API_BASE: apiBase,
@@ -405,7 +299,6 @@ async function run() {
       pass: true,
     });
 
-    const windowProbe = await detectNativeWindow();
     const tauriRuntimeStarted = /target\/debug\/cortexpilot-desktop/.test(tauriLog);
     const tauriRuntimeReady = tauriRuntimeStarted
       || await waitFor(async () => /target\/debug\/cortexpilot-desktop/.test(tauriLog), 30000, 500);
@@ -417,12 +310,9 @@ async function run() {
       actual: runtimeEvidencePass,
       pass: runtimeEvidencePass === true,
       detail: {
-        ...(windowProbe || {}),
-        pass: runtimeEvidencePass,
         tauriRuntimeStarted: tauriRuntimeReady,
         runtimeProcessProbe,
-        windowCountDiagnostic: Number.isFinite(windowProbe?.windowCount) ? windowProbe.windowCount : 0,
-        strictRule: "pass only when tauri runtime log observed AND runtime process exists; window metrics are diagnostic only",
+        strictRule: "pass only when tauri runtime log observed AND runtime process exists; fail closed on stale runtime state instead of desktop-wide probing",
       },
     });
 
@@ -438,13 +328,9 @@ async function run() {
   } catch (error) {
     report.error = error instanceof Error ? error.message : String(error);
   } finally {
-    await stopProcess(tauriProc, 12000);
-    await stopProcess(apiServer, 5000);
-    const portReleased = await waitForPortClosed(tauriPort, 5000, 250);
-    let cleanupDetail = { cleaned: portReleased, remainingPids: [] };
-    if (!portReleased) {
-      cleanupDetail = await forceKillPortOwners(tauriPort);
-    }
+    await terminateTrackedChild(tauriProc, 12000);
+    await terminateTrackedChild(apiServer, 5000);
+    const cleanupDetail = await describePortRelease(tauriPort);
     report.checks.push({
       name: "cleanup should release tauri dev port",
       expected: true,

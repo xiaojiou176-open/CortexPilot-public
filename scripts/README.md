@@ -11,6 +11,7 @@ CI, hygiene, and release tasks.
 - `test.sh`
 - `test_quick.sh`
 - `check_repo_hygiene.sh`
+- `scan_host_process_risks.py`
 - `check_schedule_boundary.py`
 - `docker_ci.sh`
 - `prune_docker_runtime.sh`
@@ -47,6 +48,10 @@ user's ambient Python environment.
   repeated pnpm `ERR_PNPM_ENOENT` failures from fresh-store retries to a
   workspace-local store recovery path instead of repeating the same failing
   copy strategy indefinitely.
+- `scan_host_process_risks.py` is the repo-owned static gate for host-process
+  safety. Run `npm run scan:host-process-risks` before live desktop/browser or
+  cleanup flows; worker/test/orchestrator paths must fail closed instead of
+  broad-killing stale processes.
 - Bootstrap/install/docker-ci/clean-room entrypoints now run a rate-limited
   machine-cache auto-prune hook before creating new repo-owned external caches.
   The hook reuses `scripts/cleanup_runtime.sh apply` with root-noise cleanup
@@ -74,7 +79,9 @@ user's ambient Python environment.
   - `npm run browser:chrome:launch` attaches to or launches the repo-owned
     Chrome singleton on the fixed CDP endpoint
   - `npm run browser:chrome:status` reports whether the repo-owned root is
-    bootstrapped, which profile directory is active, and whether CDP is live
+    bootstrapped, which profile directory is active, whether CDP is live, and
+    whether the last-known singleton state has gone stale, plus whether the
+    current machine browser load still permits a safe new repo-owned launch
 - `docker_ci.sh` now prefers repo-owned local buildx cache directories under
   `~/.cache/cortexpilot/docker-buildx-cache/` when `docker buildx` is
   available, which turns rebuildable Docker image cache into a governed

@@ -160,7 +160,7 @@ detect_conflicting_processes() {
   return 0
 }
 
-cleanup_lingering_ui_e2e_processes() {
+detect_lingering_ui_e2e_processes() {
   local patterns=(
     'npm --prefix apps/desktop run e2e:first-entry:real:full'
     'npm --prefix apps/desktop run e2e:first-entry:real:degraded'
@@ -176,29 +176,70 @@ cleanup_lingering_ui_e2e_processes() {
     '.runtime-cache/cache/toolchains/python/current/bin/python -m cortexpilot_orch.cli serve --host 127.0.0.1 --port 18500'
     '.runtime-cache/cache/toolchains/python/current/bin/python -m cortexpilot_orch.cli serve --host 127.0.0.1 --port 18600'
   )
+  local -a matches=()
+  local pid=""
+  local command=""
   local pattern=""
-  for pattern in "${patterns[@]}"; do
-    pkill -f "$pattern" >/dev/null 2>&1 || true
-  done
-}
-
-wait_for_ui_e2e_cleanup() {
-  local attempts=20
-  local port=""
-  for _ in $(seq 1 "$attempts"); do
-    local busy=0
-    for port in 18500 18600 19173 19273 3211 4311; do
-      if lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
-        busy=1
+  while IFS= read -r line; do
+    pid="$(printf '%s' "$line" | awk '{print $1}')"
+    command="${line#"$pid"}"
+    command="${command#"${command%%[![:space:]]*}"}"
+    if ! [[ "$pid" =~ ^[0-9]+$ ]]; then
+      continue
+    fi
+    if [[ "$pid" == "$$" || ( -n "${PPID:-}" && "$pid" == "${PPID:-}" ) ]]; then
+      continue
+    fi
+    if is_pid_in_ancestor_chain "$pid"; then
+      continue
+    fi
+    for pattern in "${patterns[@]}"; do
+      if [[ "$command" =~ ${pattern} ]]; then
+        matches+=("pid=${pid} cmd=${command}")
         break
       fi
     done
-    if [[ "$busy" -eq 0 ]]; then
+  done < <(ps -axo pid=,command=)
+
+  if [[ "${#matches[@]}" -eq 0 ]]; then
+    return 0
+  fi
+  printf '%s\n' "${matches[@]}"
+  return 1
+}
+
+list_busy_ui_e2e_ports() {
+  local port=""
+  for port in 18500 18600 19173 19273 3211 4311; do
+    if lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
+      printf '%s\n' "$port"
+    fi
+  done
+}
+
+ensure_clean_ui_e2e_state() {
+  local lingering_output=""
+  if ! lingering_output="$(detect_lingering_ui_e2e_processes)"; then
+    echo "❌ [ui-regression-flake] lingering repo-owned UI E2E/runtime process detected; fail closed instead of killing by pattern." >&2
+    printf '%s\n' "$lingering_output" >&2
+    return 1
+  fi
+
+  local attempts=20
+  local -a busy_ports=()
+  for _ in $(seq 1 "$attempts"); do
+    mapfile -t busy_ports < <(list_busy_ui_e2e_ports)
+    if [[ "${#busy_ports[@]}" -eq 0 ]]; then
       return 0
     fi
     sleep 1
   done
-  return 0
+  mapfile -t busy_ports < <(list_busy_ui_e2e_ports)
+  if [[ "${#busy_ports[@]}" -eq 0 ]]; then
+    return 0
+  fi
+  echo "❌ [ui-regression-flake] repo-owned UI E2E ports still busy after wait; fail closed instead of force cleanup: ${busy_ports[*]}" >&2
+  return 1
 }
 
 cleanup_attempt_artifacts() {
@@ -337,6 +378,8 @@ fi
 detect_conflicting_processes
 acquire_lock
 trap 'release_lock' EXIT INT TERM
+
+ensure_clean_ui_e2e_state
 
 OUT_DIR="$ROOT_DIR/.runtime-cache/test_output/ui_regression/$RUN_ID"
 LOG_DIR="$OUT_DIR/logs"
@@ -550,8 +593,9 @@ PY
     echo "❌ [ui-regression-flake] cmd#$cmd_idx iter=$iter failed (exit=$exit_code) log=$log_path"
   fi
 
-  cleanup_lingering_ui_e2e_processes
-  wait_for_ui_e2e_cleanup
+  if ! ensure_clean_ui_e2e_state; then
+    return 1
+  fi
 }
 
 worker_runtime_failed=0

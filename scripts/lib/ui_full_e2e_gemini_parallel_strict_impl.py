@@ -5,7 +5,6 @@ import argparse
 import json
 import os
 import re
-import signal
 import time
 import urllib.request
 import subprocess
@@ -14,6 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from scripts.host_process_safety import terminate_tracked_child
 from scripts.ui_full_e2e_gemini_audit import _prime_llm_keys
 from scripts.ui_full_e2e_gemini_audit_runtime import discover_page_routes
 
@@ -562,25 +562,11 @@ def _close_log_fp(item: dict[str, Any]) -> None:
 
 
 def _terminate_proc(proc: subprocess.Popen[str], graceful_timeout_sec: int = 5) -> str:
-    try:
-        os.killpg(proc.pid, signal.SIGTERM)
-    except Exception:
-        try:
-            proc.terminate()
-        except Exception:
-            pass
-    try:
-        proc.wait(timeout=max(1, int(graceful_timeout_sec)))
-        return "SIGTERM"
-    except Exception:
-        try:
-            os.killpg(proc.pid, signal.SIGKILL)
-        except Exception:
-            try:
-                proc.kill()
-            except Exception:
-                pass
-        return "SIGKILL"
+    return terminate_tracked_child(
+        proc,
+        term_timeout_sec=max(1, int(graceful_timeout_sec)),
+        kill_timeout_sec=3,
+    )
 
 
 def _write_failure_snapshot(
@@ -706,7 +692,6 @@ def _spawn_shard(
         stdout=log_fp,
         stderr=subprocess.STDOUT,
         text=True,
-        start_new_session=True,
     )
     return {
         "index": execution_index,
