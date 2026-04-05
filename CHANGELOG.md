@@ -6,6 +6,24 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- hardened the repo-owned Chrome singleton closeout contract so unstable
+  launches fail closed instead of pretending the browser is healthy: the
+  singleton launcher now retries macOS app boot through `open -na` after an
+  unstable bind, clears stale singleton residue before the next attach, and
+  surfaces current machine browser roots in `browser:chrome:status` so login
+  and browser-pressure debugging stay repo-scoped and auditable
+- tightened the Final-100 Wave 4 truth layer by documenting the default-off,
+  queue-only write-MCP pilot in `docs/runbooks/write-mcp-queue-pilot.md`,
+  adding a share-ready `news_digest` Workflow Case recap asset, and syncing the
+  root/use-case/storefront/env wording so the public contract still says
+  read-only MCP while the guarded queue pilot stays an internal operator-only
+  later gate
+- added an explicit host/process safety gate for live closeout paths:
+  `npm run scan:host-process-risks` now checks the repo for forbidden broad
+  cleanup patterns, shared host-safety helpers back the desktop/browser cleanup
+  scripts, and the governed queue-mutation allowlist wording now explicitly
+  covers approval-gated queue pilot surfaces alongside the existing admin
+  routes
 - replaced the old shared-root `allow_profile` model with a repo-owned Chrome
   singleton workspace under `~/.cache/cortexpilot/browser/chrome-user-data`,
   added explicit `browser:chrome:migrate|launch|status` entrypoints, moved
