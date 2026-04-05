@@ -173,6 +173,11 @@ def test_resolver_guard_blocks_non_allowlisted_profile(monkeypatch, tmp_path: Pa
 def test_resolver_break_glass_allows_privileged_override(monkeypatch, tmp_path: Path) -> None:
     allow_root = tmp_path / "automation-profiles"
     allow_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.delenv("CI", raising=False)
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CI_CONTAINER", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CLEAN_ROOM_MACHINE_TMP_ROOT", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CLEAN_ROOM_PRESERVE_ROOT", raising=False)
     monkeypatch.setenv("CORTEXPILOT_BROWSER_PROFILE_ALLOWLIST", str(allow_root))
     monkeypatch.setenv("CORTEXPILOT_BROWSER_BREAK_GLASS", "1")
 
@@ -200,6 +205,11 @@ def test_resolver_break_glass_allows_privileged_override(monkeypatch, tmp_path: 
 def test_resolver_explicit_env_profile_override_beats_contract(monkeypatch, tmp_path: Path) -> None:
     allow_root = tmp_path / "profiles"
     allow_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.delenv("CI", raising=False)
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CI_CONTAINER", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CLEAN_ROOM_MACHINE_TMP_ROOT", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CLEAN_ROOM_PRESERVE_ROOT", raising=False)
     monkeypatch.setenv("CORTEXPILOT_BROWSER_PROFILE_ALLOWLIST", str(allow_root))
     monkeypatch.setenv("CORTEXPILOT_BROWSER_PROFILE_MODE", "allow_profile")
     monkeypatch.setenv("CORTEXPILOT_BROWSER_PROFILE_DIR", str(allow_root))
@@ -227,6 +237,11 @@ def test_resolver_explicit_env_profile_override_beats_contract(monkeypatch, tmp_
 def test_resolver_env_profile_survives_missing_contract(monkeypatch, tmp_path: Path) -> None:
     allow_root = tmp_path / "profiles"
     allow_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.delenv("CI", raising=False)
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CI_CONTAINER", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CLEAN_ROOM_MACHINE_TMP_ROOT", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CLEAN_ROOM_PRESERVE_ROOT", raising=False)
     monkeypatch.setenv("CORTEXPILOT_BROWSER_PROFILE_ALLOWLIST", str(allow_root))
     monkeypatch.setenv("CORTEXPILOT_BROWSER_PROFILE_MODE", "allow_profile")
     monkeypatch.setenv("CORTEXPILOT_BROWSER_PROFILE_DIR", str(allow_root))
@@ -248,6 +263,11 @@ def test_resolver_env_profile_survives_missing_contract(monkeypatch, tmp_path: P
 def test_resolver_defaults_profile_dir_before_allowlist_guard(monkeypatch, tmp_path: Path) -> None:
     allow_root = tmp_path / "profiles"
     allow_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.delenv("CI", raising=False)
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CI_CONTAINER", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CLEAN_ROOM_MACHINE_TMP_ROOT", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CLEAN_ROOM_PRESERVE_ROOT", raising=False)
     monkeypatch.setenv("CORTEXPILOT_BROWSER_PROFILE_ALLOWLIST", str(allow_root))
     monkeypatch.setattr(browser_policy_resolver, "_default_chrome_profile_dir", lambda: allow_root)
 
