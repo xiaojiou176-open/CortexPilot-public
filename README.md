@@ -540,6 +540,9 @@ second-launching it, and closing automation pages before the Playwright runtime
 tears down. CI / Docker / clean-room lanes still force `ephemeral`
 browser state and must not depend on login state or on the local singleton
 root.
+If the same repo-owned root is still running on the old legacy port, the next
+launch now treats it as a managed transition and relaunches that same root onto
+`9341` instead of misclassifying it as a foreign browser occupant.
 When one closeout patch touches both dashboard and desktop packaging, expect the
 root AI/docs entrypoints and the module READMEs to move together so doc-sync
 gates can trace the maintenance decision end to end.

@@ -14,7 +14,9 @@ All notable changes to this repository will be documented in this file.
   cap-excluded so retention/governance reports keep it visible without
   auto-pruning it; the default singleton CDP contract now uses port `9341`,
   and the repo-safe machine browser pressure threshold now waits only after
-  more than 6 live browser instances instead of 4
+  more than 6 live browser instances instead of 4; same-root legacy singleton
+  processes on the old port now relaunch onto `9341` instead of being treated
+  as foreign occupants
 - hardened cache/browser closeout by unifying repo-authored runtime artifacts
   under `.runtime-cache/`, formalizing build/dependency exceptions, adding a
   default 20 GiB + TTL machine-cache retention contract for
