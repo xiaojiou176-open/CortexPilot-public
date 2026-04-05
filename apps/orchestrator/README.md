@@ -30,6 +30,10 @@
 - `allow_profile` then behaves as attach-or-launch against the singleton CDP
   endpoint `127.0.0.1:9341`, so manual and automated runs share the same
   headed Chrome instance instead of re-launching the default Chrome root
+- on macOS the launcher now retries once through `open -na "Google Chrome"`
+  when the direct Chrome executable does not bind CDP for the repo-owned root;
+  that keeps the singleton on the same `Profile 1` root instead of silently
+  giving up or falling back to a different browser state
 - login state persistence now relies on that single repo-owned user-data root
   plus attach-first reuse; the runtime closes only automation-created pages, so
   reopening the singleton should not require reseeding or second-launch copies

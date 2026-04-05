@@ -446,6 +446,7 @@ def search_verify(query: str, provider: str | None = None, browser_policy: dict[
     mode = "mock"
     resolved_provider = provider_name
     warning = ""
+    browser_warning = ""
 
     if provider_name in {"gemini_web", "chatgpt_web", "grok_web"} and not forced_mock:
         if provider_name == "gemini_web":

@@ -213,6 +213,69 @@ def test_ensure_repo_chrome_singleton_launches_when_no_instance_exists(
     assert "--remote-debugging-port=9341" in launches[0]
 
 
+def test_ensure_repo_chrome_singleton_retries_via_open_on_macos_when_direct_launch_never_binds(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    user_data_dir = tmp_path / "browser" / "chrome-user-data"
+    (user_data_dir / "Profile 1").mkdir(parents=True, exist_ok=True)
+    (user_data_dir / "Local State").write_text(
+        json.dumps({"profile": {"info_cache": {"Profile 1": {"name": "cortexpilot"}}, "last_used": "Profile 1"}}),
+        encoding="utf-8",
+    )
+    launches: list[list[str]] = []
+    state = {"phase": "before_retry"}
+
+    class _Proc:
+        pid = 888
+
+    def _wait_for_cdp(host: str, port: int, timeout_sec: float = 15.0, poll_sec: float = 0.25) -> dict[str, bool]:
+        if state["phase"] == "before_retry":
+            state["phase"] = "after_first_fail"
+            raise RuntimeError("Chrome CDP endpoint did not become ready")
+        state["phase"] = "ready"
+        return {"ok": True}
+
+    def _find_by_port(port: int) -> singleton_module.ChromeProcessInfo | None:
+        if state["phase"] != "ready":
+            return None
+        return singleton_module.ChromeProcessInfo(
+            pid=999,
+            args=f"chrome --user-data-dir={user_data_dir} --remote-debugging-port=9341",
+            user_data_dir=str(user_data_dir),
+            remote_debugging_port=port,
+            uses_default_root=False,
+        )
+
+    monkeypatch.setattr(singleton_module.sys, "platform", "darwin")
+    monkeypatch.setattr(
+        singleton_module,
+        "_is_executable_file",
+        lambda path: str(path) == "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    )
+    monkeypatch.setattr(singleton_module, "read_cdp_version", lambda host, port, timeout_sec=0.5: None)
+    monkeypatch.setattr(singleton_module, "find_chrome_process_by_user_data_dir", lambda root: None)
+    monkeypatch.setattr(singleton_module, "find_chrome_process_by_remote_debugging_port", _find_by_port)
+    monkeypatch.setattr(singleton_module, "wait_for_cdp_version", _wait_for_cdp)
+    monkeypatch.setattr(
+        singleton_module,
+        "_launch_chrome_process",
+        lambda args: launches.append(args) or _Proc(),
+    )
+
+    instance = singleton_module.ensure_repo_chrome_singleton(
+        chrome_executable_path="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        user_data_dir=user_data_dir,
+        profile_name="cortexpilot",
+        cdp_host="127.0.0.1",
+        cdp_port=9341,
+    )
+
+    assert instance.connection_mode == "launched"
+    assert launches[0][0] == "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    assert launches[1][:4] == ["open", "-na", "/Applications/Google Chrome.app", "--args"]
+    assert "--remote-debugging-port=9341" in launches[1]
+
+
 def test_ensure_repo_chrome_singleton_fails_when_other_root_owns_port(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

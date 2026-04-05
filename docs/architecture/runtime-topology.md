@@ -96,6 +96,11 @@ flowchart LR
   endpoint `127.0.0.1:9341`, verifies that the owning Chrome process really
   uses the repo-owned root, and only launches a new headed Chrome instance when
   that singleton is absent.
+- On macOS the launcher now retries once through `open -na "Google Chrome"` if
+  the direct executable fails to bind the repo-owned singleton root to `9341`.
+  The retry keeps the same repo-owned `Profile 1` root and still fails closed
+  if a different root or a non-managed same-root process is what blocked the
+  launch.
 - Login persistence now depends on keeping that repo-owned root stable and
   reusing the same headed Chrome singleton. The runtime closes automation pages
   before Playwright teardown instead of closing the entire browser or reseeding
