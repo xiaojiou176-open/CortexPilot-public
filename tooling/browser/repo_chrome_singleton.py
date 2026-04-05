@@ -189,6 +189,25 @@ def remove_singleton_files(user_data_dir: Path) -> list[str]:
     return removed
 
 
+def remove_singleton_state_file(user_data_dir: Path) -> bool:
+    path = singleton_state_path(user_data_dir)
+    if not path.exists():
+        return False
+    path.unlink(missing_ok=True)
+    return True
+
+
+def _clear_stale_singleton_files_if_repo_root_is_offline(user_data_dir: Path) -> list[str]:
+    if find_chrome_process_by_user_data_dir(user_data_dir) is not None:
+        return []
+    if find_chrome_process_by_remote_debugging_port(default_cdp_port()) is not None:
+        return []
+    removed = remove_singleton_files(user_data_dir)
+    if removed:
+        remove_singleton_state_file(user_data_dir)
+    return removed
+
+
 def _parse_chrome_process_line(line: str) -> ChromeProcessInfo | None:
     if _CHROME_BROWSER_MARKER not in line:
         return None
@@ -586,6 +605,8 @@ def ensure_repo_chrome_singleton(
     if port_process is not None and _normalized_path_text(port_process.user_data_dir) != expected_root:
         raise RuntimeError("another Chrome instance already owns the configured CDP port")
 
+    _clear_stale_singleton_files_if_repo_root_is_offline(user_data_dir)
+
     launch_args = [
         f"--user-data-dir={expected_root}",
         f"--profile-directory={profile_directory}",
@@ -617,11 +638,15 @@ def ensure_repo_chrome_singleton(
     launched_process = find_chrome_process_by_remote_debugging_port(cdp_port)
     if launched_process is not None and _normalized_path_text(launched_process.user_data_dir) != expected_root:
         raise RuntimeError("launched Chrome did not bind to the expected repo browser root")
-    _verify_repo_chrome_launch_stability(
-        user_data_dir=user_data_dir,
-        cdp_host=cdp_host,
-        cdp_port=cdp_port,
-    )
+    try:
+        _verify_repo_chrome_launch_stability(
+            user_data_dir=user_data_dir,
+            cdp_host=cdp_host,
+            cdp_port=cdp_port,
+        )
+    except RuntimeError:
+        _clear_stale_singleton_files_if_repo_root_is_offline(user_data_dir)
+        raise
     instance = RepoChromeInstance(
         connection_mode="launched",
         pid=launched_process.pid if launched_process is not None else proc.pid,

@@ -223,6 +223,23 @@ def test_ensure_repo_chrome_singleton_fails_closed_when_launch_does_not_stay_att
         json.dumps({"profile": {"info_cache": {"Profile 1": {"name": "cortexpilot"}}, "last_used": "Profile 1"}}),
         encoding="utf-8",
     )
+    (user_data_dir / "SingletonLock").write_text("stale", encoding="utf-8")
+    singleton_module.write_singleton_state(
+        singleton_module.RepoChromeInstance(
+            connection_mode="launched",
+            pid=777,
+            user_data_dir=str(user_data_dir),
+            profile_directory="Profile 1",
+            profile_name="cortexpilot",
+            cdp_host="127.0.0.1",
+            cdp_port=9341,
+            cdp_endpoint="http://127.0.0.1:9341",
+            chrome_executable_path="/preferred/chrome",
+            browser_root=str(user_data_dir.parent),
+            actual_headless=False,
+            requested_headless=False,
+        )
+    )
     launches: list[list[str]] = []
     state = {"phase": "launching"}
 
@@ -265,6 +282,8 @@ def test_ensure_repo_chrome_singleton_fails_closed_when_launch_does_not_stay_att
         )
 
     assert launches and "--remote-debugging-port=9341" in launches[0]
+    assert (user_data_dir / "SingletonLock").exists() is False
+    assert singleton_module.singleton_state_path(user_data_dir).exists() is False
 
 
 def test_ensure_repo_chrome_singleton_retries_via_open_on_macos_when_direct_launch_never_binds(
