@@ -368,11 +368,12 @@ def _verify_repo_chrome_launch_stability(
     cdp_port: int,
     settle_sec: float = 1.0,
     stable_samples: int = 3,
-) -> None:
+) -> ChromeProcessInfo:
     expected_root = _normalized_path_text(user_data_dir)
     required_samples = max(int(stable_samples), 1)
     sample_sleep_sec = max(settle_sec, 0.0)
     timeout_sec = min(max(settle_sec, 0.5), 1.0)
+    stable_process: ChromeProcessInfo | None = None
 
     for sample_idx in range(required_samples):
         if sample_sleep_sec > 0:
@@ -389,7 +390,13 @@ def _verify_repo_chrome_launch_stability(
             root_process is not None and _normalized_path_text(root_process.user_data_dir) == expected_root
         )
 
-        if endpoint_payload is not None and port_process_matches_root:
+        if endpoint_payload is not None and port_process_matches_root and port_process is not None:
+            if stable_process is None:
+                stable_process = port_process
+            elif stable_process.pid != port_process.pid:
+                raise RuntimeError(
+                    "repo Chrome launch changed owning PID before the repo-owned singleton stayed stably attached to the expected CDP endpoint"
+                )
             continue
         if root_process_matches_root:
             raise RuntimeError(
@@ -402,6 +409,12 @@ def _verify_repo_chrome_launch_stability(
         raise RuntimeError(
             "repo Chrome launch became stale before the repo-owned singleton stayed stably attached to the expected CDP endpoint"
         )
+
+    if stable_process is None:
+        raise RuntimeError(
+            "repo Chrome launch finished its stability window without a verified repo-owned CDP process"
+        )
+    return stable_process
 
 
 def write_singleton_state(instance: RepoChromeInstance) -> Path:
@@ -650,7 +663,7 @@ def ensure_repo_chrome_singleton(
     if launched_process is not None and _normalized_path_text(launched_process.user_data_dir) != expected_root:
         raise RuntimeError("launched Chrome did not bind to the expected repo browser root")
     try:
-        _verify_repo_chrome_launch_stability(
+        stable_process = _verify_repo_chrome_launch_stability(
             user_data_dir=user_data_dir,
             cdp_host=cdp_host,
             cdp_port=cdp_port,
@@ -666,7 +679,7 @@ def ensure_repo_chrome_singleton(
             launch_args=launch_args,
         ):
             wait_for_cdp_version(cdp_host, cdp_port, timeout_sec=cdp_timeout_sec)
-            _verify_repo_chrome_launch_stability(
+            stable_process = _verify_repo_chrome_launch_stability(
                 user_data_dir=user_data_dir,
                 cdp_host=cdp_host,
                 cdp_port=cdp_port,
@@ -676,7 +689,7 @@ def ensure_repo_chrome_singleton(
             raise
     instance = RepoChromeInstance(
         connection_mode="launched",
-        pid=launched_process.pid if launched_process is not None else proc.pid,
+        pid=stable_process.pid if stable_process is not None else (launched_process.pid if launched_process is not None else proc.pid),
         user_data_dir=expected_root,
         profile_directory=profile_directory,
         profile_name=profile_name,

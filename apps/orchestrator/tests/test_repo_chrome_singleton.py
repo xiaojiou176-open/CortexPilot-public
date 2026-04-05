@@ -215,7 +215,17 @@ def test_ensure_repo_chrome_singleton_launches_when_no_instance_exists(
     monkeypatch.setattr(singleton_module, "find_chrome_process_by_remote_debugging_port", lambda port: None)
     monkeypatch.setattr(singleton_module, "find_chrome_process_by_user_data_dir", lambda root: None)
     monkeypatch.setattr(singleton_module, "wait_for_cdp_version", lambda host, port, timeout_sec=15.0, poll_sec=0.25: {"ok": True})
-    monkeypatch.setattr(singleton_module, "_verify_repo_chrome_launch_stability", lambda **kwargs: None)
+    monkeypatch.setattr(
+        singleton_module,
+        "_verify_repo_chrome_launch_stability",
+        lambda **kwargs: singleton_module.ChromeProcessInfo(
+            pid=777,
+            args=f"chrome --user-data-dir={user_data_dir} --remote-debugging-port=9341",
+            user_data_dir=str(user_data_dir),
+            remote_debugging_port=9341,
+            uses_default_root=False,
+        ),
+    )
     monkeypatch.setattr(
         singleton_module.subprocess,
         "Popen",
@@ -418,7 +428,17 @@ def test_ensure_repo_chrome_singleton_retries_via_open_on_macos_when_direct_laun
     monkeypatch.setattr(singleton_module, "find_chrome_process_by_user_data_dir", lambda root: None)
     monkeypatch.setattr(singleton_module, "find_chrome_process_by_remote_debugging_port", _find_by_port)
     monkeypatch.setattr(singleton_module, "wait_for_cdp_version", _wait_for_cdp)
-    monkeypatch.setattr(singleton_module, "_verify_repo_chrome_launch_stability", lambda **kwargs: None)
+    monkeypatch.setattr(
+        singleton_module,
+        "_verify_repo_chrome_launch_stability",
+        lambda **kwargs: singleton_module.ChromeProcessInfo(
+            pid=999,
+            args=f"chrome --user-data-dir={user_data_dir} --remote-debugging-port=9341",
+            user_data_dir=str(user_data_dir),
+            remote_debugging_port=9341,
+            uses_default_root=False,
+        ),
+    )
     monkeypatch.setattr(
         singleton_module,
         "_launch_chrome_process",
@@ -511,7 +531,17 @@ def test_ensure_repo_chrome_singleton_relaunches_same_root_from_legacy_port(
         lambda process, timeout_sec=10.0: stopped.append(process.pid),
     )
     monkeypatch.setattr(singleton_module, "wait_for_cdp_version", lambda host, port, timeout_sec=15.0, poll_sec=0.25: {"ok": True})
-    monkeypatch.setattr(singleton_module, "_verify_repo_chrome_launch_stability", lambda **kwargs: None)
+    monkeypatch.setattr(
+        singleton_module,
+        "_verify_repo_chrome_launch_stability",
+        lambda **kwargs: singleton_module.ChromeProcessInfo(
+            pid=555,
+            args=f"chrome --user-data-dir={user_data_dir} --remote-debugging-port=9341",
+            user_data_dir=str(user_data_dir),
+            remote_debugging_port=9341,
+            uses_default_root=False,
+        ),
+    )
     monkeypatch.setattr(
         singleton_module.subprocess,
         "Popen",
@@ -786,6 +816,7 @@ def test_verify_repo_chrome_launch_stability_requires_persistent_attachment(
             cdp_host="127.0.0.1",
             cdp_port=9341,
             settle_sec=1.0,
+            stable_samples=3,
         )
 
 
@@ -820,9 +851,60 @@ def test_verify_repo_chrome_launch_stability_accepts_three_stable_samples(
         lambda root: matching_process,
     )
 
-    singleton_module._verify_repo_chrome_launch_stability(
+    stable_process = singleton_module._verify_repo_chrome_launch_stability(
         user_data_dir=user_data_dir,
         cdp_host="127.0.0.1",
         cdp_port=9341,
         settle_sec=1.0,
+        stable_samples=3,
     )
+    assert stable_process.pid == matching_process.pid
+
+
+def test_verify_repo_chrome_launch_stability_fails_when_pid_changes_mid_window(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    user_data_dir = tmp_path / "browser" / "chrome-user-data"
+    user_data_dir.mkdir(parents=True, exist_ok=True)
+    first_process = singleton_module.ChromeProcessInfo(
+        pid=501,
+        args=f"chrome --user-data-dir={user_data_dir} --remote-debugging-port=9341",
+        user_data_dir=str(user_data_dir),
+        remote_debugging_port=9341,
+        uses_default_root=False,
+    )
+    second_process = singleton_module.ChromeProcessInfo(
+        pid=777,
+        args=f"chrome --user-data-dir={user_data_dir} --remote-debugging-port=9341",
+        user_data_dir=str(user_data_dir),
+        remote_debugging_port=9341,
+        uses_default_root=False,
+    )
+    port_states = iter([first_process, second_process, second_process])
+
+    monkeypatch.setattr(singleton_module.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(
+        singleton_module,
+        "read_cdp_version",
+        lambda host, port, timeout_sec=0.5: {"Browser": "Chrome"},
+    )
+    monkeypatch.setattr(
+        singleton_module,
+        "find_chrome_process_by_remote_debugging_port",
+        lambda port: next(port_states),
+    )
+    monkeypatch.setattr(
+        singleton_module,
+        "find_chrome_process_by_user_data_dir",
+        lambda root: second_process,
+    )
+
+    with pytest.raises(RuntimeError, match="changed owning PID"):
+        singleton_module._verify_repo_chrome_launch_stability(
+            user_data_dir=user_data_dir,
+            cdp_host="127.0.0.1",
+            cdp_port=9341,
+            settle_sec=1.0,
+            stable_samples=3,
+        )
