@@ -305,6 +305,59 @@ def test_ensure_repo_chrome_singleton_relaunches_same_root_from_legacy_port(
     assert instance.cdp_port == 9341
 
 
+def test_ensure_repo_chrome_singleton_keeps_legacy_process_when_new_port_is_foreign(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    user_data_dir = tmp_path / "browser" / "chrome-user-data"
+    (user_data_dir / "Profile 1").mkdir(parents=True, exist_ok=True)
+    (user_data_dir / "Local State").write_text(
+        json.dumps({"profile": {"info_cache": {"Profile 1": {"name": "cortexpilot"}}, "last_used": "Profile 1"}}),
+        encoding="utf-8",
+    )
+    stopped: list[int] = []
+
+    monkeypatch.setattr(singleton_module, "_is_executable_file", lambda path: str(path) == "/preferred/chrome")
+    monkeypatch.setattr(singleton_module, "read_cdp_version", lambda host, port, timeout_sec=0.5: None)
+    monkeypatch.setattr(
+        singleton_module,
+        "find_chrome_process_by_remote_debugging_port",
+        lambda port: singleton_module.ChromeProcessInfo(
+            pid=999,
+            args="chrome --user-data-dir=/tmp/foreign --remote-debugging-port=9341",
+            user_data_dir="/tmp/foreign",
+            remote_debugging_port=9341,
+            uses_default_root=False,
+        ),
+    )
+    monkeypatch.setattr(
+        singleton_module,
+        "find_chrome_process_by_user_data_dir",
+        lambda root: singleton_module.ChromeProcessInfo(
+            pid=444,
+            args=f"chrome --user-data-dir={user_data_dir} --remote-debugging-port=9334",
+            user_data_dir=str(user_data_dir),
+            remote_debugging_port=9334,
+            uses_default_root=False,
+        ),
+    )
+    monkeypatch.setattr(
+        singleton_module,
+        "_stop_repo_owned_root_process_for_relaunch",
+        lambda process, timeout_sec=10.0: stopped.append(process.pid),
+    )
+
+    with pytest.raises(RuntimeError, match="already owns the configured CDP port"):
+        singleton_module.ensure_repo_chrome_singleton(
+            chrome_executable_path="/preferred/chrome",
+            user_data_dir=user_data_dir,
+            profile_name="cortexpilot",
+            cdp_host="127.0.0.1",
+            cdp_port=9341,
+        )
+
+    assert stopped == []
+
+
 def test_ensure_repo_chrome_singleton_fails_closed_for_same_root_non_legacy_port(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

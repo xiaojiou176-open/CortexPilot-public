@@ -198,3 +198,17 @@ def test_browser_search_closes_session_before_playwright_exit(monkeypatch, tmp_p
     assert error is None
     assert results == [{"title": "ok", "href": "https://example.com"}]
     assert order == ["session.close", "playwright.exit"]
+
+
+def test_browser_ddg_fail_closed_when_singleton_attach_fails(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "tooling.search.search_engine._browser_search",
+        lambda query, browser_policy=None: ([], "browser_ddg_failed: singleton attach failed"),
+    )
+
+    result = search_verify("cortexpilot", provider="browser_ddg")
+
+    assert result["ok"] is False
+    assert result["mode"] == "browser"
+    assert result["results"] == []
+    assert result["error"] == "browser_ddg_failed: singleton attach failed"

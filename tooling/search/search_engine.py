@@ -43,7 +43,7 @@ def _browser_search(query: str, browser_policy: dict[str, Any] | None = None) ->
     try:
         from playwright.sync_api import sync_playwright
     except Exception as exc:  # noqa: BLE001
-        return _mock_results(query), f"playwright_unavailable: {exc}"
+        return [], f"playwright_unavailable: {exc}"
 
     url = f"https://duckduckgo.com/?q={quote_plus(query)}"
     session: BrowserSessionHandle | None = None
@@ -74,10 +74,10 @@ def _browser_search(query: str, browser_policy: dict[str, Any] | None = None) ->
                     _close_browser_session_strict(session)
                     session = None
     except Exception as exc:  # noqa: BLE001
-        return _mock_results(query), f"browser_ddg_failed: {exc}"
+        return [], f"browser_ddg_failed: {exc}"
 
     if not isinstance(results, list):
-        return _mock_results(query), "browser_parse_failed"
+        return [], "browser_parse_failed"
     normalized: list[dict[str, str]] = []
     for item in results:
         if not isinstance(item, dict):
@@ -85,7 +85,9 @@ def _browser_search(query: str, browser_policy: dict[str, Any] | None = None) ->
         title = item.get("title", "")
         href = item.get("href", "")
         normalized.append({"title": str(title), "href": str(href)})
-    return normalized or _mock_results(query), None
+    if not normalized:
+        return [], "browser_parse_failed"
+    return normalized, None
 
 
 def _web_allowlist() -> list[str]:
@@ -511,6 +513,8 @@ def search_verify(query: str, provider: str | None = None, browser_policy: dict[
     domains = _extract_domains(results)
     consistency = len(set(domains)) == len(domains)
 
+    browser_fail_closed = resolved_provider == "browser_ddg" and bool(browser_warning)
+
     payload: dict[str, Any] = {
         "query": query,
         "provider": provider_name,
@@ -522,8 +526,10 @@ def search_verify(query: str, provider: str | None = None, browser_policy: dict[
             "count": len(results),
         },
         "duration_ms": int((time.monotonic() - start) * 1000),
-        "ok": True,
+        "ok": not browser_fail_closed,
     }
     if warning:
         payload["warning"] = warning
+    if browser_fail_closed:
+        payload["error"] = warning
     return payload

@@ -453,6 +453,8 @@ def ensure_repo_chrome_singleton(
     if root_process is not None:
         if root_process.remote_debugging_port != cdp_port:
             if root_process.remote_debugging_port == 9334 and cdp_port == 9341:
+                if port_process is not None and _normalized_path_text(port_process.user_data_dir) != expected_root:
+                    raise RuntimeError("another Chrome instance already owns the configured CDP port")
                 _stop_repo_owned_root_process_for_relaunch(root_process)
             else:
                 raise RuntimeError(
