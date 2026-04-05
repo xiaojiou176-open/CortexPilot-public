@@ -6,6 +6,10 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- hardened the host-compatible pre-commit lane so repo-owned `scripts/*.py`
+  hooks now use the governance wrapper instead of direct `python3` entrypoints,
+  keeping clean hook runs deterministic and free of repo-local `__pycache__`
+  residue after the gate finishes
 - hardened the repo-owned Chrome singleton closeout contract so unstable
   launches fail closed instead of pretending the browser is healthy: the
   singleton launcher now retries macOS app boot through `open -na` after an

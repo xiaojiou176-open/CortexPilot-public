@@ -27,14 +27,14 @@ repos:
 
       - id: cortexpilot-root-semantic-cleanliness
         name: cortexpilot-root-semantic-cleanliness
-        entry: python3 scripts/check_root_semantic_cleanliness.py
+        entry: bash scripts/run_governance_py.sh scripts/check_root_semantic_cleanliness.py
         language: system
         pass_filenames: false
         stages: [pre-commit]
 
       - id: cortexpilot-env-governance
         name: cortexpilot-env-governance
-        entry: python3 scripts/check_env_governance.py --mode gate
+        entry: bash scripts/run_governance_py.sh scripts/check_env_governance.py --mode gate
         language: system
         pass_filenames: false
         stages: [pre-commit]
@@ -63,7 +63,7 @@ repos:
 
       - id: cortexpilot-ui-gemini-quick-gate
         name: cortexpilot-ui-gemini-quick-gate
-        entry: python3 scripts/ui_ux_gemini_quick_gate.py
+        entry: bash scripts/run_governance_py.sh scripts/ui_ux_gemini_quick_gate.py
         language: system
         pass_filenames: false
         always_run: true

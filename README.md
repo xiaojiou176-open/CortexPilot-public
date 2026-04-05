@@ -58,6 +58,11 @@ paths:
 If this repository is close to your use case, star it to track the first public
 release, new task templates, and storefront updates.
 
+The host-compatible pre-commit lane now routes repo-owned `scripts/*.py` hooks
+through `bash scripts/run_governance_py.sh`, so the quality gate stays
+deterministic without leaving repo-local `__pycache__` residue behind after a
+clean run.
+
 ## Why CortexPilot Exists
 
 Most agent demos stop at "the model replied." CortexPilot is built for the next
