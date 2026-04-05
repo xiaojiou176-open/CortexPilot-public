@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
 
+cortexpilot_expand_home_path() {
+  local raw="${1:-}"
+  if [[ "$raw" == "~" ]]; then
+    printf '%s\n' "$HOME"
+    return 0
+  fi
+  printf '%s\n' "${raw/#\~\//$HOME/}"
+}
+
 cortexpilot_machine_cache_root() {
   local root_dir="${1:?root_dir required}"
   if [[ -n "${CORTEXPILOT_MACHINE_CACHE_ROOT:-}" ]]; then
-    printf '%s\n' "${CORTEXPILOT_MACHINE_CACHE_ROOT}"
+    cortexpilot_expand_home_path "${CORTEXPILOT_MACHINE_CACHE_ROOT}"
     return 0
   fi
   if [[ -n "${RUNNER_TEMP:-}" && ( "${CI:-}" == "1" || "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ) ]]; then
@@ -30,6 +39,29 @@ cortexpilot_machine_tmp_root() {
   local machine_root
   machine_root="$(cortexpilot_machine_cache_root "$root_dir")"
   printf '%s\n' "${machine_root}/tmp"
+}
+
+cortexpilot_docker_buildx_cache_root() {
+  local root_dir="${1:?root_dir required}"
+  local machine_root
+  machine_root="$(cortexpilot_machine_cache_root "$root_dir")"
+  printf '%s\n' "${machine_root}/docker-buildx-cache"
+}
+
+cortexpilot_docker_buildx_cache_dir() {
+  local root_dir="${1:?root_dir required}"
+  local image_name="${2:?image_name required}"
+  local cache_root
+  cache_root="$(cortexpilot_docker_buildx_cache_root "$root_dir")"
+  local sanitized
+  sanitized="${image_name//:/-}"
+  sanitized="${sanitized//\//-}"
+  sanitized="${sanitized//@/-}"
+  sanitized="$(printf '%s' "$sanitized" | LC_ALL=C tr -cd '[:alnum:]._-')"
+  if [[ -z "$sanitized" ]]; then
+    sanitized="image-cache"
+  fi
+  printf '%s\n' "${cache_root}/${sanitized}"
 }
 
 cortexpilot_bootstrap_python_bin() {
@@ -126,6 +158,23 @@ cortexpilot_pnpm_store_dir() {
     return 0
   fi
   printf '%s\n' "${machine_root}/pnpm-store"
+}
+
+cortexpilot_pnpm_local_retry_prefix() {
+  local root_dir="${1:?root_dir required}"
+  local lane="${2:?lane required}"
+  local machine_root
+  machine_root="$(cortexpilot_machine_cache_root "$root_dir")"
+  printf '%s\n' "${machine_root}/pnpm-store-local-${lane}"
+}
+
+cortexpilot_pnpm_local_retry_dir() {
+  local root_dir="${1:?root_dir required}"
+  local lane="${2:?lane required}"
+  local prefix
+  prefix="$(cortexpilot_pnpm_local_retry_prefix "$root_dir" "$lane")"
+  mkdir -p "$(dirname "$prefix")"
+  mktemp -d "${prefix}.XXXXXX"
 }
 
 cortexpilot_playwright_browsers_path() {

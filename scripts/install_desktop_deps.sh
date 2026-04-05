@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_DIR="$ROOT_DIR/apps/desktop"
 source "$ROOT_DIR/scripts/lib/toolchain_env.sh"
+source "$ROOT_DIR/scripts/lib/machine_cache_retention.sh"
 
 STORE_DIR="${CORTEXPILOT_PNPM_STORE_DIR:-$(cortexpilot_pnpm_store_dir "$ROOT_DIR")/desktop}"
 INSTALL_NODE_LINKER="${CORTEXPILOT_DESKTOP_PNPM_NODE_LINKER:-hoisted}"
@@ -16,15 +17,15 @@ LOCK_DIR="$ROOT_DIR/.runtime-cache/cortexpilot/locks/install-desktop-deps.lock"
 LOCK_OWNER_FILE="$LOCK_DIR/owner"
 LOCK_HELD=0
 
+cortexpilot_maybe_auto_prune_machine_cache "$ROOT_DIR" "install_desktop_deps"
+
 resolve_writable_store_dir() {
   local candidate="$1"
   if mkdir -p "$candidate" >/dev/null 2>&1; then
     printf '%s\n' "$candidate"
     return 0
   fi
-  local fallback="${XDG_CACHE_HOME:-$HOME/.cache}/cortexpilot/pnpm-store-desktop"
-  mkdir -p "$fallback"
-  printf '%s\n' "$fallback"
+  cortexpilot_pnpm_local_retry_dir "$ROOT_DIR" "desktop"
 }
 
 release_install_lock() {
@@ -70,9 +71,7 @@ EOF
 }
 
 fresh_retry_store_dir() {
-  local retry_root="${XDG_CACHE_HOME:-$HOME/.cache}/cortexpilot"
-  mkdir -p "$retry_root"
-  mktemp -d "$retry_root/pnpm-store-desktop-retry.XXXXXX"
+  cortexpilot_pnpm_local_retry_dir "$ROOT_DIR" "desktop"
 }
 
 workspace_retry_store_dir() {
@@ -82,10 +81,11 @@ workspace_retry_store_dir() {
 }
 
 cleanup_stale_retry_stores() {
-  local retry_root="${XDG_CACHE_HOME:-$HOME/.cache}/cortexpilot"
+  local retry_prefix
+  retry_prefix="$(cortexpilot_pnpm_local_retry_prefix "$ROOT_DIR" "desktop")"
   local candidate=""
   shopt -s nullglob
-  for candidate in "$retry_root"/pnpm-store-desktop-retry.*; do
+  for candidate in "${retry_prefix}".*; do
     [[ "$candidate" == "$STORE_DIR" ]] && continue
     retire_store_dir "$candidate"
   done

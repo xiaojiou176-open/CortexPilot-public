@@ -486,19 +486,22 @@ def test_scheduler_bridge_finalize_d2_execute_finalizer_without_lock_or_worktree
 
 
 def test_retention_d2_namespace_contract_overflow_and_apply_edges(tmp_path: Path, monkeypatch) -> None:
-    runtime_root = tmp_path / "runtime"
+    repo_root = tmp_path / "repo"
+    runtime_root = repo_root / ".runtime-cache" / "cortexpilot"
     runs_root = runtime_root / "runs"
     worktree_root = runtime_root / "worktrees"
     logs_root = runtime_root / "logs"
     cache_root = runtime_root / "cache"
     contract_root = tmp_path / "contracts"
 
+    monkeypatch.setenv("CORTEXPILOT_REPO_ROOT", str(repo_root))
     monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
     monkeypatch.setenv("CORTEXPILOT_RUNS_ROOT", str(runs_root))
     monkeypatch.setenv("CORTEXPILOT_WORKTREE_ROOT", str(worktree_root))
     monkeypatch.setenv("CORTEXPILOT_LOGS_ROOT", str(logs_root))
     monkeypatch.setenv("CORTEXPILOT_CACHE_ROOT", str(cache_root))
     monkeypatch.setenv("CORTEXPILOT_CONTRACT_ROOT", str(contract_root))
+    monkeypatch.setenv("CORTEXPILOT_MACHINE_CACHE_ROOT", str(tmp_path / "machine-cache"))
     monkeypatch.setenv("CORTEXPILOT_RETENTION_RUN_DAYS", "30")
     monkeypatch.setenv("CORTEXPILOT_RETENTION_MAX_RUNS", "10")
     monkeypatch.setenv("CORTEXPILOT_RETENTION_LOG_DAYS", "30")

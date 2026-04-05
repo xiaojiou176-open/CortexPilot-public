@@ -151,7 +151,15 @@ Work in CortexPilot as a contract-first engineering agent:
   examples also include `~/.cache/cortexpilot/tmp/docker-ci/runner-temp-*`,
   `~/.cache/cortexpilot/tmp/clean-room-machine-cache.*`, and
   `~/.cache/cortexpilot/tmp/clean-room-preserve.*`, which stay
-  repo-external-related under wave3 instead of defaulting to Darwin `TMPDIR`
+  repo-external-related under wave3 instead of defaulting to Darwin `TMPDIR`;
+  current closeout slices also include `machine_cache_summary` +
+  `machine_cache_auto_prune` in the retention/space-governance bridge, the
+  repo-owned Docker runtime receipt at
+  `.runtime-cache/cortexpilot/reports/space_governance/docker_runtime.json`,
+  repo-owned buildx local cache under
+  `~/.cache/cortexpilot/docker-buildx-cache/`, and the local-only real Chrome
+  profile default (`allow_profile` + display name `cortexpilot`) that now
+  fails closed back to `ephemeral` on CI / docker / clean-room lanes
 - when workflow-case / proof-pack / compare / task-pack / queue-scheduling
   contracts change, sync the root AI/docs entrypoints in the same patch; the
   current examples are `.runtime-cache/cortexpilot/workflow-cases/`,

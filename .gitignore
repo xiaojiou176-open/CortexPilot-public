@@ -85,6 +85,7 @@ coverage.xml
 .codex/
 .claude/
 .opencode/
+.serena/
 .cursorrules/
 **/Users/*/.cache/cortexpilot/modules-root/
 

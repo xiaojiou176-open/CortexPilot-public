@@ -4,8 +4,11 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_DIR="$ROOT_DIR/packages/frontend-api-client"
 source "$ROOT_DIR/scripts/lib/toolchain_env.sh"
+source "$ROOT_DIR/scripts/lib/machine_cache_retention.sh"
 
 STORE_DIR="${CORTEXPILOT_PNPM_STORE_DIR:-$(cortexpilot_pnpm_store_dir "$ROOT_DIR")}"
+
+cortexpilot_maybe_auto_prune_machine_cache "$ROOT_DIR" "install_frontend_api_client_deps"
 
 resolve_writable_store_dir() {
   local candidate="$1"
@@ -13,10 +16,7 @@ resolve_writable_store_dir() {
     printf '%s\n' "$candidate"
     return 0
   fi
-  local fallback
-  fallback="${XDG_CACHE_HOME:-$HOME/.cache}/cortexpilot/pnpm-store-frontend-api-client"
-  mkdir -p "$fallback"
-  printf '%s\n' "$fallback"
+  cortexpilot_pnpm_local_retry_dir "$ROOT_DIR" "frontend-api-client"
 }
 
 if [[ -d "$ROOT_DIR/node_modules" ]]; then

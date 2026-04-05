@@ -29,6 +29,14 @@ def _raw_to_bool(raw: str, default: bool = False) -> bool:
     return default
 
 
+def _ci_or_container_env() -> bool:
+    return (
+        os.getenv("CI", "").strip().lower() in {"1", "true", "yes", "on"}
+        or os.getenv("GITHUB_ACTIONS", "").strip().lower() in {"1", "true", "yes", "on"}
+        or os.getenv("CORTEXPILOT_CI_CONTAINER", "").strip().lower() in {"1", "true", "yes", "on"}
+    )
+
+
 def _normalize_profile_mode(raw: Any, default: str = "ephemeral") -> str:
     value = str(raw or default).strip().lower()
     if value in _ALLOWED_PROFILE_MODES:
@@ -101,12 +109,13 @@ def _normalize_task_override(raw: Any) -> tuple[dict[str, Any], list[str]]:
 
 
 def _env_default_policy() -> dict[str, Any]:
+    default_profile_mode = _default_profile_mode()
     profile_mode = _normalize_profile_mode(
         _non_empty_text(
             os.getenv("CORTEXPILOT_BROWSER_PROFILE_MODE", ""),
-            default="ephemeral",
+            default=default_profile_mode,
         ),
-        "ephemeral",
+        default_profile_mode,
     )
     profile_dir = _non_empty_text(
         os.getenv("CORTEXPILOT_BROWSER_PROFILE_DIR", ""),
@@ -114,7 +123,7 @@ def _env_default_policy() -> dict[str, Any]:
     )
     profile_name = _non_empty_text(
         os.getenv("CORTEXPILOT_BROWSER_PROFILE_NAME", ""),
-        default="Default",
+        default=_default_profile_name(profile_mode),
     )
     cookie_path = _non_empty_text(
         os.getenv("CORTEXPILOT_BROWSER_COOKIE_PATH", ""),
@@ -148,6 +157,40 @@ def _default_chrome_profile_dir() -> Path | None:
     if chrome_dir.exists():
         return chrome_dir.resolve()
     return None
+
+
+def _local_profile_defaults_enabled() -> bool:
+    if _ci_or_container_env():
+        return False
+    if _non_empty_text(
+        os.getenv("CORTEXPILOT_CLEAN_ROOM_MACHINE_TMP_ROOT", ""),
+        os.getenv("CORTEXPILOT_CLEAN_ROOM_PRESERVE_ROOT", ""),
+        default="",
+    ):
+        return False
+    return _default_chrome_profile_dir() is not None
+
+
+def _default_profile_mode() -> str:
+    return "allow_profile" if _local_profile_defaults_enabled() else "ephemeral"
+
+
+def _default_profile_name(profile_mode: str) -> str:
+    if profile_mode == "allow_profile" and _local_profile_defaults_enabled():
+        return "cortexpilot"
+    return "Default"
+
+
+def _forced_ephemeral_reason() -> str:
+    if _ci_or_container_env():
+        return "ci_or_container"
+    if _non_empty_text(
+        os.getenv("CORTEXPILOT_CLEAN_ROOM_MACHINE_TMP_ROOT", ""),
+        os.getenv("CORTEXPILOT_CLEAN_ROOM_PRESERVE_ROOT", ""),
+        default="",
+    ):
+        return "clean_room"
+    return ""
 
 
 def _explicit_profile_env_overrides() -> tuple[dict[str, Any], dict[str, str]]:
@@ -198,19 +241,38 @@ def _apply_default_profile_dir(policy: dict[str, Any], policy_source: dict[str, 
     policy_source["profile_ref.profile_dir"] = "default"
 
 
+def _apply_default_profile_name(policy: dict[str, Any], policy_source: dict[str, str]) -> None:
+    if str(policy.get("profile_mode", "")).strip().lower() != "allow_profile":
+        return
+    profile_ref = policy.get("profile_ref") if isinstance(policy.get("profile_ref"), dict) else {}
+    if _non_empty_text(str(profile_ref.get("profile_name", "")), default=""):
+        return
+    profile_ref["profile_name"] = _default_profile_name("allow_profile")
+    policy["profile_ref"] = profile_ref
+    policy_source["profile_ref.profile_name"] = "default"
+
+
 def _profile_allowlist_roots() -> list[Path]:
     configured = _non_empty_text(os.getenv("CORTEXPILOT_BROWSER_PROFILE_ALLOWLIST", ""), default="")
-    roots: list[Path] = []
     if configured:
         items = [item.strip() for item in configured.split(",") if item.strip()]
     else:
         items = [".runtime-cache/browser-profiles", ".runtime-cache/cortexpilot/browser-profiles"]
+        default_chrome_dir = _default_chrome_profile_dir()
+        if default_chrome_dir is not None:
+            items.append(str(default_chrome_dir))
+    roots: list[Path] = []
+    seen: set[str] = set()
     for item in items:
         path = Path(item).expanduser()
         if not path.is_absolute():
             path = (Path.cwd() / path).resolve()
         else:
             path = path.resolve()
+        resolved = str(path)
+        if resolved in seen:
+            continue
+        seen.add(resolved)
         roots.append(path)
     return roots
 
@@ -285,6 +347,7 @@ def resolve_browser_policy(
         policy_source["profile_ref.profile_name"] = env_sources["profile_ref.profile_name"]
 
     _apply_default_profile_dir(requested, policy_source)
+    _apply_default_profile_name(requested, policy_source)
 
     task_override, rejected_fields = _normalize_task_override(task_policy)
     if "stealth_mode" in task_override:
@@ -323,7 +386,26 @@ def resolve_browser_policy(
 
     if effective["profile_mode"] == "allow_profile":
         profile_dir = str(effective.get("profile_ref", {}).get("profile_dir", "")).strip()
-        if not _is_profile_dir_allowed(profile_dir):
+        forced_ephemeral_reason = _forced_ephemeral_reason()
+        if forced_ephemeral_reason:
+            effective["profile_mode"] = "ephemeral"
+            effective["profile_ref"] = {"profile_dir": "", "profile_name": ""}
+            effective["cookie_ref"] = {"cookie_path": ""}
+            fallback_chain.append("allow_profile->ephemeral")
+            events.append(
+                {
+                    "event": "BROWSER_POLICY_GUARD_BLOCK",
+                    "level": "WARN",
+                    "meta": {
+                        "source": source,
+                        "task_id": task_id,
+                        "rule": "force_ephemeral_environment",
+                        "action": "downgrade_to_ephemeral",
+                        "reason": forced_ephemeral_reason,
+                    },
+                }
+            )
+        elif not _is_profile_dir_allowed(profile_dir):
             if break_glass_allowed:
                 events.append(
                     {
@@ -361,6 +443,26 @@ def resolve_browser_policy(
                         },
                     }
                 )
+
+    if effective["profile_mode"] == "cookie_file":
+        forced_ephemeral_reason = _forced_ephemeral_reason()
+        if forced_ephemeral_reason:
+            effective["profile_mode"] = "ephemeral"
+            effective["cookie_ref"] = {"cookie_path": ""}
+            fallback_chain.append("cookie_file->ephemeral")
+            events.append(
+                {
+                    "event": "BROWSER_POLICY_GUARD_BLOCK",
+                    "level": "WARN",
+                    "meta": {
+                        "source": source,
+                        "task_id": task_id,
+                        "rule": "force_ephemeral_environment",
+                        "action": "downgrade_to_ephemeral",
+                        "reason": forced_ephemeral_reason,
+                    },
+                }
+            )
 
     behavior_level = str(effective.get("human_behavior", {}).get("level", "low"))
     if (

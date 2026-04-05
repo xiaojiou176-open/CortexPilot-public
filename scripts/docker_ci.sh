@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/lib/toolchain_env.sh"
+source "$ROOT_DIR/scripts/lib/machine_cache_retention.sh"
 IMAGE_NAME="cortexpilot-ci-core:local"
 DESKTOP_NATIVE_IMAGE_NAME="cortexpilot-ci-desktop-native:local"
 CONTAINER_RUN_ARGS=()
@@ -214,6 +215,19 @@ ensure_host_dispatch_context_or_fail() {
   fi
 }
 
+docker_buildx_local_cache_enabled() {
+  local raw="${CORTEXPILOT_DOCKER_BUILDX_LOCAL_CACHE:-1}"
+  if is_truthy "${CI:-0}" || is_truthy "${GITHUB_ACTIONS:-0}" || is_truthy "${CORTEXPILOT_CI_CONTAINER:-0}"; then
+    return 1
+  fi
+  local normalized
+  normalized="$(printf '%s' "$raw" | tr '[:upper:]' '[:lower:]')"
+  if [[ "$normalized" =~ ^(0|false|no|off)$ ]]; then
+    return 1
+  fi
+  docker buildx version >/dev/null 2>&1
+}
+
 build_image_from_dockerfile() {
   local image_name="$1"
   local dockerfile_path="$2"
@@ -221,6 +235,9 @@ build_image_from_dockerfile() {
   local dockerignore_path="${ROOT_DIR}/.dockerignore"
   local input_hash
   local existing_hash=""
+  local buildx_cache_dir=""
+  local buildx_cache_dir_next=""
+  local use_buildx_local_cache=0
   docker_daemon_precheck_or_fail "build_image_from_dockerfile:${image_name}"
   emit_stage "resolve-targetarch" "image=${image_name} dockerfile=${dockerfile_path#${ROOT_DIR}/}"
   targetarch="$(resolve_targetarch_or_fail)"
@@ -257,13 +274,44 @@ PY
     docker image rm -f "${image_name}" >/dev/null 2>&1 || true
   fi
   emit_stage "docker-build" "image=${image_name} input_hash=${input_hash}"
-  docker build \
-    --build-arg "TARGETARCH=${targetarch}" \
-    --label "org.cortexpilot.ci.input-hash=${input_hash}" \
-    -t "${image_name}" \
-    -f "${dockerfile_path}" \
-    "${ROOT_DIR}"
+  if docker_buildx_local_cache_enabled; then
+    buildx_cache_dir="$(cortexpilot_docker_buildx_cache_dir "$ROOT_DIR" "$image_name")"
+    buildx_cache_dir_next="${buildx_cache_dir}.next.$$"
+    mkdir -p "$(dirname "$buildx_cache_dir")"
+    rm -rf "${buildx_cache_dir_next}" >/dev/null 2>&1 || true
+    use_buildx_local_cache=1
+    emit_stage "docker-buildx-local-cache" "image=${image_name} cache_dir=${buildx_cache_dir}"
+    local buildx_args=(
+      buildx build
+      --load
+      --build-arg "TARGETARCH=${targetarch}"
+      --label "org.cortexpilot.ci.input-hash=${input_hash}"
+      --cache-to "type=local,dest=${buildx_cache_dir_next},mode=max"
+      -t "${image_name}"
+      -f "${dockerfile_path}"
+      "${ROOT_DIR}"
+    )
+    if [[ -d "${buildx_cache_dir}" ]] && [[ -n "$(find "${buildx_cache_dir}" -mindepth 1 -print -quit 2>/dev/null)" ]]; then
+      buildx_args+=(--cache-from "type=local,src=${buildx_cache_dir}")
+    fi
+    if ! docker "${buildx_args[@]}"; then
+      rm -rf "${buildx_cache_dir_next}" >/dev/null 2>&1 || true
+      return 1
+    fi
+    rm -rf "${buildx_cache_dir}" >/dev/null 2>&1 || true
+    mv "${buildx_cache_dir_next}" "${buildx_cache_dir}"
+  else
+    docker build \
+      --build-arg "TARGETARCH=${targetarch}" \
+      --label "org.cortexpilot.ci.input-hash=${input_hash}" \
+      -t "${image_name}" \
+      -f "${dockerfile_path}" \
+      "${ROOT_DIR}"
+  fi
   emit_stage "docker-build-complete" "image=${image_name}"
+  if [[ "${use_buildx_local_cache}" == "1" ]]; then
+    emit_stage "docker-build-cache-ready" "image=${image_name} cache_dir=${buildx_cache_dir}"
+  fi
 }
 
 build_image() {
@@ -292,9 +340,15 @@ resolve_targetarch_or_fail() {
 
 prepare_runner_temp_mount() {
   # Keep heavy local CI runner temp under the repo-owned machine cache instead of Darwin TMPDIR.
+  cortexpilot_maybe_auto_prune_machine_cache "$ROOT_DIR" "docker_ci_runner_temp"
   local default_host_runner_temp="$(cortexpilot_machine_tmp_root "$ROOT_DIR")/docker-ci/runner-temp-$(id -u)"
   local host_runner_temp="${CORTEXPILOT_DOCKER_CI_RUNNER_TEMP_HOST:-${RUNNER_TEMP:-${default_host_runner_temp}}}"
   mkdir -p "${host_runner_temp}"
+  local target_uid
+  local target_gid
+  target_uid="$(resolve_host_uid)"
+  target_gid="$(resolve_host_gid)"
+  chown -R "${target_uid}:${target_gid}" "${host_runner_temp}" >/dev/null 2>&1 || true
   export CORTEXPILOT_DOCKER_CI_RUNNER_TEMP_HOST="${host_runner_temp}"
 }
 

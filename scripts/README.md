@@ -46,6 +46,14 @@ user's ambient Python environment.
   repeated pnpm `ERR_PNPM_ENOENT` failures from fresh-store retries to a
   workspace-local store recovery path instead of repeating the same failing
   copy strategy indefinitely.
+- Bootstrap/install/docker-ci/clean-room entrypoints now run a rate-limited
+  machine-cache auto-prune hook before creating new repo-owned external caches.
+  The hook reuses `scripts/cleanup_runtime.sh apply` with root-noise cleanup
+  disabled, so CortexPilot still has one cleanup world instead of a separate
+  cache-only deletion path.
+- Temporary pnpm retry stores now stay under `~/.cache/cortexpilot` with the
+  shared `pnpm-store-local-*` naming contract instead of ad-hoc
+  `pnpm-store-dashboard-retry.*` / `pnpm-store-desktop-retry.*` variants.
 - Hosted CI lanes now try `sudo -E bash scripts/docker_ci.sh ...` only when
   passwordless sudo is available; otherwise they fall back to direct
   `bash scripts/docker_ci.sh ...` execution so `main` push lanes do not fail on
@@ -55,6 +63,16 @@ user's ambient Python environment.
   canonical core and desktop-native local CI images plus optional repo-prefixed
   volumes, while keeping workstation-global Docker/cache totals strictly
   observation-only.
+- `docker_runtime_governance.py` is the structured report engine behind that
+  lane. It writes `.runtime-cache/cortexpilot/reports/space_governance/docker_runtime.json`
+  so Docker residue no longer exists only as shell stdout.
+- `docker_ci.sh` now prefers repo-owned local buildx cache directories under
+  `~/.cache/cortexpilot/docker-buildx-cache/` when `docker buildx` is
+  available, which turns rebuildable Docker image cache into a governed
+  repo-owned external cache instead of a purely opaque daemon-side layer.
+  GitHub-hosted / in-container CI lanes intentionally keep that optimization
+  disabled unless explicitly reopened, because the hosted Docker driver may not
+  support local cache export.
 - `docker_ci.sh` and `check_clean_room_recovery.sh` now keep their heavy
   machine-scoped temp roots under `~/.cache/cortexpilot/tmp/` by default
   (for example `tmp/docker-ci/runner-temp-*` and

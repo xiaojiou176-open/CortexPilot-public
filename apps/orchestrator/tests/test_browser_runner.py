@@ -56,7 +56,7 @@ def test_browser_runner_captures_error_artifacts(tmp_path: Path, monkeypatch) ->
     setattr(dummy_module, "sync_playwright", lambda: DummyContext())
     monkeypatch.setitem(sys.modules, "playwright.sync_api", dummy_module)
 
-    runner = BrowserRunner(artifacts_dir, headless=True)
+    runner = BrowserRunner(artifacts_dir, headless=True, browser_policy={"profile_mode": "ephemeral"})
     result = runner.run_script("", "https://example.com")
     assert result["ok"] is False
     artifacts = result.get("artifacts", {})
@@ -72,7 +72,7 @@ def test_browser_runner_blocks_non_allowlisted_url(tmp_path: Path, monkeypatch) 
     artifacts_dir = tmp_path / "artifacts"
     monkeypatch.setenv("CORTEXPILOT_BROWSER_ALLOWLIST", "https://chatgpt.com/")
 
-    runner = BrowserRunner(artifacts_dir, headless=True)
+    runner = BrowserRunner(artifacts_dir, headless=True, browser_policy={"profile_mode": "ephemeral"})
     result = runner.run_script("", "https://example.com")
     assert result["ok"] is False
     assert result["error"] == "url not allowlisted"
@@ -137,7 +137,7 @@ def test_browser_runner_plugin_mode_fallback_to_lite(tmp_path: Path, monkeypatch
     monkeypatch.setenv("CORTEXPILOT_BROWSER_STEALTH_MODE", "plugin")
     monkeypatch.setenv("CORTEXPILOT_BROWSER_PLUGIN_OPTIONAL", "1")
 
-    runner = BrowserRunner(artifacts_dir, headless=True)
+    runner = BrowserRunner(artifacts_dir, headless=True, browser_policy={"profile_mode": "ephemeral"})
     result = runner.run_script("", "https://example.com")
 
     assert result["ok"] is True

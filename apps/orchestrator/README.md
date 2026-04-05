@@ -23,10 +23,20 @@
 ## Search And Browser Policy Notes
 
 - search-task execution resolves browser policy before a web provider runs
-- `allow_profile` is the only supported profile-sharing mode for the current
-  public `news_digest` proof path
-- `allow_profile` can still degrade to `ephemeral` if the configured profile
-  root is outside the allowlist
+- local host development defaults to `allow_profile` with the real Chrome
+  display name `cortexpilot`, resolving the actual `Profile N` directory from
+  Chrome `Local State` when needed
+- CI, repo CI containers, and clean-room lanes force browser policy back to
+  `ephemeral`; those paths must not depend on login state or on a copied host
+  profile
+- `allow_profile` still degrades to `ephemeral` if the configured profile root
+  is outside the allowlist
+- `allow_profile` prefers a real Chrome executable from `CHROME_PATH` or the
+  standard macOS install path and fails closed instead of silently falling back
+  to Playwright-bundled Chromium
+- if the configured profile label cannot be resolved to a real Chrome profile
+  directory, the local host path fails closed instead of silently creating or
+  guessing a fresh profile
 - the current `gemini_web` prompt path supports both classic text inputs and
   `contenteditable` textbox surfaces, so provider DOM changes do not silently
   break the `news_digest` proof route again

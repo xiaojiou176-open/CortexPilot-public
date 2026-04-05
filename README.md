@@ -493,11 +493,20 @@ reclaim bytes, and post-cleanup verification metadata. Repo-external apply
 scope remains limited to `~/.cache/cortexpilot`; Docker Desktop, global
 Cargo/Rustup, global uv, global npm, and global Playwright remain observation
 only.
+Repo-authored runtime/test/temp/report artifacts stay under `.runtime-cache/`,
+while app-local `node_modules`, `.next`, `.venv`, `dist`, and `*.tsbuildinfo`
+surfaces are explicit build/dependency exceptions rather than part of the
+unified runtime cache story.
 Heavy machine-scoped temp producers now also stay under the governed
 `~/.cache/cortexpilot/tmp/` subtree by default. Current examples include local
 `docker_ci` host runner temp roots and clean-room recovery machine cache /
 preserve roots, so Darwin `TMPDIR` is no longer the default heavy temp landing
 zone for those repo-owned surfaces.
+Machine-cache governance now combines TTL retention with a default **20 GiB**
+cap. Bootstrap/install/docker-ci/clean-room entrypoints run a rate-limited
+auto-prune hook before creating new repo-owned external caches, but only
+policy-marked child paths are eligible for reclamation; shared toolchain roots
+such as `toolchains/python/current` remain observe-only.
 Docker-heavy local CI residue now has its own operator lane:
 
 - `npm run docker:runtime:audit`
@@ -511,8 +520,17 @@ Use the Docker runtime lane for `cortexpilot-ci-core:local`,
 `~/.cache/cortexpilot` namespace. Aggressive cleanup skips images that still
 back running containers, and the `:full` variant adds repo-related named volume
 removal. The lane only applies cleanup to CortexPilot-owned images, containers,
-and repo-prefixed volumes; workstation-global Docker/cache totals remain
-audit-only observations.
+repo-prefixed volumes; workstation-global Docker/cache totals remain
+audit-only observations. Repo-owned buildx local cache now also lives under
+`~/.cache/cortexpilot/docker-buildx-cache/`, and the Docker lane writes a
+structured receipt to
+`.runtime-cache/cortexpilot/reports/space_governance/docker_runtime.json`.
+That buildx cache path is a local-development accelerator, not a GitHub-hosted
+CI requirement; hosted/container lanes stay on the more conservative daemon
+path when local cache export is unsupported.
+Local browser development now defaults to the real Chrome profile display name
+`cortexpilot`, while CI / Docker / clean-room lanes force `ephemeral` browser
+state and must not depend on login state or on a copied local profile.
 When one closeout patch touches both dashboard and desktop packaging, expect the
 root AI/docs entrypoints and the module READMEs to move together so doc-sync
 gates can trace the maintenance decision end to end.

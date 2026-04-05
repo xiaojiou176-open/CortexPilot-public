@@ -332,9 +332,11 @@ def test_wave3_does_not_promote_unrelated_playwright_or_cargo_processes_to_targe
             "ownership_confidence": "High",
             "sharedness": "repo_machine_shared",
             "rebuildability": "rebuildable",
-            "recommendation": "needs_verification",
-            "cleanup_mode": "remove-path",
-            "risk": "medium",
+                    "recommendation": "needs_verification",
+                    "cleanup_mode": "remove-path",
+                    "retention_auto_cleanup": True,
+                    "retention_ttl_hours": 24,
+                    "risk": "medium",
             "rebuild_command_ids": ["bootstrap"],
             "evidence": ["scripts/bootstrap.sh"],
         }
@@ -488,9 +490,11 @@ def test_space_governance_report_uses_exclusive_summary_for_external_rollup(tmp_
             "sharedness": "repo_machine_shared",
             "summary_role": "breakdown_only",
             "rebuildability": "rebuildable",
-            "recommendation": "needs_verification",
-            "cleanup_mode": "remove-path",
-            "risk": "medium",
+                    "recommendation": "needs_verification",
+                    "cleanup_mode": "remove-path",
+                    "retention_auto_cleanup": True,
+                    "retention_ttl_hours": 24,
+                    "risk": "medium",
             "rebuild_command_ids": ["dashboard_deps"],
             "evidence": ["scripts/install_dashboard_deps.sh"],
         },
@@ -591,6 +595,8 @@ def test_wave3_reports_machine_tmp_entries_with_producer_and_lifecycle(
                 "rebuildability": "rebuildable",
                 "recommendation": "needs_verification",
                 "cleanup_mode": "remove-path",
+                "retention_auto_cleanup": True,
+                "retention_ttl_hours": 24,
                 "risk": "medium",
                 "rebuild_command_ids": ["docker_ci_test_quick"],
                 "post_cleanup_command_ids": ["docker_ci_test_quick"],
@@ -611,6 +617,8 @@ def test_wave3_reports_machine_tmp_entries_with_producer_and_lifecycle(
                 "rebuildability": "rebuildable",
                 "recommendation": "needs_verification",
                 "cleanup_mode": "remove-path",
+                "retention_auto_cleanup": True,
+                "retention_ttl_hours": 24,
                 "risk": "medium",
                 "rebuild_command_ids": ["clean_room_recovery"],
                 "post_cleanup_command_ids": ["clean_room_recovery"],
@@ -631,6 +639,8 @@ def test_wave3_reports_machine_tmp_entries_with_producer_and_lifecycle(
                 "rebuildability": "rebuildable",
                 "recommendation": "needs_verification",
                 "cleanup_mode": "remove-path",
+                "retention_auto_cleanup": True,
+                "retention_ttl_hours": 24,
                 "risk": "medium",
                 "rebuild_command_ids": ["clean_room_recovery"],
                 "post_cleanup_command_ids": ["clean_room_recovery"],
@@ -669,9 +679,13 @@ def test_wave3_reports_machine_tmp_entries_with_producer_and_lifecycle(
     assert docker_entry["layer"] == "repo_external_related"
     assert docker_entry["producer"] == "docker_ci_runner_temp"
     assert docker_entry["lifecycle"] == "machine_tmp"
+    assert docker_entry["retention_auto_cleanup"] is True
+    assert docker_entry["retention_ttl_hours"] == 24
     assert clean_room_entry["producer"] == "clean_room_recovery"
     assert clean_room_entry["lifecycle"] == "machine_tmp"
+    assert clean_room_entry["retention_ttl_hours"] == 24
     assert preserve_entry["producer"] == "clean_room_recovery"
+    assert preserve_entry["retention_ttl_hours"] == 24
 
     gate = evaluate_cleanup_gate(
         repo_root=repo_root,
@@ -694,6 +708,107 @@ def test_wave3_reports_machine_tmp_entries_with_producer_and_lifecycle(
     for item in gate["eligible_targets"]:
         assert item["lifecycle"] == "machine_tmp"
         assert item["producer"] in {"docker_ci_runner_temp", "clean_room_recovery"}
+
+
+def test_space_governance_report_embeds_machine_cache_retention_snapshot(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    runtime_root = repo_root / ".runtime-cache" / "cortexpilot"
+    reports_root = runtime_root / "reports"
+    reports_root.mkdir(parents=True, exist_ok=True)
+    retention_payload = {
+        "generated_at": "2026-04-04T12:00:00+00:00",
+        "result": {"removed_total": 3},
+        "machine_cache_summary": {
+            "cap_bytes": 21474836480,
+            "candidate_count": 2,
+            "candidate_reclaim_bytes": 1024,
+        },
+        "machine_cache_auto_prune": {
+            "status": "pass",
+            "reason": "install_dashboard_deps",
+        },
+    }
+    (reports_root / "retention_report.json").write_text(json.dumps(retention_payload), encoding="utf-8")
+    home_root = tmp_path / "home"
+    _write_file(repo_root / "package.json", json.dumps({"scripts": {"bootstrap": "echo ok"}}))
+    _write_file(repo_root / "scripts" / "install_dashboard_deps.sh", "#!/usr/bin/env bash\n")
+
+    policy_path = tmp_path / "space_policy.json"
+    policy_path.write_text(json.dumps(_base_policy(repo_root, home_root), ensure_ascii=False, indent=2), encoding="utf-8")
+    policy = load_space_governance_policy(policy_path)
+
+    report = build_space_governance_report(repo_root=repo_root, policy=policy, ps_lines=[])
+
+    assert report["retention_summary"]["machine_cache_summary"]["candidate_count"] == 2
+    assert report["retention_summary"]["machine_cache_auto_prune"]["status"] == "pass"
+
+
+def test_space_governance_report_backfills_auto_prune_state_when_retention_report_lacks_it(
+    tmp_path: Path, monkeypatch
+) -> None:
+    repo_root = tmp_path / "repo"
+    runtime_root = repo_root / ".runtime-cache" / "cortexpilot"
+    reports_root = runtime_root / "reports"
+    reports_root.mkdir(parents=True, exist_ok=True)
+    (reports_root / "retention_report.json").write_text(
+        json.dumps({"generated_at": "2026-04-04T12:00:00+00:00", "result": {"removed_total": 0}}),
+        encoding="utf-8",
+    )
+    machine_cache_root = tmp_path / "machine-cache"
+    state_path = machine_cache_root / "retention-auto-prune" / "state.json"
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_path.write_text(
+        json.dumps({"status": "pass", "reason": "manual-proof", "last_attempt_epoch": 123}),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setenv("CORTEXPILOT_REPO_ROOT", str(repo_root))
+    monkeypatch.setenv("CORTEXPILOT_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CORTEXPILOT_MACHINE_CACHE_ROOT", str(machine_cache_root))
+
+    home_root = tmp_path / "home"
+    _write_file(repo_root / "package.json", json.dumps({"scripts": {"bootstrap": "echo ok"}}))
+    _write_file(repo_root / "scripts" / "install_dashboard_deps.sh", "#!/usr/bin/env bash\n")
+    policy_path = tmp_path / "space_policy.json"
+    policy_path.write_text(json.dumps(_base_policy(repo_root, home_root), ensure_ascii=False, indent=2), encoding="utf-8")
+    policy = load_space_governance_policy(policy_path)
+
+    report = build_space_governance_report(repo_root=repo_root, policy=policy, ps_lines=[])
+
+    assert report["retention_summary"]["machine_cache_auto_prune"]["reason"] == "manual-proof"
+
+
+def test_space_governance_report_embeds_docker_runtime_summary(tmp_path: Path) -> None:
+    repo_root = tmp_path / "repo"
+    runtime_root = repo_root / ".runtime-cache" / "cortexpilot"
+    reports_root = runtime_root / "reports" / "space_governance"
+    reports_root.mkdir(parents=True, exist_ok=True)
+    (runtime_root / "reports" / "retention_report.json").write_text(
+        json.dumps({"generated_at": "2026-04-04T12:00:00+00:00"}),
+        encoding="utf-8",
+    )
+    (reports_root / "docker_runtime.json").write_text(
+        json.dumps(
+            {
+                "generated_at": "2026-04-04T12:10:00+00:00",
+                "status": "ok",
+                "managed_totals": {"managed_total_human": "1.0 GiB"},
+                "plan": {"planned_reclaim_human": "256.0 MiB"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    home_root = tmp_path / "home"
+    _write_file(repo_root / "package.json", json.dumps({"scripts": {"bootstrap": "echo ok"}}))
+    _write_file(repo_root / "scripts" / "install_dashboard_deps.sh", "#!/usr/bin/env bash\n")
+    policy_path = tmp_path / "space_policy.json"
+    policy_path.write_text(json.dumps(_base_policy(repo_root, home_root), ensure_ascii=False, indent=2), encoding="utf-8")
+    policy = load_space_governance_policy(policy_path)
+
+    report = build_space_governance_report(repo_root=repo_root, policy=policy, ps_lines=[])
+
+    assert report["docker_runtime_summary"]["status"] == "ok"
+    assert report["docker_runtime_summary"]["plan"]["planned_reclaim_human"] == "256.0 MiB"
 
 
 def test_cleanup_gate_defers_additional_serial_only_targets(tmp_path: Path) -> None:
