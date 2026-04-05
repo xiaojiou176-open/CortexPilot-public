@@ -342,6 +342,11 @@ prepare_runner_temp_mount() {
   local default_host_runner_temp="$(cortexpilot_machine_tmp_root "$ROOT_DIR")/docker-ci/runner-temp-$(id -u)"
   local host_runner_temp="${CORTEXPILOT_DOCKER_CI_RUNNER_TEMP_HOST:-${RUNNER_TEMP:-${default_host_runner_temp}}}"
   mkdir -p "${host_runner_temp}"
+  local target_uid
+  local target_gid
+  target_uid="$(resolve_host_uid)"
+  target_gid="$(resolve_host_gid)"
+  chown -R "${target_uid}:${target_gid}" "${host_runner_temp}" >/dev/null 2>&1 || true
   export CORTEXPILOT_DOCKER_CI_RUNNER_TEMP_HOST="${host_runner_temp}"
 }
 
