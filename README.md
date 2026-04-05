@@ -558,6 +558,9 @@ second-launching it, and closing automation pages before the Playwright runtime
 tears down. CI / Docker / clean-room lanes still force `ephemeral`
 browser state and must not depend on login state or on the local singleton
 root.
+If a launch only produces a short-lived singleton that falls back to stale or
+offline state before CDP stays up, the launcher now fails closed instead of
+reporting a false-positive success path.
 If the same repo-owned root is still running on the old legacy port, the next
 launch now treats it as a managed transition and relaunches that same root onto
 `9341` instead of misclassifying it as a foreign browser occupant.

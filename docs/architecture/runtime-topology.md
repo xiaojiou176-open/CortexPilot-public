@@ -96,6 +96,10 @@ flowchart LR
   endpoint `127.0.0.1:9341`, verifies that the owning Chrome process really
   uses the repo-owned root, and only launches a new headed Chrome instance when
   that singleton is absent.
+- A launch attempt must now survive a short post-launch stability check before
+  the repo records it as a valid singleton. If Chrome briefly appears and then
+  falls back to stale/offline state, the launch path fails closed instead of
+  returning a false-positive success.
 - On macOS the launcher now retries once through `open -na "Google Chrome"` if
   the direct executable fails to bind the repo-owned singleton root to `9341`.
   The retry keeps the same repo-owned `Profile 1` root and still fails closed
