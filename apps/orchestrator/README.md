@@ -33,6 +33,9 @@
 - if launch only creates a short-lived repo-owned Chrome process that never
   stays attached to the expected CDP endpoint, the launcher now fails closed
   instead of reporting a successful singleton launch
+- if the repo-owned root is already offline, stale singleton locks and the old
+  singleton state file are now cleared so status returns to a clean `offline`
+  result instead of preserving a misleading stale launch record
 - on macOS the launcher now retries once through `open -na "Google Chrome"`
   when the direct Chrome executable does not bind CDP for the repo-owned root;
   that keeps the singleton on the same `Profile 1` root instead of silently

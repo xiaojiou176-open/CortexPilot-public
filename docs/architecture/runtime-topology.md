@@ -100,6 +100,9 @@ flowchart LR
   the repo records it as a valid singleton. If Chrome briefly appears and then
   falls back to stale/offline state, the launch path fails closed instead of
   returning a false-positive success.
+- If the repo-owned root is already offline, stale singleton lockfiles and the
+  stale singleton state record are now removed so the status surface reports a
+  clean `offline` state rather than a lingering stale launch record.
 - On macOS the launcher now retries once through `open -na "Google Chrome"` if
   the direct executable fails to bind the repo-owned singleton root to `9341`.
   The retry keeps the same repo-owned `Profile 1` root and still fails closed

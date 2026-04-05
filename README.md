@@ -561,6 +561,9 @@ root.
 If a launch only produces a short-lived singleton that falls back to stale or
 offline state before CDP stays up, the launcher now fails closed instead of
 reporting a false-positive success path.
+If the repo-owned root is already offline, stale singleton locks and stale
+singleton state metadata are now cleaned so status falls back to a clean
+`offline` state instead of pretending the last launch is still alive.
 If the same repo-owned root is still running on the old legacy port, the next
 launch now treats it as a managed transition and relaunches that same root onto
 `9341` instead of misclassifying it as a foreign browser occupant.
