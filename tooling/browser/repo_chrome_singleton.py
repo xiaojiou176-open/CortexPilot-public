@@ -367,30 +367,41 @@ def _verify_repo_chrome_launch_stability(
     cdp_host: str,
     cdp_port: int,
     settle_sec: float = 1.0,
+    stable_samples: int = 3,
 ) -> None:
-    if settle_sec > 0:
-        time.sleep(settle_sec)
-    endpoint_payload = read_cdp_version(cdp_host, cdp_port, timeout_sec=min(max(settle_sec, 0.5), 1.0))
-    port_process = find_chrome_process_by_remote_debugging_port(cdp_port)
-    root_process = find_chrome_process_by_user_data_dir(user_data_dir)
     expected_root = _normalized_path_text(user_data_dir)
+    required_samples = max(int(stable_samples), 1)
+    sample_sleep_sec = max(settle_sec, 0.0)
+    timeout_sec = min(max(settle_sec, 0.5), 1.0)
 
-    port_process_matches_root = (
-        port_process is not None and _normalized_path_text(port_process.user_data_dir) == expected_root
-    )
-    root_process_matches_root = (
-        root_process is not None and _normalized_path_text(root_process.user_data_dir) == expected_root
-    )
+    for sample_idx in range(required_samples):
+        if sample_sleep_sec > 0:
+            time.sleep(sample_sleep_sec)
 
-    if endpoint_payload is not None and port_process_matches_root:
-        return
-    if root_process_matches_root:
-        raise RuntimeError(
-            "repo Chrome launch became unstable: the repo-owned browser root is still running but CDP is no longer ready"
+        endpoint_payload = read_cdp_version(cdp_host, cdp_port, timeout_sec=timeout_sec)
+        port_process = find_chrome_process_by_remote_debugging_port(cdp_port)
+        root_process = find_chrome_process_by_user_data_dir(user_data_dir)
+
+        port_process_matches_root = (
+            port_process is not None and _normalized_path_text(port_process.user_data_dir) == expected_root
         )
-    raise RuntimeError(
-        "repo Chrome launch became stale before the repo-owned singleton stayed attached to the expected CDP endpoint"
-    )
+        root_process_matches_root = (
+            root_process is not None and _normalized_path_text(root_process.user_data_dir) == expected_root
+        )
+
+        if endpoint_payload is not None and port_process_matches_root:
+            continue
+        if root_process_matches_root:
+            raise RuntimeError(
+                "repo Chrome launch became unstable: the repo-owned browser root is still running but CDP is no longer ready"
+            )
+        if sample_idx == 0:
+            raise RuntimeError(
+                "repo Chrome launch became stale before the repo-owned singleton stayed attached to the expected CDP endpoint"
+            )
+        raise RuntimeError(
+            "repo Chrome launch became stale before the repo-owned singleton stayed stably attached to the expected CDP endpoint"
+        )
 
 
 def write_singleton_state(instance: RepoChromeInstance) -> Path:
