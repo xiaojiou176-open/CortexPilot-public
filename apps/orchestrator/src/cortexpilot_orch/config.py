@@ -380,7 +380,7 @@ def _resolve_runtime_path(name: str, default: str, repo_root: Path | None = None
 def _default_machine_cache_root() -> Path:
     explicit = os.getenv("CORTEXPILOT_MACHINE_CACHE_ROOT", "").strip()
     if explicit:
-        return Path(explicit)
+        return Path(explicit).expanduser()
     runner_temp = os.getenv("RUNNER_TEMP", "").strip()
     ci = os.getenv("CI", "").strip().lower() in {"1", "true", "yes", "on"} or os.getenv("GITHUB_ACTIONS", "").strip().lower() == "true"
     if ci and runner_temp:

@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
 
+cortexpilot_expand_home_path() {
+  local raw="${1:-}"
+  if [[ "$raw" == "~" ]]; then
+    printf '%s\n' "$HOME"
+    return 0
+  fi
+  printf '%s\n' "${raw/#\~\//$HOME/}"
+}
+
 cortexpilot_machine_cache_root() {
   local root_dir="${1:?root_dir required}"
   if [[ -n "${CORTEXPILOT_MACHINE_CACHE_ROOT:-}" ]]; then
-    printf '%s\n' "${CORTEXPILOT_MACHINE_CACHE_ROOT}"
+    cortexpilot_expand_home_path "${CORTEXPILOT_MACHINE_CACHE_ROOT}"
     return 0
   fi
   if [[ -n "${RUNNER_TEMP:-}" && ( "${CI:-}" == "1" || "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ) ]]; then

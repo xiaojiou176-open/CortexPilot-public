@@ -220,7 +220,9 @@ docker_buildx_local_cache_enabled() {
   if is_truthy "${CI:-0}" || is_truthy "${GITHUB_ACTIONS:-0}" || is_truthy "${CORTEXPILOT_CI_CONTAINER:-0}"; then
     return 1
   fi
-  if [[ "$raw" =~ ^(0|false|no|off)$ ]]; then
+  local normalized
+  normalized="$(printf '%s' "$raw" | tr '[:upper:]' '[:lower:]')"
+  if [[ "$normalized" =~ ^(0|false|no|off)$ ]]; then
     return 1
   fi
   docker buildx version >/dev/null 2>&1

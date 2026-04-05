@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -80,13 +81,29 @@ def _safe_collect_files(root: Path) -> list[Path]:
 def _path_size_bytes(path: Path) -> int:
     if not path.exists():
         return 0
-    if path.is_file():
-        return path.stat().st_size
-    total = 0
-    for child in path.rglob("*"):
-        if child.is_file():
-            total += child.stat().st_size
-    return total
+    try:
+        proc = subprocess.run(
+            ["du", "-sk", str(path)],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        first = proc.stdout.split()[0]
+        return int(first) * 1024
+    except Exception:
+        if path.is_file():
+            try:
+                return path.stat().st_size
+            except OSError:
+                return 0
+        total = 0
+        for child in path.rglob("*"):
+            try:
+                if child.is_file():
+                    total += child.stat().st_size
+            except OSError:
+                continue
+        return total
 
 
 def human_size(num_bytes: int) -> str:

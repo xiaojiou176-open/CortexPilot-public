@@ -1159,7 +1159,8 @@ def load_retention_summary(*, repo_root: Path) -> dict[str, Any] | None:
                     state_payload["exists"] = True
                     result["machine_cache_auto_prune"] = state_payload
         except Exception:
-            pass
+            # Optional auto-prune metadata must never block the main retention summary.
+            return result
     return result
 
 

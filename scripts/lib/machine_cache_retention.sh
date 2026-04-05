@@ -106,7 +106,7 @@ EOF
     note="cleanup_runtime apply failed; see auto-prune.log"
   fi
 
-  python3 - <<'PY' "$state_json" "$now_epoch" "$reason" "$prune_status" "$note" "$interval_sec"
+  if ! "$python_bin" - <<'PY' "$state_json" "$now_epoch" "$reason" "$prune_status" "$note" "$interval_sec" >>"$log_path" 2>&1
 import json
 import sys
 from datetime import datetime, timezone
@@ -134,6 +134,9 @@ state_path.write_text(
     encoding="utf-8",
 )
 PY
+  then
+    :
+  fi
 
   rm -rf "$lock_dir" >/dev/null 2>&1 || true
 }

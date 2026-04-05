@@ -6,7 +6,6 @@ import json
 import os
 import shutil
 import subprocess
-import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -52,7 +51,7 @@ def _docker_buildx_cache_root() -> Path:
 
 def _sanitize_image_key(image_name: str) -> str:
     sanitized = image_name.translate(str.maketrans({":": "-", "/": "-", "@": "-"}))
-    sanitized = "".join(ch for ch in sanitized if ch.isalnum() or ch in "._-\n").strip()
+    sanitized = "".join(ch for ch in sanitized if ch.isalnum() or ch in "._-").strip()
     return sanitized or "image-cache"
 
 

@@ -81,11 +81,11 @@ workspace_retry_store_dir() {
 }
 
 cleanup_stale_retry_stores() {
-  local retry_glob
-  retry_glob="$(cortexpilot_pnpm_local_retry_prefix "$ROOT_DIR" "desktop").*"
+  local retry_prefix
+  retry_prefix="$(cortexpilot_pnpm_local_retry_prefix "$ROOT_DIR" "desktop")"
   local candidate=""
   shopt -s nullglob
-  for candidate in $retry_glob; do
+  for candidate in "${retry_prefix}".*; do
     [[ "$candidate" == "$STORE_DIR" ]] && continue
     retire_store_dir "$candidate"
   done
