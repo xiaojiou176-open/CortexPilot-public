@@ -51,6 +51,9 @@
 - if the repo-owned root is missing, the singleton CDP port is owned by a
   different browser root, or the root is occupied by a Chrome process without
   CDP, the local host path fails closed instead of guessing or second-launching
+- the `browser_ddg` search provider now also fails closed on singleton attach,
+  Playwright, or browser-parse failures; it returns an explicit browser error
+  instead of fabricating mock search success when the real browser path is down
 - the current `gemini_web` prompt path supports both classic text inputs and
   `contenteditable` textbox surfaces, so provider DOM changes do not silently
   break the `news_digest` proof route again

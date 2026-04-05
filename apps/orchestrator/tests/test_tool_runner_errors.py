@@ -161,6 +161,33 @@ def test_tool_runner_search_result_ok_false_logs_failure(tmp_path: Path, monkeyp
     assert failure_event.get("meta", {}).get("error") == "blocked"
 
 
+def test_tool_runner_browser_ddg_fail_closed_logs_explicit_browser_error(tmp_path: Path, monkeypatch) -> None:
+    store = RunStore(runs_root=tmp_path)
+    run_id = store.create_run("run_search_browser_ddg_fail_closed")
+
+    def _fake(*args, **kwargs):
+        return {
+            "ok": False,
+            "mode": "browser",
+            "resolved_provider": "browser_ddg",
+            "error": "browser_ddg_failed: singleton attach failed",
+            "results": [],
+        }
+
+    monkeypatch.setattr("cortexpilot_orch.runners.tool_runner.search_verify", _fake)
+
+    runner = ToolRunner(run_id, store)
+    result = runner.run_search("cortexpilot", provider="browser")
+    assert result["ok"] is False
+    assert result["resolved_provider"] == "browser_ddg"
+
+    events = _read_events(tmp_path, run_id)
+    failure_event = _first_event(events, "TOOL_FAILURE")
+    assert failure_event.get("meta", {}).get("task_id")
+    assert failure_event.get("meta", {}).get("tool") == "search"
+    assert failure_event.get("meta", {}).get("error") == "browser_ddg_failed: singleton attach failed"
+
+
 def test_tool_runner_mcp_failure(tmp_path: Path, monkeypatch) -> None:
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("run_mcp_fail")
