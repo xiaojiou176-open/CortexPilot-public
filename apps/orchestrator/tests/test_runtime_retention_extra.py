@@ -18,6 +18,11 @@ from cortexpilot_orch.runtime.retention import (
 )
 
 
+def _reset_config_state() -> None:
+    config_module._ENV_LOADED = False
+    config_module.reset_cached_config()
+
+
 def _touch_file(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("x", encoding="utf-8")
@@ -258,6 +263,7 @@ def test_retention_report_space_bridge_reads_latest_space_audit(tmp_path: Path, 
 
 
 def test_machine_cache_retention_honors_policy_ttl_and_cap(tmp_path: Path, monkeypatch) -> None:
+    _reset_config_state()
     repo_root = tmp_path / "repo"
     runtime_root = repo_root / ".runtime-cache" / "cortexpilot"
     machine_cache_root = tmp_path / "machine-cache"
@@ -334,6 +340,7 @@ def test_machine_cache_retention_honors_policy_ttl_and_cap(tmp_path: Path, monke
 def test_machine_cache_retention_skips_entries_with_active_repo_scoped_processes(
     tmp_path: Path, monkeypatch
 ) -> None:
+    _reset_config_state()
     repo_root = tmp_path / "repo"
     runtime_root = repo_root / ".runtime-cache" / "cortexpilot"
     machine_cache_root = tmp_path / "machine-cache"
@@ -383,6 +390,7 @@ def test_machine_cache_retention_skips_entries_with_active_repo_scoped_processes
 
 
 def test_machine_cache_auto_prune_summary_is_embedded_in_retention_report(tmp_path: Path, monkeypatch) -> None:
+    _reset_config_state()
     repo_root = tmp_path / "repo"
     runtime_root = repo_root / ".runtime-cache" / "cortexpilot"
     machine_cache_root = tmp_path / "machine-cache"
