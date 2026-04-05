@@ -6,6 +6,22 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- hardened cache/browser closeout by unifying repo-authored runtime artifacts
+  under `.runtime-cache/`, formalizing build/dependency exceptions, adding a
+  default 20 GiB + TTL machine-cache retention contract for
+  `~/.cache/cortexpilot`, introducing a rate-limited auto-prune hook before
+  heavy cache producers, and keeping `.serena/` as ignore-only local MCP state
+  instead of a governed repo cache
+- added repo-owned Docker runtime governance receipts plus local buildx cache
+  under `~/.cache/cortexpilot/docker-buildx-cache/`, so the Docker runtime
+  lane now reports managed image/container/volume/build-cache totals through
+  `.runtime-cache/cortexpilot/reports/space_governance/docker_runtime.json`
+  instead of relying only on shell stdout
+- switched local browser policy to the real Chrome profile display name
+  `cortexpilot`, resolving Chrome `Local State -> profile.info_cache` to the
+  actual `Profile N` directory, while forcing CI / docker / clean-room lanes
+  back to `ephemeral` and failing closed when the real Chrome executable or
+  real profile directory cannot be resolved
 - compressed the public homepage and dashboard-home discovery layer so the
   front door now behaves more like a route page: fewer competing hero actions,
   compatibility-first routing, and less repeated subpage summary copy
