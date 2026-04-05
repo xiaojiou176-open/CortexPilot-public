@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import errno
 import json
 import os
 import re
@@ -303,8 +304,15 @@ def _wait_for_process_exit(pid: int, *, timeout_sec: float = 10.0, poll_sec: flo
     while time.monotonic() < deadline:
         try:
             os.kill(pid, 0)
-        except OSError:
+        except ProcessLookupError:
             return True
+        except OSError as exc:
+            if exc.errno == errno.ESRCH:
+                return True
+            if exc.errno == errno.EPERM:
+                time.sleep(poll_sec)
+                continue
+            raise
         time.sleep(poll_sec)
     return False
 
@@ -315,10 +323,14 @@ def _stop_repo_owned_root_process_for_relaunch(process: ChromeProcessInfo, *, ti
     except ProcessLookupError:
         return
     except OSError as exc:
-        raise RuntimeError(f"failed to stop legacy repo Chrome process {process.pid}") from exc
+        raise RuntimeError(
+            f"failed to stop repo Chrome process {process.pid} for relaunch after remote debugging port mismatch "
+            f"(actual port: {process.remote_debugging_port})"
+        ) from exc
     if not _wait_for_process_exit(process.pid, timeout_sec=timeout_sec):
         raise RuntimeError(
-            f"legacy repo Chrome process {process.pid} did not stop in time; close it and relaunch via repo launcher"
+            f"repo Chrome process {process.pid} using remote debugging port {process.remote_debugging_port} "
+            f"did not stop in time for relaunch after port mismatch; close it and relaunch via repo launcher"
         )
 
 
@@ -440,7 +452,13 @@ def ensure_repo_chrome_singleton(
     root_process = find_chrome_process_by_user_data_dir(user_data_dir)
     if root_process is not None:
         if root_process.remote_debugging_port != cdp_port:
-            _stop_repo_owned_root_process_for_relaunch(root_process)
+            if root_process.remote_debugging_port == 9334 and cdp_port == 9341:
+                _stop_repo_owned_root_process_for_relaunch(root_process)
+            else:
+                raise RuntimeError(
+                    "this repo Chrome root is already occupied by a non-managed Chrome process; "
+                    "close it or relaunch via repo launcher"
+                )
         else:
             wait_for_cdp_version(cdp_host, cdp_port, timeout_sec=cdp_timeout_sec)
             instance = RepoChromeInstance(
