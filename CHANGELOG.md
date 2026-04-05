@@ -11,7 +11,10 @@ All notable changes to this repository will be documented in this file.
   singleton launcher now retries macOS app boot through `open -na` after an
   unstable bind, clears stale singleton residue before the next attach, and
   surfaces current machine browser roots in `browser:chrome:status` so login
-  and browser-pressure debugging stay repo-scoped and auditable
+  and browser-pressure debugging stay repo-scoped and auditable; stale-root
+  cleanup now keys off the requested CDP port instead of the default port, and
+  direct-execution governance helpers now keep their tracked-child imports
+  working without a repo-root `PYTHONPATH` assumption
 - tightened the Final-100 Wave 4 truth layer by documenting the default-off,
   queue-only write-MCP pilot in `docs/runbooks/write-mcp-queue-pilot.md`,
   adding a share-ready `news_digest` Workflow Case recap asset, and syncing the

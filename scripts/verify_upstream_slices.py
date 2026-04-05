@@ -10,7 +10,10 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from scripts.host_process_safety import terminate_tracked_child
+try:
+    from scripts.host_process_safety import terminate_tracked_child
+except ModuleNotFoundError:
+    from host_process_safety import terminate_tracked_child
 
 
 ROOT = Path(__file__).resolve().parents[1]

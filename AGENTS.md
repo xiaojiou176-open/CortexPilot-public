@@ -28,6 +28,9 @@ Work in CortexPilot as a contract-first engineering agent:
 - hygiene: `bash scripts/check_repo_hygiene.sh`
 - truth split: `npm run truth:triage`
 - full pre-commit: `pre-commit run --all-files`
+- repo-owned `scripts/*.py` entrypoints must remain runnable through direct
+  `python3 scripts/<name>.py` execution or `bash scripts/run_governance_py.sh`
+  without relying on a pre-seeded repo-root `PYTHONPATH`
 
 ## Generated Governance Context
 

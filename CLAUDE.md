@@ -21,6 +21,9 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   AppleScript `System Events`; terminate only recorded child handles and stop
   with manual cleanup instructions when stale repo-owned runtime state already
   exists
+- repo-owned `scripts/*.py` entrypoints must keep shared helper imports usable
+  when they are executed directly or through `bash scripts/run_governance_py.sh`;
+  do not assume the repo root is already present on `PYTHONPATH`
 - keep public CI hosted-first: fork PRs stay low-privilege on GitHub-hosted
   lanes, and sensitive verification stays on protected manual dispatch lanes
 - treat `configs/github_control_plane_policy.json` as the machine SSOT for

@@ -197,10 +197,10 @@ def remove_singleton_state_file(user_data_dir: Path) -> bool:
     return True
 
 
-def _clear_stale_singleton_files_if_repo_root_is_offline(user_data_dir: Path) -> list[str]:
+def _clear_stale_singleton_files_if_repo_root_is_offline(user_data_dir: Path, *, cdp_port: int) -> list[str]:
     if find_chrome_process_by_user_data_dir(user_data_dir) is not None:
         return []
-    if find_chrome_process_by_remote_debugging_port(default_cdp_port()) is not None:
+    if find_chrome_process_by_remote_debugging_port(cdp_port) is not None:
         return []
     removed = remove_singleton_files(user_data_dir)
     if removed:
@@ -605,7 +605,7 @@ def ensure_repo_chrome_singleton(
     if port_process is not None and _normalized_path_text(port_process.user_data_dir) != expected_root:
         raise RuntimeError("another Chrome instance already owns the configured CDP port")
 
-    _clear_stale_singleton_files_if_repo_root_is_offline(user_data_dir)
+    _clear_stale_singleton_files_if_repo_root_is_offline(user_data_dir, cdp_port=cdp_port)
 
     launch_args = [
         f"--user-data-dir={expected_root}",
@@ -661,7 +661,7 @@ def ensure_repo_chrome_singleton(
                 cdp_port=cdp_port,
             )
         else:
-            _clear_stale_singleton_files_if_repo_root_is_offline(user_data_dir)
+            _clear_stale_singleton_files_if_repo_root_is_offline(user_data_dir, cdp_port=cdp_port)
             raise
     instance = RepoChromeInstance(
         connection_mode="launched",

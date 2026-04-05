@@ -32,7 +32,9 @@ def terminate_tracked_child(
         proc.terminate()
     except ProcessLookupError:
         return "already_exited"
-    except Exception:
+    except OSError:
+        # Keep the cleanup path fail-closed to the tracked child handle:
+        # if terminate() itself errors, we still attempt a direct kill() next.
         pass
 
     if _wait_for_exit(proc, term_timeout_sec):

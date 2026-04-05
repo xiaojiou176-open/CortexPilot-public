@@ -709,3 +709,38 @@ def test_repo_chrome_singleton_status_reports_stale_state_when_state_file_surviv
     assert len(payload["machine_browser_processes"]) == 7
     assert payload["machine_browser_processes"][0]["remote_debugging_port"] == 9301
     assert payload["new_launch_allowed"] is False
+
+
+def test_clear_stale_singleton_files_uses_requested_cdp_port(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    user_data_dir = tmp_path / "browser" / "chrome-user-data"
+    user_data_dir.mkdir(parents=True, exist_ok=True)
+    stale_lock = user_data_dir / "SingletonLock"
+    stale_lock.write_text("stale", encoding="utf-8")
+
+    monkeypatch.setattr(singleton_module, "find_chrome_process_by_user_data_dir", lambda path: None)
+    monkeypatch.setattr(
+        singleton_module,
+        "find_chrome_process_by_remote_debugging_port",
+        lambda port: (
+            singleton_module.ChromeProcessInfo(
+                pid=55,
+                args="chrome --user-data-dir=/tmp/other --remote-debugging-port=9341",
+                user_data_dir="/tmp/other",
+                remote_debugging_port=9341,
+                uses_default_root=False,
+            )
+            if port == 9341
+            else None
+        ),
+    )
+
+    removed = singleton_module._clear_stale_singleton_files_if_repo_root_is_offline(
+        user_data_dir,
+        cdp_port=9555,
+    )
+
+    assert removed == [str(stale_lock)]
+    assert stale_lock.exists() is False

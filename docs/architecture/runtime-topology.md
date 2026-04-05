@@ -116,6 +116,9 @@ flowchart LR
   occupied by a Chrome process without CDP, or the repo-owned profile cannot be
   resolved to `Profile 1`, the local host path fails closed instead of guessing
   or second-launching the default Chrome root.
+- Stale singleton cleanup keys off the configured repo-owned CDP port instead
+  of a hard-coded default port, so non-default singleton endpoints do not
+  inherit lock-state decisions from an unrelated Chrome root.
 - A same-root legacy-port process is now treated as a managed transition path:
   the repo may stop that legacy singleton and relaunch the same root on `9341`
   instead of misclassifying it as a foreign process.

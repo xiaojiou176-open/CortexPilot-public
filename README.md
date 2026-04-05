@@ -254,6 +254,9 @@ Worker/test/orchestrator paths fail closed on host-process safety:
 - only the recorded child handle started by the current script may be terminated
 - if stale repo-owned runtime state already exists, the script must stop with
   manual cleanup instructions instead of broad process cleanup
+- repo-owned `scripts/*.py` entrypoints must keep shared helper imports usable
+  when executed directly as `python3 scripts/<name>.py`; they cannot assume the
+  repo root has already been injected into `PYTHONPATH`
 
 ## Current Public Task Slices
 

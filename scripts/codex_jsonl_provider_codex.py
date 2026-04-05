@@ -7,7 +7,10 @@ import threading
 from pathlib import Path
 from typing import Any
 
-from scripts.host_process_safety import terminate_tracked_child
+try:
+    from scripts.host_process_safety import terminate_tracked_child
+except ModuleNotFoundError:
+    from host_process_safety import terminate_tracked_child
 
 
 def run_codex_once(
