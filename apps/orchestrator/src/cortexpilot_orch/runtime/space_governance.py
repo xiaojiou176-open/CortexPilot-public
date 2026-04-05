@@ -56,6 +56,20 @@ def load_space_governance_policy(path: Path) -> dict[str, Any]:
         raise SpaceGovernancePolicyError("space governance policy version must be 1")
     if int(payload.get("apply_gate_max_age_minutes", DEFAULT_APPLY_GATE_MAX_AGE_MINUTES)) <= 0:
         raise SpaceGovernancePolicyError("space governance policy apply_gate_max_age_minutes must be > 0")
+    machine_cache_retention_policy = payload.get("machine_cache_retention_policy", {})
+    if machine_cache_retention_policy and not isinstance(machine_cache_retention_policy, dict):
+        raise SpaceGovernancePolicyError("space governance policy machine_cache_retention_policy must be an object")
+    if isinstance(machine_cache_retention_policy, dict) and machine_cache_retention_policy:
+        default_cap_bytes = int(machine_cache_retention_policy.get("default_cap_bytes", 0))
+        if default_cap_bytes <= 0:
+            raise SpaceGovernancePolicyError(
+                "space governance policy machine_cache_retention_policy.default_cap_bytes must be > 0"
+            )
+        auto_prune_interval_sec = int(machine_cache_retention_policy.get("auto_prune_interval_sec", 0))
+        if auto_prune_interval_sec <= 0:
+            raise SpaceGovernancePolicyError(
+                "space governance policy machine_cache_retention_policy.auto_prune_interval_sec must be > 0"
+            )
 
     layers = payload.get("layers")
     if not isinstance(layers, dict):
@@ -262,6 +276,7 @@ def build_space_governance_report(
         layer_entries=layer_entries,
     )
     retention_summary = load_retention_summary(repo_root=repo_root)
+    docker_runtime_summary = load_docker_runtime_summary(repo_root=repo_root)
 
     return {
         "generated_at": current_time.isoformat(),
@@ -272,6 +287,7 @@ def build_space_governance_report(
         "process_matches": process_matches,
         "rebuild_commands": [status.__dict__ for status in command_statuses],
         "retention_summary": retention_summary,
+        "docker_runtime_summary": docker_runtime_summary,
         "layers": layer_entries,
         "needs_verification": needs_verification,
         "environment_drift_signals": environment_drift_signals,
@@ -554,6 +570,27 @@ def render_space_governance_markdown(report: dict[str, Any]) -> str:
         lines.append(f"- Latest retention report: `{retention_summary.get('generated_at', 'unknown')}`")
         if isinstance(retention_summary.get("result"), dict):
             lines.append(f"- Retention removed_total: **{retention_summary['result'].get('removed_total', 0)}**")
+        machine_cache_summary = retention_summary.get("machine_cache_summary")
+        if isinstance(machine_cache_summary, dict):
+            lines.append(
+                "- Machine cache: "
+                f"**{machine_cache_summary.get('total_size_human', '0 B')}** total / "
+                f"cap **{machine_cache_summary.get('cap_human', '0 B')}** / "
+                f"candidates **{machine_cache_summary.get('candidate_count', 0)}**"
+            )
+            lines.append(
+                "- Machine cache reclaimable: "
+                f"**{machine_cache_summary.get('candidate_reclaim_human', '0 B')}** / "
+                f"projected over-cap **{machine_cache_summary.get('projected_over_cap_human', '0 B')}**"
+            )
+    docker_runtime_summary = report.get("docker_runtime_summary")
+    if isinstance(docker_runtime_summary, dict):
+        lines.append(
+            "- Docker runtime lane: "
+            f"`{docker_runtime_summary.get('status', 'unknown')}` / "
+            f"managed **{docker_runtime_summary.get('managed_totals', {}).get('managed_total_human', '0 B')}** / "
+            f"planned reclaim **{docker_runtime_summary.get('plan', {}).get('planned_reclaim_human', '0 B')}**"
+        )
     lines.extend(
         [
             "",
@@ -590,14 +627,15 @@ def render_space_governance_markdown(report: dict[str, Any]) -> str:
     else:
         lines.extend(
             [
-                "| Path | Producer | Lifecycle | Size | Recommendation |",
-                "| --- | --- | --- | ---: | --- |",
+                "| Path | Producer | Lifecycle | TTL | Size | Recommendation |",
+                "| --- | --- | --- | --- | ---: | --- |",
             ]
         )
         for entry in sorted(machine_tmp_entries, key=lambda item: item["size_bytes"], reverse=True):
             lines.append(
                 f"| `{entry['path']}` | `{entry.get('producer', '') or 'unknown'}` | "
-                f"`{entry.get('lifecycle', '') or 'unknown'}` | {entry['size_human']} | "
+                f"`{entry.get('lifecycle', '') or 'unknown'}` | "
+                f"`{entry.get('retention_ttl_hours', 0) or 'n/a'}h` | {entry['size_human']} | "
                 f"`{entry['recommendation']}` |"
             )
     lines.extend(["", "## Environment Drift Signals", ""])
@@ -744,6 +782,8 @@ def inspect_path_entry(
         "expected_rebuild_cost_class": infer_rebuild_cost_class(entry_spec["rebuildability"]),
         "expected_rebuild_commands": expected_rebuild_commands,
         "apply_serial_only": bool(entry_spec.get("apply_serial_only", False)),
+        "retention_auto_cleanup": bool(entry_spec.get("retention_auto_cleanup", False)),
+        "retention_ttl_hours": int(entry_spec.get("retention_ttl_hours", 0)),
         "producer": str(entry_spec.get("producer", "")).strip(),
         "lifecycle": str(entry_spec.get("lifecycle", "")).strip(),
         "risk": entry_spec["risk"],
@@ -1102,7 +1142,39 @@ def load_retention_summary(*, repo_root: Path) -> dict[str, Any] | None:
         result["result"] = {
             "removed_total": payload["result"].get("removed_total", 0),
         }
+    if isinstance(payload.get("machine_cache_summary"), dict):
+        result["machine_cache_summary"] = payload["machine_cache_summary"]
+    if isinstance(payload.get("machine_cache_auto_prune"), dict):
+        result["machine_cache_auto_prune"] = payload["machine_cache_auto_prune"]
+    if "machine_cache_auto_prune" not in result:
+        try:
+            from cortexpilot_orch.config import load_config
+
+            cfg = load_config()
+            state_path = cfg.machine_cache_root / "retention-auto-prune" / "state.json"
+            if state_path.exists():
+                state_payload = json.loads(state_path.read_text(encoding="utf-8"))
+                if isinstance(state_payload, dict):
+                    state_payload["path"] = str(state_path)
+                    state_payload["exists"] = True
+                    result["machine_cache_auto_prune"] = state_payload
+        except Exception:
+            pass
     return result
+
+
+def load_docker_runtime_summary(*, repo_root: Path) -> dict[str, Any] | None:
+    report_path = repo_root / ".runtime-cache" / "cortexpilot" / "reports" / "space_governance" / "docker_runtime.json"
+    if not report_path.exists():
+        return None
+    try:
+        payload = json.loads(report_path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    payload["path"] = str(report_path)
+    return payload
 
 
 def split_serial_cleanup_targets(items: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:

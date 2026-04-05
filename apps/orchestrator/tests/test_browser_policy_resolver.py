@@ -6,6 +6,97 @@ from cortexpilot_orch.policy import browser_policy_resolver
 from cortexpilot_orch.policy.browser_policy_resolver import resolve_browser_policy
 
 
+def test_resolver_local_dev_defaults_to_allow_profile(monkeypatch, tmp_path: Path) -> None:
+    chrome_root = tmp_path / "chrome-root"
+    chrome_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.delenv("CI", raising=False)
+    monkeypatch.delenv("GITHUB_ACTIONS", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CI_CONTAINER", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CLEAN_ROOM_MACHINE_TMP_ROOT", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_CLEAN_ROOM_PRESERVE_ROOT", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_BROWSER_PROFILE_ALLOWLIST", raising=False)
+    monkeypatch.setattr(browser_policy_resolver, "_default_chrome_profile_dir", lambda: chrome_root)
+
+    audit = resolve_browser_policy(
+        contract_policy=None,
+        task_policy=None,
+        requested_by={"role": "PM"},
+        source="browser",
+        task_id="browser_local_default",
+    )
+
+    assert audit["requested_policy"]["profile_mode"] == "allow_profile"
+    assert audit["requested_policy"]["profile_ref"]["profile_dir"] == str(chrome_root)
+    assert audit["requested_policy"]["profile_ref"]["profile_name"] == "cortexpilot"
+    assert audit["effective_policy"]["profile_mode"] == "allow_profile"
+    assert audit["effective_policy"]["profile_ref"]["profile_dir"] == str(chrome_root)
+    assert audit["effective_policy"]["profile_ref"]["profile_name"] == "cortexpilot"
+    assert audit["policy_source"]["profile_mode"] == "env"
+    assert audit["policy_source"]["profile_ref.profile_dir"] == "default"
+    assert audit["policy_source"]["profile_ref.profile_name"] == "env"
+
+
+def test_resolver_ci_defaults_to_ephemeral(monkeypatch, tmp_path: Path) -> None:
+    chrome_root = tmp_path / "chrome-root"
+    chrome_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setenv("GITHUB_ACTIONS", "true")
+    monkeypatch.delenv("CORTEXPILOT_BROWSER_PROFILE_MODE", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_BROWSER_PROFILE_DIR", raising=False)
+    monkeypatch.delenv("CORTEXPILOT_BROWSER_PROFILE_NAME", raising=False)
+    monkeypatch.setattr(browser_policy_resolver, "_default_chrome_profile_dir", lambda: chrome_root)
+
+    audit = resolve_browser_policy(
+        contract_policy=None,
+        task_policy=None,
+        requested_by={"role": "PM"},
+        source="browser",
+        task_id="browser_ci_default",
+    )
+
+    assert audit["requested_policy"]["profile_mode"] == "ephemeral"
+    assert audit["requested_policy"]["profile_ref"]["profile_dir"] == ""
+    assert audit["requested_policy"]["profile_ref"]["profile_name"] == "Default"
+    assert audit["effective_policy"]["profile_mode"] == "ephemeral"
+
+
+def test_resolver_force_ephemeral_environment_blocks_explicit_allow_profile(monkeypatch, tmp_path: Path) -> None:
+    chrome_root = tmp_path / "chrome-root"
+    chrome_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setenv("CORTEXPILOT_CLEAN_ROOM_MACHINE_TMP_ROOT", str(tmp_path / "machine-tmp"))
+    monkeypatch.setenv("CORTEXPILOT_BROWSER_PROFILE_ALLOWLIST", str(chrome_root))
+
+    audit = resolve_browser_policy(
+        contract_policy={
+            "profile_mode": "allow_profile",
+            "profile_ref": {"profile_dir": str(chrome_root), "profile_name": "cortexpilot"},
+            "stealth_mode": "none",
+            "human_behavior": {"enabled": False, "level": "low"},
+        },
+        task_policy=None,
+        requested_by={"role": "PM"},
+        source="browser",
+        task_id="browser_force_ephemeral",
+    )
+
+    assert audit["requested_policy"]["profile_mode"] == "allow_profile"
+    assert audit["effective_policy"]["profile_mode"] == "ephemeral"
+    assert "allow_profile->ephemeral" in audit["fallback_chain"]
+    assert any(
+        item.get("meta", {}).get("rule") == "force_ephemeral_environment"
+        for item in audit["events"]
+        if item.get("event") == "BROWSER_POLICY_GUARD_BLOCK"
+    )
+
+
+def test_resolver_default_allowlist_includes_real_chrome_root(monkeypatch, tmp_path: Path) -> None:
+    chrome_root = tmp_path / "chrome-root"
+    chrome_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.delenv("CORTEXPILOT_BROWSER_PROFILE_ALLOWLIST", raising=False)
+    monkeypatch.setattr(browser_policy_resolver, "_default_chrome_profile_dir", lambda: chrome_root)
+
+    assert chrome_root in browser_policy_resolver._profile_allowlist_roots()
+
+
 def test_resolver_priority_and_task_override(monkeypatch, tmp_path: Path) -> None:
     allow_root = tmp_path / "profiles"
     allow_root.mkdir(parents=True, exist_ok=True)

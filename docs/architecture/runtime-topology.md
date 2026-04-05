@@ -75,8 +75,8 @@ flowchart LR
 - Handoff summaries are now contract-authoritative read surfaces only; they may
   summarize risks and next-role context, but they do not rewrite the execution
   instruction carried by the task contract.
-- Retention policy controls run/worktree/log/cache/codex-home/intake/contract-artifact lifecycle and writes reports to `.runtime-cache/cortexpilot/reports/retention_report.json`.
-- Retention reports now also expose `log_lane_summary`, `test_output_visibility`, and `space_bridge`, so canonical log lanes plus the latest repo-side space audit are visible from one runtime-governance receipt.
+- Retention policy controls run/worktree/log/cache/codex-home/intake/contract-artifact lifecycle, plus repo-owned machine-cache child retention under `~/.cache/cortexpilot`, and writes reports to `.runtime-cache/cortexpilot/reports/retention_report.json`.
+- Retention reports now also expose `log_lane_summary`, `test_output_visibility`, `space_bridge`, and `machine_cache_summary`, so canonical log lanes, the latest repo-side space audit, and machine-cache cap/TTL pressure are visible from one runtime-governance receipt.
 - CI governance reports share the governed root `.runtime-cache/cortexpilot/reports/ci/`; policy tracks the root plus the authoritative `current_run/` receipt surface, while the stable leaf report lanes currently include `artifact_index/`, `break_glass/`, `cost_profile/`, `evidence_manifest/`, `portal/`, `routes/`, `runner_health/`, `sbom/`, and `slo/`.
 - Release-evidence builders write provenance, release-anchor, canary, RUM, and DB-migration governance outputs under `.runtime-cache/cortexpilot/release/`.
 - Space-governance reports write repo/external/shared-layer audit snapshots under `.runtime-cache/cortexpilot/reports/space_governance/`, embed the latest retention summary for log/evidence visibility, and expose `governance_owner` / `preserve_reason` / rebuild metadata per entry so operator-facing cleanup decisions stay explicit.
@@ -84,6 +84,18 @@ flowchart LR
 - Shared transient cache buckets also include `.runtime-cache/cache/tmp/` and `.runtime-cache/cache/gemini_ui_audit/` when test or Gemini audit flows need bounded scratch space beyond the canonical `runtime/test/build` lanes.
 - Codex diagnostic-mode runs may legitimately materialize under `.runtime-cache/cortexpilot/runs_diagnostic/`; this is a governed parallel run-root for diagnostic-only execution, not a replacement for the primary `.runtime-cache/cortexpilot/runs/` surface.
 - Browser profile runtime state is allowed only under `.runtime-cache/cortexpilot/browser-profiles/`; the older root `.runtime-cache/browser-profiles/` is a legacy compatibility surface and must not be treated as the preferred runtime root.
+- Local host development now defaults browser policy to `allow_profile` against
+  the real Chrome root (`~/Library/Application Support/Google/Chrome`) with
+  the preferred profile label `cortexpilot`; CI, repo CI containers, and
+  clean-room recovery lanes still fail closed to ephemeral browser state so
+  they never depend on an existing login session.
+- When an allow-profile request uses a Chrome display name instead of an
+  on-disk directory, the runtime resolves it through Chrome `Local State`
+  `profile.info_cache` before launching real Chrome; it does not silently
+  fall back to Playwright-bundled Chromium for that mode.
+- If that display-name lookup still cannot resolve a real profile directory,
+  the local host path now fails closed instead of guessing or creating a fresh
+  profile directory under the shared Chrome root.
 - Contract artifact cleanup scope follows configured `CORTEXPILOT_RUNTIME_CONTRACT_ROOT` inside `.runtime-cache/cortexpilot/contracts/`.
 - Root cleanliness and runtime artifact routing are SSOT-driven by `configs/root_allowlist.json` + `configs/runtime_artifact_policy.json`; root-noise directories such as root `logs/`, root `.next/`, and root coverage artifacts are treated as governance violations rather than acceptable steady state.
 - JS runtime machine state is app- or package-local and explicit: only `apps/dashboard/node_modules`, `apps/dashboard/.next`, `apps/dashboard/tsconfig.tsbuildinfo`, `apps/dashboard/tsconfig.typecheck.tsbuildinfo`, `apps/desktop/node_modules`, `apps/desktop/dist`, `apps/desktop/tsconfig.tsbuildinfo`, and `packages/frontend-api-client/node_modules` are allowed repo-local machine-managed surfaces; root `node_modules` remains forbidden.
@@ -98,12 +110,25 @@ flowchart LR
   repeating the same failing cross-cache copy route.
 - Log rotation remains owned by `observability/logger.py` (`RotatingFileHandler` + gzip rollover), while lifecycle cleanup remains owned by runtime retention and guarded high-yield cleanup remains owned by space governance. The three layers are complementary, not interchangeable.
 - `~/.cache/cortexpilot` is the repo-external strong-related cache root, but it is still machine-shared across local CortexPilot worktrees and branches. Treat it as governed shared cache, not single-repo private disk.
+- Runtime retention applies the default **20 GiB** cap at the machine-cache
+  root by reclaiming only repo-owned child paths explicitly marked for
+  auto-clean in `configs/space_governance_policy.json`; observe-only entries
+  such as `toolchains/python/current` stay outside automatic apply scope.
+- Repo-owned Docker build cache now also has a governed home under
+  `~/.cache/cortexpilot/docker-buildx-cache/` when `docker buildx` is
+  available. That turns rebuildable local CI image cache into a first-class
+  repo-owned external cache instead of leaving it as a purely opaque daemon
+  layer.
 - Heavy machine-scoped temp producers now default into the governed
   `~/.cache/cortexpilot/tmp/` subtree instead of Darwin `TMPDIR`. Current
   examples include local `docker_ci` host runner temp
   (`tmp/docker-ci/runner-temp-*`) plus clean-room recovery machine cache /
   preserve roots (`tmp/clean-room-machine-cache.*`,
   `tmp/clean-room-preserve.*`).
+- The latest Docker runtime audit/prune receipt lives beside the rest of the
+  space-governance evidence at
+  `.runtime-cache/cortexpilot/reports/space_governance/docker_runtime.json`,
+  and `space_governance/report.json` now embeds its summary.
 - Log envelope SSOT is `schemas/log_event.v2.json`, and machine-consumed log correlation must stay auditable through `lane` + `correlation_kind`.
 - Runtime de-monolith modules now carry orchestration helper load while preserving existing contracts: `api/main_*_helpers.py` + `api/main_runs_handlers.py` (API compatibility handlers), `chain/runtime_helpers.py` + `chain/runner_execution_helpers.py`, `replay/replay_helpers.py` + `replay/replayer_*_helpers.py`, `scheduler/preflight_gate_*` + `scheduler/task_execution_*` + `scheduler/execute_task_*`, `runners/agents_*_runtime.py` + `runners/agents_*_helpers.py`, and helper splits for planning/store/cli (`planning/intake_*_helpers.py`, `store/run_store_*_helpers.py`, `cli_*_helpers.py`).
 - State-store compatibility helpers now aggregate workflow cards from the newest manifest timestamp instead of raw directory traversal order; this keeps `/api/workflows` status snapshots stable across Python/runtime/filesystem variants when multiple runs share one workflow id.

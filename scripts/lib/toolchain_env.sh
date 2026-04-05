@@ -32,6 +32,26 @@ cortexpilot_machine_tmp_root() {
   printf '%s\n' "${machine_root}/tmp"
 }
 
+cortexpilot_docker_buildx_cache_root() {
+  local root_dir="${1:?root_dir required}"
+  local machine_root
+  machine_root="$(cortexpilot_machine_cache_root "$root_dir")"
+  printf '%s\n' "${machine_root}/docker-buildx-cache"
+}
+
+cortexpilot_docker_buildx_cache_dir() {
+  local root_dir="${1:?root_dir required}"
+  local image_name="${2:?image_name required}"
+  local cache_root
+  cache_root="$(cortexpilot_docker_buildx_cache_root "$root_dir")"
+  local sanitized
+  sanitized="$(printf '%s' "$image_name" | tr ':/@' '---' | tr -cd '[:alnum:]._-\n')"
+  if [[ -z "$sanitized" ]]; then
+    sanitized="image-cache"
+  fi
+  printf '%s\n' "${cache_root}/${sanitized}"
+}
+
 cortexpilot_bootstrap_python_bin() {
   if [[ -n "${CORTEXPILOT_BOOTSTRAP_PYTHON:-}" ]] && command -v "${CORTEXPILOT_BOOTSTRAP_PYTHON}" >/dev/null 2>&1; then
     command -v "${CORTEXPILOT_BOOTSTRAP_PYTHON}"
@@ -126,6 +146,23 @@ cortexpilot_pnpm_store_dir() {
     return 0
   fi
   printf '%s\n' "${machine_root}/pnpm-store"
+}
+
+cortexpilot_pnpm_local_retry_prefix() {
+  local root_dir="${1:?root_dir required}"
+  local lane="${2:?lane required}"
+  local machine_root
+  machine_root="$(cortexpilot_machine_cache_root "$root_dir")"
+  printf '%s\n' "${machine_root}/pnpm-store-local-${lane}"
+}
+
+cortexpilot_pnpm_local_retry_dir() {
+  local root_dir="${1:?root_dir required}"
+  local lane="${2:?lane required}"
+  local prefix
+  prefix="$(cortexpilot_pnpm_local_retry_prefix "$root_dir" "$lane")"
+  mkdir -p "$(dirname "$prefix")"
+  mktemp -d "${prefix}.XXXXXX"
 }
 
 cortexpilot_playwright_browsers_path() {

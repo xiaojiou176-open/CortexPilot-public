@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 source "$ROOT_DIR/scripts/lib/toolchain_env.sh"
+source "$ROOT_DIR/scripts/lib/machine_cache_retention.sh"
 
 is_truthy() {
   local raw="${1:-}"
@@ -15,6 +16,8 @@ is_truthy() {
 MODE="${1:-${BOOTSTRAP_MODE:-full}}"
 PLAYWRIGHT_BROWSERS_PATH_DEFAULT="${PLAYWRIGHT_BROWSERS_PATH:-}"
 PYTHON_LOCKFILE="apps/orchestrator/uv.lock"
+
+cortexpilot_maybe_auto_prune_machine_cache "$ROOT_DIR" "bootstrap:${MODE}"
 
 resolve_pnpm_store_dir() {
   cortexpilot_pnpm_store_dir "$ROOT_DIR"

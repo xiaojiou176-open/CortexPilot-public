@@ -6,7 +6,8 @@ disk-space audit or a guarded cleanup plan.
 This workflow now sits beside runtime retention rather than replacing it:
 
 - `retention.py` owns canonical runtime lanes such as `.runtime-cache/logs`,
-  `.runtime-cache/cache`, runs/worktrees/contracts/intakes/codex-homes, and
+  `.runtime-cache/cache`, runs/worktrees/contracts/intakes/codex-homes, plus
+  repo-owned machine-cache child retention under `~/.cache/cortexpilot`, and
   emits `retention_report.json`.
 - `space_governance.py` owns high-yield cleanup candidates, low-risk workspace
   residue, and repo-external strong-related cache surfaces, and emits
@@ -35,6 +36,14 @@ npm run docker:runtime:audit
   orchestrator `.venv`, and desktop `dist`.
 - Repo-external strong-related surfaces are limited to the CortexPilot machine
   cache namespace under `~/.cache/cortexpilot`.
+- Repo-authored runtime/test/temp/evidence artifacts stay under
+  `.runtime-cache/`; app-local dependency/build roots such as
+  `node_modules`, `.next`, `.venv`, and `*.tsbuildinfo` remain explicit
+  build/dependency exceptions rather than part of the unified runtime cache.
+- Runtime retention now applies a **default 20 GiB cap** to that machine-cache
+  namespace, but only through repo-owned child paths that are explicitly marked
+  in `configs/space_governance_policy.json`. The cap never turns the rollup root
+  itself into an apply target.
 - Heavy machine-scoped temp producers also belong to that same governed
   namespace: local `docker_ci` host runner temp now defaults to
   `~/.cache/cortexpilot/tmp/docker-ci/runner-temp-*`, while clean-room
@@ -77,6 +86,12 @@ CI residue. Keep `space:cleanup:wave*` focused on repo-local residue and the
 governed `~/.cache/cortexpilot` namespace. Workstation-global Docker/cache
 totals remain observation-only and are not apply targets for this lane.
 
+The lane now also writes a structured receipt to
+`.runtime-cache/cortexpilot/reports/space_governance/docker_runtime.json`.
+That receipt includes managed image/container/volume/build-cache totals,
+planned reclaim bytes, actual reclaimed bytes, and any `skipped_active`
+surfaces that stayed live.
+
 ## Cleanup Rules
 
 - Always run the audit and the wave gate before any cleanup apply step.
@@ -96,9 +111,34 @@ totals remain observation-only and are not apply targets for this lane.
   - `tmp/docker-ci/runner-temp-*`
   - `tmp/clean-room-machine-cache.*`
   - `tmp/clean-room-preserve.*`
+- Automatic retention TTLs inside `~/.cache/cortexpilot` are currently:
+  - `tmp/**` repo-owned child roots: **24h**
+  - `playwright/`: **7d**
+  - `pnpm-store/dashboard` and `pnpm-store/desktop`: **7d**
+  - `pnpm-store/v10`: **14d**
+  - `pnpm-store-local-*`: **24h**
+  - `docker-buildx-cache/*`: **72h**
+- The governed machine-cache root has a default cap of **20 GiB**. Retention
+  first clears TTL-expired repo-owned child paths, then adds the oldest/largest
+  eligible child paths under cap pressure until the projected total returns
+  below the threshold or only protected surfaces remain.
 - These paths stay `repo_external_related`, must resolve inside
   `~/.cache/cortexpilot/tmp/**`, and must fail closed if they escape into
   unrelated temp roots or shared/system-owned browser temp trees.
+- `toolchains/python/current`, shared observation layers, and any
+  `observe-only` entry remain reportable but never become automatic retention
+  targets.
+- Heavy producer entrypoints now run a rate-limited auto-prune hook before
+  creating new external caches:
+  - `scripts/bootstrap.sh`
+  - `scripts/install_dashboard_deps.sh`
+  - `scripts/install_desktop_deps.sh`
+  - `scripts/install_frontend_api_client_deps.sh`
+  - `scripts/docker_ci.sh`
+  - `scripts/check_clean_room_recovery.sh`
+- Auto-prune uses the existing `cleanup runtime --apply` path with root-noise
+  cleanup disabled, so CortexPilot still has one cleanup world instead of a
+  separate machine-cache-only deletion path.
 - Docker runtime is now a separate operator lane rather than part of the
   generic wave cleanup:
   - `npm run docker:runtime:audit`
@@ -129,3 +169,13 @@ totals remain observation-only and are not apply targets for this lane.
 - Cleanup receipts now carry expected reclaim bytes, execution order,
   post-cleanup verification commands, and per-target verification outcomes so a
   cleanup step cannot be mistaken for a completed recovery.
+- `retention_report.json` now also records machine-cache entry-level TTL, age,
+  size, candidate status, process-blocked status, cap delta, and the last apply
+  result so external cache pressure is auditable instead of manual-only.
+- `space_governance/report.json` embeds that same retention snapshot, including
+  `machine_cache_summary` and the latest `machine_cache_auto_prune` receipt, so
+  operators do not have to manually cross-open two separate reports just to
+  inspect machine-cache pressure.
+- `space_governance/report.json` also embeds the latest Docker runtime receipt,
+  so the same governance surface can answer “what is the repo-owned Docker
+  residue right now?” without relying on shell output alone.

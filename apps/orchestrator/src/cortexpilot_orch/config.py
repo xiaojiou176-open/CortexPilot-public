@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -20,6 +21,7 @@ class RuntimeConfig:
     schema_root: Path
     contract_root: Path
     runtime_contract_root: Path
+    machine_cache_root: Path
     toolchain_cache_root: Path
     worktree_root: Path
     runs_root: Path
@@ -47,6 +49,7 @@ class RetentionConfig:
     max_codex_homes: int
     intake_days: int
     max_intakes: int
+    machine_cache_cap_bytes: int
 
 
 @dataclass(frozen=True)
@@ -126,6 +129,10 @@ class CortexPilotConfig:
         return self.runtime.toolchain_cache_root
 
     @property
+    def machine_cache_root(self) -> Path:
+        return self.runtime.machine_cache_root
+
+    @property
     def runs_root(self) -> Path:
         return self.runtime.runs_root
 
@@ -192,6 +199,10 @@ class CortexPilotConfig:
     @property
     def retention_max_intakes(self) -> int:
         return self.retention.max_intakes
+
+    @property
+    def retention_machine_cache_cap_bytes(self) -> int:
+        return self.retention.machine_cache_cap_bytes
 
 
 _ENV_LOAD_LOCK = RLock()
@@ -380,6 +391,24 @@ def _default_machine_cache_root() -> Path:
     return Path.home() / ".cache" / "cortexpilot"
 
 
+def _default_machine_cache_cap_bytes(repo_root: Path) -> int:
+    policy_path = repo_root / "configs" / "space_governance_policy.json"
+    fallback = 20 * 1024 * 1024 * 1024
+    if not policy_path.exists():
+        return fallback
+    try:
+        payload = json.loads(policy_path.read_text(encoding="utf-8"))
+    except Exception:
+        return fallback
+    machine_cache_policy = payload.get("machine_cache_retention_policy", {})
+    raw_value = machine_cache_policy.get("default_cap_bytes")
+    try:
+        value = int(raw_value)
+    except (TypeError, ValueError):
+        return fallback
+    return value if value > 0 else fallback
+
+
 def load_config() -> CortexPilotConfig:
     _load_explicit_env_files()
 
@@ -438,6 +467,7 @@ def load_config() -> CortexPilotConfig:
         schema_root=schema_root,
         contract_root=contract_root,
         runtime_contract_root=runtime_contract_root,
+        machine_cache_root=machine_cache_root,
         toolchain_cache_root=toolchain_cache_root,
         worktree_root=worktree_root,
         runs_root=runs_root,
@@ -463,6 +493,11 @@ def load_config() -> CortexPilotConfig:
         max_codex_homes=_env_int("CORTEXPILOT_RETENTION_MAX_CODEX_HOMES", 500, min_value=1),
         intake_days=_env_int("CORTEXPILOT_RETENTION_INTAKE_DAYS", 7, min_value=1),
         max_intakes=_env_int("CORTEXPILOT_RETENTION_MAX_INTAKES", 500, min_value=1),
+        machine_cache_cap_bytes=_env_int(
+            "CORTEXPILOT_RETENTION_MACHINE_CACHE_CAP_BYTES",
+            _default_machine_cache_cap_bytes(repo_root),
+            min_value=1,
+        ),
     )
 
     tracing = TracingConfig(

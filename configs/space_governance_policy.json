@@ -2,6 +2,15 @@
   "version": 1,
   "recent_activity_hours": 24,
   "apply_gate_max_age_minutes": 15,
+  "machine_cache_retention_policy": {
+    "default_cap_bytes": 21474836480,
+    "auto_prune_interval_sec": 1800,
+    "protected_prefixes": [
+      "${CORTEXPILOT_MACHINE_CACHE_ROOT}",
+      "${CORTEXPILOT_MACHINE_CACHE_ROOT}/toolchains",
+      "${CORTEXPILOT_MACHINE_CACHE_ROOT}/toolchains/python/current"
+    ]
+  },
   "shared_realpath_prefixes": [
     "~/.cache/jarvis"
   ],
@@ -134,6 +143,16 @@
         "--skip-governance-scorecard"
       ],
       "description": "clean-room recovery verification"
+    },
+    {
+      "id": "desktop_native_smoke",
+      "kind": "shell_script",
+      "path": "scripts/docker_ci.sh",
+      "args": [
+        "lane",
+        "desktop-native-smoke"
+      ],
+      "description": "desktop native smoke verification"
     }
   ],
   "layers": {
@@ -690,6 +709,8 @@
         "rebuildability": "rebuildable with dashboard dependency installs",
         "recommendation": "needs_verification",
         "cleanup_mode": "remove-path",
+        "retention_auto_cleanup": true,
+        "retention_ttl_hours": 168,
         "risk": "medium",
         "rebuild_command_ids": [
           "dashboard_deps"
@@ -715,6 +736,8 @@
         "rebuildability": "rebuildable with desktop dependency installs",
         "recommendation": "needs_verification",
         "cleanup_mode": "remove-path",
+        "retention_auto_cleanup": true,
+        "retention_ttl_hours": 168,
         "risk": "medium",
         "rebuild_command_ids": [
           "desktop_deps"
@@ -740,6 +763,8 @@
         "rebuildability": "rebuildable with dashboard/desktop dependency installs",
         "recommendation": "needs_verification",
         "cleanup_mode": "remove-path",
+        "retention_auto_cleanup": true,
+        "retention_ttl_hours": 336,
         "risk": "medium",
         "rebuild_command_ids": [
           "dashboard_deps",
@@ -768,6 +793,8 @@
         "rebuildability": "rebuildable",
         "recommendation": "needs_verification",
         "cleanup_mode": "remove-path",
+        "retention_auto_cleanup": true,
+        "retention_ttl_hours": 24,
         "risk": "medium",
         "rebuild_command_ids": [
           "dashboard_deps",
@@ -795,6 +822,8 @@
         "rebuildability": "rebuildable by local docker_ci quick verification",
         "recommendation": "needs_verification",
         "cleanup_mode": "remove-path",
+        "retention_auto_cleanup": true,
+        "retention_ttl_hours": 24,
         "risk": "medium",
         "rebuild_command_ids": [
           "docker_ci_test_quick"
@@ -827,6 +856,8 @@
         "rebuildability": "rebuildable by clean-room recovery verification",
         "recommendation": "needs_verification",
         "cleanup_mode": "remove-path",
+        "retention_auto_cleanup": true,
+        "retention_ttl_hours": 24,
         "risk": "medium",
         "rebuild_command_ids": [
           "clean_room_recovery"
@@ -858,6 +889,8 @@
         "rebuildability": "rebuildable by clean-room recovery verification",
         "recommendation": "needs_verification",
         "cleanup_mode": "remove-path",
+        "retention_auto_cleanup": true,
+        "retention_ttl_hours": 24,
         "risk": "medium",
         "rebuild_command_ids": [
           "clean_room_recovery"
@@ -889,6 +922,8 @@
         "rebuildability": "rebuildable by Playwright install",
         "recommendation": "needs_verification",
         "cleanup_mode": "remove-path",
+        "retention_auto_cleanup": true,
+        "retention_ttl_hours": 168,
         "risk": "low_medium",
         "rebuild_command_ids": [
           "bootstrap_playwright"
@@ -902,6 +937,96 @@
           "scripts/bootstrap.sh"
         ],
         "notes": "Repo-owned browser cache, but still shared across CortexPilot worktrees on the same machine."
+      },
+      {
+        "id": "external_docker_buildx_cache_root",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/docker-buildx-cache",
+        "type": "repo-owned docker buildx local cache root",
+        "ownership": "repo-owned docker buildx local cache root",
+        "ownership_confidence": "High",
+        "sharedness": "repo_machine_shared",
+        "summary_role": "breakdown_only",
+        "rebuildability": "rebuildable by docker_ci image rebuilds",
+        "recommendation": "needs_verification",
+        "cleanup_mode": "observe-only",
+        "risk": "medium",
+        "rebuild_command_ids": [
+          "docker_ci_test_quick",
+          "desktop_native_smoke"
+        ],
+        "evidence": [
+          "scripts/docker_ci.sh",
+          "scripts/lib/toolchain_env.sh"
+        ],
+        "notes": "Rollup root for repo-owned local Docker buildx caches. Child caches are the apply targets."
+      },
+      {
+        "id": "external_docker_buildx_cache_core",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/docker-buildx-cache/cortexpilot-ci-core-local",
+        "type": "repo-owned docker buildx core image cache",
+        "ownership": "repo-owned docker buildx cache for the core local CI image",
+        "ownership_confidence": "High",
+        "sharedness": "repo_machine_shared",
+        "summary_role": "breakdown_only",
+        "rebuildability": "rebuildable by local docker_ci quick verification",
+        "recommendation": "needs_verification",
+        "cleanup_mode": "remove-path",
+        "retention_auto_cleanup": true,
+        "retention_ttl_hours": 72,
+        "risk": "medium",
+        "rebuild_command_ids": [
+          "docker_ci_test_quick"
+        ],
+        "post_cleanup_command_ids": [
+          "docker_ci_test_quick"
+        ],
+        "apply_serial_only": true,
+        "producer": "docker_ci_buildx_cache",
+        "lifecycle": "machine_cache",
+        "process_command_hints": [
+          "buildx",
+          "scripts/docker_ci.sh",
+          "cortexpilot-ci-core:local"
+        ],
+        "evidence": [
+          "scripts/docker_ci.sh",
+          "scripts/lib/toolchain_env.sh"
+        ],
+        "notes": "Repo-owned local build cache for the core docker_ci image."
+      },
+      {
+        "id": "external_docker_buildx_cache_desktop_native",
+        "path": "${CORTEXPILOT_MACHINE_CACHE_ROOT}/docker-buildx-cache/cortexpilot-ci-desktop-native-local",
+        "type": "repo-owned docker buildx desktop-native image cache",
+        "ownership": "repo-owned docker buildx cache for the desktop-native local CI image",
+        "ownership_confidence": "High",
+        "sharedness": "repo_machine_shared",
+        "summary_role": "breakdown_only",
+        "rebuildability": "rebuildable by desktop-native smoke verification",
+        "recommendation": "needs_verification",
+        "cleanup_mode": "remove-path",
+        "retention_auto_cleanup": true,
+        "retention_ttl_hours": 72,
+        "risk": "medium",
+        "rebuild_command_ids": [
+          "desktop_native_smoke"
+        ],
+        "post_cleanup_command_ids": [
+          "desktop_native_smoke"
+        ],
+        "apply_serial_only": true,
+        "producer": "docker_ci_buildx_cache",
+        "lifecycle": "machine_cache",
+        "process_command_hints": [
+          "buildx",
+          "desktop-native-smoke",
+          "cortexpilot-ci-desktop-native:local"
+        ],
+        "evidence": [
+          "scripts/docker_ci.sh",
+          "scripts/lib/toolchain_env.sh"
+        ],
+        "notes": "Repo-owned local build cache for the desktop-native docker_ci image."
       },
       {
         "id": "external_cargo",
@@ -1153,6 +1278,8 @@
         "external_tmp_clean_room_machine_cache",
         "external_tmp_clean_room_preserve",
         "external_playwright",
+        "external_docker_buildx_cache_core",
+        "external_docker_buildx_cache_desktop_native",
         "external_cargo"
       ],
       "process_groups": [
@@ -1169,6 +1296,7 @@
         "${CORTEXPILOT_MACHINE_CACHE_ROOT}/tmp",
         "${CORTEXPILOT_MACHINE_CACHE_ROOT}/tmp/docker-ci",
         "${CORTEXPILOT_MACHINE_CACHE_ROOT}/playwright",
+        "${CORTEXPILOT_MACHINE_CACHE_ROOT}/docker-buildx-cache",
         "${CORTEXPILOT_MACHINE_CACHE_ROOT}/cargo"
       ],
       "process_command_hints": [
@@ -1177,6 +1305,7 @@
         "scripts/docker_ci.sh",
         "scripts/check_clean_room_recovery.sh",
         "cortexpilot-docker-ci",
+        "buildx",
         "clean-room-machine-cache",
         "clean-room-preserve",
         "pnpm-store",
@@ -1189,6 +1318,7 @@
         "desktop_tauri_build",
         "bootstrap_playwright",
         "docker_ci_test_quick",
+        "desktop_native_smoke",
         "clean_room_recovery",
         "bootstrap"
       ]

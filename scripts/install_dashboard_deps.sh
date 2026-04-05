@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_DIR="${CORTEXPILOT_DASHBOARD_APP_DIR:-$ROOT_DIR/apps/dashboard}"
 source "$ROOT_DIR/scripts/lib/toolchain_env.sh"
+source "$ROOT_DIR/scripts/lib/machine_cache_retention.sh"
 
 STORE_DIR="${CORTEXPILOT_PNPM_STORE_DIR:-$(cortexpilot_pnpm_store_dir "$ROOT_DIR")/dashboard}"
 STATE_ROOT="$ROOT_DIR/.runtime-cache/cortexpilot/temp/install-dashboard-deps-state"
@@ -20,6 +21,8 @@ INSTALL_LOG="$ROOT_DIR/.runtime-cache/logs/runtime/deps_install/install_dashboar
 LOCK_DIR="${STATE_ROOT}/install-dashboard-deps.lock"
 LOCK_OWNER_FILE="$LOCK_DIR/owner"
 LOCK_HELD=0
+
+cortexpilot_maybe_auto_prune_machine_cache "$ROOT_DIR" "install_dashboard_deps"
 
 log_contains() {
   local needle="$1"
@@ -61,10 +64,7 @@ resolve_writable_store_dir() {
     printf '%s\n' "$candidate"
     return 0
   fi
-  local fallback
-  fallback="${XDG_CACHE_HOME:-$HOME/.cache}/cortexpilot/pnpm-store-dashboard"
-  mkdir -p "$fallback"
-  printf '%s\n' "$fallback"
+  cortexpilot_pnpm_local_retry_dir "$ROOT_DIR" "dashboard"
 }
 
 release_install_lock() {
@@ -110,9 +110,7 @@ EOF
 }
 
 fresh_retry_store_dir() {
-  local retry_root="${XDG_CACHE_HOME:-$HOME/.cache}/cortexpilot"
-  mkdir -p "$retry_root"
-  mktemp -d "$retry_root/pnpm-store-dashboard-retry.XXXXXX"
+  cortexpilot_pnpm_local_retry_dir "$ROOT_DIR" "dashboard"
 }
 
 workspace_retry_store_dir() {
@@ -133,10 +131,11 @@ cleanup_stale_workspace_retry_stores() {
 }
 
 cleanup_stale_retry_stores() {
-  local retry_root="${XDG_CACHE_HOME:-$HOME/.cache}/cortexpilot"
+  local retry_glob
+  retry_glob="$(cortexpilot_pnpm_local_retry_prefix "$ROOT_DIR" "dashboard").*"
   local candidate=""
   shopt -s nullglob
-  for candidate in "$retry_root"/pnpm-store-dashboard-retry.*; do
+  for candidate in $retry_glob; do
     [[ "$candidate" == "$STORE_DIR" ]] && continue
     retire_store_dir "$candidate"
   done

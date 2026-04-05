@@ -31,6 +31,8 @@ def test_round4_config_properties_and_public_getters(monkeypatch: pytest.MonkeyP
     monkeypatch.setenv("CORTEXPILOT_REPO_ROOT", str(tmp_path))
     monkeypatch.setenv("CORTEXPILOT_LOGS_ROOT", str(logs_root))
     monkeypatch.setenv("CORTEXPILOT_CACHE_ROOT", str(cache_root))
+    monkeypatch.setenv("CORTEXPILOT_MACHINE_CACHE_ROOT", str(tmp_path / "machine-cache"))
+    monkeypatch.setenv("CORTEXPILOT_RETENTION_MACHINE_CACHE_CAP_BYTES", "4096")
 
     cfg = config_module.load_config()
 
@@ -38,6 +40,8 @@ def test_round4_config_properties_and_public_getters(monkeypatch: pytest.MonkeyP
     assert cfg.repo_root == tmp_path
     assert cfg.contract_root_explicit is True
     assert cfg.runtime_contract_root == tmp_path / ".runtime-cache" / "cortexpilot" / "contracts"
+    assert cfg.machine_cache_root == tmp_path / "machine-cache"
+    assert cfg.retention_machine_cache_cap_bytes == 4096
 
     assert config_module.get_security_config() == cfg.security
     assert config_module.get_retention_config() == cfg.retention
@@ -78,6 +82,53 @@ def test_round4_config_env_helpers_and_runtime_path_fallback(monkeypatch: pytest
     resolved, explicit = config_module._resolve_runtime_path("ROUND4_SCHEMA_ROOT", str(default_schema))
     assert resolved == default_schema
     assert explicit is False
+
+
+def test_round4_config_machine_cache_cap_defaults_from_space_policy(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _reset_config_state()
+
+    policy_path = tmp_path / "configs" / "space_governance_policy.json"
+    policy_path.parent.mkdir(parents=True, exist_ok=True)
+    policy_path.write_text(
+        """{
+  "version": 1,
+  "recent_activity_hours": 24,
+  "apply_gate_max_age_minutes": 15,
+  "machine_cache_retention_policy": {
+    "default_cap_bytes": 7777,
+    "auto_prune_interval_sec": 1800
+  },
+  "shared_realpath_prefixes": [],
+  "layers": {
+    "repo_internal": [],
+    "repo_external_related": [],
+    "shared_observation": []
+  },
+  "wave_targets": {},
+  "process_groups": {
+    "node": {
+      "patterns": ["\\\\bnode\\\\b"]
+    }
+  },
+  "rebuild_commands": [
+    {
+      "id": "bootstrap",
+      "kind": "npm_script",
+      "script": "bootstrap",
+      "description": "bootstrap"
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CORTEXPILOT_REPO_ROOT", str(tmp_path))
+    monkeypatch.delenv("CORTEXPILOT_RETENTION_MACHINE_CACHE_CAP_BYTES", raising=False)
+
+    cfg = config_module.load_config()
+
+    assert cfg.retention_machine_cache_cap_bytes == 7777
 
 
 def test_round4_config_prefers_cortexpilot_aliases_for_core_runtime_inputs(

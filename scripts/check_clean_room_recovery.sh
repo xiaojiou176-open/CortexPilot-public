@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 source "$ROOT_DIR/scripts/lib/env.sh"
+source "$ROOT_DIR/scripts/lib/machine_cache_retention.sh"
 
 export CORTEXPILOT_HOST_COMPAT=1
 export PYTHONDONTWRITEBYTECODE=1
@@ -16,6 +17,7 @@ case " ${existing_pytest_addopts} " in
 esac
 
 MACHINE_TMP_ROOT="$(cortexpilot_machine_tmp_root "$ROOT_DIR")"
+cortexpilot_maybe_auto_prune_machine_cache "$ROOT_DIR" "clean_room_recovery"
 mkdir -p "$MACHINE_TMP_ROOT"
 MACHINE_CACHE_ROOT="$(mktemp -d "$MACHINE_TMP_ROOT/clean-room-machine-cache.XXXXXX")"
 export CORTEXPILOT_MACHINE_CACHE_ROOT="$MACHINE_CACHE_ROOT"

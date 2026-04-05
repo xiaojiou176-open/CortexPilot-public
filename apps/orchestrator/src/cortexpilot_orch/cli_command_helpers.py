@@ -82,6 +82,7 @@ def cleanup_runtime_summary(
         "worktrees": len(plan.worktree_candidates),
         "logs": len(plan.log_candidates),
         "cache": len(plan.cache_candidates),
+        "machine_cache": len(plan.machine_cache_candidates),
         "report": str(report_path),
     }
     if apply_result:
