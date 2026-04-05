@@ -192,6 +192,7 @@ def test_ensure_repo_chrome_singleton_launches_when_no_instance_exists(
     monkeypatch.setattr(singleton_module, "find_chrome_process_by_remote_debugging_port", lambda port: None)
     monkeypatch.setattr(singleton_module, "find_chrome_process_by_user_data_dir", lambda root: None)
     monkeypatch.setattr(singleton_module, "wait_for_cdp_version", lambda host, port, timeout_sec=15.0, poll_sec=0.25: {"ok": True})
+    monkeypatch.setattr(singleton_module, "_verify_repo_chrome_launch_stability", lambda **kwargs: None)
     monkeypatch.setattr(
         singleton_module.subprocess,
         "Popen",
@@ -211,6 +212,59 @@ def test_ensure_repo_chrome_singleton_launches_when_no_instance_exists(
     assert launches and f"--user-data-dir={user_data_dir.resolve()}" in launches[0]
     assert "--profile-directory=Profile 1" in launches[0]
     assert "--remote-debugging-port=9341" in launches[0]
+
+
+def test_ensure_repo_chrome_singleton_fails_closed_when_launch_does_not_stay_attached(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    user_data_dir = tmp_path / "browser" / "chrome-user-data"
+    (user_data_dir / "Profile 1").mkdir(parents=True, exist_ok=True)
+    (user_data_dir / "Local State").write_text(
+        json.dumps({"profile": {"info_cache": {"Profile 1": {"name": "cortexpilot"}}, "last_used": "Profile 1"}}),
+        encoding="utf-8",
+    )
+    launches: list[list[str]] = []
+    state = {"phase": "launching"}
+
+    class _Proc:
+        pid = 777
+
+    def _read_cdp_version(host: str, port: int, timeout_sec: float = 0.5) -> dict[str, object] | None:
+        if state["phase"] == "stable_check":
+            return None
+        return None
+
+    def _wait_for_cdp(host: str, port: int, timeout_sec: float = 15.0, poll_sec: float = 0.25) -> dict[str, bool]:
+        state["phase"] = "stable_check"
+        return {"ok": True}
+
+    def _find_by_port(port: int) -> singleton_module.ChromeProcessInfo | None:
+        if state["phase"] == "launching":
+            return None
+        return None
+
+    monkeypatch.setattr(singleton_module, "read_cdp_version", _read_cdp_version)
+    monkeypatch.setattr(singleton_module, "_is_executable_file", lambda path: str(path) == "/preferred/chrome")
+    monkeypatch.setattr(singleton_module, "find_chrome_process_by_remote_debugging_port", _find_by_port)
+    monkeypatch.setattr(singleton_module, "find_chrome_process_by_user_data_dir", lambda root: None)
+    monkeypatch.setattr(singleton_module, "wait_for_cdp_version", _wait_for_cdp)
+    monkeypatch.setattr(singleton_module.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(
+        singleton_module.subprocess,
+        "Popen",
+        lambda args, stdout, stderr, start_new_session=None: launches.append(args) or _Proc(),
+    )
+
+    with pytest.raises(RuntimeError, match="launch became stale"):
+        singleton_module.ensure_repo_chrome_singleton(
+            chrome_executable_path="/preferred/chrome",
+            user_data_dir=user_data_dir,
+            profile_name="cortexpilot",
+            cdp_host="127.0.0.1",
+            cdp_port=9341,
+        )
+
+    assert launches and "--remote-debugging-port=9341" in launches[0]
 
 
 def test_ensure_repo_chrome_singleton_retries_via_open_on_macos_when_direct_launch_never_binds(
@@ -256,6 +310,7 @@ def test_ensure_repo_chrome_singleton_retries_via_open_on_macos_when_direct_laun
     monkeypatch.setattr(singleton_module, "find_chrome_process_by_user_data_dir", lambda root: None)
     monkeypatch.setattr(singleton_module, "find_chrome_process_by_remote_debugging_port", _find_by_port)
     monkeypatch.setattr(singleton_module, "wait_for_cdp_version", _wait_for_cdp)
+    monkeypatch.setattr(singleton_module, "_verify_repo_chrome_launch_stability", lambda **kwargs: None)
     monkeypatch.setattr(
         singleton_module,
         "_launch_chrome_process",
@@ -348,6 +403,7 @@ def test_ensure_repo_chrome_singleton_relaunches_same_root_from_legacy_port(
         lambda process, timeout_sec=10.0: stopped.append(process.pid),
     )
     monkeypatch.setattr(singleton_module, "wait_for_cdp_version", lambda host, port, timeout_sec=15.0, poll_sec=0.25: {"ok": True})
+    monkeypatch.setattr(singleton_module, "_verify_repo_chrome_launch_stability", lambda **kwargs: None)
     monkeypatch.setattr(
         singleton_module.subprocess,
         "Popen",

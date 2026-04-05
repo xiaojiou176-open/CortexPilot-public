@@ -342,6 +342,38 @@ def _launch_repo_chrome_via_mac_open(
     return True
 
 
+def _verify_repo_chrome_launch_stability(
+    *,
+    user_data_dir: Path,
+    cdp_host: str,
+    cdp_port: int,
+    settle_sec: float = 1.0,
+) -> None:
+    if settle_sec > 0:
+        time.sleep(settle_sec)
+    endpoint_payload = read_cdp_version(cdp_host, cdp_port, timeout_sec=min(max(settle_sec, 0.5), 1.0))
+    port_process = find_chrome_process_by_remote_debugging_port(cdp_port)
+    root_process = find_chrome_process_by_user_data_dir(user_data_dir)
+    expected_root = _normalized_path_text(user_data_dir)
+
+    port_process_matches_root = (
+        port_process is not None and _normalized_path_text(port_process.user_data_dir) == expected_root
+    )
+    root_process_matches_root = (
+        root_process is not None and _normalized_path_text(root_process.user_data_dir) == expected_root
+    )
+
+    if endpoint_payload is not None and port_process_matches_root:
+        return
+    if root_process_matches_root:
+        raise RuntimeError(
+            "repo Chrome launch became unstable: the repo-owned browser root is still running but CDP is no longer ready"
+        )
+    raise RuntimeError(
+        "repo Chrome launch became stale before the repo-owned singleton stayed attached to the expected CDP endpoint"
+    )
+
+
 def write_singleton_state(instance: RepoChromeInstance) -> Path:
     path = singleton_state_path(Path(instance.user_data_dir))
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -585,6 +617,11 @@ def ensure_repo_chrome_singleton(
     launched_process = find_chrome_process_by_remote_debugging_port(cdp_port)
     if launched_process is not None and _normalized_path_text(launched_process.user_data_dir) != expected_root:
         raise RuntimeError("launched Chrome did not bind to the expected repo browser root")
+    _verify_repo_chrome_launch_stability(
+        user_data_dir=user_data_dir,
+        cdp_host=cdp_host,
+        cdp_port=cdp_port,
+    )
     instance = RepoChromeInstance(
         connection_mode="launched",
         pid=launched_process.pid if launched_process is not None else proc.pid,
