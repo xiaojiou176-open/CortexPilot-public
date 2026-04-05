@@ -31,6 +31,9 @@ Work in CortexPilot as a contract-first engineering agent:
 - repo-owned `scripts/*.py` entrypoints must remain runnable through direct
   `python3 scripts/<name>.py` execution or `bash scripts/run_governance_py.sh`
   without relying on a pre-seeded repo-root `PYTHONPATH`
+- host-compatible pre-commit hooks that execute repo-owned `scripts/*.py`
+  entrypoints must use the same wrapper path (or an equivalent `python3 -B`
+  contract) so clean hook runs do not leave repo-local `__pycache__` residue
 
 ## Generated Governance Context
 

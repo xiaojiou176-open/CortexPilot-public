@@ -98,6 +98,10 @@ navigation set.
 - `packages/frontend-api-contract/docs/README.md`: human-readable contract package guide that now sits between the public API/builder quickstarts and the raw generated contract files
 - `scripts/check_clean_room_recovery.sh`: clean-room bootstrap/verification path that now reinstalls package-local frontend-api-client deps before its node smoke bundle and runs the repo-owned workspace-module cleanup before the broader runtime delete sweep; that cleanup path can quarantine stubborn dashboard module residue before deletion when recursive removal alone is not enough
 - `scripts/install_dashboard_deps.sh`: dashboard clean-room install gate that now proves `jsdom` itself can load, so quick-lane success does not depend on a specific transitive dependency layout such as `data-urls`
+- `.pre-commit-config.yaml`: host-compatible hook inventory; repo-owned
+  `scripts/*.py` hooks should run through `bash scripts/run_governance_py.sh`
+  (or an equivalent `python3 -B` path) so clean hook passes do not leave
+  repo-local `__pycache__` residue behind
 - `apps/orchestrator/src/cortexpilot_orch/api/main_pm_intake_helpers.py`: PM-facing helper surface that now returns a contract-derived `role_binding_summary`, and the same read model now persists into run manifests for stable post-run inspection without becoming execution authority
 - `schemas/execution_plan_report.v1.json` / `schemas/run_manifest.v1.json`: schema-owned runtime capability summaries (`lane`, `compat_api_mode`, `provider_status`, `tool_execution`) that keep preview/manifests honest about chat-compatible vs fail-closed tool posture
 - `apps/orchestrator/src/cortexpilot_orch/api/main_runs_handlers.py`: run-detail helper surface that now returns a stable `role_binding_read_model` derived from persisted contract truth for read-only inspection

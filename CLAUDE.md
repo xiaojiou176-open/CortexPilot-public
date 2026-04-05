@@ -24,6 +24,9 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
 - repo-owned `scripts/*.py` entrypoints must keep shared helper imports usable
   when they are executed directly or through `bash scripts/run_governance_py.sh`;
   do not assume the repo root is already present on `PYTHONPATH`
+- host-compatible pre-commit hooks that execute repo-owned `scripts/*.py`
+  entrypoints must use the same wrapper path (or an equivalent `python3 -B`
+  contract) so clean hook runs do not leave repo-local `__pycache__` residue
 - keep public CI hosted-first: fork PRs stay low-privilege on GitHub-hosted
   lanes, and sensitive verification stays on protected manual dispatch lanes
 - treat `configs/github_control_plane_policy.json` as the machine SSOT for
