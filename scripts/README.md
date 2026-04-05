@@ -70,6 +70,9 @@ user's ambient Python environment.
   `~/.cache/cortexpilot/docker-buildx-cache/` when `docker buildx` is
   available, which turns rebuildable Docker image cache into a governed
   repo-owned external cache instead of a purely opaque daemon-side layer.
+  GitHub-hosted / in-container CI lanes intentionally keep that optimization
+  disabled unless explicitly reopened, because the hosted Docker driver may not
+  support local cache export.
 - `docker_ci.sh` and `check_clean_room_recovery.sh` now keep their heavy
   machine-scoped temp roots under `~/.cache/cortexpilot/tmp/` by default
   (for example `tmp/docker-ci/runner-temp-*` and

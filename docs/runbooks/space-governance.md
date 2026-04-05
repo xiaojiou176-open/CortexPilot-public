@@ -91,6 +91,10 @@ The lane now also writes a structured receipt to
 That receipt includes managed image/container/volume/build-cache totals,
 planned reclaim bytes, actual reclaimed bytes, and any `skipped_active`
 surfaces that stayed live.
+Repo-owned `docker-buildx-cache/` is intended for local developer/recovery
+lanes. GitHub-hosted and in-container CI stay fail-closed on the simpler daemon
+path when cache export is unavailable, rather than forcing buildx local cache
+into an unsupported environment.
 
 ## Cleanup Rules
 

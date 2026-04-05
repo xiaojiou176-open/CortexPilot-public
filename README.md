@@ -525,6 +525,9 @@ audit-only observations. Repo-owned buildx local cache now also lives under
 `~/.cache/cortexpilot/docker-buildx-cache/`, and the Docker lane writes a
 structured receipt to
 `.runtime-cache/cortexpilot/reports/space_governance/docker_runtime.json`.
+That buildx cache path is a local-development accelerator, not a GitHub-hosted
+CI requirement; hosted/container lanes stay on the more conservative daemon
+path when local cache export is unsupported.
 Local browser development now defaults to the real Chrome profile display name
 `cortexpilot`, while CI / Docker / clean-room lanes force `ephemeral` browser
 state and must not depend on login state or on a copied local profile.

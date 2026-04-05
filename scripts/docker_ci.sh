@@ -217,6 +217,9 @@ ensure_host_dispatch_context_or_fail() {
 
 docker_buildx_local_cache_enabled() {
   local raw="${CORTEXPILOT_DOCKER_BUILDX_LOCAL_CACHE:-1}"
+  if is_truthy "${CI:-0}" || is_truthy "${GITHUB_ACTIONS:-0}" || is_truthy "${CORTEXPILOT_CI_CONTAINER:-0}"; then
+    return 1
+  fi
   if [[ "$raw" =~ ^(0|false|no|off)$ ]]; then
     return 1
   fi

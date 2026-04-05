@@ -45,7 +45,10 @@ cortexpilot_docker_buildx_cache_dir() {
   local cache_root
   cache_root="$(cortexpilot_docker_buildx_cache_root "$root_dir")"
   local sanitized
-  sanitized="$(printf '%s' "$image_name" | tr ':/@' '---' | tr -cd '[:alnum:]._-\n')"
+  sanitized="${image_name//:/-}"
+  sanitized="${sanitized//\//-}"
+  sanitized="${sanitized//@/-}"
+  sanitized="$(printf '%s' "$sanitized" | LC_ALL=C tr -cd '[:alnum:]._-')"
   if [[ -z "$sanitized" ]]; then
     sanitized="image-cache"
   fi
