@@ -47,3 +47,14 @@ Use this package when you want:
 - `../ui-flow.d.ts`: generated UI-flow exports
 - `../../frontend-api-client/README.md`: thin client layer that sits above this contract package
 - `../../frontend-shared/README.md`: shared presentation substrate that sits beside this package
+
+## Vendored workspace reminder
+
+If you are reusing this contract package outside the repo today, keep the
+boundary honest:
+
+- copy it as part of a vendored workspace or clone, not as an implied registry install
+- pair it with `@cortexpilot/frontend-api-client` when you want a runnable
+  bootstrap path instead of raw route/type truth only
+- keep the public explanation anchored on compatibility / integrations /
+  read-only MCP / skills, not on a fake marketplace or official plugin story

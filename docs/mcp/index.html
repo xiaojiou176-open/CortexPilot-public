@@ -340,6 +340,46 @@
       </section>
 
       <section class="section">
+        <h2>What to hand to any stdio-capable MCP client</h2>
+        <p>
+          If your client asks for a command, arguments, working directory, and environment instead of a hosted URL, use these repo-owned values directly.
+        </p>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Use this value</th>
+                <th>Why</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Transport</strong></td>
+                <td><code>stdio</code></td>
+                <td>The shipped public MCP surface is a repo-owned stdio JSON-RPC server, not a hosted MCP account.</td>
+              </tr>
+              <tr>
+                <td><strong>Working directory</strong></td>
+                <td>the CortexPilot repo root</td>
+                <td>The server reads repo-local runtime state, run bundles, and workflow truth.</td>
+              </tr>
+              <tr>
+                <td><strong>Environment</strong></td>
+                <td><code>PYTHONPATH=apps/orchestrator/src</code></td>
+                <td>This exposes the orchestrator module path without inventing a separate package install story.</td>
+              </tr>
+              <tr>
+                <td><strong>Command</strong></td>
+                <td><code>python3 -m cortexpilot_orch.cli mcp-readonly-server</code></td>
+                <td>This is the truthful command surface wired by the repo today.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
         <h2>What it does not do yet</h2>
         <ul>
           <li>no write-capable MCP mutations</li>

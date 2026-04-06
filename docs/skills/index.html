@@ -240,6 +240,24 @@
       </section>
 
       <section class="section">
+        <h2>Minimal vendored skill-pack layout</h2>
+        <p>
+          If you want a drop-in starting point instead of a vague “reuse the repo's skills,” keep the copied surface small and explicit.
+        </p>
+        <pre><code>vendor/CortexPilot/
+  README.md
+  docs/README.md
+  AGENTS.md
+  .agents/skills/&lt;chosen-skill&gt;/</code></pre>
+        <ol>
+          <li>Copy the three truth files first: <code>README.md</code>, <code>docs/README.md</code>, and <code>AGENTS.md</code>.</li>
+          <li>Copy only the skill folders you truly want the agent to reuse; do not mirror the whole repo just to say “skills exist.”</li>
+          <li>Keep the skill paired with the same repo-owned read-only MCP command when the workflow needs machine-readable inspection.</li>
+          <li>Preserve the stop-signs inside the skill: hosted, write-MCP, and plugin/store claims stay frozen until the repo truth changes.</li>
+        </ol>
+      </section>
+
+      <section class="section">
         <h2>Best-fit usage by coding agent</h2>
         <div class="grid">
           <article class="card">

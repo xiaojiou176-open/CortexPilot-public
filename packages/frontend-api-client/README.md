@@ -127,6 +127,28 @@ The example stays inside the truthful boundary:
 - `task_contract` remains the execution authority even when role-default apply
   is available through the same client under local operator policy
 
+## Vendored workspace recipe
+
+If another Codex / Claude Code / OpenClaw workspace wants the shortest truthful
+builder reuse path today, keep the copied surface explicit:
+
+```text
+vendor/CortexPilot/
+  packages/frontend-api-client/
+  packages/frontend-api-contract/
+  packages/frontend-shared/
+```
+
+Then keep the workflow small:
+
+1. point the client at the current API base URL
+2. start from `createControlPlaneStarter(...)` or the repo-owned starter example
+3. keep role-config apply and queue preview/cancel behind trusted maintainer
+   policy instead of treating them as public builder defaults
+4. pair package reuse with the public compatibility / integration / MCP / skills
+   guides so teams do not accidentally re-label this client as an official
+   plugin or a hosted SDK
+
 ## Current boundary
 
 - This is a thin client surface, not a full SDK platform.

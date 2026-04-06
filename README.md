@@ -58,6 +58,11 @@ paths:
 If this repository is close to your use case, star it to track the first public
 release, new task templates, and storefront updates.
 
+The integration / skills / MCP / builder pages now also carry more copy-paste
+drop-in recipes, so external Codex / Claude Code / OpenClaw teams do not have
+to reconstruct the vendored-skill, stdio-MCP, and builder-starter path from
+source files alone.
+
 The host-compatible pre-commit lane now routes repo-owned `scripts/*.py` hooks
 through `bash scripts/run_governance_py.sh`, so the quality gate stays
 deterministic without leaving repo-local `__pycache__` residue behind after a
@@ -302,6 +307,33 @@ Use these names as ecosystem anchors, not as co-brands or partnership claims.
 - **OpenClaw**: different product category; keep it out of the current front
   door.
 
+## Official Ecosystem Anchors
+
+When a team asks "what is real on their side?", start from the native surfaces
+below before you explain where CortexPilot fits:
+
+- **Codex**:
+  - repo: [openai/codex](https://github.com/openai/codex)
+  - docs: [developers.openai.com/codex](https://developers.openai.com/codex)
+  - IDE path: [developers.openai.com/codex/ide](https://developers.openai.com/codex/ide)
+- **Claude Code**:
+  - overview: [code.claude.com/docs/en/overview](https://code.claude.com/docs/en/overview)
+  - MCP docs: [code.claude.com/docs/en/mcp](https://code.claude.com/docs/en/mcp)
+- **OpenClaw**:
+  - repo: [openclaw/openclaw](https://github.com/openclaw/openclaw)
+  - skills docs: [docs.openclaw.ai/tools/skills](https://docs.openclaw.ai/tools/skills)
+  - registry/catalog: [openclaw/clawhub](https://github.com/openclaw/clawhub)
+
+These anchors matter because CortexPilot should fit around the real ecosystem
+surfaces that already exist:
+
+- **Codex / Claude Code**: command tower, proof, replay, read-only MCP, and
+  repo-owned skills that sit around the workflow.
+- **OpenClaw**: adjacent integration layer with real skills and plugin/catalog
+  surfaces on its side, while CortexPilot stays on the review/proof/read-only
+  integration side unless a mapped native path is explicitly shipped and
+  tested.
+
 ## First Run To Proof To Share
 
 The strongest public loop is now:
@@ -324,6 +356,38 @@ around CortexPilot without pretending a full SDK platform already exists:
 - [packages/frontend-api-contract/docs/README.md](packages/frontend-api-contract/docs/README.md): human-readable contract package guide for generated frontend-safe route/query/type imports.
 - [packages/frontend-shared/README.md](packages/frontend-shared/README.md): shared UI copy, locale, status, and frontend-only presentation helpers.
 - [docs/architecture/ecosystem-and-builder-surfaces-v1.md](docs/architecture/ecosystem-and-builder-surfaces-v1.md): the human-readable map that explains how Codex / Claude Code / MCP / public packs / share-ready Workflow Cases fit together.
+
+## Shortest Cross-Ecosystem Adoption Order
+
+If you are integrating CortexPilot into a coding-agent workflow, the shortest
+truthful order is:
+
+1. Confirm the native ecosystem surface first:
+   - Codex CLI / IDE
+   - Claude Code overview / MCP
+   - OpenClaw repo / skills / ClawHub
+2. Use the public [compatibility matrix](https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/)
+   to choose the right CortexPilot entrypoint.
+3. Pick the first CortexPilot lane based on the job:
+   - [read-only MCP](https://xiaojiou176-open.github.io/CortexPilot-public/mcp/)
+     for protocol inspection
+   - [skills quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/skills/)
+     for repeatable playbooks
+   - [builder quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/)
+     for package-level reuse
+   - [use cases](https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/)
+     for proof-first rollout
+4. When package reuse is the real next step, run the repo-owned starter example
+   instead of reconstructing the flow from prose:
+
+   ```bash
+   node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
+     --base-url http://127.0.0.1:10000 \
+     --role WORKER \
+     --mutation-role TECH_LEAD \
+     --preview-provider cliproxyapi \
+     --preview-model gpt-5.4
+   ```
 
 ## Best Fit
 
