@@ -186,6 +186,7 @@
         <nav class="mini-nav" aria-label="Top navigation">
           <a href="../">Back to the public landing page</a>
           <a href="../compatibility/">Compatibility matrix</a>
+          <a href="../agent-starters/">Agent starter kits</a>
           <a href="../integrations/">Integration guide</a>
           <a href="../builders/">Builder quickstart</a>
           <a href="../mcp/">MCP quickstart</a>
@@ -198,6 +199,7 @@
         <div class="actions">
           <a class="button primary" href="#how-to-use-skills-today">Open the adoption path</a>
           <a class="button secondary" href="../compatibility/">Open compatibility matrix</a>
+          <a class="button secondary" href="../agent-starters/">Open agent starter kits</a>
           <a class="button secondary" href="../integrations/">See integration guide</a>
           <a class="button secondary" href="../builders/">See builder quickstart</a>
           <a class="button secondary" href="#fast-path-for-maintainers">See maintainer fast path</a>
@@ -237,6 +239,30 @@
           <li>Use the skill together with the repo's truthful entrypoints: read-only MCP, API/client packages, docs, and Task Board.</li>
           <li>Keep the skill boundary honest: if a playbook says hosted or write-MCP is frozen, treat that as a real stop sign.</li>
         </ol>
+        <p>
+          If your team already knows it wants the MCP side wired too, pair this
+          page with the <a href="../agent-starters/">agent starter kits</a>
+          instead of reconstructing Codex / Claude Code / OpenClaw config files
+          from scratch.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>Minimal vendored skill-pack layout</h2>
+        <p>
+          If you want a drop-in starting point instead of a vague “reuse the repo's skills,” keep the copied surface small and explicit.
+        </p>
+        <pre><code>vendor/CortexPilot/
+  README.md
+  docs/README.md
+  AGENTS.md
+  .agents/skills/&lt;chosen-skill&gt;/</code></pre>
+        <ol>
+          <li>Copy the three truth files first: <code>README.md</code>, <code>docs/README.md</code>, and <code>AGENTS.md</code>.</li>
+          <li>Copy only the skill folders you truly want the agent to reuse; do not mirror the whole repo just to say “skills exist.”</li>
+          <li>Keep the skill paired with the same repo-owned read-only MCP command when the workflow needs machine-readable inspection.</li>
+          <li>Preserve the stop-signs inside the skill: hosted, write-MCP, and plugin/store claims stay frozen until the repo truth changes.</li>
+        </ol>
       </section>
 
       <section class="section">
@@ -255,6 +281,61 @@
             <p>Use skills as an adaptation layer for repo truth. OpenClaw has real plugin and skills surfaces, but CortexPilot currently lands on the integration-and-skills side first rather than claiming an official shipped plugin.</p>
           </article>
         </div>
+      </section>
+
+      <section class="section">
+        <h2>Official ecosystem anchors</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Codex</h3>
+            <p>
+              Native reference points:
+              <a href="https://github.com/openai/codex">repo</a>,
+              <a href="https://developers.openai.com/codex">docs</a>,
+              and <a href="https://developers.openai.com/codex/ide">IDE install</a>.
+            </p>
+            <p>
+              CortexPilot skills should act as repo-owned operating contracts around those workflows,
+              not as a replacement for Codex's own native surfaces.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Claude Code</h3>
+            <p>
+              Native reference points:
+              <a href="https://code.claude.com/docs/en/overview">overview</a>
+              and <a href="https://code.claude.com/docs/en/mcp">MCP docs</a>.
+            </p>
+            <p>
+              CortexPilot skills should carry the repo's own read order, truth layers, and safety rails
+              into Claude Code workflows without implying a marketplace listing.
+            </p>
+          </article>
+          <article class="card">
+            <h3>OpenClaw</h3>
+            <p>
+              Native reference points:
+              <a href="https://github.com/openclaw/openclaw">repo</a>,
+              <a href="https://docs.openclaw.ai/tools/skills">skills docs</a>,
+              and <a href="https://github.com/openclaw/clawhub">ClawHub</a>.
+            </p>
+            <p>
+              OpenClaw already has real skills, a workspace path, and a public registry/catalog, so
+              CortexPilot should fit as repo truth + proof + read-only MCP guidance rather than
+              pretending to be the native OpenClaw plugin itself.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Truthful adoption ladder</h2>
+        <ol>
+          <li>Start from the native ecosystem docs first, so you know what the host tool already provides.</li>
+          <li>Use CortexPilot skills to carry the repo's own read order, safety rails, and done semantics into that workflow.</li>
+          <li>Pair the skill with the repo's truthful entrypoints: compatibility matrix, read-only MCP, builder packages, and proof-first use cases.</li>
+          <li>For OpenClaw specifically, treat the official skills workspace and ClawHub registry as the native host surface, then adapt CortexPilot playbooks around it instead of relabeling CortexPilot as the native plugin.</li>
+        </ol>
       </section>
 
       <section class="section">

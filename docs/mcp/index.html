@@ -229,6 +229,7 @@
         <nav class="mini-nav" aria-label="Top navigation">
           <a href="../">Back to the public landing page</a>
           <a href="../compatibility/">Compatibility matrix</a>
+          <a href="../agent-starters/">Agent starter kits</a>
           <a href="../ai-surfaces/">AI + MCP + API surfaces</a>
           <a href="../integrations/">Integration guide</a>
           <a href="../skills/">Skills quickstart</a>
@@ -247,6 +248,7 @@
         <div class="actions">
           <a class="button primary" href="#fast-adoption-path">Open the protocol path</a>
           <a class="button secondary" href="../compatibility/">Open compatibility matrix</a>
+          <a class="button secondary" href="../agent-starters/">Open agent starter kits</a>
           <a class="button secondary" href="../api/">Open API quickstart</a>
           <a class="button secondary" href="../integrations/">Open integration guide</a>
           <a class="button secondary" href="../skills/">Open skills quickstart</a>
@@ -337,6 +339,51 @@
           <code>get_proof_summary</code>,
           and <code>get_incident_summary</code>.
         </p>
+        <p>
+          Want the client-specific config files after you prove the server is
+          real? Open the <a href="../agent-starters/">agent starter kits</a>
+          for tracked Codex / Claude Code / OpenClaw setup snippets.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>What to hand to any stdio-capable MCP client</h2>
+        <p>
+          If your client asks for a command, arguments, working directory, and environment instead of a hosted URL, use these repo-owned values directly.
+        </p>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Use this value</th>
+                <th>Why</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Transport</strong></td>
+                <td><code>stdio</code></td>
+                <td>The shipped public MCP surface is a repo-owned stdio JSON-RPC server, not a hosted MCP account.</td>
+              </tr>
+              <tr>
+                <td><strong>Working directory</strong></td>
+                <td>the CortexPilot repo root</td>
+                <td>The server reads repo-local runtime state, run bundles, and workflow truth.</td>
+              </tr>
+              <tr>
+                <td><strong>Environment</strong></td>
+                <td><code>PYTHONPATH=apps/orchestrator/src</code></td>
+                <td>This exposes the orchestrator module path without inventing a separate package install story.</td>
+              </tr>
+              <tr>
+                <td><strong>Command</strong></td>
+                <td><code>python3 -m cortexpilot_orch.cli mcp-readonly-server</code></td>
+                <td>This is the truthful command surface wired by the repo today.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section class="section">

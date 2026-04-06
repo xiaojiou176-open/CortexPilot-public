@@ -127,6 +127,69 @@ The example stays inside the truthful boundary:
 - `task_contract` remains the execution authority even when role-default apply
   is available through the same client under local operator policy
 
+## Fastest ecosystem-aware adoption order
+
+Use this order when you are integrating the client into a real coding-agent
+workflow instead of just reading the package in isolation:
+
+1. Confirm the host ecosystem first:
+   - Codex: [repo](https://github.com/openai/codex),
+     [docs](https://developers.openai.com/codex),
+     [IDE install](https://developers.openai.com/codex/ide)
+   - Claude Code: [overview](https://code.claude.com/docs/en/overview),
+     [MCP docs](https://code.claude.com/docs/en/mcp)
+   - OpenClaw: [repo](https://github.com/openclaw/openclaw),
+     [skills docs](https://docs.openclaw.ai/tools/skills),
+     [ClawHub](https://github.com/openclaw/clawhub)
+2. Use CortexPilot's
+   [compatibility matrix](https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/)
+   and
+   [integration guide](https://xiaojiou176-open.github.io/CortexPilot-public/integrations/)
+   to pick the first truthful CortexPilot lane.
+3. Keep this package together with `@cortexpilot/frontend-api-contract` and
+   `@cortexpilot/frontend-shared` inside one clone or vendored workspace copy.
+4. Prove the integration with `createControlPlaneStarter(...)` before you
+   enable any guarded operator mutation path.
+
+## Vendored or shared-workspace recipe
+
+The package is still `private`, so the current truthful reuse path is
+shared-workspace or vendored-copy adoption, not `npm install`.
+
+```bash
+git clone https://github.com/xiaojiou176-open/CortexPilot-public.git
+cd CortexPilot-public
+npm run bootstrap:host
+node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
+  --base-url http://127.0.0.1:10000 \
+  --role WORKER \
+  --mutation-role TECH_LEAD \
+  --preview-provider cliproxyapi \
+  --preview-model gpt-5.4
+```
+
+## Vendored workspace recipe
+
+If another Codex / Claude Code / OpenClaw workspace wants the shortest truthful
+builder reuse path today, keep the copied surface explicit:
+
+```text
+vendor/CortexPilot/
+  packages/frontend-api-client/
+  packages/frontend-api-contract/
+  packages/frontend-shared/
+```
+
+Then keep the workflow small:
+
+1. point the client at the current API base URL
+2. start from `createControlPlaneStarter(...)` or the repo-owned starter example
+3. keep role-config apply and queue preview/cancel behind trusted maintainer
+   policy instead of treating them as public builder defaults
+4. pair package reuse with the public compatibility / integration / MCP / skills
+   guides so teams do not accidentally re-label this client as an official
+   plugin or a hosted SDK
+
 ## Current boundary
 
 - This is a thin client surface, not a full SDK platform.
@@ -153,6 +216,7 @@ here:
 
 - [Integration guide](https://xiaojiou176-open.github.io/CortexPilot-public/integrations/)
 - [Compatibility matrix](https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/)
+- [Agent starter kits](https://xiaojiou176-open.github.io/CortexPilot-public/agent-starters/)
 - [Read-only MCP quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/mcp/)
 - [API quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/api/)
 - [Builder quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/)
