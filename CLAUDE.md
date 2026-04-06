@@ -217,6 +217,13 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `apps/dashboard/lib/env.ts`, and the dashboard-home integration layer now
   pointing teams toward a compatibility ladder before they choose protocol,
   skills, builders, or proof-first onboarding
+- when a follow-up discoverability wave adds public copy-paste starter kits or
+  local bundle examples for Codex / Claude Code / OpenClaw, keep this file,
+  `AGENTS.md`, and the root/docs entrypoints aligned in the same patch;
+  current examples include `docs/agent-starters/index.html`,
+  `docs/examples/agent-starters/`, `examples/coding-agents/`,
+  `configs/root_allowlist.json`, and the root/docs wording that now separates
+  host-platform plugin reality from CortexPilot's own publication state
 - when a later polish wave compresses the public homepage or dashboard-home
   discovery stack into a clearer route page, keep this file, `AGENTS.md`, and
   the root/docs/dashboard entrypoints aligned in the same patch; current

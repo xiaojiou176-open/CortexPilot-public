@@ -316,6 +316,44 @@
       </section>
 
       <section class="section">
+        <h2>Optional local plugin bundle paths</h2>
+        <p>
+          MCP config is the narrowest setup, but the repo also ships one
+          compatible local bundle for teams that want the same starter pack to
+          stay portable across Codex, Claude Code plugin-dir development, and
+          OpenClaw bundle loads.
+        </p>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Tracked path</th>
+                <th>How to use it truthfully</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Codex</strong></td>
+                <td><code>examples/coding-agents/plugin-bundles/cortexpilot-coding-agent-bundle/</code></td>
+                <td>Pair the bundle with <code>examples/coding-agents/codex/marketplace.example.json</code> and keep the same read-only MCP server definition beside it.</td>
+              </tr>
+              <tr>
+                <td><strong>Claude Code</strong></td>
+                <td><code>examples/coding-agents/plugin-bundles/cortexpilot-coding-agent-bundle/</code></td>
+                <td>Use the same bundle for local <code>--plugin-dir</code> development, or keep the lighter project-local <code>.claude</code> + <code>.mcp.json</code> path when plugin packaging is unnecessary.</td>
+              </tr>
+              <tr>
+                <td><strong>OpenClaw</strong></td>
+                <td><code>examples/coding-agents/plugin-bundles/cortexpilot-coding-agent-bundle/</code></td>
+                <td>Load the same compatible bundle through <code>plugins.load.paths</code> and keep CortexPilot positioned as the proof / replay / read-only layer rather than a published registry item.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
         <h2>Pair MCP with repo-owned skills/bootstrap files</h2>
         <div class="grid">
           <article class="card">
@@ -359,8 +397,8 @@
           </article>
           <article class="card">
             <span class="badge primary">Claude Code</span>
-            <h3>Project-local <code>.claude</code> example</h3>
-            <p>Use the tracked slash-command and reviewer example when you want a project-local Claude Code starter instead of a fake marketplace story.</p>
+            <h3>Project-local and plugin-dir examples</h3>
+            <p>Use the tracked slash-command, reviewer, project <code>.mcp.json</code>, and shared bundle examples when you want a truthful Claude Code starter without claiming a published marketplace item.</p>
             <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/tree/main/examples/coding-agents/claude-code">Open Claude Code example</a></p>
           </article>
           <article class="card">

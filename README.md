@@ -304,8 +304,10 @@ Use these names as ecosystem anchors, not as co-brands or partnership claims.
   comparison or “broader agent stacks” language, not in the hero.
 - **OpenCode**: comparison-only and transition-sensitive; do not use it as a
   primary front-door anchor.
-- **OpenClaw**: different product category; keep it out of the current front
-  door.
+- **OpenClaw**: secondary adoption lane with real plugin and skills surfaces of
+  its own; keep it out of the current front door, but use the repo-owned agent
+  starter kits and compatible local bundle examples when a team needs the
+  proof/replay/read-only MCP layer there.
 
 ## Official Ecosystem Anchors
 
@@ -320,6 +322,7 @@ below before you explain where CortexPilot fits:
 - **Claude Code**:
   - overview: [code.claude.com/docs/en/overview](https://code.claude.com/docs/en/overview)
   - MCP docs: [code.claude.com/docs/en/mcp](https://code.claude.com/docs/en/mcp)
+  - plugins: [code.claude.com/docs/en/plugins](https://code.claude.com/docs/en/plugins)
   - hooks: [docs.anthropic.com/en/docs/claude-code/hooks](https://docs.anthropic.com/en/docs/claude-code/hooks)
   - subagents: [docs.anthropic.com/en/docs/claude-code/sub-agents](https://docs.anthropic.com/en/docs/claude-code/sub-agents)
 - **OpenClaw**:
@@ -336,10 +339,11 @@ surfaces that already exist:
   around Codex workflows with command tower, proof, replay, read-only MCP, and
   repo-owned skills or local bundle examples until a real published listing
   exists.
-- **Claude Code**: Claude Code's current native surfaces are MCP, hooks,
-  subagents, and project configuration. CortexPilot should wrap those governed
-  workflows with command tower, proof, replay, read-only MCP, and repo-owned
-  playbooks rather than pretending a marketplace surface exists.
+- **Claude Code**: Claude Code's current native surfaces include plugins, MCP,
+  hooks, subagents, and project configuration. CortexPilot should wrap those
+  governed workflows with command tower, proof, replay, read-only MCP, and
+  repo-owned starter kits rather than pretending a published CortexPilot
+  marketplace listing already exists.
 - **OpenClaw**: adjacent integration layer with real skills and plugin/catalog
   surfaces on its side, while CortexPilot stays on the review/proof/read-only
   integration side unless a mapped native path is explicitly shipped and

@@ -456,8 +456,8 @@ describe("pm page chat-driven flow", () => {
       expect(mockAnswerIntake).toHaveBeenCalledTimes(1);
     });
 
-    const jumpButton = await screen.findByRole("button", { name: /Jump to bottom/ });
-    expect(jumpButton).toHaveAttribute("aria-label", expect.stringMatching(/^Jump to bottom/));
+    const jumpButton = await screen.findByRole("button", { name: /Back to bottom/ });
+    expect(jumpButton).toHaveAttribute("aria-label", expect.stringMatching(/^Back to bottom/));
 
     await act(async () => {
       fireEvent.click(jumpButton);
@@ -465,7 +465,7 @@ describe("pm page chat-driven flow", () => {
 
     expect(scrollToMock).toHaveBeenCalled();
     await waitFor(() => {
-      expect(screen.queryByRole("button", { name: /Jump to bottom/ })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /Back to bottom/ })).not.toBeInTheDocument();
     });
   });
 

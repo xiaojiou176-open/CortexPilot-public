@@ -204,7 +204,7 @@ describe("pm intake center panel component branches", () => {
     expect(onHoveredChainRoleChange).toHaveBeenCalledWith(null);
     expect(screen.getByRole("note")).toHaveTextContent("10 min");
 
-    fireEvent.click(screen.getByRole("button", { name: "Jump to bottom, 3 new messages" }));
+    fireEvent.click(screen.getByRole("button", { name: "Back to bottom, 3 new messages" }));
     expect(onScrollToBottom).toHaveBeenCalledTimes(1);
 
     fireEvent.click(screen.getByRole("button", { name: "Expand" }));

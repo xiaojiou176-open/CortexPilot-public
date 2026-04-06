@@ -43,6 +43,9 @@
   path for headed singleton boot, then still reuses that same route on retry if
   CDP does not bind cleanly; that keeps the singleton on the same `Profile 1`
   root and avoids reporting success from a short-lived CLI-owned Chrome process
+- on non-macOS hosts the same singleton path stays on the direct executable
+  launch route, initializes its launch-route state before branching, and does
+  not borrow the macOS-only `open -na` bootstrap branch
 - login state persistence now relies on that single repo-owned user-data root
   plus attach-first reuse; the runtime closes only automation-created pages, so
   reopening the singleton should not require reseeding or second-launch copies
@@ -136,6 +139,10 @@ bash scripts/run_orchestrator_cli.sh --help
 
 - the repo-local MCP entry is `python -m cortexpilot_orch.cli mcp-readonly-server`
 - the later-gated queue write pilot entry is `python -m cortexpilot_orch.cli mcp-queue-pilot-server`
+- copy-paste host-tool starters now live in `docs/agent-starters/index.html`,
+  `docs/examples/agent-starters/`, and `examples/coding-agents/`, so Codex,
+  Claude Code, and OpenClaw teams can wire the same read-only stdio server
+  without inventing hosted or published-plugin claims
 - the MCP surface is intentionally **read-only only** and must not mutate runs,
   workflows, approvals, queue state, or provider state
 - the queue pilot server stays outside the public product contract; it only
