@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CortexPilot | Builder quickstart</title>
+    <meta
+      name="description"
+      content="Builder quickstart for CortexPilot: current client entrypoints, contract-facing types, shared presentation substrate, and the shortest package-adoption path for Codex, Claude Code, and OpenClaw teams."
+    />
+    <meta
+      name="keywords"
+      content="CortexPilot builder quickstart, frontend API client, frontend API contract, shared UI substrate, Codex builders, Claude Code builders, OpenClaw builders"
+    />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/CortexPilot-public/builders/" />
+    <meta property="og:title" content="CortexPilot | Builder quickstart" />
+    <meta
+      property="og:description"
+      content="Current builder entrypoints for the CortexPilot API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
+    />
+    <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/CortexPilot-public/builders/" />
+    <meta property="og:type" content="article" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="CortexPilot | Builder quickstart" />
+    <meta
+      name="twitter:description"
+      content="Current builder entrypoints for the CortexPilot API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
+    />
+    <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "CortexPilot builder quickstart",
+        "url": "https://xiaojiou176-open.github.io/CortexPilot-public/builders/",
+        "description": "Current builder entrypoints for the CortexPilot API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is the builder layer the same thing as a full SDK platform?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. CortexPilot already exposes useful builder entrypoints, but the public builder story remains a thin client, contract package, and shared frontend substrate rather than a full SDK platform."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Who should open the builder quickstart first?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Open the builder quickstart when your team already knows it wants package-level adoption. If the team still needs a protocol or compatibility decision first, start with the read-only MCP quickstart or the compatibility matrix."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are queue preview and role-config apply part of the default external builder contract?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Those helpers remain guarded operator-only add-ons for trusted repo maintainers and do not change the public MCP or hosted-product boundary."
+            }
+          }
+        ]
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f0e9;
+        --panel: #fffaf4;
+        --ink: #17232c;
+        --muted: #52616d;
+        --line: rgba(23, 35, 44, 0.12);
+        --accent: #0f766e;
+        --accent-soft: rgba(15, 118, 110, 0.1);
+        --warn: #92400e;
+        --warn-soft: rgba(146, 64, 14, 0.1);
+        --shadow: 0 24px 60px rgba(23, 35, 44, 0.1);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, rgba(15, 118, 110, 0.08), transparent 30%),
+          linear-gradient(180deg, #faf6ef 0%, #f1ece3 100%);
+        color: var(--ink);
+        font: 16px/1.65 "Inter", "Segoe UI", system-ui, sans-serif;
+      }
+
+      main {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 40px 20px 72px;
+      }
+
+      a { color: var(--accent); }
+      a:hover { color: #115e59; }
+
+      .hero,
+      .section,
+      .table-shell {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero,
+      .section {
+        padding: 28px;
+      }
+
+      .section { margin-top: 24px; }
+
+      .eyebrow,
+      .badge {
+        display: inline-flex;
+        width: fit-content;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .eyebrow {
+        background: rgba(23, 35, 44, 0.08);
+        color: var(--muted);
+      }
+
+      .badge.primary { background: var(--accent-soft); color: var(--accent); }
+      .badge.warn { background: var(--warn-soft); color: var(--warn); }
+
+      h1, h2, h3 { margin: 0; line-height: 1.15; }
+      h1 { font-size: clamp(2.4rem, 4vw, 3.8rem); max-width: 12ch; }
+      h2 { font-size: 1.7rem; margin-bottom: 12px; }
+
+      p, li, td { color: var(--muted); }
+      .lede { font-size: 1.08rem; max-width: 78ch; }
+
+      .actions,
+      .mini-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 16px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .button.primary { background: var(--accent); color: white; }
+      .button.secondary {
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--ink);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: white;
+        padding: 18px;
+      }
+
+      .table-shell {
+        margin-top: 24px;
+        overflow: hidden;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        font-size: 13px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        background: rgba(23, 35, 44, 0.04);
+      }
+
+      tr:last-child td { border-bottom: none; }
+
+      code {
+        background: rgba(23, 35, 44, 0.06);
+        border-radius: 6px;
+        padding: 2px 6px;
+        font-family: "SFMono-Regular", Menlo, monospace;
+      }
+
+      pre {
+        overflow-x: auto;
+        padding: 16px;
+        border-radius: 18px;
+        background: #eef7f5;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <span class="eyebrow">Package-first adoption</span>
+        <nav class="mini-nav" aria-label="Top navigation">
+          <a href="../">Back to the public landing page</a>
+          <a href="../compatibility/">Compatibility matrix</a>
+          <a href="../agent-starters/">Agent starter kits</a>
+          <a href="../api/">API quickstart</a>
+          <a href="../mcp/">Read-only MCP quickstart</a>
+          <a href="../integrations/">Integration guide</a>
+          <a href="../skills/">Skills quickstart</a>
+        </nav>
+        <h1>Builder quickstart.</h1>
+        <p class="lede">
+          CortexPilot is not a full SDK platform today, but it does already expose a useful builder surface across three layers:
+          a thin frontend API client, contract-facing route/type bindings, and a shared presentation substrate.
+        </p>
+        <p class="lede">
+          If your team already understands the workflow and protocol boundary and now wants the shortest repo-owned package path, this page is the right next click.
+        </p>
+        <p class="lede">
+          Current package boundary: the package names referenced here are still <strong>private workspace packages</strong>. External teams should treat the current adoption path as clone/workspace reuse or vendor copy until a real publish path exists.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="#choose-the-shortest-builder-entry">Choose the shortest builder entry</a>
+          <a class="button secondary" href="../api/">Open API quickstart</a>
+          <a class="button secondary" href="../agent-starters/">Open agent starter kits</a>
+          <a class="button secondary" href="../mcp/">Open read-only MCP quickstart</a>
+          <a class="button secondary" href="../compatibility/">Open compatibility matrix</a>
+        </div>
+      </section>
+
+      <section class="section" id="choose-the-shortest-builder-entry">
+        <h2>Choose the shortest builder entry</h2>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Need</th>
+                <th>Open first</th>
+                <th>Why</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Convenience client</strong></td>
+                <td><code>@cortexpilot/frontend-api-client</code></td>
+                <td>Use it when you are working inside a clone or shared workspace copy and want overview, runs, Workflow Cases, approvals, and bootstrap reads through one thin helper layer.</td>
+              </tr>
+              <tr>
+                <td><strong>Route/type boundary</strong></td>
+                <td><code>@cortexpilot/frontend-api-contract</code></td>
+                <td>Use it when your real need is generated contract-facing types without backend imports inside the same repo or a vendored package copy.</td>
+              </tr>
+              <tr>
+                <td><strong>Shared presentation</strong></td>
+                <td><code>@cortexpilot/frontend-shared</code></td>
+                <td>Use it when you need repo-owned copy, locale, and status-presentation substrate for dashboard, desktop, and future web consumers inside the same workspace story.</td>
+              </tr>
+              <tr>
+                <td><strong>Protocol before packages</strong></td>
+                <td><a href="../mcp/">Read-only MCP quickstart</a></td>
+                <td>Use MCP first when your team still needs the truth boundary before it decides which package layer to import.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>What builders get today</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="badge primary">Client</span>
+            <h3>Frontend API client</h3>
+            <p>Use the repo-owned client when you are consuming CortexPilot from a clone or vendored workspace and want convenience helpers for command-tower overview, runs, Workflow Cases, approvals, and role-config preview reads.</p>
+            <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-client/README.md">Open package README</a></p>
+          </article>
+          <article class="card">
+            <span class="badge primary">Contract</span>
+            <h3>Generated type edge</h3>
+            <p>Use the contract package when you are already inside the same repo or a vendored workspace copy and want route/query/type boundaries without importing backend modules into your frontend surface.</p>
+            <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-api-contract/docs/README.md">Open contract package guide</a></p>
+          </article>
+          <article class="card">
+            <span class="badge primary">Shared UI</span>
+            <h3>Presentation substrate</h3>
+            <p>Use the shared package when you are reusing CortexPilot from a clone or vendored workspace and want brand copy, locale, and status presentation to stay aligned across dashboard, desktop, and future web consumers.</p>
+            <p><a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/packages/frontend-shared/README.md">Open shared README</a></p>
+          </article>
+          <article class="card">
+            <span class="badge warn">Boundary</span>
+            <h3>Still repo-owned</h3>
+            <p>These are real builder entrypoints, but they do not turn CortexPilot into a hosted SDK platform, marketplace artifact, or write-capable MCP product.</p>
+          </article>
+          <article class="card">
+            <span class="badge warn">Boundary</span>
+            <h3>Not registry-installable yet</h3>
+            <p>The current package names are still <code>private</code> workspace packages. Until a real publish happens, the truthful external path is clone/workspace reuse or vendor copy.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Repo-owned starter path</h2>
+        <p>
+          If you want the shortest runnable builder path inside this repo, start with the repo-owned control-plane starter example instead of rebuilding the bootstrap story from scratch.
+        </p>
+        <pre><code>node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
+  --base-url http://127.0.0.1:10000 \
+  --role WORKER \
+  --mutation-role TECH_LEAD \
+  --preview-provider cliproxyapi \
+  --preview-model gpt-5.4</code></pre>
+        <p>
+          This starter remains preview-first by default. It demonstrates overview + agents + contracts + role-config preview without claiming hosted operator accounts, write-capable MCP, or a full SDK platform.
+        </p>
+        <p>
+          If your next move is wiring the same repo truth into Codex, Claude
+          Code, or OpenClaw itself, pair this page with the
+          <a href="../agent-starters/">agent starter kits</a>.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>Vendor or shared-workspace adoption recipe</h2>
+        <ol>
+          <li>Confirm the host ecosystem first: Codex, Claude Code, or OpenClaw should be understood from their own official docs before you import any CortexPilot package.</li>
+          <li>Keep the three CortexPilot packages together in one clone or vendored workspace copy: <code>frontend-api-client</code>, <code>frontend-api-contract</code>, and <code>frontend-shared</code>.</li>
+          <li>Use the repo-owned starter example as the first proof that your workspace wiring is correct.</li>
+          <li>Only promote to guarded operator actions such as <code>--apply</code> after preview works and your team accepts the trusted-operator boundary.</li>
+        </ol>
+        <pre><code>git clone https://github.com/xiaojiou176-open/CortexPilot-public.git
+cd CortexPilot-public
+npm run bootstrap:host
+node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
+  --base-url http://127.0.0.1:10000 \
+  --role WORKER \
+  --mutation-role TECH_LEAD \
+  --preview-provider cliproxyapi \
+  --preview-model gpt-5.4</code></pre>
+      </section>
+
+      <section class="section">
+        <h2>Official ecosystem anchors for builders</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="badge primary">Codex</span>
+            <p>
+              Pair package adoption with the official
+              <a href="https://github.com/openai/codex">Codex repo</a> and
+              <a href="https://developers.openai.com/codex">Codex docs</a>.
+            </p>
+          </article>
+          <article class="card">
+            <span class="badge primary">Claude Code</span>
+            <p>
+              Pair package adoption with the official
+              <a href="https://code.claude.com/docs/en/overview">overview</a>
+              and <a href="https://code.claude.com/docs/en/mcp">MCP docs</a>.
+            </p>
+          </article>
+          <article class="card">
+            <span class="badge warn">OpenClaw</span>
+            <p>
+              Pair package adoption with the official
+              <a href="https://github.com/openclaw/openclaw">OpenClaw repo</a>,
+              <a href="https://docs.openclaw.ai/tools/skills">skills docs</a>,
+              and <a href="https://github.com/openclaw/clawhub">ClawHub</a>.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Guarded operator-only add-ons</h2>
+        <ul>
+          <li><code>--apply</code> on the starter stays a trusted repo-operator flow for role-default changes.</li>
+          <li>Queue preview/cancel helpers stay trusted operator control-plane add-ons, not the default external builder promise.</li>
+          <li>These surfaces do <strong>not</strong> turn the builder story into hosted mutation or public write-capable MCP.</li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <h2>Fast onboarding order</h2>
+        <ol>
+          <li>Read <a href="../compatibility/">compatibility matrix</a> if you still need the best next click for Codex / Claude Code / OpenClaw / skills / builders.</li>
+          <li>Read <a href="../mcp/">read-only MCP quickstart</a> if protocol truth still matters more than packages.</li>
+          <li>Read <a href="../api/">API and contract quickstart</a> for the raw HTTP and contract edge.</li>
+          <li>Come back here when your next move is package adoption rather than protocol discovery.</li>
+        </ol>
+      </section>
+    </main>
+  </body>
+</html>

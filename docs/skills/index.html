@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CortexPilot | Skills quickstart for coding-agent teams</title>
+    <meta
+      name="description"
+      content="Skills quickstart for CortexPilot: repo-owned skill packs, when to use them, how they map to Codex and Claude Code workflows, and how to keep them truthful for adjacent tools such as OpenClaw."
+    />
+    <meta
+      name="keywords"
+      content="CortexPilot, skills, Codex skills, Claude Code skills, OpenClaw skills, repo-owned playbooks, agent workflows, MCP"
+    />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/CortexPilot-public/skills/" />
+    <meta property="og:title" content="CortexPilot | Skills quickstart for coding-agent teams" />
+    <meta
+      property="og:description"
+      content="Repo-owned skills quickstart for Codex, Claude Code, and adjacent coding-agent workflows using CortexPilot."
+    />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/CortexPilot-public/skills/" />
+    <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="CortexPilot | Skills quickstart for coding-agent teams" />
+    <meta
+      name="twitter:description"
+      content="Repo-owned skills quickstart for Codex, Claude Code, and adjacent coding-agent workflows using CortexPilot."
+    />
+    <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "CortexPilot skills quickstart for coding-agent teams",
+        "url": "https://xiaojiou176-open.github.io/CortexPilot-public/skills/",
+        "description": "Repo-owned skills quickstart for Codex, Claude Code, and adjacent coding-agent workflows using CortexPilot."
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Are CortexPilot skills the same thing as a plugin marketplace?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. CortexPilot skills are repo-owned playbooks that guide agent behavior around the repo's real docs, MCP, contracts, and workflow boundaries."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can Codex and Claude Code teams use these skills today?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The public skills quickstart is designed for Codex and Claude Code style workflows that need repeatable operating playbooks on top of the current Command Tower and proof surfaces."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How should OpenClaw teams interpret this page?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "OpenClaw belongs in the adjacent coding-agent layer. Use this page as an adaptation guide for repo truth, not as a claim that CortexPilot already ships an official OpenClaw plugin package."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this page imply a hosted skill registry or write-capable MCP?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The current public story is repo-owned skills plus read-only MCP and current builder entrypoints, not a hosted skill registry or public write-capable MCP."
+            }
+          }
+        ]
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f3ec;
+        --panel: #fffdf9;
+        --ink: #17232c;
+        --muted: #52616d;
+        --line: rgba(23, 35, 44, 0.12);
+        --accent: #9a3412;
+        --accent-soft: rgba(154, 52, 18, 0.1);
+        --shadow: 0 22px 52px rgba(23, 35, 44, 0.1);
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, rgba(154, 52, 18, 0.08), transparent 32%),
+          linear-gradient(180deg, #faf6f0 0%, #f1ece5 100%);
+        color: var(--ink);
+        font: 16px/1.65 "Inter", "Segoe UI", system-ui, sans-serif;
+      }
+      main {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 40px 20px 72px;
+      }
+      a { color: var(--accent); }
+      .hero, .section {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        padding: 28px;
+      }
+      .section { margin-top: 24px; }
+      .eyebrow {
+        display: inline-flex;
+        width: fit-content;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: rgba(23, 35, 44, 0.08);
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .badge {
+        display: inline-flex;
+        width: fit-content;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      h1, h2, h3 { margin: 0; line-height: 1.15; }
+      h1 { font-size: clamp(2.3rem, 4vw, 3.6rem); max-width: 12ch; }
+      h2 { font-size: 1.6rem; margin-bottom: 12px; }
+      p, li { color: var(--muted); }
+      .lede { font-size: 1.08rem; max-width: 76ch; }
+      .actions, .mini-nav { display: flex; flex-wrap: wrap; gap: 12px; }
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 16px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .button.primary { background: var(--accent); color: white; }
+      .button.secondary {
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--ink);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+      }
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: white;
+        padding: 18px;
+      }
+      code {
+        background: rgba(23, 35, 44, 0.06);
+        border-radius: 6px;
+        padding: 2px 6px;
+        font-family: "SFMono-Regular", Menlo, monospace;
+      }
+      pre {
+        overflow-x: auto;
+        padding: 16px;
+        border-radius: 18px;
+        background: #fbf2eb;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <span class="eyebrow">Repo-owned skills</span>
+        <nav class="mini-nav" aria-label="Top navigation">
+          <a href="../">Back to the public landing page</a>
+          <a href="../compatibility/">Compatibility matrix</a>
+          <a href="../agent-starters/">Agent starter kits</a>
+          <a href="../integrations/">Integration guide</a>
+          <a href="../builders/">Builder quickstart</a>
+          <a href="../mcp/">MCP quickstart</a>
+        </nav>
+        <h1>Skills quickstart for coding-agent teams.</h1>
+        <p class="lede">
+          CortexPilot already ships a public, repo-owned skills quickstart here. The truthful adoption path today is:
+          <strong>reuse repo-owned playbooks</strong> for Codex / Claude Code workflows, and adapt the same playbooks for adjacent tools such as OpenClaw without pretending CortexPilot is already a listed or shipped item inside those official plugin ecosystems.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="#how-to-use-skills-today">Open the adoption path</a>
+          <a class="button secondary" href="../compatibility/">Open compatibility matrix</a>
+          <a class="button secondary" href="../agent-starters/">Open agent starter kits</a>
+          <a class="button secondary" href="../integrations/">See integration guide</a>
+          <a class="button secondary" href="../builders/">See builder quickstart</a>
+          <a class="button secondary" href="#fast-path-for-maintainers">See maintainer fast path</a>
+        </div>
+        <p class="lede">
+          Need the fastest proof-first walkthrough before you adopt repo-owned skills?
+          <a href="../use-cases/">Open use-case guide</a>.
+        </p>
+      </section>
+
+      <section class="section" id="how-to-use-skills-today">
+        <h2>What a CortexPilot skill is</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="badge">Playbook</span>
+            <h3>Repeatable behavior</h3>
+            <p>A skill is a repo-owned playbook that tells an agent when to trigger, what to read first, what to avoid, and what “done” means.</p>
+          </article>
+          <article class="card">
+            <span class="badge">Boundary</span>
+            <h3>Truthful scope</h3>
+            <p>Skills are not magic capability unlocks. They organize how agents work with the repo's real MCP, docs, contracts, and runbook boundaries.</p>
+          </article>
+          <article class="card">
+            <span class="badge">Portability</span>
+            <h3>Cross-agent reuse</h3>
+            <p>The same playbook can guide Codex or Claude Code style workflows directly, and can also be adapted to adjacent coding-agent tools without inventing fake official support.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>How to use skills today</h2>
+        <ol>
+          <li>Start from this public guide, then choose the closest adoption lane: protocol, skills, builder packages, or proof-first cases.</li>
+          <li>Read the tracked repo entrypoints before you start broad exploration or code changes.</li>
+          <li>Use the skill together with the repo's truthful entrypoints: read-only MCP, API/client packages, docs, and Task Board.</li>
+          <li>Keep the skill boundary honest: if a playbook says hosted or write-MCP is frozen, treat that as a real stop sign.</li>
+        </ol>
+        <p>
+          If your team already knows it wants the MCP side wired too, pair this
+          page with the <a href="../agent-starters/">agent starter kits</a>
+          instead of reconstructing Codex / Claude Code / OpenClaw config files
+          from scratch.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>Minimal vendored skill-pack layout</h2>
+        <p>
+          If you want a drop-in starting point instead of a vague “reuse the repo's skills,” keep the copied surface small and explicit.
+        </p>
+        <pre><code>vendor/CortexPilot/
+  README.md
+  docs/README.md
+  AGENTS.md
+  .agents/skills/&lt;chosen-skill&gt;/</code></pre>
+        <ol>
+          <li>Copy the three truth files first: <code>README.md</code>, <code>docs/README.md</code>, and <code>AGENTS.md</code>.</li>
+          <li>Copy only the skill folders you truly want the agent to reuse; do not mirror the whole repo just to say “skills exist.”</li>
+          <li>Keep the skill paired with the same repo-owned read-only MCP command when the workflow needs machine-readable inspection.</li>
+          <li>Preserve the stop-signs inside the skill: hosted, write-MCP, and plugin/store claims stay frozen until the repo truth changes.</li>
+        </ol>
+      </section>
+
+      <section class="section">
+        <h2>Best-fit usage by coding agent</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Codex</h3>
+            <p>Use repo-local skills as execution contracts around Command Tower, Workflow Cases, Proof &amp; Replay, and repo-owned MCP/API surfaces.</p>
+          </article>
+          <article class="card">
+            <h3>Claude Code</h3>
+            <p>Use the same skill pack when you want the repo's own safety rails, docs-first read order, and operator-facing truth layers.</p>
+          </article>
+          <article class="card">
+            <h3>OpenClaw</h3>
+            <p>Use skills as an adaptation layer for repo truth. OpenClaw has real plugin and skills surfaces, but CortexPilot currently lands on the integration-and-skills side first rather than claiming an official shipped plugin.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Official ecosystem anchors</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Codex</h3>
+            <p>
+              Native reference points:
+              <a href="https://github.com/openai/codex">repo</a>,
+              <a href="https://developers.openai.com/codex">docs</a>,
+              and <a href="https://developers.openai.com/codex/ide">IDE install</a>.
+            </p>
+            <p>
+              CortexPilot skills should act as repo-owned operating contracts around those workflows,
+              not as a replacement for Codex's own native surfaces.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Claude Code</h3>
+            <p>
+              Native reference points:
+              <a href="https://code.claude.com/docs/en/overview">overview</a>
+              and <a href="https://code.claude.com/docs/en/mcp">MCP docs</a>.
+            </p>
+            <p>
+              CortexPilot skills should carry the repo's own read order, truth layers, and safety rails
+              into Claude Code workflows without implying a marketplace listing.
+            </p>
+          </article>
+          <article class="card">
+            <h3>OpenClaw</h3>
+            <p>
+              Native reference points:
+              <a href="https://github.com/openclaw/openclaw">repo</a>,
+              <a href="https://docs.openclaw.ai/tools/skills">skills docs</a>,
+              and <a href="https://github.com/openclaw/clawhub">ClawHub</a>.
+            </p>
+            <p>
+              OpenClaw already has real skills, a workspace path, and a public registry/catalog, so
+              CortexPilot should fit as repo truth + proof + read-only MCP guidance rather than
+              pretending to be the native OpenClaw plugin itself.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Truthful adoption ladder</h2>
+        <ol>
+          <li>Start from the native ecosystem docs first, so you know what the host tool already provides.</li>
+          <li>Use CortexPilot skills to carry the repo's own read order, safety rails, and done semantics into that workflow.</li>
+          <li>Pair the skill with the repo's truthful entrypoints: compatibility matrix, read-only MCP, builder packages, and proof-first use cases.</li>
+          <li>For OpenClaw specifically, treat the official skills workspace and ClawHub registry as the native host surface, then adapt CortexPilot playbooks around it instead of relabeling CortexPilot as the native plugin.</li>
+        </ol>
+      </section>
+
+      <section class="section">
+        <h2>What this page is not claiming</h2>
+        <ul>
+          <li>not a published Codex listing or a Claude Code marketplace surface</li>
+          <li>not an official OpenClaw plugin package</li>
+          <li>not a hosted skill registry service</li>
+        </ul>
+        <p>
+          The truthful product story is smaller but stronger: the repository already gives teams reusable, inspectable skill playbooks that align with the real Command Tower / MCP / Proof &amp; Replay contract.
+        </p>
+      </section>
+
+      <section class="section" id="fast-path-for-maintainers">
+        <h2>Fast path for maintainers</h2>
+        <pre><code>sed -n '1,220p' README.md
+sed -n '1,220p' docs/README.md
+sed -n '1,220p' AGENTS.md</code></pre>
+        <p>
+          Those three tracked files are enough to understand the public product spine, the docs inventory, and the repo-owned AI working contract without depending on local-only overlays.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>FAQ</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Are skills the same as a plugin marketplace?</h3>
+            <p>No. CortexPilot skills are repo-owned playbooks that guide agent behavior around the repo's real docs, MCP, contracts, and workflow boundaries.</p>
+          </article>
+          <article class="card">
+            <h3>Can Codex and Claude Code teams use these today?</h3>
+            <p>Yes. The public skills quickstart is designed for Codex and Claude Code style workflows that need repeatable operating playbooks on top of the current Command Tower and proof surfaces.</p>
+          </article>
+          <article class="card">
+            <h3>How should OpenClaw teams interpret this page?</h3>
+            <p>OpenClaw belongs in the adjacent coding-agent layer. Use this page as an adaptation guide for repo truth, not as a claim that CortexPilot already ships an official OpenClaw plugin package.</p>
+          </article>
+          <article class="card">
+            <h3>Does this page imply a hosted skill registry or write-capable MCP?</h3>
+            <p>No. The current public story is repo-owned skills plus read-only MCP and current builder entrypoints, not a hosted skill registry or public write-capable MCP.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

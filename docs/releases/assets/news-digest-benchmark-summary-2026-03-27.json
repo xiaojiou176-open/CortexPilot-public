@@ -1,0 +1,42 @@
+{
+  "artifact_type": "news_digest_public_baseline",
+  "baseline_scope": "single-run",
+  "commit": "03b8bf9",
+  "run_id": "run_20260327_102651_8274cd4519324674a3ddd67506febd83",
+  "task_template": "news_digest",
+  "pipeline_ok": true,
+  "main_provider_attempts": 4,
+  "main_provider_failures": 0,
+  "failure_rate": 0.0,
+  "verification_runs": 1,
+  "environment": {
+    "web_headless": true,
+    "session_mode": "allow_profile"
+  },
+  "providers": [
+    {
+      "provider": "gemini_web",
+      "attempts": 2,
+      "successes": 2,
+      "average_duration_ms": 9532.0,
+      "min_duration_ms": 9532,
+      "max_duration_ms": 9532
+    },
+    {
+      "provider": "grok_web",
+      "attempts": 2,
+      "successes": 2,
+      "average_duration_ms": 10331.5,
+      "min_duration_ms": 10317,
+      "max_duration_ms": 10346
+    }
+  ],
+  "tracked_assets": {
+    "benchmark_markdown": "docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md",
+    "proof_summary_json": "docs/releases/assets/news-digest-healthy-proof-summary-2026-03-27.json"
+  },
+  "runtime_origin": {
+    "original_root": ".runtime-cache/w3-news-digest-attempt-profile-allowlist-v2/runs/run_20260327_102651_8274cd4519324674a3ddd67506febd83",
+    "cleaned_after_copy": true
+  }
+}

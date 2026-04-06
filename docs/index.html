@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CortexPilot | AI Work Command Tower for Codex, Claude Code, and MCP</title>
+    <meta
+      name="description"
+      content="CortexPilot is the AI Work Command Tower for Codex and Claude Code workflows with Model Context Protocol (MCP)-readable runs, Workflow Cases, proof and replay, and a compatibility-first adoption path for OpenClaw, skills, and builders."
+    />
+    <meta
+      name="keywords"
+      content="CortexPilot, Codex, Claude Code, OpenClaw, MCP, Model Context Protocol, AI workflow, command tower, Workflow Cases, proof and replay, operator copilot, compatibility matrix, skills, builders"
+    />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/CortexPilot-public/" />
+    <meta property="og:title" content="CortexPilot | AI Work Command Tower for Codex, Claude Code, and MCP" />
+    <meta
+      property="og:description"
+      content="AI Work Command Tower for Codex and Claude Code workflows with public first-run cases, governed agents, Model Context Protocol (MCP)-readable runs, proof, replay, and a compatibility-first path for OpenClaw, skills, and builders."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/CortexPilot-public/" />
+    <meta property="og:image" content="./assets/storefront/social-preview-1280x640.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="CortexPilot | AI Work Command Tower for Codex, Claude Code, and MCP" />
+    <meta
+      name="twitter:description"
+      content="AI Work Command Tower for Codex and Claude Code workflows with public first-run cases, governed agents, Model Context Protocol (MCP)-readable runs, proof, replay, and a compatibility-first path for OpenClaw, skills, and builders."
+    />
+    <meta name="twitter:image" content="./assets/storefront/social-preview-1280x640.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "CortexPilot",
+        "url": "https://xiaojiou176-open.github.io/CortexPilot-public/",
+        "description": "AI Work Command Tower for Codex and Claude Code workflows with read-only Model Context Protocol (MCP), Workflow Cases, proof and replay, and explainable operator guidance.",
+        "keywords": [
+          "Codex",
+          "Claude Code",
+          "OpenClaw",
+          "MCP",
+          "AI workflow",
+          "command tower",
+          "operator copilot",
+          "compatibility matrix",
+          "skills",
+          "builders"
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is CortexPilot an official Codex or Claude Code plugin?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Codex now has official plugin surfaces and OpenClaw has official plugin and skills surfaces, but CortexPilot currently ships workflow-aligned integrations, repo-owned skills, read-only MCP, and local bundle examples rather than a published listing."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is the public MCP surface write-capable?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. CortexPilot's current public MCP contract is read-only, and write-capable mutation remains outside the public promise."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where does OpenClaw fit today?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "OpenClaw stays in the adjacent coding-agent layer. New teams should use the compatibility matrix, integration guide, and repo-owned skills path before implying a shipped native plugin."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What should a new team open first?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Start with the compatibility matrix if the main question is which adoption path fits your stack. Then choose read-only MCP, skills, builders, or the first success path based on the real job."
+            }
+          }
+        ]
+      }
+    </script>
+    <style>
+      :root {
+        --bg: #f5f0e8;
+        --paper: #fffaf2;
+        --ink: #17232c;
+        --muted: #4f616e;
+        --accent: #9f4c26;
+        --accent-dark: #234056;
+        --line: #d8ccbb;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Trebuchet MS", Verdana, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 10% 15%, rgba(203, 115, 73, 0.18), transparent 22%),
+          radial-gradient(circle at 85% 10%, rgba(35, 64, 86, 0.14), transparent 18%),
+          linear-gradient(180deg, #f7f2ea 0%, #efe6d8 100%);
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 56px 24px 88px;
+      }
+
+      .hero {
+        display: grid;
+        gap: 28px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(35, 64, 86, 0.08);
+        color: var(--accent-dark);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      h1 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(40px, 7vw, 68px);
+        line-height: 1.05;
+      }
+
+      .lede {
+        max-width: 850px;
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(20px, 2.5vw, 26px);
+        line-height: 1.5;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .mini-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .mini-nav a {
+        color: var(--accent-dark);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .mini-nav a:hover,
+      .mini-nav a:focus-visible {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      .mini-nav a:focus-visible {
+        outline: 2px solid var(--accent-dark);
+        outline-offset: 2px;
+      }
+
+      .actions a {
+        text-decoration: none;
+        border-radius: 999px;
+        padding: 14px 20px;
+        font-weight: 700;
+      }
+
+      .actions .primary {
+        background: var(--accent);
+        color: white;
+      }
+
+      .actions .secondary {
+        background: rgba(35, 64, 86, 0.08);
+        color: var(--accent-dark);
+      }
+
+      .panel,
+      .grid-card {
+        background: rgba(255, 250, 242, 0.9);
+        border: 1px solid var(--line);
+        border-radius: 26px;
+      }
+
+      .panel {
+        padding: 24px;
+      }
+
+      .hero-image {
+        width: 100%;
+        border-radius: 22px;
+        border: 1px solid var(--line);
+        background: white;
+      }
+
+      .caption {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      .section {
+        margin-top: 44px;
+      }
+
+      .section h2 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 32px;
+        margin: 0 0 14px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .grid-card {
+        padding: 20px;
+      }
+
+      .grid-card h3 {
+        margin-top: 0;
+        font-size: 19px;
+      }
+
+      .grid-card p,
+      .section p,
+      .section li {
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      code {
+        background: rgba(35, 64, 86, 0.08);
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-family: "SFMono-Regular", "Menlo", monospace;
+        color: var(--accent-dark);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <span class="eyebrow">Public landing source for CortexPilot</span>
+        <nav class="mini-nav" aria-label="Top navigation">
+          <a href="./compatibility/">Compatibility matrix</a>
+          <a href="./agent-starters/">Agent starter kits</a>
+          <a href="./integrations/">Integration guide</a>
+          <a href="./skills/">Skills quickstart</a>
+          <a href="./builders/">Builder quickstart</a>
+          <a href="./mcp/">Read-only MCP quickstart</a>
+        </nav>
+        <h1>Command Tower for Codex and Claude Code workflows.</h1>
+        <p class="lede">
+          CortexPilot is for teams that need more than “the agent replied.” Route Codex- and
+          Claude Code-style governed work through one command tower, keep every workflow case
+          reviewable, and attach MCP-readable proof plus replay to the same operating record.
+          The same front door also speaks to AI ops and platform teams that need
+          a shared operator view instead of scattered agent logs.
+        </p>
+        <p class="caption">
+          Current boundary: the public surface is still a repo/demo control plane, not a hosted operator product,
+          and the shipped MCP surface remains read-only.
+        </p>
+        <div class="actions">
+          <a class="primary" href="./use-cases/">Open first success path</a>
+          <a class="secondary" href="./compatibility/">Start with compatibility matrix</a>
+          <a class="secondary" href="./agent-starters/">Open agent starter kits</a>
+          <a class="secondary" href="./ai-surfaces/">See AI + MCP + API surfaces</a>
+        </div>
+        <p class="caption">
+          Using Codex, Claude Code, OpenClaw, skills, or builders and not sure which door to open first?
+          Start with the <a href="./compatibility/">compatibility matrix</a>. Need release notes, the repo home, or the docs map instead? Open the
+          <a href="https://github.com/xiaojiou176-open/CortexPilot-public/releases">release page</a>, the
+          <a href="https://github.com/xiaojiou176-open/CortexPilot-public">repository</a>, the
+          <a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/README.md">docs map</a>
+          or
+          <a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/docs/architecture/runtime-topology.md">runtime topology</a>.
+        </p>
+
+        <div class="panel">
+          <img
+            class="hero-image"
+            src="./assets/storefront/hero-command-tower.svg"
+            alt="CortexPilot flow from PM request to Command Tower to evidence and replay"
+          />
+          <p class="caption">
+            The public story should be simple: send one request, watch it move through Command Tower,
+            confirm the Workflow Case, then inspect Proof &amp; Replay.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>FAQ</h2>
+        <div class="grid">
+          <article class="grid-card">
+            <h3>Is CortexPilot an official Codex or Claude Code plugin?</h3>
+            <p>Not today. Codex now has official plugin surfaces and OpenClaw has official plugin and skills surfaces, but CortexPilot currently ships workflow-aligned integrations, repo-owned skills, read-only MCP, and local bundle examples rather than a published listing.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Is the public MCP surface write-capable?</h3>
+            <p>CortexPilot's current public MCP contract is read-only, and write-capable mutation remains outside the public promise.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Where does OpenClaw fit today?</h3>
+            <p>OpenClaw stays in the adjacent coding-agent layer. New teams should use the compatibility matrix, integration guide, and repo-owned skills path before implying a shipped native plugin.</p>
+          </article>
+          <article class="grid-card">
+            <h3>What should a new team open first?</h3>
+            <p>Start with the compatibility matrix if the main question is which adoption path fits your stack. Then choose read-only MCP, skills, builders, or the first success path based on the real job.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Choose your path</h2>
+        <p>
+          New here? Use this as the only decision layer on the homepage. Let the deeper pages carry the detail once you know which door fits the job.
+        </p>
+        <div class="grid">
+          <article class="grid-card">
+            <h3>I want the fastest proof-first run</h3>
+            <p>Start with the public first-run cases if you want to see a governed workflow, a case record, and replayable proof before you read package internals.</p>
+            <p><a href="./use-cases/">Open use-case guide</a></p>
+          </article>
+          <article class="grid-card">
+            <h3>I need the compatibility matrix</h3>
+            <p>Start here if your main question is “I use Codex, Claude Code, OpenClaw, skills, or builders. Which CortexPilot surface should I open first?”</p>
+            <p><a href="./compatibility/">Open compatibility matrix</a></p>
+          </article>
+          <article class="grid-card">
+            <h3>I need copy-paste client configs</h3>
+            <p>Open the agent starter kits when your team already understands the boundary and now wants tracked Codex / Claude Code / OpenClaw setup files instead of reverse-engineering them from source.</p>
+            <p><a href="./agent-starters/">Open agent starter kits</a></p>
+          </article>
+          <article class="grid-card">
+            <h3>I need the protocol boundary</h3>
+            <p>Start with the read-only MCP quickstart if you want the shortest truthful map of what external tools can inspect today.</p>
+            <p><a href="./mcp/">Open read-only MCP quickstart</a></p>
+          </article>
+          <article class="grid-card">
+            <h3>I want the agent-integration map</h3>
+            <p>Start with the integration guide if you need the truthful answer to how Codex, Claude Code, and OpenClaw can use CortexPilot today without fake official-plugin claims.</p>
+            <p><a href="./integrations/">Open integration guide</a></p>
+          </article>
+          <article class="grid-card">
+            <h3>I need package entrypoints</h3>
+            <p>Start with the API and builder quickstarts if you want OpenAPI, contract-facing types, thin client helpers, and the shared frontend substrate.</p>
+            <p><a href="./api/">Open API and contract quickstart</a> · <a href="./builders/">Open builder quickstart</a></p>
+          </article>
+        </div>
+        <p class="caption">
+          Need the repo-owned playbook layer? Open the <a href="./skills/">skills quickstart</a>. Need the broader ecosystem framing?
+          Open the <a href="./ecosystem/">ecosystem map</a>. Need exact Codex / Claude Code / OpenClaw starter files? Open
+          <a href="./agent-starters/">agent starter kits</a>. Need the operator-layer overview? Open
+          <a href="./ai-surfaces/"> AI + MCP + API surfaces</a>.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>The product spine</h2>
+        <div class="grid">
+          <article class="grid-card">
+            <h3>Command Tower</h3>
+            <p>Watch governed agents, MCP tools, queue state, and live operator signals from one surface.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Workflow Cases</h3>
+            <p>Keep the request, queue, verdict, linked runs, and operating context attached to one case record.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Proof &amp; Replay</h3>
+            <p>Inspect failures, compare reruns, and keep the execution chain auditable before you trust the outcome.</p>
+          </article>
+        </div>
+        <p class="caption">
+          Prompt 4 now adds two ecosystem-facing layers on top of this spine: a read-only MCP server for
+          structured control-plane reads, and an AI operator brief that explains current run state without
+          creating a second truth source.
+        </p>
+        <p class="caption">
+          Current boundary: MCP is read-only only, and CortexPilot is not a hosted operator product today.
+          Write-capable MCP remains gated, and `cortexpilot.ai` should not be treated as a live hosted front door.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>First success path</h2>
+        <p>
+          This file is the tracked source for the live GitHub Pages landing surface. The main calls to
+          action intentionally point to stable public Pages and GitHub URLs so the repo, releases, and docs map stay
+          verifiable. The host-compatible quickstart stays:
+        </p>
+        <ol>
+          <li><code>npm run bootstrap:host</code></li>
+          <li><code>CORTEXPILOT_HOST_COMPAT=1 bash scripts/test_quick.sh --no-related</code></li>
+          <li><code>npm run dashboard:dev</code></li>
+        </ol>
+        <p class="caption">
+          Official first public path: start with <code>news_digest</code> if you want the smallest release-proven
+          proof loop, then use <code>topic_brief</code> and <code>page_brief</code> as public showcase expansions.
+        </p>
+        <div class="grid">
+          <article class="grid-card">
+            <h3>news_digest</h3>
+            <p>Best for the fastest proof-oriented first run with one topic, a few domains, and a short time window.</p>
+            <p><strong>Proof state:</strong> official public baseline.</p>
+          </article>
+          <article class="grid-card">
+            <h3>topic_brief</h3>
+            <p>Best for a bounded topic brief when you want search-backed evidence without broadening scope.</p>
+            <p><strong>Proof state:</strong> public showcase, not yet equally release-proven.</p>
+          </article>
+          <article class="grid-card">
+            <h3>page_brief</h3>
+            <p>Best for a single URL with browser-backed evidence and a read-only workflow case wrapper.</p>
+            <p><strong>Proof state:</strong> public showcase, browser-backed path.</p>
+          </article>
+        </div>
+        <p class="caption">
+          See the public distribution loop in
+          <a href="./use-cases/">the use-case and share-ready asset guide</a>.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

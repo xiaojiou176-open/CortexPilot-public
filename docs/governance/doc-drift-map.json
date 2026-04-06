@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "description": "Minimal path-to-doc mapping rules for the reduced public documentation surface.",
+  "rules": [
+    {
+      "trigger_globs": [
+        "apps/orchestrator/*",
+        "apps/orchestrator/**/*"
+      ],
+      "required_globs": [
+        "apps/orchestrator/README.md",
+        "docs/specs/00_SPEC.md",
+        "docs/architecture/runtime-topology.md"
+      ],
+      "required_desc": "apps/orchestrator/README.md or docs/specs/00_SPEC.md or docs/architecture/runtime-topology.md"
+    },
+    {
+      "trigger_globs": [
+        "apps/dashboard/*",
+        "apps/dashboard/**/*"
+      ],
+      "required_globs": [
+        "apps/dashboard/README.md",
+        "docs/README.md"
+      ],
+      "required_desc": "apps/dashboard/README.md or docs/README.md"
+    },
+    {
+      "trigger_globs": [
+        "apps/desktop/*",
+        "apps/desktop/**/*"
+      ],
+      "required_globs": [
+        "apps/desktop/README.md",
+        "docs/README.md"
+      ],
+      "required_desc": "apps/desktop/README.md or docs/README.md"
+    },
+    {
+      "trigger_globs": [
+        ".github/workflows/*.yml",
+        ".github/workflows/*.yaml",
+        "scripts/*.sh",
+        "scripts/*.py",
+        "scripts/lib/*.sh",
+        "configs/*.json"
+      ],
+      "required_globs": [
+        "scripts/README.md",
+        "docs/README.md",
+        "CHANGELOG.md"
+      ],
+      "required_desc": "scripts/README.md or docs/README.md or CHANGELOG.md"
+    },
+    {
+      "trigger_globs": [
+        "policies/*.json",
+        "policies/**/*.json"
+      ],
+      "required_globs": [
+        "policies/README.md",
+        "docs/README.md"
+      ],
+      "required_desc": "policies/README.md or docs/README.md"
+    }
+  ]
+}

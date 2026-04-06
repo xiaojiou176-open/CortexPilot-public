@@ -1,0 +1,5 @@
+{
+  "schema_version": "1.0",
+  "description": "Incident-to-regression mapping. Keep incident_id aligned with docs/governance/incidents/*.md. High-severity incidents (sev0/sev1/sev2) must include non-empty regression_tests.",
+  "incidents": []
+}

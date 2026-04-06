@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CortexPilot | Coding-agent integrations for Codex, Claude Code, and OpenClaw</title>
+    <meta
+      name="description"
+      content="Truthful CortexPilot integration guide for Codex, Claude Code, and OpenClaw: read-only MCP, API/client entrypoints, repo-owned skills, and the current no-fake-plugin boundary."
+    />
+    <meta
+      name="keywords"
+      content="CortexPilot, Codex, Claude Code, OpenClaw, coding agent integrations, MCP, plugin, skills, workflow cases, proof and replay"
+    />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/CortexPilot-public/integrations/" />
+    <meta property="og:title" content="CortexPilot | Coding-agent integrations for Codex, Claude Code, and OpenClaw" />
+    <meta
+      property="og:description"
+      content="Truthful integration map for Codex, Claude Code, and OpenClaw with read-only MCP, API/client entrypoints, repo-owned skills, and no fake official-plugin claims."
+    />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/CortexPilot-public/integrations/" />
+    <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="CortexPilot | Coding-agent integrations for Codex, Claude Code, and OpenClaw" />
+    <meta
+      name="twitter:description"
+      content="Truthful integration map for Codex, Claude Code, and OpenClaw with read-only MCP, API/client entrypoints, repo-owned skills, and no fake official-plugin claims."
+    />
+    <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "CortexPilot coding-agent integrations for Codex, Claude Code, and OpenClaw",
+        "url": "https://xiaojiou176-open.github.io/CortexPilot-public/integrations/",
+        "description": "Truthful integration guide for Codex, Claude Code, and OpenClaw using read-only MCP, repo-owned skills, and current API or builder entrypoints."
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is CortexPilot an official Codex or Claude Code plugin?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Codex now has official plugin surfaces and OpenClaw has official plugin and skills surfaces, but CortexPilot currently ships workflow compatibility, read-only MCP, repo-owned skills, builder entrypoints, and local bundle examples rather than a published listing."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where does OpenClaw fit today?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "OpenClaw stays in the adjacent coding-agent layer. CortexPilot can still provide read-only MCP, proof and replay, and skill-pack guidance around it without claiming a first-class native plugin."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Should a new team start from MCP, builders, or skills?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Start from read-only MCP when the first need is protocol inspection, from builders or API when the first need is package-level integration, and from skills when the first need is repeatable operating playbooks."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this page mean CortexPilot is hosted or write-capable through MCP?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. The current public MCP contract is read-only, and CortexPilot should not be described as a hosted operator product today."
+            }
+          }
+        ]
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f2eb;
+        --panel: #fffdf9;
+        --ink: #17232c;
+        --muted: #52616d;
+        --line: rgba(23, 35, 44, 0.12);
+        --accent: #155e75;
+        --accent-soft: rgba(21, 94, 117, 0.1);
+        --warn: #92400e;
+        --warn-soft: rgba(146, 64, 14, 0.1);
+        --shadow: 0 24px 60px rgba(23, 35, 44, 0.1);
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, rgba(21, 94, 117, 0.08), transparent 32%),
+          linear-gradient(180deg, #f9f6ef 0%, #f1ece4 100%);
+        color: var(--ink);
+        font: 16px/1.65 "Inter", "Segoe UI", system-ui, sans-serif;
+      }
+      main {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 40px 20px 72px;
+      }
+      a { color: var(--accent); }
+      a:hover { color: #0f4d60; }
+      .hero, .section, .table-shell {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+      }
+      .hero, .section { padding: 28px; }
+      .hero { display: grid; gap: 18px; }
+      .eyebrow, .badge {
+        display: inline-flex;
+        width: fit-content;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .eyebrow { background: rgba(23, 35, 44, 0.08); color: var(--muted); }
+      .badge.primary { background: var(--accent-soft); color: var(--accent); }
+      .badge.warn { background: var(--warn-soft); color: var(--warn); }
+      h1, h2, h3 { margin: 0; line-height: 1.15; }
+      h1 { font-size: clamp(2.4rem, 4vw, 3.8rem); max-width: 12ch; }
+      h2 { font-size: 1.6rem; margin-bottom: 12px; }
+      p, li, td { color: var(--muted); }
+      .lede { font-size: 1.08rem; max-width: 76ch; }
+      .actions, .mini-nav { display: flex; flex-wrap: wrap; gap: 12px; }
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 16px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .button.primary { background: var(--accent); color: white; }
+      .button.secondary {
+        border: 1px solid var(--line);
+        background: white;
+        color: var(--ink);
+      }
+      .section { margin-top: 24px; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 16px;
+      }
+      .card {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: white;
+        padding: 18px;
+      }
+      .table-shell { margin-top: 24px; overflow: hidden; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        font-size: 13px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        background: rgba(23, 35, 44, 0.04);
+      }
+      tr:last-child td { border-bottom: none; }
+      code {
+        background: rgba(23, 35, 44, 0.06);
+        border-radius: 6px;
+        padding: 2px 6px;
+        font-family: "SFMono-Regular", Menlo, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <span class="eyebrow">Coding-agent integration guide</span>
+        <nav class="mini-nav" aria-label="Top navigation">
+          <a href="../">Back to the public landing page</a>
+          <a href="../ecosystem/">Ecosystem map</a>
+          <a href="../compatibility/">Compatibility matrix</a>
+          <a href="../agent-starters/">Agent starter kits</a>
+          <a href="../ai-surfaces/">AI + MCP + API surfaces</a>
+          <a href="../skills/">Skills quickstart</a>
+        </nav>
+        <h1>Codex, Claude Code, and OpenClaw integrations.</h1>
+        <p class="lede">
+          CortexPilot already fits into modern coding-agent workflows, but the truthful entrypoint is
+          <strong>not</strong> “install our official plugin.” The truthful story today is:
+          <strong>read-only MCP</strong>, <strong>repo-owned skills</strong>, <strong>API/client entrypoints</strong>,
+          and <strong>Workflow Cases + Proof &amp; Replay</strong> as the common operating record.
+        </p>
+        <p class="lede">
+          Use this page when you want the shortest honest answer to: “How do I actually use CortexPilot with
+          Codex, Claude Code, or OpenClaw right now?”
+        </p>
+        <p class="lede">
+          The safe product positioning is <strong>workflow-aligned</strong> and <strong>read-only MCP-compatible</strong>.
+          Codex now has official plugin surfaces, Claude Code currently exposes project-level MCP / hooks / subagent surfaces,
+          and OpenClaw already has plugin + skills hosts of its own. Keep <strong>plugin</strong> wording narrow:
+          for CortexPilot, the default public story is still integrations + skills + MCP plus local bundle examples, not a published listing.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="../mcp/">Open read-only MCP quickstart</a>
+          <a class="button secondary" href="../compatibility/">Open compatibility matrix</a>
+          <a class="button secondary" href="../agent-starters/">Open agent starter kits</a>
+          <a class="button secondary" href="../builders/">Open builder quickstart</a>
+          <a class="button secondary" href="../skills/">Open skills quickstart</a>
+          <a class="button secondary" href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/README.md">Open repository README</a>
+        </div>
+        <p class="lede">
+          Need the fastest proof-first walkthrough instead of the deeper integration map?
+          <a href="../use-cases/">Open use-case guide</a>.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>The shortest truthful compatibility map</h2>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Surface</th>
+                <th>Works today</th>
+                <th>How CortexPilot fits</th>
+                <th>What we must not claim</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Codex</strong></td>
+                <td>Yes</td>
+                <td>Command Tower, Workflow Cases, Proof &amp; Replay, read-only MCP, repo-owned skills, and API/client entrypoints all fit Codex-style governed coding loops.</td>
+                <td>Do not call CortexPilot a published Codex directory entry or an OpenAI-managed integration surface.</td>
+              </tr>
+              <tr>
+                <td><strong>Claude Code</strong></td>
+                <td>Yes</td>
+                <td>The same repo-owned surfaces work for Claude Code workflows: read-only inspection, case tracking, operator guidance, and package-level builder glue.</td>
+                <td>Do not imply an official Claude Code plugin, Anthropic-managed partnership, or hosted account integration.</td>
+              </tr>
+              <tr>
+                <td><strong>OpenClaw</strong></td>
+                <td>Bundle-compatible only when explicitly mapped</td>
+                <td>OpenClaw belongs in the adjacent coding-agent layer. CortexPilot can still provide read-only MCP, skill-pack guidance, and proof/case review surfaces around it without pretending the same first-class binding as Codex / Claude Code.</td>
+                <td>Do not present OpenClaw support as an official plugin, native OpenClaw plugin, or first-class product binding unless a real mapped bundle or native plugin ships and is tested.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Official ecosystem reality anchors</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="badge primary">Codex</span>
+            <h3>Native surfaces that already exist</h3>
+            <p>
+              Start from the official
+              <a href="https://github.com/openai/codex">openai/codex repo</a>,
+              the <a href="https://developers.openai.com/codex">Codex docs</a>,
+              and the <a href="https://developers.openai.com/codex/ide">IDE install path</a>.
+            </p>
+            <p>
+              CortexPilot should wrap Codex workflows with Command Tower, Workflow Cases,
+              Proof &amp; Replay, read-only MCP, and repo-owned skills or local bundle examples.
+              It should not be framed as a published Codex directory entry or an OpenAI-managed surface.
+            </p>
+          </article>
+          <article class="card">
+            <span class="badge primary">Claude Code</span>
+            <h3>Native surfaces that already exist</h3>
+            <p>
+              Start from the official
+              <a href="https://code.claude.com/docs/en/overview">Claude Code overview</a>
+              and the
+              <a href="https://code.claude.com/docs/en/mcp">Claude Code MCP docs</a>.
+            </p>
+            <p>
+              CortexPilot should fit as the governed review/proof/control-plane layer around
+              those workflows. It should not be framed as a Claude Code marketplace listing
+              or Anthropic-managed plugin surface.
+            </p>
+          </article>
+          <article class="card">
+            <span class="badge warn">OpenClaw</span>
+            <h3>Native surfaces that already exist</h3>
+            <p>
+              Start from the official
+              <a href="https://github.com/openclaw/openclaw">OpenClaw repo</a>,
+              the <a href="https://docs.openclaw.ai/tools/skills">skills docs</a>,
+              and the <a href="https://github.com/openclaw/clawhub">ClawHub registry/catalog</a>.
+            </p>
+            <p>
+              OpenClaw already has its own skills and plugin/catalog reality. CortexPilot should
+              therefore land on the integration, proof, replay, and read-only MCP side first,
+              not pretend it already ships a native OpenClaw plugin.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Current distribution status by platform</h2>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Platform</th>
+                <th>Official surface exists?</th>
+                <th>Current CortexPilot state</th>
+                <th>Do not overclaim</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Codex</strong></td>
+                <td>Yes. Official plugins surface exists.</td>
+                <td>Public starter docs, one local marketplace example, and one portable local bundle exist. No official listing receipt is tracked here today.</td>
+                <td>Do not say CortexPilot is listed in an OpenAI-managed directory unless you have the listing URL or receipt.</td>
+              </tr>
+              <tr>
+                <td><strong>Claude Code</strong></td>
+                <td>Yes. Official marketplace, submit, and review flow exist.</td>
+                <td>Public starter docs and a local <code>--plugin-dir</code> bundle seed exist. No official marketplace submission receipt is tracked here today.</td>
+                <td>Do not say <code>submitted</code>, <code>in review</code>, or <code>live</code> without the matching official receipt.</td>
+              </tr>
+              <tr>
+                <td><strong>OpenClaw</strong></td>
+                <td>Yes. Official ClawHub registry exists.</td>
+                <td>Public starter docs plus a compatible local bundle path exist. No ClawHub publish receipt is tracked here today.</td>
+                <td>Do not say <code>in review</code> for OpenClaw. Its official model is publish-first, not review-queue-first.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Need the exact starter files next? Open the
+          <a href="../agent-starters/">agent starter kits</a>.
+          Need the proof assets that show the public loop is real? Open the
+          <a href="../use-cases/">public use-case guide</a>.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>What teams can actually adopt today</h2>
+        <ul>
+          <li><strong>Command Tower</strong> as the single operator surface above coding-agent runs</li>
+          <li><strong>Workflow Cases</strong> as the shared operating record that ties request, queue, verdict, and linked runs together</li>
+          <li><strong>Proof &amp; Replay</strong> as the review surface you use before trusting an outcome</li>
+          <li><strong>read-only MCP</strong> when you want machine-readable inspection without mutation</li>
+          <li><strong>frontend client + contract + shared UI substrate</strong> when you want repo-owned builder entrypoints</li>
+          <li><strong>repo-local skills</strong> when you want coding agents to use the same operating playbook</li>
+        </ul>
+      </section>
+
+      <section class="section">
+        <h2>Fastest adoption ladder by ecosystem</h2>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Ecosystem</th>
+                <th>Start here</th>
+                <th>Then use CortexPilot for</th>
+                <th>Stop sign</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Codex</strong></td>
+                <td>Codex CLI / IDE docs</td>
+                <td>Compatibility matrix → read-only MCP or proof-first use case → builder starter if package reuse is needed</td>
+                <td>Do not call CortexPilot a published Codex directory entry.</td>
+              </tr>
+              <tr>
+                <td><strong>Claude Code</strong></td>
+                <td>Claude Code overview + MCP docs</td>
+                <td>Compatibility matrix → repo-owned skills + read-only MCP → builder starter for workspace reuse</td>
+                <td>Do not imply a plugin marketplace or hosted account integration.</td>
+              </tr>
+              <tr>
+                <td><strong>OpenClaw</strong></td>
+                <td>OpenClaw repo + skills docs + ClawHub</td>
+                <td>Use CortexPilot as the adjacent review/proof/read-only MCP layer, then map packages or skills only when a concrete workflow really needs them</td>
+                <td>Do not present CortexPilot as a native OpenClaw plugin unless a mapped path is shipped and tested.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Three copy-paste starting points</h2>
+        <p>
+          If your team wants something more concrete than “read the docs,” start with one of these repo-owned paths.
+        </p>
+        <pre><code># 1) protocol-first: prove the read-only MCP surface is real
+PYTHONPATH=apps/orchestrator/src python3 -m cortexpilot_orch.cli mcp-readonly-server
+
+# 2) builder-first: prove the thin client + contract bootstrap path is real
+node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
+  --base-url http://127.0.0.1:10000 \
+  --role WORKER \
+  --mutation-role TECH_LEAD \
+  --preview-provider cliproxyapi \
+  --preview-model gpt-5.4
+
+# 3) proof-first: prove the public first-run loop is real
+CORTEXPILOT_HOST_COMPAT=1 bash scripts/test_quick.sh --no-related</code></pre>
+        <p>
+          Need the client-specific setup files after that? Open the
+          <a href="../agent-starters/">agent starter kits</a> for tracked Codex
+          <code>config.toml</code>, Claude Code <code>.mcp.json</code>, and
+          OpenClaw <code>openclaw mcp set</code> starter objects.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>Portable drop-in recipe for coding-agent teams</h2>
+        <p>
+          If your real question is “What do I actually hand to Codex, Claude Code, or OpenClaw maintainers this afternoon?”,
+          keep the recipe small and honest:
+        </p>
+        <ol>
+          <li>Vendor the repo truth you want the agent to follow: <code>README.md</code>, <code>docs/README.md</code>, <code>AGENTS.md</code>, and the specific skill folders you actually plan to reuse.</li>
+          <li>Wire the repo-owned MCP server as a <strong>stdio command</strong>, not as a hosted claim: <code>PYTHONPATH=apps/orchestrator/src python3 -m cortexpilot_orch.cli mcp-readonly-server</code>.</li>
+          <li>Choose only one adoption lane first: protocol-first, skills-first, or builder-first. Do not promise plugin/store support unless a real platform surface exists and is verified.</li>
+        </ol>
+        <pre><code># 1) keep the repo truth close to the agent
+sed -n '1,220p' README.md
+sed -n '1,220p' docs/README.md
+sed -n '1,220p' AGENTS.md
+
+# 2) keep MCP on the truthful stdio path
+PYTHONPATH=apps/orchestrator/src python3 -m cortexpilot_orch.cli mcp-readonly-server
+
+# 3) keep builder adoption copy-pasteable
+node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
+  --base-url http://127.0.0.1:10000 \
+  --role WORKER \
+  --mutation-role TECH_LEAD \
+  --preview-provider cliproxyapi \
+  --preview-model gpt-5.4</code></pre>
+        <p>
+          OpenClaw teams should use the same three lanes as an <strong>adaptation recipe</strong>, not as proof of a first-class native plugin.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>How to talk about this truthfully</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Good wording</h3>
+            <p>“CortexPilot works with Codex and Claude Code workflows through Workflow Cases, Proof &amp; Replay, read-only MCP, repo-owned skills, and builder entrypoints.”</p>
+          </article>
+          <article class="card">
+            <h3>Bad wording</h3>
+            <p>“CortexPilot already ships the official Codex / Claude Code / OpenClaw listing.”</p>
+          </article>
+          <article class="card">
+            <h3>Good wording</h3>
+            <p>“OpenClaw stays in the adjacent coding-agent layer and can use CortexPilot as a bundle-compatible review surface when the mapped path is explicitly shipped and tested.”</p>
+          </article>
+          <article class="card">
+            <h3>Bad wording</h3>
+            <p>“OpenClaw is a first-class officially supported plugin surface inside CortexPilot today.”</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>FAQ</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Is this an official Codex or Claude Code plugin page?</h3>
+            <p>No. Codex now has official plugin surfaces and OpenClaw has official plugin and skills surfaces, but CortexPilot currently ships workflow compatibility, read-only MCP, repo-owned skills, builder entrypoints, and local bundle examples rather than a published listing.</p>
+          </article>
+          <article class="card">
+            <h3>Where does OpenClaw fit today?</h3>
+            <p>OpenClaw stays in the adjacent coding-agent layer. CortexPilot can still provide read-only MCP, proof and replay, and skill-pack guidance around it without claiming a first-class native plugin.</p>
+          </article>
+          <article class="card">
+            <h3>Should a new team start from MCP, builders, or skills?</h3>
+            <p>Start from read-only MCP when the first need is protocol inspection, from builders or API when the first need is package-level integration, and from skills when the first need is repeatable operating playbooks.</p>
+          </article>
+          <article class="card">
+            <h3>Does this page mean CortexPilot is hosted or write-capable through MCP?</h3>
+            <p>No. The current public MCP contract is read-only, and CortexPilot should not be described as a hosted operator product today.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
