@@ -33,6 +33,9 @@
 - if launch only creates a short-lived repo-owned Chrome process that never
   stays attached to the expected CDP endpoint, the launcher now fails closed
   instead of reporting a successful singleton launch
+- launch success now requires a longer stability window instead of a single
+  healthy sample, so the repo-owned singleton must stay attached across
+  consecutive checks before `browser:chrome:launch` reports success
 - if the repo-owned root is already offline, stale singleton locks and the old
   singleton state file are now cleared so status returns to a clean `offline`
   result instead of preserving a misleading stale launch record
