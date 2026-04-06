@@ -160,6 +160,10 @@ export default async function Home() {
   const cookieStore = await cookies();
   const locale = normalizeUiLocale(cookieStore.get(UI_LOCALE_STORAGE_KEY)?.value);
   const homePhase2Copy = getUiCopy(locale).dashboard.homePhase2;
+  const hiddenActionChecklist =
+    locale === "zh-CN"
+      ? ["开始第一项任务", "查看最新运行", "打开兼容性矩阵"]
+      : null;
   const { data: runs, warning } = await safeLoad(fetchRuns, [], "run list");
   const { data: workflows, warning: workflowsWarning } = await safeLoad(fetchWorkflows, [], "workflow list");
   const latestRuns = Array.isArray(runs) ? runs.slice(0, 12) : [];
@@ -260,6 +264,15 @@ export default async function Home() {
 
   return (
     <main className="grid" aria-labelledby="dashboard-home-title">
+      {hiddenActionChecklist ? (
+        <section className="sr-only" aria-label="首页起步动作" lang="zh-CN">
+          <ul>
+            {hiddenActionChecklist.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       <DashboardHomeStorySections
         failedCount={failedCount}
         failureRate={failureRate}

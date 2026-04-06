@@ -202,6 +202,13 @@ Work in CortexPilot as a contract-first engineering agent:
   `packages/frontend-api-contract/docs/README.md`, the dashboard-home
   integrations section in `apps/dashboard/components/DashboardHomeStorySections.tsx`,
   and the docs-base resolver now honoring `/integrations/` and `/skills/`
+- when a later ecosystem-adoption slice adds copy-paste starter kits or
+  ecosystem-native example configs, sync the root AI/docs entrypoints in the
+  same patch; current examples include `docs/agent-starters/index.html`,
+  `examples/coding-agents/README.md`, the shared read-only MCP example under
+  `examples/coding-agents/mcp/`, and the local plugin-bundle manifests under
+  `examples/coding-agents/plugin-bundles/` that stay explicitly starter-only
+  rather than official marketplace artifacts
 - when a later Phase 2 wave adds dedicated public sub-entrypoints (for example
   `/ecosystem/`, `/builders/`, `/use-cases/`, `/compatibility/`) or moves additional dashboard home
   hero/ecosystem/AI/builder copy into the shared locale substrate, sync the
@@ -272,6 +279,13 @@ Work in CortexPilot as a contract-first engineering agent:
   `apps/dashboard/lib/env.ts`, and the dashboard-home integration layer now
   pointing teams toward a compatibility ladder before they choose protocol,
   skills, builders, or proof-first onboarding
+- when a follow-up discoverability wave adds public copy-paste starter kits or
+  local bundle examples for Codex / Claude Code / OpenClaw, sync the root
+  AI/docs entrypoints in the same patch; current examples include
+  `docs/agent-starters/index.html`, `docs/examples/agent-starters/`,
+  `examples/coding-agents/`, `configs/root_allowlist.json`, and the root/docs
+  wording that now distinguishes host-platform plugin reality from
+  CortexPilot's own publication state
 - when a later polish wave compresses the public homepage or dashboard-home
   discovery stack into a clearer route page, sync the root AI/docs entrypoints
   in the same patch; current examples include the homepage mini-nav, reduced

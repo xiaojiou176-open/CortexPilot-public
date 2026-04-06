@@ -77,8 +77,8 @@
         --ink: #17232c;
         --muted: #52616d;
         --line: rgba(23, 35, 44, 0.12);
-        --accent: #7c3aed;
-        --accent-soft: rgba(124, 58, 237, 0.1);
+        --accent: #0f766e;
+        --accent-soft: rgba(15, 118, 110, 0.1);
         --warn: #92400e;
         --warn-soft: rgba(146, 64, 14, 0.1);
         --shadow: 0 24px 60px rgba(23, 35, 44, 0.1);
@@ -89,7 +89,7 @@
       body {
         margin: 0;
         background:
-          radial-gradient(circle at top left, rgba(124, 58, 237, 0.08), transparent 30%),
+          radial-gradient(circle at top left, rgba(15, 118, 110, 0.08), transparent 30%),
           linear-gradient(180deg, #faf6ef 0%, #f1ece3 100%);
         color: var(--ink);
         font: 16px/1.65 "Inter", "Segoe UI", system-ui, sans-serif;
@@ -102,7 +102,7 @@
       }
 
       a { color: var(--accent); }
-      a:hover { color: #6d28d9; }
+      a:hover { color: #115e59; }
 
       .hero,
       .section,
@@ -219,7 +219,7 @@
         overflow-x: auto;
         padding: 16px;
         border-radius: 18px;
-        background: #f4f0ff;
+        background: #eef7f5;
       }
     </style>
   </head>
@@ -230,6 +230,7 @@
         <nav class="mini-nav" aria-label="Top navigation">
           <a href="../">Back to the public landing page</a>
           <a href="../compatibility/">Compatibility matrix</a>
+          <a href="../agent-starters/">Agent starter kits</a>
           <a href="../api/">API quickstart</a>
           <a href="../mcp/">Read-only MCP quickstart</a>
           <a href="../integrations/">Integration guide</a>
@@ -249,6 +250,7 @@
         <div class="actions">
           <a class="button primary" href="#choose-the-shortest-builder-entry">Choose the shortest builder entry</a>
           <a class="button secondary" href="../api/">Open API quickstart</a>
+          <a class="button secondary" href="../agent-starters/">Open agent starter kits</a>
           <a class="button secondary" href="../mcp/">Open read-only MCP quickstart</a>
           <a class="button secondary" href="../compatibility/">Open compatibility matrix</a>
         </div>
@@ -339,6 +341,61 @@
         <p>
           This starter remains preview-first by default. It demonstrates overview + agents + contracts + role-config preview without claiming hosted operator accounts, write-capable MCP, or a full SDK platform.
         </p>
+        <p>
+          If your next move is wiring the same repo truth into Codex, Claude
+          Code, or OpenClaw itself, pair this page with the
+          <a href="../agent-starters/">agent starter kits</a>.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>Vendor or shared-workspace adoption recipe</h2>
+        <ol>
+          <li>Confirm the host ecosystem first: Codex, Claude Code, or OpenClaw should be understood from their own official docs before you import any CortexPilot package.</li>
+          <li>Keep the three CortexPilot packages together in one clone or vendored workspace copy: <code>frontend-api-client</code>, <code>frontend-api-contract</code>, and <code>frontend-shared</code>.</li>
+          <li>Use the repo-owned starter example as the first proof that your workspace wiring is correct.</li>
+          <li>Only promote to guarded operator actions such as <code>--apply</code> after preview works and your team accepts the trusted-operator boundary.</li>
+        </ol>
+        <pre><code>git clone https://github.com/xiaojiou176-open/CortexPilot-public.git
+cd CortexPilot-public
+npm run bootstrap:host
+node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
+  --base-url http://127.0.0.1:10000 \
+  --role WORKER \
+  --mutation-role TECH_LEAD \
+  --preview-provider cliproxyapi \
+  --preview-model gpt-5.4</code></pre>
+      </section>
+
+      <section class="section">
+        <h2>Official ecosystem anchors for builders</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="badge primary">Codex</span>
+            <p>
+              Pair package adoption with the official
+              <a href="https://github.com/openai/codex">Codex repo</a> and
+              <a href="https://developers.openai.com/codex">Codex docs</a>.
+            </p>
+          </article>
+          <article class="card">
+            <span class="badge primary">Claude Code</span>
+            <p>
+              Pair package adoption with the official
+              <a href="https://code.claude.com/docs/en/overview">overview</a>
+              and <a href="https://code.claude.com/docs/en/mcp">MCP docs</a>.
+            </p>
+          </article>
+          <article class="card">
+            <span class="badge warn">OpenClaw</span>
+            <p>
+              Pair package adoption with the official
+              <a href="https://github.com/openclaw/openclaw">OpenClaw repo</a>,
+              <a href="https://docs.openclaw.ai/tools/skills">skills docs</a>,
+              and <a href="https://github.com/openclaw/clawhub">ClawHub</a>.
+            </p>
+          </article>
+        </div>
       </section>
 
       <section class="section">

@@ -90,6 +90,14 @@ finished consumer product.
   `packages/frontend-api-contract/docs/README.md` guide instead of only the raw
   generated `.d.ts` surface, so builders get a human-readable package entrypoint
   before opening the generated types.
+- The home surface and PM workspace now also carry small `zh-CN` screen-reader
+  onboarding lists plus the clearer `Back to bottom` chat action wording, so
+  the first-step contract stays discoverable in localized assistive flows
+  without changing the visible English-first operator copy.
+- PM intake/chat regressions should keep the `Back to bottom` wording and the
+  localized onboarding note aligned with this README in the same patch, so the
+  dashboard doc-drift gate tracks the same visible operator-language contract
+  that the PM intake tests now assert.
 
 ## Strongest Signals
 

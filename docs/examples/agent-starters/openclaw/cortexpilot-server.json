@@ -1,0 +1,12 @@
+{
+  "command": "python3",
+  "args": [
+    "-m",
+    "cortexpilot_orch.cli",
+    "mcp-readonly-server"
+  ],
+  "env": {
+    "PYTHONPATH": "apps/orchestrator/src"
+  },
+  "cwd": "/absolute/path/to/CortexPilot"
+}

@@ -19,6 +19,13 @@ export default function PMIntakeFeature() {
       aria-labelledby="pm-page-title"
       data-chat-session-isolation={chatSessionIsolation}
     >
+      <section className="sr-only" aria-label="PM 起步动作" lang="zh-CN">
+        <ul>
+          <li>填写仓库路径</li>
+          <li>输入第一条需求</li>
+          <li>开始生成计划</li>
+        </ul>
+      </section>
       <h1 id="pm-page-title" className="sr-only">
         PM workspace
       </h1>
