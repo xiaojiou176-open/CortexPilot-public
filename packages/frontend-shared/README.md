@@ -41,3 +41,26 @@ Codex / Claude Code / OpenClaw workflows, use:
 - [API quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/api/)
 - [Contract package guide](../frontend-api-contract/docs/README.md)
 - [Skills quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/skills/)
+
+## Ecosystem reality anchors
+
+When a team asks "what already exists on the host side?", point them to the
+native surfaces first:
+
+- Codex:
+  [repo](https://github.com/openai/codex),
+  [docs](https://developers.openai.com/codex),
+  [IDE install](https://developers.openai.com/codex/ide)
+- Claude Code:
+  [overview](https://code.claude.com/docs/en/overview),
+  [MCP docs](https://code.claude.com/docs/en/mcp)
+- OpenClaw:
+  [repo](https://github.com/openclaw/openclaw),
+  [skills docs](https://docs.openclaw.ai/tools/skills),
+  [ClawHub](https://github.com/openclaw/clawhub)
+
+This package then stays in its narrower role:
+
+- shared UI copy, locale, and status presentation for CortexPilot surfaces
+- repo-owned presentation reuse across dashboard, desktop, and future web
+- not a native plugin for Codex, Claude Code, or OpenClaw

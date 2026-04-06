@@ -276,6 +276,61 @@
       </section>
 
       <section class="section">
+        <h2>Official ecosystem anchors</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Codex</h3>
+            <p>
+              Native reference points:
+              <a href="https://github.com/openai/codex">repo</a>,
+              <a href="https://developers.openai.com/codex">docs</a>,
+              and <a href="https://developers.openai.com/codex/ide">IDE install</a>.
+            </p>
+            <p>
+              CortexPilot skills should act as repo-owned operating contracts around those workflows,
+              not as a replacement for Codex's own native surfaces.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Claude Code</h3>
+            <p>
+              Native reference points:
+              <a href="https://code.claude.com/docs/en/overview">overview</a>
+              and <a href="https://code.claude.com/docs/en/mcp">MCP docs</a>.
+            </p>
+            <p>
+              CortexPilot skills should carry the repo's own read order, truth layers, and safety rails
+              into Claude Code workflows without implying a marketplace listing.
+            </p>
+          </article>
+          <article class="card">
+            <h3>OpenClaw</h3>
+            <p>
+              Native reference points:
+              <a href="https://github.com/openclaw/openclaw">repo</a>,
+              <a href="https://docs.openclaw.ai/tools/skills">skills docs</a>,
+              and <a href="https://github.com/openclaw/clawhub">ClawHub</a>.
+            </p>
+            <p>
+              OpenClaw already has real skills, a workspace path, and a public registry/catalog, so
+              CortexPilot should fit as repo truth + proof + read-only MCP guidance rather than
+              pretending to be the native OpenClaw plugin itself.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Truthful adoption ladder</h2>
+        <ol>
+          <li>Start from the native ecosystem docs first, so you know what the host tool already provides.</li>
+          <li>Use CortexPilot skills to carry the repo's own read order, safety rails, and done semantics into that workflow.</li>
+          <li>Pair the skill with the repo's truthful entrypoints: compatibility matrix, read-only MCP, builder packages, and proof-first use cases.</li>
+          <li>For OpenClaw specifically, treat the official skills workspace and ClawHub registry as the native host surface, then adapt CortexPilot playbooks around it instead of relabeling CortexPilot as the native plugin.</li>
+        </ol>
+      </section>
+
+      <section class="section">
         <h2>What this page is not claiming</h2>
         <ul>
           <li>not an official Codex or Claude Code plugin surface</li>

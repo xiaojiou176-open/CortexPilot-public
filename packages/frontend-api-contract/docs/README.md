@@ -41,6 +41,30 @@ Use this package when you want:
 3. Continue to the public [builder quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/) when you want the package map.
 4. Import `@cortexpilot/frontend-api-contract` when you are working inside the same repo or a vendored workspace copy and need generated route/query/type truth without backend imports.
 
+## Ecosystem reality anchors
+
+If you are integrating this package into a broader coding-agent workflow,
+confirm the host tool's native surface first:
+
+- Codex:
+  [repo](https://github.com/openai/codex),
+  [docs](https://developers.openai.com/codex),
+  [IDE install](https://developers.openai.com/codex/ide)
+- Claude Code:
+  [overview](https://code.claude.com/docs/en/overview),
+  [MCP docs](https://code.claude.com/docs/en/mcp)
+- OpenClaw:
+  [repo](https://github.com/openclaw/openclaw),
+  [skills docs](https://docs.openclaw.ai/tools/skills),
+  [ClawHub](https://github.com/openclaw/clawhub)
+
+Then keep the CortexPilot package story honest:
+
+- this contract package is for frontend-safe route/query/type truth
+- it sits below the thin client and beside the shared presentation substrate
+- it does not turn CortexPilot into an official plugin, marketplace artifact,
+  or hosted SDK
+
 ## Key entrypoints
 
 - `../index.d.ts`: current generated contract exports
