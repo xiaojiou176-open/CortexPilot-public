@@ -371,7 +371,14 @@ def test_ensure_repo_chrome_singleton_retries_via_mac_open_when_stability_check_
         "Popen",
         lambda args, stdout, stderr, start_new_session=None: launches.append(args) or _Proc(),
     )
-    monkeypatch.setattr(singleton_module, "_launch_repo_chrome_via_mac_open", lambda **kwargs: True)
+    monkeypatch.setattr(
+        singleton_module,
+        "_launch_repo_chrome_via_mac_open",
+        lambda **kwargs: launches.append(
+            ["open", "-na", "/Applications/Google Chrome.app", "--args", "--remote-debugging-port=9341"]
+        )
+        or True,
+    )
 
     instance = singleton_module.ensure_repo_chrome_singleton(
         chrome_executable_path="/preferred/chrome",
@@ -382,10 +389,11 @@ def test_ensure_repo_chrome_singleton_retries_via_mac_open_when_stability_check_
     )
 
     assert instance.connection_mode == "launched"
-    assert launches and "--remote-debugging-port=9341" in launches[0]
+    assert launches and launches[0][0] == "open"
+    assert "--remote-debugging-port=9341" in launches[0]
 
 
-def test_ensure_repo_chrome_singleton_retries_via_open_on_macos_when_direct_launch_never_binds(
+def test_ensure_repo_chrome_singleton_retries_via_open_on_macos_when_initial_open_launch_never_binds(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     user_data_dir = tmp_path / "browser" / "chrome-user-data"
@@ -454,8 +462,9 @@ def test_ensure_repo_chrome_singleton_retries_via_open_on_macos_when_direct_laun
     )
 
     assert instance.connection_mode == "launched"
-    assert launches[0][0] == "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+    assert launches[0][:4] == ["open", "-na", "/Applications/Google Chrome.app", "--args"]
     assert launches[1][:4] == ["open", "-na", "/Applications/Google Chrome.app", "--args"]
+    assert "--remote-debugging-port=9341" in launches[0]
     assert "--remote-debugging-port=9341" in launches[1]
 
 

@@ -644,7 +644,12 @@ def ensure_repo_chrome_singleton(
     for arg in extra_launch_args or []:
         if isinstance(arg, str) and arg.strip():
             launch_args.append(arg)
-    proc = _launch_chrome_process([chrome_executable_path, *launch_args])
+    if sys.platform == "darwin":
+        launched_via_mac_open = _launch_repo_chrome_via_mac_open(
+            chrome_executable_path=chrome_executable_path,
+            launch_args=launch_args,
+        )
+    proc = None if launched_via_mac_open else _launch_chrome_process([chrome_executable_path, *launch_args])
     try:
         wait_for_cdp_version(cdp_host, cdp_port, timeout_sec=cdp_timeout_sec)
     except RuntimeError:
