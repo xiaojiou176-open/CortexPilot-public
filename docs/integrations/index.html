@@ -314,6 +314,48 @@
       </section>
 
       <section class="section">
+        <h2>Current distribution status by platform</h2>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Platform</th>
+                <th>Official surface exists?</th>
+                <th>Current CortexPilot state</th>
+                <th>Do not overclaim</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Codex</strong></td>
+                <td>Yes. Official plugins surface exists.</td>
+                <td>Public starter docs, one local marketplace example, and one portable local bundle exist. No official listing receipt is tracked here today.</td>
+                <td>Do not say CortexPilot is listed in an OpenAI-managed directory unless you have the listing URL or receipt.</td>
+              </tr>
+              <tr>
+                <td><strong>Claude Code</strong></td>
+                <td>Yes. Official marketplace, submit, and review flow exist.</td>
+                <td>Public starter docs and a local <code>--plugin-dir</code> bundle seed exist. No official marketplace submission receipt is tracked here today.</td>
+                <td>Do not say <code>submitted</code>, <code>in review</code>, or <code>live</code> without the matching official receipt.</td>
+              </tr>
+              <tr>
+                <td><strong>OpenClaw</strong></td>
+                <td>Yes. Official ClawHub registry exists.</td>
+                <td>Public starter docs plus a compatible local bundle path exist. No ClawHub publish receipt is tracked here today.</td>
+                <td>Do not say <code>in review</code> for OpenClaw. Its official model is publish-first, not review-queue-first.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Need the exact starter files next? Open the
+          <a href="../agent-starters/">agent starter kits</a>.
+          Need the proof assets that show the public loop is real? Open the
+          <a href="../use-cases/">public use-case guide</a>.
+        </p>
+      </section>
+
+      <section class="section">
         <h2>What teams can actually adopt today</h2>
         <ul>
           <li><strong>Command Tower</strong> as the single operator surface above coding-agent runs</li>

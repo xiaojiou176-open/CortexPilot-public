@@ -86,6 +86,33 @@ by one, use the repo-owned example:
 node packages/frontend-api-client/examples/control_plane_starter.local.mjs
 ```
 
+## Before you run the starter
+
+This example assumes you already have a truthful local control-plane context:
+
+```bash
+npm run bootstrap:host
+CORTEXPILOT_HOST_COMPAT=1 bash scripts/test_quick.sh --no-related
+```
+
+Then either start the dashboard loop or make sure the API base URL you plan to
+use is actually running:
+
+```bash
+npm run dashboard:dev
+```
+
+If you do not yet have a running API base URL, token story, or repo-local proof
+receipt, stop here and start from:
+
+- the public compatibility matrix
+- the agent starter kits
+- the read-only MCP quickstart
+- the use-case proof loop
+
+Those pages close the gap before this package asks you for `baseUrl`,
+`resolveToken()`, and a running backend.
+
 That example bootstraps:
 
 - Command Tower overview
@@ -103,6 +130,13 @@ node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
   --preview-provider cliproxyapi \
   --preview-model gpt-5.4
 ```
+
+Expected success today:
+
+- the example can fetch bootstrap data from the current API base URL
+- it can read overview + agents + contracts without implying hosted SDK or
+  public write-capable MCP
+- any guarded mutation remains opt-in and repo-operator-only
 
 Apply stays opt-in on purpose:
 

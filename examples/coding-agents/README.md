@@ -23,6 +23,30 @@ What these examples are not:
 - not a published OpenClaw / ClawHub item
 - not a hosted operator or write-capable MCP claim
 
+## Fastest truthful order
+
+If you want the shortest honest path instead of reading the whole repo map,
+keep the order small:
+
+1. Prove the repo-local path first:
+
+```bash
+npm run bootstrap:host
+CORTEXPILOT_HOST_COMPAT=1 bash scripts/test_quick.sh --no-related
+npm run dashboard:dev
+```
+
+2. Copy exactly one host-tool starter file or one local bundle seed.
+3. Keep the first host-tool integration read-only and repo-root scoped.
+4. Confirm success by routing back through the public proof-first loop:
+   - `docs/use-cases/index.html`
+   - Workflow Cases
+   - Proof & Replay
+   - the tracked `news_digest` proof assets
+
+If you skip step 1, you risk pasting a config file before you have proved the
+repo-local MCP/proof path is even healthy.
+
 ## Layout
 
 ```text
