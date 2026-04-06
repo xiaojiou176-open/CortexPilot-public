@@ -1,5 +1,8 @@
 # Merge this into your OpenClaw config when you want the compatible local
 # CortexPilot bundle plus the same read-only MCP server definition.
+# Before using this file, replace every `__CORTEXPILOT_REPO_ROOT__` value
+# with the absolute path to your local CortexPilot checkout. This placeholder
+# is documentation-only and is not expanded by OpenClaw automatically.
 
 [plugins]
 enabled = true

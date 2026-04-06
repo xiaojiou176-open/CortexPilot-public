@@ -3,7 +3,7 @@
   "plugins": {
     "cortexpilot-coding-agent-bundle": {
       "source": {
-        "path": "../plugin-bundles/cortexpilot-coding-agent-bundle"
+        "path": "__CORTEXPILOT_REPO_ROOT__/examples/coding-agents/plugin-bundles/cortexpilot-coding-agent-bundle"
       }
     }
   }
