@@ -644,7 +644,13 @@ def ensure_repo_chrome_singleton(
     for arg in extra_launch_args or []:
         if isinstance(arg, str) and arg.strip():
             launch_args.append(arg)
-    proc = _launch_chrome_process([chrome_executable_path, *launch_args])
+    launched_via_mac_open = False
+    if sys.platform == "darwin":
+        launched_via_mac_open = _launch_repo_chrome_via_mac_open(
+            chrome_executable_path=chrome_executable_path,
+            launch_args=launch_args,
+        )
+    proc = None if launched_via_mac_open else _launch_chrome_process([chrome_executable_path, *launch_args])
     try:
         wait_for_cdp_version(cdp_host, cdp_port, timeout_sec=cdp_timeout_sec)
     except RuntimeError:
@@ -658,6 +664,7 @@ def ensure_repo_chrome_singleton(
             launch_args=launch_args,
         ):
             raise
+        launched_via_mac_open = True
         wait_for_cdp_version(cdp_host, cdp_port, timeout_sec=cdp_timeout_sec)
     launched_process = find_chrome_process_by_remote_debugging_port(cdp_port)
     if launched_process is not None and _normalized_path_text(launched_process.user_data_dir) != expected_root:
@@ -678,6 +685,7 @@ def ensure_repo_chrome_singleton(
             chrome_executable_path=chrome_executable_path,
             launch_args=launch_args,
         ):
+            launched_via_mac_open = True
             wait_for_cdp_version(cdp_host, cdp_port, timeout_sec=cdp_timeout_sec)
             stable_process = _verify_repo_chrome_launch_stability(
                 user_data_dir=user_data_dir,

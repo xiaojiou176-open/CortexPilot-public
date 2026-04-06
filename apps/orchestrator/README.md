@@ -39,10 +39,10 @@
 - if the repo-owned root is already offline, stale singleton locks and the old
   singleton state file are now cleared so status returns to a clean `offline`
   result instead of preserving a misleading stale launch record
-- on macOS the launcher now retries once through `open -na "Google Chrome"`
-  when the direct Chrome executable does not bind CDP for the repo-owned root;
-  that keeps the singleton on the same `Profile 1` root instead of silently
-  giving up or falling back to a different browser state
+- on macOS the launcher now prefers the repo-owned `open -na "Google Chrome"`
+  path for headed singleton boot, then still reuses that same route on retry if
+  CDP does not bind cleanly; that keeps the singleton on the same `Profile 1`
+  root and avoids reporting success from a short-lived CLI-owned Chrome process
 - login state persistence now relies on that single repo-owned user-data root
   plus attach-first reuse; the runtime closes only automation-created pages, so
   reopening the singleton should not require reseeding or second-launch copies
