@@ -32,7 +32,7 @@ temporalio==1.22.0
 duckduckgo-search==8.1.1
 
 # Dev/test toolchain (intentionally locked in the same graph for CI/local parity).
-pytest-cov==7.0.0
+pytest-cov==7.1.0
 pytest-xdist==3.8.0
 httpx==0.28.1
 hypothesis==6.151.9
