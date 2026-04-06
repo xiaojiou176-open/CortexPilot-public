@@ -401,6 +401,42 @@ npm run dashboard:dev</code></pre>
       </section>
 
       <section class="section">
+        <h2>What success looks like after install</h2>
+        <div class="table-shell">
+          <table>
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Install step you just finished</th>
+                <th>Next proof check</th>
+                <th>Success signal today</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Codex</strong></td>
+                <td>Added the repo-root read-only MCP server or copied the local marketplace seed.</td>
+                <td>Route back through <a href="../use-cases/">the public use-case guide</a> and confirm the same proof-first loop still makes sense for your repo clone.</td>
+                <td>The repo-local quick path is still healthy, the starter points at the same repo root, and you are not relabeling a local bundle as an official listing.</td>
+              </tr>
+              <tr>
+                <td><strong>Claude Code</strong></td>
+                <td>Added the project <code>.mcp.json</code> or copied the local <code>--plugin-dir</code> seed.</td>
+                <td>Copy the tracked <code>cortexpilot-proof</code> command from the Claude example, then use it to route back to Workflow Cases, Proof &amp; Replay, and the tracked <code>news_digest</code> assets.</td>
+                <td>You can keep the repo-local proof-first loop, the project config stays read-only, and the Claude starter is still described as local/project adoption rather than a marketplace listing.</td>
+              </tr>
+              <tr>
+                <td><strong>OpenClaw</strong></td>
+                <td>Saved the JSON server object or merged the tracked TOML bundle path into your OpenClaw config.</td>
+                <td>Use <a href="../use-cases/">the same public use-case guide</a> as the proof target and keep the OpenClaw story on the read-only proof/replay side.</td>
+                <td>The bundle path resolves to your local clone, the MCP server stays read-only, and you still describe the result as bundle-compatible rather than live on ClawHub.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
         <h2>Optional local plugin bundle paths</h2>
         <p>
           MCP config is the narrowest setup, but the repo also ships one

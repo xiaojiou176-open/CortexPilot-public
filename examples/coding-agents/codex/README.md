@@ -25,6 +25,16 @@ This folder shows the narrowest truthful CortexPilot setup for Codex:
    - `AGENTS.md`
    - the public compatibility / integration / MCP guides
 
+## Expected success
+
+- the repo-local proof-first path still works before and after you copy the
+  Codex files
+- the local marketplace seed points at your real CortexPilot checkout, not at a
+  stale relative path
+- you can route back through `docs/use-cases/index.html` and still explain the
+  same Workflow Cases / Proof & Replay loop without claiming an official Codex
+  listing
+
 ## Boundary
 
 - This is a local marketplace example, not a published Codex directory entry.
