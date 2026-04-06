@@ -24,6 +24,14 @@ workflows without inventing a published marketplace package.
    - `AGENTS.md`
    - the public compatibility / integration / MCP guides
 
+## Expected success
+
+- the project-local `.mcp.json` still points at the same repo-root read-only MCP server
+- the copied `.claude/commands/cortexpilot-proof.md` playbook routes you back to
+  the same proof-first surfaces instead of inventing a new hosted/plugin story
+- the result is still described as local/project adoption, not as a published
+  Claude Code marketplace listing
+
 ## Boundary
 
 - This is a project-local example plus a local plugin-dir seed, not a published

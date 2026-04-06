@@ -21,6 +21,15 @@ truthful CortexPilot position inside that ecosystem.
 3. Keep CortexPilot on the proof / replay / read-only integration side unless a
    native published OpenClaw path is explicitly shipped and tested.
 
+## Expected success
+
+- the OpenClaw config resolves to your local CortexPilot checkout and the same
+  read-only MCP server
+- the proof target is still the public proof-first loop in
+  `docs/use-cases/index.html`, not a claim that you are already live on ClawHub
+- the final wording stays `bundle-compatible` or `starter-ready`, not
+  `published OpenClaw plugin`
+
 ## Boundary
 
 - This is a compatible local bundle example plus tracked local MCP/config
