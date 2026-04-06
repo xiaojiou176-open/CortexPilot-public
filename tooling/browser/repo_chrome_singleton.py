@@ -644,6 +644,7 @@ def ensure_repo_chrome_singleton(
     for arg in extra_launch_args or []:
         if isinstance(arg, str) and arg.strip():
             launch_args.append(arg)
+    launched_via_mac_open = False
     if sys.platform == "darwin":
         launched_via_mac_open = _launch_repo_chrome_via_mac_open(
             chrome_executable_path=chrome_executable_path,

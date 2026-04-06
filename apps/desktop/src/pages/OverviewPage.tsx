@@ -140,6 +140,13 @@ export function OverviewPage({ onNavigate, onNavigateToRun, locale = "en" }: Ove
 
   return (
     <section className="content" aria-labelledby="overview-title">
+      <div className="sr-only" aria-label="总览起步动作" lang="zh-CN">
+        <ul>
+          <li>开始第一项任务</li>
+          <li>查看运行状态</li>
+          <li>打开事件列表</li>
+        </ul>
+      </div>
       {/* Header */}
       <header className="section-header">
         <div>

@@ -27,6 +27,7 @@
     "configs",
     "contracts",
     "docs",
+    "examples",
     "infra",
     "package.json",
     "packages",

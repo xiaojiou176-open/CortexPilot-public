@@ -37,6 +37,7 @@ Codex / Claude Code / OpenClaw workflows, use:
 
 - [Compatibility matrix](https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/)
 - [Integration guide](https://xiaojiou176-open.github.io/CortexPilot-public/integrations/)
+- [Agent starter kits](https://xiaojiou176-open.github.io/CortexPilot-public/agent-starters/)
 - [Read-only MCP quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/mcp/)
 - [API quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/api/)
 - [Contract package guide](../frontend-api-contract/docs/README.md)

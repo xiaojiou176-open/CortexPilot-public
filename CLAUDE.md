@@ -134,6 +134,14 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `packages/frontend-api-contract/docs/README.md`, the dashboard-home
   integrations section in `apps/dashboard/components/DashboardHomeStorySections.tsx`,
   and the docs-base resolver now honoring `/integrations/` and `/skills/`
+- when a later ecosystem-adoption slice adds copy-paste starter kits or
+  ecosystem-native example configs, keep this file, `AGENTS.md`, and the
+  root/docs entrypoints aligned in the same patch; current examples include
+  `docs/agent-starters/index.html`, `examples/coding-agents/README.md`, the
+  shared read-only MCP example under `examples/coding-agents/mcp/`, and the
+  local plugin-bundle manifests under
+  `examples/coding-agents/plugin-bundles/` that stay starter-only rather than
+  official marketplace artifacts
 - when a later Phase 2 wave adds dedicated public sub-entrypoints (for example
   `/ecosystem/`, `/builders/`, `/use-cases/`, `/compatibility/`) or moves additional dashboard home
   hero/ecosystem/AI/builder copy into the shared locale substrate, sync the

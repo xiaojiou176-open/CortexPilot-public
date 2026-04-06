@@ -296,9 +296,13 @@ export default function PMIntakeCenterPanel(props: Props) {
           variant="unstyled"
           className="pm-scroll-fab pm-focus-visible"
           onClick={() => onScrollToBottom()}
-          aria-label={chatUnreadCount > 0 ? `Jump to bottom, ${chatUnreadCount} new messages` : "Jump to bottom"}
+          aria-label={chatUnreadCount > 0 ? `Back to bottom, ${chatUnreadCount} new messages` : "Back to bottom"}
+          title={chatUnreadCount > 0 ? `Back to bottom (${chatUnreadCount})` : "Back to bottom"}
         >
           {chatUnreadCount > 0 && <span className="pm-scroll-fab-badge">{chatUnreadCount}</span>}
+          <span className="sr-only">
+            Back to bottom{chatUnreadCount > 0 ? ` (${chatUnreadCount})` : ""}
+          </span>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>

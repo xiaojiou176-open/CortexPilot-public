@@ -6,6 +6,17 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- added a public `agent-starters` entrypoint plus tracked `examples/coding-agents/`
+  starter kits so Codex, Claude Code, and OpenClaw teams can copy real
+  read-only MCP configs, repo-owned skills/bootstrap files, and local
+  plugin-bundle examples without inventing hosted/store claims; the same slice
+  also tightened the root/package/docs wording around ecosystem-native anchors
+  and vendored-workspace adoption
+- fixed the repo-owned Chrome singleton launch path on non-macOS lanes by
+  initializing the macOS-only `launched_via_mac_open` flag before the platform
+  branch, so Linux/GitHub-hosted `test_repo_chrome_singleton` paths stop
+  crashing with `UnboundLocalError` while the macOS `open -na` retry contract
+  remains intact
 - hardened the host-compatible pre-commit lane so repo-owned `scripts/*.py`
   hooks now use the governance wrapper instead of direct `python3` entrypoints,
   keeping clean hook runs deterministic and free of repo-local `__pycache__`

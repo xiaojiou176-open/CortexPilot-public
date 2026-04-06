@@ -34,7 +34,7 @@ grid inside the operator surface.
 The product name stays **CortexPilot**. If `cortexpilot.ai` is later claimed,
 treat it as a marketing/front-door domain, not as a product rename.
 
-[Quickstart](#quickstart) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [Ecosystem Map](https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/) · [Compatibility Matrix](https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/) · [Integration Guide](https://xiaojiou176-open.github.io/CortexPilot-public/integrations/) · [Skills Guide](https://xiaojiou176-open.github.io/CortexPilot-public/skills/) · [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/) · [MCP Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/mcp/) · [API Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/api/) · [Builder Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/) · [Use Cases](https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/) · [Client Entry Points](packages/frontend-api-client/README.md) · [Contract Entry Points](packages/frontend-api-contract/docs/README.md) · [Spec](docs/specs/00_SPEC.md) · [Releases](https://github.com/xiaojiou176-open/CortexPilot-public/releases)
+[Quickstart](#quickstart) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [Ecosystem Map](https://xiaojiou176-open.github.io/CortexPilot-public/ecosystem/) · [Compatibility Matrix](https://xiaojiou176-open.github.io/CortexPilot-public/compatibility/) · [Agent Starter Kits](https://xiaojiou176-open.github.io/CortexPilot-public/agent-starters/) · [Integration Guide](https://xiaojiou176-open.github.io/CortexPilot-public/integrations/) · [Skills Guide](https://xiaojiou176-open.github.io/CortexPilot-public/skills/) · [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/CortexPilot-public/ai-surfaces/) · [MCP Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/mcp/) · [API Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/api/) · [Builder Quickstart](https://xiaojiou176-open.github.io/CortexPilot-public/builders/) · [Use Cases](https://xiaojiou176-open.github.io/CortexPilot-public/use-cases/) · [Client Entry Points](packages/frontend-api-client/README.md) · [Contract Entry Points](packages/frontend-api-contract/docs/README.md) · [Spec](docs/specs/00_SPEC.md) · [Releases](https://github.com/xiaojiou176-open/CortexPilot-public/releases)
 
 ![CortexPilot studio preview card](docs/assets/storefront/cortexpilot-studio-preview.svg)
 
@@ -316,19 +316,30 @@ below before you explain where CortexPilot fits:
   - repo: [openai/codex](https://github.com/openai/codex)
   - docs: [developers.openai.com/codex](https://developers.openai.com/codex)
   - IDE path: [developers.openai.com/codex/ide](https://developers.openai.com/codex/ide)
+  - plugins: [developers.openai.com/codex/plugins](https://developers.openai.com/codex/plugins)
 - **Claude Code**:
   - overview: [code.claude.com/docs/en/overview](https://code.claude.com/docs/en/overview)
   - MCP docs: [code.claude.com/docs/en/mcp](https://code.claude.com/docs/en/mcp)
+  - hooks: [docs.anthropic.com/en/docs/claude-code/hooks](https://docs.anthropic.com/en/docs/claude-code/hooks)
+  - subagents: [docs.anthropic.com/en/docs/claude-code/sub-agents](https://docs.anthropic.com/en/docs/claude-code/sub-agents)
 - **OpenClaw**:
   - repo: [openclaw/openclaw](https://github.com/openclaw/openclaw)
+  - plugins docs: [docs.openclaw.ai/tools/plugins](https://docs.openclaw.ai/tools/plugins)
   - skills docs: [docs.openclaw.ai/tools/skills](https://docs.openclaw.ai/tools/skills)
   - registry/catalog: [openclaw/clawhub](https://github.com/openclaw/clawhub)
 
 These anchors matter because CortexPilot should fit around the real ecosystem
 surfaces that already exist:
 
-- **Codex / Claude Code**: command tower, proof, replay, read-only MCP, and
-  repo-owned skills that sit around the workflow.
+- **Codex**: Codex now has real plugin surfaces of its own, including local
+  marketplace installs and a curated official directory. CortexPilot should sit
+  around Codex workflows with command tower, proof, replay, read-only MCP, and
+  repo-owned skills or local bundle examples until a real published listing
+  exists.
+- **Claude Code**: Claude Code's current native surfaces are MCP, hooks,
+  subagents, and project configuration. CortexPilot should wrap those governed
+  workflows with command tower, proof, replay, read-only MCP, and repo-owned
+  playbooks rather than pretending a marketplace surface exists.
 - **OpenClaw**: adjacent integration layer with real skills and plugin/catalog
   surfaces on its side, while CortexPilot stays on the review/proof/read-only
   integration side unless a mapped native path is explicitly shipped and
@@ -356,6 +367,17 @@ around CortexPilot without pretending a full SDK platform already exists:
 - [packages/frontend-api-contract/docs/README.md](packages/frontend-api-contract/docs/README.md): human-readable contract package guide for generated frontend-safe route/query/type imports.
 - [packages/frontend-shared/README.md](packages/frontend-shared/README.md): shared UI copy, locale, status, and frontend-only presentation helpers.
 - [docs/architecture/ecosystem-and-builder-surfaces-v1.md](docs/architecture/ecosystem-and-builder-surfaces-v1.md): the human-readable map that explains how Codex / Claude Code / MCP / public packs / share-ready Workflow Cases fit together.
+
+## Copy-paste coding-agent examples
+
+If your team needs starter assets instead of only wording, open:
+
+- [examples/coding-agents/README.md](examples/coding-agents/README.md): one map for Codex, Claude Code, OpenClaw, and the shared read-only MCP recipe
+- [examples/coding-agents/codex/marketplace.example.json](examples/coding-agents/codex/marketplace.example.json): local Codex marketplace entry
+- [examples/coding-agents/plugin-bundles/cortexpilot-coding-agent-bundle/.codex-plugin/plugin.json](examples/coding-agents/plugin-bundles/cortexpilot-coding-agent-bundle/.codex-plugin/plugin.json): compatible local skill-bundle manifest
+- [examples/coding-agents/claude-code/README.md](examples/coding-agents/claude-code/README.md): `.claude/` command + agent starter
+- [examples/coding-agents/openclaw/README.md](examples/coding-agents/openclaw/README.md): OpenClaw-compatible local bundle recipe
+- [examples/coding-agents/mcp/readonly.mcp.json.example](examples/coding-agents/mcp/readonly.mcp.json.example): shared read-only MCP config example
 
 ## Shortest Cross-Ecosystem Adoption Order
 

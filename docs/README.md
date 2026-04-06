@@ -29,18 +29,19 @@ These are the active registered docs that stay in the primary docs navigation.
 1. [index.html](index.html)
 2. [ecosystem/index.html](ecosystem/index.html)
 3. [compatibility/index.html](compatibility/index.html)
-4. [use-cases/index.html](use-cases/index.html)
-5. [ai-surfaces/index.html](ai-surfaces/index.html)
-6. [integrations/index.html](integrations/index.html)
-7. [skills/index.html](skills/index.html)
-8. [mcp/index.html](mcp/index.html)
-9. [api/index.html](api/index.html)
-10. [builders/index.html](builders/index.html)
-11. [architecture/runtime-topology.md](architecture/runtime-topology.md)
-12. [specs/00_SPEC.md](specs/00_SPEC.md)
-13. [runbooks/onboarding-30min.md](runbooks/onboarding-30min.md)
-14. [runbooks/space-governance.md](runbooks/space-governance.md)
-15. [architecture/mcp-and-operator-copilot-v1.md](architecture/mcp-and-operator-copilot-v1.md)
+4. [agent-starters/index.html](agent-starters/index.html)
+5. [use-cases/index.html](use-cases/index.html)
+6. [ai-surfaces/index.html](ai-surfaces/index.html)
+7. [integrations/index.html](integrations/index.html)
+8. [skills/index.html](skills/index.html)
+9. [mcp/index.html](mcp/index.html)
+10. [api/index.html](api/index.html)
+11. [builders/index.html](builders/index.html)
+12. [architecture/runtime-topology.md](architecture/runtime-topology.md)
+13. [specs/00_SPEC.md](specs/00_SPEC.md)
+14. [runbooks/onboarding-30min.md](runbooks/onboarding-30min.md)
+15. [runbooks/space-governance.md](runbooks/space-governance.md)
+16. [architecture/mcp-and-operator-copilot-v1.md](architecture/mcp-and-operator-copilot-v1.md)
 
 ## Supplemental Registered Docs
 
@@ -79,6 +80,7 @@ navigation set.
 - `docs/builders/index.html`: public builder quickstart hub for current client/contract/shared entrypoints, including the repo-owned control-plane starter path and its runnable local example
 - `docs/ecosystem/index.html`: public ecosystem positioning page for Codex / Claude Code / MCP plus adjacent comparison layers
 - `docs/compatibility/index.html`: public adoption matrix for choosing between Codex / Claude Code / OpenClaw / skills / builders / proof-first onboarding paths
+- `docs/agent-starters/index.html`: public copy-paste starter kits for Codex / Claude Code / OpenClaw teams that want tracked MCP config snippets plus the shortest repo-owned skills/bootstrap entrypoints
 - `docs/use-cases/index.html`: public first-run, proof, and share-ready asset guide
 - `docs/ai-surfaces/index.html`: public AI operator / read-only MCP / API entrypoint map for truthful discoverability
 - `docs/mcp/index.html`: public read-only MCP quickstart page for truthful protocol discovery
