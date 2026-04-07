@@ -20,6 +20,8 @@ Work in CortexPilot as a contract-first engineering agent:
 ## Key Commands
 
 - bootstrap: `npm run bootstrap`
+- local fast CI: `npm run ci`
+- local strict CI: `npm run ci:strict`
 - fast verification: `npm run test:quick`
 - main local gate: `npm run test`
 - host safety scan: `npm run scan:host-process-risks`

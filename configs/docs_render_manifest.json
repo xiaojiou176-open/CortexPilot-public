@@ -3,6 +3,21 @@
   "description": "Minimal generated-doc outputs kept after the public-surface reduction.",
   "entries": [
     {
+      "output_path": "docs/assets/storefront/proof-pack-index.json",
+      "mode": "full_render",
+      "source_inputs": [
+        "scripts/generate_storefront_proof_pack_index.py",
+        "configs/storefront_proof_bundle_registry.json",
+        "docs/releases/assets/news-digest-proof-pack-2026-03-27.json"
+      ],
+      "generator": "python3 scripts/generate_storefront_proof_pack_index.py",
+      "freshness_strategy": "timestamp",
+      "authoritative_for": [
+        "public_storefront_proof_pack_index"
+      ],
+      "human_editable_regions": "none"
+    },
+    {
       "output_path": "docs/governance/ui-button-coverage-matrix.md",
       "mode": "full_render",
       "source_inputs": [
