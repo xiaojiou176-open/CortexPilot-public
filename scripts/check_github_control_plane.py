@@ -42,6 +42,41 @@ def _security_feature_status(repo_payload: dict, feature_name: str) -> str:
     return str(feature.get("status") or "").strip()
 
 
+def _org_configuration_id(platform_evidence: dict) -> str:
+    cfg = platform_evidence.get("org_code_security_configuration")
+    if not isinstance(cfg, dict):
+        return ""
+    return str(cfg.get("configuration_id") or "").strip()
+
+
+def _org_config_proves_feature(
+    org_config_payload: dict,
+    org_repo_payload: list[dict] | dict,
+    *,
+    repo_id: int | None,
+    feature_name: str,
+    required_repository_status: str,
+) -> bool:
+    if repo_id is None:
+        return False
+    feature_value = str(org_config_payload.get(feature_name) or "").strip()
+    if feature_value != "enabled":
+        return False
+    if not isinstance(org_repo_payload, list):
+        return False
+    for item in org_repo_payload:
+        if not isinstance(item, dict):
+            continue
+        repo = item.get("repository")
+        if not isinstance(repo, dict):
+            continue
+        if repo.get("id") != repo_id:
+            continue
+        status = str(item.get("status") or "").strip()
+        return status == required_repository_status
+    return False
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate live GitHub control-plane settings against repo policy.")
     parser.add_argument("--policy", default=str(DEFAULT_POLICY))
@@ -63,6 +98,11 @@ def main() -> int:
     vuln_alerts_code, vuln_alerts_payload = _gh_json(f"repos/{owner}/{repo}/vulnerability-alerts")
     codeql_code, codeql_payload = _gh_json(f"repos/{owner}/{repo}/code-scanning/default-setup")
     dependabot_code, dependabot_payload = _gh_json(f"repos/{owner}/{repo}/dependabot/alerts?per_page=1")
+    org_config_id = ""
+    org_config_code = 0
+    org_config_payload: dict = {}
+    org_config_repos_code = 0
+    org_config_repos_payload: list[dict] | dict = []
 
     if repo_code != 0:
         errors.append(f"gh api repo fetch failed: {repo_payload}")
@@ -105,6 +145,12 @@ def main() -> int:
 
     platform_evidence = policy.get("platform_evidence") if isinstance(policy.get("platform_evidence"), dict) else {}
     if platform_evidence:
+        org_config_id = _org_configuration_id(platform_evidence)
+        if org_config_id:
+            org_config_code, org_config_payload = _gh_json(f"orgs/{owner}/code-security/configurations/{org_config_id}")
+            org_config_repos_code, org_config_repos_payload = _gh_json(
+                f"orgs/{owner}/code-security/configurations/{org_config_id}/repositories"
+            )
         pvr_required = bool((platform_evidence.get("private_vulnerability_reporting") or {}).get("required"))
         if pvr_required:
             if pvr_code != 0:
@@ -112,6 +158,11 @@ def main() -> int:
         vulnerability_alerts_required = bool((platform_evidence.get("vulnerability_alerts") or {}).get("required"))
         if vulnerability_alerts_required and vuln_alerts_code != 0:
             errors.append(f"vulnerability alerts not proven: {vuln_alerts_payload}")
+        repo_id = repo_payload.get("id") if isinstance(repo_payload, dict) else None
+        required_repo_status = str(
+            ((platform_evidence.get("org_code_security_configuration") or {}) if isinstance(platform_evidence.get("org_code_security_configuration"), dict) else {}).get("required_repository_status")
+            or "enforced"
+        ).strip()
         for feature_name in (
             "secret_scanning",
             "secret_scanning_push_protection",
@@ -121,10 +172,22 @@ def main() -> int:
             feature_rule = platform_evidence.get(feature_name) if isinstance(platform_evidence.get(feature_name), dict) else {}
             if feature_rule.get("required"):
                 status = _security_feature_status(repo_payload, feature_name)
-                if status != "enabled":
+                if status != "enabled" and not _org_config_proves_feature(
+                    org_config_payload,
+                    org_config_repos_payload,
+                    repo_id=repo_id if isinstance(repo_id, int) else None,
+                    feature_name=feature_name,
+                    required_repository_status=required_repo_status,
+                ):
                     errors.append(
                         f"{feature_name} drift: actual={status or 'missing'!r} expected='enabled'"
                     )
+        org_cfg_rule = platform_evidence.get("org_code_security_configuration") if isinstance(platform_evidence.get("org_code_security_configuration"), dict) else {}
+        if org_cfg_rule.get("required"):
+            if org_config_code != 0:
+                errors.append(f"org code-security configuration not proven: {org_config_payload}")
+            elif org_config_repos_code != 0:
+                errors.append(f"org code-security configuration repository binding not proven: {org_config_repos_payload}")
         dependabot_rule = platform_evidence.get("dependabot_config") if isinstance(platform_evidence.get("dependabot_config"), dict) else {}
         dependabot_path = str(dependabot_rule.get("path") or "").strip()
         if dependabot_path and not _repo_path_exists(dependabot_path):
@@ -161,6 +224,8 @@ def main() -> int:
         "private_vulnerability_reporting": pvr_payload if pvr_code == 0 else {"error": pvr_payload},
         "vulnerability_alerts": {"enabled": True} if vuln_alerts_code == 0 else {"error": vuln_alerts_payload},
         "security_and_analysis": repo_payload.get("security_and_analysis") if repo_code == 0 else {"error": repo_payload},
+        "org_code_security_configuration": org_config_payload if org_config_id and org_config_code == 0 else {"error": org_config_payload} if org_config_id else {},
+        "org_code_security_configuration_repositories": org_config_repos_payload if org_config_id and org_config_repos_code == 0 else {"error": org_config_repos_payload} if org_config_id else {},
         "codeql_default_setup": codeql_payload if codeql_code == 0 else {"error": codeql_payload},
         "dependabot_alerts": dependabot_payload if dependabot_code == 0 else {"error": dependabot_payload},
         "errors": errors,

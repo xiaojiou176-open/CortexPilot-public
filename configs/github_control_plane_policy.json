@@ -42,6 +42,12 @@
       "required": true,
       "mode": "api"
     },
+    "org_code_security_configuration": {
+      "required": true,
+      "mode": "api",
+      "configuration_id": 240284,
+      "required_repository_status": "enforced"
+    },
     "dependabot_config": {
       "required": true,
       "mode": "repo_file",

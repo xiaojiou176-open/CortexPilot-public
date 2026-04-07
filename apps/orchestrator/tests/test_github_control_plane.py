@@ -35,6 +35,12 @@ def _policy_payload() -> dict:
             "secret_scanning_push_protection": {"required": True, "mode": "api"},
             "secret_scanning_non_provider_patterns": {"required": True, "mode": "api"},
             "secret_scanning_validity_checks": {"required": True, "mode": "api"},
+            "org_code_security_configuration": {
+                "required": True,
+                "mode": "api",
+                "configuration_id": 240284,
+                "required_repository_status": "enforced",
+            },
             "dependabot_config": {"required": True, "mode": "repo_file", "path": ".github/dependabot.yml"},
             "codeql_workflow": {"required": True, "mode": "repo_file", "path": ".github/workflows/codeql.yml"},
             "codeql_config": {"required": True, "mode": "repo_file", "path": ".github/codeql/codeql-config.yml"},
@@ -48,6 +54,7 @@ def _fake_gh_json(secret_non_provider: str, validity_checks: str):
             return (
                 0,
                 {
+                    "id": 123,
                     "default_branch": "main",
                     "security_and_analysis": {
                         "secret_scanning": {"status": "enabled"},
@@ -71,6 +78,61 @@ def _fake_gh_json(secret_non_provider: str, validity_checks: str):
             return 0, {}
         if path == "repos/example/repo/dependabot/alerts?per_page=1":
             return 0, []
+        if path == "orgs/example/code-security/configurations/240284":
+            return 0, {
+                "id": 240284,
+                "secret_scanning": "enabled",
+                "secret_scanning_push_protection": "enabled",
+                "secret_scanning_non_provider_patterns": "enabled",
+                "secret_scanning_validity_checks": "enabled",
+            }
+        if path == "orgs/example/code-security/configurations/240284/repositories":
+            return 0, [{"status": "enforced", "repository": {"id": 123}}]
+        raise AssertionError(path)
+
+    return _impl
+
+
+def _fake_gh_json_without_org_enforcement(secret_non_provider: str, validity_checks: str):
+    def _impl(path: str) -> tuple[int, dict]:
+        if path == "repos/example/repo":
+            return (
+                0,
+                {
+                    "id": 123,
+                    "default_branch": "main",
+                    "security_and_analysis": {
+                        "secret_scanning": {"status": "enabled"},
+                        "secret_scanning_push_protection": {"status": "enabled"},
+                        "secret_scanning_non_provider_patterns": {"status": secret_non_provider},
+                        "secret_scanning_validity_checks": {"status": validity_checks},
+                    },
+                },
+            )
+        if path == "repos/example/repo/actions/permissions":
+            return 0, {"enabled": True, "allowed_actions": "all", "sha_pinning_required": True}
+        if path == "repos/example/repo/branches/main/protection":
+            return 0, {"required_status_checks": {"contexts": ["Quick Feedback"]}}
+        if path == "repos/example/repo/environments":
+            return 0, {"environments": [{"name": "owner-approved-sensitive"}]}
+        if path == "repos/example/repo/private-vulnerability-reporting":
+            return 0, {"enabled": True}
+        if path == "repos/example/repo/vulnerability-alerts":
+            return 0, {}
+        if path == "repos/example/repo/code-scanning/default-setup":
+            return 0, {}
+        if path == "repos/example/repo/dependabot/alerts?per_page=1":
+            return 0, []
+        if path == "orgs/example/code-security/configurations/240284":
+            return 0, {
+                "id": 240284,
+                "secret_scanning": "enabled",
+                "secret_scanning_push_protection": "enabled",
+                "secret_scanning_non_provider_patterns": "enabled",
+                "secret_scanning_validity_checks": "enabled",
+            }
+        if path == "orgs/example/code-security/configurations/240284/repositories":
+            return 0, []
         raise AssertionError(path)
 
     return _impl
@@ -83,7 +145,7 @@ def test_github_control_plane_requires_secret_scanning_subfeatures(tmp_path: Pat
     policy_path.write_text(json.dumps(_policy_payload(), ensure_ascii=False, indent=2), encoding="utf-8")
 
     monkeypatch.setattr(module, "ROOT", tmp_path)
-    monkeypatch.setattr(module, "_gh_json", _fake_gh_json("disabled", "disabled"))
+    monkeypatch.setattr(module, "_gh_json", _fake_gh_json_without_org_enforcement("disabled", "disabled"))
     monkeypatch.setattr(module, "_repo_path_exists", lambda _path: True)
     monkeypatch.setattr(sys, "argv", ["check_github_control_plane.py", "--policy", str(policy_path), "--output", str(output_path)])
 
@@ -110,3 +172,21 @@ def test_github_control_plane_accepts_enabled_secret_scanning_subfeatures(tmp_pa
     assert rc == 0
     assert report["errors"] == []
     assert report["security_and_analysis"]["secret_scanning_non_provider_patterns"]["status"] == "enabled"
+
+
+def test_github_control_plane_accepts_enforced_org_config_fallback(tmp_path: Path, monkeypatch) -> None:
+    module = _load_module()
+    policy_path = tmp_path / "policy.json"
+    output_path = tmp_path / "report.json"
+    policy_path.write_text(json.dumps(_policy_payload(), ensure_ascii=False, indent=2), encoding="utf-8")
+
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    monkeypatch.setattr(module, "_gh_json", _fake_gh_json("disabled", "disabled"))
+    monkeypatch.setattr(module, "_repo_path_exists", lambda _path: True)
+    monkeypatch.setattr(sys, "argv", ["check_github_control_plane.py", "--policy", str(policy_path), "--output", str(output_path)])
+
+    rc = module.main()
+    report = json.loads(output_path.read_text(encoding="utf-8"))
+    assert rc == 0
+    assert report["errors"] == []
+    assert report["org_code_security_configuration"]["id"] == 240284
