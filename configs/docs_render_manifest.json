@@ -40,7 +40,7 @@
         "configs/ci_governance_policy.json"
       ],
       "generator": "python3 scripts/render_docs.py",
-      "freshness_strategy": "timestamp",
+      "freshness_strategy": "existence_only",
       "authoritative_for": [
         "generated_ci_topology_summary"
       ],
@@ -53,7 +53,7 @@
         "scripts/render_docs.py"
       ],
       "generator": "python3 scripts/render_docs.py",
-      "freshness_strategy": "timestamp",
+      "freshness_strategy": "existence_only",
       "authoritative_for": [
         "generated_current_run_summary"
       ],
@@ -66,7 +66,7 @@
         "scripts/render_docs.py"
       ],
       "generator": "python3 scripts/render_docs.py",
-      "freshness_strategy": "timestamp",
+      "freshness_strategy": "existence_only",
       "authoritative_for": [
         "generated_coverage_summary"
       ],
