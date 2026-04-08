@@ -81,8 +81,7 @@ placeholder path:
 3. Keep the command on the truthful stdio path:
 
 ```bash
-PYTHONPATH=/absolute/path/to/CortexPilot/apps/orchestrator/src \
-python3 -m cortexpilot_orch.cli mcp-readonly-server
+bash /absolute/path/to/CortexPilot/scripts/run_readonly_mcp.sh
 ```
 
 The public MCP contract stays read-only. Queue preview/cancel and the guarded

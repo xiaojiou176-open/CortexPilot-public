@@ -27,10 +27,12 @@ The wrapper works in two truthful modes:
 2. If the bundle is installed somewhere else, set `CORTEXPILOT_REPO_ROOT` to
    the real clone path before you load the plugin.
 
-The wrapper always runs the real stdio server:
+The wrapper always runs the real stdio server through the repo-owned top-level wrapper:
 
 ```bash
-python3 -m cortexpilot_orch.cli mcp-readonly-server
+bash /absolute/path/to/CortexPilot/scripts/run_readonly_mcp.sh
 ```
 
-It never upgrades the public contract into hosted or write-capable MCP.
+Under the hood that wrapper still launches `python3 -m cortexpilot_orch.cli mcp-readonly-server`
+with the repo-local Python path exported first. It never upgrades the public
+contract into hosted or write-capable MCP.
