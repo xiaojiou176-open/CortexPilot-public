@@ -60,16 +60,13 @@ MCP / npm package release.
 
 ## Version And Release Truth
 
-- The only live GitHub release today is `v0.1.0-alpha.1`.
-- That release is the first public storefront baseline and should be read as
-  the first public release snapshot, not as a claim that every post-release
-  hardening commit is already re-tagged.
-- Current `main` is ahead of tag commit `7fbc491`, so repo-side distribution
-  hardening after that baseline lives on `main` until a later tag/release is
-  cut.
-- Until the next release is created, README, Pages, and docs must describe the
-  current release truth as "first public baseline release + current main is
-  ahead", not "release fully matches current main".
+- The latest live GitHub release is `v0.1.0-alpha.2`.
+- `v0.1.0-alpha.2` is the current published prerelease baseline and is meant to
+  match the current released `main` snapshot.
+- `v0.1.0-alpha.1` remains the historical first public baseline, not the latest
+  release truth.
+- If `main` moves again after this release, README, Pages, and docs must return
+  to explicit lag wording until the next tag is cut.
 
 ## Canonical MCP Truth
 
