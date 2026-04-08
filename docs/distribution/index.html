@@ -6,7 +6,7 @@
     <title>CortexPilot | Distribution status and release truth</title>
     <meta
       name="description"
-      content="Canonical distribution status for CortexPilot: what is shipped now, what stays starter-only or bundle-compatible, which packages are publish-ready but deferred, and what is still deferred."
+      content="Canonical distribution status for CortexPilot: shipped repo and Pages surfaces, the live read-only MCP package plus Official MCP Registry entry, the live ClawHub skill, review-pending external submissions, and the still-deferred hosted or write-capable layers."
     />
     <meta
       name="keywords"
@@ -224,23 +224,29 @@
           <strong>public repo + GitHub Pages front door + one release-proven <code>news_digest</code> proof loop + one read-only stdio MCP surface + starter/local bundle examples</strong>.
         </p>
         <p class="lede">
-          The current package layer is real, but it is split on purpose:
+          The current package and discovery layer is real:
+          <strong>cortexpilot-orchestrator</strong> is live on PyPI,
+          the <strong>Official MCP Registry</strong> entry is live,
+          and <strong>cortexpilot-adoption-router</strong> is live on ClawHub.
+          <strong>OpenHands/extensions</strong> and <strong>MCP.so</strong>
+          submissions are filed but still await external review or acceptance.
           <strong>@cortexpilot/frontend-api-client</strong> and
-          <strong>@cortexpilot/frontend-api-contract</strong> are
+          <strong>@cortexpilot/frontend-api-contract</strong> remain
           <strong>publish-ready but deferred</strong>, while
           <strong>@cortexpilot/frontend-shared</strong> remains a
           <strong>workspace-only presentation substrate</strong>.
-          Hosted operator service, write-capable MCP, Docker image distribution, and marketplace or registry submissions remain <strong>deferred</strong>.
+          Hosted operator service, write-capable MCP, Docker image distribution, and standalone npm releases remain <strong>deferred</strong>.
         </p>
         <p class="lede">
           This page is the public mirror of the root <a href="https://github.com/xiaojiou176-open/CortexPilot-public/blob/main/DISTRIBUTION.md"><code>DISTRIBUTION.md</code></a> contract.
           If this page and the root contract ever drift, the root contract wins and the drift should be fixed in the next change set.
         </p>
         <div class="pill-row">
-          <span class="pill">Shipped now: repo, Pages, first proven workflow, read-only MCP</span>
-          <span class="pill">Starter-only or bundle-compatible: Codex / Claude Code / OpenClaw config seeds and the local coding-agent bundle</span>
+          <span class="pill">Shipped now: repo, Pages, first proven workflow, read-only MCP, PyPI package, Official MCP Registry, ClawHub skill</span>
+          <span class="pill">Starter-only or bundle-compatible: Codex / Claude Code config seeds and the local coding-agent bundle</span>
+          <span class="pill">Submitted externally: OpenHands/extensions PR and MCP.so issue are filed but not accepted yet</span>
           <span class="pill">Publish-ready but deferred: frontend-api-client and frontend-api-contract; frontend-shared stays workspace-only</span>
-          <span class="pill">Deferred: Docker, hosted Render pilot, write-capable MCP, official listings</span>
+          <span class="pill">Deferred: Docker, hosted Render pilot, write-capable MCP, standalone npm releases</span>
         </div>
         <div class="actions">
           <a class="button primary" href="#distribution-matrix">Open the distribution matrix</a>
@@ -332,6 +338,22 @@
                 <td>Keep wrapper + manifest + starter files aligned; do not imply write-capable or hosted MCP.</td>
               </tr>
               <tr>
+                <td><strong>PyPI package</strong></td>
+                <td><span class="badge shipped">shipped</span></td>
+                <td><code>cortexpilot-orchestrator==0.1.0a4</code> is the published package for the public read-only MCP runtime.</td>
+                <td><a href="https://pypi.org/project/cortexpilot-orchestrator/0.1.0a4/">PyPI package</a></td>
+                <td>Package install only</td>
+                <td>Keep package README, entrypoints, and version markers aligned with registry truth.</td>
+              </tr>
+              <tr>
+                <td><strong>Official MCP Registry</strong></td>
+                <td><span class="badge shipped">shipped</span></td>
+                <td>The public registry entry for <code>io.github.xiaojiou176-open/cortexpilot-readonly</code> is live.</td>
+                <td><a href="https://registry.modelcontextprotocol.io/v0/servers?search=io.github.xiaojiou176-open/cortexpilot-readonly">Registry entry</a></td>
+                <td>Registry discovery, stdio package install</td>
+                <td>Keep <code>server.json</code>, PyPI metadata, and the MCP docs aligned.</td>
+              </tr>
+              <tr>
                 <td><strong>Codex starter</strong></td>
                 <td><span class="badge starter">starter-only</span></td>
                 <td>Local Codex-compatible MCP or bundle seed, not an official directory listing.</td>
@@ -350,7 +372,7 @@
               <tr>
                 <td><strong>OpenClaw starter</strong></td>
                 <td><span class="badge starter">starter-only</span></td>
-                <td>Bundle-compatible local path around OpenClaw, not a live ClawHub item.</td>
+                <td>Bundle-compatible local path around OpenClaw; the same adoption-router skill also has a live ClawHub publication.</td>
                 <td><a href="../agent-starters/">Agent starter kits</a></td>
                 <td>Local config, stdio MCP</td>
                 <td>Keep it on the adjacent integration side unless a mapped native publish path is shipped and tested.</td>
@@ -365,11 +387,35 @@
               </tr>
               <tr>
                 <td><strong>Repo-owned adoption-router skill</strong></td>
-                <td><span class="badge starter">publish-ready but deferred</span></td>
-                <td>Cross-tool skill artifact with <code>SKILL.md</code> plus <code>manifest.yaml</code> for Codex / Claude Code / OpenClaw-compatible installs.</td>
+                <td><span class="badge shipped">shipped</span></td>
+                <td>Cross-tool skill artifact with <code>SKILL.md</code> plus <code>manifest.yaml</code> for Codex / Claude Code / OpenClaw-compatible installs, also reused by the published ClawHub skill.</td>
                 <td><code>examples/coding-agents/plugin-bundles/cortexpilot-coding-agent-bundle/skills/cortexpilot-adoption-router/</code></td>
-                <td>Repo-owned skill contract, bundle-scoped today, no live registry listing</td>
-                <td>Keep the artifact honest: metadata and semver are present, but any official registry submission is still a later external action.</td>
+                <td>Repo-owned skill contract, local bundle plus external skill publication</td>
+                <td>Keep the repo bundle and the published skill receipts aligned.</td>
+              </tr>
+              <tr>
+                <td><strong>ClawHub skill</strong></td>
+                <td><span class="badge shipped">shipped</span></td>
+                <td><code>cortexpilot-adoption-router</code> is live on ClawHub.</td>
+                <td><a href="https://www.clawhub.ai/skills/cortexpilot-adoption-router">ClawHub listing</a></td>
+                <td>Skill registry, no hosted CortexPilot account, no write-capable MCP</td>
+                <td>Keep the skill copy aligned with the repo bundle and public boundary.</td>
+              </tr>
+              <tr>
+                <td><strong>OpenHands/extensions submission</strong></td>
+                <td><span class="badge starter">submitted externally</span></td>
+                <td>The public submission for the same adoption-router skill is filed and waiting on host review.</td>
+                <td><a href="https://github.com/OpenHands/extensions/pull/152">OpenHands/extensions#152</a></td>
+                <td>Host review flow, not live until merged</td>
+                <td>Track review without overclaiming a merged listing.</td>
+              </tr>
+              <tr>
+                <td><strong>MCP.so submission</strong></td>
+                <td><span class="badge starter">submitted externally</span></td>
+                <td>The directory submission for the public read-only MCP server is filed.</td>
+                <td><a href="https://github.com/chatmcp/mcpso/issues/1559">chatmcp/mcpso#1559</a></td>
+                <td>Directory intake flow, not live until accepted</td>
+                <td>Keep the issue body aligned with current package and registry truth.</td>
               </tr>
               <tr>
                 <td><strong>@cortexpilot/frontend-api-client</strong></td>
