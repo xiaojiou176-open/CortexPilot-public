@@ -33,8 +33,8 @@ importers:
         specifier: 1.2.4
         version: 1.2.4(@types/react@19.2.14)(react@19.2.4)
       axe-core:
-        specifier: 4.11.1
-        version: 4.11.1
+        specifier: 4.11.2
+        version: 4.11.2
       class-variance-authority:
         specifier: 0.7.1
         version: 0.7.1
@@ -96,6 +96,16 @@ importers:
       vitest:
         specifier: 4.0.18
         version: 4.0.18(@emnapi/core@1.9.2)(@emnapi/runtime@1.8.1)(@opentelemetry/api@1.9.0)(@types/node@25.2.0)(esbuild@0.27.2)(jsdom@29.0.1)
+
+  ../..: {}
+
+  ../../packages/frontend-api-client: {}
+
+  ../../packages/frontend-api-contract: {}
+
+  ../../packages/frontend-shared: {}
+
+  ../desktop: {}
 
 packages:
 
@@ -1214,8 +1224,8 @@ packages:
     resolution: {integrity: sha512-Xm7bpRXnDSX2YE2YFfBk2FnF0ep6tmG7xPh8iHee8MIcrgq762Nkce856dYtJYLkuIoYZvGfTs/PbZhideTcEg==}
     engines: {node: '>=4'}
 
-  axe-core@4.11.1:
-    resolution: {integrity: sha512-BASOg+YwO2C+346x3LZOeoovTIoTrRqEsqMa6fmfAV0P+U9mFr9NsyOEpiYvFjbc64NMrSswhV50WdXzdb/Z5A==}
+  axe-core@4.11.2:
+    resolution: {integrity: sha512-byD6KPdvo72y/wj2T/4zGEvvlis+PsZsn/yPS3pEO+sFpcrqRpX/TJCxvVaEsNeMrfQbCr7w163YqoD9IYwHXw==}
     engines: {node: '>=4'}
 
   axios@1.14.0:
@@ -2560,7 +2570,7 @@ snapshots:
 
   '@axe-core/webdriverjs@4.11.1(selenium-webdriver@4.22.0)':
     dependencies:
-      axe-core: 4.11.1
+      axe-core: 4.11.2
       selenium-webdriver: 4.22.0
 
   '@babel/code-frame@7.29.0':
@@ -2687,7 +2697,7 @@ snapshots:
 
   '@cortexpilot/frontend-api-client@file:../../packages/frontend-api-client':
     dependencies:
-      '@cortexpilot/frontend-api-contract': file:../../packages/frontend-api-contract
+      '@cortexpilot/frontend-api-contract': link:../../packages/frontend-api-contract
 
   '@cortexpilot/frontend-api-contract@file:../../packages/frontend-api-contract': {}
 
@@ -3622,7 +3632,7 @@ snapshots:
 
   axe-core@4.10.3: {}
 
-  axe-core@4.11.1: {}
+  axe-core@4.11.2: {}
 
   axios@1.14.0:
     dependencies:
@@ -4190,7 +4200,7 @@ snapshots:
     dependencies:
       '@paulirish/trace_engine': 0.0.61
       '@sentry/node': 9.47.1
-      axe-core: 4.11.1
+      axe-core: 4.11.2
       chrome-launcher: 1.2.1
       configstore: 7.1.0
       csp_evaluator: 1.1.5
