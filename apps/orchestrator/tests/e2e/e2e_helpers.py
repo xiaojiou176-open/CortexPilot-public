@@ -92,6 +92,11 @@ def _orchestrator_cli_cmd(repo_root: Path, *args: str) -> list[str]:
     ]
 
 
+def _repo_root_from_env(env: dict[str, str]) -> Path:
+    schema_root = Path(env["CORTEXPILOT_SCHEMA_ROOT"]).resolve()
+    return schema_root.parent
+
+
 def wait_for_http(url: str, timeout_s: int, proc: "ManagedProcess") -> None:
     deadline = time.monotonic() + timeout_s
     last_error: str | None = None
@@ -238,7 +243,7 @@ def start_ui(repo_root: Path, env: dict[str, str], api_port: int, log_path: Path
 def run_contract(repo: Path, env: dict[str, str], contract: dict[str, Any], tmp_path: Path) -> str:
     contract_path = tmp_path / "contract.json"
     contract_path.write_text(json.dumps(contract), encoding="utf-8")
-    run_cmd = _orchestrator_cli_cmd(repo_root, "run", str(contract_path), "--mock")
+    run_cmd = _orchestrator_cli_cmd(_repo_root_from_env(env), "run", str(contract_path), "--mock")
     result = subprocess.run(run_cmd, cwd=repo, env=env, capture_output=True, text=True)
     if result.returncode != 0:
         raise RuntimeError(result.stderr)
@@ -248,7 +253,7 @@ def run_contract(repo: Path, env: dict[str, str], contract: dict[str, Any], tmp_
 def run_chain(repo: Path, env: dict[str, str], chain: dict[str, Any], tmp_path: Path) -> dict[str, Any]:
     chain_path = tmp_path / "chain.json"
     chain_path.write_text(json.dumps(chain, ensure_ascii=False, indent=2), encoding="utf-8")
-    run_cmd = _orchestrator_cli_cmd(repo_root, "run-chain", str(chain_path), "--mock")
+    run_cmd = _orchestrator_cli_cmd(_repo_root_from_env(env), "run-chain", str(chain_path), "--mock")
     result = subprocess.run(run_cmd, cwd=repo, env=env, capture_output=True, text=True)
     if result.returncode != 0:
         raise RuntimeError(result.stderr)

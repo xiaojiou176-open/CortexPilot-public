@@ -39,8 +39,10 @@
     "render.yaml",
     "schemas",
     "scripts",
+    "server.json",
     "tests",
-    "tooling"
+    "tooling",
+    "public-skills"
   ],
   "local_allowed": [
     ".git",
