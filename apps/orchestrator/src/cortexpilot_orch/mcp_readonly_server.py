@@ -17,7 +17,7 @@ JSONRPC_VERSION = "2.0"
 SERVER_INFO = {
     "name": "cortexpilot-readonly",
     "title": "CortexPilot Read-only MCP",
-    "version": "0.1.0",
+    "version": "0.1.0a4",
 }
 
 
@@ -329,7 +329,7 @@ def build_readonly_tools(read_service: ControlPlaneReadService) -> list[Readonly
 
 class CortexPilotReadonlyMcpServer:
     def __init__(self, read_service: ControlPlaneReadService | None = None) -> None:
-        self._read_service = read_service or ControlPlaneReadService.from_api_main()
+        self._read_service = read_service or ControlPlaneReadService.from_runtime()
         self._tools = build_readonly_tools(self._read_service)
         self._tool_map = {tool.name: tool for tool in self._tools}
 

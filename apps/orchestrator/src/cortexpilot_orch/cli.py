@@ -513,5 +513,13 @@ def mcp_queue_pilot_server() -> None:
     serve_queue_pilot_mcp()
 
 
-if __name__ == "__main__":
+def main() -> None:
     app()
+
+
+def mcp_readonly_main() -> None:
+    serve_readonly_mcp()
+
+
+if __name__ == "__main__":
+    main()

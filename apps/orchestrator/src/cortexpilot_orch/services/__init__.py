@@ -1,5 +1,12 @@
-from cortexpilot_orch.services.orchestration_service import OrchestrationService
-from cortexpilot_orch.services.rollback_service import RollbackService
-from cortexpilot_orch.services.session_index_service import SessionIndexService
+"""Service package exports for CortexPilot.
 
-__all__ = ["RollbackService", "OrchestrationService", "SessionIndexService"]
+Keep this module import-light so read-only surfaces can import targeted service
+modules without pulling the full orchestration runtime into package import side
+effects.
+"""
+
+__all__ = [
+    "OrchestrationService",
+    "RollbackService",
+    "SessionIndexService",
+]

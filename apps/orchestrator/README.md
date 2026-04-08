@@ -1,4 +1,5 @@
 # Orchestrator Module
+<!-- mcp-name: io.github.xiaojiou176-open/cortexpilot-readonly -->
 
 `apps/orchestrator/` is the backend core of CortexPilot.
 
