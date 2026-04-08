@@ -59,7 +59,7 @@ If Discussions are disabled again in the future:
 
 Recommended release title:
 
-> CortexPilot v0.1.0-alpha.1 - public storefront baseline
+> CortexPilot v0.1.0-alpha.1 - first public prerelease baseline
 
 Draft notes source:
 
@@ -68,6 +68,13 @@ Draft notes source:
 Live release:
 
 - `https://github.com/xiaojiou176-open/CortexPilot-public/releases/tag/v0.1.0-alpha.1`
+
+Truth note:
+
+- treat `v0.1.0-alpha.1` as the latest published public baseline, not as an
+  automatic claim that current `main` is already re-tagged
+- if current `main` has moved ahead, keep `README.md` and `DISTRIBUTION.md`
+  explicit about that lag until the next release is cut
 
 ## 6. Pages / Landing
 
