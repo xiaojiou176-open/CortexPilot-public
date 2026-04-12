@@ -197,6 +197,10 @@ describe("desktop p0 misc controls", () => {
     const runs = render(<RunsPage onNavigateToRun={runNav} />);
     expect(await screen.findByRole("heading", { name: /Proof & Replay/ })).toBeInTheDocument();
     expect(screen.getByText(/proof desk|Run 证据、对比姿态和重放决策/i)).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Run" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: /Operator posture|操作者姿态/ })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: /Proof posture|Proof 姿态/ })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: /Next operator action|下一步/ })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Refresh" }));
     await waitFor(() => expect(fetchRuns).toHaveBeenCalled());
     runs.unmount();

@@ -176,7 +176,11 @@ export default function WorkflowQueueMutationControls({
         <Button
           variant={compact ? "default" : "secondary"}
           onClick={() => void handleRunNextQueue()}
-          disabled={(busyAction !== "" && busyAction !== "run-next") || (disableRunNextWhenEmpty && queueCount === 0)}
+          disabled={
+            !hasMutationRole
+            || (busyAction !== "" && busyAction !== "run-next")
+            || (disableRunNextWhenEmpty && queueCount === 0)
+          }
         >
           {busyAction === "run-next" ? workflowDetailCopy.runningTask : workflowDetailCopy.runNextQueuedTask}
         </Button>

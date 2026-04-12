@@ -124,4 +124,16 @@ describe("workflows queue page", () => {
     });
     expect(await screen.findByText("Started queued work as run run-queued-1. Refreshing the workflow view...")).toBeInTheDocument();
   });
+
+  it("keeps run-next disabled when no operator role and no eligible queue work exist", async () => {
+    vi.mocked(fetchWorkflows).mockResolvedValue([] as never);
+    vi.mocked(fetchQueue).mockResolvedValue([] as never);
+    vi.mocked(mutationExecutionCapability).mockReturnValue({ executable: false, operatorRole: null } as never);
+
+    const view = await WorkflowsPage();
+    render(view);
+
+    expect(screen.getByRole("button", { name: "Run next queued task" })).toBeDisabled();
+    expect(screen.getByText(/has not published an operator role yet|当前环境还没有发布可执行的操作角色/)).toBeInTheDocument();
+  });
 });

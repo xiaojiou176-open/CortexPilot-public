@@ -274,7 +274,7 @@ export function CommandTowerPage({
       return;
     }
     const { protocol, hostname, port } = window.location;
-    const webPort = port === "1420" ? "3000" : port;
+    const webPort = port === "1420" ? "3100" : port;
     const webUrl = `${protocol}//${hostname}${webPort ? `:${webPort}` : ""}/command-tower`;
     window.open(webUrl, "_blank", "noopener,noreferrer");
     setActionFeedback("Opened the web deep-analysis view.");

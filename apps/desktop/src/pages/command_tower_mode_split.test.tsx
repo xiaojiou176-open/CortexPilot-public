@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppSidebar } from "../components/layout/AppSidebar";
@@ -109,6 +110,34 @@ describe("desktop command tower mode split", () => {
     expect(screen.getAllByText("Full refresh succeeded").length).toBeGreaterThan(0);
     expect(screen.queryByRole("checkbox", { name: "active" })).not.toBeInTheDocument();
     expect(screen.queryByRole("complementary", { name: "Command Tower context drawer" })).not.toBeInTheDocument();
+  });
+
+  it("opens the web deep-analysis handoff on the converged 3100 dashboard port", async () => {
+    const originalLocation = window.location;
+    const originalOpen = window.open;
+    window.open = vi.fn();
+    Object.defineProperty(window, "location", {
+      value: { ...originalLocation, protocol: "http:", hostname: "localhost", port: "1420" },
+      configurable: true,
+    });
+
+    try {
+      const user = userEvent.setup();
+      render(<CommandTowerPage />);
+      await screen.findByText("pm-1");
+      await user.click(screen.getByRole("button", { name: "Open web deep analysis" }));
+      expect(window.open).toHaveBeenCalledWith(
+        "http://localhost:3100/command-tower",
+        "_blank",
+        "noopener,noreferrer",
+      );
+    } finally {
+      window.open = originalOpen;
+      Object.defineProperty(window, "location", {
+        value: originalLocation,
+        configurable: true,
+      });
+    }
   });
 
   it("supports keyboard activation for session rows with Space key", async () => {
