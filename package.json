@@ -107,7 +107,7 @@
     "ci:strict:host": "CORTEXPILOT_HOST_COMPAT=1 bash scripts/ci.sh",
     "ci:nightly:full": "bash scripts/ci_nightly_full.sh",
     "dashboard:install": "bash scripts/run_workspace_app.sh dashboard typecheck",
-    "dashboard:dev": "bash scripts/run_workspace_app.sh dashboard dev",
+    "dashboard:dev": "PORT=${CORTEXPILOT_DASHBOARD_PORT:-3100} bash scripts/run_workspace_app.sh dashboard dev",
     "dashboard:test": "bash scripts/run_workspace_app.sh dashboard test",
     "dashboard:test:target": "bash scripts/run_workspace_app.sh dashboard test:target --",
     "dashboard:test:ct-regression": "bash scripts/run_workspace_app.sh dashboard test:ct-regression",

@@ -76,7 +76,8 @@ paths:
 
 | I want to... | Run this first | What I get |
 | --- | --- | --- |
-| see the operator surface quickly | `npm run bootstrap:host && npm run dashboard:dev` | the PM surface, Command Tower, and run visibility in one local product loop |
+| see the full operator surface quickly | `npm run bootstrap:host && npm run dev` | the localhost orchestrator API plus dashboard in one local product loop |
+| iterate on the dashboard only | `npm run bootstrap:host && npm run dashboard:dev` | the dashboard shell on port 3100; use this when the API is already running |
 | validate the smallest governed path | `CORTEXPILOT_HOST_COMPAT=1 bash scripts/test_quick.sh --no-related` | the quickest repo-side proof path without pretending the full system already ran |
 | inspect what the system records | open the run list and `.runtime-cache/` after the quick path | a concrete evidence bundle and replay surface, not just a shell success line |
 
@@ -152,17 +153,26 @@ manual:
    CORTEXPILOT_HOST_COMPAT=1 bash scripts/test_quick.sh --no-related
    ```
 
-3. Open the web operator surface:
+3. Open the full local product loop:
 
    ```bash
-   npm run dashboard:dev
+   npm run dev
    ```
+
+   This path starts a localhost-only API lane together with the dashboard so the browser can exercise PM, Command Tower, Workflow Cases, and Runs without sending a public bearer token from the client.
 
 What you should see:
 
 - create a task from the PM surface
 - watch status move in Command Tower
 - confirm the Workflow Case state, then inspect runs, reports, and evidence from the run list
+
+If you only need the dashboard shell while the API is already running in another
+terminal, use:
+
+```bash
+npm run dashboard:dev
+```
 
 If you want the full reproducible containerized setup instead of the shortest
 host path, use:
@@ -560,6 +570,7 @@ Recent operator-surface upgrades now include:
 Useful additional entrypoints:
 
 ```bash
+npm run dev
 npm run space:audit
 npm run space:gate:wave1
 npm run space:gate:wave2
@@ -568,6 +579,10 @@ npm run dashboard:dev
 npm run desktop:up
 npm run truth:triage
 ```
+
+Use `npm run dev` when you want the orchestrator API and dashboard together.
+Keep `npm run dashboard:dev` for dashboard-only iteration after the API is
+already running.
 
 ## Generated Governance Context
 

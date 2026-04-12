@@ -1,4 +1,7 @@
+import { cookies } from "next/headers";
 import Link from "next/link";
+import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@cortexpilot/frontend-shared/uiLocale";
 
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
@@ -15,7 +18,18 @@ function queryValue(value: string | string[] | undefined): string {
   return Array.isArray(value) ? String(value[0] || "").trim() : String(value || "").trim();
 }
 
+async function resolveDashboardLocale() {
+  try {
+    const cookieStore = await cookies();
+    return normalizeUiLocale(cookieStore.get(UI_LOCALE_STORAGE_KEY)?.value);
+  } catch {
+    return normalizeUiLocale(undefined);
+  }
+}
+
 export default async function RunsPage({ searchParams }: RunsPageProps) {
+  const locale = await resolveDashboardLocale();
+  const runsPageCopy = getUiCopy(locale).dashboard.runsPage;
   const params = searchParams ? await searchParams : {};
   const statusFilter = queryValue(params.status).toUpperCase();
   const { data: runs, warning } = await safeLoad(fetchRuns, [], "Run records");
@@ -28,57 +42,64 @@ export default async function RunsPage({ searchParams }: RunsPageProps) {
   const running = Math.max(runs.length - failed - success, 0);
   const failureRate = runs.length > 0 ? failed / runs.length : 0;
   const highFailureMode = failed > 0 && failureRate >= 0.5;
-  const distributionHeadline = highFailureMode ? `Failed ${failed}` : `Succeeded ${success}`;
+  const distributionHeadline = highFailureMode
+    ? runsPageCopy.failureHeadline(failed)
+    : runsPageCopy.successHeadline(success);
   const distributionClass = highFailureMode
     ? "metric-value--danger"
     : failed > 0
       ? "metric-value--warning"
       : "metric-value--success";
   const distributionSubline = highFailureMode
-    ? `Failure-first · Succeeded ${success} · Running ${running}`
-    : `Success-first · Running ${running} · Failed ${failed}`;
-  const governanceHeadline = failed > 0 ? `Failed runs to triage: ${failed}` : "No failed runs in triage";
+    ? runsPageCopy.failureSubline(success, running)
+    : runsPageCopy.successSubline(running, failed);
+  const governanceHeadline = failed > 0
+    ? runsPageCopy.operatorPriorityHeadline(failed)
+    : runsPageCopy.operatorPriorityClearHeadline;
   const governanceCtaHref = failed > 0 ? "/runs?status=FAILED" : "/pm";
-  const governanceCtaLabel = failed > 0 ? "Open failed-run triage" : "Create new task";
+  const governanceCtaLabel = failed > 0
+    ? runsPageCopy.operatorPrimaryActionFailed
+    : runsPageCopy.operatorPrimaryActionClear;
   const governanceSubline = failed > 0
-    ? "Global entry: filter failed runs and handle them from one queue."
-    : "Failed runs are at 0. Continue monitoring new runs.";
+    ? runsPageCopy.operatorPrioritySubline
+    : runsPageCopy.operatorPriorityClearSubline;
   return (
     <main className="grid" aria-labelledby="runs-page-title">
       <header className="app-section">
         <div className="section-header">
           <div>
-            <h1 id="runs-page-title" className="page-title">Runs</h1>
-            <p className="page-subtitle">Audit run batches, owners, and failure clues from one operator queue.</p>
+            <h1 id="runs-page-title" className="page-title">{runsPageCopy.title}</h1>
+            <p className="page-subtitle">{runsPageCopy.subtitle}</p>
           </div>
-          <Badge>{runs.length} runs</Badge>
+          <Badge>{runsPageCopy.countsBadge(runs.length)}</Badge>
         </div>
       </header>
       <section className="app-section" aria-label="Run list">
         {warning ? (
           <Card variant="compact" role="status" aria-live="polite">
-            <p className="ct-home-empty-text">Run list data is degraded. Showing the current available result set.</p>
+            <p className="ct-home-empty-text">{runsPageCopy.warningTitle}</p>
+            <p className="mono muted">{runsPageCopy.warningNextStep}</p>
             <p className="mono muted">{warning}</p>
           </Card>
         ) : null}
         <div className="stats-grid">
           <Card asChild variant="metric">
             <article>
-              <p className="metric-label">Run inventory</p>
+              <p className="metric-label">{runsPageCopy.metricLabels.runInventory}</p>
               <p className="metric-value metric-value--primary">{runs.length}</p>
-              <p className="cell-sub mono muted">Total runs currently visible to the dashboard</p>
+              <p className="cell-sub mono muted">{runsPageCopy.inventorySubline}</p>
             </article>
           </Card>
           <Card asChild variant="metric">
             <article>
-              <p className="metric-label">Status distribution</p>
+              <p className="metric-label">{runsPageCopy.metricLabels.replayPosture}</p>
               <p className={`metric-value ${distributionClass}`}>{distributionHeadline}</p>
               <p className="cell-sub mono muted">{distributionSubline}</p>
             </article>
           </Card>
           <Card asChild variant="metric">
             <article>
-              <p className="metric-label">Failed-run triage</p>
+              <p className="metric-label">{runsPageCopy.metricLabels.operatorPriority}</p>
               <p className={`metric-value ${failed > 0 ? "metric-value--warning" : "metric-value--success"}`}>{governanceHeadline}</p>
               <p className="cell-sub mono muted">{governanceSubline}</p>
               <div className="inline-stack">
@@ -87,33 +108,33 @@ export default async function RunsPage({ searchParams }: RunsPageProps) {
                 </Button>
                 {failed > 0 ? (
                   <Button asChild variant="ghost">
-                    <Link href="/events">View failed events</Link>
+                    <Link href="/events">{runsPageCopy.operatorSecondaryAction}</Link>
                   </Button>
                 ) : null}
               </div>
             </article>
           </Card>
         </div>
-        <div className="toolbar toolbar--mt" role="group" aria-label="Run status filter">
+        <div className="toolbar toolbar--mt" role="group" aria-label={runsPageCopy.filterAriaLabel}>
           <Button asChild variant={statusFilter === "" ? "default" : "ghost"}>
-            <Link href="/runs">All</Link>
+            <Link href="/runs">{runsPageCopy.filters.all}</Link>
           </Button>
           <Button asChild variant={statusFilter === "FAILED" ? "warning" : "ghost"}>
-            <Link href="/runs?status=FAILED">Failed</Link>
+            <Link href="/runs?status=FAILED">{runsPageCopy.filters.failed}</Link>
           </Button>
           <Button asChild variant={statusFilter === "RUNNING" ? "secondary" : "ghost"}>
-            <Link href="/runs?status=RUNNING">Running</Link>
+            <Link href="/runs?status=RUNNING">{runsPageCopy.filters.running}</Link>
           </Button>
           <Button asChild variant={statusFilter === "SUCCESS" ? "secondary" : "ghost"}>
-            <Link href="/runs?status=SUCCESS">Succeeded</Link>
+            <Link href="/runs?status=SUCCESS">{runsPageCopy.filters.success}</Link>
           </Button>
         </div>
         {runs.length > visibleRuns.length ? (
           <p className="mono muted" role="status">
-            The first screen is capped at the latest {visibleRuns.length} runs for quick triage.
+            {runsPageCopy.firstScreenLimit(visibleRuns.length)}
           </p>
         ) : null}
-        <RunList runs={visibleRuns} />
+        <RunList runs={visibleRuns} locale={locale} />
       </section>
     </main>
   );

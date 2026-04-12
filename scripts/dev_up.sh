@@ -10,7 +10,7 @@ PYTHON_BIN="${CORTEXPILOT_PYTHON:-}"
 HOST="$(cortexpilot_env_get CORTEXPILOT_DEV_HOST "127.0.0.1")"
 API_PORT="$(cortexpilot_env_get CORTEXPILOT_API_PORT "10000")"
 DASHBOARD_PORT="$(cortexpilot_env_get CORTEXPILOT_DASHBOARD_PORT "3100")"
-API_AUTH_REQUIRED="$(cortexpilot_env_normalize_bool "$(cortexpilot_env_get CORTEXPILOT_API_AUTH_REQUIRED "true")")"
+API_AUTH_REQUIRED="$(cortexpilot_env_normalize_bool "$(cortexpilot_env_get CORTEXPILOT_API_AUTH_REQUIRED "false")")"
 DEV_API_TOKEN="$(cortexpilot_env_get CORTEXPILOT_API_TOKEN "cortexpilot-dev-token")"
 
 PID_DIR="$ROOT_DIR/.runtime-cache/cortexpilot/temp"
@@ -127,6 +127,7 @@ trap cleanup EXIT INT TERM
 
 echo "✅ API started (pid=$API_PID), log: $API_LOG_FILE"
 echo "🌐 starting Dashboard: http://$HOST:$DASHBOARD_PORT"
+echo "ℹ️ local full-stack dev uses a localhost-only API lane; browser bearer auth stays disabled unless you explicitly set CORTEXPILOT_API_AUTH_REQUIRED=true"
 
 if ! command -v pnpm >/dev/null 2>&1; then
   echo "❌ pnpm not found. Install pnpm and retry."

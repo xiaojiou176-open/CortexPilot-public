@@ -1,3 +1,6 @@
+import { cookies } from "next/headers";
+import { getUiCopy } from "@cortexpilot/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@cortexpilot/frontend-shared/uiLocale";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardHeader } from "../../components/ui/card";
@@ -20,11 +23,22 @@ function summarizeToolPermissions(value: unknown): string[] {
 
 const DEFAULT_CONTRACT_LIMIT = 10;
 
+async function resolveDashboardLocale() {
+  try {
+    const cookieStore = await cookies();
+    return normalizeUiLocale(cookieStore.get(UI_LOCALE_STORAGE_KEY)?.value);
+  } catch {
+    return normalizeUiLocale(undefined);
+  }
+}
+
 export default async function ContractsPage({
   searchParams,
 }: {
   searchParams?: Promise<{ q?: string; limit?: string }>;
 }) {
+  const locale = await resolveDashboardLocale();
+  const contractsPageCopy = getUiCopy(locale).dashboard.contractsPage;
   const { data: contracts, warning } = await safeLoad(fetchContracts, [] as ContractRecord[], "Contract list");
   const resolvedSearchParams = (await searchParams) || {};
   const query = String(resolvedSearchParams.q || "").trim().toLowerCase();
@@ -44,34 +58,40 @@ export default async function ContractsPage({
       <header className="app-section">
         <div className="section-header">
           <div>
-            <h1 id="contracts-page-title" className="page-title">Contracts</h1>
-            <p className="page-subtitle">Inspect task-contract envelopes, derived bundle/runtime projections, and raw artifact detail in one read-only surface.</p>
+            <h1 id="contracts-page-title" className="page-title">{contractsPageCopy.title}</h1>
+            <p className="page-subtitle">{contractsPageCopy.subtitle}</p>
           </div>
-          <Badge>{contracts.length} contracts</Badge>
+          <Badge>{contractsPageCopy.countsBadge(contracts.length)}</Badge>
         </div>
       </header>
       <section className="app-section" aria-label="Contract list">
         <Card>
           <form className="toolbar" method="get">
             <label className="diff-gate-filter-field">
-              <span className="muted">Search</span>
-              <Input type="search" name="q" defaultValue={query} placeholder="Filter by task_id / run_id / path" />
+              <span className="muted">{contractsPageCopy.searchLabel}</span>
+              <Input type="search" name="q" defaultValue={query} placeholder={contractsPageCopy.searchPlaceholder} />
             </label>
             <input type="hidden" name="limit" value={String(limit)} />
-            <Button type="submit" variant="secondary" disabled={!canApplyFilter}>Apply filter</Button>
+            <Button type="submit" variant="secondary" disabled={!canApplyFilter}>{contractsPageCopy.applyFilter}</Button>
           </form>
-          <p className="mono muted">Showing {visibleContracts.length} / {filteredContracts.length} contracts. Default first-page limit: {DEFAULT_CONTRACT_LIMIT}.</p>
+          <p className="mono muted">
+            {contractsPageCopy.filterSummary(visibleContracts.length, filteredContracts.length, DEFAULT_CONTRACT_LIMIT)}
+          </p>
         </Card>
         {warning ? (
           <Card asChild variant="unstyled">
-            <p className="alert alert-warning" role="status">{warning}</p>
+            <div className="alert alert-warning" role="status">
+              <p>{contractsPageCopy.warningTitle}</p>
+              <p className="mono">{contractsPageCopy.warningNextStep}</p>
+              <p className="mono">{warning}</p>
+            </div>
           </Card>
         ) : null}
         {filteredContracts.length === 0 ? (
           <Card>
             <div className="empty-state-stack">
-              <span className="muted">No contracts yet</span>
-              <span className="mono muted">Contracts are generated automatically when work is assigned.</span>
+              <span className="muted">{contractsPageCopy.emptyTitle}</span>
+              <span className="mono muted">{contractsPageCopy.emptyHint}</span>
             </div>
           </Card>
         ) : (
@@ -87,65 +107,81 @@ export default async function ContractsPage({
               return (
                 <Card key={key} variant="detail">
                   <CardHeader>
-                    <span className="card-header-title">{contract.path || contract.task_id || "Contract"}</span>
-                    <Badge>{contract.source || "unknown"}</Badge>
+                    <span className="card-header-title">
+                      {contract.path || contract.task_id || contractsPageCopy.fallbackValues.unknownContract}
+                    </span>
+                    <Badge>{contract.source || contractsPageCopy.fallbackValues.unknownSource}</Badge>
                   </CardHeader>
                   <CardContent>
                     <div className="data-list">
                       {contract.task_id ? (
                         <div className="data-list-row">
-                          <span className="data-list-label">Task ID</span>
+                          <span className="data-list-label">{contractsPageCopy.fieldLabels.taskId}</span>
                           <span className="data-list-value mono">{contract.task_id}</span>
                         </div>
                       ) : null}
                       {contract.run_id ? (
                         <div className="data-list-row">
-                          <span className="data-list-label">Run ID</span>
+                          <span className="data-list-label">{contractsPageCopy.fieldLabels.runId}</span>
                           <span className="data-list-value mono">{contract.run_id}</span>
                         </div>
                       ) : null}
                       <div className="data-list-row">
-                        <span className="data-list-label">Assigned role</span>
-                        <span className="data-list-value">{contract.assigned_role || "Not assigned"}</span>
-                      </div>
-                      <div className="data-list-row">
-                        <span className="data-list-label">Execution authority</span>
+                        <span className="data-list-label">{contractsPageCopy.fieldLabels.assignedRole}</span>
                         <span className="data-list-value">
-                          {contract.execution_authority ? <Badge variant="running">{contract.execution_authority}</Badge> : <span className="muted">Not published</span>}
+                          {contract.assigned_role || contractsPageCopy.fallbackValues.notAssigned}
                         </span>
                       </div>
                       <div className="data-list-row">
-                        <span className="data-list-label">Skills bundle</span>
+                        <span className="data-list-label">{contractsPageCopy.fieldLabels.executionAuthority}</span>
+                        <span className="data-list-value">
+                          {contract.execution_authority ? (
+                            <Badge variant="running">{contract.execution_authority}</Badge>
+                          ) : (
+                            <span className="muted">{contractsPageCopy.fallbackValues.notPublished}</span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="data-list-row">
+                        <span className="data-list-label">{contractsPageCopy.fieldLabels.skillsBundle}</span>
                         <span className="data-list-value mono muted">
-                          {roleBinding ? formatBindingReadModelLabel(roleBinding.skills_bundle_ref) : "Not derived"}
+                          {roleBinding
+                            ? formatBindingReadModelLabel(roleBinding.skills_bundle_ref)
+                            : contractsPageCopy.fallbackValues.notDerived}
                         </span>
                       </div>
                       <div className="data-list-row">
-                        <span className="data-list-label">MCP bundle</span>
+                        <span className="data-list-label">{contractsPageCopy.fieldLabels.mcpBundle}</span>
                         <span className="data-list-value mono muted">
-                          {roleBinding ? formatBindingReadModelLabel(roleBinding.mcp_bundle_ref) : "Not derived"}
+                          {roleBinding
+                            ? formatBindingReadModelLabel(roleBinding.mcp_bundle_ref)
+                            : contractsPageCopy.fallbackValues.notDerived}
                         </span>
                       </div>
                       <div className="data-list-row">
-                        <span className="data-list-label">Runtime binding</span>
+                        <span className="data-list-label">{contractsPageCopy.fieldLabels.runtimeBinding}</span>
                         <span className="data-list-value mono muted">
-                          {roleBinding ? formatRoleBindingRuntimeSummary(roleBinding) : "Not derived"}
+                          {roleBinding
+                            ? formatRoleBindingRuntimeSummary(roleBinding)
+                            : contractsPageCopy.fallbackValues.notDerived}
                         </span>
                       </div>
                       <div className="data-list-row">
-                        <span className="data-list-label">Runtime capability</span>
+                        <span className="data-list-label">{contractsPageCopy.fieldLabels.runtimeCapability}</span>
                         <span className="data-list-value mono muted">
-                          {roleBinding?.runtime_binding?.capability?.lane || "Not derived"}
+                          {roleBinding?.runtime_binding?.capability?.lane || contractsPageCopy.fallbackValues.notDerived}
                         </span>
                       </div>
                       <div className="data-list-row">
-                        <span className="data-list-label">Tool execution</span>
+                        <span className="data-list-label">{contractsPageCopy.fieldLabels.toolExecution}</span>
                         <span className="data-list-value mono muted">
-                          {roleBinding ? formatRoleBindingRuntimeCapabilitySummary(roleBinding) : "Not derived"}
+                          {roleBinding
+                            ? formatRoleBindingRuntimeCapabilitySummary(roleBinding)
+                            : contractsPageCopy.fallbackValues.notDerived}
                         </span>
                       </div>
                       <div className="data-list-row">
-                        <span className="data-list-label">Allowed paths</span>
+                        <span className="data-list-label">{contractsPageCopy.fieldLabels.allowedPaths}</span>
                         <span className="data-list-value">
                           {allowedPaths.length > 0 ? (
                             <span className="chip-list">
@@ -154,12 +190,12 @@ export default async function ContractsPage({
                               ))}
                             </span>
                           ) : (
-                            <span className="muted">Unrestricted</span>
+                            <span className="muted">{contractsPageCopy.fallbackValues.unrestricted}</span>
                           )}
                         </span>
                       </div>
                       <div className="data-list-row">
-                        <span className="data-list-label">Acceptance tests</span>
+                        <span className="data-list-label">{contractsPageCopy.fieldLabels.acceptanceTests}</span>
                         <span className="data-list-value">
                           {acceptanceTests.length > 0 ? (
                             <span className="chip-list">
@@ -168,12 +204,12 @@ export default async function ContractsPage({
                               ))}
                             </span>
                           ) : (
-                            <span className="muted">None</span>
+                            <span className="muted">{contractsPageCopy.fallbackValues.noAcceptanceTests}</span>
                           )}
                         </span>
                       </div>
                       <div className="data-list-row">
-                        <span className="data-list-label">Tool permissions</span>
+                        <span className="data-list-label">{contractsPageCopy.fieldLabels.toolPermissions}</span>
                         <span className="data-list-value">
                           {permissionSummary.length > 0 ? (
                             <span className="chip-list">
@@ -182,14 +218,14 @@ export default async function ContractsPage({
                               ))}
                             </span>
                           ) : (
-                            <span className="muted">Default</span>
+                            <span className="muted">{contractsPageCopy.fallbackValues.defaultPermissions}</span>
                           )}
                         </span>
                       </div>
                     </div>
                   </CardContent>
                   <details className="collapsible">
-                    <summary>Full contract JSON</summary>
+                    <summary>{contractsPageCopy.fullJsonSummary}</summary>
                     <div className="collapsible-body">
                       <pre className="mono">{JSON.stringify(payload || { raw_preview: contract.raw_preview }, null, 2)}</pre>
                     </div>
@@ -201,10 +237,12 @@ export default async function ContractsPage({
         )}
         {filteredContracts.length > limit ? (
           <Card>
-            <p className="mono muted">{filteredContracts.length - limit} more contracts are hidden.</p>
+            <p className="mono muted">{contractsPageCopy.moreHidden(filteredContracts.length - limit)}</p>
             <div className="toolbar mt-2">
               <Button asChild variant="secondary">
-                <a href={`/contracts?${new URLSearchParams({ q: query, limit: String(filteredContracts.length) }).toString()}`}>Show all</a>
+                <a href={`/contracts?${new URLSearchParams({ q: query, limit: String(filteredContracts.length) }).toString()}`}>
+                  {contractsPageCopy.showAll}
+                </a>
               </Button>
             </div>
           </Card>
