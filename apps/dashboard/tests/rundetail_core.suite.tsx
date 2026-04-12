@@ -215,7 +215,21 @@ describe("RunDetail core flows", () => {
         ],
       },
     };
-    const fetchMock = mockFetchFactory({ events: [], reports: [], availableRuns: [] });
+    const fetchMock = mockFetchFactory({
+      events: [],
+      reports: [],
+      availableRuns: [],
+      planningContracts: [
+        {
+          prompt_contract_id: "worker-1",
+          done_definition: { acceptance_checks: ["repo_hygiene", "test_report"] },
+          continuation_policy: {
+            on_incomplete: "reply_auditor_reprompt_and_continue_same_session",
+            on_blocked: "spawn_independent_temporary_unblock_task",
+          },
+        },
+      ],
+    });
     // @ts-expect-error test override
     global.fetch = fetchMock;
 
@@ -232,6 +246,12 @@ describe("RunDetail core flows", () => {
     expect(screen.getByText("Runtime binding: agents / cliproxyapi / gpt-5.4")).toBeInTheDocument();
     expect(screen.getByText("Runtime capability: standard-provider-path")).toBeInTheDocument();
     expect(screen.getByText("Tool execution: standard-provider-path / provider-path-required")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Worker prompt contracts: 1")).toBeInTheDocument();
+    });
+    expect(screen.getByText("On incomplete: reply_auditor_reprompt_and_continue_same_session")).toBeInTheDocument();
+    expect(screen.getByText("On blocked: spawn_independent_temporary_unblock_task")).toBeInTheDocument();
+    expect(screen.getByText("DoD checks: repo_hygiene / test_report")).toBeInTheDocument();
     expect(screen.getByText("Lifecycle artifacts: Prompt artifact / Wave plan / Worker prompt contracts")).toBeInTheDocument();
     expect(
       screen.getByText(

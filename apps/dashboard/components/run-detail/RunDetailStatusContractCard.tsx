@@ -38,6 +38,8 @@ type RunDetailStatusContractCardProps = {
   pendingApprovals: EventRecord[];
   evidenceHashes: Record<string, unknown>;
   manifestArtifacts: unknown[];
+  planningContracts: Array<Record<string, unknown>>;
+  planningContractsError: string;
   onOpenLogs: () => void;
   onOpenReports: () => void;
   failedTerminalActionFeedback: string;
@@ -64,6 +66,8 @@ export default function RunDetailStatusContractCard({
   pendingApprovals,
   evidenceHashes,
   manifestArtifacts,
+  planningContracts,
+  planningContractsError,
   onOpenLogs,
   onOpenReports,
   failedTerminalActionFeedback,
@@ -94,6 +98,29 @@ export default function RunDetailStatusContractCard({
       ? "Worker prompt contracts"
       : "",
   ].filter(Boolean);
+  const continuationOnIncomplete = Array.from(
+    new Set(
+      planningContracts
+        .map((contract) => toDisplayText(toObject(contract.continuation_policy).on_incomplete))
+        .filter((value) => value !== "-"),
+    ),
+  );
+  const continuationOnBlocked = Array.from(
+    new Set(
+      planningContracts
+        .map((contract) => toDisplayText(toObject(contract.continuation_policy).on_blocked))
+        .filter((value) => value !== "-"),
+    ),
+  );
+  const doneChecks = Array.from(
+    new Set(
+      planningContracts.flatMap((contract) =>
+        toArray(toObject(contract.done_definition).acceptance_checks as unknown[] | null | undefined)
+          .map((value) => toDisplayText(value))
+          .filter((value) => value !== "-"),
+      ),
+    ),
+  );
   const roleBindingReadModel = run.role_binding_read_model;
 
   return (
@@ -236,6 +263,28 @@ export default function RunDetailStatusContractCard({
           <div className="mono muted">
             {bindingReadModelCopy.readOnlyNote}
           </div>
+        </div>
+      ) : null}
+      {planningContracts.length > 0 || planningContractsError ? (
+        <div className="run-detail-section" data-testid="run-completion-governance-summary">
+          <div className="mono run-detail-section-label">Completion governance</div>
+          <div className="mono">Worker prompt contracts: {planningContracts.length}</div>
+          {continuationOnIncomplete.length > 0 ? (
+            <div className="mono">On incomplete: {continuationOnIncomplete.join(" / ")}</div>
+          ) : null}
+          {continuationOnBlocked.length > 0 ? (
+            <div className="mono">On blocked: {continuationOnBlocked.join(" / ")}</div>
+          ) : null}
+          {doneChecks.length > 0 ? (
+            <div className="mono">DoD checks: {doneChecks.join(" / ")}</div>
+          ) : null}
+          {planningContractsError ? (
+            <div className="mono muted">{planningContractsError}</div>
+          ) : (
+            <div className="mono muted">
+              Derived from persisted worker prompt contracts. These summaries stay advisory; task_contract still owns execution authority.
+            </div>
+          )}
         </div>
       ) : null}
       <div className="mono">Manifest artifacts:</div>

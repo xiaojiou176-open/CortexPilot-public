@@ -5,6 +5,7 @@ import EventTimeline from "./EventTimeline";
 import { Card } from "./ui/card";
 import {
   fetchAgentStatus,
+  fetchArtifact,
   fetchChainSpec,
   fetchEvents,
   fetchReports,
@@ -78,6 +79,8 @@ export default function RunDetail({
   const [toolCalls, setToolCalls] = useState<ToolCallRecord[]>([]);
   const [toolCallsError, setToolCallsError] = useState("");
   const [toolCallsLoading, setToolCallsLoading] = useState(false);
+  const [planningContracts, setPlanningContracts] = useState<Array<Record<string, unknown>>>([]);
+  const [planningContractsError, setPlanningContractsError] = useState("");
   const [chainSpecError, setChainSpecError] = useState("");
   const [chainSpecLoading, setChainSpecLoading] = useState(false);
   const [liveEnabled, setLiveEnabled] = useState(true);
@@ -130,6 +133,12 @@ export default function RunDetail({
   const schemaVersion = toStringOr(run?.manifest?.versions?.contracts_schema, "v1");
   const evidenceHashes = toObject(run?.manifest?.evidence_hashes);
   const manifestArtifacts = toArray(run?.manifest?.artifacts as unknown[] | undefined);
+  const hasPlanningContractsArtifact = manifestArtifacts.some((item) => {
+    const record = toObject(item);
+    const name = toStringOr(record.name, "");
+    const path = toStringOr(record.path, "");
+    return name === "planning_worker_prompt_contracts" || path === "artifacts/planning_worker_prompt_contracts.json";
+  });
   const observability = toObject(run?.manifest?.observability);
   const summaryGroups = ["reports/", "events.jsonl", "contract.json", "other"];
   const summary = summaryGroups.map((group) => {
@@ -231,6 +240,41 @@ export default function RunDetail({
       alive = false;
     };
   }, [run?.run_id]);
+
+  useEffect(() => {
+    let alive = true;
+    async function loadPlanningContracts() {
+      if (!run?.run_id || !hasPlanningContractsArtifact) {
+        if (alive) {
+          setPlanningContracts([]);
+          setPlanningContractsError("");
+        }
+        return;
+      }
+      try {
+        const artifact = await fetchArtifact(run.run_id, "planning_worker_prompt_contracts.json");
+        const rows = Array.isArray(artifact?.data) ? artifact.data : [];
+        if (alive) {
+          setPlanningContracts(
+            rows
+              .map((item) => (item && typeof item === "object" && !Array.isArray(item) ? (item as Record<string, unknown>) : null))
+              .filter((item): item is Record<string, unknown> => item !== null),
+          );
+          setPlanningContractsError("");
+        }
+      } catch (err: unknown) {
+        if (alive) {
+          setPlanningContracts([]);
+          console.error(`[run-detail] load planning contracts failed: ${uiErrorDetail(err)}`);
+          setPlanningContractsError(sanitizeUiError(err, "Planning governance unavailable"));
+        }
+      }
+    }
+    void loadPlanningContracts();
+    return () => {
+      alive = false;
+    };
+  }, [hasPlanningContractsArtifact, run?.run_id]);
 
   useEffect(() => {
     let alive = true;
@@ -445,6 +489,8 @@ export default function RunDetail({
           pendingApprovals={pendingApprovals}
           evidenceHashes={evidenceHashes}
           manifestArtifacts={manifestArtifacts}
+          planningContracts={planningContracts}
+          planningContractsError={planningContractsError}
           onOpenLogs={() => handleFailedTerminalAction("logs")}
           onOpenReports={() => handleFailedTerminalAction("reports")}
           failedTerminalActionFeedback={failedTerminalActionFeedback}
