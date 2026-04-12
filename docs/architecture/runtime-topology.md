@@ -21,6 +21,16 @@ flowchart LR
 
 ## Notes
 - API layer should stay protocol-focused and delegate orchestration to services.
+- CortexPilot's current control-layer model is hybrid: L0 is a persisted
+  command-tower state plus an active brain/session when a decision must be
+  made, rather than a promise that one forever-open chat window never degrades.
+- Default execution posture is long-running. Explicit `Context Pack` handoff is
+  a fallback for pressure, contamination, role-switch, phase-switch,
+  repetition, or distortion signals; it is not the steady-state loop.
+- Wake strategy is event-driven first, with low-frequency polling fallback
+  layered underneath when events are delayed or unavailable.
+- The repo-owned machine-readable summary of these rules now lives at
+  `policies/control_plane_runtime_policy.json`.
 - Current state: write-side run mutations in API (`evidence promote` / `reject` / `god-mode approve`) are routed through `OrchestrationService` first, with legacy fallback kept for test doubles and backward compatibility.
 - PM intake preview now emits an advisory `execution_plan_report` before a run
   starts; it is a read-only planning surface for contract/gate/output
@@ -44,6 +54,10 @@ flowchart LR
 - Pack registry truth lives under `contracts/packs/`; dashboard and desktop
   intake surfaces consume that metadata, while runtime execution keeps the real
   output truth under run bundles.
+- Intake preview now also derives `wave_plan` and `worker_prompt_contracts`
+  alongside `plan_bundle`, `task_chain`, and `contract_preview`, so operator
+  planning surfaces can speak in canon planner language without changing
+  execution authority.
 - Queue truth currently lives in `.runtime-cache/cortexpilot/queue.jsonl`; API
   and workflow surfaces read that queue state and derive `eligible` /
   `sla_state` instead of storing a second scheduler database.

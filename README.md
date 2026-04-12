@@ -1,11 +1,10 @@
 # CortexPilot
 
-One request. One command tower. One proof pack you can inspect before you
-trust the run.
+The command tower for AI engineering.
 
-CortexPilot gives Codex / Claude Code teams one governed operator path from the
-PM request to the Workflow Case to Proof & Replay instead of scattered agents,
-local scripts, and after-the-fact logs.
+Stop babysitting AI coding work. CortexPilot helps teams plan, delegate, track,
+resume, and prove long-running engineering work across Codex and Claude Code
+instead of juggling scattered chats, local scripts, and after-the-fact logs.
 
 CortexPilot is a contract-first multi-agent orchestration repository.
 
@@ -15,8 +14,8 @@ The public story is intentionally narrower than the full monorepo:
 - **Choose the right adoption path second**
 - **Open MCP / API / builder / skills surfaces only after the real job is clear**
 
-Current public boundary: CortexPilot is a repo-backed operator control plane,
-not a hosted product, and the shipped MCP surface remains **read-only**.
+Current public boundary: CortexPilot is a repo-backed AI engineering command
+tower, not a hosted product, and the shipped MCP surface remains **read-only**.
 
 Current lane order is deliberate:
 
@@ -105,12 +104,26 @@ Most agent demos stop at "the model replied." CortexPilot is built for the next
 question: **can we inspect what happened, review what changed, classify the
 workflow case, and rerun it without guessing?**
 
+The deeper product claim is straightforward:
+
+- **Plan** the next move instead of improvising one more prompt.
+- **Delegate** scoped work without losing the case record.
+- **Track** live progress and queue posture from one command tower.
+- **Resume** long-running work when humans step away or sessions degrade.
+- **Prove** what happened with evidence, compare, replay, and approvals.
+
+The engineering philosophy underneath that loop is equally explicit:
+
+- **Prompt Engineering**: write the right worker brief, scope, constraints, and deliverables.
+- **Context Engineering**: keep the right material in the right head, and treat explicit handoff as a fallback rather than the default loop.
+- **Harness Engineering**: move work through contracts, runtime bindings, approvals, and proof surfaces so the system can keep operating safely.
+
 This repository combines:
 
-- **Command Tower**: one operator surface for governed AI work, live run visibility, and queue posture
+- **Command Tower**: one operator surface for governed AI work, live run visibility, queue posture, and L0-style oversight
 - **Workflow Cases**: one stable operating record that ties request, verdict, proof, and linked runs together
 - **Proof & Replay**: one place to inspect evidence bundles, compare reruns, and replay failures before promotion
-- **Operator surfaces**: a web dashboard plus a macOS desktop shell for the same control plane
+- **Control surfaces**: a web dashboard plus a macOS desktop shell for the same command tower
 - **Read-only inspection surfaces**: repo-local MCP, API, and contract read models that expose truth without turning mirrors into execution authority
 - **Governed boundaries**: fail-closed gates for CI, host safety, repo hygiene, and public-proof honesty
 

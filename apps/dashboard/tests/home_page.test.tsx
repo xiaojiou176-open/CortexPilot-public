@@ -58,10 +58,14 @@ describe("dashboard home run-summary clarity", () => {
   it("renders first-run CTA and onboarding guidance when no runs", async () => {
     render(await Home());
 
-    expect(screen.getByRole("heading", { name: "Command Tower for Codex and Claude Code workflows" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "The command tower for AI engineering" })).toBeInTheDocument();
     expect(
-      screen.getByText(/See one proven workflow first, then choose the right adoption path\./)
+      screen.getByText(/Stop babysitting AI coding work\./)
     ).toBeInTheDocument();
+    expect(screen.getByText("Three engineering layers behind the command tower")).toBeInTheDocument();
+    expect(screen.getByText("Prompt Engineering")).toBeInTheDocument();
+    expect(screen.getByText("Context Engineering")).toBeInTheDocument();
+    expect(screen.getByText("Harness Engineering")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start first task" })).toHaveAttribute("href", "/pm");
     expect(screen.getAllByRole("link", { name: /Workflow Cases/ })[0]).toHaveAttribute("href", "/workflows");
 
@@ -222,7 +226,7 @@ describe("dashboard home run-summary clarity", () => {
 
     render(await Home());
 
-    expect(screen.getByRole("heading", { name: "面向 Codex 和 Claude Code 工作流的指挥塔" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "AI 工程的指挥塔" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "启动首个任务" })).toHaveAttribute("href", "/pm");
     expect(screen.getByText("选择正确的采用路径")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "打开 AI + MCP + API 页面" })).toHaveAttribute(
@@ -412,8 +416,8 @@ describe("dashboard home run-summary clarity", () => {
   });
 
   it("renders the public shell with English-first layout metadata and chrome copy", () => {
-    expect(metadata.title).toBe("CortexPilot | AI Work Command Tower for Codex, Claude Code, and MCP");
-    expect(metadata.description).toContain("Model Context Protocol (MCP)-readable proof and replay");
+    expect(metadata.title).toBe("CortexPilot | The command tower for AI engineering");
+    expect(metadata.description).toContain("Stop babysitting AI coding work.");
 
     render(
       <DashboardShellChrome>
@@ -423,8 +427,8 @@ describe("dashboard home run-summary clarity", () => {
 
     expect(screen.getByRole("link", { name: "Skip to dashboard content" })).toHaveAttribute("href", "#dashboard-content");
     expect(screen.getAllByLabelText("Dashboard navigation").length).toBeGreaterThan(0);
-    expect(screen.getByText("Command Tower · Workflow Cases · Proof & Replay")).toBeInTheDocument();
-    expect(screen.getByText("Operator control plane")).toBeInTheDocument();
+    expect(screen.getByText("Plan · Delegate · Track · Resume · Prove")).toBeInTheDocument();
+    expect(screen.getByText("AI engineering command tower")).toBeInTheDocument();
     expect(screen.getByLabelText("Platform status overview")).toBeInTheDocument();
     expect(screen.getByText("Governance view")).toBeInTheDocument();
     expect(screen.getByText("Live verification required")).toBeInTheDocument();

@@ -216,12 +216,14 @@ def list_policies(
     load_command_allowlist_fn: Callable[[], dict],
     load_forbidden_actions_fn: Callable[[], dict],
     load_tool_registry_fn: Callable[[], dict],
+    load_control_plane_runtime_policy_fn: Callable[[], dict],
 ) -> dict:
     return {
         "agent_registry": load_agent_registry_fn(),
         "command_allowlist": load_command_allowlist_fn(),
         "forbidden_actions": load_forbidden_actions_fn(),
         "tool_registry": load_tool_registry_fn(),
+        "control_plane_runtime_policy": load_control_plane_runtime_policy_fn(),
     }
 
 

@@ -439,6 +439,7 @@ def test_api_agents_policies_locks_worktrees(tmp_path: Path, monkeypatch) -> Non
     policies = client.get("/api/policies")
     assert policies.status_code == 200
     assert policies.json()["agent_registry"]["version"] == "v1"
+    assert policies.json()["control_plane_runtime_policy"]["version"] == "v1"
 
     locks = client.get("/api/locks")
     assert locks.status_code == 200

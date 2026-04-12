@@ -1,5 +1,11 @@
 # Schema Changelog
 
+## 2026-04-12
+- Added `control_plane_runtime_policy.v1.json` to formalize L0 command-tower runtime rules.
+- Added `wave_plan.v1.json` and `worker_prompt_contract.v1.json` for planner preview artifacts.
+- Added `context_pack.v1.json` and `harness_request.v1.json` to reserve first-class schema homes for explicit handoff and harness-evolution contracts.
+- Extended `execution_plan_report.v1.json` with `wave_plan` and `worker_prompt_contracts`.
+
 ## 2026-02-04
 - Added `schema_registry.json` with SHA256 and size metadata for all v1 schemas.
 - Snapshot for current v1 schema set.

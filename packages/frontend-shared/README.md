@@ -1,7 +1,7 @@
 # Frontend Shared
 
 Shared frontend-only presentation helpers and types for the dashboard and
-desktop operator surfaces.
+desktop command-tower surfaces.
 
 Current package boundary: this package remains a repo-owned presentation
 substrate and is not treated as a standalone distribution unit today. The
@@ -63,6 +63,6 @@ native surfaces first:
 
 This package then stays in its narrower role:
 
-- shared UI copy, locale, and status presentation for CortexPilot surfaces
+- shared UI copy, locale, and status presentation for CortexPilot command-tower surfaces
 - repo-owned presentation reuse across dashboard, desktop, and future web
 - not a native plugin for Codex, Claude Code, or OpenClaw

@@ -6,6 +6,11 @@ Machine-readable schemas for contracts, events, and policy validation.
 
 - `orchestrator_event.v1.json` — canonical event schema emitted by orchestrator runtime.
 - `execution_plan_report.v1.json` — advisory intake-preview report used before execution starts.
+- `control_plane_runtime_policy.v1.json` — machine-readable command-tower runtime constitution for L0/L1/L2, wake policy, completion governance, and harness boundaries.
+- `wave_plan.v1.json` — wave-level orchestration preview artifact derived from intake planning.
+- `worker_prompt_contract.v1.json` — worker-scoped planner artifact for scope, reading list, continuation, and verification rules.
+- `context_pack.v1.json` — explicit fallback handoff contract for context-pressure and role-switch situations.
+- `harness_request.v1.json` — capability-evolution request contract for session-local/project-local/global harness changes.
 - `approval_pack.v1.json` / `incident_pack.v1.json` / `run_compare_report.v1.json` — derived operator-readable decision packs for approval, failure triage, and replay compare surfaces.
 - `proof_pack.v1.json` — derived success-pack for public task slices that completed with reusable proof artifacts.
 - `task_pack_manifest.v1.json` — source-owned manifest schema for registry-driven task packs under `contracts/packs/`, including `input_fields` and evidence hints.

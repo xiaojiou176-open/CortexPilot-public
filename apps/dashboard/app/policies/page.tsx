@@ -4,6 +4,11 @@ import { fetchPolicies } from "../../lib/api";
 import { safeLoad } from "../../lib/serverPageData";
 
 const SECTIONS = [
+  {
+    title: "Control-plane runtime policy",
+    key: "control_plane_runtime_policy",
+    desc: "L0 command-tower rules for session lifecycle, wake policy, completion governance, and harness evolution",
+  },
   { title: "Agent registry", key: "agent_registry", desc: "Registered agent roles and permission mappings" },
   { title: "Command allowlist", key: "command_allowlist", desc: "System commands that operators may execute" },
   { title: "Forbidden actions", key: "forbidden_actions", desc: "Globally blocked high-risk actions" },

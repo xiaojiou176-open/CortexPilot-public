@@ -226,7 +226,7 @@ describe("command tower ui surfaces", () => {
 
     expect(screen.getByRole("navigation", { name: "控制台导航" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "指挥塔" })).toBeInTheDocument();
-    expect(screen.getByText(/低频工具\s*11/)).toBeInTheDocument();
+    expect(screen.getByText(/低频工具\s*8/)).toBeInTheDocument();
   });
 
   it("keeps command tower page copy aligned across locales", () => {

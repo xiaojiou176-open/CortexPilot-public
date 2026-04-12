@@ -173,6 +173,15 @@
     "task_chain": {
       "type": "object"
     },
+    "wave_plan": {
+      "type": "object"
+    },
+    "worker_prompt_contracts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
     "role_contract_summary": {
       "type": "object",
       "additionalProperties": false,

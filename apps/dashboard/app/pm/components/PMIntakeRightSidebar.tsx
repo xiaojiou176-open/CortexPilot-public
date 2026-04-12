@@ -115,6 +115,29 @@ function summarizeCapabilityTriggers(report: ExecutionPlanReport): string[] {
   return triggers;
 }
 
+function summarizeWorkerPromptContracts(report: ExecutionPlanReport): Array<{
+  id: string;
+  role: string;
+  scope: string;
+  verification: string;
+}> {
+  const rawContracts = Array.isArray(report.worker_prompt_contracts) ? report.worker_prompt_contracts : [];
+  return rawContracts
+    .filter((item) => typeof item === "object" && item !== null && !Array.isArray(item))
+    .map((item) => {
+      const record = item as Record<string, unknown>;
+      const verificationRaw = Array.isArray(record.verification_requirements)
+        ? record.verification_requirements.map((entry) => String(entry || "").trim()).filter(Boolean)
+        : [];
+      return {
+        id: String(record.prompt_contract_id || "-").trim() || "-",
+        role: String((record.assigned_agent as Record<string, unknown> | undefined)?.role || "-").trim() || "-",
+        scope: String(record.scope || "-").trim() || "-",
+        verification: verificationRaw.length > 0 ? verificationRaw.join(", ") : "-",
+      };
+    });
+}
+
 export default function PMIntakeRightSidebar(props: Props) {
   const {
     pmJourneyContext,
@@ -281,6 +304,10 @@ export default function PMIntakeRightSidebar(props: Props) {
   const flightPlanPredictedReports = executionPlanPreview ? compactList(executionPlanPreview.predicted_reports) : "-";
   const flightPlanPredictedArtifacts = executionPlanPreview ? compactList(executionPlanPreview.predicted_artifacts) : "-";
   const flightPlanAcceptanceChecks = executionPlanPreview ? summarizeAcceptanceChecks(executionPlanPreview) : "-";
+  const workerPromptContracts = executionPlanPreview ? summarizeWorkerPromptContracts(executionPlanPreview) : [];
+  const wavePlan = executionPlanPreview && typeof executionPlanPreview.wave_plan === "object" && executionPlanPreview.wave_plan
+    ? (executionPlanPreview.wave_plan as Record<string, unknown>)
+    : null;
 
   return (
     <aside className="pm-claude-right" aria-label="Context sidebar">
@@ -569,6 +596,30 @@ export default function PMIntakeRightSidebar(props: Props) {
                 <ul className="pm-question-list">
                   {executionPlanPreview.warnings.map((warning, index) => (
                     <li key={`${warning}-${index}`}>{warning}</li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+            {wavePlan ? (
+              <>
+                <strong>Wave plan snapshot</strong>
+                <ul className="pm-question-list">
+                  <li>Wave ID: {String(wavePlan.wave_id || "-")}</li>
+                  <li>Execution mode: {String(wavePlan.execution_mode || "-")}</li>
+                  <li>Workers in this wave: {String(wavePlan.worker_count || "-")}</li>
+                  <li>Wake policy ref: {String(wavePlan.wake_policy_ref || "-")}</li>
+                  <li>Completion policy ref: {String(wavePlan.completion_policy_ref || "-")}</li>
+                </ul>
+              </>
+            ) : null}
+            {workerPromptContracts.length > 0 ? (
+              <>
+                <strong>Worker prompt contracts</strong>
+                <ul className="pm-question-list">
+                  {workerPromptContracts.map((item) => (
+                    <li key={item.id}>
+                      <span className="mono">{item.id}</span> · {item.role} · {item.scope} · verify via {item.verification}
+                    </li>
                   ))}
                 </ul>
               </>

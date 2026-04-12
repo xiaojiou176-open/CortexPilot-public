@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/context_pack.v1.json",
+  "title": "ContextPack",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "pack_id",
+    "role_scope",
+    "source_session_id",
+    "source_role",
+    "trigger_reason",
+    "global_state_summary",
+    "actor_handoff_summary",
+    "required_reads",
+    "optional_reads",
+    "conversation_exports",
+    "artifact_refs"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "pack_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "role_scope": {
+      "type": "string",
+      "enum": [
+        "L0",
+        "L1",
+        "L2"
+      ]
+    },
+    "source_session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_role": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trigger_reason": {
+      "type": "string",
+      "enum": [
+        "context_pressure",
+        "contamination",
+        "role_switch",
+        "phase_switch",
+        "repetition",
+        "distortion"
+      ]
+    },
+    "global_state_summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actor_handoff_summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "required_reads": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "optional_reads": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "conversation_exports": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "artifact_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

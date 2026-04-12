@@ -337,6 +337,21 @@ describe("pm intake right sidebar component branches", () => {
             predicted_reports: ["task_result.json", "review_report.json"],
             predicted_artifacts: ["queue.jsonl", "patch.diff"],
             requires_human_approval: true,
+            wave_plan: {
+              wave_id: "bundle-preview-1",
+              execution_mode: "long_running",
+              worker_count: 1,
+              wake_policy_ref: "policies/control_plane_runtime_policy.json#/wake_policy",
+              completion_policy_ref: "policies/control_plane_runtime_policy.json#/wave_completion_policy",
+            },
+            worker_prompt_contracts: [
+              {
+                prompt_contract_id: "worker-prompt-1",
+                assigned_agent: { role: "WORKER", agent_id: "agent-1" },
+                scope: "Queue the latest workflow case run",
+                verification_requirements: ["repo_hygiene"],
+              },
+            ],
             contract_preview: {
               assigned_agent: { role: "WORKER", agent_id: "agent-1" },
               owner_agent: { role: "TECH_LEAD", agent_id: "agent-2" },
@@ -355,6 +370,10 @@ describe("pm intake right sidebar component branches", () => {
     expect(screen.getByText(/Capability triggers: Search \(1 query\), Manual approval/)).toBeInTheDocument();
     expect(screen.getByText("Operator notes")).toBeInTheDocument();
     expect(screen.getByText("Risk gates")).toBeInTheDocument();
+    expect(screen.getByText("Wave plan snapshot")).toBeInTheDocument();
+    expect(screen.getByText(/Wave ID: bundle-preview-1/)).toBeInTheDocument();
+    expect(screen.getByText("Worker prompt contracts")).toBeInTheDocument();
+    expect(screen.getByText(/worker-prompt-1/)).toBeInTheDocument();
     expect(screen.getByText("Contract preview excerpts")).toBeInTheDocument();
     expect(screen.getByText("Advanced planning payloads")).toBeInTheDocument();
   });

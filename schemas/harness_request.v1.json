@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/harness_request.v1.json",
+  "title": "HarnessRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "request_id",
+    "scope",
+    "requested_by",
+    "reason",
+    "requested_capabilities",
+    "risk_level",
+    "approval_required",
+    "rollback_plan",
+    "validation_plan"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "request_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "session-local",
+        "project-local",
+        "global"
+      ]
+    },
+    "requested_by": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "agent_id"
+      ],
+      "properties": {
+        "role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agent_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requested_capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "skills",
+        "mcp_servers",
+        "permission_changes",
+        "runtime_bindings"
+      ],
+      "properties": {
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "mcp_servers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "permission_changes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "runtime_bindings": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "approval_required": {
+      "type": "boolean"
+    },
+    "rollback_plan": {
+      "type": "string",
+      "minLength": 1
+    },
+    "validation_plan": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

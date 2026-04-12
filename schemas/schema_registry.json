@@ -57,13 +57,21 @@
       "sha256": "87d8b17cb2bcb33b070656b6ef73646f6dc779edcae4b8dc38e2d417c736acf6",
       "bytes": 392
     },
+    "control_plane_runtime_policy.v1.json": {
+      "sha256": "8396495f1c463834a690e981e8a2d17d19ce8e7534c7668e0fccfa15f2d31759",
+      "bytes": 10326
+    },
+    "context_pack.v1.json": {
+      "sha256": "8a45ef1e9f30e56aac57510e1875d6b43f4b320762e288adb2925787b3a1585c",
+      "bytes": 1842
+    },
     "execution_plan_report.schema.json": {
-      "sha256": "f1f807b43d9548ee70e2810539b6ea5ee5b383fb667cbb45477e34e383dc2081",
-      "bytes": 5969
+      "sha256": "211a6d5310adea65ddedb4bc61de4542879772f33b92d40335ad1cbb748c6afb",
+      "bytes": 7414
     },
     "execution_plan_report.v1.json": {
-      "sha256": "69c7107b9bd8db56f46f9938490b86272c27e27a56e19e58ae2ba2810956b58f",
-      "bytes": 5965
+      "sha256": "0c9d6ed72669bcf56fa59a5c2be832f71dd3615e854e0e6a4f6ff72e26d3de8f",
+      "bytes": 7410
     },
     "flight_plan_copilot_brief.v1.json": {
       "sha256": "555cdae186c13823ccbb716552ec023020eddea4babf3f0f07abfca8a149fab3",
@@ -72,6 +80,10 @@
     "handoff.v1.json": {
       "sha256": "2067d6f8e4bca98d4483ff936bbb2a62ff341a7721ddab95c343a6d9976b3493",
       "bytes": 474
+    },
+    "harness_request.v1.json": {
+      "sha256": "890d9ad29299bbca4f955573caa255d5662fd469bbda2f05bbd9f0d90ca20db0",
+      "bytes": 2355
     },
     "incident_pack.schema.json": {
       "sha256": "c61e6f3656be741f0b4447cc5dde1ba92e455b1175039260e3fe7f469f1d08cc",
@@ -272,6 +284,14 @@
     "workflow_case.v1.json": {
       "sha256": "7f4ecc19868e6862127a20681f68d609e76d1147771edc6d28d65ec1a53981f6",
       "bytes": 1119
+    },
+    "wave_plan.v1.json": {
+      "sha256": "2ed9c6ccaea9319aa1ad11bc580b7a7fc1ebeb1f1c316359fdbd9edc636b0458",
+      "bytes": 2528
+    },
+    "worker_prompt_contract.v1.json": {
+      "sha256": "6b8a4331f0903f265e565b5a634238a5525972360d6c00501891b7e109b02bec",
+      "bytes": 4056
     }
   }
 }

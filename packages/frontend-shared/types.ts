@@ -227,6 +227,8 @@ export type ExecutionPlanReport = {
   plan?: JsonValue;
   plan_bundle?: JsonValue;
   task_chain?: JsonValue;
+  wave_plan?: JsonValue;
+  worker_prompt_contracts?: JsonValue[];
   contract_preview: RunContract;
 };
 

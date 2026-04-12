@@ -4,9 +4,9 @@ import WebVitalsBridge from "../components/WebVitalsBridge";
 import "./globals.css";
 
 export const metadata = {
-  title: "CortexPilot | AI Work Command Tower for Codex, Claude Code, and MCP",
+  title: "CortexPilot | The command tower for AI engineering",
   description:
-    "Operate Codex and Claude Code workflows through one AI Work Command Tower with Workflow Cases, Model Context Protocol (MCP)-readable proof and replay, public first-run cases, and one governed operator path.",
+    "Stop babysitting AI coding work. CortexPilot plans, delegates, tracks, resumes, and proves long-running engineering work across Codex and Claude Code with Workflow Cases, read-only MCP truth, and replayable proof.",
 };
 
 export const dynamic = "force-dynamic";

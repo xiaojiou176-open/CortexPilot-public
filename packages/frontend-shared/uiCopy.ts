@@ -839,35 +839,35 @@ export type UiCopy = {
 const UI_COPY: Record<UiLocale, UiCopy> = {
   en: {
     brandTitle: "CortexPilot",
-    brandSubtitle: "Command Tower · Workflow Cases · Proof & Replay",
+    brandSubtitle: "Plan · Delegate · Track · Resume · Prove",
     dashboard: {
       homePhase2: {
-        heroTitle: "Command Tower for Codex and Claude Code workflows",
+        heroTitle: "The command tower for AI engineering",
         heroSubtitle:
-          "See one proven workflow first, then choose the right adoption path. CortexPilot keeps Codex and Claude Code work, evidence, and replay on one governed operator path instead of scattered local scripts and logs.",
+          "Stop babysitting AI coding work. CortexPilot plans, delegates, tracks, resumes, and proves long-running engineering work across Codex and Claude Code while keeping one governed operator path, one case record, and one proof trail.",
         startFirstTaskLabel: "Start first task",
         startNewTaskLabel: "Start new task",
         viewLatestRunsLabel: "View latest runs",
         investigateHighRiskFailuresLabel: "Investigate high-risk failures",
         handleLatestFailureLabel: "Handle latest failure",
-        productSpineTitle: "Product spine",
+        productSpineTitle: "Plan, delegate, track, resume, and prove",
         productSpineDescription:
-          "Keep the first screen aligned around the three product words: Command Tower, Workflow Cases, and Proof & Replay.",
+          "The first screen should explain the operator loop, then anchor it on the three truth surfaces that keep the loop honest: Command Tower, Workflow Cases, and Proof & Replay.",
         productSpineCards: [
           {
             href: "/command-tower",
             title: "Command Tower",
-            desc: "Watch governed AI agents and MCP-driven work move through one operator surface.",
+            desc: "Track live work, queue posture, and high-risk drift from one command tower instead of babysitting scattered sessions.",
           },
           {
             href: "/workflows",
             title: "Workflow Cases",
-            desc: "Track the case record that ties request, queue, verdict, proof, and linked runs together.",
+            desc: "Delegate and resume through one durable case record that ties request, queue, verdict, proof, and linked runs together.",
           },
           {
             href: "/runs",
             title: "Proof & Replay",
-            desc: "Inspect evidence bundles, compare reruns, and replay failures before you trust the result.",
+            desc: "Prove what happened with evidence bundles, rerun comparison, and replay before you trust the result.",
           },
         ],
         publicTemplatesTitle: "One proven workflow, two showcase expansions",
@@ -907,24 +907,24 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
             fields: ["url", "focus"],
           },
         ],
-        publicAdvantagesTitle: "Why the first run is credible",
+        publicAdvantagesTitle: "Three engineering layers behind the command tower",
         publicAdvantagesDescription:
-          "Prompt 5 keeps the public story anchored on proof, replay, read-only MCP access, and explainable operator review instead of generic AI claims.",
+          "CortexPilot is not just one more prompt wrapper. It turns prompt, context, and harness decisions into explicit product surfaces so long-running work keeps moving when humans step away.",
         publicAdvantageCards: [
           {
-            href: "/runs",
-            title: "Proof before promotion",
-            desc: "Every first-run case still lands on evidence, compare, and replay before you trust the output.",
-          },
-          {
-            href: "/runs",
-            title: "AI operator brief",
-            desc: "Run Detail and Run Compare now explain what changed, why it matters, and the next operator step.",
+            href: "/pm",
+            title: "Prompt Engineering",
+            desc: "Write the right worker brief, scope, guardrails, and deliverables instead of throwing one more giant prompt at a model.",
           },
           {
             href: "/workflows",
-            title: "Share-ready Workflow Cases",
-            desc: "Workflow Cases are now moving toward reusable assets instead of staying trapped as one-off detail pages.",
+            title: "Context Engineering",
+            desc: "Keep the right material in the right head: case truth, role bindings, queue posture, and handoff context stay structured instead of rotting inside one window.",
+          },
+          {
+            href: "/contracts",
+            title: "Harness Engineering",
+            desc: "Move work through contracts, approvals, runtime bindings, and proof surfaces so the system can continue safely instead of hoping the model behaves.",
           },
         ],
         ecosystemTitle: "Works with today's coding-agent ecosystem",
@@ -1100,7 +1100,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       },
       skipToMainContent: "Skip to dashboard content",
       navigationAriaLabel: "Dashboard navigation",
-      topbarTitle: "Operator control plane",
+      topbarTitle: "AI engineering command tower",
       platformStatusAriaLabel: "Platform status overview",
       lowFrequencyToolsLabel: "Low-frequency tools",
       localeToggleAriaLabel: "Switch to Chinese",
@@ -1447,8 +1447,8 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         verdictPrefix: "verdict",
         queueSummary: (count: number, slaState: string) => `queue: ${count} / SLA ${slaState}`,
       },
-      sectionPrimary: "Primary",
-      sectionAdvanced: "Advanced",
+      sectionPrimary: "Core loop",
+      sectionAdvanced: "Inspectors",
       labels: {
         overview: "Overview",
         pmIntake: "PM intake",
@@ -1469,8 +1469,8 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       },
     },
     desktop: {
-      sectionPrimary: "Primary",
-      sectionAdvanced: "Advanced",
+      sectionPrimary: "Core loop",
+      sectionAdvanced: "Inspectors",
       sectionGovernance: "Governance",
       shellAriaLabel: "CortexPilot Command Tower desktop shell",
       skipToMainContent: "Skip to main content",
@@ -1891,35 +1891,35 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
   },
   "zh-CN": {
     brandTitle: "CortexPilot",
-    brandSubtitle: "指挥塔 · 工作流案例 · 证明与回放",
+    brandSubtitle: "规划 · 派工 · 追踪 · 续跑 · 验真",
     dashboard: {
       homePhase2: {
-        heroTitle: "面向 Codex 和 Claude Code 工作流的指挥塔",
+        heroTitle: "AI 工程的指挥塔",
         heroSubtitle:
-          "先看一个已证明的工作流，再决定采用路径。CortexPilot 把 Codex / Claude Code 工作、证据和回放收进同一条受治理的操作路径，而不是散落在本地脚本和日志里。",
+          "别再盯着 AI coding 一步一步催了。CortexPilot 会围绕 Codex / Claude Code 去规划、派工、追踪、续跑和验真，把长期工程任务收进一条受治理的操作路径、一份案例记录和一套可核对的证明链。",
         startFirstTaskLabel: "启动首个任务",
         startNewTaskLabel: "启动新任务",
         viewLatestRunsLabel: "查看最近 runs",
         investigateHighRiskFailuresLabel: "排查高风险失败",
         handleLatestFailureLabel: "处理最近失败",
-        productSpineTitle: "产品主脊柱",
+        productSpineTitle: "规划、派工、追踪、续跑、验真",
         productSpineDescription:
-          "让首页始终围绕三个产品词：Command Tower、Workflow Cases 和 Proof & Replay。",
+          "首页先讲操作主循环，再用三块真相面把这条主线钉牢：Command Tower、Workflow Cases 和 Proof & Replay。",
         productSpineCards: [
           {
             href: "/command-tower",
             title: "Command Tower",
-            desc: "在一个操作面里观察受治理的 AI agent 和 MCP 驱动工作如何前进。",
+            desc: "把分散的会话、队列姿态和高风险漂移收进一个指挥塔里，而不是继续盯着零散窗口当保姆。",
           },
           {
             href: "/workflows",
             title: "Workflow Cases",
-            desc: "把请求、队列、判定、证明和关联 runs 绑定到同一个案例记录里。",
+            desc: "把请求、队列、判定、证明和关联 runs 绑成一条可委派、可续跑的案例记录。",
           },
           {
             href: "/runs",
             title: "Proof & Replay",
-            desc: "在真正信任结果前，先检查证据包、对比重跑和失败回放。",
+            desc: "在真正信任结果前，先看证据包、对比重跑和失败回放，把“做完了”变成能验的事实。",
           },
         ],
         publicTemplatesTitle: "一个已证明工作流，两个展示扩展",
@@ -1959,24 +1959,24 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
             fields: ["url", "focus"],
           },
         ],
-        publicAdvantagesTitle: "为什么首跑仍然可信",
+        publicAdvantagesTitle: "指挥塔背后的三层工程能力",
         publicAdvantagesDescription:
-          "Prompt 5 把公开叙事继续锚定在 proof、replay、只读 MCP 访问和可解释的 operator review，而不是泛泛 AI 口号。",
+          "CortexPilot 不是再包一层花哨 prompt，而是把 prompt、context 和 harness 这三类最容易失控的东西，都拉进显式、可检查、可演进的系统里。",
         publicAdvantageCards: [
           {
-            href: "/runs",
-            title: "先有证明，再谈推进",
-            desc: "每个首跑 case 都会先落到 evidence、compare 和 replay，再谈是否可信。",
-          },
-          {
-            href: "/runs",
-            title: "AI operator 摘要",
-            desc: "Run Detail 和 Run Compare 已经能解释变化点、影响，以及下一步 operator 动作。",
+            href: "/pm",
+            title: "Prompt Engineering",
+            desc: "把任务合同、范围、约束、交付物和验收条件讲清楚，而不是继续给模型塞一坨大 prompt。",
           },
           {
             href: "/workflows",
-            title: "可分享的 Workflow Cases",
-            desc: "Workflow Cases 正在变成可复用资产，而不是只停留在一次性详情页里。",
+            title: "Context Engineering",
+            desc: "让正确的上下文留在正确的脑子里：案例真相、角色绑定、队列姿态和交接材料都要显式管理，而不是任由窗口慢慢变脏。",
+          },
+          {
+            href: "/contracts",
+            title: "Harness Engineering",
+            desc: "把 contract、approval、runtime binding 和 proof surface 全部接进轨道与护栏里，让系统能安全续跑，而不是只赌模型发挥。",
           },
         ],
         ecosystemTitle: "与当前 coding-agent 生态的关系",
@@ -2152,7 +2152,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       },
       skipToMainContent: "跳到控制台主内容",
       navigationAriaLabel: "控制台导航",
-      topbarTitle: "操作控制平面",
+      topbarTitle: "AI 工程指挥塔",
       platformStatusAriaLabel: "平台状态概览",
       lowFrequencyToolsLabel: "低频工具",
       localeToggleAriaLabel: "切换到英文",
@@ -2495,8 +2495,8 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         verdictPrefix: "结论",
         queueSummary: (count: number, slaState: string) => `队列：${count} / SLA ${slaState}`,
       },
-      sectionPrimary: "主路径",
-      sectionAdvanced: "高级",
+      sectionPrimary: "核心主线",
+      sectionAdvanced: "检查与治理",
       labels: {
         overview: "总览",
         pmIntake: "PM 入口",
@@ -2517,8 +2517,8 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       },
     },
     desktop: {
-      sectionPrimary: "主路径",
-      sectionAdvanced: "高级",
+      sectionPrimary: "核心主线",
+      sectionAdvanced: "检查与治理",
       sectionGovernance: "治理",
       shellAriaLabel: "CortexPilot 指挥塔桌面端",
       skipToMainContent: "跳到主内容",
