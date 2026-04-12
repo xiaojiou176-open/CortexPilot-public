@@ -564,12 +564,16 @@ def test_run_intake_persists_planning_artifacts_into_run_bundle(monkeypatch, tmp
     worker_contracts = json.loads(
         (runs_root / run_id / "artifacts" / "planning_worker_prompt_contracts.json").read_text(encoding="utf-8")
     )
+    manifest = json.loads((runs_root / run_id / "manifest.json").read_text(encoding="utf-8"))
 
     assert result["planning_artifacts"] == ["planning_wave_plan.json", "planning_worker_prompt_contracts.json"]
     assert wave_plan["wave_id"] == "bundle-1"
     assert wave_plan["objective"] == "Ship one planning artifact bridge"
     assert worker_contracts[0]["prompt_contract_id"] == "worker-1"
     assert worker_contracts[0]["continuation_policy"]["on_blocked"] == "spawn_independent_temporary_unblock_task"
+    artifact_names = [item["name"] for item in manifest["artifacts"]]
+    assert "planning_wave_plan" in artifact_names
+    assert "planning_worker_prompt_contracts" in artifact_names
     assert intake_events[-1] == ("persist", {"event": "INTAKE_RUN", "run_id": run_id})
 
 

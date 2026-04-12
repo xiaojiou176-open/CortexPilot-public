@@ -163,3 +163,5 @@ def test_persist_contract_state_writes_role_binding_summary_to_manifest(tmp_path
     assert prompt_artifact["run_id"] == run_id
     assert prompt_artifact["task_id"] == "task-role-binding-summary"
     assert prompt_artifact["role_binding_summary"] == build_role_binding_summary(contract)
+    artifact_names = [item["name"] for item in written["artifacts"]]
+    assert "prompt_artifact" in artifact_names
