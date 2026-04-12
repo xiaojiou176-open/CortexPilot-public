@@ -9,6 +9,7 @@ type FetchOptions = {
   reports?: any[];
   chainSpec?: any;
   planningContracts?: any[];
+  planningUnblockTasks?: any[];
   availableRuns?: any[];
   agentStatus?: any[];
   toolCalls?: any[];
@@ -19,11 +20,13 @@ type FetchOptions = {
   reportsOk?: boolean;
   chainOk?: boolean;
   planningContractsOk?: boolean;
+  planningUnblockTasksOk?: boolean;
   agentStatusOk?: boolean;
   toolCallsOk?: boolean;
   throwRuns?: boolean;
   throwChain?: boolean;
   throwPlanningContracts?: boolean;
+  throwPlanningUnblockTasks?: boolean;
   throwReplay?: boolean;
   throwAgentStatus?: boolean;
   throwToolCalls?: boolean;
@@ -36,6 +39,7 @@ export function mockFetchFactory(options: FetchOptions) {
     reports = [],
     chainSpec = null,
     planningContracts = [],
+    planningUnblockTasks = [],
     availableRuns = [],
     replayOk = true,
     replayStatus = 200,
@@ -44,6 +48,7 @@ export function mockFetchFactory(options: FetchOptions) {
     reportsOk = true,
     chainOk = true,
     planningContractsOk = true,
+    planningUnblockTasksOk = true,
     agentStatus = [],
     toolCalls = [],
     agentStatusOk = true,
@@ -51,6 +56,7 @@ export function mockFetchFactory(options: FetchOptions) {
     throwRuns = false,
     throwChain = false,
     throwPlanningContracts = false,
+    throwPlanningUnblockTasks = false,
     throwReplay = false,
     throwAgentStatus = false,
     throwToolCalls = false,
@@ -73,6 +79,16 @@ export function mockFetchFactory(options: FetchOptions) {
         ok: planningContractsOk,
         status: planningContractsOk ? 200 : 500,
         json: async () => ({ data: planningContracts }),
+      };
+    }
+    if (url.includes("/api/runs/") && url.includes("/artifacts?name=planning_unblock_tasks.json")) {
+      if (throwPlanningUnblockTasks) {
+        throw new Error("planning unblock tasks failed");
+      }
+      return {
+        ok: planningUnblockTasksOk,
+        status: planningUnblockTasksOk ? 200 : 500,
+        json: async () => ({ data: planningUnblockTasks }),
       };
     }
     if (url.includes("/api/runs/") && url.includes("/artifacts?name=tool_calls.jsonl")) {

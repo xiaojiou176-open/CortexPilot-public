@@ -352,6 +352,14 @@ describe("pm intake right sidebar component branches", () => {
                 verification_requirements: ["repo_hygiene"],
               },
             ],
+            unblock_tasks: [
+              {
+                unblock_task_id: "unblock-worker-prompt-1",
+                owner: "L0",
+                mode: "independent_temporary_task",
+                trigger: "spawn_independent_temporary_unblock_task",
+              },
+            ],
             contract_preview: {
               assigned_agent: { role: "WORKER", agent_id: "agent-1" },
               owner_agent: { role: "TECH_LEAD", agent_id: "agent-2" },
@@ -373,7 +381,9 @@ describe("pm intake right sidebar component branches", () => {
     expect(screen.getByText("Wave plan snapshot")).toBeInTheDocument();
     expect(screen.getByText(/Wave ID: bundle-preview-1/)).toBeInTheDocument();
     expect(screen.getByText("Worker prompt contracts")).toBeInTheDocument();
-    expect(screen.getByText(/worker-prompt-1/)).toBeInTheDocument();
+    expect(screen.getByText(/^worker-prompt-1$/)).toBeInTheDocument();
+    expect(screen.getByText("Unblock task candidates")).toBeInTheDocument();
+    expect(screen.getByText(/unblock-worker-prompt-1/)).toBeInTheDocument();
     expect(screen.getByText("Contract preview excerpts")).toBeInTheDocument();
     expect(screen.getByText("Advanced planning payloads")).toBeInTheDocument();
   });
