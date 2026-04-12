@@ -161,11 +161,13 @@ def test_main_run_views_helpers_branch_matrix(tmp_path: Path) -> None:
         load_command_allowlist_fn=lambda: {"allow": ["a"]},
         load_forbidden_actions_fn=lambda: {"deny": ["b"]},
         load_tool_registry_fn=lambda: {"tool": ["c"]},
+        load_control_plane_runtime_policy_fn=lambda: {"version": "v1", "title": "command tower"},
     ) == {
         "agent_registry": {"registry": True},
         "command_allowlist": {"allow": ["a"]},
         "forbidden_actions": {"deny": ["b"]},
         "tool_registry": {"tool": ["c"]},
+        "control_plane_runtime_policy": {"version": "v1", "title": "command tower"},
     }
     assert main_run_views_helpers.list_locks(load_locks_fn=lambda: [{"lock_id": "1"}]) == [{"lock_id": "1"}]
     released_paths: list[list[str]] = []

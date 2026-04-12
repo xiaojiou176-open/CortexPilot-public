@@ -1,7 +1,7 @@
 # Frontend API Client
 
 `@cortexpilot/frontend-api-client` is the thin JavaScript/TypeScript client
-layer for CortexPilot frontend consumers.
+layer for CortexPilot command-tower consumers.
 
 Current package boundary: this package now carries publish-ready metadata and a
 registry-safe manifest, but no public registry release is live yet. The
@@ -24,6 +24,7 @@ This package is useful when you want one import boundary for:
 - run/workflow binding read models that stay explicitly below execution authority
 - PM intake and command-tower overview routes
 - approvals, reviews, and operator-facing control-plane reads
+- the command-tower loop of plan / delegate / track / resume / prove
 - role-configuration fetch / preview / apply routes for repo-owned role
   defaults, including the same mutation-role header discipline used by other
   operator mutation surfaces

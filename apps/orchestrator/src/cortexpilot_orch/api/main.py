@@ -385,6 +385,12 @@ def _load_tool_registry() -> dict:
     return payload if isinstance(payload, dict) else {"installed": [], "integrated": []}
 
 
+def _load_control_plane_runtime_policy() -> dict:
+    path = _repo_root() / "policies" / "control_plane_runtime_policy.json"
+    payload = _read_json(path, {"version": "v1"})
+    return payload if isinstance(payload, dict) else {"version": "v1"}
+
+
 def _load_contract(run_id: str) -> dict:
     contract_path = _runs_root() / run_id / "contract.json"
     payload = _read_json(contract_path, {})
@@ -585,6 +591,7 @@ _runs_handler_map = main_runs_handlers.build_runs_handlers(
         load_command_allowlist_fn=_load_command_allowlist,
         load_forbidden_actions_fn=_load_forbidden_actions,
         load_tool_registry_fn=_load_tool_registry,
+        load_control_plane_runtime_policy_fn=_load_control_plane_runtime_policy,
     ),
     list_locks_fn=lambda: main_run_views_helpers.list_locks(load_locks_fn=_load_locks),
     list_worktrees_fn=lambda: main_run_views_helpers.list_worktrees(load_worktrees_fn=_load_worktrees),

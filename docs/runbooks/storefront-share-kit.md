@@ -8,8 +8,9 @@ surfaces, but they should not be presented as equally release-proven yet.
 
 ## Punchline
 
-Command Tower for Codex and Claude Code workflows with Workflow Cases, proof,
-replay, read-only MCP access, and explainable operator guidance.
+The command tower for AI engineering, with Workflow Cases, proof, replay,
+read-only MCP access, and explainable operator guidance across Codex and Claude
+Code.
 
 ## 10-Second Story
 

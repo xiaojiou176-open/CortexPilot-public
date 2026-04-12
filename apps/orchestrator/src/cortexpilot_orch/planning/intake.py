@@ -100,6 +100,9 @@ _TOPIC_BRIEF_TEMPLATE = "topic_brief"
 _PAGE_BRIEF_TEMPLATE = "page_brief"
 _NEWS_DIGEST_TIME_RANGES = {"24h", "7d", "30d"}
 _PACKS_ROOT = Path(__file__).resolve().parents[5] / "contracts" / "packs"
+_CONTROL_PLANE_POLICY_REF = "policies/control_plane_runtime_policy.json"
+_WAVE_PLAN_POLICY_REF = f"{_CONTROL_PLANE_POLICY_REF}#/wave_completion_policy"
+_WAKE_POLICY_REF = f"{_CONTROL_PLANE_POLICY_REF}#/wake_policy"
 
 
 def _missing_llm_api_key_message(provider: str) -> str:
@@ -405,6 +408,181 @@ def _build_execution_plan_summary(
         f"{normalized_template} will compile into a {assigned_role.lower()}-owned execution contract for "
         f"'{objective}'. {approval_text}. Expected report surface: {len(predicted_reports)} item(s)."
     )
+
+
+def _normalize_prompt_reading_list(plan: dict[str, Any], payload: dict[str, Any]) -> dict[str, list[str]]:
+    artifacts = plan.get("artifacts") if isinstance(plan.get("artifacts"), list) else []
+    required: list[str] = []
+    for item in artifacts:
+        if not isinstance(item, dict):
+            continue
+        label = str(item.get("uri") or item.get("name") or "").strip()
+        if label and label not in required:
+            required.append(label)
+    if not required:
+        required = [
+            "contract_preview",
+            "role_contract_summary",
+            "allowed_paths",
+            "acceptance_tests",
+        ]
+    optional: list[str] = []
+    for raw in payload.get("search_queries", []) if isinstance(payload.get("search_queries"), list) else []:
+        label = str(raw or "").strip()
+        if label and label not in optional:
+            optional.append(label)
+    return {"required": required, "optional": optional}
+
+
+def _summarize_acceptance_tests(raw: Any) -> list[str]:
+    if not isinstance(raw, list):
+        return []
+    checks: list[str] = []
+    for item in raw:
+        if isinstance(item, dict):
+            label = str(item.get("name") or item.get("cmd") or "").strip()
+        else:
+            label = str(item or "").strip()
+        if label:
+            checks.append(label)
+    return checks
+
+
+def _summarize_allowed_actions(plan: dict[str, Any]) -> list[str]:
+    tool_permissions = plan.get("tool_permissions") if isinstance(plan.get("tool_permissions"), dict) else {}
+    actions: list[str] = []
+    filesystem = str(tool_permissions.get("filesystem") or "").strip()
+    shell = str(tool_permissions.get("shell") or "").strip()
+    network = str(tool_permissions.get("network") or "").strip()
+    if filesystem:
+        actions.append(f"filesystem:{filesystem}")
+    if shell:
+        actions.append(f"shell:{shell}")
+    if network:
+        actions.append(f"network:{network}")
+    for raw in plan.get("mcp_tool_set", []) if isinstance(plan.get("mcp_tool_set"), list) else []:
+        tool = str(raw or "").strip()
+        if tool:
+            actions.append(f"mcp:{tool}")
+    return actions
+
+
+def _build_wave_plan(plan_bundle: dict[str, Any]) -> dict[str, Any]:
+    plans = plan_bundle.get("plans") if isinstance(plan_bundle.get("plans"), list) else []
+    worker_plans: list[dict[str, Any]] = []
+    for index, plan in enumerate(plans):
+        if not isinstance(plan, dict):
+            continue
+        prompt_contract_id = str(plan.get("plan_id") or f"worker-{index + 1}").strip() or f"worker-{index + 1}"
+        assigned_agent = plan.get("assigned_agent") if isinstance(plan.get("assigned_agent"), dict) else {}
+        worker_plans.append(
+            {
+                "prompt_contract_id": prompt_contract_id,
+                "assigned_role": str(assigned_agent.get("role") or "WORKER").strip() or "WORKER",
+                "spec": str(plan.get("spec") or "").strip() or "No scope summary provided.",
+                "allowed_paths": [
+                    str(item).strip()
+                    for item in plan.get("allowed_paths", [])
+                    if str(item).strip()
+                ],
+                "acceptance_checks": _summarize_acceptance_tests(plan.get("acceptance_tests")),
+                "mcp_tools": [
+                    str(item).strip()
+                    for item in plan.get("mcp_tool_set", [])
+                    if str(item).strip()
+                ],
+            }
+        )
+    owner_agent = plan_bundle.get("owner_agent") if isinstance(plan_bundle.get("owner_agent"), dict) else {}
+    return {
+        "version": "v1",
+        "wave_id": str(plan_bundle.get("bundle_id") or "wave-preview").strip() or "wave-preview",
+        "objective": str(plan_bundle.get("objective") or "").strip() or "No objective provided.",
+        "owner_agent": {
+            "role": str(owner_agent.get("role") or "PM").strip() or "PM",
+            "agent_id": str(owner_agent.get("agent_id") or "agent-1").strip() or "agent-1",
+        },
+        "execution_mode": "long_running",
+        "wake_policy_ref": _WAKE_POLICY_REF,
+        "completion_policy_ref": _WAVE_PLAN_POLICY_REF,
+        "worker_count": max(len(worker_plans), 1),
+        "worker_plans": worker_plans or [
+            {
+                "prompt_contract_id": "worker-preview-1",
+                "assigned_role": "WORKER",
+                "spec": "No worker plan generated.",
+                "allowed_paths": ["."],
+                "acceptance_checks": [],
+                "mcp_tools": [],
+            }
+        ],
+    }
+
+
+def _build_worker_prompt_contracts(plan_bundle: dict[str, Any], payload: dict[str, Any]) -> list[dict[str, Any]]:
+    plans = plan_bundle.get("plans") if isinstance(plan_bundle.get("plans"), list) else []
+    objective = str(plan_bundle.get("objective") or payload.get("objective") or "").strip() or "No objective provided."
+    contracts: list[dict[str, Any]] = []
+    for index, plan in enumerate(plans):
+        if not isinstance(plan, dict):
+            continue
+        assigned_agent = plan.get("assigned_agent") if isinstance(plan.get("assigned_agent"), dict) else {}
+        acceptance_checks = _summarize_acceptance_tests(plan.get("acceptance_tests"))
+        required_outputs = plan.get("required_outputs") if isinstance(plan.get("required_outputs"), list) else []
+        deliverables = []
+        for item in required_outputs:
+            if not isinstance(item, dict):
+                continue
+            name = str(item.get("name") or "").strip()
+            deliverable_type = str(item.get("type") or "").strip()
+            if name and deliverable_type:
+                deliverables.append({"name": name, "type": deliverable_type})
+        contract_id = str(plan.get("plan_id") or f"worker-{index + 1}").strip() or f"worker-{index + 1}"
+        contracts.append(
+            {
+                "version": "v1",
+                "prompt_contract_id": contract_id,
+                "objective": objective,
+                "scope": str(plan.get("spec") or "").strip() or "No scope summary provided.",
+                "assigned_agent": {
+                    "role": str(assigned_agent.get("role") or "WORKER").strip() or "WORKER",
+                    "agent_id": str(assigned_agent.get("agent_id") or "agent-1").strip() or "agent-1",
+                },
+                "reading_list": _normalize_prompt_reading_list(plan, payload),
+                "done_definition": {
+                    "summary": "Complete the scoped worker assignment, satisfy acceptance checks, and do not stop at a half-done status update.",
+                    "acceptance_checks": acceptance_checks or ["repo_hygiene"],
+                },
+                "constraints": [
+                    str(item).strip()
+                    for item in payload.get("constraints", [])
+                    if str(item).strip()
+                ],
+                "allowed_actions": _summarize_allowed_actions(plan),
+                "blocked_when": [
+                    "scope evidence is insufficient",
+                    "required reads are missing",
+                    "reply auditor marks the work incomplete",
+                    "an external blocker requires an L0-managed unblock task"
+                ],
+                "deliverables": deliverables or [{"name": "task_result.json", "type": "report"}],
+                "escalation_policy": {
+                    "owner": "L0",
+                    "trigger": "scope blocker or authority mismatch"
+                },
+                "continuation_policy": {
+                    "on_incomplete": "reply_auditor_reprompt_and_continue_same_session",
+                    "on_blocked": "spawn_independent_temporary_unblock_task"
+                },
+                "verification_requirements": acceptance_checks or ["repo_hygiene"],
+                "forbidden_actions": [
+                    str(item).strip()
+                    for item in plan.get("forbidden_actions", [])
+                    if str(item).strip()
+                ],
+            }
+        )
+    return contracts
 
 
 def _apply_intake_contract_overrides(
@@ -992,9 +1170,14 @@ class IntakeService:
             "plan": plan,
             "plan_bundle": plan_bundle,
             "task_chain": task_chain,
+            "wave_plan": _build_wave_plan(plan_bundle),
+            "worker_prompt_contracts": _build_worker_prompt_contracts(plan_bundle, normalized_payload),
             "role_contract_summary": contract_preview.get("role_contract") if isinstance(contract_preview.get("role_contract"), dict) else {},
             "contract_preview": contract_preview,
         }
+        self._validator.validate_report(response["wave_plan"], "wave_plan.v1.json")
+        for contract in response["worker_prompt_contracts"]:
+            self._validator.validate_report(contract, "worker_prompt_contract.v1.json")
         self._validator.validate_report(response, "execution_plan_report.v1.json")
         return response
 

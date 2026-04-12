@@ -3,10 +3,10 @@ export const DEFAULT_UI_LOCALE = "en";
 const UI_COPY = {
   en: {
     brandTitle: "CortexPilot",
-    brandSubtitle: "Command Tower · Workflow Cases · Proof & Replay",
+    brandSubtitle: "Plan · Delegate · Track · Resume · Prove",
     dashboard: {
       homePhase2: {
-        heroTitle: "Command Tower for Codex and Claude Code workflows",
+        heroTitle: "The command tower for AI engineering",
         heroSubtitle:
           "See one proven workflow first, then choose the right adoption path. CortexPilot keeps Codex and Claude Code work, evidence, and replay on one governed operator path instead of scattered local scripts and logs.",
         startFirstTaskLabel: "Start first task",
@@ -71,23 +71,23 @@ const UI_COPY = {
             fields: ["url", "focus"],
           },
         ],
-        publicAdvantagesTitle: "Why the first run is credible",
+        publicAdvantagesTitle: "Three engineering layers behind the command tower",
         publicAdvantagesDescription:
           "Prompt 5 keeps the public story anchored on proof, replay, read-only MCP access, and explainable operator review instead of generic AI claims.",
         publicAdvantageCards: [
           {
             href: "/runs",
-            title: "Proof before promotion",
+            title: "Prompt Engineering",
             desc: "Every first-run case still lands on evidence, compare, and replay before you trust the output.",
           },
           {
             href: "/runs",
-            title: "AI operator brief",
+            title: "Context Engineering",
             desc: "Run Detail and Run Compare now explain what changed, why it matters, and the next operator step.",
           },
           {
             href: "/workflows",
-            title: "Share-ready Workflow Cases",
+            title: "Harness Engineering",
             desc: "Workflow Cases are now moving toward reusable assets instead of staying trapped as one-off detail pages.",
           },
         ],
@@ -264,7 +264,7 @@ const UI_COPY = {
       },
       skipToMainContent: "Skip to dashboard content",
       navigationAriaLabel: "Dashboard navigation",
-      topbarTitle: "Operator control plane",
+      topbarTitle: "AI engineering command tower",
       platformStatusAriaLabel: "Platform status overview",
       lowFrequencyToolsLabel: "Low-frequency tools",
       localeToggleAriaLabel: "Switch to Chinese",
@@ -327,8 +327,8 @@ const UI_COPY = {
         statusApproved: "Approved.",
         statusFailed: (message) => `Failed: ${message}`,
       },
-      sectionPrimary: "Primary",
-      sectionAdvanced: "Advanced",
+      sectionPrimary: "Core loop",
+      sectionAdvanced: "Inspectors",
       labels: {
         overview: "Overview",
         pmIntake: "PM intake",
@@ -349,8 +349,8 @@ const UI_COPY = {
       },
     },
     desktop: {
-      sectionPrimary: "Primary",
-      sectionAdvanced: "Advanced",
+      sectionPrimary: "Core loop",
+      sectionAdvanced: "Inspectors",
       sectionGovernance: "Governance",
       shellAriaLabel: "CortexPilot Command Tower desktop shell",
       skipToMainContent: "Skip to main content",
@@ -717,10 +717,10 @@ const UI_COPY = {
   },
   "zh-CN": {
     brandTitle: "CortexPilot",
-    brandSubtitle: "指挥塔 · 工作流案例 · 证明与回放",
+    brandSubtitle: "规划 · 派工 · 追踪 · 续跑 · 验真",
     dashboard: {
       homePhase2: {
-        heroTitle: "面向 Codex 和 Claude Code 工作流的指挥塔",
+        heroTitle: "AI 工程的指挥塔",
         heroSubtitle:
           "先看一个已证明的工作流，再决定采用路径。CortexPilot 把 Codex / Claude Code 工作、证据和回放收进同一条受治理的操作路径，而不是散落在本地脚本和日志里。",
         startFirstTaskLabel: "启动首个任务",
@@ -785,7 +785,7 @@ const UI_COPY = {
             fields: ["url", "focus"],
           },
         ],
-        publicAdvantagesTitle: "为什么首跑仍然可信",
+        publicAdvantagesTitle: "指挥塔背后的三层工程能力",
         publicAdvantagesDescription:
           "Prompt 5 把公开叙事继续锚定在 proof、replay、只读 MCP 访问和可解释的 operator review，而不是泛泛 AI 口号。",
         publicAdvantageCards: [
@@ -978,7 +978,7 @@ const UI_COPY = {
       },
       skipToMainContent: "跳到控制台主内容",
       navigationAriaLabel: "控制台导航",
-      topbarTitle: "操作控制平面",
+      topbarTitle: "AI 工程指挥塔",
       platformStatusAriaLabel: "平台状态概览",
       lowFrequencyToolsLabel: "低频工具",
       localeToggleAriaLabel: "切换到英文",
@@ -1041,8 +1041,8 @@ const UI_COPY = {
         statusApproved: "已批准。",
         statusFailed: (message) => `失败：${message}`,
       },
-      sectionPrimary: "主路径",
-      sectionAdvanced: "高级",
+      sectionPrimary: "核心主线",
+      sectionAdvanced: "检查与治理",
       labels: {
         overview: "总览",
         pmIntake: "PM 入口",
@@ -1063,8 +1063,8 @@ const UI_COPY = {
       },
     },
     desktop: {
-      sectionPrimary: "主路径",
-      sectionAdvanced: "高级",
+      sectionPrimary: "核心主线",
+      sectionAdvanced: "检查与治理",
       sectionGovernance: "治理",
       shellAriaLabel: "CortexPilot 指挥塔桌面端",
       skipToMainContent: "跳到主内容",

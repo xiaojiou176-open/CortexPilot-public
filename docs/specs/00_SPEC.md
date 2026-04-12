@@ -3,7 +3,7 @@
 > **Active entrypoint note**: this is the current active spec entrypoint and the main product/specification reference for public contributors.
 
 > **Status**: Normative / hard enforcement gates must follow this document  
-> **Last Updated**: 2026-02-06  
+> **Last Updated**: 2026-04-12
 > **Scope**: this repository (monorepo), including CortexPilot Orchestrator and the multi-agent collaboration runtime  
 > **Non-goal**: this document does not carry vision, story, or dialectical history; for those materials, see `10_VISION.md` / `90_HISTORY.md`
 
@@ -304,6 +304,43 @@
 - If a handoff artifact is emitted, it is advisory evidence only; execution
   continues from the contract-authoritative instruction, not from a free-text
   rewritten instruction.
+
+### 6.3 L0 Control-Plane Runtime Policy
+
+- The repo now carries a machine-readable command-tower runtime policy at
+  `policies/control_plane_runtime_policy.json`, validated by
+  `schemas/control_plane_runtime_policy.v1.json`.
+- This policy is the canonical repo-owned summary for:
+  - L0/L1/L2 hierarchy semantics
+  - long-running session defaults and degradation handling
+  - event-driven wake with polling fallback
+  - wave completion rules
+  - completion governance (`dod_checker`, `reply_auditor`,
+    `continuation_policy`)
+  - harness-evolution and external-write boundaries
+- `control_plane_runtime_policy.json` is a policy/read-model surface. It does
+  not replace `task_contract` as execution authority.
+
+### 6.4 Planner Artifact Hierarchy
+
+- The planner surface now distinguishes two explicit artifact tiers:
+  - `wave_plan` (`schemas/wave_plan.v1.json`) for wave-level orchestration
+  - `worker_prompt_contract` (`schemas/worker_prompt_contract.v1.json`) for
+    worker-scoped execution envelopes
+- These planner artifacts are advisory planning surfaces that must stay aligned
+  with the compiled `task_contract`; they do not supersede the execution
+  contract itself.
+
+### 6.5 Context Pack And Harness Request Contracts
+
+- Explicit handoff and runtime-evolution surfaces now have schema-first homes:
+  - `schemas/context_pack.v1.json`
+  - `schemas/harness_request.v1.json`
+- `context_pack` is a **fallback** protocol for pressure, contamination,
+  role-switch, or phase-switch situations. It is not the default execution
+  loop.
+- `harness_request` represents a proposed capability change; applying that
+  change still depends on policy and approval boundaries.
 
 ---
 

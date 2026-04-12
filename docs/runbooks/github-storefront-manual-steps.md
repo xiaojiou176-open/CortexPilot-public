@@ -6,7 +6,7 @@ Use this checklist when applying the remaining GitHub UI changes for CortexPilot
 
 Recommended About text:
 
-> AI Work Command Tower for Codex and Claude Code workflows with Model Context Protocol (MCP)-readable proof, replay, and Workflow Cases.
+> The command tower for AI engineering, with Workflow Cases, read-only MCP truth, proof, and replay across Codex and Claude Code workflows.
 
 Website field:
 

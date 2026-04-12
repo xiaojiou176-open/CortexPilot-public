@@ -198,6 +198,20 @@
       "security_review_source": "configs/ci_governance_policy.json"
     },
     {
+      "id": "action-repo:actions/dependency-review-action",
+      "kind": "github_action_repo",
+      "owner": "platform",
+      "criticality": "high",
+      "source_type": "github_action",
+      "pin": "Full commit SHA in workflow files",
+      "contract_surface": "GitHub dependency review action contract",
+      "ingest_path": ".github/workflows/*.yml",
+      "validation_gate": "python3 scripts/check_ci_supply_chain_policy.py",
+      "rollback_path": "Pin previous approved commit SHA",
+      "license_class": "oss-action",
+      "security_review_source": "configs/ci_governance_policy.json"
+    },
+    {
       "id": "action-repo:google-github-actions/auth",
       "kind": "github_action_repo",
       "owner": "platform",

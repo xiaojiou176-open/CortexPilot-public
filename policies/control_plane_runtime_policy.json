@@ -1,0 +1,136 @@
+{
+  "version": "v1",
+  "product_identity": {
+    "title": "CortexPilot L0 Command Tower",
+    "one_sentence": "CortexPilot is the command tower for AI engineering: it operates as an L0 control plane that plans, delegates, tracks, resumes, and proves long-running engineering work across Codex and Claude Code.",
+    "primary_execution_bases": [
+      "Codex",
+      "Claude Code"
+    ],
+    "reference_only_systems": [
+      "OpenClaw"
+    ]
+  },
+  "hierarchy_axis": [
+    "L0",
+    "L1",
+    "L2"
+  ],
+  "role_axis": {
+    "model": "work_type",
+    "examples": [
+      "Planner",
+      "Prompt Writer",
+      "Tech Lead",
+      "Implementer",
+      "Debugger",
+      "Reviewer"
+    ],
+    "customizable": true
+  },
+  "session_policy": {
+    "default_mode": "long_running",
+    "context_pack_mode": "fallback_only",
+    "degradation_signals": [
+      "repetition",
+      "half_done_report",
+      "context_contamination"
+    ],
+    "degradation_responses": {
+      "repetition": "corrective_reprompt",
+      "half_done_report": "structured_self_check",
+      "context_contamination": "handoff_or_new_session"
+    },
+    "context_pack_triggers": [
+      "context_pressure",
+      "contamination",
+      "role_switch",
+      "phase_switch",
+      "repetition",
+      "distortion"
+    ]
+  },
+  "wake_policy": {
+    "primary_mode": "event_driven",
+    "fallback_mode": "polling",
+    "active_wave_interval_seconds": 60,
+    "idle_interval_min_seconds": 300,
+    "idle_interval_max_seconds": 600
+  },
+  "wave_completion_policy": {
+    "requires_all_workers_complete": true,
+    "requires_no_open_blockers": true,
+    "final_closeout_authority": "upper_layer_verdict"
+  },
+  "planner_artifacts": {
+    "tier_1": "wave_plan",
+    "tier_2": "worker_prompt_contract"
+  },
+  "completion_governance": {
+    "components": [
+      "dod_checker",
+      "reply_auditor",
+      "continuation_policy"
+    ],
+    "task_type_layered": true
+  },
+  "unblock_policy": {
+    "mode": "independent_temporary_task",
+    "owner": "L0"
+  },
+  "harness_evolution": {
+    "session_local_auto": true,
+    "project_local_requires_approval": true,
+    "global_requires_approval": true,
+    "project_local_approval_mode": "human_or_rule",
+    "global_approval_mode": "high_barrier"
+  },
+  "external_write_policy": {
+    "whitelist_systems": [
+      "GitHub"
+    ],
+    "github_whitelist_actions": [
+      "comment",
+      "issue",
+      "branch",
+      "pull_request",
+      "merge"
+    ],
+    "non_whitelist_requires_approval": true
+  },
+  "portfolio_priority_formula": [
+    "user_priority",
+    "blocker_risk",
+    "deadline",
+    "resource_fairness"
+  ],
+  "first_class_entities": [
+    "Objective",
+    "Wave",
+    "Role",
+    "Session",
+    "Run",
+    "Workflow Case",
+    "Context Pack",
+    "Prompt Artifact",
+    "Harness Request",
+    "Unblock Task",
+    "Approval"
+  ],
+  "front_door_story": {
+    "title": "The command tower for AI engineering",
+    "subtitle_actions": [
+      "plan",
+      "delegate",
+      "track",
+      "resume",
+      "prove"
+    ],
+    "pain_statement": "Stop babysitting AI coding work. AI engineering does not need more models; it needs a command tower that keeps long-running work moving while humans step away.",
+    "philosophy": [
+      "Prompt Engineering",
+      "Context Engineering",
+      "Harness Engineering"
+    ]
+  }
+}

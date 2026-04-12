@@ -2,14 +2,14 @@
 
 ## Positioning
 
-This module is the repository's **web operator surface**.
+This module is the repository's **web command-tower surface**.
 
 Read it as:
 
-- the browser-based control surface for runs, sessions, reviews, and command
-  visibility
+- the browser-based command tower for plan, delegate, track, resume, and prove
+  loops
 - a way to inspect and operate CortexPilot Command Tower orchestration truth from the web
-- a repo-owned UI for evaluating control-plane behavior
+- a repo-owned UI for L0-style oversight and case-driven operator review
 
 Do **not** read it as:
 
@@ -28,9 +28,9 @@ Do **not** read it as:
 ## Why This Module Exists
 
 If `apps/orchestrator/` is the machine room, `apps/dashboard/` is the glass
-window operators use to see what the machine room is doing. Its job is
-visibility and control, not pretending the whole repository is already a
-finished consumer product.
+command tower operators use to see what the machine room is doing. Its job is
+visibility, delegation, and proof-first oversight, not pretending the whole
+repository is already a finished consumer product.
 
 ## Input / Output
 

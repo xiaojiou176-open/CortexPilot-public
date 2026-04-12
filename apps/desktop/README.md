@@ -1,10 +1,10 @@
 # Desktop Module
 
-`apps/desktop/` is the Tauri shell for CortexPilot.
+`apps/desktop/` is the Tauri command-tower shell for CortexPilot.
 
 ## What It Owns
 
-- desktop navigation and operator workflows
+- desktop navigation and command-tower workflows
 - command visibility and review surfaces
 - native shell integration
 

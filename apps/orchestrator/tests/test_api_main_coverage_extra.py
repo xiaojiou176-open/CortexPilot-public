@@ -80,6 +80,7 @@ def test_api_misc_collections_and_pm_wrappers(tmp_path: Path, monkeypatch) -> No
     policies = client.get("/api/policies")
     assert policies.status_code == 200
     assert "tool_registry" in policies.json()
+    assert "control_plane_runtime_policy" in policies.json()
 
     lock_dir = runtime_root / "locks"
     lock_dir.mkdir(parents=True, exist_ok=True)

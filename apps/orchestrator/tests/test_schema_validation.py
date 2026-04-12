@@ -229,6 +229,162 @@ def test_new_operator_report_and_task_pack_schemas_pass() -> None:
     }
     assert validator.validate_report(run_compare_report, "run_compare_report.v1.json")["report_type"] == "run_compare_report"
 
+    wave_plan = {
+        "version": "v1",
+        "wave_id": "wave-1",
+        "objective": "Ship the L0 command tower preview.",
+        "owner_agent": {"role": "PM", "agent_id": "agent-1"},
+        "execution_mode": "long_running",
+        "wake_policy_ref": "policies/control_plane_runtime_policy.json#/wake_policy",
+        "completion_policy_ref": "policies/control_plane_runtime_policy.json#/wave_completion_policy",
+        "worker_count": 1,
+        "worker_plans": [
+            {
+                "prompt_contract_id": "worker-prompt-1",
+                "assigned_role": "WORKER",
+                "spec": "Implement the preview artifact.",
+                "allowed_paths": ["apps/orchestrator/src"],
+                "acceptance_checks": ["repo_hygiene"],
+                "mcp_tools": ["codex"],
+            }
+        ],
+    }
+    assert validator.validate_report(wave_plan, "wave_plan.v1.json")["wave_id"] == "wave-1"
+
+    worker_prompt_contract = {
+        "version": "v1",
+        "prompt_contract_id": "worker-prompt-1",
+        "objective": "Ship the preview artifact.",
+        "scope": "Implement the preview artifact inside apps/orchestrator/src.",
+        "assigned_agent": {"role": "WORKER", "agent_id": "agent-1"},
+        "reading_list": {"required": ["contract_preview"], "optional": ["search query"]},
+        "done_definition": {
+            "summary": "Finish the scoped worker assignment and satisfy acceptance checks.",
+            "acceptance_checks": ["repo_hygiene"],
+        },
+        "constraints": ["public-read-only-sources"],
+        "allowed_actions": ["filesystem:workspace-write", "mcp:codex"],
+        "blocked_when": ["scope evidence is insufficient"],
+        "deliverables": [{"name": "task_result.json", "type": "report"}],
+        "escalation_policy": {"owner": "L0", "trigger": "scope blocker or authority mismatch"},
+        "continuation_policy": {
+            "on_incomplete": "reply_auditor_reprompt_and_continue_same_session",
+            "on_blocked": "spawn_independent_temporary_unblock_task",
+        },
+        "verification_requirements": ["repo_hygiene"],
+        "forbidden_actions": ["git push"],
+    }
+    assert validator.validate_report(worker_prompt_contract, "worker_prompt_contract.v1.json")["prompt_contract_id"] == "worker-prompt-1"
+
+    context_pack = {
+        "version": "v1",
+        "pack_id": "ctx-pack-1",
+        "role_scope": "L1",
+        "source_session_id": "session-1",
+        "source_role": "L1-Worker",
+        "trigger_reason": "context_pressure",
+        "global_state_summary": "The worker is 80 percent done and needs a clean handoff.",
+        "actor_handoff_summary": "Continue the same scope and keep the queue posture stable.",
+        "required_reads": ["contract_preview", "latest workflow case"],
+        "optional_reads": ["incident notes"],
+        "conversation_exports": ["transcript.md"],
+        "artifact_refs": ["task_result.json"],
+    }
+    assert validator.validate_report(context_pack, "context_pack.v1.json")["pack_id"] == "ctx-pack-1"
+
+    harness_request = {
+        "version": "v1",
+        "request_id": "harness-1",
+        "scope": "project-local",
+        "requested_by": {"role": "WORKER", "agent_id": "agent-1"},
+        "reason": "Need an MCP to unblock the queue inspection path.",
+        "requested_capabilities": {
+            "skills": ["queue-inspector"],
+            "mcp_servers": ["queue-control"],
+            "permission_changes": ["github.merge"],
+            "runtime_bindings": ["codex"],
+        },
+        "risk_level": "medium",
+        "approval_required": True,
+        "rollback_plan": "Remove the MCP server and restore the previous runtime binding.",
+        "validation_plan": "Run repo hygiene and a queue-focused smoke test after apply.",
+    }
+    assert validator.validate_report(harness_request, "harness_request.v1.json")["request_id"] == "harness-1"
+
+    control_plane_runtime_policy = {
+        "version": "v1",
+        "product_identity": {
+            "title": "CortexPilot L0 Command Tower",
+            "one_sentence": "CortexPilot is the command tower for AI engineering.",
+            "primary_execution_bases": ["Codex", "Claude Code"],
+            "reference_only_systems": ["OpenClaw"],
+        },
+        "hierarchy_axis": ["L0", "L1", "L2"],
+        "role_axis": {"model": "work_type", "examples": ["Planner"], "customizable": True},
+        "session_policy": {
+            "default_mode": "long_running",
+            "context_pack_mode": "fallback_only",
+            "degradation_signals": ["repetition", "half_done_report", "context_contamination"],
+            "degradation_responses": {
+                "repetition": "corrective_reprompt",
+                "half_done_report": "structured_self_check",
+                "context_contamination": "handoff_or_new_session",
+            },
+            "context_pack_triggers": ["context_pressure", "contamination", "role_switch", "phase_switch", "repetition", "distortion"],
+        },
+        "wake_policy": {
+            "primary_mode": "event_driven",
+            "fallback_mode": "polling",
+            "active_wave_interval_seconds": 60,
+            "idle_interval_min_seconds": 300,
+            "idle_interval_max_seconds": 600,
+        },
+        "wave_completion_policy": {
+            "requires_all_workers_complete": True,
+            "requires_no_open_blockers": True,
+            "final_closeout_authority": "upper_layer_verdict",
+        },
+        "planner_artifacts": {"tier_1": "wave_plan", "tier_2": "worker_prompt_contract"},
+        "completion_governance": {
+            "components": ["dod_checker", "reply_auditor", "continuation_policy"],
+            "task_type_layered": True,
+        },
+        "unblock_policy": {"mode": "independent_temporary_task", "owner": "L0"},
+        "harness_evolution": {
+            "session_local_auto": True,
+            "project_local_requires_approval": True,
+            "global_requires_approval": True,
+            "project_local_approval_mode": "human_or_rule",
+            "global_approval_mode": "high_barrier",
+        },
+        "external_write_policy": {
+            "whitelist_systems": ["GitHub"],
+            "github_whitelist_actions": ["comment", "issue", "branch", "pull_request", "merge"],
+            "non_whitelist_requires_approval": True,
+        },
+        "portfolio_priority_formula": ["user_priority", "blocker_risk", "deadline", "resource_fairness"],
+        "first_class_entities": [
+            "Objective",
+            "Wave",
+            "Role",
+            "Session",
+            "Run",
+            "Workflow Case",
+            "Context Pack",
+            "Prompt Artifact",
+            "Harness Request",
+            "Unblock Task",
+            "Approval",
+        ],
+        "front_door_story": {
+            "title": "The command tower for AI engineering",
+            "subtitle_actions": ["plan", "delegate", "track", "resume", "prove"],
+            "pain_statement": "Stop babysitting AI coding work.",
+            "philosophy": ["Prompt Engineering", "Context Engineering", "Harness Engineering"],
+        },
+    }
+    assert validator.validate_report(control_plane_runtime_policy, "control_plane_runtime_policy.v1.json")["version"] == "v1"
+
     manifest_path = Path(__file__).resolve().parents[3] / "contracts" / "packs" / "news_digest" / "manifest.json"
     manifest_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert validator.validate_report(manifest_payload, "task_pack_manifest.v1.json")["pack_id"] == "news_digest"

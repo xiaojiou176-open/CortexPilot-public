@@ -99,6 +99,25 @@ export default function DashboardHomeStorySections({
         </div>
       </section>
 
+      <section className="app-section" aria-labelledby="dashboard-public-advantages-title">
+        <div className="section-header">
+          <div>
+            <h2 id="dashboard-public-advantages-title" className="section-title">
+              {homePhase2Copy.publicAdvantagesTitle}
+            </h2>
+            <p>{homePhase2Copy.publicAdvantagesDescription}</p>
+          </div>
+        </div>
+        <div className="quick-grid">
+          {homePhase2Copy.publicAdvantageCards.map((item) => (
+            <Link key={item.title} href={resolveHomeHref(item.href)} className="quick-card">
+              <span className="quick-card-title">{item.title}</span>
+              <span className="quick-card-desc">{item.desc}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <section className="app-section" aria-labelledby="dashboard-public-templates-title">
         <div className="section-header">
           <div>
