@@ -81,6 +81,8 @@ export default function RunDetail({
   const [toolCallsLoading, setToolCallsLoading] = useState(false);
   const [planningContracts, setPlanningContracts] = useState<Array<Record<string, unknown>>>([]);
   const [planningContractsError, setPlanningContractsError] = useState("");
+  const [unblockTasks, setUnblockTasks] = useState<Array<Record<string, unknown>>>([]);
+  const [unblockTasksError, setUnblockTasksError] = useState("");
   const [chainSpecError, setChainSpecError] = useState("");
   const [chainSpecLoading, setChainSpecLoading] = useState(false);
   const [liveEnabled, setLiveEnabled] = useState(true);
@@ -138,6 +140,12 @@ export default function RunDetail({
     const name = toStringOr(record.name, "");
     const path = toStringOr(record.path, "");
     return name === "planning_worker_prompt_contracts" || path === "artifacts/planning_worker_prompt_contracts.json";
+  });
+  const hasUnblockTasksArtifact = manifestArtifacts.some((item) => {
+    const record = toObject(item);
+    const name = toStringOr(record.name, "");
+    const path = toStringOr(record.path, "");
+    return name === "planning_unblock_tasks" || path === "artifacts/planning_unblock_tasks.json";
   });
   const observability = toObject(run?.manifest?.observability);
   const summaryGroups = ["reports/", "events.jsonl", "contract.json", "other"];
@@ -275,6 +283,41 @@ export default function RunDetail({
       alive = false;
     };
   }, [hasPlanningContractsArtifact, run?.run_id]);
+
+  useEffect(() => {
+    let alive = true;
+    async function loadUnblockTasks() {
+      if (!run?.run_id || !hasUnblockTasksArtifact) {
+        if (alive) {
+          setUnblockTasks([]);
+          setUnblockTasksError("");
+        }
+        return;
+      }
+      try {
+        const artifact = await fetchArtifact(run.run_id, "planning_unblock_tasks.json");
+        const rows = Array.isArray(artifact?.data) ? artifact.data : [];
+        if (alive) {
+          setUnblockTasks(
+            rows
+              .map((item) => (item && typeof item === "object" && !Array.isArray(item) ? (item as Record<string, unknown>) : null))
+              .filter((item): item is Record<string, unknown> => item !== null),
+          );
+          setUnblockTasksError("");
+        }
+      } catch (err: unknown) {
+        if (alive) {
+          setUnblockTasks([]);
+          console.error(`[run-detail] load unblock tasks failed: ${uiErrorDetail(err)}`);
+          setUnblockTasksError(sanitizeUiError(err, "Unblock task summary unavailable"));
+        }
+      }
+    }
+    void loadUnblockTasks();
+    return () => {
+      alive = false;
+    };
+  }, [hasUnblockTasksArtifact, run?.run_id]);
 
   useEffect(() => {
     let alive = true;
@@ -491,6 +534,8 @@ export default function RunDetail({
           manifestArtifacts={manifestArtifacts}
           planningContracts={planningContracts}
           planningContractsError={planningContractsError}
+          unblockTasks={unblockTasks}
+          unblockTasksError={unblockTasksError}
           onOpenLogs={() => handleFailedTerminalAction("logs")}
           onOpenReports={() => handleFailedTerminalAction("reports")}
           failedTerminalActionFeedback={failedTerminalActionFeedback}

@@ -212,6 +212,7 @@ describe("RunDetail core flows", () => {
           { name: "prompt_artifact", path: "artifacts/prompt_artifact.json" },
           { name: "planning_wave_plan", path: "artifacts/planning_wave_plan.json" },
           { name: "planning_worker_prompt_contracts", path: "artifacts/planning_worker_prompt_contracts.json" },
+          { name: "planning_unblock_tasks", path: "artifacts/planning_unblock_tasks.json" },
         ],
       },
     };
@@ -227,6 +228,14 @@ describe("RunDetail core flows", () => {
             on_incomplete: "reply_auditor_reprompt_and_continue_same_session",
             on_blocked: "spawn_independent_temporary_unblock_task",
           },
+        },
+      ],
+      planningUnblockTasks: [
+        {
+          unblock_task_id: "unblock-worker-1",
+          owner: "L0",
+          mode: "independent_temporary_task",
+          trigger: "spawn_independent_temporary_unblock_task",
         },
       ],
     });
@@ -249,10 +258,14 @@ describe("RunDetail core flows", () => {
     await waitFor(() => {
       expect(screen.getByText("Worker prompt contracts: 1")).toBeInTheDocument();
     });
+    expect(screen.getByText("Unblock tasks: 1")).toBeInTheDocument();
     expect(screen.getByText("On incomplete: reply_auditor_reprompt_and_continue_same_session")).toBeInTheDocument();
     expect(screen.getByText("On blocked: spawn_independent_temporary_unblock_task")).toBeInTheDocument();
     expect(screen.getByText("DoD checks: repo_hygiene / test_report")).toBeInTheDocument();
-    expect(screen.getByText("Lifecycle artifacts: Prompt artifact / Wave plan / Worker prompt contracts")).toBeInTheDocument();
+    expect(screen.getByText("Unblock owner: L0")).toBeInTheDocument();
+    expect(screen.getByText("Unblock mode: independent_temporary_task")).toBeInTheDocument();
+    expect(screen.getByText("Unblock trigger: spawn_independent_temporary_unblock_task")).toBeInTheDocument();
+    expect(screen.getByText("Lifecycle artifacts: Prompt artifact / Wave plan / Worker prompt contracts / Unblock tasks")).toBeInTheDocument();
     expect(
       screen.getByText(
         "Read-only note: this mirrors the persisted binding summary. task_contract still owns execution authority.",

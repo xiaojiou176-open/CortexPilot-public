@@ -40,6 +40,8 @@ type RunDetailStatusContractCardProps = {
   manifestArtifacts: unknown[];
   planningContracts: Array<Record<string, unknown>>;
   planningContractsError: string;
+  unblockTasks: Array<Record<string, unknown>>;
+  unblockTasksError: string;
   onOpenLogs: () => void;
   onOpenReports: () => void;
   failedTerminalActionFeedback: string;
@@ -68,6 +70,8 @@ export default function RunDetailStatusContractCard({
   manifestArtifacts,
   planningContracts,
   planningContractsError,
+  unblockTasks,
+  unblockTasksError,
   onOpenLogs,
   onOpenReports,
   failedTerminalActionFeedback,
@@ -97,6 +101,9 @@ export default function RunDetailStatusContractCard({
     artifactNames.includes("artifacts/planning_worker_prompt_contracts.json")
       ? "Worker prompt contracts"
       : "",
+    artifactNames.includes("planning_unblock_tasks") || artifactNames.includes("artifacts/planning_unblock_tasks.json")
+      ? "Unblock tasks"
+      : "",
   ].filter(Boolean);
   const continuationOnIncomplete = Array.from(
     new Set(
@@ -122,6 +129,15 @@ export default function RunDetailStatusContractCard({
     ),
   );
   const roleBindingReadModel = run.role_binding_read_model;
+  const unblockTaskOwners = Array.from(
+    new Set(unblockTasks.map((task) => toDisplayText(task.owner)).filter((value) => value !== "-")),
+  );
+  const unblockTaskModes = Array.from(
+    new Set(unblockTasks.map((task) => toDisplayText(task.mode)).filter((value) => value !== "-")),
+  );
+  const unblockTaskTriggers = Array.from(
+    new Set(unblockTasks.map((task) => toDisplayText(task.trigger)).filter((value) => value !== "-")),
+  );
 
   return (
     <Card>
@@ -265,10 +281,11 @@ export default function RunDetailStatusContractCard({
           </div>
         </div>
       ) : null}
-      {planningContracts.length > 0 || planningContractsError ? (
+      {planningContracts.length > 0 || planningContractsError || unblockTasks.length > 0 || unblockTasksError ? (
         <div className="run-detail-section" data-testid="run-completion-governance-summary">
           <div className="mono run-detail-section-label">Completion governance</div>
           <div className="mono">Worker prompt contracts: {planningContracts.length}</div>
+          {unblockTasks.length > 0 ? <div className="mono">Unblock tasks: {unblockTasks.length}</div> : null}
           {continuationOnIncomplete.length > 0 ? (
             <div className="mono">On incomplete: {continuationOnIncomplete.join(" / ")}</div>
           ) : null}
@@ -278,11 +295,20 @@ export default function RunDetailStatusContractCard({
           {doneChecks.length > 0 ? (
             <div className="mono">DoD checks: {doneChecks.join(" / ")}</div>
           ) : null}
-          {planningContractsError ? (
-            <div className="mono muted">{planningContractsError}</div>
+          {unblockTaskOwners.length > 0 ? (
+            <div className="mono">Unblock owner: {unblockTaskOwners.join(" / ")}</div>
+          ) : null}
+          {unblockTaskModes.length > 0 ? (
+            <div className="mono">Unblock mode: {unblockTaskModes.join(" / ")}</div>
+          ) : null}
+          {unblockTaskTriggers.length > 0 ? (
+            <div className="mono">Unblock trigger: {unblockTaskTriggers.join(" / ")}</div>
+          ) : null}
+          {planningContractsError || unblockTasksError ? (
+            <div className="mono muted">{planningContractsError || unblockTasksError}</div>
           ) : (
             <div className="mono muted">
-              Derived from persisted worker prompt contracts. These summaries stay advisory; task_contract still owns execution authority.
+              Derived from persisted worker prompt contracts and unblock tasks. These summaries stay advisory; task_contract still owns execution authority.
             </div>
           )}
         </div>

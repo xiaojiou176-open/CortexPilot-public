@@ -138,6 +138,26 @@ function summarizeWorkerPromptContracts(report: ExecutionPlanReport): Array<{
     });
 }
 
+function summarizeUnblockTasks(report: ExecutionPlanReport): Array<{
+  id: string;
+  owner: string;
+  mode: string;
+  trigger: string;
+}> {
+  const rawTasks = Array.isArray(report.unblock_tasks) ? report.unblock_tasks : [];
+  return rawTasks
+    .filter((item) => typeof item === "object" && item !== null && !Array.isArray(item))
+    .map((item) => {
+      const record = item as Record<string, unknown>;
+      return {
+        id: String(record.unblock_task_id || "-").trim() || "-",
+        owner: String(record.owner || "-").trim() || "-",
+        mode: String(record.mode || "-").trim() || "-",
+        trigger: String(record.trigger || "-").trim() || "-",
+      };
+    });
+}
+
 export default function PMIntakeRightSidebar(props: Props) {
   const {
     pmJourneyContext,
@@ -305,6 +325,7 @@ export default function PMIntakeRightSidebar(props: Props) {
   const flightPlanPredictedArtifacts = executionPlanPreview ? compactList(executionPlanPreview.predicted_artifacts) : "-";
   const flightPlanAcceptanceChecks = executionPlanPreview ? summarizeAcceptanceChecks(executionPlanPreview) : "-";
   const workerPromptContracts = executionPlanPreview ? summarizeWorkerPromptContracts(executionPlanPreview) : [];
+  const unblockTasks = executionPlanPreview ? summarizeUnblockTasks(executionPlanPreview) : [];
   const wavePlan = executionPlanPreview && typeof executionPlanPreview.wave_plan === "object" && executionPlanPreview.wave_plan
     ? (executionPlanPreview.wave_plan as Record<string, unknown>)
     : null;
@@ -619,6 +640,18 @@ export default function PMIntakeRightSidebar(props: Props) {
                   {workerPromptContracts.map((item) => (
                     <li key={item.id}>
                       <span className="mono">{item.id}</span> · {item.role} · {item.scope} · verify via {item.verification}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+            {unblockTasks.length > 0 ? (
+              <>
+                <strong>Unblock task candidates</strong>
+                <ul className="pm-question-list">
+                  {unblockTasks.map((item) => (
+                    <li key={item.id}>
+                      <span className="mono">{item.id}</span> · owner {item.owner} · {item.mode} · trigger {item.trigger}
                     </li>
                   ))}
                 </ul>
