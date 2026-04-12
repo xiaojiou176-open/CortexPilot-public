@@ -46,9 +46,9 @@ describe("agents page presentation", () => {
 
     render(await AgentsPage({ searchParams: Promise.resolve({}) }));
 
-    expect(screen.getByText("Triage blocked risk first, confirm available execution seats next, then drill into individual task records.")).toBeInTheDocument();
-    expect(screen.getByText("Use role and keyword filters to separate bound agent records from pending scheduling backlog. Without filters, the page shows a full inspection view.")).toBeInTheDocument();
-    expect(screen.getByText("Pending tasks stay out of this card to avoid backlog confusion.")).toBeInTheDocument();
+    expect(screen.getByText("Open the role desk to confirm execution seats, runtime bindings, and scheduler posture. Treat capacity numbers as supporting evidence, not the product story.")).toBeInTheDocument();
+    expect(screen.getByText("Use role and keyword filters to separate registered execution seats from scheduler backlog and failure records.")).toBeInTheDocument();
+    expect(screen.getByText("This card confirms registered seats and bindings. It does not describe pending scheduler backlog.")).toBeInTheDocument();
   });
 
   it("shows explicit downgrade warning guidance when data source fails", async () => {
@@ -58,7 +58,7 @@ describe("agents page presentation", () => {
 
     render(await AgentsPage({ searchParams: Promise.resolve({}) }));
 
-    expect(screen.getByText("The agent overview is currently in degraded snapshot mode. Re-check run detail before governance actions.")).toBeInTheDocument();
+    expect(screen.getByText("The role desk is currently in degraded snapshot mode.")).toBeInTheDocument();
     expect(screen.getByText("Agent registry is temporarily unavailable. Try again later.")).toBeInTheDocument();
 
     consoleSpy.mockRestore();
@@ -201,10 +201,10 @@ describe("agents page presentation", () => {
 
     expect(await screen.findByText("Role configuration desk")).toBeInTheDocument();
     expect(screen.getByText("Preview is available, but saving defaults requires an operator role.")).toBeInTheDocument();
-    expect(screen.getByText("Role catalog (read-only first screen)")).toBeInTheDocument();
+    expect(screen.getByText("Role desk (read-only mirror)")).toBeInTheDocument();
     expect(screen.getAllByText("task_contract").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/worker_delivery_core_v1/).length).toBeGreaterThan(0);
-    expect(screen.getByText("Registered agent inventory (expandable, 1 items)")).toBeInTheDocument();
+    expect(screen.getByText("Registered execution seats (expandable, 1 items)")).toBeInTheDocument();
   });
 
   it("wires the role configuration desk preview flow", async () => {

@@ -455,6 +455,195 @@ export type UiCopy = {
       verdictPrefix: string;
       queueSummary: (count: number, slaState: string) => string;
     };
+    runsPage: {
+      title: string;
+      subtitle: string;
+      countsBadge: (runCount: number) => string;
+      warningTitle: string;
+      warningNextStep: string;
+      metricLabels: {
+        runInventory: string;
+        replayPosture: string;
+        operatorPriority: string;
+      };
+      inventorySubline: string;
+      failureHeadline: (failed: number) => string;
+      successHeadline: (success: number) => string;
+      failureSubline: (success: number, running: number) => string;
+      successSubline: (running: number, failed: number) => string;
+      operatorPriorityHeadline: (failed: number) => string;
+      operatorPriorityClearHeadline: string;
+      operatorPrioritySubline: string;
+      operatorPriorityClearSubline: string;
+      operatorPrimaryActionFailed: string;
+      operatorPrimaryActionClear: string;
+      operatorSecondaryAction: string;
+      filterAriaLabel: string;
+      filters: {
+        all: string;
+        failed: string;
+        running: string;
+        success: string;
+      };
+      firstScreenLimit: (visibleCount: number) => string;
+    };
+    contractsPage: {
+      title: string;
+      subtitle: string;
+      countsBadge: (contractCount: number) => string;
+      searchLabel: string;
+      searchPlaceholder: string;
+      applyFilter: string;
+      filterSummary: (visible: number, total: number, defaultLimit: number) => string;
+      warningTitle: string;
+      warningNextStep: string;
+      emptyTitle: string;
+      emptyHint: string;
+      fieldLabels: {
+        taskId: string;
+        runId: string;
+        assignedRole: string;
+        executionAuthority: string;
+        skillsBundle: string;
+        mcpBundle: string;
+        runtimeBinding: string;
+        runtimeCapability: string;
+        toolExecution: string;
+        allowedPaths: string;
+        acceptanceTests: string;
+        toolPermissions: string;
+      };
+      fallbackValues: {
+        unknownSource: string;
+        unknownContract: string;
+        notAssigned: string;
+        notPublished: string;
+        notDerived: string;
+        unrestricted: string;
+        noAcceptanceTests: string;
+        defaultPermissions: string;
+      };
+      fullJsonSummary: string;
+      moreHidden: (count: number) => string;
+      showAll: string;
+    };
+    agentsPage: {
+      title: string;
+      subtitle: string;
+      openCommandTower: string;
+      warningTitle: string;
+      warningNextStep: string;
+      summaryAriaLabel: string;
+      metricLabels: {
+        riskDesk: string;
+        executionSeats: string;
+        schedulerPosture: string;
+      };
+      metricBadges: {
+        riskActive: string;
+        riskClear: string;
+        schedulerNeedsAction: string;
+        schedulerStable: string;
+      };
+      metricSublines: {
+        risk: (statuses: number, healthy: number) => string;
+        riskHint: string;
+        execution: (activeAgents: number, capacityRatio: number) => string;
+        executionHint: string;
+        scheduler: (unassignedStatuses: number, unassignedFailedStatuses: number) => string;
+        schedulerHint: (lockedAgentCount: number) => string;
+      };
+      actions: {
+        inspectRiskDesk: string;
+        inspectRoleDesk: string;
+        openFailedEvents: string;
+      };
+      roleCatalog: {
+        title: string;
+        subtitle: string;
+        fullList: string;
+        registryUnavailable: string;
+        noMatches: string;
+        headers: {
+          role: string;
+          skillsBundle: string;
+          mcpBundle: string;
+          runtimeBinding: string;
+          executionAuthority: string;
+          registeredSeats: string;
+        };
+        noRolePurpose: string;
+        readOnlyMirror: string;
+        lockedSuffix: string;
+      };
+      filters: {
+        title: string;
+        subtitle: string;
+        searchPlaceholder: string;
+        allRoles: string;
+        applyFilter: string;
+        hint: string;
+        clearFilter: string;
+      };
+      stateMachine: {
+        title: string;
+        subtitle: string;
+        summaryBadge: (statuses: number, sample: number) => string;
+        failedBadge: (failed: number, currentPageFailed: number) => string;
+        unassignedFailuresBadge: (count: number) => string;
+        viewFailedRuns: string;
+        emptyTitle: string;
+        sampleHint: (visible: number) => string;
+        headers: {
+          runId: string;
+          taskId: string;
+          role: string;
+          agentId: string;
+          flowStage: string;
+          executionContext: string;
+          governanceAction: string;
+        };
+        pendingScheduling: string;
+        pendingSchedulingHint: string;
+        schedulingFailed: string;
+        executionContextAriaLabel: string;
+        governanceActionsAriaLabel: string;
+        detail: string;
+        detailFailedTitle: string;
+        detailDefaultTitle: string;
+        missingRunId: string;
+      };
+      registeredInventory: {
+        title: (count: number) => string;
+        registryUnavailable: string;
+        emptyTitle: string;
+        tableAriaLabel: string;
+        headers: {
+          agentId: string;
+          role: string;
+          lockCount: string;
+          lockedPaths: string;
+        };
+      };
+      locks: {
+        title: (total: number, pageCount: number) => string;
+        emptyTitle: string;
+        tableAriaLabel: string;
+        headers: {
+          lockId: string;
+          runId: string;
+          agentId: string;
+          role: string;
+          path: string;
+          timestamp: string;
+        };
+      };
+      pagination: {
+        status: (page: number, totalPages: number, pageSize: number) => string;
+        previous: string;
+        next: string;
+      };
+    };
     sectionPrimary: string;
     sectionAdvanced: string;
     labels: DashboardNavLabels;
@@ -1446,6 +1635,207 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         },
         verdictPrefix: "verdict",
         queueSummary: (count: number, slaState: string) => `queue: ${count} / SLA ${slaState}`,
+      },
+      runsPage: {
+        title: "Proof & Replay",
+        subtitle:
+          "Use this spine to inspect run evidence, compare posture, and replay decisions. Failed-run triage is only one lane inside the broader proof desk.",
+        countsBadge: (runCount: number) => `${runCount} runs`,
+        warningTitle: "Proof & Replay is currently running with partial truth.",
+        warningNextStep: "Use the visible run records as a read-only snapshot, then confirm the affected Run Detail before making a governance decision.",
+        metricLabels: {
+          runInventory: "Run inventory",
+          replayPosture: "Replay posture",
+          operatorPriority: "Operator priority",
+        },
+        inventorySubline: "Total runs currently visible to the dashboard proof desk",
+        failureHeadline: (failed: number) => `Failed ${failed}`,
+        successHeadline: (success: number) => `Succeeded ${success}`,
+        failureSubline: (success: number, running: number) => `Failure-first · Succeeded ${success} · Running ${running}`,
+        successSubline: (running: number, failed: number) => `Success-first · Running ${running} · Failed ${failed}`,
+        operatorPriorityHeadline: (failed: number) => `Review failed runs first: ${failed}`,
+        operatorPriorityClearHeadline: "No failed runs need proof review right now",
+        operatorPrioritySubline: "Open the failed lane first, then inspect proof, compare, and replay from Run Detail.",
+        operatorPriorityClearSubline: "The failed lane is clear. Continue monitoring fresh runs and open PM when a new request needs to enter the loop.",
+        operatorPrimaryActionFailed: "Open failed proof lane",
+        operatorPrimaryActionClear: "Start a new task",
+        operatorSecondaryAction: "View failed events",
+        filterAriaLabel: "Proof & Replay status filter",
+        filters: {
+          all: "All runs",
+          failed: "Failed",
+          running: "Running",
+          success: "Succeeded",
+        },
+        firstScreenLimit: (visibleCount: number) =>
+          `The first screen is capped at the latest ${visibleCount} runs so proof review stays readable.`,
+      },
+      contractsPage: {
+        title: "Contracts",
+        subtitle:
+          "Use the contract desk to inspect execution authority, bundle posture, runtime binding, and guardrails before trusting a task to continue.",
+        countsBadge: (contractCount: number) => `${contractCount} contracts`,
+        searchLabel: "Search",
+        searchPlaceholder: "Filter by task_id / run_id / path",
+        applyFilter: "Apply filter",
+        filterSummary: (visible: number, total: number, defaultLimit: number) =>
+          `Showing ${visible} / ${total} contracts. Default first-screen limit: ${defaultLimit}.`,
+        warningTitle: "The contract desk is partially degraded.",
+        warningNextStep: "Use this read-only snapshot to confirm contract identity, then reopen the affected run or workflow once the contract path recovers.",
+        emptyTitle: "No contracts yet",
+        emptyHint: "Contracts are generated automatically when work is assigned.",
+        fieldLabels: {
+          taskId: "Task ID",
+          runId: "Run ID",
+          assignedRole: "Assigned role",
+          executionAuthority: "Execution authority",
+          skillsBundle: "Skills bundle",
+          mcpBundle: "MCP bundle",
+          runtimeBinding: "Runtime binding",
+          runtimeCapability: "Runtime capability",
+          toolExecution: "Tool execution",
+          allowedPaths: "Allowed paths",
+          acceptanceTests: "Acceptance tests",
+          toolPermissions: "Tool permissions",
+        },
+        fallbackValues: {
+          unknownSource: "unknown",
+          unknownContract: "Contract",
+          notAssigned: "Not assigned",
+          notPublished: "Not published",
+          notDerived: "Not derived",
+          unrestricted: "Unrestricted",
+          noAcceptanceTests: "None",
+          defaultPermissions: "Default",
+        },
+        fullJsonSummary: "Full contract JSON",
+        moreHidden: (count: number) => `${count} more contracts are hidden.`,
+        showAll: "Show all",
+      },
+      agentsPage: {
+        title: "Agents",
+        subtitle:
+          "Open the role desk to confirm execution seats, runtime bindings, and scheduler posture. Treat capacity numbers as supporting evidence, not the product story.",
+        openCommandTower: "Open command tower",
+        warningTitle: "The role desk is currently in degraded snapshot mode.",
+        warningNextStep: "Re-check the affected run or workflow before taking approval, replay, or release actions.",
+        summaryAriaLabel: "Role desk summary",
+        metricLabels: {
+          riskDesk: "Blocked or failed lanes",
+          executionSeats: "Live execution seats",
+          schedulerPosture: "Scheduler posture",
+        },
+        metricBadges: {
+          riskActive: "Operator focus first",
+          riskClear: "No failing lanes",
+          schedulerNeedsAction: "Needs scheduler action",
+          schedulerStable: "Stable right now",
+        },
+        metricSublines: {
+          risk: (statuses: number, healthy: number) => `State machine ${statuses} / Non-failed ${healthy}`,
+          riskHint: "This card tracks runtime state only. Use it to decide which lane needs evidence review first.",
+          execution: (activeAgents: number, capacityRatio: number) => `Bound agents ${activeAgents} (attach rate ${capacityRatio}%)`,
+          executionHint: "This card confirms registered seats and bindings. It does not describe pending scheduler backlog.",
+          scheduler: (unassignedStatuses: number, unassignedFailedStatuses: number) =>
+            `Unassigned tasks ${unassignedStatuses} / Unassigned failures ${unassignedFailedStatuses}`,
+          schedulerHint: (lockedAgentCount: number) =>
+            `Agents holding locks ${lockedAgentCount}; this measures queue posture, not agent health.`,
+        },
+        actions: {
+          inspectRiskDesk: "View pending details",
+          inspectRoleDesk: "View role catalog",
+          openFailedEvents: "Failed events",
+        },
+        roleCatalog: {
+          title: "Role desk (read-only mirror)",
+          subtitle:
+            "This registry-backed view shows role purpose, bundle posture, runtime binding, and execution authority without promoting the catalog into the authority source.",
+          fullList: "Full list",
+          registryUnavailable: "The role registry is temporarily unavailable. Execution-lane triage remains available.",
+          noMatches: "No role catalog entries match the current filter.",
+          headers: {
+            role: "Role",
+            skillsBundle: "Skills bundle",
+            mcpBundle: "MCP bundle",
+            runtimeBinding: "Runtime binding",
+            executionAuthority: "Execution authority",
+            registeredSeats: "Registered seats",
+          },
+          noRolePurpose: "No role purpose published yet.",
+          readOnlyMirror: "Read-only derived mirror",
+          lockedSuffix: "locked",
+        },
+        filters: {
+          title: "Role, seat, and scheduler filters",
+          subtitle:
+            "Use role and keyword filters to separate registered execution seats from scheduler backlog and failure records.",
+          searchPlaceholder: "Search run / agent / task / path",
+          allRoles: "All roles",
+          applyFilter: "Apply filter",
+          hint: "Leave the fields empty to inspect the full desk, then apply a filter once the investigation path is clear.",
+          clearFilter: "Clear filter",
+        },
+        stateMachine: {
+          title: "Execution lane triage",
+          subtitle:
+            'Use this table to inspect lanes run by run. "Pending scheduling" means scheduler backlog, not an automatic agent fault.',
+          summaryBadge: (statuses: number, sample: number) => `State machine ${statuses} (first-screen sample ${sample})`,
+          failedBadge: (failed: number, currentPageFailed: number) =>
+            `Failed lanes ${failed} (current page ${currentPageFailed})`,
+          unassignedFailuresBadge: (count: number) => `Unassigned failures ${count}`,
+          viewFailedRuns: "View failed runs in bulk",
+          emptyTitle: "No active runs",
+          sampleHint: (visible: number) =>
+            `The first screen shows the ${visible} samples that need the most triage. Continue paging for the rest.`,
+          headers: {
+            runId: "Run ID",
+            taskId: "Task ID",
+            role: "Role",
+            agentId: "Agent ID",
+            flowStage: "Flow stage",
+            executionContext: "Execution context",
+            governanceAction: "Governance action",
+          },
+          pendingScheduling: "Pending scheduling",
+          pendingSchedulingHint: "No agent is assigned yet. The task is waiting in the scheduler queue.",
+          schedulingFailed: "Scheduling failed",
+          executionContextAriaLabel: "Execution-context summary",
+          governanceActionsAriaLabel: "Run governance actions",
+          detail: "Detail",
+          detailFailedTitle: "Failed stage: diagnose and replay from run detail.",
+          detailDefaultTitle: "View run detail",
+          missingRunId: "Run ID missing",
+        },
+        registeredInventory: {
+          title: (count: number) => `Registered execution seats (expandable, ${count} items)`,
+          registryUnavailable: "The role registry is unavailable right now. Only the execution-lane and lock views remain.",
+          emptyTitle: "No registered agents",
+          tableAriaLabel: "Registered execution seat summary table",
+          headers: {
+            agentId: "Agent ID",
+            role: "Role",
+            lockCount: "Lock count",
+            lockedPaths: "Locked paths",
+          },
+        },
+        locks: {
+          title: (total: number, pageCount: number) => `Lock posture (${total} total, ${pageCount} on this page)`,
+          emptyTitle: "No lock records",
+          tableAriaLabel: "Lock posture table",
+          headers: {
+            lockId: "Lock ID",
+            runId: "Run ID",
+            agentId: "Agent ID",
+            role: "Role",
+            path: "Path",
+            timestamp: "Timestamp",
+          },
+        },
+        pagination: {
+          status: (page: number, totalPages: number, pageSize: number) => `Page ${page} / ${totalPages} (${pageSize} rows per page)`,
+          previous: "Previous",
+          next: "Next",
+        },
       },
       sectionPrimary: "Core loop",
       sectionAdvanced: "Inspectors",
@@ -2494,6 +2884,202 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         },
         verdictPrefix: "结论",
         queueSummary: (count: number, slaState: string) => `队列：${count} / SLA ${slaState}`,
+      },
+      runsPage: {
+        title: "Proof & Replay",
+        subtitle:
+          "这里是 Run 证据、对比姿态和重放决策的主入口。失败分流只是其中一条操作 lane，不是这张页面的全部意义。",
+        countsBadge: (runCount: number) => `${runCount} 个 runs`,
+        warningTitle: "Proof & Replay 当前处于部分真相模式。",
+        warningNextStep: "先把当前可见 runs 当成只读快照，再进入对应的 Run Detail 做治理判断。",
+        metricLabels: {
+          runInventory: "运行库存",
+          replayPosture: "重放姿态",
+          operatorPriority: "当前操作优先级",
+        },
+        inventorySubline: "当前 Dashboard 在 Proof & Replay 面能看到的总 runs",
+        failureHeadline: (failed: number) => `失败 ${failed}`,
+        successHeadline: (success: number) => `成功 ${success}`,
+        failureSubline: (success: number, running: number) => `先看失败 · 成功 ${success} · 运行中 ${running}`,
+        successSubline: (running: number, failed: number) => `先看成功面 · 运行中 ${running} · 失败 ${failed}`,
+        operatorPriorityHeadline: (failed: number) => `先复核失败 runs：${failed}`,
+        operatorPriorityClearHeadline: "当前没有失败 runs 需要复核",
+        operatorPrioritySubline: "优先打开失败 lane，再从 Run Detail 看 proof、compare 和 replay。",
+        operatorPriorityClearSubline: "失败 lane 目前是空的。继续观察新 runs，或者从 PM 入口发起下一条请求。",
+        operatorPrimaryActionFailed: "打开失败证明 lane",
+        operatorPrimaryActionClear: "启动新任务",
+        operatorSecondaryAction: "查看失败事件",
+        filterAriaLabel: "Proof & Replay 状态筛选",
+        filters: {
+          all: "全部 runs",
+          failed: "失败",
+          running: "运行中",
+          success: "成功",
+        },
+        firstScreenLimit: (visibleCount: number) =>
+          `首屏只显示最新 ${visibleCount} 条 runs，避免证明复核面一上来就过载。`,
+      },
+      contractsPage: {
+        title: "合约",
+        subtitle:
+          "把这里当成 command tower 的 contract desk：先确认执行权、bundle 姿态、runtime 绑定和护栏，再决定这条任务应不应该继续往前跑。",
+        countsBadge: (contractCount: number) => `${contractCount} 份合约`,
+        searchLabel: "搜索",
+        searchPlaceholder: "按 task_id / run_id / path 过滤",
+        applyFilter: "应用筛选",
+        filterSummary: (visible: number, total: number, defaultLimit: number) =>
+          `当前显示 ${visible} / ${total} 份合约。默认首屏上限：${defaultLimit}。`,
+        warningTitle: "Contract desk 当前处于部分降级状态。",
+        warningNextStep: "先把这份只读快照当成身份和护栏核对面，再回到对应 run 或 workflow 继续判断。",
+        emptyTitle: "当前还没有合约",
+        emptyHint: "任务一旦被正式派工，系统会自动生成对应合约。",
+        fieldLabels: {
+          taskId: "任务 ID",
+          runId: "运行 ID",
+          assignedRole: "分配角色",
+          executionAuthority: "执行权",
+          skillsBundle: "Skills bundle",
+          mcpBundle: "MCP bundle",
+          runtimeBinding: "Runtime 绑定",
+          runtimeCapability: "Runtime 能力",
+          toolExecution: "工具执行",
+          allowedPaths: "允许路径",
+          acceptanceTests: "验收测试",
+          toolPermissions: "工具权限",
+        },
+        fallbackValues: {
+          unknownSource: "未知来源",
+          unknownContract: "合约",
+          notAssigned: "尚未分配",
+          notPublished: "尚未发布",
+          notDerived: "尚未派生",
+          unrestricted: "未限制",
+          noAcceptanceTests: "无",
+          defaultPermissions: "默认",
+        },
+        fullJsonSummary: "查看完整合约 JSON",
+        moreHidden: (count: number) => `还有 ${count} 份合约未在首屏展开。`,
+        showAll: "显示全部",
+      },
+      agentsPage: {
+        title: "代理",
+        subtitle:
+          "把这里当成 role / control-plane desk：先确认哪些执行 lane 失稳、哪些 seats 真实绑定、scheduler 当前卡在哪，再往下钻 task 细节。",
+        openCommandTower: "打开指挥塔",
+        warningTitle: "当前代理总览处于降级快照模式。做治理动作前，请重新核对 Run Detail。",
+        warningNextStep: "做审批、重放或发布判断前，先回到对应 run 或 workflow 复核最新真相。",
+        summaryAriaLabel: "角色控制台摘要",
+        metricLabels: {
+          riskDesk: "失稳执行 lane",
+          executionSeats: "在线执行 seats",
+          schedulerPosture: "调度姿态",
+        },
+        metricBadges: {
+          riskActive: "先处理操作风险",
+          riskClear: "当前无失败 lane",
+          schedulerNeedsAction: "需要调度动作",
+          schedulerStable: "当前稳定",
+        },
+        metricSublines: {
+          risk: (statuses: number, healthy: number) => `状态机总数 ${statuses} / 非失败 ${healthy}`,
+          riskHint: "这张卡只看 runtime lane 状态，用来决定先去哪条线做证据复核。",
+          execution: (activeAgents: number, capacityRatio: number) => `已绑定代理 ${activeAgents}（attach rate ${capacityRatio}%）`,
+          executionHint: "这张卡确认 seat 和 binding 是否在线，不负责描述等待调度的 backlog。",
+          scheduler: (unassignedStatuses: number, unassignedFailedStatuses: number) =>
+            `未分配任务 ${unassignedStatuses} / 未分配失败 ${unassignedFailedStatuses}`,
+          schedulerHint: (lockedAgentCount: number) => `当前有 ${lockedAgentCount} 个持锁代理；它反映的是队列姿态，不是代理健康度。`,
+        },
+        actions: {
+          inspectRiskDesk: "查看待处理详情",
+          inspectRoleDesk: "查看角色目录",
+          openFailedEvents: "失败事件",
+        },
+        roleCatalog: {
+          title: "角色 desk（只读镜像）",
+          subtitle:
+            "这张 registry-backed 视图展示角色目的、bundle 姿态、runtime 绑定和执行权，但不会把目录本身抬升成 authority source。",
+          fullList: "完整列表",
+          registryUnavailable: "角色 registry 当前不可用。你仍可继续查看 execution lane 和 lock posture。",
+          noMatches: "当前筛选条件下没有匹配的角色目录项。",
+          headers: {
+            role: "角色",
+            skillsBundle: "Skills bundle",
+            mcpBundle: "MCP bundle",
+            runtimeBinding: "Runtime 绑定",
+            executionAuthority: "执行权",
+            registeredSeats: "已注册 seats",
+          },
+          noRolePurpose: "当前还没有发布角色目的说明。",
+          readOnlyMirror: "只读派生镜像",
+          lockedSuffix: "已加锁",
+        },
+        filters: {
+          title: "角色、seat 与 scheduler 筛选",
+          subtitle: "用角色和关键词把已绑定 seats、scheduler backlog 和失败记录拆开看，避免把不同问题混成一张板。",
+          searchPlaceholder: "搜索 run / agent / task / path",
+          allRoles: "全部角色",
+          applyFilter: "应用筛选",
+          hint: "字段留空时就是完整 role desk；只有当调查路径明确后，再应用筛选。",
+          clearFilter: "清除筛选",
+        },
+        stateMachine: {
+          title: "执行 lane 分诊",
+          subtitle: "按 run 逐条看执行 lane。这里的“待调度”表示 scheduler backlog，不等于代理本身出故障。",
+          summaryBadge: (statuses: number, sample: number) => `状态机 ${statuses} 条（首屏样本 ${sample} 条）`,
+          failedBadge: (failed: number, currentPageFailed: number) => `失败 lanes ${failed} 条（当前页 ${currentPageFailed} 条）`,
+          unassignedFailuresBadge: (count: number) => `未分配失败 ${count} 条`,
+          viewFailedRuns: "批量查看失败 runs",
+          emptyTitle: "当前没有活动 runs",
+          sampleHint: (visible: number) => `首屏优先展示最需要分诊的 ${visible} 条样本；其余内容继续翻页查看。`,
+          headers: {
+            runId: "运行 ID",
+            taskId: "任务 ID",
+            role: "角色",
+            agentId: "代理 ID",
+            flowStage: "流程阶段",
+            executionContext: "执行上下文",
+            governanceAction: "治理动作",
+          },
+          pendingScheduling: "待调度",
+          pendingSchedulingHint: "当前还没有分配代理，这条任务仍在 scheduler 队列中等待。",
+          schedulingFailed: "调度失败",
+          executionContextAriaLabel: "执行上下文摘要",
+          governanceActionsAriaLabel: "运行治理动作",
+          detail: "详情",
+          detailFailedTitle: "当前阶段失败：进入 Run Detail 做诊断和 replay 判断。",
+          detailDefaultTitle: "查看 Run Detail",
+          missingRunId: "缺少 Run ID",
+        },
+        registeredInventory: {
+          title: (count: number) => `已注册执行 seats（可展开，${count} 项）`,
+          registryUnavailable: "角色 registry 当前不可用，暂时只能查看 execution lane 和 lock posture。",
+          emptyTitle: "当前没有已注册代理",
+          tableAriaLabel: "已注册执行 seats 摘要表",
+          headers: {
+            agentId: "代理 ID",
+            role: "角色",
+            lockCount: "锁数量",
+            lockedPaths: "已锁路径",
+          },
+        },
+        locks: {
+          title: (total: number, pageCount: number) => `锁姿态（共 ${total} 条，本页 ${pageCount} 条）`,
+          emptyTitle: "当前没有锁记录",
+          tableAriaLabel: "锁姿态表",
+          headers: {
+            lockId: "锁 ID",
+            runId: "运行 ID",
+            agentId: "代理 ID",
+            role: "角色",
+            path: "路径",
+            timestamp: "时间戳",
+          },
+        },
+        pagination: {
+          status: (page: number, totalPages: number, pageSize: number) => `第 ${page} / ${totalPages} 页（每页 ${pageSize} 条）`,
+          previous: "上一页",
+          next: "下一页",
+        },
       },
       sectionPrimary: "核心主线",
       sectionAdvanced: "检查与治理",

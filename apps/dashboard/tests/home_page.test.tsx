@@ -380,9 +380,9 @@ describe("dashboard home run-summary clarity", () => {
 
     render(await RunsPage({ searchParams: Promise.resolve({}) }));
 
-    expect(screen.getByRole("link", { name: "Open failed-run triage" })).toHaveAttribute("href", "/runs?status=FAILED");
+    expect(screen.getByRole("link", { name: "Open failed proof lane" })).toHaveAttribute("href", "/runs?status=FAILED");
     expect(screen.getByRole("link", { name: "View failed events" })).toHaveAttribute("href", "/events");
-    expect(screen.getByRole("link", { name: "All" })).toHaveAttribute("href", "/runs");
+    expect(screen.getByRole("link", { name: "All runs" })).toHaveAttribute("href", "/runs");
     expect(screen.getByRole("link", { name: "Failed" })).toHaveAttribute("href", "/runs?status=FAILED");
     expect(screen.getByRole("link", { name: "Running" })).toHaveAttribute("href", "/runs?status=RUNNING");
     expect(screen.getByRole("link", { name: "Succeeded" })).toHaveAttribute("href", "/runs?status=SUCCESS");
@@ -395,7 +395,7 @@ describe("dashboard home run-summary clarity", () => {
 
     render(await RunsPage({ searchParams: Promise.resolve({ status: "SUCCESS" }) }));
 
-    expect(screen.getByRole("link", { name: "Create new task" })).toHaveAttribute("href", "/pm");
+    expect(screen.getByRole("link", { name: "Start a new task" })).toHaveAttribute("href", "/pm");
     expect(screen.queryByRole("link", { name: "View failed events" })).not.toBeInTheDocument();
   });
 

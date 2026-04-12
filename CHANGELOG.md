@@ -6,6 +6,12 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- corrected the default localhost full-stack operator path so `npm run dev`
+  now truthfully pairs the dashboard with a localhost-only API lane, while
+  `dashboard:dev` stays a dashboard-only shell on the expected port; the same
+  slice also pulls the dashboard `Runs / Contracts / Agents` first-screen copy
+  back into shared command-tower proof / contract / role-desk language instead
+  of leaving those pages on scattered inspector phrasing
 - pinned transitive dashboard security fixes through the maintained pnpm
   override surfaces so `axios` now resolves to `1.15.0` and `basic-ftp` to
   `5.2.2` in both the root and dashboard lockfiles, clearing the live
