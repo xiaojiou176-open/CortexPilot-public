@@ -8,6 +8,7 @@ type FetchOptions = {
   events?: any[];
   reports?: any[];
   chainSpec?: any;
+  planningContracts?: any[];
   availableRuns?: any[];
   agentStatus?: any[];
   toolCalls?: any[];
@@ -17,10 +18,12 @@ type FetchOptions = {
   eventsOk?: boolean;
   reportsOk?: boolean;
   chainOk?: boolean;
+  planningContractsOk?: boolean;
   agentStatusOk?: boolean;
   toolCallsOk?: boolean;
   throwRuns?: boolean;
   throwChain?: boolean;
+  throwPlanningContracts?: boolean;
   throwReplay?: boolean;
   throwAgentStatus?: boolean;
   throwToolCalls?: boolean;
@@ -32,6 +35,7 @@ export function mockFetchFactory(options: FetchOptions) {
     events = [],
     reports = [],
     chainSpec = null,
+    planningContracts = [],
     availableRuns = [],
     replayOk = true,
     replayStatus = 200,
@@ -39,12 +43,14 @@ export function mockFetchFactory(options: FetchOptions) {
     eventsOk = true,
     reportsOk = true,
     chainOk = true,
+    planningContractsOk = true,
     agentStatus = [],
     toolCalls = [],
     agentStatusOk = true,
     toolCallsOk = true,
     throwRuns = false,
     throwChain = false,
+    throwPlanningContracts = false,
     throwReplay = false,
     throwAgentStatus = false,
     throwToolCalls = false,
@@ -58,6 +64,16 @@ export function mockFetchFactory(options: FetchOptions) {
     }
     if (url.includes("/api/runs/") && url.endsWith("/reports")) {
       return { ok: reportsOk, status: reportsOk ? 200 : 500, json: async () => reports };
+    }
+    if (url.includes("/api/runs/") && url.includes("/artifacts?name=planning_worker_prompt_contracts.json")) {
+      if (throwPlanningContracts) {
+        throw new Error("planning contracts failed");
+      }
+      return {
+        ok: planningContractsOk,
+        status: planningContractsOk ? 200 : 500,
+        json: async () => ({ data: planningContracts }),
+      };
     }
     if (url.includes("/api/runs/") && url.includes("/artifacts?name=tool_calls.jsonl")) {
       if (throwToolCalls) {
