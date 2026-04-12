@@ -178,13 +178,31 @@ class ControlPlaneReadService:
                         return value
             return ""
 
+        def _run_sort_ts(run_dir: Path, manifest_record: dict[str, Any]) -> float:
+            manifest_path = run_dir / "manifest.json"
+            if manifest_path.exists():
+                return manifest_path.stat().st_mtime
+            created_at = _as_text(manifest_record.get("created_at"))
+            if created_at:
+                try:
+                    return _parse_iso_ts(created_at).timestamp()
+                except Exception:
+                    pass
+            return run_dir.stat().st_mtime
+
         def _list_runs_runtime() -> list[dict[str, Any]]:
             results: list[dict[str, Any]] = []
-            for run_dir in sorted(runs_root.glob("*"), key=lambda item: item.stat().st_mtime, reverse=True):
+            run_dirs = []
+            for run_dir in runs_root.glob("*"):
+                if not run_dir.is_dir():
+                    continue
                 manifest = _read_json(run_dir / "manifest.json", {})
                 manifest_record = _as_record(manifest)
                 if not manifest_record:
                     continue
+                run_dirs.append((run_dir, manifest_record, _run_sort_ts(run_dir, manifest_record)))
+
+            for run_dir, manifest_record, _sort_ts in sorted(run_dirs, key=lambda item: item[2], reverse=True):
                 run_id = _as_text(manifest_record.get("run_id")) or run_dir.name
                 payload = dict(manifest_record)
                 payload["run_id"] = run_id
