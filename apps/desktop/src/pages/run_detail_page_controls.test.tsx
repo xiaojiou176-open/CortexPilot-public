@@ -22,6 +22,7 @@ vi.mock("../lib/api", () => ({
   fetchEvents: vi.fn(),
   fetchDiff: vi.fn(),
   fetchReports: vi.fn(),
+  fetchArtifact: vi.fn(),
   fetchOperatorCopilotBrief: vi.fn(),
   fetchToolCalls: vi.fn(),
   fetchChainSpec: vi.fn(),
@@ -47,6 +48,7 @@ import {
   fetchEvents,
   fetchDiff,
   fetchReports,
+  fetchArtifact,
   fetchOperatorCopilotBrief,
   fetchToolCalls,
   fetchChainSpec,
@@ -95,6 +97,7 @@ describe("RunDetailPage p0 controls", () => {
     vi.mocked(fetchEvents).mockReset();
     vi.mocked(fetchDiff).mockReset();
     vi.mocked(fetchReports).mockReset();
+    vi.mocked(fetchArtifact).mockReset();
     vi.mocked(fetchToolCalls).mockReset();
     vi.mocked(fetchChainSpec).mockReset();
     vi.mocked(fetchAgentStatus).mockReset();
@@ -121,6 +124,7 @@ describe("RunDetailPage p0 controls", () => {
     ] as any);
     vi.mocked(fetchDiff).mockResolvedValue({ diff: "" } as any);
     vi.mocked(fetchReports).mockResolvedValue([] as any);
+    vi.mocked(fetchArtifact).mockResolvedValue({ data: [] } as any);
     vi.mocked(fetchOperatorCopilotBrief).mockResolvedValue({
       report_type: "operator_copilot_brief",
       generated_at: "2026-03-31T12:00:00Z",
@@ -320,8 +324,37 @@ describe("RunDetailPage p0 controls", () => {
             },
           },
         },
+        manifest: {
+          artifacts: [
+            { name: "planning_worker_prompt_contracts", path: "artifacts/planning_worker_prompt_contracts.json" },
+            { name: "planning_unblock_tasks", path: "artifacts/planning_unblock_tasks.json" },
+          ],
+        },
       }),
     );
+    vi.mocked(fetchArtifact)
+      .mockResolvedValueOnce({
+        data: [
+          {
+            prompt_contract_id: "worker-1",
+            continuation_policy: {
+              on_incomplete: "reply_auditor_reprompt_and_continue_same_session",
+              on_blocked: "spawn_independent_temporary_unblock_task",
+            },
+            done_definition: { acceptance_checks: ["repo_hygiene", "test_report"] },
+          },
+        ],
+      } as any)
+      .mockResolvedValueOnce({
+        data: [
+          {
+            unblock_task_id: "unblock-worker-1",
+            owner: "L0",
+            mode: "independent_temporary_task",
+            trigger: "spawn_independent_temporary_unblock_task",
+          },
+        ],
+      } as any);
 
     render(<RunDetailPage runId="run-binding" onBack={vi.fn()} />);
 
@@ -338,6 +371,13 @@ describe("RunDetailPage p0 controls", () => {
         "Read-only note: this mirrors the persisted binding summary. task_contract still owns execution authority.",
       ),
     ).toBeInTheDocument();
+    expect(screen.getByText("Completion governance")).toBeInTheDocument();
+    expect(screen.getByText("Worker prompt contracts")).toBeInTheDocument();
+    expect(screen.getByText("On incomplete")).toBeInTheDocument();
+    expect(screen.getByText("On blocked")).toBeInTheDocument();
+    expect(screen.getByText("Unblock tasks")).toBeInTheDocument();
+    expect(screen.getByText("Unblock owner")).toBeInTheDocument();
+    expect(screen.getByText("L0")).toBeInTheDocument();
   });
 
   it("recovers from error state after retry load", async () => {

@@ -13,7 +13,7 @@ import {
 } from "../lib/types";
 import {
   fetchRun, fetchEvents, fetchDiff, fetchReports, fetchToolCalls, fetchChainSpec,
-  fetchAgentStatus, fetchRuns, rollbackRun, rejectRun, replayRun, promoteEvidence, fetchOperatorCopilotBrief,
+  fetchAgentStatus, fetchRuns, fetchArtifact, rollbackRun, rejectRun, replayRun, promoteEvidence, fetchOperatorCopilotBrief,
   type EventsStream,
   openEventsStream,
 } from "../lib/api";
@@ -123,6 +123,8 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
   const [availableRuns, setAvailableRuns] = useState<RunSummary[]>([]);
   const [baselineRunId, setBaselineRunId] = useState("");
   const [replayResult, setReplayResult] = useState<Record<string, JsonValue> | null>(null);
+  const [planningContracts, setPlanningContracts] = useState<Array<Record<string, JsonValue>>>([]);
+  const [unblockTasks, setUnblockTasks] = useState<Array<Record<string, JsonValue>>>([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -184,6 +186,38 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
         setAgentStatus(toArr(d?.agents));
       }
       if (runsRes.status === "fulfilled") setAvailableRuns(toArr(runsRes.value));
+
+      const artifacts = toArr((runData as any)?.manifest?.artifacts);
+      const hasPlanningContractsArtifact = artifacts.some((item) => {
+        const record = asRecord(item);
+        return toStr(record.name, "") === "planning_worker_prompt_contracts" || toStr(record.path, "") === "artifacts/planning_worker_prompt_contracts.json";
+      });
+      const hasUnblockTasksArtifact = artifacts.some((item) => {
+        const record = asRecord(item);
+        return toStr(record.name, "") === "planning_unblock_tasks" || toStr(record.path, "") === "artifacts/planning_unblock_tasks.json";
+      });
+
+      if (hasPlanningContractsArtifact) {
+        try {
+          const artifact = await fetchArtifact(runId, "planning_worker_prompt_contracts.json");
+          setPlanningContracts(toArr(artifact.data as Array<Record<string, JsonValue>>));
+        } catch {
+          setPlanningContracts([]);
+        }
+      } else {
+        setPlanningContracts([]);
+      }
+
+      if (hasUnblockTasksArtifact) {
+        try {
+          const artifact = await fetchArtifact(runId, "planning_unblock_tasks.json");
+          setUnblockTasks(toArr(artifact.data as Array<Record<string, JsonValue>>));
+        } catch {
+          setUnblockTasks([]);
+        }
+      } else {
+        setUnblockTasks([]);
+      }
     } catch (err) {
       setError(sanitizeUiError(err, "Run detail failed to load"));
     } finally {
@@ -376,6 +410,32 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
   const roleBindingReadModel = run.role_binding_read_model;
   const isTerminal = isTerminalStatus(run.status);
   const pendingApprovals = events.filter(ev => (ev.event || "").toUpperCase() === "HUMAN_APPROVAL_REQUIRED");
+  const continuationOnIncomplete = Array.from(
+    new Set(
+      planningContracts
+        .map((contract) => toStr(asRecord(asRecord(contract).continuation_policy).on_incomplete, ""))
+        .filter(Boolean),
+    ),
+  );
+  const continuationOnBlocked = Array.from(
+    new Set(
+      planningContracts
+        .map((contract) => toStr(asRecord(asRecord(contract).continuation_policy).on_blocked, ""))
+        .filter(Boolean),
+    ),
+  );
+  const doneChecks = Array.from(
+    new Set(
+      planningContracts.flatMap((contract) =>
+        toArr(asRecord(asRecord(contract).done_definition).acceptance_checks as unknown[] | null | undefined)
+          .map((item) => toStr(item, ""))
+          .filter(Boolean),
+      ),
+    ),
+  );
+  const unblockOwners = Array.from(new Set(unblockTasks.map((task) => toStr(asRecord(task).owner, "")).filter(Boolean)));
+  const unblockModes = Array.from(new Set(unblockTasks.map((task) => toStr(asRecord(task).mode, "")).filter(Boolean)));
+  const unblockTriggers = Array.from(new Set(unblockTasks.map((task) => toStr(asRecord(task).trigger, "")).filter(Boolean)));
   const semanticType = outcomeSemantic(run.outcome_type, run.status, run.failure_class, run.failure_code);
   const outcomeSemanticText = outcomeSemanticLabel(
     run.outcome_type,
@@ -483,6 +543,36 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
                   <div className="data-list-row"><span className="data-list-label">{runDetailCopy.bindingReadModel.toolExecution}</span><span className="data-list-value mono">{formatRoleBindingRuntimeCapabilitySummary(roleBindingReadModel)}</span></div>
                 </div>
                 <div className="muted text-xs">{runDetailCopy.bindingReadModel.readOnlyNote}</div>
+              </div>
+            ) : null}
+            {planningContracts.length > 0 || unblockTasks.length > 0 ? (
+              <div className="stack-gap-2 mt-3" data-testid="run-detail-completion-governance">
+                <div className="muted text-xs fw-500">Completion governance</div>
+                <div className="data-list">
+                  <div className="data-list-row"><span className="data-list-label">Worker prompt contracts</span><span className="data-list-value mono">{planningContracts.length}</span></div>
+                  {unblockTasks.length > 0 ? (
+                    <div className="data-list-row"><span className="data-list-label">Unblock tasks</span><span className="data-list-value mono">{unblockTasks.length}</span></div>
+                  ) : null}
+                  {continuationOnIncomplete.length > 0 ? (
+                    <div className="data-list-row"><span className="data-list-label">On incomplete</span><span className="data-list-value mono">{continuationOnIncomplete.join(" / ")}</span></div>
+                  ) : null}
+                  {continuationOnBlocked.length > 0 ? (
+                    <div className="data-list-row"><span className="data-list-label">On blocked</span><span className="data-list-value mono">{continuationOnBlocked.join(" / ")}</span></div>
+                  ) : null}
+                  {doneChecks.length > 0 ? (
+                    <div className="data-list-row"><span className="data-list-label">DoD checks</span><span className="data-list-value mono">{doneChecks.join(" / ")}</span></div>
+                  ) : null}
+                  {unblockOwners.length > 0 ? (
+                    <div className="data-list-row"><span className="data-list-label">Unblock owner</span><span className="data-list-value mono">{unblockOwners.join(" / ")}</span></div>
+                  ) : null}
+                  {unblockModes.length > 0 ? (
+                    <div className="data-list-row"><span className="data-list-label">Unblock mode</span><span className="data-list-value mono">{unblockModes.join(" / ")}</span></div>
+                  ) : null}
+                  {unblockTriggers.length > 0 ? (
+                    <div className="data-list-row"><span className="data-list-label">Unblock trigger</span><span className="data-list-value mono">{unblockTriggers.join(" / ")}</span></div>
+                  ) : null}
+                </div>
+                <div className="muted text-xs">Derived from persisted worker prompt contracts and unblock tasks. These summaries stay advisory; task_contract still owns execution authority.</div>
               </div>
             ) : null}
           </CardBody>
