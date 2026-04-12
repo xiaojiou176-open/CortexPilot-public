@@ -202,7 +202,11 @@ class ControlPlaneReadService:
                     continue
                 run_dirs.append((run_dir, manifest_record, _run_sort_ts(run_dir, manifest_record)))
 
-            for run_dir, manifest_record, _sort_ts in sorted(run_dirs, key=lambda item: item[2], reverse=True):
+            for run_dir, manifest_record, _sort_ts in sorted(
+                run_dirs,
+                key=lambda item: (item[2], item[0].name),
+                reverse=True,
+            ):
                 run_id = _as_text(manifest_record.get("run_id")) or run_dir.name
                 payload = dict(manifest_record)
                 payload["run_id"] = run_id
