@@ -109,7 +109,8 @@ describe("workflows queue page", () => {
     expect(screen.getByText("1 个工作流 / 1 个队列项")).toBeInTheDocument();
     expect(screen.getByText("已有排队工作的案例：1")).toBeInTheDocument();
     expect(screen.getByText("队列：1 / SLA at_risk")).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "工作流 ID" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Workflow Case" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "权威 / Runtime" })).toBeInTheDocument();
   });
 
   it("runs next queued task from the web workflow surface", async () => {
@@ -122,5 +123,18 @@ describe("workflows queue page", () => {
       expect(mockRefresh).toHaveBeenCalledTimes(1);
     });
     expect(await screen.findByText("Started queued work as run run-queued-1. Refreshing the workflow view...")).toBeInTheDocument();
+  });
+
+  it("keeps run-next disabled when no operator role and no eligible queue work exist", async () => {
+    vi.mocked(fetchWorkflows).mockResolvedValue([] as never);
+    vi.mocked(fetchQueue).mockResolvedValue([] as never);
+    vi.mocked(mutationExecutionCapability).mockReturnValue({ executable: false, operatorRole: null } as never);
+
+    const view = await WorkflowsPage();
+    render(view);
+
+    expect(screen.queryByRole("button", { name: "Run next queued task" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /打开 PM 入口|Open PM intake/ })).toHaveAttribute("href", "/pm");
+    expect(screen.getByText(/No workflow cases yet|当前还没有工作流案例/)).toBeInTheDocument();
   });
 });

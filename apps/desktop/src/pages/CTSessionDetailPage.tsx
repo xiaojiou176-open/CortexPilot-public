@@ -304,7 +304,7 @@ export function CTSessionDetailPage({
       return;
     }
     const { protocol, hostname, port } = window.location;
-    const webPort = port === "1420" ? "3000" : port;
+    const webPort = port === "1420" ? "3100" : port;
     const webUrl = `${protocol}//${hostname}${webPort ? `:${webPort}` : ""}/command-tower/sessions/${encodeURIComponent(sessionId)}`;
     window.open(webUrl, "_blank", "noopener,noreferrer");
   }, [sessionId]);

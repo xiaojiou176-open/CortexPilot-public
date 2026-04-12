@@ -358,7 +358,7 @@ describe("CTSessionDetailPage", () => {
 
       await user.click(screen.getByRole("button", { name: "Open web session analysis" }));
       expect(window.open).toHaveBeenCalledWith(
-        "http://localhost:3000/command-tower/sessions/pm-1",
+        "http://localhost:3100/command-tower/sessions/pm-1",
         "_blank",
         "noopener,noreferrer",
       );
