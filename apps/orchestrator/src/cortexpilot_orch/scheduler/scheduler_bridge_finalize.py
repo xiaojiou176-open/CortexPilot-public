@@ -410,7 +410,7 @@ def finalize_run(
                 },
             )
         if harness_request_artifact is not None:
-            harness_request_path = store.write_artifact(
+            store.write_artifact(
                 run_id,
                 "harness_request.json",
                 json.dumps(harness_request_artifact, ensure_ascii=False, indent=2),

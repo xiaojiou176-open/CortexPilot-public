@@ -384,8 +384,8 @@ def evaluate_completion_governance(
     unblock_task_id = ""
     selected_action = "none"
     action_source = "none"
-    overall_verdict = "complete"
-    continuation_summary = "No continuation action is required."
+    overall_verdict: str
+    continuation_summary: str
 
     if reply_auditor["status"] == "blocked" and on_blocked:
         selected_action = on_blocked
