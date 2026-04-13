@@ -109,4 +109,16 @@ describe("planner page", () => {
     expect(screen.getAllByRole("button", { name: "Run next queued task" })).toHaveLength(2);
     expect(screen.getByText("Planning inspection archive")).toBeInTheDocument();
   });
+
+  it("renders the launch-stage empty planner desk when no planning artifacts exist", async () => {
+    vi.mocked(fetchRuns).mockResolvedValue([] as never);
+
+    render(await PlannerPage());
+
+    expect(screen.getByText("Seed the first planning wave")).toBeInTheDocument();
+    expect(screen.getByText("No planning artifacts are visible yet.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open PM intake" })).toHaveAttribute("href", "/pm");
+    expect(screen.getByRole("link", { name: "Open Command Tower" })).toHaveAttribute("href", "/command-tower");
+    expect(screen.getByRole("link", { name: "Open Workflow Cases" })).toHaveAttribute("href", "/workflows");
+  });
 });

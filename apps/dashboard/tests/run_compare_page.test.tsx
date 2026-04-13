@@ -89,4 +89,34 @@ describe("run compare decision surface", () => {
     expect(screen.getByRole("link", { name: "Open run detail" })).toHaveAttribute("href", "/runs/run-compare-1");
     expect(screen.getByText("Evidence archive")).toBeInTheDocument();
   });
+
+  it("renders a stable baseline verdict when every compare signal is aligned", async () => {
+    vi.mocked(fetchReports).mockResolvedValue([
+      {
+        name: "run_compare_report.json",
+        data: {
+          report_type: "run_compare_report",
+          run_id: "run-compare-1",
+          baseline_run_id: "run-baseline-1",
+          status: "pass",
+          compare_summary: {
+            mismatched_count: 0,
+            missing_count: 0,
+            extra_count: 0,
+            missing_reports_count: 0,
+            failed_report_checks_count: 0,
+            evidence_ok: true,
+            llm_params_ok: true,
+            llm_snapshot_ok: true,
+          },
+        },
+      },
+    ] as never);
+
+    render(await RunComparePage({ params: Promise.resolve({ id: "run-compare-1" }) }));
+
+    expect(screen.getAllByText("Stable baseline").length).toBeGreaterThan(0);
+    expect(screen.getByText(/matches the selected baseline/i)).toBeInTheDocument();
+    expect(screen.getByText(/promote, approve, or share the current result/i)).toBeInTheDocument();
+  });
 });
