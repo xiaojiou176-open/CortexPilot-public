@@ -61,6 +61,14 @@ flowchart LR
 - The same planning preview may now derive `unblock_tasks`, and run bundles may
   persist `planning_unblock_tasks.json` when worker continuation policy says
   blocked work should spawn an independent temporary unblock task.
+- Run finalize may now emit `reports/completion_governance_report.json`, a
+  runtime-evaluated read-back that records the current DoD verdict, reply audit,
+  continuation decision, Context Pack fallback posture, and Harness Request
+  posture without promoting those summaries above `task_contract`.
+- When continuation policy selects the unblock branch during finalize, the same
+  runtime may advance `planning_unblock_tasks.json` from `proposed` to `queued`
+  and emit `UNBLOCK_TASK_QUEUED`, so the unblock path is no longer only a
+  planning preview artifact.
 - Queue truth currently lives in `.runtime-cache/cortexpilot/queue.jsonl`; API
   and workflow surfaces read that queue state and derive `eligible` /
   `sla_state` instead of storing a second scheduler database.

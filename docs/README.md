@@ -141,6 +141,7 @@ navigation set.
 - `policies/role_config_registry.json`: repo-owned mutable defaults surface for role configuration preview/apply flows; changes here affect future compiled role defaults, not the execution authority of already-issued task contracts
 - `configs/env_direct_read_allowlist.json`: machine allowlist for governed backend direct env reads; update this alongside docs when a role/runtime helper legitimately reads env-backed model metadata
 - `docs/api/openapi.cortexpilot.json`: canonical frontend contract extension that now carries Prompt 8 run/workflow route bindings plus Prompt 9 agents/contracts catalog bindings and generated read-model metadata for `RoleBindingReadModel` / `WorkflowCaseReadModel`
+- `schemas/completion_governance_report.v1.json`: runtime-evaluated completion-governance report emitted during run finalize; use it when operator surfaces need the live DoD / reply-audit / continuation verdict instead of only the planning artifact summary
 - `scripts/generate_frontend_contracts.py`: repo-owned generator that now emits Prompt 8 read-model types plus Prompt 9 agents/contracts catalog routes into `@cortexpilot/frontend-api-contract`
 - `schemas/role_config_registry.v1.json`: schema-first contract for the repo-owned role configuration overlay used by Prompt 10 role-default preview/apply surfaces
 - `packages/frontend-api-contract/generated/index.d.ts`: generated TypeScript contract surface for frontend-safe run/workflow routes and read-model types; avoid hand-maintaining parallel overlays when this file changes

@@ -108,6 +108,9 @@ export default function RunDetail({
   const reviewReport = reportsState.find((r) => r.name === "review_report.json")?.data;
   const taskResult = reportsState.find((r) => r.name === "task_result.json")?.data;
   const workReport = reportsState.find((r) => r.name === "work_report.json")?.data;
+  const completionGovernanceReport = toObject(
+    reportsState.find((r) => r.name === "completion_governance_report.json")?.data
+  );
   const evidenceReport = reportsState.find((r) => r.name === "evidence_report.json")?.data;
   const incidentPack = reportsState.find((r) => r.name === "incident_pack.json")?.data;
   const proofPack = reportsState.find((r) => r.name === "proof_pack.json")?.data;
@@ -532,6 +535,7 @@ export default function RunDetail({
           pendingApprovals={pendingApprovals}
           evidenceHashes={evidenceHashes}
           manifestArtifacts={manifestArtifacts}
+          completionGovernanceReport={completionGovernanceReport}
           planningContracts={planningContracts}
           planningContractsError={planningContractsError}
           unblockTasks={unblockTasks}

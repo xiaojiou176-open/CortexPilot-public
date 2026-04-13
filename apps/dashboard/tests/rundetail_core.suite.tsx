@@ -273,6 +273,104 @@ describe("RunDetail core flows", () => {
     ).toBeInTheDocument();
   });
 
+  it("prefers runtime completion governance report when one is present", async () => {
+    const run = {
+      run_id: "run_runtime_governance",
+      task_id: "task_runtime_governance",
+      status: "SUCCESS",
+      allowed_paths: ["README.md"],
+      contract: { task_id: "task_runtime_governance" },
+      manifest: {
+        artifacts: [
+          { name: "planning_worker_prompt_contracts", path: "artifacts/planning_worker_prompt_contracts.json" },
+          { name: "planning_unblock_tasks", path: "artifacts/planning_unblock_tasks.json" },
+        ],
+      },
+    };
+    const reports = [
+      {
+        name: "completion_governance_report.json",
+        data: {
+          authority: "runtime-evaluated-read-back",
+          source: "reports/completion_governance_report.json",
+          execution_authority: "task_contract",
+          overall_verdict: "continue_required",
+          dod_checker: {
+            status: "failed",
+            summary: "Missing test_report before completion.",
+            required_checks: ["repo_hygiene", "test_report"],
+            unmet_checks: ["test_report"],
+          },
+          reply_auditor: {
+            status: "needs_followup",
+            summary: "Reply stopped before verification evidence landed.",
+          },
+          continuation_decision: {
+            selected_action: "reply_auditor_reprompt_and_continue_same_session",
+            summary: "Continue in the same session after the auditor reprompt.",
+            action_source: "reply_auditor",
+            unblock_task_id: "unblock-runtime-1",
+          },
+          context_pack: {
+            status: "not_requested",
+            summary: "Fallback context pack stayed idle.",
+          },
+          harness_request: {
+            status: "not_requested",
+            summary: "Harness escalation was not required.",
+          },
+        },
+      },
+    ];
+    const fetchMock = mockFetchFactory({
+      events: [],
+      reports,
+      availableRuns: [],
+      planningContracts: [
+        {
+          prompt_contract_id: "worker-1",
+          done_definition: { acceptance_checks: ["repo_hygiene", "test_report"] },
+          continuation_policy: {
+            on_incomplete: "reply_auditor_reprompt_and_continue_same_session",
+            on_blocked: "spawn_independent_temporary_unblock_task",
+          },
+        },
+      ],
+      planningUnblockTasks: [
+        {
+          unblock_task_id: "unblock-runtime-1",
+          owner: "L0",
+          mode: "independent_temporary_task",
+          trigger: "spawn_independent_temporary_unblock_task",
+        },
+      ],
+    });
+    // @ts-expect-error test override
+    global.fetch = fetchMock;
+
+    render(<RunDetail run={run as any} events={[]} diff="" reports={reports as any} />);
+    await act(async () => {
+      await flushPromises();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Runtime evaluator verdict")).toBeInTheDocument();
+    });
+    expect(screen.getByText("Overall verdict: continue_required")).toBeInTheDocument();
+    expect(screen.getByText("DoD checker: failed")).toBeInTheDocument();
+    expect(screen.getByText("Reply auditor: needs_followup")).toBeInTheDocument();
+    expect(screen.getByText("Continuation decision: reply_auditor_reprompt_and_continue_same_session")).toBeInTheDocument();
+    expect(screen.getByText("Context Pack: not_requested")).toBeInTheDocument();
+    expect(screen.getByText("Harness Request: not_requested")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Runtime-evaluated read-back: this report reflects the live completion evaluator. task_contract still owns execution authority; this report does not replace the contract.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Planning advisory fallback")).toBeInTheDocument();
+    expect(screen.getByText("Worker prompt contracts: 1")).toBeInTheDocument();
+  });
+
   it("uses SSE transport and consumes stream events", async () => {
     const run = {
       run_id: "run_sse",

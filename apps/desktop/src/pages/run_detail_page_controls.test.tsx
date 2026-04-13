@@ -425,6 +425,98 @@ describe("RunDetailPage p0 controls", () => {
     expect(screen.getByText("L0")).toBeInTheDocument();
   });
 
+  it("prefers runtime completion governance read-back when a runtime report exists", async () => {
+    vi.mocked(fetchRun).mockResolvedValueOnce(
+      makeRun({
+        manifest: {
+          artifacts: [
+            { name: "planning_worker_prompt_contracts", path: "artifacts/planning_worker_prompt_contracts.json" },
+            { name: "planning_unblock_tasks", path: "artifacts/planning_unblock_tasks.json" },
+          ],
+        },
+      }),
+    );
+    vi.mocked(fetchReports).mockResolvedValueOnce([
+      {
+        name: "completion_governance_report.json",
+        data: {
+          authority: "runtime-evaluated-read-back",
+          source: "reports/completion_governance_report.json",
+          execution_authority: "task_contract",
+          overall_verdict: "continue_required",
+          dod_checker: {
+            status: "failed",
+            summary: "Missing test_report before completion.",
+            required_checks: ["repo_hygiene", "test_report"],
+            unmet_checks: ["test_report"],
+          },
+          reply_auditor: {
+            status: "needs_followup",
+            summary: "Reply stopped before verification evidence landed.",
+          },
+          continuation_decision: {
+            selected_action: "reply_auditor_reprompt_and_continue_same_session",
+            summary: "Continue in the same session after the auditor reprompt.",
+            action_source: "reply_auditor",
+            unblock_task_id: "unblock-runtime-1",
+          },
+          context_pack: {
+            status: "not_requested",
+            summary: "Fallback context pack stayed idle.",
+          },
+          harness_request: {
+            status: "not_requested",
+            summary: "Harness escalation was not required.",
+          },
+        },
+      },
+    ] as any);
+    vi.mocked(fetchArtifact)
+      .mockResolvedValueOnce({
+        data: [
+          {
+            prompt_contract_id: "worker-1",
+            continuation_policy: {
+              on_incomplete: "reply_auditor_reprompt_and_continue_same_session",
+              on_blocked: "spawn_independent_temporary_unblock_task",
+            },
+            done_definition: { acceptance_checks: ["repo_hygiene", "test_report"] },
+          },
+        ],
+      } as any)
+      .mockResolvedValueOnce({
+        data: [
+          {
+            unblock_task_id: "unblock-runtime-1",
+            owner: "L0",
+            mode: "independent_temporary_task",
+            trigger: "spawn_independent_temporary_unblock_task",
+          },
+        ],
+      } as any);
+
+    render(<RunDetailPage runId="run-runtime-report" onBack={vi.fn()} />);
+
+    expect(await screen.findByRole("heading", { name: "run-001" })).toBeInTheDocument();
+    expect(screen.getByText("Runtime evaluator verdict")).toBeInTheDocument();
+    expect(screen.getByText("Overall verdict")).toBeInTheDocument();
+    expect(screen.getByText("continue_required")).toBeInTheDocument();
+    expect(screen.getByText("DoD checker")).toBeInTheDocument();
+    expect(screen.getByText("failed")).toBeInTheDocument();
+    expect(screen.getByText("Reply auditor")).toBeInTheDocument();
+    expect(screen.getByText("needs_followup")).toBeInTheDocument();
+    expect(screen.getByText("Continuation decision")).toBeInTheDocument();
+    expect(screen.getByText("Context Pack")).toBeInTheDocument();
+    expect(screen.getByText("Harness Request")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Runtime-evaluated read-back: this report reflects the live completion evaluator. task_contract still owns execution authority; this report does not replace the contract.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Planning advisory fallback")).toBeInTheDocument();
+    expect(screen.getByText("Worker prompt contracts")).toBeInTheDocument();
+  });
+
   it("recovers from error state after retry load", async () => {
     const user = userEvent.setup();
     vi.mocked(fetchRun).mockRejectedValueOnce(new Error("first fail"));

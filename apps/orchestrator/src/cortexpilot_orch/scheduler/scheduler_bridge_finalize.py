@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -7,6 +8,7 @@ from typing import Any
 from cortexpilot_orch.contract.validator import ContractValidator
 from cortexpilot_orch.scheduler import (
     artifact_refs,
+    completion_governance,
     core_helpers,
     evidence_pipeline,
     gate_orchestration,
@@ -267,6 +269,79 @@ def finalize_run(
             str(exc),
             schema="evidence_report.v1.json",
             path="reports/evidence_report.json",
+        )
+
+    if isinstance(final_task_result, dict):
+        final_task_result["status"] = "SUCCESS" if status == "SUCCESS" else "FAILED"
+        final_task_result["failure"] = {"message": failure_reason} if failure_reason else None
+        if not final_task_result.get("summary") and failure_reason:
+            final_task_result["summary"] = failure_reason
+
+    completion_governance_report, updated_unblock_tasks = completion_governance.evaluate_completion_governance(
+        contract=contract,
+        run_dir=run_dir,
+        task_result=final_task_result if isinstance(final_task_result, dict) else task_result,
+        test_report=test_report,
+        review_report=review_report,
+        status=status,
+        failure_reason=failure_reason,
+        generated_at=finished_at,
+    )
+    try:
+        report_validator.validate_report(completion_governance_report, "completion_governance_report.v1.json")
+    except Exception as exc:  # noqa: BLE001
+        failure_reason = failure_reason or f"completion_governance_report schema invalid: {exc}"
+        status = "FAILURE"
+        append_gate_failed_fn(
+            store,
+            run_id,
+            "schema_validation",
+            str(exc),
+            schema="completion_governance_report.v1.json",
+            path="reports/completion_governance_report.json",
+        )
+    else:
+        if updated_unblock_tasks is not None:
+            store.write_artifact(
+                run_id,
+                "planning_unblock_tasks.json",
+                json.dumps(updated_unblock_tasks, ensure_ascii=False, indent=2),
+            )
+            selected_unblock_task_id = str(
+                completion_governance_report.get("continuation_decision", {}).get("unblock_task_id") or ""
+            ).strip()
+            if selected_unblock_task_id:
+                store.append_event(
+                    run_id,
+                    {
+                        "level": "INFO",
+                        "event": "UNBLOCK_TASK_QUEUED",
+                        "run_id": run_id,
+                        "meta": {"unblock_task_id": selected_unblock_task_id},
+                    },
+                )
+        if isinstance(final_task_result, dict):
+            continuation_decision = completion_governance_report.get("continuation_decision", {})
+            if isinstance(continuation_decision, dict):
+                final_task_result["next_steps"] = {
+                    "suggested_action": str(continuation_decision.get("selected_action") or "none"),
+                    "notes": str(continuation_decision.get("summary") or "n/a"),
+                }
+            report_validator.validate_report(final_task_result, "task_result.v1.json")
+            store.write_report(run_id, "task_result", final_task_result)
+            store.write_task_result(run_id, task_id, final_task_result)
+        store.write_report(run_id, "completion_governance_report", completion_governance_report)
+        store.append_event(
+            run_id,
+            {
+                "level": "INFO",
+                "event": "COMPLETION_GOVERNANCE_EVALUATED",
+                "run_id": run_id,
+                "meta": {
+                    "overall_verdict": completion_governance_report.get("overall_verdict"),
+                    "selected_action": completion_governance_report.get("continuation_decision", {}).get("selected_action"),
+                },
+            },
         )
 
     if isinstance(manifest.get("repo"), dict):

@@ -61,6 +61,10 @@
       "sha256": "8396495f1c463834a690e981e8a2d17d19ce8e7534c7668e0fccfa15f2d31759",
       "bytes": 10326
     },
+    "completion_governance_report.v1.json": {
+      "sha256": "686d028be3c4cb7b77a164c49d986b991295f2f78a59ca7e1732069ce5ba854f",
+      "bytes": 3710
+    },
     "context_pack.v1.json": {
       "sha256": "8a45ef1e9f30e56aac57510e1875d6b43f4b320762e288adb2925787b3a1585c",
       "bytes": 1842

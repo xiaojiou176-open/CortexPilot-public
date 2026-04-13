@@ -2,6 +2,7 @@
 
 ## 2026-04-12
 - Added `control_plane_runtime_policy.v1.json` to formalize L0 command-tower runtime rules.
+- Added `completion_governance_report.v1.json` so run finalize can emit a runtime-evaluated verdict for DoD, reply audit, continuation, Context Pack posture, and Harness Request posture.
 - Added `wave_plan.v1.json` and `worker_prompt_contract.v1.json` for planner preview artifacts.
 - Added `unblock_task.v1.json` to formalize L0-managed independent temporary unblock assignments.
 - Added `context_pack.v1.json` and `harness_request.v1.json` to reserve first-class schema homes for explicit handoff and harness-evolution contracts.

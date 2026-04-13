@@ -330,6 +330,13 @@
 - These planner artifacts are advisory planning surfaces that must stay aligned
   with the compiled `task_contract`; they do not supersede the execution
   contract itself.
+- When a run finalizes, runtime evaluation may write
+  `reports/completion_governance_report.json`
+  (`schemas/completion_governance_report.v1.json`) plus follow-on events such
+  as `COMPLETION_GOVERNANCE_EVALUATED` and `UNBLOCK_TASK_QUEUED`.
+- This runtime-evaluated report may update `task_result.next_steps` and queue an
+  unblock task artifact, but it still remains a read-back surface beneath
+  `task_contract`.
 
 ### 6.5 Context Pack And Harness Request Contracts
 

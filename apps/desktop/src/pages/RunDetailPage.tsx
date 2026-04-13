@@ -397,6 +397,7 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
   const evidenceReport = reports.find(r => r.name === "evidence_report.json")?.data;
   const incidentPack = reports.find(r => r.name === "incident_pack.json")?.data as Record<string, JsonValue> | undefined;
   const proofPack = reports.find(r => r.name === "proof_pack.json")?.data as Record<string, JsonValue> | undefined;
+  const completionGovernanceReport = asRecord(reports.find(r => r.name === "completion_governance_report.json")?.data);
   const runCompareReport = asRecord(reports.find(r => r.name === "run_compare_report.json")?.data);
   const compareSummary = asRecord(runCompareReport.compare_summary);
   const chainReport = reports.find(r => r.name === "chain_report.json")?.data;
@@ -437,6 +438,26 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
   const unblockOwners = Array.from(new Set(unblockTasks.map((task) => toStr(asRecord(task).owner, "")).filter(Boolean)));
   const unblockModes = Array.from(new Set(unblockTasks.map((task) => toStr(asRecord(task).mode, "")).filter(Boolean)));
   const unblockTriggers = Array.from(new Set(unblockTasks.map((task) => toStr(asRecord(task).trigger, "")).filter(Boolean)));
+  const hasRuntimeCompletionGovernance = Object.keys(completionGovernanceReport).length > 0;
+  const runtimeDodChecker = asRecord(completionGovernanceReport.dod_checker);
+  const runtimeReplyAuditor = asRecord(completionGovernanceReport.reply_auditor);
+  const runtimeContinuationDecision = asRecord(completionGovernanceReport.continuation_decision);
+  const runtimeContextPack = asRecord(completionGovernanceReport.context_pack);
+  const runtimeHarnessRequest = asRecord(completionGovernanceReport.harness_request);
+  const runtimeDodRequiredChecks = Array.from(
+    new Set(
+      toArr(runtimeDodChecker.required_checks as unknown[] | null | undefined)
+        .map((item) => toStr(item, ""))
+        .filter(Boolean),
+    ),
+  );
+  const runtimeDodUnmetChecks = Array.from(
+    new Set(
+      toArr(runtimeDodChecker.unmet_checks as unknown[] | null | undefined)
+        .map((item) => toStr(item, ""))
+        .filter(Boolean),
+    ),
+  );
   const semanticType = outcomeSemantic(run.outcome_type, run.status, run.failure_class, run.failure_code);
   const outcomeSemanticText = outcomeSemanticLabel(
     run.outcome_type,
@@ -546,34 +567,85 @@ export function RunDetailPage({ runId, onBack, onOpenCompare = () => {}, locale 
                 <div className="muted text-xs">{runDetailCopy.bindingReadModel.readOnlyNote}</div>
               </div>
             ) : null}
-            {planningContracts.length > 0 || unblockTasks.length > 0 ? (
+            {hasRuntimeCompletionGovernance || planningContracts.length > 0 || unblockTasks.length > 0 ? (
               <div className="stack-gap-2 mt-3" data-testid="run-detail-completion-governance">
                 <div className="muted text-xs fw-500">{completionGovernanceCopy.title}</div>
-                <div className="data-list">
-                  <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.workerPromptContracts}</span><span className="data-list-value mono">{planningContracts.length}</span></div>
-                  {unblockTasks.length > 0 ? (
-                    <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.unblockTasks}</span><span className="data-list-value mono">{unblockTasks.length}</span></div>
-                  ) : null}
-                  {continuationOnIncomplete.length > 0 ? (
-                    <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.onIncomplete}</span><span className="data-list-value mono">{continuationOnIncomplete.join(" / ")}</span></div>
-                  ) : null}
-                  {continuationOnBlocked.length > 0 ? (
-                    <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.onBlocked}</span><span className="data-list-value mono">{continuationOnBlocked.join(" / ")}</span></div>
-                  ) : null}
-                  {doneChecks.length > 0 ? (
-                    <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.doneChecks}</span><span className="data-list-value mono">{doneChecks.join(" / ")}</span></div>
-                  ) : null}
-                  {unblockOwners.length > 0 ? (
-                    <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.unblockOwner}</span><span className="data-list-value mono">{unblockOwners.join(" / ")}</span></div>
-                  ) : null}
-                  {unblockModes.length > 0 ? (
-                    <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.unblockMode}</span><span className="data-list-value mono">{unblockModes.join(" / ")}</span></div>
-                  ) : null}
-                  {unblockTriggers.length > 0 ? (
-                    <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.unblockTrigger}</span><span className="data-list-value mono">{unblockTriggers.join(" / ")}</span></div>
-                  ) : null}
-                </div>
-                <div className="muted text-xs">{completionGovernanceCopy.advisoryNote}</div>
+                {hasRuntimeCompletionGovernance ? (
+                  <>
+                    <div className="muted text-xs fw-500">{completionGovernanceCopy.runtimeTitle}</div>
+                    <div className="data-list" data-testid="run-detail-completion-governance-report">
+                      <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.overallVerdict}</span><span className="data-list-value mono">{toStr(completionGovernanceReport.overall_verdict)}</span></div>
+                      <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.reportAuthority}</span><span className="data-list-value mono">{toStr(completionGovernanceReport.authority)}</span></div>
+                      <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.reportSource}</span><span className="data-list-value mono">{toStr(completionGovernanceReport.source)}</span></div>
+                      <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.reportExecutionAuthority}</span><span className="data-list-value mono">{toStr(completionGovernanceReport.execution_authority)}</span></div>
+                      <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.dodChecker}</span><span className="data-list-value mono">{toStr(runtimeDodChecker.status)}</span></div>
+                      {toStr(runtimeDodChecker.summary, "") ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.dodSummary}</span><span className="data-list-value">{toStr(runtimeDodChecker.summary, "")}</span></div>
+                      ) : null}
+                      {runtimeDodRequiredChecks.length > 0 ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.dodRequiredChecks}</span><span className="data-list-value mono">{runtimeDodRequiredChecks.join(" / ")}</span></div>
+                      ) : null}
+                      {runtimeDodUnmetChecks.length > 0 ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.dodUnmetChecks}</span><span className="data-list-value mono">{runtimeDodUnmetChecks.join(" / ")}</span></div>
+                      ) : null}
+                      <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.replyAuditor}</span><span className="data-list-value mono">{toStr(runtimeReplyAuditor.status)}</span></div>
+                      {toStr(runtimeReplyAuditor.summary, "") ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.replySummary}</span><span className="data-list-value">{toStr(runtimeReplyAuditor.summary, "")}</span></div>
+                      ) : null}
+                      <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.continuationDecision}</span><span className="data-list-value mono">{toStr(runtimeContinuationDecision.selected_action)}</span></div>
+                      {toStr(runtimeContinuationDecision.summary, "") ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.continuationSummary}</span><span className="data-list-value">{toStr(runtimeContinuationDecision.summary, "")}</span></div>
+                      ) : null}
+                      {toStr(runtimeContinuationDecision.action_source, "") ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.actionSource}</span><span className="data-list-value mono">{toStr(runtimeContinuationDecision.action_source, "")}</span></div>
+                      ) : null}
+                      {toStr(runtimeContinuationDecision.unblock_task_id, "") ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.selectedUnblockTask}</span><span className="data-list-value mono">{toStr(runtimeContinuationDecision.unblock_task_id, "")}</span></div>
+                      ) : null}
+                      <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.contextPack}</span><span className="data-list-value mono">{toStr(runtimeContextPack.status)}</span></div>
+                      {toStr(runtimeContextPack.summary, "") ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.contextPackSummary}</span><span className="data-list-value">{toStr(runtimeContextPack.summary, "")}</span></div>
+                      ) : null}
+                      <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.harnessRequest}</span><span className="data-list-value mono">{toStr(runtimeHarnessRequest.status)}</span></div>
+                      {toStr(runtimeHarnessRequest.summary, "") ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.harnessRequestSummary}</span><span className="data-list-value">{toStr(runtimeHarnessRequest.summary, "")}</span></div>
+                      ) : null}
+                    </div>
+                    <div className="muted text-xs">{completionGovernanceCopy.runtimeNote}</div>
+                  </>
+                ) : null}
+                {planningContracts.length > 0 || unblockTasks.length > 0 ? (
+                  <>
+                    {hasRuntimeCompletionGovernance ? (
+                      <div className="muted text-xs fw-500">{completionGovernanceCopy.planningFallbackTitle}</div>
+                    ) : null}
+                    <div className="data-list">
+                      <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.workerPromptContracts}</span><span className="data-list-value mono">{planningContracts.length}</span></div>
+                      {unblockTasks.length > 0 ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.unblockTasks}</span><span className="data-list-value mono">{unblockTasks.length}</span></div>
+                      ) : null}
+                      {continuationOnIncomplete.length > 0 ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.onIncomplete}</span><span className="data-list-value mono">{continuationOnIncomplete.join(" / ")}</span></div>
+                      ) : null}
+                      {continuationOnBlocked.length > 0 ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.onBlocked}</span><span className="data-list-value mono">{continuationOnBlocked.join(" / ")}</span></div>
+                      ) : null}
+                      {doneChecks.length > 0 ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.doneChecks}</span><span className="data-list-value mono">{doneChecks.join(" / ")}</span></div>
+                      ) : null}
+                      {unblockOwners.length > 0 ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.unblockOwner}</span><span className="data-list-value mono">{unblockOwners.join(" / ")}</span></div>
+                      ) : null}
+                      {unblockModes.length > 0 ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.unblockMode}</span><span className="data-list-value mono">{unblockModes.join(" / ")}</span></div>
+                      ) : null}
+                      {unblockTriggers.length > 0 ? (
+                        <div className="data-list-row"><span className="data-list-label">{completionGovernanceCopy.unblockTrigger}</span><span className="data-list-value mono">{unblockTriggers.join(" / ")}</span></div>
+                      ) : null}
+                    </div>
+                    <div className="muted text-xs">{completionGovernanceCopy.advisoryNote}</div>
+                  </>
+                ) : null}
               </div>
             ) : null}
           </CardBody>
