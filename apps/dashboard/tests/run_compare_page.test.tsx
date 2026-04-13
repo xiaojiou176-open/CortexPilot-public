@@ -119,4 +119,22 @@ describe("run compare decision surface", () => {
     expect(screen.getByText(/matches the selected baseline/i)).toBeInTheDocument();
     expect(screen.getAllByText(/promote, approve, or share the current result/i).length).toBeGreaterThan(0);
   });
+
+  it("keeps compare in observation mode when no compare report exists yet", async () => {
+    vi.mocked(fetchReports).mockResolvedValue([
+      {
+        name: "proof_pack.json",
+        data: {
+          report_type: "proof_pack",
+          summary: "Proof exists but compare has not been generated yet.",
+        },
+      },
+    ] as never);
+
+    render(await RunComparePage({ params: Promise.resolve({ id: "run-compare-1" }) }));
+
+    expect(screen.getAllByText("Observation only").length).toBeGreaterThan(0);
+    expect(screen.getByText(/does not have a `run_compare_report` yet/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/run replay compare, and refresh this page/i).length).toBeGreaterThan(0);
+  });
 });
