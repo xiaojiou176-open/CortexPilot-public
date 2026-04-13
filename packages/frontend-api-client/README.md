@@ -196,7 +196,7 @@ vendored-copy adoption, not `npm install` from a public registry.
 
 ```bash
 git clone https://github.com/xiaojiou176-open/OpenVibeCoding.git
-cd CortexPilot-public
+cd OpenVibeCoding
 npm run bootstrap:host
 node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
   --base-url http://127.0.0.1:10000 \
