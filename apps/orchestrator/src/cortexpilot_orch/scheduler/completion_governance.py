@@ -105,6 +105,163 @@ def _collect_policy_action(
     return ""
 
 
+def _extract_thread_id(
+    *,
+    contract: dict[str, Any],
+    task_result: dict[str, Any] | None,
+    run_dir: Path,
+) -> str:
+    if isinstance(task_result, dict):
+        evidence_refs = task_result.get("evidence_refs")
+        if isinstance(evidence_refs, dict):
+            thread_id = str(evidence_refs.get("thread_id") or evidence_refs.get("codex_thread_id") or "").strip()
+            if thread_id:
+                return thread_id
+    assigned_agent = contract.get("assigned_agent")
+    if isinstance(assigned_agent, dict):
+        thread_id = str(assigned_agent.get("codex_thread_id") or "").strip()
+        if thread_id:
+            return thread_id
+    return run_dir.name
+
+
+def _detect_context_pack_trigger(
+    *,
+    failure_reason: str,
+    reply_auditor: dict[str, Any],
+) -> str:
+    normalized_reason = failure_reason.lower()
+    trigger_pairs = [
+        ("context_pressure", ["context pressure", "context limit", "token limit"]),
+        ("contamination", ["contamination", "context contamination", "poisoned context"]),
+        ("role_switch", ["role switch", "handoff to another role"]),
+        ("phase_switch", ["phase switch", "stage switch", "next phase"]),
+        ("repetition", ["repetition", "repeat", "looping reply"]),
+        ("distortion", ["distortion", "garbled", "misread"]),
+    ]
+    for trigger, phrases in trigger_pairs:
+        if any(phrase in normalized_reason for phrase in phrases):
+            return trigger
+    signals = reply_auditor.get("signals")
+    if isinstance(signals, list):
+        normalized_signals = [str(item).strip().lower() for item in signals if str(item).strip()]
+        if any("repetition" in item for item in normalized_signals):
+            return "repetition"
+        if any("contamination" in item for item in normalized_signals):
+            return "contamination"
+    return ""
+
+
+def _build_context_pack_artifact(
+    *,
+    contract: dict[str, Any],
+    run_dir: Path,
+    failure_reason: str,
+    continuation_summary: str,
+    reply_auditor: dict[str, Any],
+) -> dict[str, Any] | None:
+    trigger_reason = _detect_context_pack_trigger(
+        failure_reason=failure_reason,
+        reply_auditor=reply_auditor,
+    )
+    if not trigger_reason:
+        return None
+    assigned_agent = contract.get("assigned_agent") if isinstance(contract.get("assigned_agent"), dict) else {}
+    objective = str(contract.get("objective") or "").strip() or "Continue the current scope safely."
+    source_role = str(assigned_agent.get("role") or "WORKER").strip() or "WORKER"
+    thread_id = _extract_thread_id(contract=contract, task_result=None, run_dir=run_dir)
+    return {
+        "version": "v1",
+        "pack_id": f"ctx-pack-{run_dir.name}",
+        "role_scope": "L1",
+        "source_session_id": thread_id,
+        "source_role": source_role,
+        "trigger_reason": trigger_reason,
+        "global_state_summary": (
+            f"The current run for '{objective}' hit a {trigger_reason} fallback condition and needs an explicit handoff."
+        ),
+        "actor_handoff_summary": continuation_summary,
+        "required_reads": [
+            "contract.json",
+            "reports/task_result.json",
+            "reports/completion_governance_report.json",
+        ],
+        "optional_reads": [
+            "reports/review_report.json",
+            "reports/test_report.json",
+            "events.jsonl",
+        ],
+        "conversation_exports": ["events.jsonl"],
+        "artifact_refs": [
+            "reports/task_result.json",
+            "reports/completion_governance_report.json",
+        ],
+    }
+
+
+def _derive_harness_request_artifact(
+    *,
+    contract: dict[str, Any],
+    task_result: dict[str, Any] | None,
+    run_dir: Path,
+) -> tuple[dict[str, Any] | None, str]:
+    if not isinstance(task_result, dict):
+        return None, "not_requested"
+    gates = task_result.get("gates")
+    if not isinstance(gates, dict):
+        return None, "not_requested"
+    policy_gate = gates.get("policy_gate")
+    if not isinstance(policy_gate, dict):
+        return None, "not_requested"
+    violations = policy_gate.get("violations")
+    if not isinstance(violations, list) or not violations:
+        return None, "not_requested"
+    normalized_violations = [str(item).strip() for item in violations if str(item).strip()]
+    if not normalized_violations:
+        return None, "not_requested"
+
+    project_level_signals = {"network_gate", "mcp_gate", "human_approval_required"}
+    scope = "project-local" if any(item in project_level_signals for item in normalized_violations) else "session-local"
+    approval_state = "approval_required" if scope == "project-local" else "auto_approved"
+    assigned_agent = contract.get("assigned_agent") if isinstance(contract.get("assigned_agent"), dict) else {}
+    runtime_options = contract.get("runtime_options") if isinstance(contract.get("runtime_options"), dict) else {}
+
+    requested_capabilities = {
+        "skills": ["continuation-hardening"],
+        "mcp_servers": ["runtime-governance"] if "mcp_gate" in normalized_violations else [],
+        "permission_changes": [],
+        "runtime_bindings": [str(runtime_options.get("provider") or runtime_options.get("runner") or "codex")],
+    }
+    if "network_gate" in normalized_violations:
+        requested_capabilities["permission_changes"].append("network.allow")
+    if "tool_gate" in normalized_violations:
+        requested_capabilities["permission_changes"].append("tool.allow")
+    if "sampling_gate" in normalized_violations:
+        requested_capabilities["permission_changes"].append("sampling.allow")
+    if "human_approval_required" in normalized_violations:
+        requested_capabilities["permission_changes"].append("approval.resume")
+
+    request = {
+        "version": "v1",
+        "request_id": f"harness-{run_dir.name}",
+        "scope": scope,
+        "requested_by": {
+            "role": str(assigned_agent.get("role") or "WORKER").strip() or "WORKER",
+            "agent_id": str(assigned_agent.get("agent_id") or "agent-1").strip() or "agent-1",
+        },
+        "reason": (
+            "Runtime completion governance detected policy-gate blockers and generated a harness evolution request "
+            f"for {', '.join(normalized_violations)}."
+        ),
+        "requested_capabilities": requested_capabilities,
+        "risk_level": "medium" if scope == "project-local" else "low",
+        "approval_required": scope != "session-local",
+        "rollback_plan": "Remove the temporary capability request and restore the current runtime/tool permission posture.",
+        "validation_plan": "Rerun repo hygiene, targeted runtime tests, and the affected operator read-back after apply.",
+    }
+    return request, approval_state
+
+
 def _build_dod_checker(
     *,
     required_checks: list[str],
@@ -252,6 +409,19 @@ def evaluate_completion_governance(
         overall_verdict = "manual_triage"
         continuation_summary = "Completion governance could not select a safe automatic continuation path."
 
+    context_pack_artifact = _build_context_pack_artifact(
+        contract=contract,
+        run_dir=run_dir,
+        failure_reason=failure_reason,
+        continuation_summary=continuation_summary,
+        reply_auditor=reply_auditor,
+    )
+    harness_request_artifact, harness_policy_state = _derive_harness_request_artifact(
+        contract=contract,
+        task_result=task_result,
+        run_dir=run_dir,
+    )
+
     report = {
         "report_type": "completion_governance_report",
         "generated_at": generated_at,
@@ -269,12 +439,20 @@ def evaluate_completion_governance(
             "summary": continuation_summary,
         },
         "context_pack": {
-            "status": "not_wired",
-            "summary": "Context Pack remains fallback-only, but no runtime producer/consumer is wired into finalize_run yet.",
+            "status": "generated" if context_pack_artifact else "not_requested",
+            "summary": (
+                f"Generated {context_pack_artifact['pack_id']} for fallback handoff."
+                if context_pack_artifact
+                else "No fallback Context Pack was requested for this run."
+            ),
         },
         "harness_request": {
-            "status": "not_wired",
-            "summary": "Harness Request has a schema home, but no request/apply lifecycle is wired into this run finalizer yet.",
+            "status": harness_policy_state,
+            "summary": (
+                f"Generated {harness_request_artifact['request_id']} with {harness_policy_state} policy verdict."
+                if harness_request_artifact
+                else "No harness evolution request was needed for this run."
+            ),
         },
     }
-    return report, updated_unblock_tasks
+    return report, updated_unblock_tasks, context_pack_artifact, harness_request_artifact

@@ -277,7 +277,12 @@ def finalize_run(
         if not final_task_result.get("summary") and failure_reason:
             final_task_result["summary"] = failure_reason
 
-    completion_governance_report, updated_unblock_tasks = completion_governance.evaluate_completion_governance(
+    (
+        completion_governance_report,
+        updated_unblock_tasks,
+        context_pack_artifact,
+        harness_request_artifact,
+    ) = completion_governance.evaluate_completion_governance(
         contract=contract,
         run_dir=run_dir,
         task_result=final_task_result if isinstance(final_task_result, dict) else task_result,
@@ -320,6 +325,43 @@ def finalize_run(
                         "meta": {"unblock_task_id": selected_unblock_task_id},
                     },
                 )
+        if context_pack_artifact is not None:
+            store.write_artifact(
+                run_id,
+                "context_pack.json",
+                json.dumps(context_pack_artifact, ensure_ascii=False, indent=2),
+            )
+            store.append_event(
+                run_id,
+                {
+                    "level": "INFO",
+                    "event": "CONTEXT_PACK_GENERATED",
+                    "run_id": run_id,
+                    "meta": {
+                        "pack_id": context_pack_artifact.get("pack_id"),
+                        "trigger_reason": context_pack_artifact.get("trigger_reason"),
+                    },
+                },
+            )
+        if harness_request_artifact is not None:
+            store.write_artifact(
+                run_id,
+                "harness_request.json",
+                json.dumps(harness_request_artifact, ensure_ascii=False, indent=2),
+            )
+            store.append_event(
+                run_id,
+                {
+                    "level": "INFO",
+                    "event": "HARNESS_REQUEST_CREATED",
+                    "run_id": run_id,
+                    "meta": {
+                        "request_id": harness_request_artifact.get("request_id"),
+                        "scope": harness_request_artifact.get("scope"),
+                        "approval_required": harness_request_artifact.get("approval_required"),
+                    },
+                },
+            )
         if isinstance(final_task_result, dict):
             continuation_decision = completion_governance_report.get("continuation_decision", {})
             if isinstance(continuation_decision, dict):

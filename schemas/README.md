@@ -13,6 +13,9 @@ Machine-readable schemas for contracts, events, and policy validation.
 - `unblock_task.v1.json` — L0-managed independent temporary unblock assignment derived from worker continuation policy.
 - `context_pack.v1.json` — explicit fallback handoff contract for context-pressure and role-switch situations.
 - `harness_request.v1.json` — capability-evolution request contract for session-local/project-local/global harness changes.
+- `artifacts/context_pack.json` and `artifacts/harness_request.json` are now the
+  runtime-generated minimal lifecycle surfaces emitted by completion governance
+  when those schema homes are actually exercised during run finalize.
 - `approval_pack.v1.json` / `incident_pack.v1.json` / `run_compare_report.v1.json` — derived operator-readable decision packs for approval, failure triage, and replay compare surfaces.
 - `proof_pack.v1.json` — derived success-pack for public task slices that completed with reusable proof artifacts.
 - `task_pack_manifest.v1.json` — source-owned manifest schema for registry-driven task packs under `contracts/packs/`, including `input_fields` and evidence hints.

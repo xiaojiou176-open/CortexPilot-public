@@ -65,6 +65,11 @@ flowchart LR
   runtime-evaluated read-back that records the current DoD verdict, reply audit,
   continuation decision, Context Pack fallback posture, and Harness Request
   posture without promoting those summaries above `task_contract`.
+- The same finalize step may now persist:
+  - `artifacts/context_pack.json`
+  - `artifacts/harness_request.json`
+  when runtime governance detects a fallback handoff condition or a capability
+  blocker that should become a tracked Harness Request.
 - When continuation policy selects the unblock branch during finalize, the same
   runtime may advance `planning_unblock_tasks.json` from `proposed` to `queued`
   and emit `UNBLOCK_TASK_QUEUED`, so the unblock path is no longer only a

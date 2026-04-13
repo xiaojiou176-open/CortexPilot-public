@@ -348,6 +348,12 @@
   loop.
 - `harness_request` represents a proposed capability change; applying that
   change still depends on policy and approval boundaries.
+- When run finalize detects a fallback handoff condition or a capability-policy
+  blocker, the runtime may now persist:
+  - `artifacts/context_pack.json`
+  - `artifacts/harness_request.json`
+- These runtime-generated artifacts remain read-back coordination objects. They
+  do not replace `task_contract` as execution authority.
 
 ### 6.6 Unblock Task Contract
 
