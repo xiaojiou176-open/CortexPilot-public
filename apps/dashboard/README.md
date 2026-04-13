@@ -42,6 +42,10 @@ repository is already a finished consumer product.
 
 - PM workspace: registry-driven task-pack selection plus `execution_plan_report`
   preview before execution starts.
+- Planner desk: a first-class planner-facing route that pulls `planning_wave_plan`,
+  `planning_worker_prompt_contracts`, `planning_unblock_tasks`, and
+  `completion_governance_report` back into one read-only planning surface
+  instead of leaving them trapped inside PM sidebars and run detail.
 - Agents: the first-screen role catalog now also hosts a repo-owned role
   configuration desk for previewing and saving future compiled defaults
   (`system_prompt_ref`, bundle refs, and role-level runtime binding) while

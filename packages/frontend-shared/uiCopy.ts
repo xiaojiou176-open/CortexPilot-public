@@ -5,6 +5,7 @@ export const DEFAULT_UI_LOCALE: UiLocale = "en";
 type DashboardNavLabels = {
   overview: string;
   pmIntake: string;
+  planner: string;
   commandTower: string;
   runs: string;
   quickApproval: string;
@@ -1880,6 +1881,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       labels: {
         overview: "Overview",
         pmIntake: "PM intake",
+        planner: "Planner desk",
         commandTower: "Command Tower",
         runs: "Proof & Replay",
         quickApproval: "Quick approval",
@@ -3165,6 +3167,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       labels: {
         overview: "总览",
         pmIntake: "PM 入口",
+        planner: "规划桌",
         commandTower: "指挥塔",
         runs: "Proof & Replay",
         quickApproval: "快速审批",

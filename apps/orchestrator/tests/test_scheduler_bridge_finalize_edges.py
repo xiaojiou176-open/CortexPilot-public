@@ -220,6 +220,23 @@ def test_finalize_run_writes_completion_governance_report_and_updates_task_resul
         ),
         encoding="utf-8",
     )
+    (artifacts_dir / "planning_wave_plan.json").write_text(
+        json.dumps(
+            {
+                "version": "v1",
+                "wave_id": "wave-ctx",
+                "objective": "Handle continuation wake policy",
+                "execution_mode": "long_running",
+                "wake_policy_ref": "policies/control_plane_runtime_policy.json#/wake_policy",
+                "completion_policy_ref": "policies/control_plane_runtime_policy.json#/wave_completion_policy",
+                "worker_count": 1,
+                "worker_plans": [],
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
 
     bridge_finalize.finalize_run(
         store=store,
@@ -429,3 +446,7 @@ def test_finalize_run_writes_context_pack_and_harness_request_artifacts(tmp_path
     queue_items = [json.loads(line) for line in queue_lines if line.strip()]
     assert queue_items[-1]["task_id"] == continuation_contract["task_id"]
     assert queue_items[-1]["source_run_id"] == run_id
+    assert queue_items[-1]["wake_policy_ref"] == "policies/control_plane_runtime_policy.json#/wake_policy"
+    assert queue_items[-1]["wake_stage"] == "active_wave"
+    assert queue_items[-1]["scheduled_at"].endswith("+00:00")
+    assert queue_items[-1]["deadline_at"].endswith("+00:00")

@@ -97,6 +97,9 @@ export default async function ContractsPage({
           nextActionHintWithoutRun:
             "This contract still needs workflow or role triage before you trust it to continue.",
           secondaryDetailsSummary: "Execution details",
+          inspectionDeckTitle: "Inspection archive",
+          inspectionDeckSubtitle:
+            "Keep the first screen for triage and next action. Open the archive only when you need payload, permissions, or runtime binding detail.",
         };
   const { data: contracts, warning } = await safeLoad(fetchContracts, [] as ContractRecord[], "Contract list");
   const resolvedSearchParams = (await searchParams) || {};
@@ -255,7 +258,12 @@ export default async function ContractsPage({
             </div>
           </Card>
         ) : (
-          <div className="grid-2">
+          <Card asChild>
+            <details className="collapsible">
+              <summary>{shellCopy.inspectionDeckTitle}</summary>
+              <div className="collapsible-body">
+                <p className="mono muted mb-4">{shellCopy.inspectionDeckSubtitle}</p>
+                <div className="grid-2">
             {visibleContracts.map((contract) => {
               const payload = contract.payload || {};
               const key = contract.path || contract.task_id || contract.run_id || JSON.stringify(payload).slice(0, 40);
@@ -416,7 +424,10 @@ export default async function ContractsPage({
                 </Card>
               );
             })}
-          </div>
+                </div>
+              </div>
+            </details>
+          </Card>
         )}
         {filteredContracts.length > limit ? (
           <Card>
