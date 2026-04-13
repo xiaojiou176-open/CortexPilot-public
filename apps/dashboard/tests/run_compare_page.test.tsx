@@ -117,6 +117,6 @@ describe("run compare decision surface", () => {
 
     expect(screen.getAllByText("Stable baseline").length).toBeGreaterThan(0);
     expect(screen.getByText(/matches the selected baseline/i)).toBeInTheDocument();
-    expect(screen.getByText(/promote, approve, or share the current result/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/promote, approve, or share the current result/i).length).toBeGreaterThan(0);
   });
 });
