@@ -38,10 +38,13 @@ type RunDetailStatusContractCardProps = {
   pendingApprovals: EventRecord[];
   evidenceHashes: Record<string, unknown>;
   manifestArtifacts: unknown[];
+  completionGovernanceReport: Record<string, unknown>;
   planningContracts: Array<Record<string, unknown>>;
   planningContractsError: string;
   unblockTasks: Array<Record<string, unknown>>;
   unblockTasksError: string;
+  contextPackArtifact: Record<string, unknown> | null;
+  harnessRequestArtifact: Record<string, unknown> | null;
   onOpenLogs: () => void;
   onOpenReports: () => void;
   failedTerminalActionFeedback: string;
@@ -68,15 +71,19 @@ export default function RunDetailStatusContractCard({
   pendingApprovals,
   evidenceHashes,
   manifestArtifacts,
+  completionGovernanceReport,
   planningContracts,
   planningContractsError,
   unblockTasks,
   unblockTasksError,
+  contextPackArtifact,
+  harnessRequestArtifact,
   onOpenLogs,
   onOpenReports,
   failedTerminalActionFeedback,
 }: RunDetailStatusContractCardProps) {
   const bindingReadModelCopy = getUiCopy(DEFAULT_UI_LOCALE).desktop.runDetail.bindingReadModel;
+  const completionGovernanceCopy = getUiCopy(DEFAULT_UI_LOCALE).desktop.runDetail.completionGovernance;
   const terminal = terminalStatus.toUpperCase();
   const isTerminal = terminal === "FAILED" || terminal === "ERROR" || terminal === "SUCCESS" || terminal === "DONE" || terminal === "REJECTED";
   const isFailedTerminal = terminal === "FAILED" || terminal === "ERROR" || terminal === "REJECTED";
@@ -129,6 +136,29 @@ export default function RunDetailStatusContractCard({
     ),
   );
   const roleBindingReadModel = run.role_binding_read_model;
+  const runtimeCompletionGovernance = toObject(completionGovernanceReport);
+  const hasRuntimeCompletionGovernance = Object.keys(runtimeCompletionGovernance).length > 0;
+  const runtimeDodChecker = toObject(runtimeCompletionGovernance.dod_checker);
+  const runtimeReplyAuditor = toObject(runtimeCompletionGovernance.reply_auditor);
+  const runtimeContinuationDecision = toObject(runtimeCompletionGovernance.continuation_decision);
+  const runtimeContextPack = toObject(runtimeCompletionGovernance.context_pack);
+  const runtimeHarnessRequest = toObject(runtimeCompletionGovernance.harness_request);
+  const contextPackRecord = toObject(contextPackArtifact);
+  const harnessRequestRecord = toObject(harnessRequestArtifact);
+  const runtimeDodRequiredChecks = Array.from(
+    new Set(
+      toArray(runtimeDodChecker.required_checks as unknown[] | null | undefined)
+        .map((value) => toDisplayText(value))
+        .filter((value) => value !== "-"),
+    ),
+  );
+  const runtimeDodUnmetChecks = Array.from(
+    new Set(
+      toArray(runtimeDodChecker.unmet_checks as unknown[] | null | undefined)
+        .map((value) => toDisplayText(value))
+        .filter((value) => value !== "-"),
+    ),
+  );
   const unblockTaskOwners = Array.from(
     new Set(unblockTasks.map((task) => toDisplayText(task.owner)).filter((value) => value !== "-")),
   );
@@ -281,36 +311,100 @@ export default function RunDetailStatusContractCard({
           </div>
         </div>
       ) : null}
-      {planningContracts.length > 0 || planningContractsError || unblockTasks.length > 0 || unblockTasksError ? (
+      {hasRuntimeCompletionGovernance || planningContracts.length > 0 || planningContractsError || unblockTasks.length > 0 || unblockTasksError ? (
         <div className="run-detail-section" data-testid="run-completion-governance-summary">
-          <div className="mono run-detail-section-label">Completion governance</div>
-          <div className="mono">Worker prompt contracts: {planningContracts.length}</div>
-          {unblockTasks.length > 0 ? <div className="mono">Unblock tasks: {unblockTasks.length}</div> : null}
-          {continuationOnIncomplete.length > 0 ? (
-            <div className="mono">On incomplete: {continuationOnIncomplete.join(" / ")}</div>
-          ) : null}
-          {continuationOnBlocked.length > 0 ? (
-            <div className="mono">On blocked: {continuationOnBlocked.join(" / ")}</div>
-          ) : null}
-          {doneChecks.length > 0 ? (
-            <div className="mono">DoD checks: {doneChecks.join(" / ")}</div>
-          ) : null}
-          {unblockTaskOwners.length > 0 ? (
-            <div className="mono">Unblock owner: {unblockTaskOwners.join(" / ")}</div>
-          ) : null}
-          {unblockTaskModes.length > 0 ? (
-            <div className="mono">Unblock mode: {unblockTaskModes.join(" / ")}</div>
-          ) : null}
-          {unblockTaskTriggers.length > 0 ? (
-            <div className="mono">Unblock trigger: {unblockTaskTriggers.join(" / ")}</div>
-          ) : null}
-          {planningContractsError || unblockTasksError ? (
-            <div className="mono muted">{planningContractsError || unblockTasksError}</div>
-          ) : (
-            <div className="mono muted">
-              Derived from persisted worker prompt contracts and unblock tasks. These summaries stay advisory; task_contract still owns execution authority.
+          <div className="mono run-detail-section-label">{completionGovernanceCopy.title}</div>
+          {hasRuntimeCompletionGovernance ? (
+            <div data-testid="run-completion-governance-report">
+              <div className="mono run-detail-section-label">{completionGovernanceCopy.runtimeTitle}</div>
+              <div className="mono">{completionGovernanceCopy.overallVerdict}: {toDisplayText(runtimeCompletionGovernance.overall_verdict)}</div>
+              <div className="mono">{completionGovernanceCopy.reportAuthority}: {toDisplayText(runtimeCompletionGovernance.authority)}</div>
+              <div className="mono">{completionGovernanceCopy.reportSource}: {toDisplayText(runtimeCompletionGovernance.source)}</div>
+              <div className="mono">{completionGovernanceCopy.reportExecutionAuthority}: {toDisplayText(runtimeCompletionGovernance.execution_authority)}</div>
+              <div className="mono">{completionGovernanceCopy.dodChecker}: {toDisplayText(runtimeDodChecker.status)}</div>
+              {toDisplayText(runtimeDodChecker.summary) !== "-" ? (
+                <div className="mono">{completionGovernanceCopy.dodSummary}: {toDisplayText(runtimeDodChecker.summary)}</div>
+              ) : null}
+              {runtimeDodRequiredChecks.length > 0 ? (
+                <div className="mono">{completionGovernanceCopy.dodRequiredChecks}: {runtimeDodRequiredChecks.join(" / ")}</div>
+              ) : null}
+              {runtimeDodUnmetChecks.length > 0 ? (
+                <div className="mono">{completionGovernanceCopy.dodUnmetChecks}: {runtimeDodUnmetChecks.join(" / ")}</div>
+              ) : null}
+              <div className="mono">{completionGovernanceCopy.replyAuditor}: {toDisplayText(runtimeReplyAuditor.status)}</div>
+              {toDisplayText(runtimeReplyAuditor.summary) !== "-" ? (
+                <div className="mono">{completionGovernanceCopy.replySummary}: {toDisplayText(runtimeReplyAuditor.summary)}</div>
+              ) : null}
+              <div className="mono">{completionGovernanceCopy.continuationDecision}: {toDisplayText(runtimeContinuationDecision.selected_action)}</div>
+              {toDisplayText(runtimeContinuationDecision.summary) !== "-" ? (
+                <div className="mono">{completionGovernanceCopy.continuationSummary}: {toDisplayText(runtimeContinuationDecision.summary)}</div>
+              ) : null}
+              {toDisplayText(runtimeContinuationDecision.action_source) !== "-" ? (
+                <div className="mono">{completionGovernanceCopy.actionSource}: {toDisplayText(runtimeContinuationDecision.action_source)}</div>
+              ) : null}
+              {toDisplayText(runtimeContinuationDecision.unblock_task_id) !== "-" ? (
+                <div className="mono">{completionGovernanceCopy.selectedUnblockTask}: {toDisplayText(runtimeContinuationDecision.unblock_task_id)}</div>
+              ) : null}
+              <div className="mono">{completionGovernanceCopy.contextPack}: {toDisplayText(runtimeContextPack.status)}</div>
+              {toDisplayText(runtimeContextPack.summary) !== "-" ? (
+                <div className="mono">{completionGovernanceCopy.contextPackSummary}: {toDisplayText(runtimeContextPack.summary)}</div>
+              ) : null}
+              {toDisplayText(contextPackRecord.pack_id) !== "-" ? (
+                <div className="mono">{completionGovernanceCopy.contextPackId}: {toDisplayText(contextPackRecord.pack_id)}</div>
+              ) : null}
+              {toDisplayText(contextPackRecord.trigger_reason) !== "-" ? (
+                <div className="mono">{completionGovernanceCopy.contextPackTrigger}: {toDisplayText(contextPackRecord.trigger_reason)}</div>
+              ) : null}
+              <div className="mono">{completionGovernanceCopy.harnessRequest}: {toDisplayText(runtimeHarnessRequest.status)}</div>
+              {toDisplayText(runtimeHarnessRequest.summary) !== "-" ? (
+                <div className="mono">{completionGovernanceCopy.harnessRequestSummary}: {toDisplayText(runtimeHarnessRequest.summary)}</div>
+              ) : null}
+              {toDisplayText(harnessRequestRecord.request_id) !== "-" ? (
+                <div className="mono">{completionGovernanceCopy.harnessRequestId}: {toDisplayText(harnessRequestRecord.request_id)}</div>
+              ) : null}
+              {toDisplayText(harnessRequestRecord.scope) !== "-" ? (
+                <div className="mono">{completionGovernanceCopy.harnessRequestScope}: {toDisplayText(harnessRequestRecord.scope)}</div>
+              ) : null}
+              {harnessRequestRecord.approval_required !== undefined ? (
+                <div className="mono">{completionGovernanceCopy.harnessRequestApproval}: {toDisplayText(harnessRequestRecord.approval_required)}</div>
+              ) : null}
+              <div className="mono muted">{completionGovernanceCopy.runtimeNote}</div>
             </div>
-          )}
+          ) : null}
+          {planningContracts.length > 0 || planningContractsError || unblockTasks.length > 0 || unblockTasksError ? (
+            <>
+              {hasRuntimeCompletionGovernance ? (
+                <div className="mono run-detail-section-label">{completionGovernanceCopy.planningFallbackTitle}</div>
+              ) : null}
+              <div className="mono">{completionGovernanceCopy.workerPromptContracts}: {planningContracts.length}</div>
+              {unblockTasks.length > 0 ? (
+                <div className="mono">{completionGovernanceCopy.unblockTasks}: {unblockTasks.length}</div>
+              ) : null}
+              {continuationOnIncomplete.length > 0 ? (
+                <div className="mono">{completionGovernanceCopy.onIncomplete}: {continuationOnIncomplete.join(" / ")}</div>
+              ) : null}
+              {continuationOnBlocked.length > 0 ? (
+                <div className="mono">{completionGovernanceCopy.onBlocked}: {continuationOnBlocked.join(" / ")}</div>
+              ) : null}
+              {doneChecks.length > 0 ? (
+                <div className="mono">{completionGovernanceCopy.doneChecks}: {doneChecks.join(" / ")}</div>
+              ) : null}
+              {unblockTaskOwners.length > 0 ? (
+                <div className="mono">{completionGovernanceCopy.unblockOwner}: {unblockTaskOwners.join(" / ")}</div>
+              ) : null}
+              {unblockTaskModes.length > 0 ? (
+                <div className="mono">{completionGovernanceCopy.unblockMode}: {unblockTaskModes.join(" / ")}</div>
+              ) : null}
+              {unblockTaskTriggers.length > 0 ? (
+                <div className="mono">{completionGovernanceCopy.unblockTrigger}: {unblockTaskTriggers.join(" / ")}</div>
+              ) : null}
+              {planningContractsError || unblockTasksError ? (
+                <div className="mono muted">{planningContractsError || unblockTasksError}</div>
+              ) : (
+                <div className="mono muted">{completionGovernanceCopy.advisoryNote}</div>
+              )}
+            </>
+          ) : null}
         </div>
       ) : null}
       <div className="mono">Manifest artifacts:</div>

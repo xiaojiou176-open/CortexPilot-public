@@ -795,6 +795,32 @@ export type UiCopy = {
       };
       completionGovernance: {
         title: string;
+        runtimeTitle: string;
+        overallVerdict: string;
+        reportAuthority: string;
+        reportSource: string;
+        reportExecutionAuthority: string;
+        dodChecker: string;
+        dodSummary: string;
+        dodRequiredChecks: string;
+        dodUnmetChecks: string;
+        replyAuditor: string;
+        replySummary: string;
+        continuationDecision: string;
+        continuationSummary: string;
+        actionSource: string;
+        selectedUnblockTask: string;
+        contextPack: string;
+        contextPackSummary: string;
+        contextPackId: string;
+        contextPackTrigger: string;
+        harnessRequest: string;
+        harnessRequestSummary: string;
+        harnessRequestId: string;
+        harnessRequestScope: string;
+        harnessRequestApproval: string;
+        runtimeNote: string;
+        planningFallbackTitle: string;
         workerPromptContracts: string;
         unblockTasks: string;
         onIncomplete: string;
@@ -2021,6 +2047,33 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         },
         completionGovernance: {
           title: "Completion governance",
+          runtimeTitle: "Runtime evaluator verdict",
+          overallVerdict: "Overall verdict",
+          reportAuthority: "Report authority",
+          reportSource: "Report source",
+          reportExecutionAuthority: "Report execution authority",
+          dodChecker: "DoD checker",
+          dodSummary: "DoD summary",
+          dodRequiredChecks: "Required checks",
+          dodUnmetChecks: "Unmet checks",
+          replyAuditor: "Reply auditor",
+          replySummary: "Reply summary",
+          continuationDecision: "Continuation decision",
+          continuationSummary: "Continuation summary",
+          actionSource: "Action source",
+          selectedUnblockTask: "Selected unblock task",
+          contextPack: "Context Pack",
+          contextPackSummary: "Context Pack summary",
+          contextPackId: "Context Pack ID",
+          contextPackTrigger: "Context Pack trigger",
+          harnessRequest: "Harness Request",
+          harnessRequestSummary: "Harness Request summary",
+          harnessRequestId: "Harness Request ID",
+          harnessRequestScope: "Harness Request scope",
+          harnessRequestApproval: "Harness approval required",
+          runtimeNote:
+            "Runtime-evaluated read-back: this report reflects the live completion evaluator. task_contract still owns execution authority; this report does not replace the contract.",
+          planningFallbackTitle: "Planning advisory fallback",
           workerPromptContracts: "Worker prompt contracts",
           unblockTasks: "Unblock tasks",
           onIncomplete: "On incomplete",
@@ -3279,6 +3332,33 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         },
         completionGovernance: {
           title: "完成治理摘要",
+          runtimeTitle: "运行时治理结论",
+          overallVerdict: "总体结论",
+          reportAuthority: "报告权威来源",
+          reportSource: "报告来源",
+          reportExecutionAuthority: "报告执行权威",
+          dodChecker: "完成定义检查器",
+          dodSummary: "完成定义摘要",
+          dodRequiredChecks: "要求检查项",
+          dodUnmetChecks: "未满足检查项",
+          replyAuditor: "回复审计器",
+          replySummary: "回复摘要",
+          continuationDecision: "续跑决策",
+          continuationSummary: "续跑摘要",
+          actionSource: "决策来源",
+          selectedUnblockTask: "选中的解阻塞任务",
+          contextPack: "Context Pack",
+          contextPackSummary: "Context Pack 摘要",
+          contextPackId: "Context Pack ID",
+          contextPackTrigger: "Context Pack 触发器",
+          harnessRequest: "Harness Request",
+          harnessRequestSummary: "Harness Request 摘要",
+          harnessRequestId: "Harness Request ID",
+          harnessRequestScope: "Harness Request 范围",
+          harnessRequestApproval: "Harness 审批要求",
+          runtimeNote:
+            "运行时只读回读：这份报告反映的是 live completion evaluator 的结论；`task_contract` 仍然掌握执行权威，这份报告不是第二份执行合同。",
+          planningFallbackTitle: "规划期 advisory 摘要",
           workerPromptContracts: "工作者提示合约",
           unblockTasks: "解阻塞任务",
           onIncomplete: "未完成时",

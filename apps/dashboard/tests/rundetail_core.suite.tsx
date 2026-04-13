@@ -273,6 +273,190 @@ describe("RunDetail core flows", () => {
     ).toBeInTheDocument();
   });
 
+  it("prefers runtime completion governance report when one is present", async () => {
+    const run = {
+      run_id: "run_runtime_governance",
+      task_id: "task_runtime_governance",
+      status: "SUCCESS",
+      allowed_paths: ["README.md"],
+      contract: { task_id: "task_runtime_governance" },
+      manifest: {
+        artifacts: [
+          { name: "planning_worker_prompt_contracts", path: "artifacts/planning_worker_prompt_contracts.json" },
+          { name: "planning_unblock_tasks", path: "artifacts/planning_unblock_tasks.json" },
+        ],
+      },
+    };
+    const reports = [
+      {
+        name: "completion_governance_report.json",
+        data: {
+          authority: "runtime-evaluated-read-back",
+          source: "reports/completion_governance_report.json",
+          execution_authority: "task_contract",
+          overall_verdict: "continue_required",
+          dod_checker: {
+            status: "failed",
+            summary: "Missing test_report before completion.",
+            required_checks: ["repo_hygiene", "test_report"],
+            unmet_checks: ["test_report"],
+          },
+          reply_auditor: {
+            status: "needs_followup",
+            summary: "Reply stopped before verification evidence landed.",
+          },
+          continuation_decision: {
+            selected_action: "reply_auditor_reprompt_and_continue_same_session",
+            summary: "Continue in the same session after the auditor reprompt.",
+            action_source: "reply_auditor",
+            unblock_task_id: "unblock-runtime-1",
+          },
+          context_pack: {
+            status: "not_requested",
+            summary: "Fallback context pack stayed idle.",
+          },
+          harness_request: {
+            status: "not_requested",
+            summary: "Harness escalation was not required.",
+          },
+        },
+      },
+    ];
+    const fetchMock = mockFetchFactory({
+      events: [],
+      reports,
+      availableRuns: [],
+      planningContracts: [
+        {
+          prompt_contract_id: "worker-1",
+          done_definition: { acceptance_checks: ["repo_hygiene", "test_report"] },
+          continuation_policy: {
+            on_incomplete: "reply_auditor_reprompt_and_continue_same_session",
+            on_blocked: "spawn_independent_temporary_unblock_task",
+          },
+        },
+      ],
+      planningUnblockTasks: [
+        {
+          unblock_task_id: "unblock-runtime-1",
+          owner: "L0",
+          mode: "independent_temporary_task",
+          trigger: "spawn_independent_temporary_unblock_task",
+        },
+      ],
+    });
+    // @ts-expect-error test override
+    global.fetch = fetchMock;
+
+    render(<RunDetail run={run as any} events={[]} diff="" reports={reports as any} />);
+    await act(async () => {
+      await flushPromises();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Runtime evaluator verdict")).toBeInTheDocument();
+    });
+    expect(screen.getByText("Overall verdict: continue_required")).toBeInTheDocument();
+    expect(screen.getByText("DoD checker: failed")).toBeInTheDocument();
+    expect(screen.getByText("Reply auditor: needs_followup")).toBeInTheDocument();
+    expect(screen.getByText("Continuation decision: reply_auditor_reprompt_and_continue_same_session")).toBeInTheDocument();
+    expect(screen.getByText("Context Pack: not_requested")).toBeInTheDocument();
+    expect(screen.getByText("Harness Request: not_requested")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Runtime-evaluated read-back: this report reflects the live completion evaluator. task_contract still owns execution authority; this report does not replace the contract.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Planning advisory fallback")).toBeInTheDocument();
+    expect(screen.getByText("Worker prompt contracts: 1")).toBeInTheDocument();
+  });
+
+  it("reads context pack and harness request artifacts when runtime governance produced them", async () => {
+    const run = {
+      run_id: "run_runtime_artifacts",
+      task_id: "task_runtime_artifacts",
+      status: "FAILURE",
+      allowed_paths: ["README.md"],
+      contract: { task_id: "task_runtime_artifacts" },
+      manifest: {
+        artifacts: [
+          { name: "context_pack", path: "artifacts/context_pack.json" },
+          { name: "harness_request", path: "artifacts/harness_request.json" },
+        ],
+      },
+    };
+    const reports = [
+      {
+        name: "completion_governance_report.json",
+        data: {
+          authority: "runtime-evaluated-read-back",
+          source: "reports/completion_governance_report.json",
+          execution_authority: "task_contract",
+          overall_verdict: "continue_same_session",
+          dod_checker: { status: "failed", summary: "Need follow-up.", required_checks: ["repo_hygiene"], unmet_checks: ["run_status"] },
+          reply_auditor: { status: "needs_follow_up", summary: "Reply was incomplete." },
+          continuation_decision: {
+            selected_action: "reply_auditor_reprompt_and_continue_same_session",
+            summary: "Queued follow-up contract for the same session.",
+            action_source: "continuation_policy.on_incomplete",
+          },
+          context_pack: { status: "generated", summary: "Generated ctx-pack-run_runtime_artifacts for fallback handoff." },
+          harness_request: { status: "approval_required", summary: "Generated harness-run_runtime_artifacts with approval_required policy verdict." },
+        },
+      },
+    ];
+    const fetchMock = mockFetchFactory({
+      events: [],
+      reports,
+      availableRuns: [],
+    });
+    const baseFetch = fetchMock as unknown as typeof global.fetch;
+    global.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+      if (url.includes("/api/runs/run_runtime_artifacts/artifacts?name=context_pack.json")) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            data: {
+              pack_id: "ctx-pack-run_runtime_artifacts",
+              trigger_reason: "contamination",
+            },
+          }),
+          text: async () => "",
+        } as Response;
+      }
+      if (url.includes("/api/runs/run_runtime_artifacts/artifacts?name=harness_request.json")) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            data: {
+              request_id: "harness-run_runtime_artifacts",
+              scope: "project-local",
+              approval_required: true,
+            },
+          }),
+          text: async () => "",
+        } as Response;
+      }
+      return baseFetch(input, init);
+    };
+
+    render(<RunDetail run={run as any} events={[]} diff="" reports={reports as any} />);
+    await act(async () => {
+      await flushPromises();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Context Pack ID: ctx-pack-run_runtime_artifacts")).toBeInTheDocument();
+    });
+    expect(screen.getByText("Context Pack trigger: contamination")).toBeInTheDocument();
+    expect(screen.getByText("Harness Request ID: harness-run_runtime_artifacts")).toBeInTheDocument();
+    expect(screen.getByText("Harness Request scope: project-local")).toBeInTheDocument();
+    expect(screen.getByText("Harness approval required: true")).toBeInTheDocument();
+  });
+
   it("uses SSE transport and consumes stream events", async () => {
     const run = {
       run_id: "run_sse",

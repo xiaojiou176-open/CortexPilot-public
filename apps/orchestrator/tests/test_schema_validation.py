@@ -327,6 +327,48 @@ def test_new_operator_report_and_task_pack_schemas_pass() -> None:
     }
     assert validator.validate_report(harness_request, "harness_request.v1.json")["request_id"] == "harness-1"
 
+    completion_governance_report = {
+        "report_type": "completion_governance_report",
+        "generated_at": "2026-04-12T21:00:00Z",
+        "authority": "completion-governance-runtime",
+        "source": "finalize_run",
+        "execution_authority": "task_contract",
+        "overall_verdict": "queue_unblock_task",
+        "dod_checker": {
+            "status": "failed",
+            "summary": "Required completion checks are still missing or failed.",
+            "required_checks": ["repo_hygiene", "test_report"],
+            "unmet_checks": ["test_report", "run_status"],
+        },
+        "reply_auditor": {
+            "status": "blocked",
+            "summary": "The run ended with blocker signals and an unblock path is available.",
+            "signals": ["run_status_not_success", "dod_unmet"],
+        },
+        "continuation_decision": {
+            "status": "selected",
+            "selected_action": "spawn_independent_temporary_unblock_task",
+            "action_source": "continuation_policy.on_blocked",
+            "unblock_task_id": "unblock-worker-prompt-1",
+            "summary": "The run is blocked. Queue the L0-managed unblock task before continuing.",
+        },
+        "context_pack": {
+            "status": "not_wired",
+            "summary": "Context Pack remains fallback-only, but no runtime producer/consumer is wired into finalize_run yet.",
+        },
+        "harness_request": {
+            "status": "not_wired",
+            "summary": "Harness Request has a schema home, but no request/apply lifecycle is wired into this run finalizer yet.",
+        },
+    }
+    assert (
+        validator.validate_report(
+            completion_governance_report,
+            "completion_governance_report.v1.json",
+        )["overall_verdict"]
+        == "queue_unblock_task"
+    )
+
     control_plane_runtime_policy = {
         "version": "v1",
         "product_identity": {

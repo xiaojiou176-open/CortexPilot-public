@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -7,6 +9,7 @@ from typing import Any
 from cortexpilot_orch.contract.validator import ContractValidator
 from cortexpilot_orch.scheduler import (
     artifact_refs,
+    completion_governance,
     core_helpers,
     evidence_pipeline,
     gate_orchestration,
@@ -14,6 +17,7 @@ from cortexpilot_orch.scheduler import (
     test_pipeline,
 )
 from cortexpilot_orch.scheduler.runtime_utils import schema_root, write_manifest
+from cortexpilot_orch.queue.store import QueueStore
 from cortexpilot_orch.store.run_store import RunStore
 from cortexpilot_orch.temporal.manager import notify_run_completed
 from cortexpilot_orch.worktrees import manager as worktree_manager
@@ -267,6 +271,282 @@ def finalize_run(
             str(exc),
             schema="evidence_report.v1.json",
             path="reports/evidence_report.json",
+        )
+
+    def _sha256_text(text: str) -> str:
+        return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+    def _append_input_artifact(
+        follow_up_contract: dict[str, Any],
+        *,
+        name: str,
+        uri: str,
+        sha256: str,
+    ) -> None:
+        inputs = follow_up_contract.get("inputs")
+        if not isinstance(inputs, dict):
+            inputs = {"spec": "", "artifacts": []}
+        artifacts = inputs.get("artifacts")
+        if not isinstance(artifacts, list):
+            artifacts = []
+        artifacts.append({"name": name, "uri": uri, "sha256": sha256})
+        inputs["artifacts"] = artifacts
+        follow_up_contract["inputs"] = inputs
+
+    def _build_follow_up_contract(
+        *,
+        task_id_override: str,
+        spec: str,
+        preserve_thread: bool,
+    ) -> dict[str, Any]:
+        follow_up_contract = json.loads(json.dumps(contract, ensure_ascii=False))
+        follow_up_contract["task_id"] = task_id_override
+        follow_up_contract["parent_task_id"] = task_id
+        inputs = follow_up_contract.get("inputs")
+        if not isinstance(inputs, dict):
+            inputs = {"spec": spec, "artifacts": []}
+        inputs["spec"] = spec
+        if not isinstance(inputs.get("artifacts"), list):
+            inputs["artifacts"] = []
+        follow_up_contract["inputs"] = inputs
+        if not preserve_thread:
+            assigned_agent = follow_up_contract.get("assigned_agent")
+            if isinstance(assigned_agent, dict):
+                assigned_agent.pop("codex_thread_id", None)
+            owner_agent = follow_up_contract.get("owner_agent")
+            if isinstance(owner_agent, dict):
+                owner_agent.pop("codex_thread_id", None)
+        return follow_up_contract
+
+    def _queue_follow_up_contract(
+        *,
+        follow_up_contract: dict[str, Any],
+        artifact_name: str,
+        task_id_for_queue: str,
+        reason: str,
+    ) -> dict[str, Any]:
+        artifact_path = store.write_artifact(
+            run_id,
+            artifact_name,
+            json.dumps(follow_up_contract, ensure_ascii=False, indent=2),
+        )
+        queue_store = QueueStore(queue_path=run_dir.parent.parent / "queue.jsonl")
+        owner_agent = contract.get("owner_agent") if isinstance(contract.get("owner_agent"), dict) else {}
+        assigned_agent = contract.get("assigned_agent") if isinstance(contract.get("assigned_agent"), dict) else {}
+        workflow_meta = manifest.get("workflow") if isinstance(manifest.get("workflow"), dict) else {}
+        queue_item = queue_store.enqueue(
+            artifact_path.resolve(),
+            task_id_for_queue,
+            owner=str(owner_agent.get("agent_id") or assigned_agent.get("agent_id") or "").strip(),
+            metadata={
+                "workflow_id": str(workflow_meta.get("workflow_id") or "").strip(),
+                "source_run_id": run_id,
+                "priority": 0,
+                "reason": reason,
+            },
+        )
+        return {
+            "artifact_path": str(artifact_path),
+            "queue_item": queue_item,
+        }
+
+    if isinstance(final_task_result, dict):
+        final_task_result["status"] = "SUCCESS" if status == "SUCCESS" else "FAILED"
+        final_task_result["failure"] = {"message": failure_reason} if failure_reason else None
+        if not final_task_result.get("summary") and failure_reason:
+            final_task_result["summary"] = failure_reason
+
+    (
+        completion_governance_report,
+        updated_unblock_tasks,
+        context_pack_artifact,
+        harness_request_artifact,
+    ) = completion_governance.evaluate_completion_governance(
+        contract=contract,
+        run_dir=run_dir,
+        task_result=final_task_result if isinstance(final_task_result, dict) else task_result,
+        test_report=test_report,
+        review_report=review_report,
+        status=status,
+        failure_reason=failure_reason,
+        generated_at=finished_at,
+    )
+    try:
+        report_validator.validate_report(completion_governance_report, "completion_governance_report.v1.json")
+    except Exception as exc:  # noqa: BLE001
+        failure_reason = failure_reason or f"completion_governance_report schema invalid: {exc}"
+        status = "FAILURE"
+        append_gate_failed_fn(
+            store,
+            run_id,
+            "schema_validation",
+            str(exc),
+            schema="completion_governance_report.v1.json",
+            path="reports/completion_governance_report.json",
+        )
+    else:
+        if updated_unblock_tasks is not None:
+            store.write_artifact(
+                run_id,
+                "planning_unblock_tasks.json",
+                json.dumps(updated_unblock_tasks, ensure_ascii=False, indent=2),
+            )
+        if context_pack_artifact is not None:
+            context_pack_path = store.write_artifact(
+                run_id,
+                "context_pack.json",
+                json.dumps(context_pack_artifact, ensure_ascii=False, indent=2),
+            )
+            store.append_event(
+                run_id,
+                {
+                    "level": "INFO",
+                    "event": "CONTEXT_PACK_GENERATED",
+                    "run_id": run_id,
+                    "meta": {
+                        "pack_id": context_pack_artifact.get("pack_id"),
+                        "trigger_reason": context_pack_artifact.get("trigger_reason"),
+                    },
+                },
+            )
+        if harness_request_artifact is not None:
+            store.write_artifact(
+                run_id,
+                "harness_request.json",
+                json.dumps(harness_request_artifact, ensure_ascii=False, indent=2),
+            )
+            store.append_event(
+                run_id,
+                {
+                    "level": "INFO",
+                    "event": "HARNESS_REQUEST_CREATED",
+                    "run_id": run_id,
+                    "meta": {
+                        "request_id": harness_request_artifact.get("request_id"),
+                        "scope": harness_request_artifact.get("scope"),
+                        "approval_required": harness_request_artifact.get("approval_required"),
+                    },
+                },
+            )
+        if isinstance(final_task_result, dict):
+            continuation_decision = completion_governance_report.get("continuation_decision", {})
+            if isinstance(continuation_decision, dict):
+                selected_action = str(continuation_decision.get("selected_action") or "").strip()
+                if selected_action == "reply_auditor_reprompt_and_continue_same_session":
+                    follow_up_contract = _build_follow_up_contract(
+                        task_id_override=f"continue-{task_id}",
+                        spec=(
+                            "Continue the same session after completion governance marked the reply incomplete. "
+                            f"Follow-up reason: {str(continuation_decision.get('summary') or '').strip()}"
+                        ),
+                        preserve_thread=True,
+                    )
+                    if context_pack_artifact is not None:
+                        context_pack_text = json.dumps(context_pack_artifact, ensure_ascii=False, indent=2)
+                        _append_input_artifact(
+                            follow_up_contract,
+                            name="context_pack.json",
+                            uri=str(context_pack_path),
+                            sha256=_sha256_text(context_pack_text),
+                        )
+                    follow_up_queue = _queue_follow_up_contract(
+                        follow_up_contract=follow_up_contract,
+                        artifact_name="continuation_task_contract.json",
+                        task_id_for_queue=str(follow_up_contract.get("task_id") or f"continue-{task_id}"),
+                        reason="completion_governance_on_incomplete",
+                    )
+                    continuation_decision["summary"] = (
+                        f"{str(continuation_decision.get('summary') or '').strip()} "
+                        f"Queued follow-up contract at {follow_up_queue['artifact_path']}."
+                    ).strip()
+                    continuation_decision["action_source"] = "continuation_policy.on_incomplete"
+                    store.append_event(
+                        run_id,
+                        {
+                            "level": "INFO",
+                            "event": "CONTINUATION_QUEUED",
+                            "run_id": run_id,
+                            "meta": {
+                                "task_id": follow_up_contract.get("task_id"),
+                                "queue_id": follow_up_queue["queue_item"].get("queue_id"),
+                            },
+                        },
+                    )
+                elif selected_action == "spawn_independent_temporary_unblock_task" and updated_unblock_tasks is not None:
+                    selected_unblock_task = next(
+                        (
+                            item
+                            for item in updated_unblock_tasks
+                            if str(item.get("unblock_task_id") or "").strip()
+                            == str(continuation_decision.get("unblock_task_id") or "").strip()
+                        ),
+                        {},
+                    )
+                    if isinstance(selected_unblock_task, dict) and selected_unblock_task:
+                        unblock_spec = (
+                            f"{str(selected_unblock_task.get('objective') or '').strip()} "
+                            f"Reason: {str(selected_unblock_task.get('reason') or '').strip()} "
+                            f"Scope: {str(selected_unblock_task.get('scope_hint') or '').strip()}"
+                        ).strip()
+                        unblock_contract = _build_follow_up_contract(
+                            task_id_override=str(selected_unblock_task.get("unblock_task_id") or f"unblock-{task_id}"),
+                            spec=unblock_spec,
+                            preserve_thread=False,
+                        )
+                        unblock_queue = _queue_follow_up_contract(
+                            follow_up_contract=unblock_contract,
+                            artifact_name="unblock_task_contract.json",
+                            task_id_for_queue=str(unblock_contract.get("task_id") or f"unblock-{task_id}"),
+                            reason="completion_governance_on_blocked",
+                        )
+                        continuation_decision["summary"] = (
+                            f"{str(continuation_decision.get('summary') or '').strip()} "
+                            f"Queued unblock contract at {unblock_queue['artifact_path']}."
+                        ).strip()
+                        store.append_event(
+                            run_id,
+                            {
+                                "level": "INFO",
+                                "event": "UNBLOCK_TASK_QUEUED",
+                                "run_id": run_id,
+                                "meta": {
+                                    "unblock_task_id": unblock_contract.get("task_id"),
+                                    "queue_id": unblock_queue["queue_item"].get("queue_id"),
+                                },
+                            },
+                        )
+                final_task_result["next_steps"] = {
+                    "suggested_action": str(continuation_decision.get("selected_action") or "none"),
+                    "notes": str(continuation_decision.get("summary") or "n/a"),
+                }
+            try:
+                report_validator.validate_report(final_task_result, "task_result.v1.json")
+            except Exception as exc:  # noqa: BLE001
+                failure_reason = failure_reason or f"task_result schema invalid: {exc}"
+                status = "FAILURE"
+                append_gate_failed_fn(
+                    store,
+                    run_id,
+                    "schema_validation",
+                    str(exc),
+                    schema="task_result.v1.json",
+                    path="reports/task_result.json",
+                )
+            else:
+                store.write_report(run_id, "task_result", final_task_result)
+                store.write_task_result(run_id, task_id, final_task_result)
+        store.write_report(run_id, "completion_governance_report", completion_governance_report)
+        store.append_event(
+            run_id,
+            {
+                "level": "INFO",
+                "event": "COMPLETION_GOVERNANCE_EVALUATED",
+                "run_id": run_id,
+                "meta": {
+                    "overall_verdict": completion_governance_report.get("overall_verdict"),
+                    "selected_action": completion_governance_report.get("continuation_decision", {}).get("selected_action"),
+                },
+            },
         )
 
     if isinstance(manifest.get("repo"), dict):

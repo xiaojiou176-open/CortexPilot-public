@@ -172,3 +172,260 @@ def test_finalize_execute_task_run_releases_lock_and_worktree(monkeypatch, tmp_p
     assert calls["remove"] == [(run_id, "task-finalize-execute")]
     assert calls["finalize_kwargs"]["run_id"] == run_id
     assert calls["finalize_kwargs"]["task_id"] == "task-finalize-execute"
+
+
+def test_finalize_run_writes_completion_governance_report_and_updates_task_result(tmp_path: Path) -> None:
+    store = RunStore(runs_root=tmp_path / "runs")
+    run_id = store.create_run("task-completion-governance")
+    run_dir = store._runs_root / run_id
+    artifacts_dir = run_dir / "artifacts"
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
+    (artifacts_dir / "planning_worker_prompt_contracts.json").write_text(
+        json.dumps(
+            [
+                {
+                    "prompt_contract_id": "worker-1",
+                    "done_definition": {"acceptance_checks": ["repo_hygiene", "test_report"]},
+                    "continuation_policy": {
+                        "on_incomplete": "reply_auditor_reprompt_and_continue_same_session",
+                        "on_blocked": "spawn_independent_temporary_unblock_task",
+                    },
+                }
+            ],
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    (artifacts_dir / "planning_unblock_tasks.json").write_text(
+        json.dumps(
+            [
+                {
+                    "version": "v1",
+                    "unblock_task_id": "unblock-worker-1",
+                    "source_prompt_contract_id": "worker-1",
+                    "objective": "Unblock the scoped worker assignment",
+                    "scope_hint": "Inspect the external blocker.",
+                    "assigned_agent": {"role": "WORKER", "agent_id": "agent-1"},
+                    "owner": "L0",
+                    "mode": "independent_temporary_task",
+                    "status": "proposed",
+                    "trigger": "spawn_independent_temporary_unblock_task",
+                    "reason": "an external blocker requires an L0-managed unblock task",
+                    "verification_requirements": ["repo_hygiene"],
+                }
+            ],
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    bridge_finalize.finalize_run(
+        store=store,
+        run_id=run_id,
+        task_id="task-completion-governance",
+        status="FAILURE",
+        failure_reason="external blocker",
+        manifest={"run_id": run_id, "task_id": "task-completion-governance", "status": "RUNNING", "repo": {}, "workflow": {}},
+        attempt=1,
+        start_ts="2026-04-12T20:00:00Z",
+        tests_result={"ok": False},
+        test_report={"status": "FAIL"},
+        review_report={"verdict": "PASS"},
+        policy_gate_result={"ok": True, "passed": True},
+        integrated_gate=None,
+        network_gate=None,
+        mcp_gate=None,
+        sampling_gate=None,
+        tool_gate=None,
+        human_approval_required=False,
+        human_approved=None,
+        contract={"assigned_agent": {"role": "WORKER", "agent_id": "agent-1", "codex_thread_id": ""}},
+        runner_summary="blocked on an external dependency",
+        diff_gate_result={"ok": True, "violations": [], "changed_files": []},
+        review_gate_result={"ok": True},
+        baseline_ref="base-ref",
+        head_ref="head-ref",
+        search_request=None,
+        tamper_request=None,
+        task_result={"status": "FAILED", "summary": "blocked", "gates": {"diff_gate": {"passed": True}, "policy_gate": {"passed": True}, "review_gate": {"passed": True}, "tests_gate": {"passed": False}}},
+        now_ts_fn=lambda: "2026-04-12T20:05:00Z",
+        ensure_text_file_fn=lambda path: path.write_text("", encoding="utf-8"),
+        contract_validator_cls=_AlwaysValidValidator,
+        schema_root_fn=lambda: tmp_path,
+        build_test_report_stub_fn=lambda *_args, **_kwargs: {"status": "FAIL"},
+        build_review_report_stub_fn=lambda *_args, **_kwargs: {"verdict": "PASS"},
+        build_policy_gate_fn=lambda *_args, **_kwargs: {"passed": True},
+        build_task_result_fn=lambda *_args, **_kwargs: {
+            "run_id": run_id,
+            "task_id": "task-completion-governance",
+            "attempt": 1,
+            "producer": {"role": "WORKER", "agent_id": "agent-1"},
+            "status": "FAILED",
+            "started_at": "2026-04-12T20:00:00Z",
+            "finished_at": "2026-04-12T20:05:00Z",
+            "summary": "blocked",
+            "artifacts": [],
+            "git": {"baseline_ref": "base-ref", "head_ref": "head-ref", "changed_files": {"name": "changed"}, "patch": {"name": "patch"}},
+            "gates": {
+                "diff_gate": {"passed": True, "violations": []},
+                "policy_gate": {"passed": True, "violations": []},
+                "review_gate": {"passed": True, "violations": []},
+                "tests_gate": {"passed": False, "violations": ["tests failed"]},
+            },
+            "next_steps": {"suggested_action": "investigate", "notes": "external blocker"},
+            "failure": {"message": "external blocker"},
+        },
+        build_work_report_fn=lambda *_args, **_kwargs: {"status": "FAILED"},
+        build_evidence_report_fn=lambda _run_dir, _extra=None: {"status": "ok"},
+        append_gate_failed_fn=lambda *_args, **_kwargs: None,
+        write_evidence_bundle_fn=bridge_finalize.write_evidence_bundle,
+        manifest_task_role_fn=lambda _assigned: "WORKER",
+        artifact_ref_from_path_fn=lambda name, *_args, **_kwargs: {"name": name},
+        collect_evidence_hashes_fn=lambda _run_dir: {},
+        artifact_refs_from_hashes_fn=lambda _run_dir, _hashes: [],
+        write_manifest_fn=lambda store_obj, rid, data: store_obj.write_manifest(rid, data),
+        notify_run_completed_fn=lambda _rid, _payload: {"ok": True},
+    )
+
+    completion_governance = json.loads((run_dir / "reports" / "completion_governance_report.json").read_text(encoding="utf-8"))
+    assert completion_governance["overall_verdict"] == "queue_unblock_task"
+    assert completion_governance["continuation_decision"]["selected_action"] == "spawn_independent_temporary_unblock_task"
+    assert "Queued unblock contract" in completion_governance["continuation_decision"]["summary"]
+
+    task_result = json.loads((run_dir / "reports" / "task_result.json").read_text(encoding="utf-8"))
+    assert task_result["next_steps"]["suggested_action"] == "spawn_independent_temporary_unblock_task"
+
+    unblock_tasks = json.loads((artifacts_dir / "planning_unblock_tasks.json").read_text(encoding="utf-8"))
+    assert unblock_tasks[0]["status"] == "queued"
+    unblock_contract = json.loads((artifacts_dir / "unblock_task_contract.json").read_text(encoding="utf-8"))
+    assert unblock_contract["task_id"] == "unblock-worker-1"
+    assert unblock_contract["parent_task_id"] == "task-completion-governance"
+    assert unblock_contract["assigned_agent"].get("codex_thread_id") in {"", None}
+    queue_lines = (tmp_path / "queue.jsonl").read_text(encoding="utf-8").splitlines()
+    queue_items = [json.loads(line) for line in queue_lines if line.strip()]
+    assert queue_items[-1]["task_id"] == "unblock-worker-1"
+    assert queue_items[-1]["source_run_id"] == run_id
+
+
+def test_finalize_run_writes_context_pack_and_harness_request_artifacts(tmp_path: Path) -> None:
+    store = RunStore(runs_root=tmp_path / "runs")
+    run_id = store.create_run("task-context-harness")
+    run_dir = store._runs_root / run_id
+    artifacts_dir = run_dir / "artifacts"
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
+    (artifacts_dir / "planning_worker_prompt_contracts.json").write_text(
+        json.dumps(
+            [
+                {
+                    "prompt_contract_id": "worker-ctx",
+                    "assigned_agent": {"role": "WORKER", "agent_id": "agent-ctx"},
+                    "done_definition": {"acceptance_checks": ["repo_hygiene", "test_report"]},
+                    "continuation_policy": {
+                        "on_incomplete": "reply_auditor_reprompt_and_continue_same_session",
+                        "on_blocked": "spawn_independent_temporary_unblock_task",
+                    },
+                }
+            ],
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    bridge_finalize.finalize_run(
+        store=store,
+        run_id=run_id,
+        task_id="task-context-harness",
+        status="FAILURE",
+        failure_reason="context contamination while mcp_gate blocked the run",
+        manifest={"run_id": run_id, "task_id": "task-context-harness", "status": "RUNNING", "repo": {}, "workflow": {}},
+        attempt=1,
+        start_ts="2026-04-12T20:00:00Z",
+        tests_result={"ok": False},
+        test_report={"status": "FAIL"},
+        review_report={"verdict": "PASS"},
+        policy_gate_result={"passed": False, "violations": ["mcp_gate"]},
+        integrated_gate=None,
+        network_gate=None,
+        mcp_gate=None,
+        sampling_gate=None,
+        tool_gate=None,
+        human_approval_required=False,
+        human_approved=None,
+        contract={"assigned_agent": {"role": "WORKER", "agent_id": "agent-ctx", "codex_thread_id": "thread-ctx"}},
+        runner_summary="blocked by capability gap",
+        diff_gate_result={"ok": True, "violations": [], "changed_files": []},
+        review_gate_result={"ok": True},
+        baseline_ref="base-ref",
+        head_ref="head-ref",
+        search_request=None,
+        tamper_request=None,
+        task_result={
+            "status": "FAILED",
+            "summary": "blocked by capability gap",
+            "gates": {
+                "diff_gate": {"passed": True},
+                "policy_gate": {"passed": False, "violations": ["mcp_gate"]},
+                "review_gate": {"passed": True},
+                "tests_gate": {"passed": False},
+            },
+            "evidence_refs": {"thread_id": "thread-ctx"},
+        },
+        now_ts_fn=lambda: "2026-04-12T20:05:00Z",
+        ensure_text_file_fn=lambda path: path.write_text("", encoding="utf-8"),
+        contract_validator_cls=_AlwaysValidValidator,
+        schema_root_fn=lambda: tmp_path,
+        build_test_report_stub_fn=lambda *_args, **_kwargs: {"status": "FAIL"},
+        build_review_report_stub_fn=lambda *_args, **_kwargs: {"verdict": "PASS"},
+        build_policy_gate_fn=lambda *_args, **_kwargs: {"passed": False, "violations": ["mcp_gate"]},
+        build_task_result_fn=lambda *_args, **_kwargs: {
+            "run_id": run_id,
+            "task_id": "task-context-harness",
+            "attempt": 1,
+            "producer": {"role": "WORKER", "agent_id": "agent-ctx"},
+            "status": "FAILED",
+            "started_at": "2026-04-12T20:00:00Z",
+            "finished_at": "2026-04-12T20:05:00Z",
+            "summary": "blocked",
+            "artifacts": [],
+            "git": {"baseline_ref": "base-ref", "head_ref": "head-ref", "changed_files": {"name": "changed"}, "patch": {"name": "patch"}},
+            "gates": {
+                "diff_gate": {"passed": True, "violations": []},
+                "policy_gate": {"passed": False, "violations": ["mcp_gate"]},
+                "review_gate": {"passed": True, "violations": []},
+                "tests_gate": {"passed": False, "violations": ["tests failed"]},
+            },
+            "next_steps": {"suggested_action": "investigate", "notes": "capability gap"},
+            "failure": {"message": "context contamination while mcp_gate blocked the run"},
+        },
+        build_work_report_fn=lambda *_args, **_kwargs: {"status": "FAILED"},
+        build_evidence_report_fn=lambda _run_dir, _extra=None: {"status": "ok"},
+        append_gate_failed_fn=lambda *_args, **_kwargs: None,
+        write_evidence_bundle_fn=bridge_finalize.write_evidence_bundle,
+        manifest_task_role_fn=lambda _assigned: "WORKER",
+        artifact_ref_from_path_fn=lambda name, *_args, **_kwargs: {"name": name},
+        collect_evidence_hashes_fn=lambda _run_dir: {},
+        artifact_refs_from_hashes_fn=lambda _run_dir, _hashes: [],
+        write_manifest_fn=lambda store_obj, rid, data: store_obj.write_manifest(rid, data),
+        notify_run_completed_fn=lambda _rid, _payload: {"ok": True},
+    )
+
+    context_pack = json.loads((artifacts_dir / "context_pack.json").read_text(encoding="utf-8"))
+    assert context_pack["trigger_reason"] == "contamination"
+    assert context_pack["source_session_id"] == "thread-ctx"
+
+    harness_request = json.loads((artifacts_dir / "harness_request.json").read_text(encoding="utf-8"))
+    assert harness_request["scope"] == "project-local"
+    assert harness_request["approval_required"] is True
+    assert harness_request["requested_capabilities"]["mcp_servers"] == ["runtime-governance"]
+    continuation_contract = json.loads((artifacts_dir / "continuation_task_contract.json").read_text(encoding="utf-8"))
+    assert continuation_contract["parent_task_id"] == "task-context-harness"
+    assert continuation_contract["assigned_agent"]["codex_thread_id"] == "thread-ctx"
+    artifact_names = [item["name"] for item in continuation_contract["inputs"]["artifacts"]]
+    assert "context_pack.json" in artifact_names
+    queue_lines = (tmp_path / "queue.jsonl").read_text(encoding="utf-8").splitlines()
+    queue_items = [json.loads(line) for line in queue_lines if line.strip()]
+    assert queue_items[-1]["task_id"] == continuation_contract["task_id"]
+    assert queue_items[-1]["source_run_id"] == run_id

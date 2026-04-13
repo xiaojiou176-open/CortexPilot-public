@@ -330,6 +330,13 @@
 - These planner artifacts are advisory planning surfaces that must stay aligned
   with the compiled `task_contract`; they do not supersede the execution
   contract itself.
+- When a run finalizes, runtime evaluation may write
+  `reports/completion_governance_report.json`
+  (`schemas/completion_governance_report.v1.json`) plus follow-on events such
+  as `COMPLETION_GOVERNANCE_EVALUATED` and `UNBLOCK_TASK_QUEUED`.
+- This runtime-evaluated report may update `task_result.next_steps` and queue an
+  unblock task artifact, but it still remains a read-back surface beneath
+  `task_contract`.
 
 ### 6.5 Context Pack And Harness Request Contracts
 
@@ -341,6 +348,12 @@
   loop.
 - `harness_request` represents a proposed capability change; applying that
   change still depends on policy and approval boundaries.
+- When run finalize detects a fallback handoff condition or a capability-policy
+  blocker, the runtime may now persist:
+  - `artifacts/context_pack.json`
+  - `artifacts/harness_request.json`
+- These runtime-generated artifacts remain read-back coordination objects. They
+  do not replace `task_contract` as execution authority.
 
 ### 6.6 Unblock Task Contract
 
