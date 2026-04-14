@@ -785,13 +785,20 @@
   padding: var(--space-3);
   background: var(--color-bg-elevated);
   display: flex;
+  width: 100%;
+  text-align: left;
   flex-direction: column;
   gap: var(--space-1);
+  cursor: default;
   transition:
     border-color var(--motion-fast) var(--motion-ease-out),
     background-color var(--motion-fast) var(--motion-ease-out),
     box-shadow var(--motion-fast) var(--motion-ease-out),
     transform var(--motion-fast) var(--motion-ease-out);
+}
+
+.pm-embed-option.is-clickable {
+  cursor: pointer;
 }
 
 .pm-embed-option:hover {
@@ -800,9 +807,11 @@
   transform: translateY(-1px);
 }
 
+.pm-embed-option:focus-visible,
 .pm-embed-option:focus-within {
   border-color: var(--color-border-primary-mid);
   box-shadow: 0 0 0 2px var(--color-primary-soft);
+  outline: none;
 }
 
 .pm-embed-option strong {

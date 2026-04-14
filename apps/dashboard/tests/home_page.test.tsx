@@ -82,16 +82,16 @@ describe("dashboard home run-summary clarity", () => {
 
     expect(within(firstLoop).getAllByText(/Step\s[1-4]/)).toHaveLength(4);
     expect(within(firstLoop).getByText(/Start with the request, watch Command Tower, confirm the Workflow Case, then inspect Proof & Replay\./)).toBeInTheDocument();
-    expect(screen.getByText(/Each entry keeps the task ID, failure clue, and next operator action visible\./)).toBeInTheDocument();
+    expect(screen.getByText("What unlocks after the first task lands")).toBeInTheDocument();
     expect(screen.getByText("Release-proven first run")).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: /news_digest/i })[0]).toHaveAttribute("href", "/pm?template=news_digest");
-    expect(screen.getByText("Proof state: official public baseline")).toBeInTheDocument();
+    expect(screen.getByText(/official public baseline/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open proof pack" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/"
     );
     expect(screen.getByText("Extended surfaces")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "See first proven workflow" })).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: "See first proven workflow" })[0]).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/"
     );
@@ -129,16 +129,13 @@ describe("dashboard home run-summary clarity", () => {
       "https://xiaojiou176-open.github.io/OpenVibeCoding/api/"
     );
     expect(screen.getByText("Live Workflow Case gallery")).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "Open Workflow Cases" })[0]).toHaveAttribute("href", "/workflows");
-    expect(screen.getByRole("link", { name: "See first proven workflow" })).toHaveAttribute(
+    expect(screen.getByText("Latest results and runs")).toBeInTheDocument();
+    expect(screen.getByText("Governance desks and release controls")).toBeInTheDocument();
+    expect(screen.getByText("Live Workflow Case gallery").closest("a")).toHaveAttribute("href", "/workflows");
+    expect(screen.getAllByRole("link", { name: "See first proven workflow" })[0]).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/"
     );
-    expect(screen.getByText("Operator risk bulletin")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Next action: open runs" })).toHaveAttribute("href", "/runs");
-    expect(screen.getByText("Stable: no recent failed runs (0%)")).toHaveClass("badge--success");
-    expect(screen.getByRole("progressbar", { name: "Failure share 0/0" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View all runs" })).toHaveAttribute("href", "/runs");
     expect(screen.getByText("Live command tower").closest("a")).toHaveAttribute("href", "/command-tower");
     expect(screen.queryByRole("link", { name: "Quick approval" })).not.toBeInTheDocument();
   }, 30000);
@@ -164,6 +161,8 @@ describe("dashboard home run-summary clarity", () => {
     process.env.NEXT_PUBLIC_OPENVIBECODING_PUBLIC_DOCS_BASE_URL = "https://docs.example/openvibecoding/";
 
     render(await Home());
+    const secondLayerGuides = screen.getByTestId("home-second-layer-guides");
+    secondLayerGuides.setAttribute("open", "");
 
     expect(screen.getByRole("link", { name: "Open AI + MCP + API surfaces" })).toHaveAttribute(
       "href",
@@ -177,7 +176,7 @@ describe("dashboard home run-summary clarity", () => {
       "href",
       "https://docs.example/openvibecoding/builders/"
     );
-    expect(screen.getByRole("link", { name: "See first proven workflow" })).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: "See first proven workflow" })[0]).toHaveAttribute(
       "href",
       "https://docs.example/openvibecoding/use-cases/"
     );
@@ -232,7 +231,7 @@ describe("dashboard home run-summary clarity", () => {
     const secondLayerGuides = screen.getByTestId("home-second-layer-guides");
     secondLayerGuides.setAttribute("open", "");
 
-    expect(screen.getByRole("heading", { name: "面向 AI 工程的开放指挥塔" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "AI 工程开放指挥塔" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "启动首个任务" })).toHaveAttribute("href", "/pm");
     expect(screen.getByText("延伸入口")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "打开 AI + MCP + API 页面" })).toHaveAttribute(
@@ -243,25 +242,25 @@ describe("dashboard home run-summary clarity", () => {
       "href",
       "https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/"
     );
-    expect(screen.getByRole("link", { name: "打开 builder 快速入口" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "打开 Builder 快速入口" })).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/OpenVibeCoding/builders/"
     );
-    expect(screen.getByRole("link", { name: "查看首个已证明工作流" })).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: "查看首个已证明工作流" })[0]).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/"
     );
     expect(screen.queryByRole("link", { name: "打开 compatibility matrix" })).not.toBeInTheDocument();
-    expect(screen.getByText("Compatibility matrix").closest("a")).toHaveAttribute(
+    expect(screen.getByText("兼容性矩阵").closest("a")).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/"
     );
-    expect(screen.getByText("Integration guide").closest("a")).toHaveAttribute(
+    expect(screen.getByText("集成指南").closest("a")).toHaveAttribute(
       "href",
       "https://xiaojiou176-open.github.io/OpenVibeCoding/integrations/"
     );
-    expect(screen.getAllByText("Read-only MCP quickstart").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("API and contract quickstart").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("只读 MCP 快速入口").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("API 与契约快速入口").length).toBeGreaterThan(0);
     expect(screen.getByText("显示四步首跑流程")).toBeInTheDocument();
   });
 
@@ -411,12 +410,11 @@ describe("dashboard home run-summary clarity", () => {
 
     render(await Home());
 
-    expect(screen.getByText("Degraded inputs")).toHaveClass("metric-value--warning");
-    expect(screen.getByText("Current posture: Degraded inputs")).toBeInTheDocument();
-    expect(screen.getByText("Primary risk: run list unavailable")).toHaveClass("cell-warning");
-    expect(screen.getByRole("link", { name: "Next action: inspect data sources and the run list" })).toHaveAttribute("href", "/runs");
-    expect(screen.getByText("Data degraded: the run list is temporarily unavailable (0%)")).toHaveClass("badge--warning");
-    expect(screen.getByText("Total: -")).toBeInTheDocument();
+    expect(screen.getByText("The first run has not started yet")).toBeInTheDocument();
+    expect(screen.getByText("The current job is to establish the first durable loop, not to chase noise.")).toBeInTheDocument();
+    expect(screen.queryByText("Degraded inputs")).not.toBeInTheDocument();
+    expect(screen.queryByText("Current posture: Degraded inputs")).not.toBeInTheDocument();
+    expect(screen.queryByText("Primary risk: run list unavailable")).not.toBeInTheDocument();
 
     consoleSpy.mockRestore();
   });
@@ -433,12 +431,13 @@ describe("dashboard home run-summary clarity", () => {
 
     expect(screen.getByRole("link", { name: "Skip to dashboard content" })).toHaveAttribute("href", "#dashboard-content");
     expect(screen.getAllByLabelText("Dashboard navigation").length).toBeGreaterThan(0);
-    expect(screen.getByText("OpenVibeCoding")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "OpenVibeCoding" })).toBeInTheDocument();
     expect(screen.getByText("plan / delegate / track / resume / prove")).toBeInTheDocument();
     expect(screen.getByText("OpenVibeCoding command tower")).toBeInTheDocument();
     expect(screen.getByLabelText("Platform status overview")).toBeInTheDocument();
-    expect(screen.getByText("Operator shell")).toBeInTheDocument();
-    expect(screen.getByText("Live read-back")).toBeInTheDocument();
-    expect(screen.getByText("Page contract")).toBeInTheDocument();
+    expect(screen.queryByText("Operator shell")).not.toBeInTheDocument();
+    expect(screen.queryByText("Live read-back")).not.toBeInTheDocument();
+    expect(screen.queryByText("Page contract")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Switch to Chinese" })).toBeInTheDocument();
   });
 });
