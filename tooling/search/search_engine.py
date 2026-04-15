@@ -222,6 +222,132 @@ def _web_session_manager(browser_policy: dict[str, Any] | None = None) -> Browse
     )
 
 
+def _chat_provider_failure_reason(provider: str, query: str, response_text: str, *, response_source: str) -> str | None:
+    compact = " ".join(str(response_text or "").split()).strip()
+    normalized_query = " ".join(str(query or "").split()).strip()
+    substantive_answer = len(compact) >= 120 and any(token in compact for token in (".", "。", ":", "："))
+
+    if not compact:
+        return "assistant response missing"
+
+    if normalized_query and compact == normalized_query:
+        return "provider returned query echo without an answer"
+
+    if provider == "gemini_web":
+        if "与 Gemini 对话" in compact and (
+            "需要我为你做些什么" in compact or "你说" in compact or "Gemini 是一款 AI 工具，其回答未必正确无误" in compact
+        ):
+            if not substantive_answer:
+                return "gemini shell page captured instead of an answer"
+    if provider == "grok_web":
+        grok_shell_markers = (
+            "需求量高",
+            "请稍后重试",
+            "正在搜索网络",
+            "接收通知",
+            "What's on your mind?",
+            "By messaging Grok",
+            "Hold Ctrl+D to dictate",
+            "Imagine",
+            "Sign in",
+            "Sign up",
+            "Auto",
+        )
+        if any(marker in compact for marker in grok_shell_markers):
+            stripped = compact
+            for marker in grok_shell_markers:
+                stripped = stripped.replace(marker, " ")
+            if normalized_query:
+                stripped = stripped.replace(normalized_query, " ")
+            stripped = " ".join(stripped.split()).strip()
+            if not substantive_answer or len(stripped) < 80:
+                return "grok provider page did not reach a ready answer state"
+
+    return None
+
+
+def _extract_chat_provider_response(page: Any) -> tuple[str, str]:
+    response_source = "assistant"
+    candidates = page.locator("[data-message-author-role='assistant']")
+    if candidates.count() == 0:
+        response_source = "article"
+        candidates = page.locator("article")
+    if candidates.count() == 0:
+        response_source = "main"
+        candidates = page.locator("main")
+    if candidates.count() == 0:
+        return "", response_source
+    return candidates.last.inner_text().strip(), response_source
+
+
+def _wait_for_chat_provider_response(
+    page: Any,
+    provider: str,
+    query: str,
+    *,
+    timeout_ms: int = 15000,
+    poll_ms: int = 1000,
+) -> tuple[str, str, str | None]:
+    deadline = time.monotonic() + (timeout_ms / 1000)
+    last_text = ""
+    last_source = "assistant"
+    last_reason = "assistant response missing"
+
+    while True:
+        response_text, response_source = _extract_chat_provider_response(page)
+        if response_text:
+            last_text = response_text
+            last_source = response_source
+        reason = _chat_provider_failure_reason(
+            provider,
+            query,
+            response_text,
+            response_source=response_source,
+        )
+        if reason is None:
+            return response_text, response_source, None
+        if provider == "gemini_web" and _click_gemini_answer_now(page):
+            page.wait_for_timeout(poll_ms)
+            continue
+        last_reason = reason
+        if time.monotonic() >= deadline:
+            return last_text, last_source, last_reason
+        page.wait_for_timeout(poll_ms)
+
+
+def _chat_provider_timeout_ms(provider: str) -> int:
+    if provider == "grok_web":
+        return 30000
+    if provider == "gemini_web":
+        return 20000
+    return 15000
+
+
+def _click_gemini_answer_now(page: Any) -> bool:
+    selectors = (
+        "button:has-text('立即回答')",
+        "[role='button']:has-text('立即回答')",
+        "button:has-text('Answer now')",
+        "[role='button']:has-text('Answer now')",
+        "button:has-text('Respond now')",
+        "[role='button']:has-text('Respond now')",
+    )
+    for selector in selectors:
+        locator = page.locator(selector)
+        if locator.count() == 0:
+            continue
+        candidate = locator.first
+        try:
+            candidate.click(timeout=5000)
+        except Exception:  # noqa: BLE001
+            try:
+                candidate.click(timeout=5000, force=True)
+            except Exception:  # noqa: BLE001
+                continue
+        return True
+    return False
+
+
 def _web_stealth_provider(browser_policy: dict[str, Any] | None = None) -> StealthProvider:
     if isinstance(browser_policy, dict) and browser_policy:
         return StealthProvider.from_policy(browser_policy)
@@ -381,15 +507,12 @@ def _chat_provider_search(
                 _activate_chat_input(locator)
                 locator.fill(query)
                 locator.press("Enter")
-                page.wait_for_timeout(3000)
-
-                candidates = page.locator("[data-message-author-role='assistant']")
-                if candidates.count() == 0:
-                    candidates = page.locator("article")
-                if candidates.count() == 0:
-                    candidates = page.locator("main")
-                if candidates.count() > 0:
-                    response_text = candidates.last.inner_text().strip()
+                response_text, response_source, failure_reason = _wait_for_chat_provider_response(
+                    page,
+                    provider,
+                    query,
+                    timeout_ms=_chat_provider_timeout_ms(provider),
+                )
 
                 screenshot_path = artifacts_dir / "screenshot.png"
                 html_path = artifacts_dir / "page.html"
@@ -406,11 +529,19 @@ def _chat_provider_search(
                         "screenshot": str(screenshot_path),
                         "html": str(html_path),
                     },
+                    "response_source": response_source,
                     "context": context_meta,
                     "stealth": stealth_meta,
                     "human_behavior": behavior_meta,
                     "policy_events": policy_events,
                 }
+                if failure_reason:
+                    return {
+                        "ok": False,
+                        "results": [],
+                        "meta": meta,
+                        "error": failure_reason,
+                    }
                 return {"ok": True, "results": results, "meta": meta}
             finally:
                 if session is not None:

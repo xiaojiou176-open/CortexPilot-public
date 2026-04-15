@@ -391,6 +391,117 @@ def test_tool_pipeline_searcher_short_circuits_before_codex_runner(tmp_path: Pat
     assert (run_dir / "reports" / "task_result.json").exists()
 
 
+def test_tool_pipeline_page_brief_searcher_short_circuits_before_codex_runner(tmp_path: Path, monkeypatch) -> None:
+    _reset_scheduler_tool_hooks(monkeypatch)
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    _init_repo(repo)
+    (repo / "codex_home").mkdir()
+    (repo / "README.md").write_text("hello", encoding="utf-8")
+    _git(["git", "add", "README.md", "policies/command_allowlist.json"], repo)
+    _git(["git", "commit", "-m", "init"], repo)
+
+    runtime_root = tmp_path / "runtime"
+    runs_root = runtime_root / "runs"
+    worktree_root = runtime_root / "worktrees"
+    _configure_runtime_roots(monkeypatch, runtime_root, runs_root, worktree_root)
+
+    class _PageBriefBrowserOk:
+        def __init__(self, artifacts_dir: Path, *_, **__) -> None:
+            self._artifacts_dir = artifacts_dir
+            self._artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+        def run_script(self, _script: str, url: str) -> dict:
+            screenshot_path = self._artifacts_dir / "screenshot.png"
+            source_path = self._artifacts_dir / "source.html"
+            screenshot_path.write_bytes(b"mock")
+            source_path.write_text("<html><body><h1>Example Domain</h1></body></html>", encoding="utf-8")
+            return {
+                "ok": True,
+                "mode": "playwright",
+                "url": url,
+                "result": {
+                    "title": "Example Domain",
+                    "url": "https://example.com/",
+                    "meta_description": "This domain is for use in illustrative examples in documents.",
+                    "headings": ["Example Domain"],
+                    "paragraphs": ["This domain is for use in illustrative examples in documents."],
+                    "list_items": [],
+                    "body_excerpt": "Example Domain. This domain is for use in illustrative examples in documents.",
+                },
+                "artifacts": {
+                    "screenshot": str(screenshot_path),
+                    "source": str(source_path),
+                },
+                "duration_ms": 0,
+            }
+
+    monkeypatch.setattr("openvibecoding_orch.runners.tool_runner.BrowserRunner", _PageBriefBrowserOk)
+    monkeypatch.setenv("OPENVIBECODING_CHAIN_EXEC_MODE", "inline")
+    monkeypatch.setenv("OPENVIBECODING_RUNNER", "codex")
+    monkeypatch.setenv("OPENVIBECODING_MCP_ONLY", "1")
+    monkeypatch.setenv("OPENVIBECODING_ALLOW_CODEX_EXEC", "1")
+
+    browser_path = repo / "browser_requests.json"
+    browser_body = _write_json(
+        browser_path,
+        {
+            "task_template": "page_brief",
+            "template_payload": {
+                "url": "https://example.com",
+                "focus": "Summarize the page for a first-time reader.",
+            },
+            "tasks": [{"url": "https://example.com", "script": "() => ({ title: document.title, url: window.location.href })"}],
+        },
+    )
+    _pin_tool_requests(
+        monkeypatch,
+        browser_request={
+            "task_template": "page_brief",
+            "template_payload": {
+                "url": "https://example.com",
+                "focus": "Summarize the page for a first-time reader.",
+            },
+            "tasks": [{"url": "https://example.com", "script": "() => ({ title: document.title, url: window.location.href })"}],
+        },
+    )
+
+    artifacts = [
+        {
+            "name": "browser_requests.json",
+            "uri": browser_path.name,
+            "sha256": _sha256_text(browser_body),
+        }
+    ]
+    contract = _base_contract("task_page_brief_short_circuit", artifacts)
+    contract["assigned_agent"]["role"] = "SEARCHER"
+    contract["tool_permissions"]["network"] = "allow"
+    contract_path = repo / "contract.json"
+    _write_json(contract_path, contract)
+
+    monkeypatch.setattr(
+        "openvibecoding_orch.runners.codex_runner.CodexRunner.run_contract",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("codex runner should not execute after page_brief browser success")),
+    )
+
+    monkeypatch.chdir(repo)
+    orch = Orchestrator(repo)
+    run_id = orch.execute_task(contract_path, mock_mode=True)
+
+    run_dir = runs_root / run_id
+    _wait_until(
+        lambda: (
+            (run_dir / "artifacts" / "browser_results.json").exists()
+            and (run_dir / "reports" / "page_brief_result.json").exists()
+            and (run_dir / "reports" / "evidence_bundle.json").exists()
+            and json.loads((run_dir / "manifest.json").read_text(encoding="utf-8")).get("status") == "SUCCESS"
+        )
+    )
+    evidence_bundle = json.loads((run_dir / "reports" / "evidence_bundle.json").read_text(encoding="utf-8"))
+    assert evidence_bundle["query"]["raw_question"] == "https://example.com/"
+    assert evidence_bundle["requested_by"] == {"role": "SEARCHER", "agent_id": "agent-1"}
+
+
 def test_tool_pipeline_browser_failure_marks_run_failed(tmp_path: Path, monkeypatch) -> None:
     _reset_scheduler_tool_hooks(monkeypatch)
     repo = tmp_path / "repo"

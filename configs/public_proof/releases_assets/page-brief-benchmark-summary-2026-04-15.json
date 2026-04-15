@@ -1,0 +1,17 @@
+{
+  "artifact_type": "page_brief_public_bundle_baseline",
+  "baseline_scope": "secondary_browser_backed_bundle",
+  "proof_date": "2026-04-15",
+  "task_template": "page_brief",
+  "bundle_ok": true,
+  "tracked_assets": {
+    "benchmark_markdown": "configs/public_proof/releases_assets/page-brief-benchmark-summary-2026-04-15.md",
+    "proof_summary_json": "configs/public_proof/releases_assets/page-brief-healthy-proof-summary-2026-04-15.json",
+    "workflow_case_recap_markdown": "configs/public_proof/releases_assets/page-brief-workflow-case-recap-2026-04-15.md"
+  },
+  "truth_boundary": {
+    "official_first_public_baseline": false,
+    "broad_multi_run_release_average": false,
+    "hosted_production_proof": false
+  }
+}

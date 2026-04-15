@@ -11,6 +11,8 @@ inventing numbers.
   - `scripts/check_bench_e2e_speed_gate.py`
 - A first tracked public single-run baseline now exists at
   `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md`.
+- A tracked browser-backed `page_brief` bundle baseline now exists at
+  `configs/public_proof/releases_assets/page-brief-benchmark-summary-2026-04-15.md`.
 - Broader multi-round public benchmark figures do **not** exist yet.
 - The latest failed benchmark-route receipt now lives in the maintainer-only
   internal docs bundle rather than the default public docs surface.
@@ -87,4 +89,6 @@ come from a real run and the tracked public artifact is updated in the same
 change set.
 
 Do not describe the current baseline as a broad release average. It is the
-first tracked `news_digest` baseline, not the final benchmark story.
+first tracked `news_digest` baseline, while the `page_brief` bundle summary is
+currently a secondary browser-backed bundle baseline rather than the official
+first public benchmark story.

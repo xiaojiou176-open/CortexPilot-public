@@ -161,3 +161,20 @@ def test_locker_release_missing_and_unlink_file_not_found(tmp_path: Path, monkey
 
     monkeypatch.setattr(Path, "unlink", _unlink_missing)
     locker.release_lock(target)
+
+
+def test_locker_release_allows_same_pid_without_run_context(tmp_path: Path, monkeypatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    monkeypatch.setenv("OPENVIBECODING_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("OPENVIBECODING_RUN_ID", "run-same-pid")
+    monkeypatch.delenv("OPENVIBECODING_LOCK_OWNER_TOKEN", raising=False)
+
+    target = ["src/same-pid.py"]
+    assert locker.acquire_lock(target) is True
+    lock_path = locker._lock_path("src/same-pid.py", runtime_root / "locks")
+    assert lock_path.exists()
+
+    monkeypatch.delenv("OPENVIBECODING_RUN_ID", raising=False)
+    monkeypatch.delenv("OPENVIBECODING_LOCK_OWNER_TOKEN", raising=False)
+    locker.release_lock(target)
+    assert not lock_path.exists()

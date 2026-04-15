@@ -160,6 +160,7 @@ def main() -> int:
         _require(
             isinstance(contract_inputs, list)
             and "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json" in contract_inputs
+            and "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json" in contract_inputs
             and "configs/public_proof/storefront/demo-status.md" in contract_inputs
             and "configs/public_proof/storefront/live-capture-requirements.json" in contract_inputs,
             "public_proof_contract must keep configs/public_proof source ledgers as tracked contract inputs",
@@ -180,6 +181,7 @@ def main() -> int:
         _require(
             isinstance(source_inputs, list)
             and "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json" in source_inputs
+            and "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json" in source_inputs
             and "docs/releases/assets/news-digest-proof-pack-2026-03-27.json" not in source_inputs,
             "proof-pack render entry must read the moved pack manifest from configs/public_proof",
             errors,
@@ -193,6 +195,7 @@ def main() -> int:
         _require(
             isinstance(contract_inputs, list)
             and "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json" in contract_inputs
+            and "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json" in contract_inputs
             and "configs/public_proof/storefront/demo-status.md" in contract_inputs
             and "configs/public_proof/storefront/live-capture-requirements.json" in contract_inputs,
             "proof-pack render entry must bind the moved configs/public_proof sources",
@@ -319,27 +322,172 @@ def main() -> int:
                         errors,
                     )
 
-    for showcase_id in ("topic_brief", "page_brief"):
-        bundle = bundle_map.get(showcase_id, {})
-        if isinstance(bundle, dict):
+    topic = bundle_map.get("topic_brief", {})
+    if isinstance(topic, dict):
+        proof_state = str(topic.get("proof_state") or "").strip()
+        _require(
+            proof_state in {"showcase_only", "proof_bundle_tracked"},
+            "topic_brief proof_state must stay on the showcase_only -> proof_bundle_tracked ladder",
+            errors,
+        )
+        missing = topic.get("missing_expected_artifacts")
+        _require(isinstance(missing, list), "topic_brief must keep explicit missing_expected_artifacts", errors)
+        safe_claims = topic.get("safe_public_claims")
+        _require(
+            isinstance(safe_claims, list) and len(safe_claims) > 0,
+            "topic_brief must keep explicit safe_public_claims",
+            errors,
+        )
+        forbidden_claims = topic.get("forbidden_claims")
+        _require(
+            isinstance(forbidden_claims, list) and len(forbidden_claims) > 0,
+            "topic_brief must keep explicit forbidden_claims",
+            errors,
+        )
+        if isinstance(missing, list):
+            expected_missing = {
+                "dedicated_healthy_proof_summary",
+                "dedicated_benchmark_summary",
+                "share_ready_recap",
+            }
+            if proof_state == "showcase_only" and set(str(item).strip() for item in missing if str(item).strip()) != expected_missing:
+                errors.append(
+                    "topic_brief missing_expected_artifacts must stay aligned with the dedicated healthy proof summary, dedicated benchmark summary, and share-ready recap gap"
+                )
+        assets = topic.get("assets")
+        if proof_state == "showcase_only":
             _require(
-                bundle.get("proof_state") == "showcase_only",
-                f"{showcase_id} must stay showcase_only until its own healthy proof bundle exists",
+                not str(topic.get("pack_manifest") or "").strip(),
+                "topic_brief must not advertise a pack_manifest before its dedicated proof bundle exists",
                 errors,
             )
-            missing = bundle.get("missing_expected_artifacts")
             _require(
-                isinstance(missing, list) and len(missing) > 0,
-                f"{showcase_id} must keep explicit missing_expected_artifacts",
+                assets in (None, []),
+                "topic_brief must not advertise claim-bearing assets before its dedicated proof bundle exists",
                 errors,
             )
+            _require(
+                topic.get("claim_scope") == "public_showcase_path",
+                "topic_brief must keep the public_showcase_path claim scope",
+                errors,
+            )
+            _require(
+                topic.get("authority_level") == "repo_side_story_surface",
+                "topic_brief must keep repo_side_story_surface authority",
+                errors,
+            )
+        elif proof_state == "proof_bundle_tracked":
+            _require(
+                topic.get("claim_scope") == "search_backed_public_proof_bundle",
+                "topic_brief must use search_backed_public_proof_bundle when its dedicated bundle lands",
+                errors,
+            )
+            _require(
+                topic.get("authority_level") == "repo_side_public_proof",
+                "topic_brief must promote to repo_side_public_proof once its dedicated bundle lands",
+                errors,
+            )
+            pack_manifest = str(topic.get("pack_manifest") or "").strip()
+            _require(bool(pack_manifest), "topic_brief tracked bundle must reference a pack_manifest", errors)
+            if pack_manifest:
+                _asset_exists(pack_manifest, errors, reason="topic_brief pack manifest")
+                _require_path_prefix(
+                    pack_manifest,
+                    "configs/public_proof/releases_assets/",
+                    errors,
+                    reason="topic_brief pack manifest",
+                )
+            if isinstance(missing, list) and missing:
+                errors.append("topic_brief missing_expected_artifacts must be empty once the tracked bundle lands")
+            _require(isinstance(assets, list), "topic_brief tracked bundle missing assets[]", errors)
+            if isinstance(assets, list):
+                roles = {str(item.get("role")) for item in assets if isinstance(item, dict)}
+                required_roles = {
+                    "healthy_proof_summary",
+                    "healthy_proof_summary_machine",
+                    "benchmark_summary",
+                    "benchmark_summary_machine",
+                    "workflow_case_recap",
+                    "demo_status_ledger",
+                }
+                if not required_roles.issubset(roles):
+                    errors.append("topic_brief tracked bundle lost one or more required proof asset roles")
+
+    page = bundle_map.get("page_brief", {})
+    if isinstance(page, dict):
+        _require(
+            page.get("proof_state") == "proof_bundle_tracked",
+            "page_brief must stay proof_bundle_tracked once its tracked browser-backed bundle lands",
+            errors,
+        )
+        _require(
+            page.get("claim_scope") == "browser_backed_public_proof_bundle",
+            "page_brief must keep the browser_backed_public_proof_bundle claim scope",
+            errors,
+        )
+        _require(
+            page.get("authority_level") == "repo_side_public_proof",
+            "page_brief must keep repo_side_public_proof authority",
+            errors,
+        )
+        pack_manifest = str(page.get("pack_manifest") or "").strip()
+        _require(bool(pack_manifest), "page_brief must reference a pack_manifest", errors)
+        if pack_manifest:
+            _asset_exists(pack_manifest, errors, reason="page_brief pack manifest")
+            _require_path_prefix(
+                pack_manifest,
+                "configs/public_proof/releases_assets/",
+                errors,
+                reason="page_brief pack manifest",
+            )
+        missing = page.get("missing_expected_artifacts")
+        _require(
+            isinstance(missing, list),
+            "page_brief must keep an explicit missing_expected_artifacts list",
+            errors,
+        )
+        if isinstance(missing, list) and missing:
+            errors.append("page_brief missing_expected_artifacts must be empty once the tracked bundle lands")
+        assets = page.get("assets")
+        _require(isinstance(assets, list), "page_brief missing assets[]", errors)
+        if isinstance(assets, list):
+            roles = {str(item.get("role")) for item in assets if isinstance(item, dict)}
+            required_roles = {
+                "healthy_proof_summary",
+                "healthy_proof_summary_machine",
+                "benchmark_summary",
+                "benchmark_summary_machine",
+                "workflow_case_recap",
+                "demo_status_ledger",
+            }
+            if not required_roles.issubset(roles):
+                errors.append("page_brief bundle lost one or more required proof asset roles")
+            for item in assets:
+                if not isinstance(item, dict):
+                    errors.append("page_brief assets[] must contain objects")
+                    continue
+                path_text = str(item.get("path") or "").strip()
+                if not path_text:
+                    errors.append("page_brief assets[] contains an entry without path")
+                    continue
+                _asset_exists(path_text, errors, reason="page_brief asset")
+                if item.get("required_for_claim") is True:
+                    _require_claim_asset_path(path_text, str(item.get("role") or ""), errors)
+                if item.get("required_for_claim") is False:
+                    _require(
+                        path_text.endswith((".png", ".gif", ".svg")),
+                        f"supporting public capture should stay media-only: {path_text}",
+                        errors,
+                    )
 
     _require_text(
         USE_CASES_PATH,
         [
-            "tracked healthy local captures and proof assets",
+            "tracked browser-backed public proof bundle",
             "The current benchmark story is a tracked single-run baseline, not a broad release average.",
-            "Global proof-pack index across public proven and showcase bundles",
+            "Global proof-pack index across the official baseline, tracked bundle, and showcase bundles",
+            "dedicated healthy proof summary, dedicated benchmark summary, and share-ready recap before it can leave showcase status.",
+            "repo-tracked proof pack or another share-ready proof asset on the public surface.",
         ],
         errors,
     )

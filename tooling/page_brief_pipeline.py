@@ -90,6 +90,112 @@ def _hostname_label(url: str) -> str:
         return url
 
 
+def _normalize_artifact_ref(value: Any) -> str | None:
+    text = str(value or "").strip().replace("\\", "/")
+    if not text:
+        return None
+    for marker in ("artifacts/", "reports/"):
+        marker_index = text.find(marker)
+        if marker_index >= 0:
+            return text[marker_index:]
+    return text
+
+
+def _normalize_requested_by(value: Any) -> dict[str, str] | None:
+    if not isinstance(value, dict):
+        return None
+    role = str(value.get("role") or "").strip().upper()
+    agent_id = str(value.get("agent_id") or "").strip()
+    if not role or not agent_id:
+        return None
+    return {"role": role, "agent_id": agent_id}
+
+
+def _default_requested_by() -> dict[str, str]:
+    return {"role": "SEARCHER", "agent_id": "page_brief_pipeline"}
+
+
+def _resolve_requested_by(page_brief_result: dict[str, Any]) -> dict[str, str]:
+    return _normalize_requested_by(page_brief_result.get("requested_by")) or _default_requested_by()
+
+
+def build_page_brief_evidence_refs(browser_result: dict[str, Any]) -> dict[str, str]:
+    artifacts = browser_result.get("artifacts") if isinstance(browser_result.get("artifacts"), dict) else {}
+    refs: dict[str, str] = {
+        "browser_results": "artifacts/browser_results.json",
+    }
+    screenshot_ref = _normalize_artifact_ref(artifacts.get("screenshot"))
+    if screenshot_ref:
+        refs["browser_screenshot"] = screenshot_ref
+    source_ref = _normalize_artifact_ref(artifacts.get("source"))
+    if source_ref:
+        refs["browser_source"] = source_ref
+    if screenshot_ref and source_ref:
+        refs["evidence_bundle"] = "reports/evidence_bundle.json"
+    return refs
+
+
+def build_page_brief_evidence_seed(
+    page_brief_result: dict[str, Any],
+    browser_results: dict[str, Any] | None = None,
+) -> dict[str, Any] | None:
+    if str(page_brief_result.get("task_template") or "").strip().lower() != "page_brief":
+        return None
+    if str(page_brief_result.get("status") or "").strip().upper() != "SUCCESS":
+        return None
+    if str(page_brief_result.get("capture_mode") or "").strip().lower() not in {"playwright"}:
+        return None
+
+    evidence_refs = page_brief_result.get("evidence_refs") if isinstance(page_brief_result.get("evidence_refs"), dict) else {}
+    required_refs = ("browser_results", "browser_screenshot", "browser_source", "evidence_bundle")
+    if not all(str(evidence_refs.get(key) or "").strip() for key in required_refs):
+        return None
+
+    url = str(page_brief_result.get("resolved_url") or page_brief_result.get("url") or "").strip()
+    if not url:
+        return None
+
+    page_title = str(page_brief_result.get("page_title") or "").strip() or _hostname_label(url)
+    focus = str(page_brief_result.get("focus") or DEFAULT_PAGE_BRIEF_FOCUS).strip() or DEFAULT_PAGE_BRIEF_FOCUS
+    summary = str(page_brief_result.get("summary") or "").strip()
+    key_points = [str(item).strip() for item in page_brief_result.get("key_points", []) if str(item).strip()]
+    snippet = summary or (key_points[0] if key_points else page_title)
+
+    provider = "browser_playwright"
+    if isinstance(browser_results, dict):
+        latest = browser_results.get("latest") if isinstance(browser_results.get("latest"), dict) else {}
+        latest_summary = latest.get("summary") if isinstance(latest.get("summary"), dict) else {}
+        result_entries = latest_summary.get("results") if isinstance(latest_summary.get("results"), list) else []
+        first_result = result_entries[0] if result_entries else None
+        if isinstance(first_result, dict):
+            raw_provider = str(first_result.get("mode") or first_result.get("provider") or "").strip().lower()
+            if raw_provider:
+                provider = raw_provider if raw_provider.startswith("browser_") else f"browser_{raw_provider}"
+
+    return {
+        "raw_question": url,
+        "refined_prompt": focus,
+        "requested_by": _resolve_requested_by(page_brief_result),
+        "results": [
+            {
+                "provider": provider,
+                "results": [
+                    {
+                        "title": page_title,
+                        "href": url,
+                        "snippet": snippet,
+                        "publisher": _hostname_label(url),
+                    }
+                ],
+            }
+        ],
+        "limitations": [
+            "browser-native page brief evidence bundle",
+            "review the stored source HTML alongside the screenshot before external sharing",
+        ],
+    }
+
+
 def _build_summary(
     *,
     page_title: str,
@@ -123,6 +229,7 @@ def build_page_brief_result(
     request: dict[str, Any],
     browser_result: dict[str, Any],
     *,
+    requested_by: dict[str, Any] | None = None,
     status_override: str | None = None,
     failure_reason_zh: str | None = None,
 ) -> dict[str, Any] | None:
@@ -171,8 +278,18 @@ def build_page_brief_result(
         "focus": focus,
         "summary": summary,
         "key_points": key_points,
-        "screenshot_artifact": artifacts.get("screenshot"),
+        "capture_mode": str(browser_result.get("mode") or "").strip().lower() or None,
+        "screenshot_artifact": _normalize_artifact_ref(artifacts.get("screenshot")),
+        "source_artifact": _normalize_artifact_ref(artifacts.get("source")),
     }
+    normalized_requested_by = _normalize_requested_by(requested_by)
+    if normalized_requested_by is not None:
+        payload["requested_by"] = normalized_requested_by
+
+    if status == "SUCCESS":
+        evidence_refs = build_page_brief_evidence_refs(browser_result)
+        if evidence_refs:
+            payload["evidence_refs"] = evidence_refs
 
     if status == "FAILED":
         payload["failure_reason_zh"] = _failure_reason(browser_result, failure_reason_zh)
@@ -186,6 +303,7 @@ def write_page_brief_result(
     browser_result: dict[str, Any],
     *,
     store: RunStore | None = None,
+    requested_by: dict[str, Any] | None = None,
     status_override: str | None = None,
     failure_reason_zh: str | None = None,
 ) -> Any:
@@ -193,9 +311,52 @@ def write_page_brief_result(
     payload = build_page_brief_result(
         request,
         browser_result,
+        requested_by=requested_by,
         status_override=status_override,
         failure_reason_zh=failure_reason_zh,
     )
     if payload is None:
         raise ValueError("page_brief result requested for non-page_brief task")
     return store.write_report(run_id, "page_brief_result", payload)
+
+
+def build_page_brief_evidence_bundle(
+    page_brief_result: dict[str, Any],
+    browser_results: dict[str, Any] | None = None,
+    *,
+    extra_limitations: list[str] | None = None,
+) -> dict[str, Any] | None:
+    seed = build_page_brief_evidence_seed(page_brief_result, browser_results)
+    if seed is None:
+        return None
+    from tooling.search_pipeline import build_evidence_bundle
+
+    limitations = seed.get("limitations") if isinstance(seed.get("limitations"), list) else []
+    if extra_limitations:
+        limitations = [*limitations, *[str(item).strip() for item in extra_limitations if str(item).strip()]]
+    return build_evidence_bundle(
+        raw_question=str(seed.get("raw_question") or ""),
+        refined_prompt=str(seed.get("refined_prompt") or ""),
+        results=seed.get("results") if isinstance(seed.get("results"), list) else [],
+        requested_by=seed.get("requested_by") if isinstance(seed.get("requested_by"), dict) else _default_requested_by(),
+        limitations=limitations or None,
+    )
+
+
+def write_page_brief_evidence_bundle(
+    run_id: str,
+    request: dict[str, Any],
+    browser_result: dict[str, Any],
+    browser_results: dict[str, Any] | None = None,
+    *,
+    store: RunStore | None = None,
+    requested_by: dict[str, Any] | None = None,
+) -> Any:
+    store = store or RunStore()
+    page_brief_result = build_page_brief_result(request, browser_result, requested_by=requested_by)
+    if page_brief_result is None:
+        raise ValueError("page_brief evidence bundle requested for non-page_brief task")
+    bundle = build_page_brief_evidence_bundle(page_brief_result, browser_results)
+    if bundle is None:
+        return None
+    return store.write_report(run_id, "evidence_bundle", bundle)

@@ -243,7 +243,9 @@ def finalize_run(
             path="reports/work_report.json",
         )
 
-    if not search_request:
+    existing_evidence_bundle = (run_dir / "reports" / "evidence_bundle.json").exists()
+    existing_page_brief_result = (run_dir / "reports" / "page_brief_result.json").exists()
+    if not search_request and not existing_evidence_bundle and not existing_page_brief_result:
         requested_by = contract.get("assigned_agent", {}) if isinstance(contract, dict) else {}
         write_evidence_bundle_fn(
             run_id,

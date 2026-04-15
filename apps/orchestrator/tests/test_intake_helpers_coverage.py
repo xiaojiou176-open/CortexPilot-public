@@ -482,6 +482,43 @@ def test_intake_service_auto_run_chain_restores_runner_env(monkeypatch, tmp_path
     assert os.getenv("OPENVIBECODING_RUNNER", "") == ""
 
 
+def test_intake_service_page_brief_does_not_auto_run_chain_by_default(monkeypatch, tmp_path: Path) -> None:
+    runtime_root = tmp_path / "runtime"
+    runs_root = runtime_root / "runs"
+    monkeypatch.setenv("OPENVIBECODING_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("OPENVIBECODING_RUNS_ROOT", str(runs_root))
+
+    def _unexpected_execute_chain(*_args, **_kwargs):
+        raise AssertionError("page_brief template should not auto-run the task chain during answer()")
+
+    monkeypatch.setattr(intake, "_execute_chain", _unexpected_execute_chain)
+
+    service = intake.IntakeService()
+    created = service.create(
+        {
+            "objective": "Create a public page brief for https://example.com",
+            "allowed_paths": ["tooling", "configs", "docs"],
+            "mcp_tool_set": ["codex"],
+            "task_template": "page_brief",
+            "template_payload": {
+                "url": "https://example.com",
+                "focus": "Summarize the page for a first-time reader.",
+            },
+        }
+    )
+    intake_id = created["intake_id"]
+    answered = service.answer(intake_id, {"answers": ["none"]})
+    assert answered["status"] == "READY"
+    assert "chain_run_id" not in answered
+
+    contract = service.build_contract(intake_id)
+    assert isinstance(contract, dict)
+    assert contract["assigned_agent"]["role"] == "SEARCHER"
+    assert contract["tool_permissions"]["network"] == "allow"
+    artifacts = contract.get("inputs", {}).get("artifacts", [])
+    assert any(item.get("name") == "browser_requests.json" for item in artifacts)
+
+
 def test_intake_store_rejects_path_traversal(tmp_path: Path) -> None:
     store = IntakeStore(root=tmp_path / "intakes")
     store.create({"objective": "safe"})

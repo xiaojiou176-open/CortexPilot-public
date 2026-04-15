@@ -17,6 +17,7 @@ from openvibecoding_orch.contract.role_config_registry import (
     build_role_config_surface,
     preview_role_config_entry,
 )
+from tooling.page_brief_pipeline import build_page_brief_evidence_bundle as build_page_brief_evidence_bundle_payload
 from tooling.search_pipeline import build_evidence_bundle
 
 
@@ -383,6 +384,14 @@ def build_runs_handlers(
             summary = str(payload.get("summary") or "").strip()
             evidence_refs = payload.get("evidence_refs") if isinstance(payload.get("evidence_refs"), dict) else {}
             proof_ready = bool(evidence_refs)
+            if task_template == "page_brief":
+                required_page_brief_refs = ("browser_results", "browser_screenshot", "browser_source", "evidence_bundle")
+                capture_mode = str(payload.get("capture_mode") or "").strip().lower()
+                proof_ready = (
+                    capture_mode == "playwright"
+                    and all(str(evidence_refs.get(key) or "").strip() for key in required_page_brief_refs)
+                    and "evidence_bundle.json" in report_lookup
+                )
             return {
                 "report_type": "proof_pack",
                 "run_id": run_id,
@@ -399,6 +408,18 @@ def build_runs_handlers(
                 ),
             }
         return None
+
+    def _build_page_brief_evidence_bundle(
+        page_brief_result: dict[str, Any],
+        browser_results: dict[str, Any] | None,
+        *,
+        extra_limitations: list[str] | None = None,
+    ) -> dict[str, Any] | None:
+        return build_page_brief_evidence_bundle_payload(
+            page_brief_result,
+            browser_results,
+            extra_limitations=_normalize_string_list(extra_limitations),
+        )
 
     def list_runs() -> list[dict]:
         runs: list[dict[str, Any]] = []
@@ -779,6 +800,11 @@ def build_runs_handlers(
         run_dir = runs_root_fn() / run_id
         manifest_path = run_dir / "manifest.json"
         manifest = _safe_load_json(manifest_path) if manifest_path.exists() else {}
+        report_lookup = {
+            str(item.get("name") or "").strip(): item.get("data")
+            for item in reports
+            if str(item.get("name") or "").strip() and isinstance(item.get("data"), dict)
+        }
         incident_pack = _build_incident_pack(run_id, manifest or {}, read_events_fn(run_id))
         if incident_pack is not None:
             reports.append({"name": "incident_pack.json", "data": incident_pack})
@@ -871,6 +897,17 @@ def build_runs_handlers(
         if not run_dir.exists():
             raise HTTPException(status_code=404, detail=error_detail_fn("RUN_NOT_FOUND"))
         contract = load_contract_fn(run_id)
+        page_brief_result = read_report_fn(run_id, "page_brief_result.json")
+        browser_results = read_artifact_fn(run_id, "browser_results.json")
+        if isinstance(page_brief_result, dict):
+            page_brief_bundle = _build_page_brief_evidence_bundle(
+                page_brief_result,
+                browser_results if isinstance(browser_results, dict) else None,
+                extra_limitations=["promoted manually from page brief ui"],
+            )
+            if page_brief_bundle is not None:
+                return promote_evidence_fn(run_id, page_brief_bundle)
+        requested_by = contract.get("assigned_agent", {}) if isinstance(contract, dict) else {}
         raw = read_artifact_fn(run_id, "search_results.json")
         results: list[dict] = []
         if isinstance(raw, dict):
@@ -879,10 +916,11 @@ def build_runs_handlers(
                 results = latest.get("results", [])
             elif isinstance(raw.get("results"), list):
                 results = raw.get("results", [])
+        if isinstance(page_brief_result, dict) and not results:
+            raise HTTPException(status_code=400, detail=error_detail_fn("PAGE_BRIEF_EVIDENCE_INCOMPLETE"))
         queries = extract_search_queries_fn(contract)
         raw_question = "; ".join(queries) if queries else "search"
         refined_prompt = raw_question
-        requested_by = contract.get("assigned_agent", {}) if isinstance(contract, dict) else {}
         bundle = build_evidence_bundle(
             raw_question=raw_question,
             refined_prompt=refined_prompt,

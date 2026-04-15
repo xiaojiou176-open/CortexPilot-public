@@ -13,6 +13,7 @@
     "status": {"type": "string", "minLength": 1},
     "args": {"type": "object"},
     "config": {"type": "object"},
+    "mode": {"type": "string"},
     "duration_ms": {"type": "integer", "minimum": 0},
     "error": {"type": "string"},
     "artifacts": {"type": "object"},

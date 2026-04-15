@@ -27,6 +27,9 @@ def normalize_tool_call(run_id: str, payload: dict[str, Any]) -> dict[str, Any]:
     duration = entry.get("duration_ms")
     if duration is not None and not isinstance(duration, int):
         entry.pop("duration_ms", None)
+    mode = entry.get("mode")
+    if mode is not None and not isinstance(mode, str):
+        entry["mode"] = str(mode)
     error = entry.get("error")
     if error is not None and not isinstance(error, str):
         entry["error"] = str(error)

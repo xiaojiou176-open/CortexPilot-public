@@ -186,6 +186,25 @@ def test_rebuild_events_summary_clears_rebuild_marker(tmp_path: Path, monkeypatc
     assert payload["event_counts"]["STEP_STARTED"] == 1
 
 
+def test_append_tool_call_accepts_mode_field(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("OPENVIBECODING_RUNS_ROOT", str(tmp_path))
+    store = RunStore()
+    run_id = store.create_run("task_tool_call_mode")
+
+    path = store.append_tool_call(
+        run_id,
+        {
+            "tool": "playwright",
+            "status": "ok",
+            "args": {"url": "https://example.com"},
+            "mode": "playwright",
+        },
+    )
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    assert len(rows) == 1
+    assert rows[0]["mode"] == "playwright"
+
+
 def test_module_helper_rebuild_events_summary_for_run(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setenv("OPENVIBECODING_RUNS_ROOT", str(tmp_path))
     run_id = run_store.create_run_dir("task_summary_helper").name

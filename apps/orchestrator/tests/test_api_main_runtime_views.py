@@ -359,6 +359,377 @@ def test_api_reports_include_proof_pack_for_successful_public_slice(tmp_path: Pa
     assert by_name["proof_pack.json"]["proof_ready"] is True
 
 
+def test_api_reports_include_page_brief_evidence_bundle_and_proof_pack_when_report_exists(
+    tmp_path: Path, monkeypatch
+) -> None:
+    runtime_root = tmp_path / "runtime"
+    runs_root = runtime_root / "runs"
+    monkeypatch.setenv("OPENVIBECODING_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("OPENVIBECODING_RUNTIME_ROOT", str(runtime_root))
+
+    run_dir = runs_root / "run_page_brief"
+    _write_manifest(
+        run_dir,
+        {
+            "run_id": "run_page_brief",
+            "task_id": "task_page_brief",
+            "status": "SUCCESS",
+        },
+    )
+    _write_contract(
+        run_dir,
+        {
+            "task_id": "task_page_brief",
+            "assigned_agent": {"agent_id": "tl-1", "role": "TECH_LEAD"},
+            "allowed_paths": ["apps/dashboard"],
+        },
+    )
+    _write_report(
+        run_dir,
+        "page_brief_result.json",
+        {
+            "task_template": "page_brief",
+            "generated_at": "2026-03-30T00:00:00Z",
+            "status": "SUCCESS",
+            "url": "https://example.com",
+            "resolved_url": "https://example.com/",
+            "page_title": "Example Domain",
+            "focus": "Summarize the landing page",
+            "summary": "Example Domain: This domain is for use in illustrative examples in documents.",
+            "key_points": ["This domain is for use in illustrative examples in documents."],
+            "capture_mode": "playwright",
+            "screenshot_artifact": "artifacts/browser/example.png",
+            "source_artifact": "artifacts/browser/example.html",
+            "requested_by": {"agent_id": "tl-1", "role": "TECH_LEAD"},
+            "evidence_refs": {
+                "browser_results": "artifacts/browser_results.json",
+                "browser_screenshot": "artifacts/browser/example.png",
+                "browser_source": "artifacts/browser/example.html",
+                "evidence_bundle": "reports/evidence_bundle.json",
+            },
+        },
+    )
+    _write_artifact(
+        run_dir,
+        "browser_results.json",
+        {
+            "latest": {
+                "summary": {
+                    "results": [
+                        {
+                            "ok": True,
+                            "mode": "playwright",
+                            "url": "https://example.com/",
+                            "artifacts": {
+                                "screenshot": "artifacts/browser/example.png",
+                                "source": "artifacts/browser/example.html",
+                            },
+                        }
+                    ]
+                }
+            }
+        },
+    )
+    _write_report(
+        run_dir,
+        "evidence_bundle.json",
+        {
+            "bundle_id": "bundle_page_brief",
+            "created_at": "2026-03-30T00:00:01Z",
+            "requested_by": {"agent_id": "tl-1", "role": "TECH_LEAD"},
+            "query": {
+                "raw_question": "https://example.com/",
+                "refined_prompt": "Summarize the landing page",
+            },
+            "sources": [
+                {
+                    "source_id": "src-0",
+                    "kind": "webpage",
+                    "title": "Example Domain",
+                    "url": "https://example.com/",
+                    "retrieved_at": "2026-03-30T00:00:01Z",
+                    "publisher": "example.com",
+                }
+            ],
+            "claims": [
+                {
+                    "claim_id": "claim-0",
+                    "text": "Example Domain",
+                    "status": "UNVERIFIED",
+                    "confidence": 0.3,
+                    "supporting_source_ids": ["src-0"],
+                    "contradicting_source_ids": [],
+                    "verification_notes": "auto-generated",
+                    "risk_if_wrong": "LOW",
+                }
+            ],
+            "consensus": {
+                "agreements": [],
+                "disagreements": ["single-source domain example.com"],
+                "needs_verification": ["no consensus domains identified"],
+            },
+            "limitations": [
+                "browser-native page brief evidence bundle",
+                "review the stored source HTML alongside the screenshot before external sharing",
+            ],
+        },
+    )
+
+    client = TestClient(api_main.app)
+    response = client.get("/api/runs/run_page_brief/reports")
+    assert response.status_code == 200
+    reports = response.json()
+    by_name = {item["name"]: item["data"] for item in reports}
+    assert by_name["evidence_bundle.json"]["query"]["raw_question"] == "https://example.com/"
+    assert by_name["evidence_bundle.json"]["requested_by"]["role"] == "TECH_LEAD"
+    assert by_name["proof_pack.json"]["task_template"] == "page_brief"
+    assert by_name["proof_pack.json"]["proof_ready"] is True
+    assert by_name["proof_pack.json"]["evidence_refs"]["browser_source"] == "artifacts/browser/example.html"
+
+
+def test_api_reports_fail_closed_when_page_brief_evidence_bundle_is_missing(tmp_path: Path, monkeypatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    runs_root = runtime_root / "runs"
+    monkeypatch.setenv("OPENVIBECODING_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("OPENVIBECODING_RUNTIME_ROOT", str(runtime_root))
+
+    run_dir = runs_root / "run_page_brief_missing_bundle"
+    _write_manifest(
+        run_dir,
+        {
+            "run_id": "run_page_brief_missing_bundle",
+            "task_id": "task_page_brief_missing_bundle",
+            "status": "SUCCESS",
+        },
+    )
+    _write_report(
+        run_dir,
+        "page_brief_result.json",
+        {
+            "task_template": "page_brief",
+            "generated_at": "2026-03-30T00:00:00Z",
+            "status": "SUCCESS",
+            "url": "https://example.com",
+            "resolved_url": "https://example.com/",
+            "page_title": "Example Domain",
+            "focus": "Summarize the landing page",
+            "summary": "Example Domain: This domain is for use in illustrative examples in documents.",
+            "key_points": ["This domain is for use in illustrative examples in documents."],
+            "capture_mode": "playwright",
+            "screenshot_artifact": "artifacts/browser/example.png",
+            "source_artifact": "artifacts/browser/example.html",
+            "requested_by": {"agent_id": "tl-1", "role": "TECH_LEAD"},
+            "evidence_refs": {
+                "browser_results": "artifacts/browser_results.json",
+                "browser_screenshot": "artifacts/browser/example.png",
+                "browser_source": "artifacts/browser/example.html",
+                "evidence_bundle": "reports/evidence_bundle.json",
+            },
+        },
+    )
+
+    client = TestClient(api_main.app)
+    response = client.get("/api/runs/run_page_brief_missing_bundle/reports")
+    assert response.status_code == 200
+    reports = response.json()
+    by_name = {item["name"]: item["data"] for item in reports}
+    assert "evidence_bundle.json" not in by_name
+    assert by_name["proof_pack.json"]["proof_ready"] is False
+
+
+def test_api_promote_evidence_supports_page_brief_without_search_results(tmp_path: Path, monkeypatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    runs_root = runtime_root / "runs"
+    monkeypatch.setenv("OPENVIBECODING_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("OPENVIBECODING_RUNTIME_ROOT", str(runtime_root))
+
+    run_dir = runs_root / "run_page_brief_promote"
+    _write_manifest(
+        run_dir,
+        {
+            "run_id": "run_page_brief_promote",
+            "task_id": "task_page_brief_promote",
+            "status": "SUCCESS",
+        },
+    )
+    _write_contract(
+        run_dir,
+        {
+            "task_id": "task_page_brief_promote",
+            "assigned_agent": {"agent_id": "searcher-1", "role": "SEARCHER"},
+            "allowed_paths": ["apps/dashboard"],
+        },
+    )
+    _write_report(
+        run_dir,
+        "page_brief_result.json",
+        {
+            "task_template": "page_brief",
+            "generated_at": "2026-03-30T00:00:00Z",
+            "status": "SUCCESS",
+            "url": "https://example.com",
+            "resolved_url": "https://example.com/",
+            "page_title": "Example Domain",
+            "focus": "Summarize the landing page",
+            "summary": "Example Domain: This domain is for use in illustrative examples in documents.",
+            "key_points": ["This domain is for use in illustrative examples in documents."],
+            "capture_mode": "playwright",
+            "screenshot_artifact": "artifacts/browser/example.png",
+            "source_artifact": "artifacts/browser/example.html",
+            "requested_by": {"agent_id": "searcher-1", "role": "SEARCHER"},
+            "evidence_refs": {
+                "browser_results": "artifacts/browser_results.json",
+                "browser_screenshot": "artifacts/browser/example.png",
+                "browser_source": "artifacts/browser/example.html",
+                "evidence_bundle": "reports/evidence_bundle.json",
+            },
+        },
+    )
+    _write_artifact(
+        run_dir,
+        "browser_results.json",
+        {
+            "latest": {
+                "summary": {
+                    "results": [
+                        {
+                            "ok": True,
+                            "mode": "playwright",
+                            "url": "https://example.com/",
+                            "artifacts": {
+                                "screenshot": "artifacts/browser/example.png",
+                                "source": "artifacts/browser/example.html",
+                            },
+                        }
+                    ]
+                }
+            }
+        },
+    )
+
+    client = TestClient(api_main.app)
+    promote_resp = client.post(
+        "/api/runs/run_page_brief_promote/evidence/promote",
+        headers={"x-openvibecoding-role": "TECH_LEAD"},
+    )
+    assert promote_resp.status_code == 200
+    assert promote_resp.json()["ok"] is True
+    bundle_path = run_dir / "reports" / "evidence_bundle.json"
+    assert bundle_path.exists()
+    bundle_payload = json.loads(bundle_path.read_text(encoding="utf-8"))
+    assert bundle_payload["query"]["raw_question"] == "https://example.com/"
+    assert "promoted manually from page brief ui" in bundle_payload["limitations"]
+
+
+def test_api_reports_include_topic_brief_proof_pack_on_success(tmp_path: Path, monkeypatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    runs_root = runtime_root / "runs"
+    monkeypatch.setenv("OPENVIBECODING_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("OPENVIBECODING_RUNTIME_ROOT", str(runtime_root))
+
+    run_dir = runs_root / "run_topic_brief"
+    _write_manifest(
+        run_dir,
+        {
+            "run_id": "run_topic_brief",
+            "task_id": "task_topic_brief",
+            "status": "SUCCESS",
+        },
+    )
+    _write_report(
+        run_dir,
+        "topic_brief_result.json",
+        {
+            "task_template": "topic_brief",
+            "generated_at": "2026-03-30T00:00:00Z",
+            "status": "SUCCESS",
+            "topic": "Seattle AI",
+            "time_range": "24h",
+            "requested_sources": [],
+            "max_results": 3,
+            "summary": "Collected 2 public-source result(s) about 'Seattle AI' from the last 24h.",
+            "sources": [
+                {"title": "A", "url": "https://example.com/a", "publisher": "example.com", "provider": "gemini_web", "snippet": "A"},
+                {"title": "B", "url": "https://example.com/b", "publisher": "example.com", "provider": "grok_web", "snippet": "B"},
+            ],
+            "evidence_refs": {
+                "raw": "artifacts/search_results.json",
+                "purified": "artifacts/purified_summary.json",
+                "verification": "artifacts/verification.json",
+                "evidence_bundle": "reports/evidence_bundle.json",
+            },
+            "failure_reason_zh": None,
+        },
+    )
+    _write_report(
+        run_dir,
+        "evidence_bundle.json",
+        {
+            "bundle_id": "bundle_topic_brief",
+            "created_at": "2026-03-30T00:00:01Z",
+            "requested_by": {"agent_id": "searcher-1", "role": "SEARCHER"},
+            "query": {"raw_question": "Seattle AI", "refined_prompt": "Seattle AI"},
+            "sources": [],
+            "claims": [],
+            "consensus": {"agreements": [], "disagreements": [], "needs_verification": []},
+            "limitations": ["auto-generated evidence bundle"],
+        },
+    )
+
+    client = TestClient(api_main.app)
+    response = client.get("/api/runs/run_topic_brief/reports")
+    assert response.status_code == 200
+    by_name = {item["name"]: item["data"] for item in response.json()}
+    assert by_name["proof_pack.json"]["task_template"] == "topic_brief"
+    assert by_name["proof_pack.json"]["proof_ready"] is True
+    assert by_name["proof_pack.json"]["primary_report"] == "topic_brief_result.json"
+
+
+def test_api_reports_skip_topic_brief_proof_pack_on_failure(tmp_path: Path, monkeypatch) -> None:
+    runtime_root = tmp_path / "runtime"
+    runs_root = runtime_root / "runs"
+    monkeypatch.setenv("OPENVIBECODING_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("OPENVIBECODING_RUNTIME_ROOT", str(runtime_root))
+
+    run_dir = runs_root / "run_topic_brief_failed"
+    _write_manifest(
+        run_dir,
+        {
+            "run_id": "run_topic_brief_failed",
+            "task_id": "task_topic_brief_failed",
+            "status": "FAILURE",
+        },
+    )
+    _write_report(
+        run_dir,
+        "topic_brief_result.json",
+        {
+            "task_template": "topic_brief",
+            "generated_at": "2026-03-30T00:00:00Z",
+            "status": "FAILED",
+            "topic": "Seattle AI",
+            "time_range": "24h",
+            "requested_sources": [],
+            "max_results": 3,
+            "summary": "The topic brief did not complete successfully.",
+            "sources": [],
+            "evidence_refs": {
+                "raw": "artifacts/search_results.json",
+                "purified": "artifacts/purified_summary.json",
+                "verification": "artifacts/verification.json",
+                "evidence_bundle": "reports/evidence_bundle.json",
+            },
+            "failure_reason_zh": "失败",
+        },
+    )
+
+    client = TestClient(api_main.app)
+    response = client.get("/api/runs/run_topic_brief_failed/reports")
+    assert response.status_code == 200
+    by_name = {item["name"]: item["data"] for item in response.json()}
+    assert "proof_pack.json" not in by_name
+
+
 def test_api_agents_policies_locks_worktrees(tmp_path: Path, monkeypatch) -> None:
     runtime_root = tmp_path / "runtime"
     runs_root = runtime_root / "runs"

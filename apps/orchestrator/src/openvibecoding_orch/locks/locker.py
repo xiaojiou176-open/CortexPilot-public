@@ -370,13 +370,14 @@ def release_lock(allowed_paths: Iterable[str]) -> None:
             continue
         meta = _parse_lock_file(lock_path)
         owner = meta.get("owner", "")
+        same_pid_match = bool(meta.get("pid", "") and meta.get("pid", "") == current_pid)
         owner_match = bool(owner and owner == current_owner)
         legacy_owner_match = (
             bool(run_id)
             and meta.get("run_id", "") == run_id
             and (not meta.get("pid", "") or meta.get("pid", "") == current_pid)
         )
-        if force_unlock or owner_match or legacy_owner_match:
+        if force_unlock or owner_match or legacy_owner_match or same_pid_match:
             try:
                 lock_path.unlink()
             except FileNotFoundError:
