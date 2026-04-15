@@ -1,8 +1,8 @@
-# CortexPilot v0.1.0-alpha.1 - first public release baseline
+# OpenVibeCoding v0.1.0-alpha.1 - first public release baseline
 
 This file is the tracked source for the first public GitHub Release notes.
 
-This release is the first public storefront baseline for CortexPilot.
+This release is the first public storefront baseline for OpenVibeCoding.
 
 Treat it as the first published baseline, not as a claim that current `main`
 and the latest public release are always the same snapshot.
@@ -12,7 +12,7 @@ Historical note: the newer current release note source lives at
 
 ## Why this release matters
 
-CortexPilot is not just an agent demo repository. It is a command tower for
+OpenVibeCoding is not just an agent demo repository. It is a command tower for
 Codex and Claude Code workflows with evidence, replay, Workflow Cases, and
 operator visibility.
 

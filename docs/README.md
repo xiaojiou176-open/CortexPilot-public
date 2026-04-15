@@ -77,63 +77,41 @@ These are the active registered docs that stay in the primary docs navigation.
 10. [mcp/index.html](mcp/index.html)
 11. [api/index.html](api/index.html)
 12. [builders/index.html](builders/index.html)
-13. [architecture/runtime-topology.md](architecture/runtime-topology.md)
-14. [specs/00_SPEC.md](specs/00_SPEC.md)
-15. [runbooks/onboarding-30min.md](runbooks/onboarding-30min.md)
-16. [runbooks/space-governance.md](runbooks/space-governance.md)
-17. [architecture/mcp-and-operator-copilot-v1.md](architecture/mcp-and-operator-copilot-v1.md)
 
 ## Supplemental Registered Docs
 
-These files remain active and canonical, but they are not part of the primary
+These files remain active and canonical, but they stay outside the primary
 navigation set.
 
-1. [runbooks/public-release-checklist.md](runbooks/public-release-checklist.md)
-2. [runbooks/storefront-share-kit.md](runbooks/storefront-share-kit.md)
-3. [runbooks/github-storefront-manual-steps.md](runbooks/github-storefront-manual-steps.md)
-4. [releases/v0.1.0-alpha.3.md](releases/v0.1.0-alpha.3.md)
-5. [releases/first-public-release-draft.md](releases/first-public-release-draft.md)
-6. [assets/storefront/demo-status.md](assets/storefront/demo-status.md)
-7. [assets/storefront/benchmark-methodology.md](assets/storefront/benchmark-methodology.md)
-8. [architecture/ecosystem-and-builder-surfaces-v1.md](architecture/ecosystem-and-builder-surfaces-v1.md)
-9. [runbooks/render-hosted-operator-pilot.md](runbooks/render-hosted-operator-pilot.md)
-10. [runbooks/write-mcp-queue-pilot.md](runbooks/write-mcp-queue-pilot.md)
-11. [robots.txt](robots.txt)
-12. [sitemap.xml](sitemap.xml)
+1. [robots.txt](robots.txt)
+2. [sitemap.xml](sitemap.xml)
 
-## What Each File Is For
+## Archived / Maintainer References
 
-- `docs/index.html`: search-facing landing source for the live GitHub Pages/docs surface; keep it acting like a route page, not a wall of repeated subpage summaries
-- `../DISTRIBUTION.md`: canonical repo-side distribution contract for what ships now, what stays starter-only, what remains internal-only, and what is explicitly deferred
-- `docs/architecture/runtime-topology.md`: system layout and major boundaries
-- `docs/specs/00_SPEC.md`: active product and contract baseline
-- `docs/runbooks/onboarding-30min.md`: shortest contributor handoff path
-- `docs/runbooks/space-governance.md`: disk-space audit, gating, and cleanup workflow
-- `docs/architecture/mcp-and-operator-copilot-v1.md`: Prompt 4 baseline for the read-only MCP node and run-scoped operator copilot
-- `docs/runbooks/public-release-checklist.md`: user-facing GitHub release preparation checklist
-- `docs/runbooks/storefront-share-kit.md`: tracked punchline and sharing kit for storefront work
-- `docs/runbooks/github-storefront-manual-steps.md`: exact GitHub UI values and manual storefront steps
-- `docs/releases/v0.1.0-alpha.3.md`: repo-side draft source for the current published prerelease notes
-- `docs/releases/first-public-release-draft.md`: repo-side draft source for the first public GitHub Release
-- `docs/assets/storefront/demo-status.md`: status ledger for tracked public demo and proof assets
-- `docs/assets/storefront/proof-pack-index.json`: machine-readable public proof bundle index for proven and showcase storefront slices
-- `docs/assets/storefront/live-capture-requirements.json`: machine-readable contract for the remaining healthy GIF and English-first public capture deliverables
-- `docs/assets/storefront/benchmark-methodology.md`: public benchmark evidence contract and wording boundary
-- `docs/architecture/ecosystem-and-builder-surfaces-v1.md`: ecosystem binding, first-run distribution loop, and current builder/client entry points
-- `docs/runbooks/render-hosted-operator-pilot.md`: repo-side Git-backed hosted operator blueprint for future guarded Render pilots; use it to stage env/health/rollback/support/security requirements without implying a live hosted service
-- `docs/runbooks/write-mcp-queue-pilot.md`: repo-owned operator runbook for the smallest honest queue-only write-MCP pilot; keep it preview-first, default-off, and below the public read-only MCP contract
-- `docs/builders/index.html`: public builder quickstart hub for current client/contract/shared entrypoints, including the repo-owned control-plane starter path and its runnable local example
+Heavy reference docs, release archaeology, proof ledgers, governance maps, and
+preview runbooks still live in the repository for maintainers. Two standing
+repo-side reference paths remain `docs/architecture/runtime-topology.md` and
+`docs/specs/00_SPEC.md`; use them when you need implementation truth rather
+than the minimal public story. The rest stay useful for historical release
+context or repo-side implementation detail, but they are intentionally outside
+the active public docs inventory.
+
+## What Each Active Public File Is For
+
+- `docs/index.html`: search-facing landing source for the live GitHub Pages surface; keep it acting like a route page, not a wall of repeated subpage summaries
 - `docs/ecosystem/index.html`: public ecosystem positioning page for Codex / Claude Code / MCP plus adjacent comparison layers
 - `docs/compatibility/index.html`: public adoption matrix for choosing between Codex / Claude Code / OpenClaw / skills / builders / proof-first onboarding paths
-- `docs/distribution/index.html`: public mirror of the root `DISTRIBUTION.md` contract for shipped, starter-only or bundle-compatible, publish-ready but deferred, workspace-only, and deferred public surfaces, including release truth and package boundaries
-- `docs/agent-starters/index.html`: public copy-paste starter kits for Codex / Claude Code / OpenClaw teams that want tracked MCP config snippets plus the shortest repo-owned skills/bootstrap entrypoints
+- `docs/distribution/index.html`: public mirror of the root `DISTRIBUTION.md` contract for shipped, starter-only, deferred, and workspace-only surfaces
+- `docs/agent-starters/index.html`: public copy-paste starter kits for Codex / Claude Code / OpenClaw teams that want the shortest repo-owned bootstrap path
 - `docs/use-cases/index.html`: public first-run, proof, and share-ready asset guide
-- `docs/ai-surfaces/index.html`: public AI operator / read-only MCP / API entrypoint map for truthful discoverability
+- `docs/ai-surfaces/index.html`: public AI / read-only MCP / API entrypoint map for truthful discoverability
 - `docs/mcp/index.html`: public read-only MCP quickstart page for truthful protocol discovery
+- `docs/api/index.html`: public API / contract quickstart page for OpenAPI, thin client helpers, and contract-facing types
+- `docs/builders/index.html`: public builder quickstart hub for current client/contract/shared entrypoints
+- `docs/integrations/index.html`: truthful coding-agent integration map for Codex / Claude Code / OpenClaw without fake plugin claims
+- `docs/skills/index.html`: repo-owned skills quickstart for teams adopting OpenVibeCoding playbooks with coding agents
+- `docs/robots.txt` / `docs/sitemap.xml`: crawler-facing discovery surfaces
 - `configs/mcp_public_manifest.json`: machine-readable MCP distribution artifact for the shipped read-only stdio surface
-- `docs/api/index.html`: public API / contract quickstart page for OpenAPI, frontend client, and contract-facing types
-- `docs/integrations/index.html`: truthful coding-agent integration map for Codex / Claude Code / OpenClaw, including the no-fake-plugin boundary plus a lighter proof-first pointer back to `use-cases/`
-- `docs/skills/index.html`: repo-owned skills quickstart for teams adopting OpenVibeCoding playbooks with coding agents, including a minimal vendored skill-pack layout and the same lighter proof-first pointer instead of a second chooser grid
 - `design-system/MASTER.md`: repo-owned design constitution for the command-tower identity; use it when web/desktop surfaces change so visual hierarchy does not drift back to generic dashboard tropes
 - `design-system/pages/*.md`: page-specific design overrides for `dashboard-home`, `command-tower`, `workflow-detail`, `run-detail`, and `desktop-overview`
 - `.stitch/DESIGN.md`: repo-owned Stitch fallback design source when authenticated screen generation is unavailable
