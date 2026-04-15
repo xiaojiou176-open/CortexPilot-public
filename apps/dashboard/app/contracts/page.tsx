@@ -238,7 +238,7 @@ export default async function ContractsPage({
                 !contract.run_id ? shellCopy.blockerMissingRun : "",
                 acceptanceTests.length === 0 ? shellCopy.blockerMissingTests : "",
               ].filter(Boolean);
-              const proofHref = contract.run_id ? `/runs/${contract.run_id}` : "/runs";
+              const proofHref = contract.run_id ? `/runs/${contract.run_id}` : "/workflows";
               const roleDeskHref = contract.assigned_role
                 ? `/agents?role=${encodeURIComponent(String(contract.assigned_role))}`
                 : "/agents";
@@ -268,9 +268,15 @@ export default async function ContractsPage({
                     </p>
                   </div>
                   <div className="triage-spotlight-actions">
-                    <Button asChild>
-                      <Link href={proofHref}>{shellCopy.openProofRoom}</Link>
-                    </Button>
+                    {contract.run_id ? (
+                      <Button asChild>
+                        <Link href={proofHref}>{shellCopy.openProofRoom}</Link>
+                      </Button>
+                    ) : (
+                      <Button asChild>
+                        <Link href="/workflows">{shellCopy.inspectWorkflowDesk}</Link>
+                      </Button>
+                    )}
                     <Button asChild variant="secondary">
                       <Link href={roleDeskHref}>{shellCopy.inspectRoleDesk}</Link>
                     </Button>
@@ -336,7 +342,7 @@ export default async function ContractsPage({
                             !contract.run_id ? shellCopy.blockerMissingRun : "",
                             acceptanceTests.length === 0 ? shellCopy.blockerMissingTests : "",
                           ].filter(Boolean);
-                          const proofHref = contract.run_id ? `/runs/${contract.run_id}` : "/runs";
+                          const proofHref = contract.run_id ? `/runs/${contract.run_id}` : "/workflows";
                           const roleDeskHref = contract.assigned_role
                             ? `/agents?role=${encodeURIComponent(String(contract.assigned_role))}`
                             : "/agents";
@@ -360,9 +366,15 @@ export default async function ContractsPage({
                               </td>
                               <td>
                                 <div className="toolbar">
-                                  <Button asChild>
-                                    <Link href={proofHref}>{shellCopy.openProofRoom}</Link>
-                                  </Button>
+                                  {contract.run_id ? (
+                                    <Button asChild>
+                                      <Link href={proofHref}>{shellCopy.openProofRoom}</Link>
+                                    </Button>
+                                  ) : (
+                                    <Button asChild>
+                                      <Link href="/workflows">{shellCopy.inspectWorkflowDesk}</Link>
+                                    </Button>
+                                  )}
                                   <Button asChild variant="secondary">
                                     <Link href={roleDeskHref}>{shellCopy.inspectRoleDesk}</Link>
                                   </Button>
@@ -413,7 +425,7 @@ export default async function ContractsPage({
               const toolPermissions = contract.tool_permissions || {};
               const permissionSummary = summarizeToolPermissions(toolPermissions);
               const roleBinding = contract.role_binding_read_model;
-              const proofHref = contract.run_id ? `/runs/${contract.run_id}` : "/runs";
+              const proofHref = contract.run_id ? `/runs/${contract.run_id}` : "/workflows";
               const roleDeskHref = contract.assigned_role
                 ? `/agents?role=${encodeURIComponent(String(contract.assigned_role))}`
                 : "/agents";
@@ -486,9 +498,15 @@ export default async function ContractsPage({
                     </div>
                   </CardContent>
                   <div className="toolbar px-4 pb-4">
-                    <Button asChild>
-                      <Link href={proofHref}>{shellCopy.openProofRoom}</Link>
-                    </Button>
+                    {contract.run_id ? (
+                      <Button asChild>
+                        <Link href={proofHref}>{shellCopy.openProofRoom}</Link>
+                      </Button>
+                    ) : (
+                      <Button asChild>
+                        <Link href="/workflows">{shellCopy.inspectWorkflowDesk}</Link>
+                      </Button>
+                    )}
                     <Button asChild variant="secondary">
                       <Link href={roleDeskHref}>{shellCopy.inspectRoleDesk}</Link>
                     </Button>

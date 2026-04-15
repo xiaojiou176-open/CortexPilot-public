@@ -800,11 +800,6 @@ def build_runs_handlers(
         run_dir = runs_root_fn() / run_id
         manifest_path = run_dir / "manifest.json"
         manifest = _safe_load_json(manifest_path) if manifest_path.exists() else {}
-        report_lookup = {
-            str(item.get("name") or "").strip(): item.get("data")
-            for item in reports
-            if str(item.get("name") or "").strip() and isinstance(item.get("data"), dict)
-        }
         incident_pack = _build_incident_pack(run_id, manifest or {}, read_events_fn(run_id))
         if incident_pack is not None:
             reports.append({"name": "incident_pack.json", "data": incident_pack})

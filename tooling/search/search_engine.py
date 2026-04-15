@@ -291,7 +291,7 @@ def _wait_for_chat_provider_response(
     deadline = time.monotonic() + (timeout_ms / 1000)
     last_text = ""
     last_source = "assistant"
-    last_reason = "assistant response missing"
+    last_reason: str | None = None
 
     while True:
         response_text, response_source = _extract_chat_provider_response(page)

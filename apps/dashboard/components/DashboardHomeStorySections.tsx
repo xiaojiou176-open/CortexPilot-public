@@ -293,6 +293,42 @@ export default function DashboardHomeStorySections({
                 : "Start from PM intake and let the first task teach the rest of the system.",
           },
         ];
+  const heroMeters =
+    locale === "zh-CN"
+      ? [
+          {
+            kicker: "当前 live",
+            value: hasRunHistory ? String(runningCount) : "0",
+            detail: hasRunHistory ? "先读指挥塔，再下钻明细" : "先起第一条任务，系统才会亮起来",
+          },
+          {
+            kicker: "当前堵点",
+            value: String(failedCount),
+            detail: failedCount > 0 ? "先处理风险线，再继续派发" : "当前没有主导性失败线",
+          },
+          {
+            kicker: "真相路径",
+            value: hasRunHistory ? "Workflow + Proof" : "Start in PM",
+            detail: hasRunHistory ? "首页只负责导向，不负责替代证明室" : "先写请求，再让真相面出现",
+          },
+        ]
+      : [
+          {
+            kicker: "Live now",
+            value: hasRunHistory ? String(runningCount) : "0",
+            detail: hasRunHistory ? "Read the tower first, then drill down." : "Start the first task before you trust the shell.",
+          },
+          {
+            kicker: "Blocked now",
+            value: String(failedCount),
+            detail: failedCount > 0 ? "Handle the risky lane before you dispatch more work." : "No dominant failure lane is blocking the board.",
+          },
+          {
+            kicker: "Truth path",
+            value: hasRunHistory ? "Workflow + Proof" : "Start in PM",
+            detail: hasRunHistory ? "The homepage routes you; it does not replace proof." : "Write the request first, then let the truth rooms light up.",
+          },
+        ];
   const dispatchBrief =
     locale === "zh-CN"
       ? [
@@ -387,6 +423,18 @@ export default function DashboardHomeStorySections({
                 </Button>
               ) : null}
             </nav>
+            <div
+              className="home-briefing-meter-row"
+              aria-label={locale === "zh-CN" ? "首页首屏仪表带" : "Homepage first-screen meter strip"}
+            >
+              {heroMeters.map((item) => (
+                <div key={item.kicker} className="home-briefing-meter">
+                  <span className="home-briefing-meter-kicker">{item.kicker}</span>
+                  <strong className="home-briefing-meter-value">{item.value}</strong>
+                  <p className="home-briefing-meter-detail">{item.detail}</p>
+                </div>
+              ))}
+            </div>
           </div>
           <Card className="home-briefing-panel">
             <div className="home-briefing-panel-head">
