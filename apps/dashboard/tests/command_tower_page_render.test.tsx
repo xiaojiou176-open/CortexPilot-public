@@ -56,7 +56,6 @@ vi.mock("../lib/api", () => ({
   fetchPmSessions: vi.fn(),
 }));
 
-import CommandTowerPage from "../app/command-tower/page";
 import {
   CommandTowerHomeSection,
   CommandTowerHomeSectionFallback,
