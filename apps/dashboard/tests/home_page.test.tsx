@@ -352,6 +352,33 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByText("Task: - · Unclassified")).toBeInTheDocument();
   });
 
+  it("falls back to Unknown status label and workflow summary placeholders", async () => {
+    mockFetchRuns.mockResolvedValueOnce([
+      {
+        run_id: "run-unknown",
+        task_id: "task-unknown",
+        status: "",
+      },
+    ] as never[]);
+    mockFetchWorkflows.mockResolvedValueOnce([
+      {
+        workflow_id: "",
+        status: "",
+        summary: "",
+        objective: "",
+        verdict: "",
+        owner_pm: "",
+        project_key: "",
+        run_ids: ["run-a", "run-b"],
+      },
+    ] as never[]);
+
+    render(await Home());
+    expect(screen.getAllByText("Unknown").length).toBeGreaterThan(0);
+    expect(screen.getByText("No workflow summary is attached yet.")).toBeInTheDocument();
+    expect(screen.getByText("Run mappings: 2")).toBeInTheDocument();
+  });
+
   it("formats valid timestamps with en-US local display", async () => {
     const createdAt = "2026-02-21T08:09:00Z";
     mockFetchRuns.mockResolvedValueOnce([
@@ -399,6 +426,49 @@ describe("dashboard home run-summary clarity", () => {
 
     expect(screen.getByRole("link", { name: "Start a new task" })).toHaveAttribute("href", "/pm");
     expect(screen.queryByRole("link", { name: "View failed events" })).not.toBeInTheDocument();
+  });
+
+  it("renders zh-CN high-failure triage and first-screen limit for array status filters", async () => {
+    mockCookies.mockResolvedValueOnce({
+      get: (name: string) => (name === "openvibecoding.ui.locale" ? { value: "zh-CN" } : undefined),
+      toString: () => "openvibecoding.ui.locale=zh-CN",
+    });
+    const zhRunsCopy = getUiCopy("zh-CN").dashboard.runsPage;
+    mockFetchRuns.mockResolvedValueOnce([
+      { run_id: "run-failed-1", task_id: "task-failed-1", status: "FAILED", outcome_type: "blocked", action_hint_zh: "先排查" },
+      { run_id: "run-failed-2", task_id: "task-failed-2", status: "FAILED", outcome_type: "blocked", action_hint_zh: "先回放" },
+      { run_id: "run-failed-3", task_id: "task-failed-3", status: "FAILED", outcome_type: "blocked", action_hint_zh: "先止血" },
+      { run_id: "run-failed-4", task_id: "task-failed-4", status: "FAILED", outcome_type: "blocked", action_hint_zh: "先核对" },
+      { run_id: "run-failed-5", task_id: "task-failed-5", status: "FAILED", outcome_type: "blocked", action_hint_zh: "先补证据" },
+      { run_id: "run-failed-6", task_id: "task-failed-6", status: "FAILED", outcome_type: "blocked", action_hint_zh: "先复核" },
+      { run_id: "run-failed-7", task_id: "task-failed-7", status: "FAILED", outcome_type: "blocked", action_hint_zh: "先确认" },
+      { run_id: "run-failed-8", task_id: "task-failed-8", status: "FAILED", outcome_type: "blocked", action_hint_zh: "先检查" },
+      { run_id: "run-success-zh", task_id: "task-success-zh", status: "SUCCESS", outcome_type: "proof_ready", action_hint_zh: "可分享" },
+    ] as never[]);
+
+    render(await RunsPage({ searchParams: Promise.resolve({ status: ["FAILED"] }) }));
+
+    expect(screen.getByRole("heading", { name: zhRunsCopy.title })).toBeInTheDocument();
+    expect(screen.getByText(zhRunsCopy.failureHeadline(8))).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: zhRunsCopy.operatorPrimaryActionFailed })).toHaveAttribute("href", "/runs?status=FAILED");
+    expect(screen.getByRole("link", { name: zhRunsCopy.operatorSecondaryAction })).toHaveAttribute("href", "/events");
+    expect(screen.getByRole("status")).toHaveTextContent(zhRunsCopy.firstScreenLimit(8));
+  });
+
+  it("renders degraded read-only snapshot guidance when runs fetch falls back with a warning", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const enRunsCopy = getUiCopy("en").dashboard.runsPage;
+    mockFetchRuns.mockRejectedValueOnce(new Error("runs api unavailable"));
+
+    render(await RunsPage({ searchParams: Promise.resolve({}) }));
+
+    expect(screen.getByText(enRunsCopy.warningTitle)).toBeInTheDocument();
+    expect(screen.getByText(enRunsCopy.warningNextStep)).toBeInTheDocument();
+    expect(screen.getByText("Verify the current read-only snapshot first")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Inspect visible runs" })).toHaveAttribute("href", "/runs");
+    expect(screen.queryByRole("link", { name: enRunsCopy.operatorSecondaryAction })).not.toBeInTheDocument();
+
+    consoleSpy.mockRestore();
   });
 
   it("shows degraded risk summary when runs data is unavailable", async () => {

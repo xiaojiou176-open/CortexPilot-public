@@ -67,7 +67,7 @@ async function resolveDashboardLocale() {
   }
 }
 
-function plannerText(locale: "en" | "zh-CN") {
+export function plannerText(locale: "en" | "zh-CN") {
   if (locale === "zh-CN") {
     return {
       title: "规划桌",
@@ -163,7 +163,7 @@ function plannerText(locale: "en" | "zh-CN") {
   };
 }
 
-function plannerTriage(text: ReturnType<typeof plannerText>, row: PlannerRow) {
+export function plannerTriage(text: ReturnType<typeof plannerText>, row: PlannerRow) {
   const continuationDecision =
     row.completionGovernance?.continuation_decision &&
     typeof row.completionGovernance.continuation_decision === "object" &&
@@ -217,7 +217,7 @@ function plannerTriage(text: ReturnType<typeof plannerText>, row: PlannerRow) {
   };
 }
 
-function plannerPriorityRank(row: PlannerRow) {
+export function plannerPriorityRank(row: PlannerRow) {
   if (!row.completionGovernance) return 0;
   if (row.workerContracts.length === 0 || row.plannedWorkerCount > row.workerContracts.length) return 1;
   if (row.unblockTasks.length > 0) return 2;
@@ -232,7 +232,7 @@ function plannerPriorityRank(row: PlannerRow) {
   return 4;
 }
 
-function plannerPriorityState(text: ReturnType<typeof plannerText>, rows: PlannerRow[]): PlannerPriorityState {
+export function plannerPriorityState(text: ReturnType<typeof plannerText>, rows: PlannerRow[]): PlannerPriorityState {
   if (rows.length === 0) {
     return {
       title:
