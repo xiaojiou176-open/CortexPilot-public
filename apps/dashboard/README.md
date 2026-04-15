@@ -139,6 +139,10 @@ repository is already a finished consumer product.
   both the root workspace and `apps/dashboard` override surfaces so the
   tracked `lighthouse@13.0.3` transitive chain does not fall back to the
   vulnerable `lodash-es@4.17.23` path on either maintained lockfile.
+- Current security-only lock maintenance also pins `follow-redirects@1.16.0`
+  through both the root workspace and `apps/dashboard` override surfaces so
+  the maintained dashboard lockfile does not keep the cross-domain redirect
+  header-leak advisory on its isolated install path.
 - When a dashboard security-only lock refresh lands, keep this module README in
   the same change set so doc-drift gates can trace the maintenance decision to
   the dashboard surface that actually owns the lockfile.
