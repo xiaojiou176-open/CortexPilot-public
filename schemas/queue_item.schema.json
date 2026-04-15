@@ -28,6 +28,9 @@
     "created_at": { "type": "string" },
     "claimed_at": { "type": "string" },
     "completed_at": { "type": "string" },
+    "cancelled_at": { "type": "string" },
+    "cancelled_by": { "type": "string" },
+    "reason": { "type": "string" },
     "eligible": { "type": "boolean" },
     "queue_state": { "type": "string", "enum": ["eligible", "waiting", "claimed", "closed"] },
     "sla_state": {
