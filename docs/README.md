@@ -23,7 +23,7 @@ maintainer-only reference or archive material, even if they still live under
 
 This file is not the public proof router. Keep public readers on the root
 README and the registered route pages, and keep machine-readable proof ledgers
-under `configs/public_proof/` for tooling and audits instead of turning
+in repo-owned machine paths for tooling and audits instead of turning
 `docs/README.md` into a human path toward raw proof metadata.
 
 Daily local verification lives in the root [README](../README.md). Treat this
@@ -117,7 +117,7 @@ minimal public story or the default human proof path.
 - `docs/compatibility/index.html`: public adoption matrix for choosing between Codex / Claude Code / OpenClaw / skills / builders / proof-first onboarding paths
 - `docs/distribution/index.html`: public mirror of the root `DISTRIBUTION.md` contract for shipped, starter-only, deferred, and workspace-only surfaces
 - `docs/agent-starters/index.html`: public copy-paste starter kits for Codex / Claude Code / OpenClaw teams that want the shortest repo-owned bootstrap path
-- `docs/use-cases/index.html`: public first-run, proof, and share-ready asset guide; keep the human proof path here instead of sending readers into raw proof ledgers
+- `docs/use-cases/index.html`: public first-run, proof, and share-ready asset guide; keep the human proof path here instead of sending readers into raw proof ledgers or machine contracts
 - `docs/ai-surfaces/index.html`: public AI / read-only MCP / API entrypoint map for truthful discoverability
 - `docs/mcp/index.html`: public read-only MCP quickstart page for truthful protocol discovery
 - `docs/api/index.html`: public API / contract quickstart page for OpenAPI, thin client helpers, and contract-facing types

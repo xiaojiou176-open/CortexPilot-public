@@ -10,8 +10,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = ROOT / "configs" / "storefront_proof_bundle_registry.json"
 RENDER_MANIFEST_PATH = ROOT / "configs" / "docs_render_manifest.json"
-PROOF_PACK_INDEX = ROOT / "docs" / "assets" / "storefront" / "proof-pack-index.json"
+PROOF_PACK_INDEX = ROOT / "configs" / "public_proof" / "storefront" / "proof-pack-index.json"
 USE_CASES_PATH = ROOT / "docs" / "use-cases" / "index.html"
+PUBLIC_PROOF_ROOT = ROOT / "configs" / "public_proof"
+FORBIDDEN_DOCS_PROOF_SOURCES = [
+    ROOT / "docs" / "assets" / "storefront" / "README.md",
+    ROOT / "docs" / "assets" / "storefront" / "demo-status.md",
+    ROOT / "docs" / "assets" / "storefront" / "benchmark-methodology.md",
+    ROOT / "docs" / "assets" / "storefront" / "live-capture-requirements.json",
+    ROOT / "docs" / "releases" / "assets" / "news-digest-proof-pack-2026-03-27.json",
+    ROOT / "docs" / "releases" / "assets" / "news-digest-healthy-proof-summary-2026-03-27.json",
+    ROOT / "docs" / "releases" / "assets" / "news-digest-benchmark-summary-2026-03-27.json",
+    ROOT / "docs" / "releases" / "assets" / "news-digest-healthy-proof-2026-03-27.md",
+    ROOT / "docs" / "releases" / "assets" / "news-digest-benchmark-summary-2026-03-27.md",
+    ROOT / "docs" / "releases" / "assets" / "news-digest-workflow-case-recap-2026-03-27.md",
+]
 
 
 def parse_args() -> argparse.Namespace:
@@ -56,6 +69,24 @@ def _require_text(path: Path, snippets: list[str], errors: list[str]) -> None:
             errors.append(f"{path.relative_to(ROOT)} missing required text: {snippet}")
 
 
+def _require_path_prefix(path_text: str, prefix: str, errors: list[str], *, reason: str) -> None:
+    if not path_text.startswith(prefix):
+        errors.append(f"{reason}: expected `{path_text}` to stay under `{prefix}`")
+
+
+def _require_claim_asset_path(path_text: str, role: str, errors: list[str]) -> None:
+    if role == "demo_status_ledger":
+        expected_prefix = "configs/public_proof/storefront/"
+    else:
+        expected_prefix = "configs/public_proof/releases_assets/"
+    _require_path_prefix(
+        path_text,
+        expected_prefix,
+        errors,
+        reason=f"claim-bearing proof asset `{role}`",
+    )
+
+
 def _load_generator_module() -> object:
     script_path = Path(__file__).resolve().with_name("generate_storefront_proof_pack_index.py")
     spec = importlib.util.spec_from_file_location("openvibecoding_generate_storefront_proof_pack_index", script_path)
@@ -78,6 +109,9 @@ def main() -> int:
     if not RENDER_MANIFEST_PATH.exists():
         print("❌ [storefront-proof-assets] docs render manifest missing")
         return 1
+    if not PUBLIC_PROOF_ROOT.exists():
+        print("❌ [storefront-proof-assets] public proof source root missing")
+        return 1
 
     generator = _load_generator_module()
     generator.ROOT = ROOT
@@ -90,6 +124,12 @@ def main() -> int:
     render_manifest_payload = _load_json(RENDER_MANIFEST_PATH)
     if current_payload != expected_payload:
         errors.append("proof-pack index drifted from generator output")
+
+    for path in FORBIDDEN_DOCS_PROOF_SOURCES:
+        if path.exists():
+            errors.append(
+                f"docs-side proof source must move under configs/public_proof: {path.relative_to(ROOT)}"
+            )
 
     payload = current_payload
     public_contract = registry_payload.get("public_proof_contract")
@@ -107,7 +147,7 @@ def main() -> int:
         )
         required_outputs = public_contract.get("required_rendered_outputs")
         _require(
-            isinstance(required_outputs, list) and "docs/assets/storefront/proof-pack-index.json" in required_outputs,
+            isinstance(required_outputs, list) and "configs/public_proof/storefront/proof-pack-index.json" in required_outputs,
             "public_proof_contract must require the proof-pack index output",
             errors,
         )
@@ -119,19 +159,43 @@ def main() -> int:
         )
         _require(
             isinstance(contract_inputs, list)
+            and "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json" in contract_inputs
+            and "configs/public_proof/storefront/demo-status.md" in contract_inputs
+            and "configs/public_proof/storefront/live-capture-requirements.json" in contract_inputs,
+            "public_proof_contract must keep configs/public_proof source ledgers as tracked contract inputs",
+            errors,
+        )
+        _require(
+            isinstance(contract_inputs, list)
             and "docs/assets/storefront/demo-status.md" not in contract_inputs
             and "docs/assets/storefront/live-capture-requirements.json" not in contract_inputs,
             "public_proof_contract must not treat docs-side ledgers as tracked contract inputs",
             errors,
         )
 
-    proof_pack_entry = _find_render_entry(render_manifest_payload, output_path="docs/assets/storefront/proof-pack-index.json")
+    proof_pack_entry = _find_render_entry(render_manifest_payload, output_path="configs/public_proof/storefront/proof-pack-index.json")
     _require(proof_pack_entry is not None, "docs render manifest missing proof-pack index entry", errors)
     if isinstance(proof_pack_entry, dict):
+        source_inputs = proof_pack_entry.get("source_inputs")
+        _require(
+            isinstance(source_inputs, list)
+            and "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json" in source_inputs
+            and "docs/releases/assets/news-digest-proof-pack-2026-03-27.json" not in source_inputs,
+            "proof-pack render entry must read the moved pack manifest from configs/public_proof",
+            errors,
+        )
         contract_inputs = proof_pack_entry.get("contract_inputs")
         _require(
             isinstance(contract_inputs, list) and "configs/storefront_proof_bundle_registry.json" in contract_inputs,
             "proof-pack render entry must declare configs-side contract inputs",
+            errors,
+        )
+        _require(
+            isinstance(contract_inputs, list)
+            and "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json" in contract_inputs
+            and "configs/public_proof/storefront/demo-status.md" in contract_inputs
+            and "configs/public_proof/storefront/live-capture-requirements.json" in contract_inputs,
+            "proof-pack render entry must bind the moved configs/public_proof sources",
             errors,
         )
         _require(
@@ -184,6 +248,12 @@ def main() -> int:
         _require(bool(pack_manifest), "news_digest must reference a pack_manifest", errors)
         if pack_manifest:
             _asset_exists(pack_manifest, errors, reason="news_digest pack manifest")
+            _require_path_prefix(
+                pack_manifest,
+                "configs/public_proof/releases_assets/",
+                errors,
+                reason="news_digest pack manifest",
+            )
 
         capture_contract = news.get("capture_contract")
         _require(isinstance(capture_contract, dict), "news_digest missing capture_contract", errors)
@@ -240,6 +310,14 @@ def main() -> int:
                     errors.append("news_digest assets[] contains an entry without path")
                     continue
                 _asset_exists(path_text, errors, reason="news_digest asset")
+                if item.get("required_for_claim") is True:
+                    _require_claim_asset_path(path_text, str(item.get("role") or ""), errors)
+                if item.get("required_for_claim") is False:
+                    _require(
+                        path_text.endswith((".png", ".gif", ".svg")),
+                        f"supporting public capture should stay media-only: {path_text}",
+                        errors,
+                    )
 
     for showcase_id in ("topic_brief", "page_brief"):
         bundle = bundle_map.get(showcase_id, {})

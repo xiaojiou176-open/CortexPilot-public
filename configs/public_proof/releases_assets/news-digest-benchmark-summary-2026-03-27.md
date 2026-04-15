@@ -36,22 +36,22 @@ It is a single-run baseline, not a broad multi-round benchmark campaign.
 ## Reproduction Command
 
 Use the exact proof command recorded in
-`docs/releases/assets/news-digest-healthy-proof-2026-03-27.md`.
+`configs/public_proof/releases_assets/news-digest-healthy-proof-2026-03-27.md`.
 
 This baseline intentionally reuses the same successful `news_digest` run so the
 benchmark summary and proof summary stay tied to the same evidence set.
 
 ## Tracked Outputs
 
-- `docs/releases/assets/news-digest-healthy-proof-2026-03-27.md`
-- `docs/releases/assets/news-digest-healthy-proof-summary-2026-03-27.json`
-- `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.json`
+- `configs/public_proof/releases_assets/news-digest-healthy-proof-2026-03-27.md`
+- `configs/public_proof/releases_assets/news-digest-healthy-proof-summary-2026-03-27.json`
+- `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.json`
 - `docs/releases/assets/news-digest-healthy-proof-gemini-2026-03-27.png`
 - `docs/releases/assets/news-digest-healthy-proof-grok-2026-03-27.png`
 
 ## Copied Machine Summary
 
-- `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.json`
+- `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.json`
 
 Original runtime root before cleanup:
 

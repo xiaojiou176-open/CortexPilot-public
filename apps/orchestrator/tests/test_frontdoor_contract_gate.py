@@ -20,7 +20,7 @@ def _write_frontdoor_fixture(root: Path) -> None:
 
     (root / "README.md").write_text(
         """
-        Machine-readable proof ledgers now belong under `configs/public_proof/`.
+        Machine-readable proof ledgers now stay in repo-owned machine paths.
         The public reading path stays on the use-cases page instead of raw ledger files or `docs/README.md`.
         """,
         encoding="utf-8",
@@ -28,7 +28,7 @@ def _write_frontdoor_fixture(root: Path) -> None:
     (root / "docs" / "README.md").write_text(
         """
         This file is not the public proof router.
-        Keep machine-readable proof ledgers under `configs/public_proof/`
+        keep machine-readable proof ledgers in repo-owned machine paths
         for tooling and audits instead of turning `docs/README.md` into a human path toward raw proof metadata.
         """,
         encoding="utf-8",
@@ -50,9 +50,10 @@ def _write_frontdoor_fixture(root: Path) -> None:
         <p>news_digest is the only official release-proven public baseline.</p>
         <p>topic_brief and page_brief are not yet equally release-proven.</p>
         <p>What we still do not claim</p>
-        <p>This page summarizes the repo-tracked public proof bundle instead of deep-linking every raw ledger file.</p>
+        <p>This page is the human-readable proof story for that bundle.</p>
         <p>Proof you can rely on today</p>
-        <p>Machine-readable proof metadata now lives under configs/public_proof/ for tooling and audits, while this page stays the human-facing proof summary.</p>
+        <p>Repo-side proof manifests, indexes, and capture contracts still exist for maintainers and gates, but they are not required reading for a public evaluator.</p>
+        <p>This page is the public proof story; raw manifests and ledger-style contracts stay behind the scenes.</p>
         """,
         encoding="utf-8",
     )
@@ -78,16 +79,15 @@ def test_frontdoor_contract_gate_passes_with_required_surfaces(tmp_path: Path, m
     assert module.main() == 0
 
 
-def test_frontdoor_contract_gate_fails_when_public_proof_bundle_text_drifts(
+def test_frontdoor_contract_gate_fails_when_use_cases_links_raw_repo_side_receipts(
     tmp_path: Path, capsys, monkeypatch
 ) -> None:
     module = _load_gate_module()
     _write_frontdoor_fixture(tmp_path)
     use_cases = tmp_path / "docs" / "use-cases" / "index.html"
     use_cases.write_text(
-        use_cases.read_text(encoding="utf-8").replace(
-            "Proof you can rely on today", "Proof files you can inspect today"
-        ),
+        use_cases.read_text(encoding="utf-8")
+        + '<a href="../assets/storefront/live-capture-requirements.json">raw capture contract</a>',
         encoding="utf-8",
     )
     module.ROOT = tmp_path
@@ -101,4 +101,4 @@ def test_frontdoor_contract_gate_fails_when_public_proof_bundle_text_drifts(
     rc = module.main()
     out = capsys.readouterr().out
     assert rc == 1
-    assert "Proof you can rely on today" in out
+    assert "live-capture-requirements.json" in out

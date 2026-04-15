@@ -103,6 +103,9 @@ For the public product story, the current official first proven workflow is
 [`news_digest`](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/).
 `topic_brief` and `page_brief` are still public showcase paths, not equally
 release-proven baselines.
+The public use-cases page is meant to act like the human-readable proof story,
+not a router into raw manifests, ledgers, or maintainer-grade capture
+contracts.
 
 If this repository is close to your use case, star it to track the first public
 release, new task templates, and storefront updates.
@@ -769,7 +772,7 @@ Release truth note: `v0.1.0-alpha.3` is still the latest published prerelease,
 but `main` has already moved ahead of that tag. Treat the tag as the latest
 published snapshot, not as proof that current `main` is already released.
 Historical release archaeology still exists as repo-side archive material.
-Machine-readable proof ledgers now belong under `configs/public_proof/` for
+Machine-readable proof ledgers now stay in repo-owned machine paths for
 tooling and audits, while the public reading path stays on the use-cases page
 and the published release surfaces instead of raw ledger files or `docs/README.md`.
 

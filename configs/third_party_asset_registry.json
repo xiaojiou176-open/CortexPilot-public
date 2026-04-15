@@ -68,11 +68,14 @@
       "id": "release-proof-assets",
       "surface_kind": "release_asset_bundle",
       "path_globs": [
-        "docs/releases/assets/news-digest-healthy-proof-summary-2026-03-27.json",
+        "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json",
+        "configs/public_proof/releases_assets/news-digest-healthy-proof-summary-2026-03-27.json",
+        "configs/public_proof/storefront/demo-status.md",
+        "configs/public_proof/storefront/live-capture-requirements.json",
         "docs/releases/assets/news-digest-healthy-proof-gemini-2026-03-27.png",
         "docs/releases/assets/news-digest-healthy-proof-grok-2026-03-27.png",
-        "docs/releases/assets/news-digest-benchmark-summary-2026-03-27.json",
-        "docs/assets/storefront/proof-pack-index.json"
+        "configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.json",
+        "configs/public_proof/storefront/proof-pack-index.json"
       ],
       "status": "active",
       "review_state": "verified",

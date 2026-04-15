@@ -24,8 +24,8 @@ already been published.
 
 - `docs/releases/assets/news-digest-healthy-proof-gemini-2026-03-27.png`
 - `docs/releases/assets/news-digest-healthy-proof-grok-2026-03-27.png`
-- `docs/releases/assets/news-digest-healthy-proof-summary-2026-03-27.json`
-- `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md`
+- `configs/public_proof/releases_assets/news-digest-healthy-proof-summary-2026-03-27.json`
+- `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md`
 
 ## Provider Outcome Summary
 
@@ -91,7 +91,7 @@ PY'
 
 The tracked machine-readable summary lives at:
 
-- `docs/releases/assets/news-digest-healthy-proof-summary-2026-03-27.json`
+- `configs/public_proof/releases_assets/news-digest-healthy-proof-summary-2026-03-27.json`
 
 The original runtime root was:
 

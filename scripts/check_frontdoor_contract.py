@@ -127,7 +127,7 @@ def main() -> int:
         README_PATH,
         readme_text,
         [
-            "Machine-readable proof ledgers now belong under `configs/public_proof/`",
+            "Machine-readable proof ledgers now stay in repo-owned machine paths",
             "public reading path stays on the use-cases page",
             "instead of raw ledger files or `docs/README.md`",
         ],
@@ -139,7 +139,7 @@ def main() -> int:
         docs_readme_text,
         [
             "This file is not the public proof router.",
-            "keep machine-readable proof ledgers under `configs/public_proof/`",
+            "keep machine-readable proof ledgers in repo-owned machine paths",
             "instead of turning `docs/README.md` into a human path toward raw proof metadata.",
         ],
         errors,
@@ -190,11 +190,10 @@ def main() -> int:
         USE_CASES_PATH,
         use_cases_html,
         [
-            "repo-tracked public proof bundle",
-            "Machine-readable proof metadata now lives under",
-            "configs/public_proof/",
             "Proof you can rely on today",
-            "human-facing proof summary",
+            "human-readable proof story",
+            "not required reading for a public evaluator",
+            "raw manifests and ledger-style contracts stay behind the scenes",
         ],
         errors,
     )
@@ -229,9 +228,11 @@ def main() -> int:
         USE_CASES_PATH,
         use_cases_anchors,
         [
-            "configs/public_proof/",
+            "../releases/assets/",
+            "../assets/storefront/",
             "docs/releases/assets/",
             "docs/assets/storefront/",
+            "configs/public_proof/",
         ],
         errors,
     )
