@@ -28,7 +28,7 @@ Current lane order is deliberate:
 - **Secondary lane** = the adoption-router public skill packet
 - **Companion/example lane** = local starter kits and coding-agent bundle examples, which are not the canonical public root
 
-[Quickstart](#quickstart) · [First Proven Workflow](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/) · [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/) · [Distribution Contract](DISTRIBUTION.md) · [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) · [Docs](docs/README.md) · [Architecture](docs/architecture/runtime-topology.md) · [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/) · [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/) · [Releases](https://github.com/xiaojiou176-open/OpenVibeCoding/releases)
+[Quickstart](#quickstart) · [First Proven Workflow](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/) · [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/) · [Distribution Contract](DISTRIBUTION.md) · [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) · [Public Docs](https://xiaojiou176-open.github.io/OpenVibeCoding/) · [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/) · [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/) · [Releases](https://github.com/xiaojiou176-open/OpenVibeCoding/releases)
 
 ![OpenVibeCoding command tower showcase card](docs/assets/storefront/command-tower-showcase-card.svg)
 
@@ -764,21 +764,13 @@ The public release surface now has a live baseline. Use these entrypoints:
 - [Live GitHub Release `v0.1.0-alpha.3`](https://github.com/xiaojiou176-open/OpenVibeCoding/releases/tag/v0.1.0-alpha.3)
 - [Live GitHub Pages site](https://xiaojiou176-open.github.io/OpenVibeCoding/)
 - [Changelog](CHANGELOG.md)
-- [Public release checklist](docs/runbooks/public-release-checklist.md)
-- [Current release notes source](docs/releases/v0.1.0-alpha.3.md)
-- [First public release draft](docs/releases/first-public-release-draft.md)
-- [Tracked healthy `news_digest` proof summary](docs/releases/assets/news-digest-healthy-proof-2026-03-27.md)
-- [Tracked `news_digest` baseline summary](docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md)
-- [Tracked `news_digest` Workflow Case recap](docs/releases/assets/news-digest-workflow-case-recap-2026-03-27.md)
 
-Release truth note: `v0.1.0-alpha.3` is the current published prerelease
-baseline, but the local `main` branch has already moved ahead of that tag. Use
-it as the latest published snapshot, not as proof that the current `main`
-snapshot is already released. The
-historical first-baseline draft remains
-[docs/releases/first-public-release-draft.md](docs/releases/first-public-release-draft.md),
-while the current release note source is
-[docs/releases/v0.1.0-alpha.3.md](docs/releases/v0.1.0-alpha.3.md).
+Release truth note: `v0.1.0-alpha.3` is still the latest published prerelease,
+but `main` has already moved ahead of that tag. Treat the tag as the latest
+published snapshot, not as proof that current `main` is already released.
+Historical release drafts and March 2026 proof assets remain archived under
+`docs/releases/` and `docs/releases/assets/`; they are no longer part of the
+active front-door navigation.
 
 Public repo hygiene stays fail-closed as well: token-like fixture coverage must
 use synthetic string assembly, and public path fixtures must use generic

@@ -21,8 +21,8 @@ ones that still need a real capture pass.
 - `docs/releases/assets/news-digest-healthy-proof-gemini-2026-03-27.png`: successful Gemini proof screenshot
 - `docs/releases/assets/news-digest-healthy-proof-grok-2026-03-27.png`: successful Grok proof screenshot
 - `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md`: first tracked public `news_digest` baseline summary
-- `docs/releases/assets/news-digest-proof-pack-2026-03-27.json`: machine-readable proof-pack directory for the current public trust bundle
-- `docs/releases/assets/news-digest-workflow-case-recap-2026-03-27.md`: share-ready Workflow Case recap for the official first public baseline
+- `docs/releases/assets/news-digest-proof-pack-2026-03-27.json`: machine-readable proof-pack directory for the March 2026 public trust bundle checkpoint
+- `docs/releases/assets/news-digest-workflow-case-recap-2026-03-27.md`: share-ready Workflow Case recap for the March 2026 first public baseline checkpoint
 
 ## Current Proof Ledger
 

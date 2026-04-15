@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Minimal navigation registry for the public documentation surface.",
+  "description": "Minimal navigation registry for the active public documentation surface only.",
   "entries": [
     {
       "path": "docs/index.html",
@@ -14,52 +14,52 @@
     {
       "path": "docs/architecture/runtime-topology.md",
       "kind": "reference",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
-      "listed_in_primary_navigation": true
+      "listed_in_primary_navigation": false
     },
     {
       "path": "docs/specs/00_SPEC.md",
       "kind": "policy",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
-      "listed_in_primary_navigation": true
+      "listed_in_primary_navigation": false
     },
     {
       "path": "docs/runbooks/onboarding-30min.md",
       "kind": "runbook",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
-      "listed_in_primary_navigation": true
+      "listed_in_primary_navigation": false
     },
     {
       "path": "docs/runbooks/space-governance.md",
       "kind": "runbook",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
-      "listed_in_primary_navigation": true
+      "listed_in_primary_navigation": false
     },
     {
       "path": "docs/architecture/mcp-and-operator-copilot-v1.md",
       "kind": "reference",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
-      "listed_in_primary_navigation": true
+      "listed_in_primary_navigation": false
     },
     {
       "path": "docs/runbooks/public-release-checklist.md",
       "kind": "runbook",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
@@ -68,7 +68,7 @@
     {
       "path": "docs/runbooks/storefront-share-kit.md",
       "kind": "runbook",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
@@ -77,7 +77,7 @@
     {
       "path": "docs/runbooks/github-storefront-manual-steps.md",
       "kind": "runbook",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
@@ -86,7 +86,7 @@
     {
       "path": "docs/releases/first-public-release-draft.md",
       "kind": "reference",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
@@ -95,7 +95,7 @@
     {
       "path": "docs/releases/v0.1.0-alpha.3.md",
       "kind": "reference",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
@@ -104,7 +104,7 @@
     {
       "path": "docs/assets/storefront/demo-status.md",
       "kind": "reference",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
@@ -113,7 +113,7 @@
     {
       "path": "docs/assets/storefront/benchmark-methodology.md",
       "kind": "reference",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
@@ -122,7 +122,7 @@
     {
       "path": "docs/architecture/ecosystem-and-builder-surfaces-v1.md",
       "kind": "reference",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
@@ -131,7 +131,7 @@
     {
       "path": "docs/runbooks/render-hosted-operator-pilot.md",
       "kind": "runbook",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
@@ -140,7 +140,7 @@
     {
       "path": "docs/runbooks/write-mcp-queue-pilot.md",
       "kind": "runbook",
-      "status": "active",
+      "status": "archived",
       "canonical": true,
       "generated": false,
       "owner_surface": "docs",
@@ -266,7 +266,7 @@
     {
       "path": "docs/governance/doc-drift-map.json",
       "kind": "policy",
-      "status": "active",
+      "status": "archived",
       "canonical": false,
       "generated": false,
       "owner_surface": "docs",
@@ -275,7 +275,7 @@
     {
       "path": "docs/governance/incident-regression-map.json",
       "kind": "policy",
-      "status": "active",
+      "status": "archived",
       "canonical": false,
       "generated": false,
       "owner_surface": "docs",
@@ -284,7 +284,7 @@
     {
       "path": "docs/governance/ui_protocol_allowlist.json",
       "kind": "policy",
-      "status": "active",
+      "status": "archived",
       "canonical": false,
       "generated": false,
       "owner_surface": "ui",
@@ -293,7 +293,7 @@
     {
       "path": "docs/governance/perf-baseline.json",
       "kind": "policy",
-      "status": "active",
+      "status": "archived",
       "canonical": false,
       "generated": false,
       "owner_surface": "ci",
@@ -302,7 +302,7 @@
     {
       "path": "docs/governance/ui-button-coverage-matrix.md",
       "kind": "reference",
-      "status": "active",
+      "status": "archived",
       "canonical": false,
       "generated": true,
       "owner_surface": "ui",

@@ -40,8 +40,8 @@ export default function PmChatCard({ kind, card, onOptionSelect }: PmChatCardPro
       {card.options && card.options.length > 0 ? (
         <div className="pm-embed-options">
           {card.options.map((option, index) => (
-            <button
-              type="button"
+            <Button
+              variant="unstyled"
               key={`${option.label}-${index}`}
               className={`pm-embed-option${onOptionSelect ? " is-clickable" : ""}`}
               onClick={onOptionSelect ? () => onOptionSelect(option) : undefined}
@@ -53,7 +53,7 @@ export default function PmChatCard({ kind, card, onOptionSelect }: PmChatCardPro
                 <p>{option.description}</p>
               </div>
               {option.recommended ? <Badge variant="running">Recommended</Badge> : null}
-            </button>
+            </Button>
           ))}
         </div>
       ) : null}
