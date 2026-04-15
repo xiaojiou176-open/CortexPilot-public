@@ -130,10 +130,13 @@
       "authority_level": "repo_side_story_surface",
       "public_entrypoint": "docs/use-cases/index.html",
       "safe_public_claims": [
-        "topic_brief is a public showcase path with search-backed evidence"
+        "topic_brief is a public showcase and discovery lane with search-backed evidence",
+        "topic_brief is pending a dedicated healthy proof summary, a dedicated benchmark summary, and a share-ready recap before it can leave showcase status"
       ],
       "forbidden_claims": [
-        "topic_brief is an equally release-proven baseline today"
+        "topic_brief is an equally release-proven baseline today",
+        "topic_brief already has a tracked public proof bundle today",
+        "topic_brief already has a dedicated healthy proof summary, benchmark summary, and share-ready recap today"
       ],
       "missing_expected_artifacts": [
         "dedicated_healthy_proof_summary",
@@ -145,22 +148,66 @@
     {
       "bundle_id": "page_brief",
       "task_template": "page_brief",
-      "proof_state": "showcase_only",
-      "claim_scope": "public_showcase_path",
-      "authority_level": "repo_side_story_surface",
+      "proof_state": "proof_bundle_tracked",
+      "claim_scope": "browser_backed_public_proof_bundle",
+      "authority_level": "repo_side_public_proof",
       "public_entrypoint": "docs/use-cases/index.html",
+      "pack_manifest": "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json",
       "safe_public_claims": [
-        "page_brief is a browser-backed public showcase path"
+        "page_brief now has a tracked browser-backed public proof bundle",
+        "page_brief remains a secondary public proof path, not the official first public baseline",
+        "the bundle includes a healthy proof summary, a bundle baseline summary, a Workflow Case recap, and the shared demo-status ledger"
       ],
       "forbidden_claims": [
-        "page_brief is an equally release-proven baseline today"
+        "page_brief is the official first public baseline today",
+        "page_brief is equally release-proven as news_digest today",
+        "page_brief proves hosted production readiness or public write-capable MCP"
       ],
-      "missing_expected_artifacts": [
-        "dedicated_healthy_proof_summary",
-        "dedicated_benchmark_summary",
-        "share_ready_recap"
-      ],
-      "assets": []
+      "missing_expected_artifacts": [],
+      "assets": [
+        {
+          "path": "configs/public_proof/releases_assets/page-brief-healthy-proof-2026-04-15.md",
+          "role": "healthy_proof_summary",
+          "format": "markdown",
+          "truth_class": "repo_side_proof",
+          "required_for_claim": true
+        },
+        {
+          "path": "configs/public_proof/releases_assets/page-brief-healthy-proof-summary-2026-04-15.json",
+          "role": "healthy_proof_summary_machine",
+          "format": "json",
+          "truth_class": "repo_side_machine_summary",
+          "required_for_claim": true
+        },
+        {
+          "path": "configs/public_proof/releases_assets/page-brief-benchmark-summary-2026-04-15.md",
+          "role": "benchmark_summary",
+          "format": "markdown",
+          "truth_class": "repo_side_benchmark",
+          "required_for_claim": true
+        },
+        {
+          "path": "configs/public_proof/releases_assets/page-brief-benchmark-summary-2026-04-15.json",
+          "role": "benchmark_summary_machine",
+          "format": "json",
+          "truth_class": "repo_side_machine_summary",
+          "required_for_claim": true
+        },
+        {
+          "path": "configs/public_proof/releases_assets/page-brief-workflow-case-recap-2026-04-15.md",
+          "role": "workflow_case_recap",
+          "format": "markdown",
+          "truth_class": "share_ready_recap",
+          "required_for_claim": true
+        },
+        {
+          "path": "configs/public_proof/storefront/demo-status.md",
+          "role": "demo_status_ledger",
+          "format": "markdown",
+          "truth_class": "truth_boundary_ledger",
+          "required_for_claim": true
+        }
+      ]
     }
   ]
 }

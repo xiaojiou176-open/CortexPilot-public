@@ -491,7 +491,11 @@ def migrate_default_chrome_profile(
 ) -> dict[str, Any]:
     if not source_root.exists():
         raise RuntimeError(f"source Chrome root not found: {source_root}")
-    if chrome_processes_using_default_root():
+    source_root_resolved = source_root.expanduser().resolve()
+    default_root_resolved = default_source_chrome_root().expanduser().resolve()
+    if find_chrome_process_by_user_data_dir(source_root_resolved) is not None:
+        raise RuntimeError("source Chrome root is still active; stop that donor instance before migrating")
+    if source_root_resolved == default_root_resolved and chrome_processes_using_default_root():
         blockers = ", ".join(str(process.pid) for process in chrome_processes_using_default_root())
         raise RuntimeError(f"default Chrome root is still active; close those Chrome processes first: {blockers}")
     if find_chrome_process_by_user_data_dir(target_root) is not None:

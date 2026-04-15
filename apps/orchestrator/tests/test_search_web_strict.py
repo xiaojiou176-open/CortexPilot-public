@@ -4,6 +4,10 @@ from urllib.parse import urlparse
 
 from tooling.search.search_engine import (
     _activate_chat_input,
+    _chat_provider_failure_reason,
+    _chat_provider_timeout_ms,
+    _click_gemini_answer_now,
+    _wait_for_chat_provider_response,
     _browser_search,
     _pick_chat_input_locator,
     _url_allowed,
@@ -56,6 +60,177 @@ def test_web_error_artifacts_capture(tmp_path: Path) -> None:
     assert Path(artifacts["error"]).exists()
     assert Path(artifacts["screenshot"]).exists()
     assert Path(artifacts["html"]).exists()
+
+
+def test_chat_provider_failure_reason_flags_gemini_shell_page() -> None:
+    reason = _chat_provider_failure_reason(
+        "gemini_web",
+        "Seattle AI",
+        "Gemini PRO 与 Gemini 对话 你说 Seattle AI Gemini 是一款 AI 工具，其回答未必正确无误。",
+        response_source="main",
+    )
+    assert reason == "gemini shell page captured instead of an answer"
+
+
+def test_chat_provider_failure_reason_allows_gemini_shell_chrome_with_substantive_answer() -> None:
+    reason = _chat_provider_failure_reason(
+        "gemini_web",
+        "Seattle AI",
+        "Gemini 与 Gemini 对话 你说 Seattle AI Seattle is currently humming with AI activity this spring: a mix of cloud giants, academic research, and startup momentum.",
+        response_source="main",
+    )
+    assert reason is None
+
+
+def test_chat_provider_failure_reason_flags_grok_rate_limit_page() -> None:
+    reason = _chat_provider_failure_reason(
+        "grok_web",
+        "Seattle AI",
+        "登录 注册 Seattle AI 需求量高 请稍后重试，或免费注册以获得更高优先级使用权",
+        response_source="main",
+    )
+    assert reason == "grok provider page did not reach a ready answer state"
+
+
+def test_chat_provider_failure_reason_flags_grok_shell_page() -> None:
+    reason = _chat_provider_failure_reason(
+        "grok_web",
+        "Seattle AI",
+        "Imagine Sign in Sign up What's on your mind? Auto New · Hold Ctrl+D to dictate By messaging Grok, you agree to our Terms and Privacy Policy.",
+        response_source="main",
+    )
+    assert reason == "grok provider page did not reach a ready answer state"
+
+
+def test_chat_provider_failure_reason_flags_query_echo_only() -> None:
+    reason = _chat_provider_failure_reason(
+        "gemini_web",
+        "Seattle AI",
+        "Seattle AI",
+        response_source="assistant",
+    )
+    assert reason == "provider returned query echo without an answer"
+
+
+def test_chat_provider_failure_reason_allows_non_assistant_surface_when_content_is_real() -> None:
+    reason = _chat_provider_failure_reason(
+        "gemini_web",
+        "Seattle AI",
+        "Seattle is currently humming with AI activity, driven by a unique mix of big tech anchors and academic research.",
+        response_source="article",
+    )
+    assert reason is None
+
+
+def test_wait_for_chat_provider_response_retries_until_gemini_answer_is_ready() -> None:
+    class DummyLeaf:
+        def __init__(self, page, selector: str) -> None:
+            self._page = page
+            self._selector = selector
+
+        def inner_text(self) -> str:
+            return self._page.states[self._page.index].get(self._selector, "")
+
+        def click(self, timeout=None, force=False) -> None:  # noqa: ANN001, ARG002
+            if "立即回答" in self._selector or "Answer now" in self._selector:
+                self._page.answer_clicked = True
+                return None
+            raise RuntimeError("unexpected click target")
+
+    class DummyLocator:
+        def __init__(self, page, selector: str) -> None:
+            self._page = page
+            self._selector = selector
+            self.last = DummyLeaf(page, selector)
+            self.first = DummyLeaf(page, selector)
+
+        def count(self) -> int:
+            value = self._page.states[self._page.index].get(self._selector, "")
+            return 1 if value else 0
+
+    class DummyPage:
+        def __init__(self) -> None:
+            self.index = 0
+            self.answer_clicked = False
+            self.states = [
+                {
+                    "main": "Gemini 与 Gemini 对话 需要我为你做些什么 Seattle AI",
+                    "button:has-text('立即回答')": "立即回答",
+                },
+                {"[data-message-author-role='assistant']": "Seattle AI is one of the top AI hubs in the U.S."},
+            ]
+
+        def locator(self, selector: str) -> DummyLocator:
+            return DummyLocator(self, selector)
+
+        def wait_for_timeout(self, _ms: int) -> None:
+            if self.answer_clicked and self.index < len(self.states) - 1:
+                self.index += 1
+
+    text, source, reason = _wait_for_chat_provider_response(DummyPage(), "gemini_web", "Seattle AI", timeout_ms=2000, poll_ms=10)
+    assert reason is None
+    assert source == "assistant"
+    assert "top AI hubs" in text
+
+
+def test_click_gemini_answer_now_returns_false_when_button_missing() -> None:
+    class DummyLocator:
+        def __init__(self) -> None:
+            self.first = self
+
+        def count(self) -> int:
+            return 0
+
+    class DummyPage:
+        def locator(self, _selector: str) -> DummyLocator:
+            return DummyLocator()
+
+    assert _click_gemini_answer_now(DummyPage()) is False
+
+
+def test_chat_provider_timeout_ms_prefers_longer_window_for_grok() -> None:
+    assert _chat_provider_timeout_ms("grok_web") == 30000
+    assert _chat_provider_timeout_ms("gemini_web") == 20000
+    assert _chat_provider_timeout_ms("chatgpt_web") == 15000
+
+
+def test_wait_for_chat_provider_response_times_out_on_grok_rate_limit_page() -> None:
+    class DummyLeaf:
+        def __init__(self, page, selector: str) -> None:
+            self._page = page
+            self._selector = selector
+
+        def inner_text(self) -> str:
+            return self._page.states[self._page.index].get(self._selector, "")
+
+    class DummyLocator:
+        def __init__(self, page, selector: str) -> None:
+            self._page = page
+            self._selector = selector
+            self.last = DummyLeaf(page, selector)
+
+        def count(self) -> int:
+            value = self._page.states[self._page.index].get(self._selector, "")
+            return 1 if value else 0
+
+    class DummyPage:
+        def __init__(self) -> None:
+            self.index = 0
+            self.states = [
+                {"main": "登录 注册 Seattle AI 需求量高 请稍后重试"},
+                {"main": "登录 注册 Seattle AI 需求量高 请稍后重试"},
+            ]
+
+        def locator(self, selector: str) -> DummyLocator:
+            return DummyLocator(self, selector)
+
+        def wait_for_timeout(self, _ms: int) -> None:
+            return None
+
+    text, source, reason = _wait_for_chat_provider_response(DummyPage(), "grok_web", "Seattle AI", timeout_ms=0, poll_ms=10)
+    assert source == "main"
+    assert "需求量高" in text
+    assert reason == "grok provider page did not reach a ready answer state"
 
 
 def test_web_error_artifacts_screenshot_fallback_never_raises(tmp_path: Path) -> None:

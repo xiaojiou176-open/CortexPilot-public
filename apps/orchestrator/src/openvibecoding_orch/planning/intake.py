@@ -686,6 +686,33 @@ def _apply_intake_contract_overrides(
                 "sha256": sha,
             }
         )
+        assigned_agent = contract.get("assigned_agent") if isinstance(contract.get("assigned_agent"), dict) else {}
+        browser_agent_id = str(assigned_agent.get("agent_id") or "agent-1").strip() or "agent-1"
+        owner_agent = contract.get("owner_agent") if isinstance(contract.get("owner_agent"), dict) else {}
+        if str(owner_agent.get("role") or "").strip().upper() == "PM":
+            contract["owner_agent"] = {
+                **owner_agent,
+                "role": "TECH_LEAD",
+                "agent_id": browser_agent_id,
+            }
+        contract["assigned_agent"] = {
+            **assigned_agent,
+            "role": "SEARCHER",
+            "agent_id": browser_agent_id,
+        }
+        tool_permissions = (
+            contract.get("tool_permissions") if isinstance(contract.get("tool_permissions"), dict) else {}
+        )
+        allowed_mcp_tools = tool_permissions.get("mcp_tools") if isinstance(tool_permissions.get("mcp_tools"), list) else []
+        normalized_mcp_tools = [str(item).strip() for item in allowed_mcp_tools if str(item).strip()]
+        if "codex" not in normalized_mcp_tools:
+            normalized_mcp_tools.append("codex")
+        contract["tool_permissions"] = {
+            **tool_permissions,
+            "network": "allow",
+            "mcp_tools": normalized_mcp_tools,
+        }
+        contract.pop("handoff_chain", None)
         return sync_role_contract(contract)
     if isinstance(search_queries, list) and search_queries:
         if intake_dir is not None:
@@ -1064,11 +1091,12 @@ class IntakeService:
         )
         plan = generate_plan(intake, answers)
         plan_bundle, bundle_note = generate_plan_bundle(intake, answers)
-        auto_run_chain = True
+        task_template = str(intake.get("task_template") or "").strip().lower() if isinstance(intake, dict) else ""
+        auto_run_chain = not (task_template and task_template in _supported_task_templates())
         mock_chain = False
         if isinstance(payload, dict):
-            if payload.get("auto_run_chain") is False:
-                auto_run_chain = False
+            if "auto_run_chain" in payload:
+                auto_run_chain = bool(payload.get("auto_run_chain"))
             mock_chain = bool(payload.get("mock_chain", False))
         try:
             self._validator.validate_report(plan, "plan.schema.json")

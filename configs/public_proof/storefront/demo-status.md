@@ -23,6 +23,10 @@ ones that still need a real capture pass.
 - `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md`: first tracked public `news_digest` baseline summary
 - `configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json`: machine-readable proof-pack directory for the March 2026 public trust bundle checkpoint
 - `configs/public_proof/releases_assets/news-digest-workflow-case-recap-2026-03-27.md`: share-ready Workflow Case recap for the March 2026 first public baseline checkpoint
+- `configs/public_proof/releases_assets/page-brief-healthy-proof-2026-04-15.md`: tracked browser-backed `page_brief` proof summary
+- `configs/public_proof/releases_assets/page-brief-benchmark-summary-2026-04-15.md`: tracked browser-backed `page_brief` bundle baseline summary
+- `configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json`: machine-readable proof-pack directory for the April 2026 browser-backed public proof checkpoint
+- `configs/public_proof/releases_assets/page-brief-workflow-case-recap-2026-04-15.md`: share-ready Workflow Case recap for the tracked `page_brief` proof bundle
 
 ## Current Proof Ledger
 
@@ -35,6 +39,7 @@ ones that still need a real capture pass.
 | Healthy backend-backed `news_digest` public proof set | present | tracked proof summary: `configs/public_proof/releases_assets/news-digest-healthy-proof-2026-03-27.md` |
 | Public benchmark artifact from a real tracked run | present | first tracked single-run baseline: `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md` |
 | Share-ready Workflow Case recap asset | present | tracked recap asset: `configs/public_proof/releases_assets/news-digest-workflow-case-recap-2026-03-27.md` |
+| Tracked browser-backed `page_brief` public proof bundle | present | tracked proof pack: `configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json` |
 | Published GitHub Release page/card | present | live release `v0.1.0-alpha.3` is the latest published prerelease baseline, but the repo has moved ahead and the tag now represents a lagging published snapshot |
 
 ## Still Missing
@@ -53,7 +58,8 @@ The public storytelling shorthand is now:
 
 - **first proven workflow** = `news_digest`
 - **public proof pack** = healthy proof summary + benchmark summary + Workflow Case recap + demo-status ledger
-- **showcase paths** = `topic_brief` and `page_brief` until they have their own healthy proof bundles
+- **tracked browser-backed public proof bundle** = `page_brief`
+- **showcase paths** = `topic_brief` until it has its own dedicated healthy proof summary, dedicated benchmark summary, and share-ready recap
 
 ## Truth Boundary
 
@@ -71,6 +77,13 @@ The public storytelling shorthand is now:
   not proof that the live GitHub Release page has already been published.
 - `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md` is a real
   single-run baseline summary, not a broad multi-round benchmark campaign.
+- `configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json` and its
+  primary assets are repo-tracked proof packaging for the browser-backed
+  `page_brief` path, not proof that `page_brief` replaced `news_digest` as the
+  official first public baseline.
+- `topic_brief` remains a repo-side discovery/showcase lane today; it does not
+  yet have a repo-tracked proof pack, a dedicated healthy proof summary, a
+  dedicated benchmark summary, or a share-ready recap.
 - the earlier benchmark-route and healthy-proof-route blocker receipts now live
   in the maintainer-only internal docs bundle, not on the default public docs
   surface.

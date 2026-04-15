@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Badge } from "../../components/ui/badge";
 import { Card } from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
 import CommandTowerHomeLiveClient from "./CommandTowerHomeLiveClient";
 import ControlPlaneStatusCallout from "../../components/control-plane/ControlPlaneStatusCallout";
 import { fetchCommandTowerOverview, fetchPmSessions } from "../../lib/api";
@@ -117,6 +118,18 @@ export function CommandTowerHomeSectionFallback({ locale }: { locale: UiLocale }
 
 export function CommandTowerPageIntro({ locale }: { locale: UiLocale }) {
   const commandTowerCopy = getUiCopy(locale).dashboard.commandTowerPage;
+  const towerActions =
+    locale === "zh-CN"
+      ? [
+          { href: "/events", label: "打开风险事件" },
+          { href: "/workflows", label: "打开工作流案例" },
+          { href: "/runs", label: "打开证明室" },
+        ]
+      : [
+          { href: "/events", label: "Open risk events" },
+          { href: "/workflows", label: "Open Workflow Cases" },
+          { href: "/runs", label: "Open proof room" },
+        ];
   return (
     <header className="app-section">
       <div className="home-briefing-shell">
@@ -135,6 +148,13 @@ export function CommandTowerPageIntro({ locale }: { locale: UiLocale }) {
               ? "这一页应该先告诉你：现在发生什么、哪条线危险、下一步该去哪个真相入口。"
               : "This page should answer three questions first: what is happening now, which lane is risky, and which truth surface to open next."}
           </p>
+          <nav className="home-briefing-actions" aria-label={locale === "zh-CN" ? "指挥塔首屏操作" : "Command Tower first-screen actions"}>
+            {towerActions.map((action, index) => (
+              <Button asChild key={action.href} variant={index === 0 ? "warning" : "secondary"}>
+                <Link href={action.href}>{action.label}</Link>
+              </Button>
+            ))}
+          </nav>
         </div>
         <Card className="home-briefing-panel">
           <div className="home-briefing-panel-head">

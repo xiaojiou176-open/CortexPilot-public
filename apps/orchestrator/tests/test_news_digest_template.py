@@ -215,6 +215,7 @@ def test_page_brief_result_builder_and_browser_payload() -> None:
     }
     browser_result = {
         "ok": True,
+        "mode": "playwright",
         "url": "https://example.com",
         "result": {
             "url": "https://example.com/",
@@ -226,25 +227,58 @@ def test_page_brief_result_builder_and_browser_payload() -> None:
             "body_excerpt": "Example Domain This domain is for use in illustrative examples in documents.",
         },
         "artifacts": {
-            "screenshot": "artifacts/browser/example.png",
+            "screenshot": "/tmp/run-page-brief/artifacts/browser/example.png",
+            "source": "/tmp/run-page-brief/artifacts/browser/example.html",
         },
     }
 
-    brief = build_page_brief_result(request, browser_result)
+    brief = build_page_brief_result(
+        request,
+        browser_result,
+        requested_by={"role": "SEARCHER", "agent_id": "searcher-1"},
+    )
     assert brief is not None
     assert brief["task_template"] == "page_brief"
     assert brief["status"] == "SUCCESS"
     assert brief["resolved_url"] == "https://example.com/"
     assert brief["page_title"] == "Example Domain"
+    assert brief["capture_mode"] == "playwright"
     assert brief["screenshot_artifact"] == "artifacts/browser/example.png"
+    assert brief["source_artifact"] == "artifacts/browser/example.html"
+    assert brief["evidence_refs"]["browser_results"] == "artifacts/browser_results.json"
+    assert brief["evidence_refs"]["browser_screenshot"] == "artifacts/browser/example.png"
+    assert brief["evidence_refs"]["browser_source"] == "artifacts/browser/example.html"
+    assert brief["evidence_refs"]["evidence_bundle"] == "reports/evidence_bundle.json"
+    assert brief["requested_by"] == {"role": "SEARCHER", "agent_id": "searcher-1"}
 
     payload = search_payload_helpers.build_search_payload(
         "run-page-brief",
-        read_artifact_fn=lambda _run_id, name: {"name": name} if name == "browser_results.json" else None,
-        read_report_fn=lambda _run_id, name: {"name": name} if name == "page_brief_result.json" else None,
+        read_artifact_fn=lambda _run_id, name: (
+            {
+                "latest": {
+                    "summary": {
+                        "results": [
+                            {
+                                "ok": True,
+                                "mode": "playwright",
+                                "url": "https://example.com/",
+                                "artifacts": {
+                                    "screenshot": "artifacts/browser/example.png",
+                                    "source": "artifacts/browser/example.html",
+                                },
+                            }
+                        ]
+                    }
+                }
+            }
+            if name == "browser_results.json"
+            else None
+        ),
+        read_report_fn=lambda _run_id, name: brief if name == "page_brief_result.json" else None,
     )
-    assert payload["browser_results"] == {"name": "browser_results.json"}
-    assert payload["page_brief_result"] == {"name": "page_brief_result.json"}
+    assert payload["browser_results"]["latest"]["summary"]["results"][0]["mode"] == "playwright"
+    assert payload["page_brief_result"] == brief
+    assert payload["evidence_bundle"] is None
 
 
 def test_page_brief_browser_task_writes_failed_report(monkeypatch, tmp_path: Path) -> None:

@@ -439,8 +439,13 @@ def run_execution_pipeline(
         return state
 
     assigned_role = agent_role_fn(assigned_agent)
-    if assigned_role in {"SEARCHER", "RESEARCHER"} and state.search_request is not None:
-        state.runner_summary = "Search pipeline completed successfully."
+    if assigned_role in {"SEARCHER", "RESEARCHER"} and (
+        state.search_request is not None or state.browser_request is not None
+    ):
+        if state.browser_request is not None and state.search_request is None:
+            state.runner_summary = "Browser-native public task pipeline completed successfully."
+        else:
+            state.runner_summary = "Search pipeline completed successfully."
         state.status = "SUCCESS"
         return state
 

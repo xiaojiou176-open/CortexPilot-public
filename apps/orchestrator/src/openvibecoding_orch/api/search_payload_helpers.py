@@ -46,6 +46,10 @@ def build_search_payload(
     read_artifact_fn: _ReadArtifactFn,
     read_report_fn: _ReadReportFn,
 ) -> dict[str, object | None]:
+    browser_results = read_artifact_fn(run_id, "browser_results.json")
+    page_brief_result = read_report_fn(run_id, "page_brief_result.json")
+    evidence_bundle = read_report_fn(run_id, "evidence_bundle.json")
+
     return {
         "run_id": run_id,
         "raw": read_artifact_fn(run_id, "search_results.json"),
@@ -55,9 +59,9 @@ def build_search_payload(
         "purified": read_artifact_fn(run_id, "purified_summary.json"),
         "search_summary": read_artifact_fn(run_id, "search_summary.json"),
         "verification_ai": read_artifact_fn(run_id, "verification_ai.json"),
-        "browser_results": read_artifact_fn(run_id, "browser_results.json"),
+        "browser_results": browser_results,
         "news_digest_result": read_report_fn(run_id, "news_digest_result.json"),
         "topic_brief_result": read_report_fn(run_id, "topic_brief_result.json"),
-        "page_brief_result": read_report_fn(run_id, "page_brief_result.json"),
-        "evidence_bundle": read_report_fn(run_id, "evidence_bundle.json"),
+        "page_brief_result": page_brief_result,
+        "evidence_bundle": evidence_bundle,
     }

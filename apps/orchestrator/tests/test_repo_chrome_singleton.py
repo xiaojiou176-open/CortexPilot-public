@@ -109,6 +109,8 @@ def test_migrate_default_chrome_profile_fails_when_default_root_is_active(
         json.dumps({"profile": {"info_cache": {"Profile 22": {"name": "openvibecoding"}}}}),
         encoding="utf-8",
     )
+    (source_root / "Profile 22").mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(singleton_module, "default_source_chrome_root", lambda: source_root)
     monkeypatch.setattr(
         singleton_module,
         "chrome_processes_using_default_root",
@@ -127,6 +129,83 @@ def test_migrate_default_chrome_profile_fails_when_default_root_is_active(
         singleton_module.migrate_default_chrome_profile(
             source_root=source_root,
             source_profile_name="openvibecoding",
+            target_root=tmp_path / "target",
+        )
+
+
+def test_migrate_default_chrome_profile_allows_non_default_donor_when_default_root_is_active(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    source_root = tmp_path / "other-repo-chrome"
+    target_root = tmp_path / "repo-browser" / "chrome-user-data"
+    source_profile = source_root / "Profile 22"
+    source_profile.mkdir(parents=True, exist_ok=True)
+    (source_profile / "Preferences").write_text("{}", encoding="utf-8")
+    (source_root / "Local State").write_text(
+        json.dumps({"profile": {"info_cache": {"Profile 22": {"name": "switchyard"}}, "last_used": "Profile 22"}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(singleton_module, "default_source_chrome_root", lambda: tmp_path / "default-chrome")
+    monkeypatch.setattr(
+        singleton_module,
+        "chrome_processes_using_default_root",
+        lambda: [
+            singleton_module.ChromeProcessInfo(
+                pid=999,
+                args="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+                user_data_dir=None,
+                remote_debugging_port=None,
+                uses_default_root=True,
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        singleton_module,
+        "find_chrome_process_by_user_data_dir",
+        lambda path: None if Path(path) == source_root.resolve() else None,
+    )
+
+    result = singleton_module.migrate_default_chrome_profile(
+        source_root=source_root,
+        source_profile_name="switchyard",
+        target_root=target_root,
+    )
+
+    assert result["status"] == "migrated"
+    assert result["source_profile_name"] == "switchyard"
+    assert (target_root / "Local State").exists() is True
+    assert (target_root / "Profile 1" / "Preferences").exists() is True
+
+
+def test_migrate_default_chrome_profile_fails_when_non_default_donor_is_active(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    source_root = tmp_path / "other-repo-chrome"
+    source_profile = source_root / "Profile 22"
+    source_profile.mkdir(parents=True, exist_ok=True)
+    (source_profile / "Preferences").write_text("{}", encoding="utf-8")
+    (source_root / "Local State").write_text(
+        json.dumps({"profile": {"info_cache": {"Profile 22": {"name": "switchyard"}}, "last_used": "Profile 22"}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(singleton_module, "default_source_chrome_root", lambda: tmp_path / "default-chrome")
+    monkeypatch.setattr(singleton_module, "chrome_processes_using_default_root", lambda: [])
+    monkeypatch.setattr(
+        singleton_module,
+        "find_chrome_process_by_user_data_dir",
+        lambda path: singleton_module.ChromeProcessInfo(
+            pid=321,
+            args=f"Google Chrome --user-data-dir={source_root}",
+            user_data_dir=str(source_root),
+            remote_debugging_port=9334,
+            uses_default_root=False,
+        ) if Path(path) == source_root.resolve() else None,
+    )
+
+    with pytest.raises(RuntimeError, match="source Chrome root is still active"):
+        singleton_module.migrate_default_chrome_profile(
+            source_root=source_root,
+            source_profile_name="switchyard",
             target_root=tmp_path / "target",
         )
 

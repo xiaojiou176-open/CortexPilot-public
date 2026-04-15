@@ -23,13 +23,27 @@ export default function RunDetailAgentStatusCard({ agentStatusError, agentStatus
       ) : (
         agentStatus.map((agent) => (
           <Card key={`${toStringOr(agent.run_id, "")}-${toStringOr(agent.agent_id, "")}`} className="run-detail-agent-card">
+            {(() => {
+              const activeFiles = toArray(agent.current_files as unknown[] | undefined);
+              return (
+                <>
             <div className="mono">Role: {toDisplayText(agent.role)}</div>
             <div className="mono">Agent ID: {toDisplayText(agent.agent_id)}</div>
             <div className="mono">Stage: {toDisplayText(agent.stage)}</div>
             <div className="mono">Task ID: {toDisplayText(agent.task_id)}</div>
             <div className="mono">Worktree: {toDisplayText(agent.worktree)}</div>
-            <div className="mono">Active files:</div>
-            <pre className="mono">{JSON.stringify(toArray(agent.current_files as unknown[] | undefined), null, 2)}</pre>
+            <div className="mono">Active file count: {activeFiles.length}</div>
+            {activeFiles.length > 0 ? (
+              <details>
+                <summary className="mono">Open active file list</summary>
+                <pre className="mono">{JSON.stringify(activeFiles, null, 2)}</pre>
+              </details>
+            ) : (
+              <div className="mono muted">No active files reported.</div>
+            )}
+                </>
+              );
+            })()}
           </Card>
         ))
       )}

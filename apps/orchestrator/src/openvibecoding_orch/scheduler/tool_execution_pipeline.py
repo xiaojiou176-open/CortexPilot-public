@@ -10,7 +10,7 @@ from typing import Any, Callable
 from openvibecoding_orch.policy.browser_policy_resolver import resolve_browser_policy
 from openvibecoding_orch.runners.tool_runner import ToolRunner
 from openvibecoding_orch.store.run_store import RunStore
-from tooling.page_brief_pipeline import write_page_brief_result
+from tooling.page_brief_pipeline import write_page_brief_evidence_bundle, write_page_brief_result
 from tooling.search.ai_verifier import verify_search_results_ai
 from tooling.search_pipeline import (
     write_ai_verification,
@@ -503,11 +503,21 @@ def run_browser_tasks(
     task_template = str(request.get("task_template") or "").strip().lower()
     if task_template == "page_brief" and results:
         primary_result = next((item for item in results if isinstance(item, dict)), {})
+        if not failures:
+            write_page_brief_evidence_bundle(
+                run_id,
+                request,
+                primary_result,
+                browser_results=summary,
+                store=store,
+                requested_by=requested_by,
+            )
         write_page_brief_result(
             run_id,
             request,
             primary_result,
             store=store,
+            requested_by=requested_by,
             status_override="FAILED" if failures else None,
             failure_reason_zh=_summarize_page_brief_failure(primary_result) if failures else None,
         )

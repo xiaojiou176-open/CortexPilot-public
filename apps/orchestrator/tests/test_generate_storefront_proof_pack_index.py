@@ -45,6 +45,18 @@ def test_generate_storefront_proof_pack_index_builds_assets_from_pack_manifest(t
                     "current_tracked_dashboard_captures": "local_degraded_non_english_mixed",
                 },
                 "missing_expected_artifacts": ["healthy_live_capture_gif"],
+            },
+            {
+                "bundle_id": "page_brief",
+                "task_template": "page_brief",
+                "proof_state": "proof_bundle_tracked",
+                "claim_scope": "browser_backed_public_proof_bundle",
+                "authority_level": "repo_side_public_proof",
+                "public_entrypoint": "docs/use-cases/index.html",
+                "pack_manifest": "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json",
+                "safe_public_claims": ["claim"],
+                "forbidden_claims": ["forbidden"],
+                "missing_expected_artifacts": [],
             }
         ],
     }
@@ -62,10 +74,24 @@ def test_generate_storefront_proof_pack_index_builds_assets_from_pack_manifest(t
             "gemini_proof_screenshot": "docs/releases/assets/news-digest-healthy-proof-gemini-2026-03-27.png",
         },
     }
+    page_pack_manifest = {
+        "artifact_type": "page_brief_public_proof_pack",
+        "primary_assets": {
+            "proof_summary_markdown": "configs/public_proof/releases_assets/page-brief-healthy-proof-2026-04-15.md",
+            "proof_summary_json": "configs/public_proof/releases_assets/page-brief-healthy-proof-summary-2026-04-15.json",
+            "benchmark_summary_markdown": "configs/public_proof/releases_assets/page-brief-benchmark-summary-2026-04-15.md",
+            "benchmark_summary_json": "configs/public_proof/releases_assets/page-brief-benchmark-summary-2026-04-15.json",
+            "workflow_case_recap_markdown": "configs/public_proof/releases_assets/page-brief-workflow-case-recap-2026-04-15.md",
+            "demo_status_markdown": "configs/public_proof/storefront/demo-status.md",
+        },
+        "supporting_assets": {},
+    }
     registry_path = root / "configs" / "storefront_proof_bundle_registry.json"
     registry_path.write_text(json.dumps(registry, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     manifest_path = root / "configs" / "public_proof" / "releases_assets" / "news-digest-proof-pack-2026-03-27.json"
     manifest_path.write_text(json.dumps(pack_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    page_manifest_path = root / "configs" / "public_proof" / "releases_assets" / "page-brief-proof-pack-2026-04-15.json"
+    page_manifest_path.write_text(json.dumps(page_pack_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     module.ROOT = root
     module.REGISTRY_PATH = registry_path
@@ -82,3 +108,75 @@ def test_generate_storefront_proof_pack_index_builds_assets_from_pack_manifest(t
     assert "healthy_proof_summary" in roles
     assert "benchmark_summary_machine" in roles
     assert "gemini_proof_screenshot" in roles
+    page = rendered["bundles"][1]
+    page_roles = {item["role"] for item in page["assets"]}
+    assert page["proof_state"] == "proof_bundle_tracked"
+    assert page["pack_manifest"] == "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json"
+    assert page_roles == {
+        "healthy_proof_summary",
+        "healthy_proof_summary_machine",
+        "benchmark_summary",
+        "benchmark_summary_machine",
+        "workflow_case_recap",
+        "demo_status_ledger",
+    }
+
+
+def test_generate_storefront_proof_pack_index_supports_topic_brief_tracked_bundle(tmp_path: Path) -> None:
+    module = _load_generator_module()
+    root = tmp_path
+    (root / "configs" / "public_proof" / "releases_assets").mkdir(parents=True, exist_ok=True)
+    (root / "configs" / "public_proof" / "storefront").mkdir(parents=True, exist_ok=True)
+
+    registry = {
+        "schema_version": 1,
+        "artifact_type": "openvibecoding_storefront_proof_bundle_registry",
+        "bundles": [
+            {
+                "bundle_id": "topic_brief",
+                "task_template": "topic_brief",
+                "proof_state": "proof_bundle_tracked",
+                "claim_scope": "search_backed_public_proof_bundle",
+                "authority_level": "repo_side_public_proof",
+                "public_entrypoint": "docs/use-cases/index.html",
+                "pack_manifest": "configs/public_proof/releases_assets/topic-brief-proof-pack-2026-04-15.json",
+                "safe_public_claims": ["topic_brief now has a tracked search-backed public proof bundle"],
+                "forbidden_claims": ["topic_brief is the official first public baseline today"],
+                "missing_expected_artifacts": [],
+            }
+        ],
+    }
+    topic_pack_manifest = {
+        "artifact_type": "topic_brief_public_proof_pack",
+        "primary_assets": {
+            "proof_summary_markdown": "configs/public_proof/releases_assets/topic-brief-healthy-proof-2026-04-15.md",
+            "proof_summary_json": "configs/public_proof/releases_assets/topic-brief-healthy-proof-summary-2026-04-15.json",
+            "benchmark_summary_markdown": "configs/public_proof/releases_assets/topic-brief-benchmark-summary-2026-04-15.md",
+            "benchmark_summary_json": "configs/public_proof/releases_assets/topic-brief-benchmark-summary-2026-04-15.json",
+            "workflow_case_recap_markdown": "configs/public_proof/releases_assets/topic-brief-workflow-case-recap-2026-04-15.md",
+            "demo_status_markdown": "configs/public_proof/storefront/demo-status.md",
+        },
+        "supporting_assets": {},
+    }
+    registry_path = root / "configs" / "storefront_proof_bundle_registry.json"
+    registry_path.write_text(json.dumps(registry, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    manifest_path = root / "configs" / "public_proof" / "releases_assets" / "topic-brief-proof-pack-2026-04-15.json"
+    manifest_path.write_text(json.dumps(topic_pack_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    module.ROOT = root
+    module.REGISTRY_PATH = registry_path
+    module.OUTPUT_PATH = root / "configs" / "public_proof" / "storefront" / "proof-pack-index.json"
+
+    rendered = module.build_index(module._load_json(registry_path))
+    topic = rendered["bundles"][0]
+    topic_roles = {item["role"] for item in topic["assets"]}
+    assert topic["proof_state"] == "proof_bundle_tracked"
+    assert topic["claim_scope"] == "search_backed_public_proof_bundle"
+    assert topic_roles == {
+        "healthy_proof_summary",
+        "healthy_proof_summary_machine",
+        "benchmark_summary",
+        "benchmark_summary_machine",
+        "workflow_case_recap",
+        "demo_status_ledger",
+    }

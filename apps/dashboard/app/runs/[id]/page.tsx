@@ -49,6 +49,13 @@ export default async function RunDetailPage({
     asNumber(compareSummary.missing_count) +
     asNumber(compareSummary.extra_count) +
     asNumber(compareSummary.failed_report_checks_count);
+  const compareBadge = !hasCompareSummary
+    ? "Awaiting compare"
+    : compareDeltaCount === 0
+    ? "Aligned"
+    : "Review";
+  const incidentBadge = Object.keys(incidentPack).length > 0 ? "Gate detected" : "No incident";
+  const proofBadge = Object.keys(proofPack).length > 0 ? "Proof ready" : "Proof missing";
   return (
     <main className="grid" aria-labelledby="run-detail-page-title">
       <section className="app-section">
@@ -76,8 +83,14 @@ export default async function RunDetailPage({
           />
         ) : null}
         {(Object.keys(incidentPack).length > 0 || Object.keys(proofPack).length > 0 || hasCompareSummary) ? (
-          <div className="grid grid-3">
-            <Card>
+          <div className="grid grid-3 run-detail-verdict-grid">
+            <Card className="run-detail-verdict-card run-detail-verdict-card--compare">
+              <div className="run-detail-verdict-head">
+                <span className="cell-sub mono muted">Verdict</span>
+                <Badge variant={!hasCompareSummary ? "warning" : compareDeltaCount === 0 ? "success" : "warning"}>
+                  {compareBadge}
+                </Badge>
+              </div>
               <h3>{runDetailPageCopy.compareDecisionTitle}</h3>
               <p className="muted">
                 {!hasCompareSummary
@@ -94,12 +107,20 @@ export default async function RunDetailPage({
                   : runDetailPageCopy.compareNextStepNeedsReview}
               </p>
             </Card>
-            <Card>
+            <Card className="run-detail-verdict-card run-detail-verdict-card--incident">
+              <div className="run-detail-verdict-head">
+                <span className="cell-sub mono muted">Incident</span>
+                <Badge variant={Object.keys(incidentPack).length > 0 ? "warning" : "default"}>{incidentBadge}</Badge>
+              </div>
               <h3>{runDetailPageCopy.incidentActionTitle}</h3>
               <p className="muted">{String(incidentPack.summary || runDetailPageCopy.incidentMissing)}</p>
               <p className="mono">{runDetailCopy.fieldLabels.nextAction}: {String(incidentPack.next_action || runDetailPageCopy.incidentNextStepFallback)}</p>
             </Card>
-            <Card>
+            <Card className="run-detail-verdict-card run-detail-verdict-card--proof">
+              <div className="run-detail-verdict-head">
+                <span className="cell-sub mono muted">Proof</span>
+                <Badge variant={Object.keys(proofPack).length > 0 ? "running" : "warning"}>{proofBadge}</Badge>
+              </div>
               <h3>{runDetailPageCopy.proofActionTitle}</h3>
               <p className="muted">{String(proofPack.summary || runDetailPageCopy.proofMissing)}</p>
               <p className="mono">{runDetailCopy.fieldLabels.nextAction}: {String(proofPack.next_action || runDetailPageCopy.proofNextStepFallback)}</p>

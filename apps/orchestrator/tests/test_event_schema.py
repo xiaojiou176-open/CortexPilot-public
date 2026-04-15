@@ -89,6 +89,11 @@ def test_search_purified_event_known(tmp_path: Path) -> None:
         "AGENT_SESSION_THREAD_ID_UNSUPPORTED",
         "MCP_BASE_HOME_FALLBACK",
         "DEPENDENCY_PATCH_SKIPPED",
+        "BROWSER_POLICY_RESOLVED",
+        "PROMPT_ARTIFACT_WRITTEN",
+        "PLANNING_ARTIFACTS_WRITTEN",
+        "UNBLOCK_TASK_QUEUED",
+        "COMPLETION_GOVERNANCE_EVALUATED",
     ],
 )
 def test_new_known_events_do_not_trigger_drift(tmp_path: Path, event_name: str) -> None:
