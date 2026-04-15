@@ -175,9 +175,9 @@ user's ambient Python environment.
   `trufflehog` / `gitleaks`, while `--mode both` reruns the same scan from a
   fresh clone so final closeout proof does not depend on the current workspace
   state.
-- `.github/dependency-review-config.yml` is the repo-owned policy file for the
-  official GitHub Dependency Review action, which now runs on pull requests and
-  feeds into the PR CI closure path.
+- `.github/dependency-review-config.yml` is the repo-owned policy file for
+  `check_dependency_review_gate.py`, the GitHub REST-backed pull-request
+  dependency review gate that feeds into the PR CI closure path.
 - `security_scan.sh` is paired with token/path-fixture hygiene in orchestrator
   tests: public fixtures must use synthetic fragments or generic workspace
   roots instead of maintainer-local paths or raw token-looking literals.

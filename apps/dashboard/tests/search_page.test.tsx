@@ -76,7 +76,7 @@ describe("search page copy and interaction", () => {
     await waitFor(() => {
       expect(screen.getByTestId("search-promote-status-message")).toHaveTextContent("Promoted to EvidenceBundle");
     });
-    expect(screen.getByTestId("search-evidence-bundle-card")).toHaveTextContent("bundle-1");
+    expect(await screen.findByTestId("search-evidence-bundle-card")).toHaveTextContent("bundle-1");
   });
 
   it("shows promote failure when backend returns non-ok result", async () => {

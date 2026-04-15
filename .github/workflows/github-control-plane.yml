@@ -12,7 +12,7 @@ jobs:
     environment: owner-approved-sensitive
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           clean: true
           persist-credentials: false
@@ -25,7 +25,7 @@ jobs:
 
       - name: Upload control-plane report
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: github-control-plane-report-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14

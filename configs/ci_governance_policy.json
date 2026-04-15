@@ -170,7 +170,6 @@
   "supply_chain": {
     "allowed_action_repos": [
       "actions/checkout",
-      "actions/dependency-review-action",
       "actions/upload-artifact",
       "actions/download-artifact",
       "google-github-actions/auth",

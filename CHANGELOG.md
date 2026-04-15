@@ -6,6 +6,12 @@ All notable changes to this repository will be documented in this file.
 
 ### Changed
 
+- replaced the Node 20-pinned GitHub Dependency Review action with the
+  repo-owned `check_dependency_review_gate.py` wrapper over GitHub's official
+  dependency-graph compare API, then bumped the pinned `actions/checkout`,
+  `actions/upload-artifact`, and `actions/download-artifact` workflow SHAs onto
+  their Node 24-based majors so hosted CI stops carrying avoidable deprecation
+  warnings on the active PR path
 - corrected the default localhost full-stack operator path so `npm run dev`
   now truthfully pairs the dashboard with a localhost-only API lane, while
   `dashboard:dev` stays a dashboard-only shell on the expected port; the same

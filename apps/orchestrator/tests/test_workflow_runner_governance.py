@@ -39,7 +39,7 @@ jobs:
       AGENT_TOOLSDIRECTORY: ${{ runner.temp }}/hostedtoolcache-job
       RUNNER_TOOL_CACHE: ${{ runner.temp }}/hostedtoolcache-job
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           clean: true
       - run: echo ok
@@ -113,7 +113,7 @@ jobs:
   demo:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           fetch-depth: 0
       - run: echo ok
@@ -139,7 +139,7 @@ jobs:
   demo:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -170,7 +170,7 @@ jobs:
       AGENT_TOOLSDIRECTORY: ${{ runner.temp }}/hostedtoolcache-job
       RUNNER_TOOL_CACHE: ${{ runner.temp }}/hostedtoolcache-job
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
           clean: true
@@ -196,7 +196,7 @@ jobs:
   trust-gate:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           clean: true
       - run: bash scripts/docker_ci.sh lane basic-gates
