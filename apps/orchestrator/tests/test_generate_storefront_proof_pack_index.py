@@ -17,8 +17,8 @@ def _load_generator_module() -> object:
 def test_generate_storefront_proof_pack_index_builds_assets_from_pack_manifest(tmp_path: Path) -> None:
     module = _load_generator_module()
     root = tmp_path
-    (root / "configs").mkdir(parents=True, exist_ok=True)
-    (root / "docs" / "releases" / "assets").mkdir(parents=True, exist_ok=True)
+    (root / "configs" / "public_proof" / "releases_assets").mkdir(parents=True, exist_ok=True)
+    (root / "configs" / "public_proof" / "storefront").mkdir(parents=True, exist_ok=True)
 
     registry = {
         "schema_version": 1,
@@ -36,7 +36,7 @@ def test_generate_storefront_proof_pack_index_builds_assets_from_pack_manifest(t
                 "claim_scope": "official_first_public_baseline",
                 "authority_level": "repo_side_public_proof",
                 "public_entrypoint": "docs/use-cases/index.html",
-                "pack_manifest": "docs/releases/assets/news-digest-proof-pack-2026-03-27.json",
+                "pack_manifest": "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json",
                 "safe_public_claims": ["claim"],
                 "forbidden_claims": ["forbidden"],
                 "capture_contract": {
@@ -51,12 +51,12 @@ def test_generate_storefront_proof_pack_index_builds_assets_from_pack_manifest(t
     pack_manifest = {
         "artifact_type": "news_digest_public_proof_pack",
         "primary_assets": {
-            "proof_summary_markdown": "docs/releases/assets/news-digest-healthy-proof-2026-03-27.md",
-            "proof_summary_json": "docs/releases/assets/news-digest-healthy-proof-summary-2026-03-27.json",
-            "benchmark_summary_markdown": "docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md",
-            "benchmark_summary_json": "docs/releases/assets/news-digest-benchmark-summary-2026-03-27.json",
-            "workflow_case_recap_markdown": "docs/releases/assets/news-digest-workflow-case-recap-2026-03-27.md",
-            "demo_status_markdown": "docs/assets/storefront/demo-status.md",
+            "proof_summary_markdown": "configs/public_proof/releases_assets/news-digest-healthy-proof-2026-03-27.md",
+            "proof_summary_json": "configs/public_proof/releases_assets/news-digest-healthy-proof-summary-2026-03-27.json",
+            "benchmark_summary_markdown": "configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md",
+            "benchmark_summary_json": "configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.json",
+            "workflow_case_recap_markdown": "configs/public_proof/releases_assets/news-digest-workflow-case-recap-2026-03-27.md",
+            "demo_status_markdown": "configs/public_proof/storefront/demo-status.md",
         },
         "supporting_assets": {
             "gemini_proof_screenshot": "docs/releases/assets/news-digest-healthy-proof-gemini-2026-03-27.png",
@@ -64,12 +64,12 @@ def test_generate_storefront_proof_pack_index_builds_assets_from_pack_manifest(t
     }
     registry_path = root / "configs" / "storefront_proof_bundle_registry.json"
     registry_path.write_text(json.dumps(registry, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    manifest_path = root / "docs" / "releases" / "assets" / "news-digest-proof-pack-2026-03-27.json"
+    manifest_path = root / "configs" / "public_proof" / "releases_assets" / "news-digest-proof-pack-2026-03-27.json"
     manifest_path.write_text(json.dumps(pack_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     module.ROOT = root
     module.REGISTRY_PATH = registry_path
-    module.OUTPUT_PATH = root / "docs" / "assets" / "storefront" / "proof-pack-index.json"
+    module.OUTPUT_PATH = root / "configs" / "public_proof" / "storefront" / "proof-pack-index.json"
 
     registry_payload = module._load_json(registry_path)
     registry_payload["source_registry"] = "configs/storefront_proof_bundle_registry.json"

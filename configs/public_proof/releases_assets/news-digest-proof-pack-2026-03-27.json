@@ -3,7 +3,7 @@
   "task_template": "news_digest",
   "status": "official_release_proven_baseline",
   "baseline_scope": "single-run public baseline",
-  "summary": "This pack is the smallest truthful public trust bundle for CortexPilot today. It combines the official news_digest healthy proof summary, the tracked single-run benchmark summary, the share-ready Workflow Case recap, and the storefront demo-status ledger.",
+  "summary": "This pack is the smallest truthful public trust bundle for OpenVibeCoding today. It combines the official news_digest healthy proof summary, the tracked single-run benchmark summary, the share-ready Workflow Case recap, and the storefront demo-status ledger.",
   "truth_boundary": {
     "healthy_public_baseline": true,
     "equally_proven_topic_brief": false,
@@ -13,12 +13,12 @@
     "broader_multi_round_benchmark_present": false
   },
   "primary_assets": {
-    "proof_summary_markdown": "docs/releases/assets/news-digest-healthy-proof-2026-03-27.md",
-    "proof_summary_json": "docs/releases/assets/news-digest-healthy-proof-summary-2026-03-27.json",
-    "benchmark_summary_markdown": "docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md",
-    "benchmark_summary_json": "docs/releases/assets/news-digest-benchmark-summary-2026-03-27.json",
-    "workflow_case_recap_markdown": "docs/releases/assets/news-digest-workflow-case-recap-2026-03-27.md",
-    "demo_status_markdown": "docs/assets/storefront/demo-status.md"
+    "proof_summary_markdown": "configs/public_proof/releases_assets/news-digest-healthy-proof-2026-03-27.md",
+    "proof_summary_json": "configs/public_proof/releases_assets/news-digest-healthy-proof-summary-2026-03-27.json",
+    "benchmark_summary_markdown": "configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md",
+    "benchmark_summary_json": "configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.json",
+    "workflow_case_recap_markdown": "configs/public_proof/releases_assets/news-digest-workflow-case-recap-2026-03-27.md",
+    "demo_status_markdown": "configs/public_proof/storefront/demo-status.md"
   },
   "supporting_assets": {
     "gemini_proof_screenshot": "docs/releases/assets/news-digest-healthy-proof-gemini-2026-03-27.png",

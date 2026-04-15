@@ -15,7 +15,7 @@
       "claim_scope": "official_first_public_baseline",
       "authority_level": "repo_side_public_proof",
       "public_entrypoint": "docs/use-cases/index.html",
-      "pack_manifest": "docs/releases/assets/news-digest-proof-pack-2026-03-27.json",
+      "pack_manifest": "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json",
       "safe_public_claims": [
         "news_digest is the only official release-proven first public baseline today",
         "the public trust bundle includes proof summary, benchmark summary, Workflow Case recap, and demo-status ledger",
@@ -37,42 +37,42 @@
       ],
       "assets": [
         {
-          "path": "docs/releases/assets/news-digest-healthy-proof-2026-03-27.md",
+          "path": "configs/public_proof/releases_assets/news-digest-healthy-proof-2026-03-27.md",
           "role": "healthy_proof_summary",
           "format": "markdown",
           "truth_class": "repo_side_proof",
           "required_for_claim": true
         },
         {
-          "path": "docs/releases/assets/news-digest-healthy-proof-summary-2026-03-27.json",
+          "path": "configs/public_proof/releases_assets/news-digest-healthy-proof-summary-2026-03-27.json",
           "role": "healthy_proof_summary_machine",
           "format": "json",
           "truth_class": "repo_side_machine_summary",
           "required_for_claim": true
         },
         {
-          "path": "docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md",
+          "path": "configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md",
           "role": "benchmark_summary",
           "format": "markdown",
           "truth_class": "repo_side_benchmark",
           "required_for_claim": true
         },
         {
-          "path": "docs/releases/assets/news-digest-benchmark-summary-2026-03-27.json",
+          "path": "configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.json",
           "role": "benchmark_summary_machine",
           "format": "json",
           "truth_class": "repo_side_machine_summary",
           "required_for_claim": true
         },
         {
-          "path": "docs/releases/assets/news-digest-workflow-case-recap-2026-03-27.md",
+          "path": "configs/public_proof/releases_assets/news-digest-workflow-case-recap-2026-03-27.md",
           "role": "workflow_case_recap",
           "format": "markdown",
           "truth_class": "share_ready_recap",
           "required_for_claim": true
         },
         {
-          "path": "docs/assets/storefront/demo-status.md",
+          "path": "configs/public_proof/storefront/demo-status.md",
           "role": "demo_status_ledger",
           "format": "markdown",
           "truth_class": "truth_boundary_ledger",

@@ -9,7 +9,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = ROOT / "configs" / "storefront_proof_bundle_registry.json"
-OUTPUT_PATH = ROOT / "docs" / "assets" / "storefront" / "proof-pack-index.json"
+OUTPUT_PATH = ROOT / "configs" / "public_proof" / "storefront" / "proof-pack-index.json"
 
 PRIMARY_ROLE_MAP: dict[str, dict[str, Any]] = {
     "proof_summary_markdown": {
@@ -83,6 +83,18 @@ def _supporting_asset(path_text: str, key: str) -> dict[str, Any]:
     }
 
 
+def _require_contract_path(path_text: str, *, key: str) -> None:
+    if key == "demo_status_markdown":
+        expected_prefix = "configs/public_proof/storefront/"
+    else:
+        expected_prefix = "configs/public_proof/releases_assets/"
+    if not path_text.startswith(expected_prefix):
+        raise SystemExit(
+            "❌ [generate-storefront-proof-pack-index] "
+            f"{key} must live under {expected_prefix}: {path_text}"
+        )
+
+
 def build_index(registry_payload: dict[str, Any]) -> dict[str, Any]:
     bundles_payload = registry_payload.get("bundles")
     if not isinstance(bundles_payload, list):
@@ -96,6 +108,7 @@ def build_index(registry_payload: dict[str, Any]) -> dict[str, Any]:
         assets: list[dict[str, Any]] = []
         pack_manifest_rel = str(bundle.get("pack_manifest") or "").strip()
         if pack_manifest_rel:
+            _require_contract_path(pack_manifest_rel, key="pack_manifest")
             pack_manifest = _load_json(ROOT / pack_manifest_rel)
             rendered.setdefault("safe_public_claims", bundle.get("safe_public_claims", []))
             rendered.setdefault("forbidden_claims", bundle.get("forbidden_claims", []))
@@ -106,6 +119,7 @@ def build_index(registry_payload: dict[str, Any]) -> dict[str, Any]:
                 for key, descriptor in PRIMARY_ROLE_MAP.items():
                     path_text = str(primary_assets.get(key) or "").strip()
                     if path_text:
+                        _require_contract_path(path_text, key=key)
                         assets.append(_normalize_asset(path_text, descriptor))
 
             supporting_assets = pack_manifest.get("supporting_assets")

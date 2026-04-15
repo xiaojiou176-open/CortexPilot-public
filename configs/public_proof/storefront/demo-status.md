@@ -17,12 +17,12 @@ ones that still need a real capture pass.
 - `desktop-shell-live-1440x900.png`: real desktop preview screenshot captured from the app snapshot pipeline
 - `social-preview-source.svg`: editable social card source
 - `social-preview-1280x640.png`: upload-ready social card candidate
-- `docs/releases/assets/news-digest-healthy-proof-2026-03-27.md`: repo-tracked healthy `news_digest` proof summary
+- `configs/public_proof/releases_assets/news-digest-healthy-proof-2026-03-27.md`: repo-tracked healthy `news_digest` proof summary
 - `docs/releases/assets/news-digest-healthy-proof-gemini-2026-03-27.png`: successful Gemini proof screenshot
 - `docs/releases/assets/news-digest-healthy-proof-grok-2026-03-27.png`: successful Grok proof screenshot
-- `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md`: first tracked public `news_digest` baseline summary
-- `docs/releases/assets/news-digest-proof-pack-2026-03-27.json`: machine-readable proof-pack directory for the March 2026 public trust bundle checkpoint
-- `docs/releases/assets/news-digest-workflow-case-recap-2026-03-27.md`: share-ready Workflow Case recap for the March 2026 first public baseline checkpoint
+- `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md`: first tracked public `news_digest` baseline summary
+- `configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json`: machine-readable proof-pack directory for the March 2026 public trust bundle checkpoint
+- `configs/public_proof/releases_assets/news-digest-workflow-case-recap-2026-03-27.md`: share-ready Workflow Case recap for the March 2026 first public baseline checkpoint
 
 ## Current Proof Ledger
 
@@ -32,9 +32,9 @@ ones that still need a real capture pass.
 | Healthy backend-backed dashboard capture set | present | tracked English-first home, Command Tower session, and Runs captures from a clean local runtime root |
 | Healthy backend-backed live GIF | present | tracked multi-page walkthrough of the official first public happy path |
 | Desktop preview capture | present | shows the shell surface only |
-| Healthy backend-backed `news_digest` public proof set | present | tracked proof summary: `docs/releases/assets/news-digest-healthy-proof-2026-03-27.md` |
-| Public benchmark artifact from a real tracked run | present | first tracked single-run baseline: `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md` |
-| Share-ready Workflow Case recap asset | present | tracked recap asset: `docs/releases/assets/news-digest-workflow-case-recap-2026-03-27.md` |
+| Healthy backend-backed `news_digest` public proof set | present | tracked proof summary: `configs/public_proof/releases_assets/news-digest-healthy-proof-2026-03-27.md` |
+| Public benchmark artifact from a real tracked run | present | first tracked single-run baseline: `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md` |
+| Share-ready Workflow Case recap asset | present | tracked recap asset: `configs/public_proof/releases_assets/news-digest-workflow-case-recap-2026-03-27.md` |
 | Published GitHub Release page/card | present | live release `v0.1.0-alpha.3` is the latest published prerelease baseline, but the repo has moved ahead and the tag now represents a lagging published snapshot |
 
 ## Still Missing
@@ -66,10 +66,10 @@ The public storytelling shorthand is now:
 - the live GitHub Release page currently represents the latest published public
   baseline, not the current `main` snapshot; keep explicit lag wording in repo
   docs until the next tag is cut.
-- `docs/releases/assets/news-digest-healthy-proof-2026-03-27.md` and the two
+- `configs/public_proof/releases_assets/news-digest-healthy-proof-2026-03-27.md` and the two
   copied screenshots are repo-tracked evidence from a successful local run,
   not proof that the live GitHub Release page has already been published.
-- `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md` is a real
+- `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md` is a real
   single-run baseline summary, not a broad multi-round benchmark campaign.
 - the earlier benchmark-route and healthy-proof-route blocker receipts now live
   in the maintainer-only internal docs bundle, not on the default public docs

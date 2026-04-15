@@ -15,7 +15,7 @@ live GitHub social preview, or broader release benchmark has already shipped.
 
 ## The Case In One Paragraph
 
-A PM asks CortexPilot for a `news_digest` on `Seattle AI` over the last `24h`
+A PM asks OpenVibeCoding for a `news_digest` on `Seattle AI` over the last `24h`
 from `theverge.com`. The run moves through the normal command-tower path,
 records one Workflow Case, produces a successful digest, and leaves behind a
 proof bundle that another person can inspect without re-running the whole
@@ -38,7 +38,7 @@ operator flow.
 ## Why This Case Matters
 
 This case is the current public baseline because it shows the whole point of
-CortexPilot in one small, honest loop:
+OpenVibeCoding in one small, honest loop:
 
 1. a workflow starts from a bounded PM request
 2. Command Tower and the Workflow Case keep the run reviewable
@@ -46,32 +46,32 @@ CortexPilot in one small, honest loop:
 4. the result can be shared as a recap asset instead of forcing every reviewer
    back into the full operator UI
 
-That makes `news_digest` the easiest truthful answer to “What does CortexPilot
+That makes `news_digest` the easiest truthful answer to “What does OpenVibeCoding
 actually do today?”
 
 ## What You Can Inspect Today
 
 - proof summary:
-  - `docs/releases/assets/news-digest-healthy-proof-2026-03-27.md`
+  - `configs/public_proof/releases_assets/news-digest-healthy-proof-2026-03-27.md`
 - single-run public baseline:
-  - `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md`
+  - `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md`
 - proof screenshots:
   - `docs/releases/assets/news-digest-healthy-proof-gemini-2026-03-27.png`
   - `docs/releases/assets/news-digest-healthy-proof-grok-2026-03-27.png`
 - storefront asset ledger:
-  - `docs/assets/storefront/demo-status.md`
+  - `configs/public_proof/storefront/demo-status.md`
 
 ## Safe Public Wording
 
 Use wording like:
 
-- "CortexPilot already has one release-proven public workflow case: `news_digest`."
+- "OpenVibeCoding already has one release-proven public workflow case: `news_digest`."
 - "The Workflow Case can be reused as a share-ready recap asset."
 - "The public benchmark is currently a single-run `news_digest` baseline."
 
 Avoid wording like:
 
-- "CortexPilot already has a broad public benchmark program."
+- "OpenVibeCoding already has a broad public benchmark program."
 - "All public cases are equally release-proven."
 - "This recap proves a live hosted product or live GitHub publication state."
 

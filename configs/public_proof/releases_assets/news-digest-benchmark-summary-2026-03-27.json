@@ -32,8 +32,8 @@
     }
   ],
   "tracked_assets": {
-    "benchmark_markdown": "docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md",
-    "proof_summary_json": "docs/releases/assets/news-digest-healthy-proof-summary-2026-03-27.json"
+    "benchmark_markdown": "configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md",
+    "proof_summary_json": "configs/public_proof/releases_assets/news-digest-healthy-proof-summary-2026-03-27.json"
   },
   "runtime_origin": {
     "original_root": ".runtime-cache/w3-news-digest-attempt-profile-allowlist-v2/runs/run_20260327_102651_8274cd4519324674a3ddd67506febd83",

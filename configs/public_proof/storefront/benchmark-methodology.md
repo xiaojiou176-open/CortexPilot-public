@@ -10,7 +10,7 @@ inventing numbers.
   - `scripts/bench_e2e_speed.sh`
   - `scripts/check_bench_e2e_speed_gate.py`
 - A first tracked public single-run baseline now exists at
-  `docs/releases/assets/news-digest-benchmark-summary-2026-03-27.md`.
+  `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md`.
 - Broader multi-round public benchmark figures do **not** exist yet.
 - The latest failed benchmark-route receipt now lives in the maintainer-only
   internal docs bundle rather than the default public docs surface.
@@ -25,8 +25,8 @@ For the first public release bundle:
 - the benchmark must cover the official `news_digest` happy path first
 - a repo-tracked public summary must exist before README, release notes, or
   social copy can quote any number
-- the public artifact should live in a tracked release-facing path such as
-  `docs/releases/assets/` or `docs/assets/storefront/`
+- the repo-tracked proof source should live under `configs/public_proof/`,
+  while public screenshots and route-page media can stay on `docs/**`
 - the artifact must be generated from a real run, not a dry run or planning
   preview
 

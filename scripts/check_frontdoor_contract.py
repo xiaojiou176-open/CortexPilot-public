@@ -8,15 +8,11 @@ import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
+README_PATH = ROOT / "README.md"
+DOCS_README_PATH = ROOT / "docs" / "README.md"
 INDEX_PATH = ROOT / "docs" / "index.html"
 USE_CASES_PATH = ROOT / "docs" / "use-cases" / "index.html"
 COMPATIBILITY_PATH = ROOT / "docs" / "compatibility" / "index.html"
-PROOF_SUMMARY_PATH = ROOT / "docs" / "releases" / "assets" / "news-digest-healthy-proof-2026-03-27.md"
-BENCHMARK_SUMMARY_PATH = ROOT / "docs" / "releases" / "assets" / "news-digest-benchmark-summary-2026-03-27.md"
-WORKFLOW_RECAP_PATH = ROOT / "docs" / "releases" / "assets" / "news-digest-workflow-case-recap-2026-03-27.md"
-PROOF_PACK_MANIFEST_PATH = ROOT / "docs" / "releases" / "assets" / "news-digest-proof-pack-2026-03-27.json"
-PROOF_PACK_INDEX_PATH = ROOT / "docs" / "assets" / "storefront" / "proof-pack-index.json"
-DEMO_STATUS_PATH = ROOT / "docs" / "assets" / "storefront" / "demo-status.md"
 
 
 def parse_args() -> argparse.Namespace:
@@ -86,20 +82,30 @@ def _require_anchor(path: Path, anchors: list[tuple[str, str]], href: str, text:
         )
 
 
+def _require_no_forbidden_link_targets(
+    path: Path, anchors: list[tuple[str, str]], forbidden_markers: list[str], errors: list[str]
+) -> None:
+    for href, text in anchors:
+        normalized_href = _normalize_text(href)
+        for marker in forbidden_markers:
+            if marker in normalized_href:
+                errors.append(
+                    f"{path.relative_to(ROOT)} must not link public readers to raw proof metadata: "
+                    f"text='{text}' href='{href}'"
+                )
+                break
+
+
 def main() -> int:
     _ = parse_args()
     errors: list[str] = []
 
     required_paths = [
+        README_PATH,
+        DOCS_README_PATH,
         INDEX_PATH,
         USE_CASES_PATH,
         COMPATIBILITY_PATH,
-        PROOF_SUMMARY_PATH,
-        BENCHMARK_SUMMARY_PATH,
-        WORKFLOW_RECAP_PATH,
-        PROOF_PACK_MANIFEST_PATH,
-        PROOF_PACK_INDEX_PATH,
-        DEMO_STATUS_PATH,
     ]
     for path in required_paths:
         if not path.exists():
@@ -111,9 +117,33 @@ def main() -> int:
             print(f"- {item}")
         return 1
 
+    readme_text = README_PATH.read_text(encoding="utf-8")
+    docs_readme_text = DOCS_README_PATH.read_text(encoding="utf-8")
     index_html = _read_html(INDEX_PATH)
     use_cases_html = _read_html(USE_CASES_PATH)
     compatibility_html = _read_html(COMPATIBILITY_PATH)
+
+    _require_substrings(
+        README_PATH,
+        readme_text,
+        [
+            "Machine-readable proof ledgers now stay in repo-owned machine paths",
+            "public reading path stays on the use-cases page",
+            "instead of raw ledger files or `docs/README.md`",
+        ],
+        errors,
+    )
+
+    _require_substrings(
+        DOCS_README_PATH,
+        docs_readme_text,
+        [
+            "This file is not the public proof router.",
+            "keep machine-readable proof ledgers in repo-owned machine paths",
+            "instead of turning `docs/README.md` into a human path toward raw proof metadata.",
+        ],
+        errors,
+    )
 
     _require_substrings(
         INDEX_PATH,
@@ -160,9 +190,10 @@ def main() -> int:
         USE_CASES_PATH,
         use_cases_html,
         [
-            "repo-tracked public proof bundle",
-            "Machine-readable proof metadata still exists in the repo",
             "Proof you can rely on today",
+            "human-readable proof story",
+            "not required reading for a public evaluator",
+            "raw manifests and ledger-style contracts stay behind the scenes",
         ],
         errors,
     )
@@ -189,6 +220,20 @@ def main() -> int:
         compatibility_anchors,
         "../use-cases/",
         "See the first proven workflow",
+        errors,
+    )
+
+    use_cases_anchors = _parse_anchors(USE_CASES_PATH)
+    _require_no_forbidden_link_targets(
+        USE_CASES_PATH,
+        use_cases_anchors,
+        [
+            "../releases/assets/",
+            "../assets/storefront/",
+            "docs/releases/assets/",
+            "docs/assets/storefront/",
+            "configs/public_proof/",
+        ],
         errors,
     )
 

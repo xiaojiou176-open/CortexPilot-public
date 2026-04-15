@@ -1,6 +1,19 @@
 {
   "schema_version": 1,
   "artifact_type": "openvibecoding_storefront_proof_bundle_registry",
+  "public_proof_contract": {
+    "authoritative_registry_path": "configs/storefront_proof_bundle_registry.json",
+    "render_manifest_path": "configs/docs_render_manifest.json",
+    "required_rendered_outputs": [
+      "configs/public_proof/storefront/proof-pack-index.json"
+    ],
+    "tracked_contract_inputs": [
+      "configs/storefront_proof_bundle_registry.json",
+      "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json",
+      "configs/public_proof/storefront/demo-status.md",
+      "configs/public_proof/storefront/live-capture-requirements.json"
+    ]
+  },
   "vocabulary_contract": {
     "proven_workflow_label": "first proven workflow",
     "proof_pack_label": "public proof pack",
@@ -14,7 +27,7 @@
       "claim_scope": "official_first_public_baseline",
       "authority_level": "repo_side_public_proof",
       "public_entrypoint": "docs/use-cases/index.html",
-      "pack_manifest": "docs/releases/assets/news-digest-proof-pack-2026-03-27.json",
+      "pack_manifest": "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json",
       "safe_public_claims": [
         "news_digest is the only official release-proven first public baseline today",
         "the public trust bundle includes proof summary, benchmark summary, Workflow Case recap, and demo-status ledger",

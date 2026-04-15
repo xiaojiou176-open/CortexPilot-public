@@ -290,9 +290,11 @@
       <div class="callout">
         This is the smallest reusable trust bundle on the public surface today:
         one healthy proof summary, one single-run benchmark, one Workflow Case
-        recap, and one storefront proof status snapshot. The public page now
-        summarizes that bundle instead of sending every reader into the raw
-        repo-side ledgers.
+        recap, and one storefront proof status snapshot. This page is the
+        human-readable proof story for that bundle. Repo-side receipts and
+        machine metadata still exist for maintainers and gates, but public
+        readers should not need to open raw ledgers or machine contracts just
+        to understand what is proven.
       </div>
       <table>
         <thead>
@@ -306,35 +308,30 @@
           <tr>
             <td><strong>Healthy proof summary</strong></td>
             <td>Shows the tracked healthy result path for the official public baseline.</td>
-            <td>Included in the repo-tracked public proof bundle.</td>
+            <td>Summarized here; deeper audit metadata stays repo-side for maintainers and gates.</td>
           </tr>
           <tr>
             <td><strong>Single-run benchmark summary</strong></td>
             <td>Shows the current public performance baseline without pretending it is a broad benchmark campaign.</td>
-            <td>Included in the repo-tracked public proof bundle.</td>
+            <td>Summarized here; deeper audit metadata stays repo-side for maintainers and gates.</td>
           </tr>
           <tr>
             <td><strong>Workflow Case recap</strong></td>
             <td>Shows the strongest March 2026 share-ready artifact for why Workflow Cases matter outside the operator UI.</td>
-            <td>Included in the repo-tracked public proof bundle.</td>
-          </tr>
-          <tr>
-            <td><strong>Proof-pack manifest</strong></td>
-            <td>Shows the machine-readable directory of what shipped in the March 2026 public trust bundle and what was still missing at that checkpoint.</td>
-            <td>Maintained as repo-side machine-readable proof metadata.</td>
-          </tr>
-          <tr>
-            <td><strong>Global proof-pack index</strong></td>
-            <td>Shows the storefront-wide index of proven bundles, showcase bundles, and current public proof gaps.</td>
-            <td>Maintained as storefront proof metadata.</td>
+            <td>Summarized here; deeper audit metadata stays repo-side for maintainers and gates.</td>
           </tr>
           <tr>
             <td><strong>Proof status snapshot</strong></td>
             <td>Shows which storefront captures are healthy, degraded, missing, or still only explanation assets.</td>
-            <td>Summarized on this page instead of linked as a raw ledger.</td>
+            <td>Summarized on this page instead of routed through raw status ledgers.</td>
           </tr>
         </tbody>
       </table>
+      <p class="caption">
+        Repo-side proof manifests, indexes, and capture contracts still exist
+        for maintainers and gates, but they are not required reading for a
+        public evaluator who just needs the shortest honest proof story.
+      </p>
 
       <h2>Why this helps discovery</h2>
       <p>
@@ -355,9 +352,10 @@
       <ul>
         <li>The official public baseline still belongs to <strong>news_digest</strong>.</li>
         <li>The current benchmark story is a tracked single-run baseline, not a broad release average.</li>
-        <li>The public recap story still centers on one share-ready Workflow Case artifact plus a repo-tracked proof bundle.</li>
-        <li>Global proof-pack index across public proven and showcase bundles remains available as repo-side metadata rather than a front-door jump target.</li>
-        <li>Machine-readable proof metadata still exists in the repo, but this public page no longer sends readers directly to raw manifests and ledger-style contracts.</li>
+        <li>The public recap story still centers on one share-ready Workflow Case artifact plus a consumer-facing proof summary page.</li>
+        <li>Global proof-pack index across public proven and showcase bundles still exists as repo-side metadata for maintainers and audits, not as a front-door jump target.</li>
+        <li>Repo-side proof manifests, indexes, and capture contracts still exist for maintainers and gates, but they are not required reading for a public evaluator.</li>
+        <li>This page is the public proof story; raw manifests and ledger-style contracts stay behind the scenes.</li>
       </ul>
 
       <h2>Current gaps that still matter</h2>
@@ -372,6 +370,7 @@
         <li>We do not claim that <strong>topic_brief</strong> or <strong>page_brief</strong> are equally release-proven yet.</li>
         <li>We do not claim that a storyboard or degraded local capture counts as healthy end-to-end proof.</li>
         <li>We do not claim that the current benchmark file is a broad multi-run release average.</li>
+        <li>We do not claim that a public evaluator should read raw machine metadata or maintainer-grade capture contracts to understand the proof story.</li>
       </ul>
 
       <p>
