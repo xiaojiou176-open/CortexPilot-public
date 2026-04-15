@@ -62,7 +62,7 @@ The public storytelling shorthand is now:
 - `dashboard-live-degraded-loop.gif` remains a historical degraded capture and should stay labeled as degraded if it is referenced at all.
 - `desktop-shell-live-1440x900.png` is a real screenshot from the desktop snapshot pipeline.
 - `social-preview-1280x640.png` is a repo-tracked upload candidate for the GitHub social preview setting, not proof that the live GitHub setting has already been applied.
-- `docs/releases/first-public-release-draft.md` remains the repo-side draft source that fed the published release notes.
+- the first public release draft remains archived in the maintainer-only internal docs bundle that fed the published release notes.
 - the live GitHub Release page currently represents the latest published public
   baseline, not the current `main` snapshot; keep explicit lag wording in repo
   docs until the next tag is cut.

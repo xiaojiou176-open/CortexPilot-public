@@ -15,7 +15,7 @@ if [[ "$MODE" != "warn" && "$MODE" != "gate" ]]; then
 fi
 
 FAIL_ON_WARN="${OPENVIBECODING_UI_PROTOCOL_FAIL_ON_WARN:-0}"
-ALLOWLIST_PATH="${OPENVIBECODING_UI_PROTOCOL_ALLOWLIST:-docs/governance/ui_protocol_allowlist.json}"
+ALLOWLIST_PATH="${OPENVIBECODING_UI_PROTOCOL_ALLOWLIST:-configs/ui_protocol_allowlist.json}"
 REPORT_DIR=".runtime-cache/test_output/ui_protocol"
 REPORT_JSON="${REPORT_DIR}/ui_protocol_gate.json"
 REPORT_MD="${REPORT_DIR}/ui_protocol_gate.md"

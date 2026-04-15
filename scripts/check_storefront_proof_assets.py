@@ -11,7 +11,6 @@ ROOT = Path(__file__).resolve().parents[1]
 PROOF_PACK_INDEX = ROOT / "docs" / "assets" / "storefront" / "proof-pack-index.json"
 DEMO_STATUS_PATH = ROOT / "docs" / "assets" / "storefront" / "demo-status.md"
 LIVE_CAPTURE_REQUIREMENTS_PATH = ROOT / "docs" / "assets" / "storefront" / "live-capture-requirements.json"
-SHARE_KIT_PATH = ROOT / "docs" / "runbooks" / "storefront-share-kit.md"
 USE_CASES_PATH = ROOT / "docs" / "use-cases" / "index.html"
 
 
@@ -206,15 +205,6 @@ def main() -> int:
             "Healthy backend-backed dashboard capture set",
             "Healthy backend-backed live GIF",
             "safe repo-side proof of a healthy local first public path",
-        ],
-        errors,
-    )
-    _require_text(
-        SHARE_KIT_PATH,
-        [
-            "Healthy backend-backed dashboard capture set",
-            "Healthy backend-backed live GIF",
-            "safe to reference as repo-tracked proof, not as proof of live GitHub publication",
         ],
         errors,
     )

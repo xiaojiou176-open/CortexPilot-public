@@ -28,7 +28,7 @@ Current lane order is deliberate:
 - **Secondary lane** = the adoption-router public skill packet
 - **Companion/example lane** = local starter kits and coding-agent bundle examples, which are not the canonical public root
 
-[Quickstart](#quickstart) · [First Proven Workflow](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/) · [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/) · [Distribution Contract](DISTRIBUTION.md) · [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) · [Public Docs](https://xiaojiou176-open.github.io/OpenVibeCoding/) · [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/) · [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/) · [Releases](https://github.com/xiaojiou176-open/OpenVibeCoding/releases)
+[Quickstart](#quickstart) · [First Proven Workflow](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/) · [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/) · [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) · [Public Docs](https://xiaojiou176-open.github.io/OpenVibeCoding/) · [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/) · [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/) · [Releases](https://github.com/xiaojiou176-open/OpenVibeCoding/releases)
 
 ![OpenVibeCoding command tower showcase card](docs/assets/storefront/command-tower-showcase-card.svg)
 
@@ -57,10 +57,9 @@ Use these buckets:
   not marketed as a standalone package
 - **Deferred**: hosted operator, write-capable MCP, Docker image, and standalone npm releases
 
-If you need the exact matrix instead of a one-line summary, open
-[DISTRIBUTION.md](DISTRIBUTION.md) or the public
+If you need the exact matrix instead of a one-line summary, open the public
 [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/)
-mirror.
+page.
 
 ![OpenVibeCoding studio preview card](docs/assets/storefront/openvibecoding-studio-preview.svg)
 
@@ -74,7 +73,7 @@ mirror.
 | --- | --- |
 | evaluate the product story | [First Proven Workflow](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/) |
 | choose the right Codex / Claude Code / OpenClaw / MCP / skills / builder path | [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/) |
-| see exactly what ships now vs. later | [Distribution Contract](DISTRIBUTION.md) and [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) |
+| see exactly what ships now vs. later | [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) |
 | build on the protocol or package surfaces | [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/) and [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/) |
 
 The default public loop is simple: **start one workflow case, watch it move
@@ -108,8 +107,8 @@ release-proven baselines.
 If this repository is close to your use case, star it to track the first public
 release, new task templates, and storefront updates.
 
-If you need contributor setup instead of product evaluation, jump to the
-[30-minute onboarding guide](docs/runbooks/onboarding-30min.md).
+If you need contributor setup instead of product evaluation, jump to
+[CONTRIBUTING.md](CONTRIBUTING.md) and the local quickstart below.
 
 ## Why OpenVibeCoding Exists
 
@@ -140,14 +139,14 @@ OpenVibeCoding currently combines:
 - **Read-only inspection surfaces**: repo-local MCP, API, and contract read models that expose truth without turning mirrors into execution authority
 - **Governed boundaries**: fail-closed gates for CI, host safety, repo hygiene, and public-proof honesty
 
-If you need the deeper bundle/runtime/read-model details, open the focused
-entrypoints instead of treating the root README like the whole control-plane
-manual:
+If you need the deeper public bundle/runtime/read-model map, open the focused
+public entrypoints instead of treating the root README like the whole
+control-plane manual:
 
 - [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/)
 - [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/)
-- [Contract Entry Points](packages/frontend-api-contract/docs/README.md)
-- [Spec](docs/specs/00_SPEC.md)
+- [API quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/api/)
+- [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/)
 
 ## Quickstart
 
@@ -195,7 +194,7 @@ npm run bootstrap
 
 If the first success path fails, go here next:
 
-- [30-minute onboarding](docs/runbooks/onboarding-30min.md)
+- [Public Docs](https://xiaojiou176-open.github.io/OpenVibeCoding/)
 - [Support](SUPPORT.md)
 - [Security reporting](SECURITY.md)
 
@@ -408,10 +407,10 @@ review, and hand off.”
 These are the current public-facing entry points for teams that want to build
 around OpenVibeCoding without pretending a full SDK platform already exists:
 
-- [packages/frontend-api-client/README.md](packages/frontend-api-client/README.md): thin JavaScript/TypeScript client entry points for dashboard, desktop, and web surfaces, including the repo-owned `createControlPlaneStarter(...)` bootstrap path for overview + agents + contracts + role-config integration.
-- [packages/frontend-api-contract/docs/README.md](packages/frontend-api-contract/docs/README.md): human-readable contract package guide for generated frontend-safe route/query/type imports.
-- [packages/frontend-shared/README.md](packages/frontend-shared/README.md): shared UI copy, locale, status, and frontend-only presentation helpers.
-- [docs/architecture/ecosystem-and-builder-surfaces-v1.md](docs/architecture/ecosystem-and-builder-surfaces-v1.md): the human-readable map that explains how Codex / Claude Code / MCP / public packs / share-ready Workflow Cases fit together.
+- [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/): the public starting point for `@openvibecoding/frontend-api-client`, workspace reuse, and the repo-owned `createControlPlaneStarter(...)` bootstrap flow.
+- [API quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/api/): the public route for `@openvibecoding/frontend-api-contract`, route/query names, and the current machine-facing HTTP boundary.
+- [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/): the public map for package roles, MCP boundaries, and how the builder edge fits the broader command-tower story.
+- `@openvibecoding/frontend-shared` remains a workspace-only presentation substrate and is intentionally described through the public builder surface instead of a front-door internal package README link.
 
 ## Copy-paste coding-agent examples
 
@@ -495,8 +494,9 @@ The current stage freeze keeps two high-risk directions explicitly constrained:
   preview surface can exist without silently turning mutation on by default.
   These repo-owned controls do not by themselves upgrade the public product
   contract into write-capable MCP.
-- The repo-owned operator contract for that narrow pilot now lives in
-  [docs/runbooks/write-mcp-queue-pilot.md](docs/runbooks/write-mcp-queue-pilot.md).
+- The narrow queue-only pilot contract remains repo-internal and intentionally
+  sits outside the public front door until an owner-approved launch changes the
+  public write boundary.
 
 - **Hosted operator surface** remains **No-Go**.
 - `openvibecoding.ai` is still a weak marketing/holding domain, not a production
@@ -797,13 +797,13 @@ Feedback.
 
 ## Read Deeper
 
-1. [Documentation map](docs/README.md)
-2. [Runtime topology](docs/architecture/runtime-topology.md)
-3. [Engineering spec](docs/specs/00_SPEC.md)
-4. [Public release checklist](docs/runbooks/public-release-checklist.md)
-5. [Storefront share kit](docs/runbooks/storefront-share-kit.md)
-6. [Render hosted pilot blueprint](docs/runbooks/render-hosted-operator-pilot.md)
-7. [Apps overview](apps/README.md)
+1. [Public Docs](https://xiaojiou176-open.github.io/OpenVibeCoding/)
+2. [Use Cases](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/)
+3. [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/)
+4. [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/)
+5. [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/)
+6. [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/)
+7. [GitHub Releases](https://github.com/xiaojiou176-open/OpenVibeCoding/releases)
 
 ## FAQ
 

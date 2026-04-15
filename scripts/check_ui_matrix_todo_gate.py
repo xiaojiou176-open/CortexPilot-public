@@ -5,7 +5,7 @@ import argparse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_MATRIX = ROOT / "docs" / "governance" / "ui-button-coverage-matrix.md"
+DEFAULT_MATRIX = ROOT / "configs" / "ui_button_coverage_matrix.md"
 
 
 def parse_args() -> argparse.Namespace:

@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONTINUOUS_ROOT = ROOT / ".runtime-cache" / "test_output" / "continuous_governance"
 DEFAULT_LATEST_JSON = CONTINUOUS_ROOT / "latest_governance_dashboard.json"
 DEFAULT_LATEST_MD = CONTINUOUS_ROOT / "latest_governance_dashboard.md"
-DEFAULT_MATRIX = ROOT / "docs" / "governance" / "ui-button-coverage-matrix.md"
+DEFAULT_MATRIX = ROOT / "configs" / "ui_button_coverage_matrix.md"
 DEFAULT_CHANGED_SCOPE = ROOT / ".runtime-cache" / "test_output" / "changed_scope_pytest" / "selection_report.json"
 DEFAULT_POLICY_SNAPSHOT = ROOT / ".runtime-cache" / "test_output" / "ci" / "ci_policy_snapshot.json"
 

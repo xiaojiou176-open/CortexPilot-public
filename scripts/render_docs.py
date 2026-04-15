@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "configs" / "docs_render_manifest.json"
-FRAGMENT_DIR = ROOT / "docs" / "generated" / "fragments"
+FRAGMENT_DIR = ROOT / "configs" / "generated_fragments"
 ANCHOR_TARGETS = (
     ROOT / "README.md",
     ROOT / "AGENTS.md",

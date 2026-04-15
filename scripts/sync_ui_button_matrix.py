@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_MATRIX = ROOT / "docs" / "governance" / "ui-button-coverage-matrix.md"
+DEFAULT_MATRIX = ROOT / "configs" / "ui_button_coverage_matrix.md"
 DEFAULT_INVENTORY_DIR = ROOT / ".runtime-cache" / "test_output" / "ui_regression"
 DEFAULT_ANNOTATIONS = ROOT / "configs" / "ui_button_coverage_annotations.json"
 
@@ -35,7 +35,7 @@ HEADER = """# UI Button Coverage Matrix
 
 ## Purpose
 
-`ui-button-coverage-matrix.md` is the render-only reference for UI button regression coverage.
+`ui_button_coverage_matrix.md` is the render-only reference for UI button regression coverage.
 Machine-generated and human-maintained inputs are:
 
 - Inventory scan script: `scripts/ui_button_inventory.py`
@@ -131,7 +131,7 @@ LINE_SUFFIX_RE = re.compile(r":\d+(?::\d+)?$")
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Sync ui-button-coverage-matrix.md from inventory files.")
+    parser = argparse.ArgumentParser(description="Sync ui_button_coverage_matrix.md from inventory files.")
     parser.add_argument("--matrix", default=str(DEFAULT_MATRIX), help="Matrix markdown file path.")
     parser.add_argument("--inventory-dir", default=str(DEFAULT_INVENTORY_DIR), help="Inventory directory path.")
     parser.add_argument("--annotations", default=str(DEFAULT_ANNOTATIONS), help="Annotations JSON path.")

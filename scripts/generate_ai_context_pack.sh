@@ -68,11 +68,14 @@ EOF
 
 ## 6) Documentation Bundle for External AI
 
-Send these files together for a no-repo-access AI handoff:
+Send these files together for a no-repo-access AI handoff. Prefer the public
+route registry and config manifests over archived internal markdown:
 - `README.md`
-- `docs/README.md`
-- `docs/specs/00_SPEC.md`
-- `docs/architecture/runtime-topology.md`
+- `docs/index.html`
+- `configs/repo_positioning.json`
+- `configs/docs_nav_registry.json`
+- `configs/runtime_artifact_policy.json`
+- `docs/api/openapi.openvibecoding.json`
 - `AGENTS.md`
 - `CLAUDE.md`
 
@@ -136,9 +139,11 @@ EOF
 
   shasum -a 256 \
     AGENTS.md CLAUDE.md README.md \
-    docs/README.md \
-    docs/specs/00_SPEC.md \
-    docs/architecture/runtime-topology.md \
+    docs/index.html \
+    configs/repo_positioning.json \
+    configs/docs_nav_registry.json \
+    configs/runtime_artifact_policy.json \
+    docs/api/openapi.openvibecoding.json \
     | sed 's#^#- `#; s#$#`#'
 
   cat <<'EOF'

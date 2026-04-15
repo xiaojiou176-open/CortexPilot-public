@@ -262,13 +262,12 @@
         </p>
         <pre><code>vendor/OpenVibeCoding/
   README.md
-  docs/README.md
   AGENTS.md
   .agents/skills/&lt;chosen-skill&gt;/
     SKILL.md
     manifest.yaml</code></pre>
         <ol>
-          <li>Copy the three truth files first: <code>README.md</code>, <code>docs/README.md</code>, and <code>AGENTS.md</code>.</li>
+          <li>Copy the two truth files first: <code>README.md</code> and <code>AGENTS.md</code>.</li>
           <li>Copy only the skill folders you truly want the agent to reuse; do not mirror the whole repo just to say “skills exist.”</li>
           <li>Keep the tracked <code>manifest.yaml</code> with the skill whenever the host tool or future registry expects machine-readable metadata.</li>
           <li>Keep the skill paired with the same repo-owned read-only MCP command when the workflow needs machine-readable inspection.</li>

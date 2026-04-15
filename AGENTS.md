@@ -12,9 +12,9 @@ Work in OpenVibeCoding as a contract-first engineering agent:
 ## Canonical Read Order
 
 1. `README.md`
-2. `docs/README.md`
-3. `docs/specs/00_SPEC.md`
-4. `docs/architecture/runtime-topology.md`
+2. `docs/index.html`
+3. `configs/repo_positioning.json`
+4. `configs/docs_nav_registry.json`
 5. nearest local wrapper under `apps/*/AGENTS.md` or `apps/*/CLAUDE.md`
 
 ## Key Commands
@@ -71,6 +71,8 @@ Work in OpenVibeCoding as a contract-first engineering agent:
 - update tests when behavior changes
 - update docs when commands, APIs, or public behavior change
 - keep public docs English-first and minimal
+- anchor root AI entrypoints to public routes, config manifests, and receipts
+  instead of archived internal markdown under `docs/`
 - keep runtime output under `.runtime-cache/`
 - keep public test/probe fixtures free of maintainer-local absolute paths and
   raw token-shaped literals; use generic workspace roots plus synthetic string
@@ -223,20 +225,20 @@ Work in OpenVibeCoding as a contract-first engineering agent:
   preview, and timezone-safe queue scheduling inputs
 - when Version B closeout work changes the public front door, shared locale
   substrate, read-only MCP exposure, or operator-copilot surfaces, sync
-  `README.md`, `docs/index.html`, `docs/releases/first-public-release-draft.md`,
+  `README.md`, `docs/index.html`, `configs/docs_nav_registry.json`,
   `apps/orchestrator/README.md`, and the root AI entrypoints in the same patch
   so doc-drift and doc-sync gates can trace the same Command Tower / Workflow
   Cases / Proof & Replay contract
 - when ecosystem-binding, builder-entrypoint, or distribution-facing surfaces
   change, sync the root AI/docs entrypoints in the same patch; current examples
-  include `docs/architecture/ecosystem-and-builder-surfaces-v1.md`, the
+  include `configs/docs_nav_registry.json`, the
   package-facing `frontend-api-client` / `frontend-shared` READMEs, and the
   dashboard home/docs landing sections that explain Codex / Claude Code /
   read-only MCP plus the first-run -> proof -> share loop
 - when a follow-up builder/adoption slice adds a legal contract-package guide
   or surfaces integrations/skills adoption more directly on the dashboard home,
   sync the root AI/docs entrypoints in the same patch; current examples include
-  `packages/frontend-api-contract/docs/README.md`, the dashboard-home
+  `packages/frontend-api-contract/README.md`, the dashboard-home
   integrations section in `apps/dashboard/components/DashboardHomeStorySections.tsx`,
   and the docs-base resolver now honoring `/integrations/` and `/skills/`
 - when a later ecosystem-adoption slice adds copy-paste starter kits or
@@ -307,7 +309,7 @@ Work in OpenVibeCoding as a contract-first engineering agent:
   same patch; current examples include `apps/dashboard/components/DashboardHomeStorySections.tsx`,
   the public-docs resolver allowlist in `apps/dashboard/lib/env.ts`,
   the matching env/home regression coverage, and the repo-owned
-  `packages/frontend-api-contract/docs/README.md` guide that now sits between
+  `packages/frontend-api-contract/README.md` guide that now sits between
   the public API quickstart and the raw generated `.d.ts` files
 - when a later discoverability wave adds a public compatibility/adoption
   matrix, sync the root AI/docs entrypoints in the same patch; current
@@ -402,8 +404,8 @@ Work in OpenVibeCoding as a contract-first engineering agent:
   clean quick lane
 - when the Final-100 / Wave 4 follow-up slice adds hosted pilot readiness or
   queue-first mutation groundwork, sync the root AI/docs entrypoints in the
-  same patch; current examples include `render.yaml`, the
-  `docs/runbooks/render-hosted-operator-pilot.md` deploy contract, the hosted
+  same patch; current examples include `render.yaml`,
+  `configs/docs_nav_registry.json`, the hosted
   `OPENVIBECODING_API_ALLOWED_ORIGINS` env wiring across `.env.example`,
   `apps/orchestrator/.env.example`, `configs/env.registry.json`, and
   `configs/env_direct_read_allowlist.json`, plus the rule that
