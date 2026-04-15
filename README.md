@@ -647,6 +647,10 @@ repo-owned override layer so `lighthouse@13.0.3` no longer resolves the
 vulnerable `lodash-es@4.17.23` path on either the root or dashboard lock
 surface, which keeps the Dependabot follow-up narrow instead of turning it
 into a broader Lighthouse upgrade.
+Current dashboard lock maintenance also pins `follow-redirects@1.16.0`
+through both the root and dashboard override surfaces so the maintained
+dashboard lockfile no longer carries the cross-domain redirect header-leak
+advisory on its isolated install path.
 Current lock maintenance also removes the optional dashboard `depcheck`
 dependency and pins patched `picomatch` / `brace-expansion` paths so GitHub
 security findings do not linger on an otherwise unused dependency chain.
