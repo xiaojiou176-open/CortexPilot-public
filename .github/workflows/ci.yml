@@ -172,7 +172,7 @@ jobs:
           CLOUD_BOOTSTRAP_ALLOWED: ${{ steps.decide.outputs.sensitive_dispatch_allowed }}
 
       - name: Upload route seed artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ci-route-seed-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
@@ -206,7 +206,7 @@ jobs:
           echo "RUNNER_TOOL_CACHE=${RUNNER_TEMP}/hostedtoolcache-${GITHUB_JOB}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_ENV}"
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -353,7 +353,7 @@ jobs:
       - name: Upload quick-feedback artifacts
         if: always()
         continue-on-error: true
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ci-quick-feedback-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
@@ -381,16 +381,21 @@ jobs:
           echo "RUNNER_TOOL_CACHE=${RUNNER_TEMP}/hostedtoolcache-${GITHUB_JOB}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_ENV}"
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
           fetch-depth: 0
           clean: true
 
       - name: Run dependency review
-        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48
-        with:
-          config-file: .github/dependency-review-config.yml
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          bash scripts/run_governance_py.sh scripts/check_dependency_review_gate.py \
+            --config-file .github/dependency-review-config.yml \
+            --base-sha "${{ github.event.pull_request.base.sha }}" \
+            --head-sha "${{ github.event.pull_request.head.sha }}"
 
   untrusted-pr-basic-gates:
     name: PR Low-Privilege Gates
@@ -412,14 +417,14 @@ jobs:
           echo "RUNNER_TOOL_CACHE=${RUNNER_TEMP}/hostedtoolcache-${GITHUB_JOB}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" >> "${GITHUB_ENV}"
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
           fetch-depth: 0
           clean: true
 
       - name: Download route seed artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           name: ci-route-seed-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache/openvibecoding/reports/ci/routes
@@ -486,7 +491,7 @@ jobs:
 
       - name: Upload low-privilege artifacts
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ci-pr-low-priv-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
@@ -498,7 +503,7 @@ jobs:
 
       - name: Upload untrusted route report artifact
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ${{ steps.finalize_untrusted_route.outputs.route_report_artifact_name }}
           retention-days: 14
@@ -538,7 +543,7 @@ jobs:
           fi
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -578,7 +583,7 @@ jobs:
 
       - name: Upload policy/security artifacts
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ci-policy-and-security-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
@@ -618,7 +623,7 @@ jobs:
           fi
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -653,7 +658,7 @@ jobs:
 
       - name: Upload core-tests artifacts
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ci-core-tests-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
@@ -698,7 +703,7 @@ jobs:
           fi
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -731,7 +736,7 @@ jobs:
 
       - name: Upload ui-truth artifacts
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ci-ui-truth-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
@@ -777,7 +782,7 @@ jobs:
           fi
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -862,35 +867,35 @@ jobs:
           clean: true
 
       - name: Download quick-feedback artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           name: ci-quick-feedback-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache
           merge-multiple: true
 
       - name: Download policy-and-security artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           name: ci-policy-and-security-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache
           merge-multiple: true
 
       - name: Download core-tests artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           name: ci-core-tests-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache
           merge-multiple: true
 
       - name: Download resilience-and-e2e artifacts
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           name: ci-resilience-and-e2e-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache
           merge-multiple: true
 
       - name: Download route seed artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           name: ci-route-seed-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache/openvibecoding/reports/ci/routes
@@ -961,7 +966,7 @@ jobs:
 
       - name: Upload release-evidence artifacts
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ci-release-evidence-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
@@ -974,7 +979,7 @@ jobs:
 
       - name: Upload trusted route report artifact
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ${{ steps.finalize_release_route.outputs.route_report_artifact_name }}
           retention-days: 14
@@ -1010,14 +1015,14 @@ jobs:
           fi
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
           fetch-depth: 0
           clean: true
 
       - name: Download route seed artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           name: ci-route-seed-${{ github.run_id }}-${{ github.run_attempt }}
           path: .runtime-cache/openvibecoding/reports/ci/routes
@@ -1064,7 +1069,7 @@ jobs:
 
       - name: Upload trusted PR route report artifact
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ${{ steps.finalize_trusted_pr_route.outputs.route_report_artifact_name }}
           retention-days: 14
@@ -1142,14 +1147,14 @@ jobs:
           } >> "${GITHUB_ENV}"
 
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
         with:
           persist-credentials: false
           fetch-depth: 0
           clean: true
 
       - name: Download route report artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           name: ${{ env.ROUTE_ARTIFACT_NAME }}
           path: .runtime-cache/openvibecoding/reports/ci/routes

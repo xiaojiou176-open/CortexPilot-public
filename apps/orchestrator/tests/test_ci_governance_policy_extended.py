@@ -178,7 +178,7 @@ jobs:
   quick-feedback:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ci-quick-feedback-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -188,7 +188,7 @@ jobs:
   untrusted-pr-basic-gates:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: ci-pr-low-priv-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -198,7 +198,7 @@ jobs:
   policy-and-security:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           path: |
             .runtime-cache/test_output
@@ -208,7 +208,7 @@ jobs:
   core-tests:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           path: |
             .runtime-cache/test_output
@@ -219,7 +219,7 @@ jobs:
     environment: owner-approved-sensitive
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           path: |
             .runtime-cache/test_output
@@ -230,7 +230,7 @@ jobs:
     environment: owner-approved-sensitive
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           path: |
             .runtime-cache/test_output
@@ -242,7 +242,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [policy-and-security, core-tests, ui-truth, resilience-and-e2e]
     steps:
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           path: |
             .runtime-cache/test_output

@@ -271,8 +271,9 @@ static security (`bash scripts/check_workflow_static_security.sh`), repo
 filesystem/dependency scanning (`bash scripts/check_trivy_repo_scan.sh`), and
 current-tree plus fresh-clone secret scanning
 (`bash scripts/check_secret_scan_closeout.sh --mode both`), while pull
-requests also run the official GitHub Dependency Review action with the
-repo-owned `.github/dependency-review-config.yml` policy.
+requests also run a repo-owned dependency review gate against GitHub's
+official dependency-graph compare API, driven by the same
+`.github/dependency-review-config.yml` policy.
 GitHub-hosted `trusted_pr`, `untrusted_pr`, and hosted-first `push_main`
 routes keep the live alerts query in advisory mode for Quick Feedback and the
 hosted policy slice, because the integration token cannot always read the
