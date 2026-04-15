@@ -121,17 +121,6 @@ def _write_fixture(root: Path) -> None:
         + "\n",
         encoding="utf-8",
     )
-    (root / "docs" / "runbooks" / "storefront-share-kit.md").write_text(
-        """
-        ## Proof Status By Asset Type
-        - Healthy backend-backed dashboard capture set
-        - Healthy backend-backed live GIF
-        ## Safe Post Angles
-        - safe to reference as repo-tracked proof, not as proof of live GitHub publication
-        """,
-        encoding="utf-8",
-    )
-
     (root / "configs" / "storefront_proof_bundle_registry.json").write_text(
         json.dumps(
             {
@@ -194,7 +183,6 @@ def test_storefront_proof_assets_gate_passes_with_expected_index(tmp_path: Path,
     module.PROOF_PACK_INDEX = tmp_path / "docs" / "assets" / "storefront" / "proof-pack-index.json"
     module.DEMO_STATUS_PATH = tmp_path / "docs" / "assets" / "storefront" / "demo-status.md"
     module.LIVE_CAPTURE_REQUIREMENTS_PATH = tmp_path / "docs" / "assets" / "storefront" / "live-capture-requirements.json"
-    module.SHARE_KIT_PATH = tmp_path / "docs" / "runbooks" / "storefront-share-kit.md"
     module.USE_CASES_PATH = tmp_path / "docs" / "use-cases" / "index.html"
     monkeypatch.setattr(sys, "argv", ["check_storefront_proof_assets.py"])
     assert module.main() == 0
@@ -214,7 +202,6 @@ def test_storefront_proof_assets_gate_fails_when_news_digest_loses_release_prove
     module.PROOF_PACK_INDEX = index_path
     module.DEMO_STATUS_PATH = tmp_path / "docs" / "assets" / "storefront" / "demo-status.md"
     module.LIVE_CAPTURE_REQUIREMENTS_PATH = tmp_path / "docs" / "assets" / "storefront" / "live-capture-requirements.json"
-    module.SHARE_KIT_PATH = tmp_path / "docs" / "runbooks" / "storefront-share-kit.md"
     module.USE_CASES_PATH = tmp_path / "docs" / "use-cases" / "index.html"
     monkeypatch.setattr(sys, "argv", ["check_storefront_proof_assets.py"])
 

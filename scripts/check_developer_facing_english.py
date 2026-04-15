@@ -14,7 +14,7 @@ TARGETS = [
     ROOT / "AGENTS.md",
     ROOT / "apps" / "orchestrator" / "AGENTS.md",
     ROOT / "docs" / "README.md",
-    ROOT / "docs" / "runbooks" / "onboarding-30min.md",
+    ROOT / "docs" / "index.html",
 ]
 
 

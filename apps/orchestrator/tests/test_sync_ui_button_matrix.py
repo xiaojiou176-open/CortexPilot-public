@@ -20,7 +20,7 @@ def _load_module():
 
 def test_sync_ui_button_matrix_header_defaults_to_english() -> None:
     module = _load_module()
-    assert "`ui-button-coverage-matrix.md` is the render-only reference" in module.HEADER
+    assert "`ui_button_coverage_matrix.md` is the render-only reference" in module.HEADER
     assert "Refresh the button inventory" in module.FOOTER
     assert "This file is generated output only" in module.HEADER
 

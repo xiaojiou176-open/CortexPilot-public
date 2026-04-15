@@ -9,10 +9,10 @@
       ],
       "required_globs": [
         "apps/orchestrator/README.md",
-        "docs/specs/00_SPEC.md",
-        "docs/architecture/runtime-topology.md"
+        "README.md",
+        "docs/index.html"
       ],
-      "required_desc": "apps/orchestrator/README.md or docs/specs/00_SPEC.md or docs/architecture/runtime-topology.md"
+      "required_desc": "apps/orchestrator/README.md or README.md or docs/index.html"
     },
     {
       "trigger_globs": [

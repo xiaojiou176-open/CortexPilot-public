@@ -167,7 +167,7 @@ tests:
       primary_risk: "none"
       required_path_term_groups: "doc|fragment;render|rerender;verify|check"
       forbidden_path_terms: "schema,runtime-root"
-      request: "After a documentation-only wording fix in docs/specs/00_SPEC.md, stop. Do not change runtime behavior or CI policy."
+      request: "After a documentation-only wording fix in the repo's internal engineering spec, stop. Do not change runtime behavior or CI policy."
   - description: "ambiguous requirement must clarify scope before editing"
     vars:
       regression_target: "missing scope must be classified before mutation"

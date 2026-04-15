@@ -23,7 +23,7 @@ DEFAULT_COUNTS = {"A": 49, "B": 70, "C": 68, "D": 52}
 DEFAULT_TEMPLATE = Path(
     "docs/archive/governance/matrix-compiler-49-70-68-52-master-table-template.md"
 )
-DEFAULT_OUTPUT = Path("docs/governance/matrix-compiler-49-70-68-52-master-table.md")
+DEFAULT_OUTPUT = Path("configs/matrix_compiler_49_70_68_52_master_table.md")
 
 
 @dataclass(frozen=True)

@@ -3,8 +3,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/lib/env.sh"
-INCIDENT_DIR="${OPENVIBECODING_INCIDENT_DIR:-$ROOT_DIR/docs/governance/incidents}"
-MAP_PATH="${OPENVIBECODING_INCIDENT_MAP_PATH:-$ROOT_DIR/docs/governance/incident-regression-map.json}"
+INCIDENT_DIR="${OPENVIBECODING_INCIDENT_DIR:-$ROOT_DIR/.agents/InternalDocs/governance/incidents}"
+MAP_PATH="${OPENVIBECODING_INCIDENT_MAP_PATH:-$ROOT_DIR/configs/incident_regression_map.json}"
 CI_MODE="${CI:-}"
 
 is_ci_mode() {

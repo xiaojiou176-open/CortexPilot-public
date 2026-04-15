@@ -575,7 +575,7 @@ if [[ "$SCRIPT_MODE" == "strict_closeout" ]]; then
   exit $?
 fi
 
-MATRIX_FILE="${OPENVIBECODING_UI_MATRIX_FILE:-docs/governance/ui-button-coverage-matrix.md}"
+MATRIX_FILE="${OPENVIBECODING_UI_MATRIX_FILE:-configs/ui_button_coverage_matrix.md}"
 FLAKE_REPORT_ROOT="${OPENVIBECODING_UI_FLAKE_REPORT_ROOT:-.runtime-cache/test_output/ui_regression}"
 FULL_AUDIT_REPORT_ROOT="${OPENVIBECODING_UI_FULL_AUDIT_REPORT_ROOT:-.runtime-cache/test_output/ui_full_gemini_audit}"
 OUT_JSON="${OPENVIBECODING_UI_TRUTH_GATE_REPORT:-.runtime-cache/test_output/ui_regression/ui_e2e_truth_gate.json}"

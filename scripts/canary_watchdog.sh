@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BASELINE_PATH="$ROOT_DIR/docs/governance/perf-baseline.json"
+BASELINE_PATH="$ROOT_DIR/configs/perf_baseline.json"
 STATE_PATH="$ROOT_DIR/.runtime-cache/openvibecoding/release/canary_state.json"
 DECISION_PATH="$ROOT_DIR/.runtime-cache/openvibecoding/release/canary_decision.json"
 DRY_RUN=0

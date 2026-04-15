@@ -153,7 +153,8 @@ bash scripts/run_orchestrator_cli.sh --help
   `OPENVIBECODING_MCP_QUEUE_PILOT_ENABLE_APPLY=1` is set in a trusted operator
   environment; queue cancel remains an HTTP control-plane recovery path
 - the authoritative operator runbook for that later-gated mutation slice lives
-  at `docs/runbooks/write-mcp-queue-pilot.md`; treat that file as the truth
+  in the repo's maintainer-only write-MCP pilot notes; treat that internal note
+  bundle as the truth
   source for preview / approval / audit / rollback wording rather than
   improvising broader write-capable MCP claims
 - shared control-plane reads flow through

@@ -3,13 +3,13 @@
 run_ci_step84_ui_button_matrix_gate() {
   echo "🚀 [STEP 8.4/12] Start: UI button-matrix gate (P0/P1)"
   UI_MATRIX_SNAPSHOT_FILE=""
-  if [[ -f "docs/governance/ui-button-coverage-matrix.md" ]]; then
+  if [[ -f "configs/ui_button_coverage_matrix.md" ]]; then
     UI_MATRIX_SNAPSHOT_FILE="$(mktemp "${TMPDIR:-/tmp}/openvibecoding-ui-matrix.XXXXXX")"
-    cp "docs/governance/ui-button-coverage-matrix.md" "${UI_MATRIX_SNAPSHOT_FILE}"
+    cp "configs/ui_button_coverage_matrix.md" "${UI_MATRIX_SNAPSHOT_FILE}"
   fi
   restore_ui_matrix_snapshot() {
     if [[ -n "${UI_MATRIX_SNAPSHOT_FILE}" && -f "${UI_MATRIX_SNAPSHOT_FILE}" ]]; then
-      cp "${UI_MATRIX_SNAPSHOT_FILE}" "docs/governance/ui-button-coverage-matrix.md"
+      cp "${UI_MATRIX_SNAPSHOT_FILE}" "configs/ui_button_coverage_matrix.md"
       rm -f "${UI_MATRIX_SNAPSHOT_FILE}"
       UI_MATRIX_SNAPSHOT_FILE=""
     fi

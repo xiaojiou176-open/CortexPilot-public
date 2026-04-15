@@ -498,7 +498,7 @@
         "apply_serial_only": false,
         "evidence": [
           "configs/runtime_artifact_policy.json",
-          "docs/architecture/runtime-topology.md"
+          "scripts/cleanup_runtime.sh"
         ],
         "notes": "Only prune stale children; do not treat the whole namespace as disposable hot data."
       },
@@ -524,7 +524,7 @@
         ],
         "apply_serial_only": false,
         "evidence": [
-          "docs/architecture/runtime-topology.md",
+          "configs/runtime_artifact_policy.json",
           "scripts/test_quick.sh"
         ],
         "notes": "Prune only aged child evidence, never whole test_output."
@@ -551,7 +551,7 @@
         ],
         "apply_serial_only": false,
         "evidence": [
-          "docs/architecture/runtime-topology.md",
+          "configs/runtime_artifact_policy.json",
           "apps/orchestrator/src/openvibecoding_orch/observability/logger.py"
         ],
         "notes": "Treat as evidence lane first, cleanup lane second."
@@ -649,8 +649,8 @@
         "risk": "high",
         "rebuild_command_ids": [],
         "evidence": [
-          "docs/architecture/runtime-topology.md",
-          "configs/runtime_artifact_policy.json"
+          "configs/runtime_artifact_policy.json",
+          "scripts/cleanup_runtime.sh"
         ],
         "notes": "Policy-known but writer attribution remains incomplete; never auto-clear as routine cache."
       }

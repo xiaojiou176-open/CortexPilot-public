@@ -4,7 +4,7 @@ set -euo pipefail
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$REPO_ROOT"
 
-MAP_PATH="${OPENVIBECODING_DOC_DRIFT_MAP:-$REPO_ROOT/docs/governance/doc-drift-map.json}"
+MAP_PATH="${OPENVIBECODING_DOC_DRIFT_MAP:-$REPO_ROOT/configs/doc_drift_map.json}"
 
 if [[ ! -f "$MAP_PATH" ]]; then
   echo "❌ [doc-drift-gate] mapping file not found: $MAP_PATH" >&2

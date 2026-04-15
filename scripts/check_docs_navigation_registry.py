@@ -26,7 +26,7 @@ def _nav_tokens(path: str) -> set[str]:
         tokens.add(rel.name)
     if path.startswith("docs/"):
         tokens.add(path.removeprefix("docs/"))
-    for prefix in ("docs/runbooks/", "docs/governance/", "docs/ai/", "docs/archive/"):
+    for prefix in ("docs/ai/", "docs/archive/"):
         if path.startswith(prefix):
             tokens.add(path.removeprefix(prefix))
     return {token for token in tokens if token}

@@ -238,8 +238,10 @@
           Hosted operator service, write-capable MCP, Docker image distribution, and standalone npm releases remain <strong>deferred</strong>.
         </p>
         <p class="lede">
-          This page is the public mirror of the root <a href="https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/DISTRIBUTION.md"><code>DISTRIBUTION.md</code></a> contract.
-          If this page and the root contract ever drift, the root contract wins and the drift should be fixed in the next change set.
+          This page is the public distribution truth surface for OpenVibeCoding.
+          Historical packaging notes and repo-internal release bookkeeping may
+          evolve behind it, but the public claim should stay readable here
+          without sending readers into internal markdown trails.
         </p>
         <div class="pill-row">
           <span class="pill">Shipped now: repo, Pages, first proven workflow, read-only MCP, PyPI package, Official MCP Registry, ClawHub skill</span>
@@ -269,9 +271,9 @@
             <p><code>v0.1.0-alpha.3</code> is still the latest published prerelease, but it should be treated as a lagging public snapshot until the next tag catches up with <code>main</code>.</p>
           </article>
           <article class="card">
-            <span class="badge shipped">Repo-side draft</span>
-            <h3>Historical release notes archive</h3>
-            <p>Use <a href="https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/docs/releases/v0.1.0-alpha.3.md"><code>docs/releases/v0.1.0-alpha.3.md</code></a> as the latest tracked repo-side prerelease draft. Keep <code>first-public-release-draft.md</code> as a historical alpha.1 checkpoint, not as part of the active front-door path.</p>
+            <span class="badge shipped">Historical boundary</span>
+            <h3>Older release drafts stay archived</h3>
+            <p>The latest published public prerelease is still the GitHub Release for <code>v0.1.0-alpha.3</code>. Older repo-side release drafts remain archived for maintainers, but they are intentionally not part of the active public path.</p>
           </article>
         </div>
       </section>
@@ -308,7 +310,7 @@
               <tr>
                 <td><strong>GitHub repo</strong></td>
                 <td><span class="badge shipped">shipped</span></td>
-                <td>The public repo is the canonical front door for source, docs, runbooks, and examples.</td>
+                <td>The public repo is the canonical front door for source, public docs, and examples.</td>
                 <td><a href="https://github.com/xiaojiou176-open/OpenVibeCoding">xiaojiou176-open/OpenVibeCoding</a></td>
                 <td>None</td>
                 <td>Keep the root README short and truthful.</td>
@@ -453,7 +455,7 @@
                 <td><strong>Hosted Render pilot</strong></td>
                 <td><span class="badge deferred">deferred</span></td>
                 <td>Repo-owned hosted blueprint exists for guarded future pilots; OpenVibeCoding is not a hosted operator product today.</td>
-                <td><a href="https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/docs/runbooks/render-hosted-operator-pilot.md">Render pilot runbook</a></td>
+                <td>No public install path today</td>
                 <td>HTTP / token / protected operator flow</td>
                 <td>Keep as future pilot groundwork, not a live hosted claim.</td>
               </tr>
@@ -461,7 +463,7 @@
                 <td><strong>Write-capable MCP</strong></td>
                 <td><span class="badge deferred">deferred</span></td>
                 <td>Public MCP remains read-only; queue preview or pilot groundwork does not upgrade the public contract.</td>
-                <td><a href="https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/docs/runbooks/write-mcp-queue-pilot.md">Queue pilot runbook</a></td>
+                <td>No public install path today</td>
                 <td>Guarded operator-only, default-off</td>
                 <td>Keep outside the public promise until an owner-approved launch contract exists.</td>
               </tr>

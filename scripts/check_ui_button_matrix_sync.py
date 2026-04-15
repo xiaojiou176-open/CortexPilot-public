@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_MATRIX = ROOT / "docs" / "governance" / "ui-button-coverage-matrix.md"
+DEFAULT_MATRIX = ROOT / "configs" / "ui_button_coverage_matrix.md"
 DEFAULT_INVENTORY_DIR = ROOT / ".runtime-cache" / "test_output" / "ui_regression"
 INVENTORY_SCRIPT = ROOT / "scripts" / "ui_button_inventory.py"
 

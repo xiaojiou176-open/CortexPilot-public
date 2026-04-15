@@ -75,8 +75,8 @@
         <li><strong>Run / compare brief</strong>: a run-scoped explainer over deltas, proof, incident context, and next operator step</li>
       </ul>
       <p>
-        Read the architecture baseline in
-        <a href="https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/docs/architecture/mcp-and-operator-copilot-v1.md">the MCP + operator copilot architecture note</a>.
+        The detailed operator-copilot architecture stays repo-internal. This
+        public page intentionally summarizes only the bounded public contract.
       </p>
 
       <h2>2. Read-only MCP surface</h2>
@@ -101,13 +101,14 @@
         OpenVibeCoding also exposes a thin builder edge for frontend consumers that want the same routes and contracts the dashboard and desktop use today.
       </p>
       <ul>
-        <li><a href="https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/packages/frontend-api-client/README.md"><code>@openvibecoding/frontend-api-client</code></a>: thin JS/TS client helpers for runs, Workflow Cases, approvals, and command-tower reads</li>
-        <li><a href="https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/packages/frontend-api-contract/docs/README.md"><code>@openvibecoding/frontend-api-contract</code></a>: contract-facing route/query names, generated types, and the human-readable package guide</li>
-        <li><a href="https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/packages/frontend-shared/README.md"><code>@openvibecoding/frontend-shared</code></a>: shared copy, locale, and status-presentation substrate for dashboard and desktop</li>
+        <li><code>@openvibecoding/frontend-api-client</code>: thin JS/TS client helpers for runs, Workflow Cases, approvals, and command-tower reads</li>
+        <li><code>@openvibecoding/frontend-api-contract</code>: contract-facing route/query names and generated frontend-safe types</li>
+        <li><code>@openvibecoding/frontend-shared</code>: shared copy, locale, and status-presentation substrate for dashboard and desktop, kept workspace-only today</li>
       </ul>
       <p>
-        For the machine-facing HTTP boundary, open
-        <a href="https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/docs/api/openapi.openvibecoding.json">the public OpenAPI document</a>.
+        For the public machine-facing HTTP summary, use the
+        <a href="../api/">API and contract quickstart</a> instead of raw
+        internal contract files.
       </p>
       <p>
         If you want the shortest API-oriented map, use the

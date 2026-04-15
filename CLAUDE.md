@@ -5,9 +5,9 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
 ## Read First
 
 1. `README.md`
-2. `docs/README.md`
-3. `docs/specs/00_SPEC.md`
-4. `docs/architecture/runtime-topology.md`
+2. `docs/index.html`
+3. `configs/repo_positioning.json`
+4. `configs/docs_nav_registry.json`
 5. `AGENTS.md`
 
 ## Working Rules
@@ -16,6 +16,8 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
 - run real verification commands before claiming success
 - keep docs and code synchronized
 - keep runtime output out of tracked source
+- anchor root AI entrypoints to public routes, config manifests, and receipts
+  instead of archived internal markdown under `docs/`
 - keep public test/probe fixtures free of maintainer-local absolute paths and
   raw token-shaped literals; prefer generic workspace roots plus synthetic
   string assembly, keep placeholder security URIs pinned to the exact
@@ -150,13 +152,13 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   preview, and timezone-safe queue scheduling inputs
 - when Version B closeout work changes the public front door, shared locale
   substrate, read-only MCP exposure, or operator-copilot surfaces, sync
-  `README.md`, `docs/index.html`, `docs/releases/first-public-release-draft.md`,
+  `README.md`, `docs/index.html`, `configs/docs_nav_registry.json`,
   `apps/orchestrator/README.md`, and the root AI entrypoints in the same patch
   so doc-drift and doc-sync gates keep following the live Command Tower /
   Workflow Cases / Proof & Replay contract
 - when ecosystem-binding, builder-entrypoint, or distribution-facing surfaces
   change, sync the root AI/docs entrypoints in the same patch; current examples
-  include `docs/architecture/ecosystem-and-builder-surfaces-v1.md`, the
+  include `configs/docs_nav_registry.json`, the
   package-facing `frontend-api-client` / `frontend-shared` READMEs, and the
   dashboard home/docs landing sections that explain Codex / Claude Code /
   read-only MCP plus the first-run -> proof -> share loop
@@ -164,7 +166,7 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   or surfaces integrations/skills adoption more directly on the dashboard home,
   keep this file, `AGENTS.md`, and the root/docs entrypoints aligned in the
   same patch; current examples include
-  `packages/frontend-api-contract/docs/README.md`, the dashboard-home
+  `packages/frontend-api-contract/README.md`, the dashboard-home
   integrations section in `apps/dashboard/components/DashboardHomeStorySections.tsx`,
   and the docs-base resolver now honoring `/integrations/` and `/skills/`
 - when a later ecosystem-adoption slice adds copy-paste starter kits or
@@ -240,7 +242,7 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   `apps/dashboard/components/DashboardHomeStorySections.tsx`, the public-docs
   resolver allowlist in `apps/dashboard/lib/env.ts`, the matching env/home
   regression coverage, and the repo-owned
-  `packages/frontend-api-contract/docs/README.md` guide that now sits between
+  `packages/frontend-api-contract/README.md` guide that now sits between
   the public API quickstart and the raw generated `.d.ts` files
 - when a later discoverability wave adds a public compatibility/adoption
   matrix, keep this file, `AGENTS.md`, and the root/docs/dashboard entrypoints
@@ -266,7 +268,7 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
   decision surface
 - when a follow-up CTA polish slice changes that dashboard adoption layer
   again, keep this file, `AGENTS.md`, `README.md`, `CHANGELOG.md`,
-  `docs/README.md`, and `apps/dashboard/README.md` aligned in the same patch;
+  `docs/index.html`, and `apps/dashboard/README.md` aligned in the same patch;
   current examples include keeping `/compatibility/` as the main routing card,
   restoring a lighter `/use-cases/` proof-first side door, and updating the
   adoption-nav accessibility label so the dashboard no longer advertises the
@@ -346,7 +348,7 @@ This file mirrors the root AI entrypoint for tools that prefer `CLAUDE.md`.
 - when the Final-100 / Wave 4 follow-up slice adds hosted pilot readiness or
   queue-first mutation groundwork, keep this file, `AGENTS.md`, and the root
   AI/docs entrypoints aligned in the same patch; current examples include
-  `render.yaml`, `docs/runbooks/render-hosted-operator-pilot.md`, the hosted
+  `render.yaml`, `configs/docs_nav_registry.json`, the hosted
   `OPENVIBECODING_API_ALLOWED_ORIGINS` env wiring across `.env.example`,
   `apps/orchestrator/.env.example`, `configs/env.registry.json`, and
   `configs/env_direct_read_allowlist.json`, plus the rule that
