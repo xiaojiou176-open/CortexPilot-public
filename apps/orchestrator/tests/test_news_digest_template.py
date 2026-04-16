@@ -410,7 +410,7 @@ def test_news_digest_result_writes_failed_report_when_search_pipeline_fails(monk
     assert "来源链路失败" in digest_payload["failure_reason_zh"]
 
 
-def test_topic_brief_provider_homepage_only_results_write_failed_report(monkeypatch, tmp_path: Path) -> None:
+def test_topic_brief_run_search_pipeline_requires_browser_public_source_provider(monkeypatch, tmp_path: Path) -> None:
     runtime_root = tmp_path / "runtime"
     monkeypatch.setenv("OPENVIBECODING_RUNTIME_ROOT", str(runtime_root))
     monkeypatch.setenv("OPENVIBECODING_RUNS_ROOT", str(runtime_root / "runs"))
@@ -452,9 +452,5 @@ def test_topic_brief_provider_homepage_only_results_write_failed_report(monkeypa
         requested_by={"role": "PM", "agent_id": "pm-1"},
     )
     assert result["ok"] is False
-    assert result["public_source_receipt_missing"] is True
-    run_dir = runtime_root / "runs" / run_id / "reports"
-    digest_payload = json.loads((run_dir / "topic_brief_result.json").read_text(encoding="utf-8"))
-    assert digest_payload["status"] == "FAILED"
-    assert digest_payload["summary"].startswith("The topic brief for 'Seattle AI' did not complete successfully.")
-    assert "provider 壳页" in digest_payload["failure_reason_zh"]
+    assert result["reason"] == "missing required providers"
+    assert result["missing"] == ["browser_ddg"]
