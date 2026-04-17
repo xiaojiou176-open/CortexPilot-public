@@ -191,7 +191,7 @@ export default function DashboardHomeStorySections({
     locale === "zh-CN"
       ? [
           {
-            kicker: "当前 live",
+            kicker: "当前实况",
             value: hasRunHistory ? String(runningCount) : "0",
             detail: hasRunHistory ? "先读指挥塔，再下钻明细" : "先起第一条任务，系统才会亮起来",
           },
@@ -202,7 +202,7 @@ export default function DashboardHomeStorySections({
           },
           {
             kicker: "真相路径",
-            value: hasRunHistory ? "Workflow + Proof" : "Start in PM",
+            value: hasRunHistory ? "工作流 + 证明" : "先从 PM 开始",
             detail: hasRunHistory ? "首页只负责导向，不负责替代证明室" : "先写请求，再让真相面出现",
           },
         ]

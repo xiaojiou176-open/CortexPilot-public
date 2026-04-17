@@ -2698,7 +2698,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         unavailableBadge: "实时数据缺失",
         partialTitle: "指挥塔当前只提供部分真相",
         partialNextAction:
-          "当前可见总览只能算部分快照。做审批、回滚或发布判断前，先直接核对 Runs 或 Workflow Cases。",
+          "当前可见总览只能算部分快照。做审批、回滚或发布判断前，先直接核对运行记录或工作流案例。",
         partialBadge: "上下文不完整",
         actions: {
           reload: "重载指挥塔",
