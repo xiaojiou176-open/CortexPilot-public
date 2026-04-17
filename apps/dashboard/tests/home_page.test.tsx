@@ -272,6 +272,9 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getAllByText("只读 MCP 快速入口").length).toBeGreaterThan(0);
     expect(screen.getAllByText("API 与契约快速入口").length).toBeGreaterThan(0);
     expect(screen.getByText("显示四步首跑流程")).toBeInTheDocument();
+    expect(screen.getByText("当前实况")).toBeInTheDocument();
+    expect(screen.getByText("先从 PM 开始")).toBeInTheDocument();
+    expect(screen.queryByText("Start in PM")).not.toBeInTheDocument();
   });
 
   it("maps latest failure category to semantic label and provides governance link", async () => {

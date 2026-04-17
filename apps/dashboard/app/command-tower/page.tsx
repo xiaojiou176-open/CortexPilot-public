@@ -27,8 +27,49 @@ type CommandTowerHomeState = {
   hasLiveData: boolean;
 };
 
+function buildCommandTowerWarningSummary({
+  locale,
+  overviewWarning,
+  sessionsWarning,
+  hasLiveData,
+}: {
+  locale: UiLocale;
+  overviewWarning: string | null;
+  sessionsWarning: string | null;
+  hasLiveData: boolean;
+}): string {
+  if (!overviewWarning && !sessionsWarning) {
+    return "";
+  }
+
+  if (locale === "zh-CN") {
+    if (overviewWarning && sessionsWarning) {
+      return "指挥塔总览与 PM 会话列表当前都不可用。请稍后再试。";
+    }
+    if (overviewWarning) {
+      return hasLiveData
+        ? "指挥塔总览暂时不可用。当前页面只显示部分快照，继续操作前请直接核对运行记录或工作流案例。"
+        : "指挥塔总览暂时不可用。请稍后再试。";
+    }
+    return hasLiveData
+      ? "PM 会话列表暂时不可用。当前页面只显示部分快照，继续操作前请直接核对运行记录或工作流案例。"
+      : "PM 会话列表暂时不可用。请稍后再试。";
+  }
+
+  if (overviewWarning && sessionsWarning) {
+    return "Command Tower overview and PM session list are temporarily unavailable. Try again later.";
+  }
+  if (overviewWarning) {
+    return hasLiveData
+      ? "Command Tower overview is temporarily unavailable. The page is showing a partial snapshot, so verify runs or Workflow Cases directly before you act."
+      : "Command Tower overview is temporarily unavailable. Try again later.";
+  }
+  return hasLiveData
+    ? "The PM session list is temporarily unavailable. The page is showing a partial snapshot, so verify runs or Workflow Cases directly before you act."
+    : "The PM session list is temporarily unavailable. Try again later.";
+}
+
 async function loadCommandTowerHomeState(locale: UiLocale): Promise<CommandTowerHomeState> {
-  const commandTowerCopy = getUiCopy(locale).dashboard.commandTowerPage;
   const fallbackOverview: CommandTowerOverviewPayload = {
     generated_at: new Date().toISOString(),
     total_sessions: 0,
@@ -72,11 +113,16 @@ async function loadCommandTowerHomeState(locale: UiLocale): Promise<CommandTower
   const sessions = sessionsResult.data;
   const overviewWarning = overviewResult.warning;
   const sessionsWarning = sessionsResult.warning;
-  const warning = [overviewWarning, sessionsWarning].filter(Boolean).join(" ");
   const hasLiveData =
     (overview.total_sessions || 0) > 0 ||
     (overview.active_sessions || 0) > 0 ||
     (sessions?.length || 0) > 0;
+  const warning = buildCommandTowerWarningSummary({
+    locale,
+    overviewWarning,
+    sessionsWarning,
+    hasLiveData,
+  });
 
   return {
     overview,
@@ -190,7 +236,7 @@ export function CommandTowerPageIntro({
           <p id="command-tower-page-subtitle" className="page-subtitle">
             {recoveryMode
               ? locale === "zh-CN"
-                ? "指挥塔当前拿不到 live 总览。先确认只读真相，再走一条恢复路径。"
+                ? "指挥塔当前拿不到实时总览。先确认只读真相，再走一条恢复路径。"
                 : "Command Tower cannot read the live overview right now. Verify the read-only truth first, then take one recovery path."
               : partialMode
                 ? commandTowerCopy.partialNextAction
@@ -238,7 +284,7 @@ export function CommandTowerPageIntro({
                     ? commandTowerCopy.partialBadge
                     : commandTowerCopy.partialBadge
                 : locale === "zh-CN"
-                  ? "先看 live"
+                  ? "先看实时态"
                   : "Live first"}
             </Badge>
           </div>
@@ -247,13 +293,13 @@ export function CommandTowerPageIntro({
               <>
                 <div className="home-briefing-signal">
                   <span className="cell-sub mono muted">{locale === "zh-CN" ? "当前状态" : "Current state"}</span>
-                  <strong>{locale === "zh-CN" ? "live 总览暂时不可读" : "The live overview is temporarily unavailable"}</strong>
+                  <strong>{locale === "zh-CN" ? "实时总览暂时不可读" : "The live overview is temporarily unavailable"}</strong>
                   <p>{locale === "zh-CN" ? "这不是正常驾驶舱读面。先恢复主面，再继续值班。" : "This is not a normal cockpit read. Restore the surface first, then resume operator work."}</p>
                 </div>
                 <div className="home-briefing-signal">
                   <span className="cell-sub mono muted">{locale === "zh-CN" ? "仍然成立的真相" : "What still holds"}</span>
                   <strong>{locale === "zh-CN" ? "只读入口与证明室仍可用" : "The read-only rooms still work"}</strong>
-                  <p>{locale === "zh-CN" ? "你仍然可以回 PM、Runs 和 Workflow Cases，但不要把当前页面当成 live cockpit。 " : "You can still use PM, Runs, and Workflow Cases, but do not treat this page as a live cockpit right now."}</p>
+                  <p>{locale === "zh-CN" ? "你仍然可以回 PM 入口、运行记录和工作流案例，但不要把当前页面当成实时驾驶舱。 " : "You can still use PM, Runs, and Workflow Cases, but do not treat this page as a live cockpit right now."}</p>
                 </div>
                 <div className="home-briefing-signal">
                   <span className="cell-sub mono muted">{locale === "zh-CN" ? "恢复动作" : "Recovery move"}</span>
@@ -266,11 +312,11 @@ export function CommandTowerPageIntro({
                 <div className="home-briefing-signal">
                   <span className="cell-sub mono muted">{locale === "zh-CN" ? "当前状态" : "Current state"}</span>
                   <strong>{commandTowerCopy.partialTitle}</strong>
-                  <p>{locale === "zh-CN" ? "你现在看到的是部分可读的值班面，不是完整 live cockpit。首屏要先承认降级，再继续分诊。" : "You are looking at a partially readable operator surface, not a full live cockpit. The first screen should acknowledge degradation before continuing triage."}</p>
+                  <p>{locale === "zh-CN" ? "你现在看到的是部分可读的值班面，不是真正完整的实时驾驶舱。首屏要先承认降级，再继续分诊。" : "You are looking at a partially readable operator surface, not a full live cockpit. The first screen should acknowledge degradation before continuing triage."}</p>
                 </div>
                 <div className="home-briefing-signal">
                   <span className="cell-sub mono muted">{locale === "zh-CN" ? "仍然成立的真相" : "What still holds"}</span>
-                  <strong>{locale === "zh-CN" ? "可见 board 只算部分快照" : "The visible board only counts as a partial snapshot"}</strong>
+                  <strong>{locale === "zh-CN" ? "可见面板只算部分快照" : "The visible board only counts as a partial snapshot"}</strong>
                   <p>{commandTowerCopy.partialNextAction}</p>
                 </div>
                 <div className="home-briefing-signal">

@@ -174,6 +174,11 @@ describe("command tower page render", () => {
     expect(screen.getByText("Partial truth / live surface degraded")).toBeInTheDocument();
     expect(screen.getByText("Command Tower is running with partial truth")).toBeInTheDocument();
     expect(screen.getByText("Partial context")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Command Tower overview is temporarily unavailable. The page is showing a partial snapshot, so verify runs or Workflow Cases directly before you act."
+      )
+    ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Reload Command Tower" })).toHaveAttribute("href", "/command-tower");
     expect(screen.getByRole("link", { name: "View runs" })).toHaveAttribute("href", "/runs");
     expect(screen.queryByTestId("ct-callout")).toBeNull();
@@ -203,6 +208,10 @@ describe("command tower page render", () => {
     expect(screen.getByText("部分真相 / live 面当前降级")).toBeInTheDocument();
     expect(screen.getByText("指挥塔当前只提供部分真相")).toBeInTheDocument();
     expect(screen.getByText("上下文不完整")).toBeInTheDocument();
+    expect(screen.getByText("可见面板只算部分快照")).toBeInTheDocument();
+    expect(
+      screen.getByText("指挥塔总览暂时不可用。当前页面只显示部分快照，继续操作前请直接核对运行记录或工作流案例。")
+    ).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent("正在加载指挥塔实时总览...");
     expect(screen.getByRole("link", { name: "重载指挥塔" })).toHaveAttribute("href", "/command-tower");
     expect(screen.getByRole("link", { name: "查看运行记录" })).toHaveAttribute("href", "/runs");
@@ -220,6 +229,9 @@ describe("command tower page render", () => {
     expect(
       screen.getByText("Command Tower cannot read the live overview right now. Verify the read-only truth first, then take one recovery path."),
     ).toBeInTheDocument();
+    expect(
+      screen.getByText("Command Tower overview and PM session list are temporarily unavailable. Try again later.")
+    ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Reload Command Tower" })).toHaveAttribute("href", "/command-tower");
     expect(screen.getByRole("link", { name: "Start from PM" })).toHaveAttribute("href", "/pm");
     expect(screen.queryByTestId("ct-live-client")).toBeNull();
@@ -236,7 +248,9 @@ describe("command tower page render", () => {
     render(await CommandTowerPage());
 
     expect(screen.getByText("恢复模式 / 当前主面不可用")).toBeInTheDocument();
-    expect(screen.getByText("指挥塔当前拿不到 live 总览。先确认只读真相，再走一条恢复路径。")).toBeInTheDocument();
+    expect(screen.getByText("指挥塔当前拿不到实时总览。先确认只读真相，再走一条恢复路径。")).toBeInTheDocument();
+    expect(screen.getByText("实时总览暂时不可读")).toBeInTheDocument();
+    expect(screen.getByText("指挥塔总览与 PM 会话列表当前都不可用。请稍后再试。")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "重载指挥塔" })).toHaveAttribute("href", "/command-tower");
     expect(screen.getByRole("link", { name: "回到 PM 入口" })).toHaveAttribute("href", "/pm");
     expect(screen.queryByTestId("ct-live-client")).toBeNull();
