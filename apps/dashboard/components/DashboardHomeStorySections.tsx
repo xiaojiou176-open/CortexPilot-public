@@ -374,29 +374,6 @@ export default function DashboardHomeStorySections({
               ))}
             </div>
           </div>
-          <Card className="home-briefing-panel">
-            <div className="home-briefing-panel-head">
-              <span className="cell-sub mono muted">
-                {locale === "zh-CN" ? "首屏先回答的三件事" : "Three answers before you scroll"}
-              </span>
-              <Badge variant={failedCount > 0 ? "warning" : hasRunHistory ? "running" : "default"}>
-                {failedCount > 0
-                  ? locale === "zh-CN" ? "先看风险" : "Risk first"
-                  : hasRunHistory
-                    ? locale === "zh-CN" ? "进入值班态" : "Operator mode"
-                    : locale === "zh-CN" ? "先建主循环" : "Start the loop"}
-              </Badge>
-            </div>
-            <div className="home-briefing-signal-list">
-              {briefingSignals.map((item) => (
-                <div key={item.kicker} className="home-briefing-signal">
-                  <span className="cell-sub mono muted">{item.kicker}</span>
-                  <strong>{item.title}</strong>
-                  <p>{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </Card>
         </div>
       </header>
 
@@ -421,6 +398,32 @@ export default function DashboardHomeStorySections({
             </Link>
           ))}
         </div>
+      </section>
+
+      <section className="app-section" aria-label={locale === "zh-CN" ? "首屏判断卡" : "First-screen operator judgment"}>
+        <Card className="home-briefing-panel">
+          <div className="home-briefing-panel-head">
+            <span className="cell-sub mono muted">
+              {locale === "zh-CN" ? "首屏先回答的三件事" : "Three answers before you scroll"}
+            </span>
+            <Badge variant={failedCount > 0 ? "warning" : hasRunHistory ? "running" : "default"}>
+              {failedCount > 0
+                ? locale === "zh-CN" ? "先看风险" : "Risk first"
+                : hasRunHistory
+                  ? locale === "zh-CN" ? "进入值班态" : "Operator mode"
+                  : locale === "zh-CN" ? "先建主循环" : "Start the loop"}
+            </Badge>
+          </div>
+          <div className="home-briefing-signal-list">
+            {briefingSignals.map((item) => (
+              <div key={item.kicker} className="home-briefing-signal">
+                <span className="cell-sub mono muted">{item.kicker}</span>
+                <strong>{item.title}</strong>
+                <p>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
       </section>
 
       <section className="app-section" aria-labelledby="dashboard-operator-loop-title">
