@@ -152,7 +152,7 @@
   "pnpm": {
     "overrides": {
       "axios": "1.15.0",
-      "basic-ftp": "5.2.2",
+      "basic-ftp": "5.3.0",
       "brace-expansion@5": "5.0.5",
       "cosmiconfig@7.1.0>yaml": "1.10.3",
       "follow-redirects": "1.16.0",
