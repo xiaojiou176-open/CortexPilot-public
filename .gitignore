@@ -84,6 +84,7 @@ coverage.xml
 .codex-memory.jsonl
 .codex/
 .claude/
+.cursor/
 .opencode/
 .serena/
 .cursorrules/
