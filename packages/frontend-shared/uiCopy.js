@@ -1238,10 +1238,10 @@ const UI_COPY = {
         dashboard: {
             homePhase2: {
                 heroTitle: "面向 AI 工程的开放指挥塔",
-                heroSubtitle: "别再盯着 AI coding 一步一步催了。AI coding 不缺模型，缺的是指挥塔。OpenVibeCoding 会围绕 Codex / Claude Code 去规划、派工、追踪、续跑和验真，把长期工程任务收进一条可治理、可续跑、可验真的操作路径。",
+                heroSubtitle: "别再盯着 AI 编码一步一步催了。AI 编码不缺模型，缺的是指挥塔。OpenVibeCoding 会围绕 Codex / Claude Code 去规划、派工、追踪、续跑和验真，把长期工程任务收进一条可治理、可续跑、可验真的操作路径。",
                 startFirstTaskLabel: "启动首个任务",
                 startNewTaskLabel: "启动新任务",
-                viewLatestRunsLabel: "查看最近 runs",
+                viewLatestRunsLabel: "查看最近运行",
                 investigateHighRiskFailuresLabel: "排查高风险失败",
                 handleLatestFailureLabel: "处理最近失败",
                 productSpineTitle: "一个开放指挥塔，五个动作",
@@ -1377,7 +1377,7 @@ const UI_COPY = {
                 ],
                 aiSurfacesTitle: "AI 功能已经进入主工作流",
                 aiSurfacesDescription: "OpenVibeCoding 里的 AI 不是漂浮聊天框。它已经分别出现在执行前建议、工作流解释，以及运行/对比的操作摘要里。",
-                aiSurfacesActionLabel: "打开 AI + MCP + API 页面",
+                aiSurfacesActionLabel: "打开 AI、MCP 与 API 页面",
                 aiSurfacesActionHref: "/ai-surfaces/",
                 aiSurfaceCards: [
                     {
@@ -1389,15 +1389,15 @@ const UI_COPY = {
                     },
                     {
                         badge: "工作流级 AI",
-                        title: "Workflow 副驾驶",
-                        desc: "Workflow Case 已经能给出工作流级别的解释，覆盖队列姿态、最新 run 上下文和下一步操作。",
+                        title: "工作流副驾驶",
+                        desc: "工作流案例已经能给出工作流级别的解释，覆盖队列姿态、最新运行上下文和下一步操作。",
                         href: "/workflows",
                         prefetch: true,
                     },
                     {
                         badge: "运行时 AI",
-                        title: "Run / Compare 操作摘要",
-                        desc: "Run Detail 和 compare 面已经能解释差异、证明、incident 上下文和下一步动作，而不假装自己在执行恢复。",
+                        title: "运行与对比操作摘要",
+                        desc: "运行详情和对比页面已经能解释差异、证明、incident 上下文和下一步动作，而不假装自己在执行恢复。",
                         href: "/runs",
                         prefetch: true,
                     },
@@ -1464,15 +1464,15 @@ const UI_COPY = {
                         href: "/workflows",
                         prefetch: true,
                         step: "第 3 步",
-                        title: "确认 Workflow Case",
+                        title: "确认工作流案例",
                         desc: "打开工作流案例，确认持久案例记录、队列姿态和关联 runs。",
                     },
                     {
                         href: "/runs",
                         prefetch: true,
                         step: "第 4 步",
-                        title: "检查 Proof & Replay",
-                        desc: "打开 run 台账，检查状态、证据、compare 状态和 replay 状态。",
+                        title: "检查证明与回放",
+                        desc: "打开运行台账，检查状态、证据、对比状态和回放状态。",
                     },
                 ],
                 optionalApprovalStep: {
@@ -1778,12 +1778,12 @@ const UI_COPY = {
                     owner: "负责人",
                     project: "项目",
                     verdict: "结论",
-                    runs: "Runs",
+                    runs: "运行",
                 },
             },
             workflowListPage: {
                 title: "工作流案例",
-                subtitle: "工作流案例会把队列姿态、关联 Runs、结论，以及后续的证明与回放决策都绑在同一条操作记录上。",
+                subtitle: "工作流案例会把队列姿态、关联运行、结论，以及后续的证明与回放决策都绑在同一条操作记录上。",
                 summaryAriaLabel: "工作流案例操作摘要",
                 countsBadge: (workflowCount, queueCount) => `${workflowCount} 个工作流 / ${queueCount} 个队列项`,
                 metricLabels: {
@@ -1807,7 +1807,7 @@ const UI_COPY = {
                     status: "状态",
                     namespace: "命名空间",
                     taskQueue: "任务队列",
-                    runs: "Runs",
+                    runs: "运行",
                 },
                 verdictPrefix: "结论",
                 queueSummary: (count, slaState) => `队列：${count} / SLA ${slaState}`,
@@ -1815,7 +1815,7 @@ const UI_COPY = {
             runsPage: {
                 title: "证明与回放",
                 subtitle: "这里是 Run 证据、对比姿态和重放决策的主入口。失败分流只是其中一条操作 lane，不是这张页面的全部意义。",
-                countsBadge: (runCount) => `${runCount} 个 runs`,
+                countsBadge: (runCount) => `${runCount} 个运行`,
                 warningTitle: "证明与回放当前处于部分真相模式。",
                 warningNextStep: "先把当前可见 runs 当成只读快照，再进入对应的 Run Detail 做治理判断。",
                 metricLabels: {
@@ -1823,7 +1823,7 @@ const UI_COPY = {
                     replayPosture: "重放姿态",
                     operatorPriority: "当前操作优先级",
                 },
-                inventorySubline: "当前 Dashboard 在证明与回放页能看到的总 runs",
+                inventorySubline: "当前仪表板在证明与回放页能看到的总运行数",
                 failureHeadline: (failed) => `失败 ${failed}`,
                 successHeadline: (success) => `成功 ${success}`,
                 failureSubline: (success, running) => `先看失败 · 成功 ${success} · 运行中 ${running}`,
