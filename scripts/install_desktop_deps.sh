@@ -209,6 +209,11 @@ install_log_has_socket_timeout() {
   [[ "$content" == *"ERR_SOCKET_TIMEOUT"* || "$content" == *"Socket timeout"* ]]
 }
 
+install_log_has_invalid_version() {
+  [[ -f "$INSTALL_LOG" ]] || return 1
+  grep -q "Invalid Version" "$INSTALL_LOG"
+}
+
 run_install_with_network_retry() {
   local context="$1"
   local attempt=0
@@ -260,6 +265,26 @@ recover_with_fresh_store() {
       exit 1
     fi
     echo "❌ [install-desktop-deps] pnpm install failed after fresh-store recovery; tail follows" >&2
+    tail -n 80 "$INSTALL_LOG" >&2 || true
+    exit 1
+  fi
+}
+
+recover_without_shamefully_hoist() {
+  local reason="$1"
+  if [[ "$INSTALL_SHAMEFULLY_HOIST" != "1" ]]; then
+    echo "❌ [install-desktop-deps] ${reason}; no-hoist recovery already active, tail follows" >&2
+    tail -n 80 "$INSTALL_LOG" >&2 || true
+    exit 1
+  fi
+  echo "⚠️ [install-desktop-deps] ${reason}; retrying desktop install without --shamefully-hoist" >&2
+  INSTALL_SHAMEFULLY_HOIST=0
+  if ! reset_app_node_modules; then
+    tail -n 80 "$INSTALL_LOG" >&2 || true
+    exit 1
+  fi
+  if ! run_install_with_network_retry "no-hoist recovery install"; then
+    echo "❌ [install-desktop-deps] pnpm install failed after no-hoist recovery; tail follows" >&2
     tail -n 80 "$INSTALL_LOG" >&2 || true
     exit 1
   fi
@@ -344,6 +369,8 @@ if ! run_install_with_network_retry "initial install"; then
     recover_with_fresh_store "detected pnpm store ENOENT"
   elif grep -q "ERR_PNPM_ENOSPC" "$INSTALL_LOG" || grep -qi "no space left on device" "$INSTALL_LOG"; then
     recover_with_workspace_store "detected pnpm ENOSPC"
+  elif install_log_has_invalid_version; then
+    recover_without_shamefully_hoist "detected pnpm Invalid Version during desktop bin dedupe"
   elif install_log_has_socket_timeout; then
     echo "❌ [install-desktop-deps] pnpm install failed after transient npm registry retries; tail follows" >&2
     tail -n 80 "$INSTALL_LOG" >&2 || true
