@@ -29,11 +29,8 @@
   <text x="88" y="242" fill="#16232d" font-family="Georgia, 'Times New Roman', serif" font-size="66" font-weight="700">One live board.</text>
   <text x="88" y="316" fill="#16232d" font-family="Georgia, 'Times New Roman', serif" font-size="66" font-weight="700">One proof pack you can inspect.</text>
 
-  <text x="88" y="382" fill="#4f616e" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="25">
-    OpenVibeCoding turns PM request -> Command Tower -> Proof and Replay into one governed operator loop.
-  </text>
-  <text x="88" y="418" fill="#4f616e" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="25">
-    Public boundary today: repo, Pages, one release-proven workflow, read-only MCP, starter packs.
+  <text x="88" y="382" fill="#4f616e" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="28" font-weight="700">
+    See the run before you trust it. Start with one proven workflow.
   </text>
 
   <g filter="url(#shadow)">
@@ -41,21 +38,21 @@
 
     <rect x="128" y="516" width="250" height="88" rx="22" fill="url(#accentA)"/>
     <text x="154" y="552" fill="#fffaf2" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="17" font-weight="700">PM request</text>
-    <text x="154" y="582" fill="#fffaf2" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="14">one task enters with intent and acceptance</text>
+    <text x="154" y="582" fill="#fffaf2" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="16">one task enters with visible intent</text>
 
     <path d="M398 560 C450 560, 478 560, 530 560" fill="none" stroke="#9f4c26" stroke-width="6" stroke-linecap="round"/>
     <polygon points="522,547 548,560 522,573" fill="#9f4c26"/>
 
     <rect x="548" y="498" width="264" height="124" rx="24" fill="url(#accentB)"/>
     <text x="578" y="536" fill="#fffaf2" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="20" font-weight="700">Command Tower</text>
-    <text x="578" y="568" fill="#dfe8ee" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="14">workflow posture, queue truth, run visibility</text>
-    <text x="578" y="592" fill="#dfe8ee" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="14">without scattered shell logs or private scripts</text>
+    <text x="578" y="568" fill="#dfe8ee" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="16">live board, blocker lane, and run visibility</text>
+    <text x="578" y="592" fill="#dfe8ee" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="16">without scattered chats or shell logs</text>
 
     <path d="M828 560 C878 560, 904 560, 954 560" fill="none" stroke="#27485d" stroke-width="6" stroke-linecap="round"/>
     <polygon points="946,547 972,560 946,573" fill="#27485d"/>
 
     <rect x="972" y="516" width="164" height="88" rx="22" fill="#efe3d2"/>
     <text x="996" y="552" fill="#16232d" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="17" font-weight="700">Proof &amp; Replay</text>
-    <text x="996" y="582" fill="#4f616e" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="14">inspect before you trust</text>
+    <text x="996" y="582" fill="#4f616e" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="16">inspect before you trust</text>
   </g>
 </svg>

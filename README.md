@@ -1,22 +1,16 @@
 # OpenVibeCoding
 
-The open command tower for AI engineering.
+One live board for AI coding work.
 
-Stop babysitting AI coding work.
-
-AI coding does not lack models. It lacks a command tower.
-
-OpenVibeCoding is the command tower for AI engineering. It helps teams
-plan / delegate / track / resume / prove long-running engineering work across
-Codex and Claude Code instead of juggling scattered chats, local scripts, and
-after-the-fact logs.
+OpenVibeCoding turns one request into one visible workflow case and one proof
+trail you can inspect before you trust the result.
 
 OpenVibeCoding is a contract-first multi-agent orchestration repository.
 
 Start with one proven workflow. Then open the adoption path that matches the
 real job.
 
-Current public boundary: OpenVibeCoding is a repo-backed command tower with
+Current public boundary: OpenVibeCoding is a repo-backed control plane with
 proof-first docs, a **macOS desktop shell**, and a **read-only MCP** lane.
 Hosted operator and write-capable MCP stay outside the current promise.
 

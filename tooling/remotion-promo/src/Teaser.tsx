@@ -38,12 +38,11 @@ const FullscreenCard: React.FC<{
   title: string;
   caption: string;
   badge: string;
-  frameStart: number;
-}> = ({src, title, caption, badge, frameStart}) => {
+}> = ({src, title, caption, badge}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const enter = spring({
-    frame: frame - frameStart,
+    frame,
     fps,
     config: {
       damping: 16,
@@ -53,11 +52,11 @@ const FullscreenCard: React.FC<{
   });
   const translateY = interpolate(enter, [0, 1], [40, 0]);
   const opacity = interpolate(enter, [0, 1], [0, 1]);
-  const imageScale = interpolate(frame - frameStart, [0, 90], [1.06, 1], {
+  const imageScale = interpolate(frame, [0, 90], [1.06, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const imageTranslateX = interpolate(frame - frameStart, [0, 90], [18, 0], {
+  const imageTranslateX = interpolate(frame, [0, 90], [18, 0], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -297,29 +296,26 @@ export const OpenVibeCodingTeaser: React.FC = () => {
         <FullscreenCard
           src={dashboardHome}
           title="See the live board before you trust the run."
-          caption="PM request, Command Tower, Workflow Cases, and Proof & Replay stay inside one governed loop instead of getting lost across scattered tools."
+          caption="One request becomes one visible workflow case and one proof trail instead of disappearing into scattered chats and shell logs."
           badge="Proof-first loop"
-          frameStart={120}
         />
       </Sequence>
 
       <Sequence from={240} durationInFrames={90}>
         <FullscreenCard
           src={showcaseCard}
-          title="Keep blocker risk and proof readiness in view."
-          caption="Track live work, queue posture, blocker risk, and replay-ready evidence before promotion, approval, or rerun."
-          badge="Live read-back"
-          frameStart={240}
+          title="From PM request to proof trail."
+          caption="Keep the handoff visible: one task enters, one live board tracks the run, and one proof lane stays ready for review or rerun."
+          badge="Visible handoff"
         />
       </Sequence>
 
       <Sequence from={330} durationInFrames={90}>
         <FullscreenCard
           src={desktopShell}
-          title="The macOS desktop shell mirrors the same command tower."
-          caption="Keep the PM flow, hotkeys, drawers, and proof surfaces aligned when you want a native operator shell."
+          title="Use the same loop from the macOS desktop shell."
+          caption="Keep the same board, proof surface, and operator shortcuts aligned when you want a native shell."
           badge="macOS desktop"
-          frameStart={330}
         />
       </Sequence>
 
@@ -330,7 +326,7 @@ export const OpenVibeCodingTeaser: React.FC = () => {
             inset: 0,
             padding: "84px",
             display: "grid",
-            gridTemplateColumns: "0.92fr 1.08fr",
+            gridTemplateColumns: "0.84fr 1.16fr",
             gap: 28,
             opacity: interpolate(outroProgress, [0, 1], [0, 1]),
             transform: `translateY(${interpolate(outroProgress, [0, 1], [30, 0])}px)`,
@@ -359,16 +355,16 @@ export const OpenVibeCodingTeaser: React.FC = () => {
                 textTransform: "uppercase",
               }}
             >
-              Public boundary
+              Start here
             </div>
             <div
               style={{
                 fontFamily: displayFont,
-                fontSize: 76,
+                fontSize: 70,
                 lineHeight: 1.02,
                 letterSpacing: "-0.05em",
                 fontWeight: 700,
-                maxWidth: 520,
+                maxWidth: 460,
               }}
             >
               Inspect before you trust.
@@ -377,20 +373,19 @@ export const OpenVibeCodingTeaser: React.FC = () => {
               style={{
                 color: palette.muted,
                 fontFamily: appFont,
-                fontSize: 26,
+                fontSize: 24,
                 lineHeight: 1.5,
-                maxWidth: 540,
+                maxWidth: 480,
               }}
             >
-              Repo-backed today. Start with one proven workflow, keep the boundary
-              truthful, and choose the adoption path that matches the real job.
+              Repo-backed today. Start with one proven workflow, inspect the live
+              board, and open deeper docs only when the real job needs them.
             </div>
             <div style={{display: "flex", gap: 12, flexWrap: "wrap"}}>
               {[
-                "Command Tower",
-                "Workflow Cases",
-                "Proof & Replay",
-                "Read-only MCP",
+                "Live board",
+                "Proof trail",
+                "macOS shell",
               ].map((item) => (
                 <div
                   key={item}
