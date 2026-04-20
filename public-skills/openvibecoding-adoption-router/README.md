@@ -38,9 +38,7 @@ uvx --from openvibecoding-orchestrator==0.1.0a4 openvibecoding-readonly-mcp
 ```
 
 Today both the executable and the primary published PyPI package use the
-OpenVibeCoding name. The legacy `cortexpilot-orchestrator` package still exists
-only as a compatibility alias and should not be treated as the primary install
-path.
+OpenVibeCoding name and should be treated as the canonical install path.
 
 If the host needs a saved MCP config snippet, use the host-specific examples in
 `references/INSTALL.md`.

@@ -1,53 +1,58 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
   <title id="title">OpenVibeCoding social preview source</title>
-  <desc id="desc">Social preview source artwork for OpenVibeCoding showing its governed AI task orchestration positioning.</desc>
+  <desc id="desc">Social preview artwork for OpenVibeCoding showing PM request, Command Tower, and Proof and Replay in one repo-backed command tower.</desc>
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#16232d"/>
-      <stop offset="48%" stop-color="#203847"/>
-      <stop offset="100%" stop-color="#305971"/>
+      <stop offset="0%" stop-color="#0b1623"/>
+      <stop offset="55%" stop-color="#132236"/>
+      <stop offset="100%" stop-color="#1a3142"/>
     </linearGradient>
   </defs>
 
   <rect width="1280" height="640" fill="url(#bg)"/>
-  <circle cx="1070" cy="110" r="120" fill="#d48452" opacity="0.18"/>
-  <circle cx="150" cy="550" r="160" fill="#f2dcc7" opacity="0.08"/>
+  <circle cx="1088" cy="112" r="118" fill="#e28a4e" opacity="0.16"/>
+  <circle cx="170" cy="544" r="150" fill="#ecddcc" opacity="0.08"/>
 
-  <text x="86" y="132" fill="#f6f1e8" font-family="Georgia, 'Times New Roman', serif" font-size="62" font-weight="700">OpenVibeCoding</text>
-  <text x="86" y="186" fill="#d9e7ee" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="28">
-    Governed AI task orchestration with evidence, replay, and operator visibility
+  <rect x="86" y="74" rx="18" ry="18" width="318" height="40" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.16)"/>
+  <text x="102" y="100" fill="#f0a264" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="20" font-weight="700" letter-spacing="0.08em">REPO-BACKED COMMAND TOWER</text>
+
+  <text x="86" y="176" fill="#f6f1e8" font-family="Georgia, 'Times New Roman', serif" font-size="70" font-weight="700">OpenVibeCoding</text>
+  <text x="86" y="226" fill="#dce8ef" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="28">
+    The open command tower for AI engineering
+  </text>
+  <text x="86" y="274" fill="#dce8ef" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="28">
+    One request. One live board. One proof pack you can inspect.
   </text>
 
-  <rect x="86" y="250" rx="26" ry="26" width="1108" height="248" fill="#f6f1e8" opacity="0.96"/>
+  <rect x="86" y="326" rx="28" ry="28" width="1108" height="200" fill="#f6f1e8" opacity="0.97"/>
 
-  <text x="126" y="312" fill="#16232d" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="22" font-weight="700">PM request</text>
-  <text x="126" y="346" fill="#405360" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="19">Describe the task and acceptance target.</text>
+  <text x="126" y="386" fill="#16232d" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="22" font-weight="700">PM request</text>
+  <text x="126" y="420" fill="#405360" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="19">Describe the task.</text>
 
-  <text x="470" y="312" fill="#16232d" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="22" font-weight="700">Command Tower</text>
-  <text x="470" y="346" fill="#405360" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="19">Watch the run, alerts, and workflow state.</text>
+  <text x="470" y="386" fill="#16232d" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="22" font-weight="700">Command Tower</text>
+  <text x="470" y="420" fill="#405360" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="19">Watch the run and blocker state.</text>
 
-  <text x="840" y="312" fill="#16232d" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="22" font-weight="700">Evidence + replay</text>
-  <text x="840" y="346" fill="#405360" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="19">Inspect reports, artifacts, and reruns.</text>
+  <text x="840" y="386" fill="#16232d" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="22" font-weight="700">Proof &amp; Replay</text>
+  <text x="840" y="420" fill="#405360" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="19">Inspect evidence and reruns.</text>
 
   <g stroke="#305971" stroke-width="6" fill="none" stroke-linecap="round">
-    <path d="M300 328 C360 328, 390 328, 446 328"/>
-    <path d="M664 328 C720 328, 752 328, 810 328"/>
+    <path d="M300 402 C360 402, 390 402, 446 402"/>
+    <path d="M664 402 C720 402, 752 402, 810 402"/>
   </g>
   <g fill="#305971">
-    <polygon points="438,315 460,328 438,341"/>
-    <polygon points="802,315 824,328 802,341"/>
+    <polygon points="438,389 460,402 438,415"/>
+    <polygon points="802,389 824,402 802,415"/>
   </g>
 
-  <rect x="126" y="392" rx="16" ry="16" width="230" height="68" fill="#203847"/>
-  <rect x="486" y="392" rx="16" ry="16" width="260" height="68" fill="#d48452"/>
-  <rect x="846" y="392" rx="16" ry="16" width="250" height="68" fill="#203847"/>
+  <rect x="126" y="454" rx="16" ry="16" width="230" height="54" fill="#203847"/>
+  <rect x="486" y="454" rx="16" ry="16" width="260" height="54" fill="#d48452"/>
+  <rect x="846" y="454" rx="16" ry="16" width="250" height="54" fill="#203847"/>
 
-  <text x="149" y="433" fill="#f6f1e8" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="18" font-weight="700">Explicit contracts</text>
-  <text x="509" y="433" fill="#16232d" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="18" font-weight="700">Reviewable evidence</text>
-  <text x="869" y="433" fill="#f6f1e8" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="18" font-weight="700">Replay and re-exec</text>
+  <text x="149" y="487" fill="#f6f1e8" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="18" font-weight="700">One proven workflow</text>
+  <text x="509" y="487" fill="#16232d" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="18" font-weight="700">Read-only MCP</text>
+  <text x="881" y="487" fill="#f6f1e8" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="18" font-weight="700">macOS desktop shell</text>
 
-  <text x="86" y="556" fill="#d9e7ee" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="20">
-    <tspan x="86" dy="0">Tracked source for the GitHub social preview candidate.</tspan>
-    <tspan x="86" dy="28">Export the 1280x640 PNG and verify it in GitHub before calling it live.</tspan>
+  <text x="86" y="576" fill="#d9e7ee" font-family="'Trebuchet MS', Verdana, sans-serif" font-size="20">
+    <tspan x="86" dy="0">Plan, delegate, track, resume, and prove long-running AI coding work in one governed loop.</tspan>
   </text>
 </svg>

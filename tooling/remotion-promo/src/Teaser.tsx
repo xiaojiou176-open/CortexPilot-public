@@ -53,6 +53,14 @@ const FullscreenCard: React.FC<{
   });
   const translateY = interpolate(enter, [0, 1], [40, 0]);
   const opacity = interpolate(enter, [0, 1], [0, 1]);
+  const imageScale = interpolate(frame - frameStart, [0, 90], [1.06, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const imageTranslateX = interpolate(frame - frameStart, [0, 90], [18, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
     <div
@@ -126,6 +134,7 @@ const FullscreenCard: React.FC<{
           border: `1px solid ${palette.line}`,
           boxShadow: "0 36px 80px rgba(0,0,0,0.4)",
           background: palette.bgElevated,
+          position: "relative",
         }}
       >
         <Img
@@ -135,6 +144,17 @@ const FullscreenCard: React.FC<{
             height: "100%",
             objectFit: "cover",
             display: "block",
+            transform: `scale(${imageScale}) translateX(${imageTranslateX}px)`,
+            transformOrigin: "center center",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(180deg, rgba(8, 17, 29, 0.04) 0%, rgba(8, 17, 29, 0.18) 100%)",
+            pointerEvents: "none",
           }}
         />
       </div>
@@ -276,9 +296,9 @@ export const OpenVibeCodingTeaser: React.FC = () => {
       <Sequence from={120} durationInFrames={120}>
         <FullscreenCard
           src={dashboardHome}
-          title="One operator loop, not five scattered tools."
-          caption="OpenVibeCoding turns PM intake, Command Tower, Workflow Cases, and Proof & Replay into one governed operating path."
-          badge="Front door"
+          title="See the live board before you trust the run."
+          caption="PM request, Command Tower, Workflow Cases, and Proof & Replay stay inside one governed loop instead of getting lost across scattered tools."
+          badge="Proof-first loop"
           frameStart={120}
         />
       </Sequence>
@@ -286,9 +306,9 @@ export const OpenVibeCodingTeaser: React.FC = () => {
       <Sequence from={240} durationInFrames={90}>
         <FullscreenCard
           src={showcaseCard}
-          title="Read the board before you trust the result."
-          caption="Track live work, queue posture, blocker risk, and proof readiness before promotion or replay."
-          badge="Command tower"
+          title="Keep blocker risk and proof readiness in view."
+          caption="Track live work, queue posture, blocker risk, and replay-ready evidence before promotion, approval, or rerun."
+          badge="Live read-back"
           frameStart={240}
         />
       </Sequence>
@@ -296,9 +316,9 @@ export const OpenVibeCodingTeaser: React.FC = () => {
       <Sequence from={330} durationInFrames={90}>
         <FullscreenCard
           src={desktopShell}
-          title="The same command tower lives on desktop, too."
-          caption="The desktop shell keeps the PM loop, hotkeys, drawers, and proof surfaces aligned with the web operator surface."
-          badge="Desktop shell"
+          title="The macOS desktop shell mirrors the same command tower."
+          caption="Keep the PM flow, hotkeys, drawers, and proof surfaces aligned when you want a native operator shell."
+          badge="macOS desktop"
           frameStart={330}
         />
       </Sequence>
@@ -351,7 +371,7 @@ export const OpenVibeCodingTeaser: React.FC = () => {
                 maxWidth: 520,
               }}
             >
-              Repo-backed. Proof-first. Read-only MCP.
+              Inspect before you trust.
             </div>
             <div
               style={{
@@ -362,8 +382,8 @@ export const OpenVibeCodingTeaser: React.FC = () => {
                 maxWidth: 540,
               }}
             >
-              Start with one proven workflow. Then choose the adoption path that
-              matches the real job.
+              Repo-backed today. Start with one proven workflow, keep the boundary
+              truthful, and choose the adoption path that matches the real job.
             </div>
             <div style={{display: "flex", gap: 12, flexWrap: "wrap"}}>
               {[

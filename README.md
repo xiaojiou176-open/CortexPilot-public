@@ -13,22 +13,20 @@ after-the-fact logs.
 
 OpenVibeCoding is a contract-first multi-agent orchestration repository.
 
-The public story is intentionally narrower than the full monorepo:
+Start with one proven workflow. Then open the adoption path that matches the
+real job.
+
+Current public boundary: OpenVibeCoding is a repo-backed command tower with
+proof-first docs, a **macOS desktop shell**, and a **read-only MCP** lane.
+Hosted operator and write-capable MCP stay outside the current promise.
+
+Public entry ladder:
 
 - **See one proven workflow first**
-- **Choose the right adoption path second**
+- **Watch the teaser second**
 - **Open MCP / API / builder / skills surfaces only after the real job is clear**
 
-Current public boundary: OpenVibeCoding is a repo-backed command tower, not a
-hosted product, and the shipped MCP surface remains **read-only**.
-
-Current lane order is deliberate:
-
-- **Primary lane** = the read-only MCP package plus the Official MCP Registry entry
-- **Secondary lane** = the adoption-router public skill packet
-- **Companion/example lane** = local starter kits and coding-agent bundle examples, which are not the canonical public root
-
-[Quickstart](#quickstart) · [Watch the 18s Teaser](docs/assets/storefront/openvibecoding-command-tower-teaser.mp4) · [First Proven Workflow](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/) · [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/) · [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) · [Public Docs](https://xiaojiou176-open.github.io/OpenVibeCoding/) · [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/) · [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/) · [Releases](https://github.com/xiaojiou176-open/OpenVibeCoding/releases)
+[First Proven Workflow](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/) · [Watch the 18s Teaser](docs/assets/storefront/openvibecoding-command-tower-teaser.mp4) · [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/) · [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) · [Public Docs](https://xiaojiou176-open.github.io/OpenVibeCoding/) · [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/) · [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/) · [Quickstart](#quickstart) · [Releases](https://github.com/xiaojiou176-open/OpenVibeCoding/releases)
 
 ![OpenVibeCoding command tower showcase card](docs/assets/storefront/command-tower-showcase-card.svg)
 
@@ -80,16 +78,15 @@ control-plane manual:
 The shortest truthful answer today is:
 
 > OpenVibeCoding currently ships through the public OpenVibeCoding repo, a public
-> Pages front door, a repo-local read-only MCP surface, the live
+> Pages front door, one proven workflow, the live
 > `openvibecoding-orchestrator==0.1.0a4` PyPI package plus the live
 > `io.github.xiaojiou176-open/openvibecoding-readonly@0.1.0a4` Official MCP
-> Registry entry for that same read-only runtime, and a live ClawHub skill. The adoption-router skill is
-> the secondary public lane. Local coding-agent starters and bundle examples
-> remain companion/example materials, not the canonical public root. MCP.so
-> still has an open external submission receipt, while the previous
-> OpenHands/extensions submission is closed without a live listing. Hosted
-> service, write-capable MCP, Docker distribution, and standalone npm releases
-> remain deferred.
+> Registry entry for that same read-only runtime, and a live ClawHub skill.
+> Local coding-agent starters and bundle examples remain helper materials, not
+> the primary public front door. MCP.so still has an open external submission
+> receipt, while the previous OpenHands/extensions submission is closed without
+> a live listing. Hosted service, write-capable MCP, Docker distribution, and
+> standalone npm releases remain deferred.
 
 Use these buckets:
 
