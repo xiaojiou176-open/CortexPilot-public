@@ -5,6 +5,9 @@ One live board for AI coding work.
 OpenVibeCoding turns one request into one visible workflow case and one proof
 trail you can inspect before you trust the result.
 
+OpenVibeCoding is a governed workspace for planning, watching, resuming, and
+proving long AI coding jobs.
+
 OpenVibeCoding is a contract-first multi-agent orchestration repository.
 
 Start with one proven workflow. Then open the adoption path that matches the
@@ -14,18 +17,26 @@ Current public boundary: OpenVibeCoding is a repo-backed control plane with
 proof-first docs, a **macOS desktop shell**, and a **read-only MCP** lane.
 Hosted operator and write-capable MCP stay outside the current promise.
 
+Think of it as the place where one long AI coding job stays visible from
+request to proof, instead of disappearing into scattered chats, scripts, and
+after-the-fact logs.
+
 Public entry ladder:
 
 - **See one proven workflow first**
 - **Watch the teaser second**
 - **Open MCP / API / builder / skills surfaces only after the real job is clear**
 
-[First Proven Workflow](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/) · [Watch the 18s Teaser](docs/assets/storefront/openvibecoding-command-tower-teaser.mp4) · [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/) · [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) · [Public Docs](https://xiaojiou176-open.github.io/OpenVibeCoding/) · [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/) · [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/) · [Quickstart](#quickstart) · [Releases](https://github.com/xiaojiou176-open/OpenVibeCoding/releases)
+[First Proven Workflow](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/) · [Watch the 18s Teaser](docs/assets/storefront/openvibecoding-command-tower-teaser.mp4) · [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/) · [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) · [Public Docs](https://xiaojiou176-open.github.io/OpenVibeCoding/)
+
+Deeper technical surfaces:
+[AI + MCP + API](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/) · [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/) · [Quickstart](#quickstart) · [Releases](https://github.com/xiaojiou176-open/OpenVibeCoding/releases)
 
 ![OpenVibeCoding command tower showcase card](docs/assets/storefront/command-tower-showcase-card.svg)
 
 If you want the fastest product read instead of the full distribution matrix,
-open the 18-second teaser first.
+open the 18-second teaser first. If you need the stack map instead of the
+shortest proof story, open the compatibility matrix second.
 
 [![OpenVibeCoding command tower teaser poster](docs/assets/storefront/openvibecoding-command-tower-teaser-poster.png)](docs/assets/storefront/openvibecoding-command-tower-teaser.mp4)
 
