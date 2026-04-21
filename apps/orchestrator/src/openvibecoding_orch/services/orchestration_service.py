@@ -52,8 +52,18 @@ class OrchestrationService:
     def _replayer(self) -> ReplayRunner:
         return ReplayRunner(self._run_store())
 
-    def execute_task(self, contract_path: Path, mock_mode: bool) -> str:
-        return execute_flow.execute_task_flow(self._orchestrator(), contract_path, mock_mode=mock_mode)
+    def execute_task(
+        self,
+        contract_path: Path,
+        mock_mode: bool,
+        workflow_binding: dict[str, str] | None = None,
+    ) -> str:
+        return execute_flow.execute_task_flow(
+            self._orchestrator(),
+            contract_path,
+            mock_mode=mock_mode,
+            workflow_binding=workflow_binding,
+        )
 
     def replay_run(self, run_id: str, baseline_run_id: str | None = None) -> dict[str, Any]:
         return self._orchestrator().replay_run(run_id, baseline_run_id=baseline_run_id)

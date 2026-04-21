@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import threading
 from datetime import datetime, timezone
 import inspect
@@ -33,7 +32,6 @@ _TRUTHY_VALUES = {"1", "true", "yes", "y", "on"}
 _ALLOWED_RUNTIME_RUNNERS = {"agents", "app-server", "app_server", "codex"}
 _RUN_SUBMISSION_WAIT_SEC = 15.0
 _INTAKE_ONLY_CONTRACT_FIELDS = {"task_template", "template_payload"}
-_LOCAL_PM_WORKFLOW_ENV_LOCK = threading.Lock()
 
 
 def _coerce_bool(value: Any) -> bool:
@@ -138,14 +136,6 @@ def _build_local_pm_workflow_id(*, intake_id: str, task_id: str) -> str:
     safe_task = _safe_workflow_component(task_id, fallback="task")
     safe_intake = _safe_workflow_component(intake_id, fallback="intake")
     return f"openvibecoding-pm-{safe_task}-{safe_intake}"[:96]
-
-
-def _restore_env_key(name: str, value: str | None) -> None:
-    if value is None:
-        os.environ.pop(name, None)
-    else:
-        os.environ[name] = value
-
 
 def _artifact_ref_for_path(path: Path, *, rel_path: str, name: str, media_type: str = "application/json") -> dict[str, Any]:
     payload = path.read_bytes()
@@ -654,18 +644,16 @@ def run_intake(
     done = threading.Event()
 
     def _execute_in_background() -> None:
-        workflow_env = os.environ.get("OPENVIBECODING_TEMPORAL_WORKFLOW_ID")
-        task_queue_env = os.environ.get("OPENVIBECODING_TEMPORAL_TASK_QUEUE")
-        namespace_env = os.environ.get("OPENVIBECODING_TEMPORAL_NAMESPACE")
+        execute_kwargs: dict[str, Any] = {"mock_mode": mock}
+        execute_signature = inspect.signature(orchestration_service.execute_task)
+        if "workflow_binding" in execute_signature.parameters:
+            execute_kwargs["workflow_binding"] = {
+                "workflow_id": local_workflow_id,
+                "task_queue": "openvibecoding-orch",
+                "namespace": "default",
+            }
         try:
-            with _LOCAL_PM_WORKFLOW_ENV_LOCK:
-                if not str(workflow_env or "").strip():
-                    os.environ["OPENVIBECODING_TEMPORAL_WORKFLOW_ID"] = local_workflow_id
-                    if not str(task_queue_env or "").strip():
-                        os.environ["OPENVIBECODING_TEMPORAL_TASK_QUEUE"] = "openvibecoding-orch"
-                    if not str(namespace_env or "").strip():
-                        os.environ["OPENVIBECODING_TEMPORAL_NAMESPACE"] = "default"
-                execution_result["run_id"] = orchestration_service.execute_task(contract_path, mock_mode=mock)
+            execution_result["run_id"] = orchestration_service.execute_task(contract_path, **execute_kwargs)
         except Exception as exc:  # noqa: BLE001
             execution_result["error"] = exc
             log_event(
@@ -680,10 +668,6 @@ def run_intake(
                 },
             )
         finally:
-            with _LOCAL_PM_WORKFLOW_ENV_LOCK:
-                _restore_env_key("OPENVIBECODING_TEMPORAL_WORKFLOW_ID", workflow_env)
-                _restore_env_key("OPENVIBECODING_TEMPORAL_TASK_QUEUE", task_queue_env)
-                _restore_env_key("OPENVIBECODING_TEMPORAL_NAMESPACE", namespace_env)
             done.set()
 
     worker = threading.Thread(target=_execute_in_background, daemon=True)

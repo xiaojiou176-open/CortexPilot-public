@@ -477,7 +477,7 @@ def test_run_intake_injects_stable_local_workflow_binding_and_restores_env(monke
     )
     monkeypatch.delenv("OPENVIBECODING_TEMPORAL_WORKFLOW_ID", raising=False)
 
-    observed_env: dict[str, str] = {}
+    observed_binding: dict[str, str] = {}
 
     class _BuildOK:
         def build_contract(self, intake_id: str) -> dict[str, object]:
@@ -486,17 +486,13 @@ def test_run_intake_injects_stable_local_workflow_binding_and_restores_env(monke
 
     class _InspectingOrchestrator:
         @staticmethod
-        def execute_task(contract_path: Path, mock_mode: bool = False) -> str:
+        def execute_task(
+            contract_path: Path,
+            mock_mode: bool = False,
+            workflow_binding: dict[str, str] | None = None,
+        ) -> str:
             del contract_path, mock_mode
-            observed_env["workflow_id"] = str(
-                helpers.os.getenv("OPENVIBECODING_TEMPORAL_WORKFLOW_ID") or ""
-            ).strip()
-            observed_env["task_queue"] = str(
-                helpers.os.getenv("OPENVIBECODING_TEMPORAL_TASK_QUEUE") or ""
-            ).strip()
-            observed_env["namespace"] = str(
-                helpers.os.getenv("OPENVIBECODING_TEMPORAL_NAMESPACE") or ""
-            ).strip()
+            observed_binding.update(workflow_binding or {})
             return "run-pm-workflow"
 
     result = helpers.run_intake(
@@ -509,10 +505,9 @@ def test_run_intake_injects_stable_local_workflow_binding_and_restores_env(monke
 
     assert result["ok"] is True
     assert result["run_id"] == "run-pm-workflow"
-    assert observed_env["workflow_id"].startswith("openvibecoding-pm-task-pm-intake-pm-intake")
-    assert observed_env["task_queue"] == "openvibecoding-orch"
-    assert observed_env["namespace"] == "default"
-    assert helpers.os.getenv("OPENVIBECODING_TEMPORAL_WORKFLOW_ID") is None
+    assert observed_binding["workflow_id"].startswith("openvibecoding-pm-task-pm-intake-pm-intake")
+    assert observed_binding["task_queue"] == "openvibecoding-orch"
+    assert observed_binding["namespace"] == "default"
 
 
 def test_run_intake_persists_planning_artifacts_into_run_bundle(monkeypatch, tmp_path: Path) -> None:

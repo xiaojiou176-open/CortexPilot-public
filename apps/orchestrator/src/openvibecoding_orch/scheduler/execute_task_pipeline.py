@@ -60,6 +60,7 @@ def prepare_execution_setup(
     store: RunStore,
     contract: dict[str, Any],
     mock_mode: bool,
+    workflow_binding: dict[str, str] | None,
     run_store_cls: type[RunStore],
     allow_codex_exec_fn: Callable[[], bool],
     mcp_only_enabled_fn: Callable[[], bool],
@@ -99,13 +100,13 @@ def prepare_execution_setup(
     trace_id = uuid.uuid4().hex
 
     mcp_only = mcp_only_enabled_fn()
-    workflow_id = os.getenv("OPENVIBECODING_TEMPORAL_WORKFLOW_ID", "").strip()
+    workflow_id = str((workflow_binding or {}).get("workflow_id") or os.getenv("OPENVIBECODING_TEMPORAL_WORKFLOW_ID", "")).strip()
     workflow_info: dict[str, Any] | None = None
     if workflow_id:
         workflow_info = {
             "workflow_id": workflow_id,
-            "task_queue": os.getenv("OPENVIBECODING_TEMPORAL_TASK_QUEUE", "openvibecoding-orch"),
-            "namespace": os.getenv("OPENVIBECODING_TEMPORAL_NAMESPACE", "default"),
+            "task_queue": str((workflow_binding or {}).get("task_queue") or os.getenv("OPENVIBECODING_TEMPORAL_TASK_QUEUE", "openvibecoding-orch")),
+            "namespace": str((workflow_binding or {}).get("namespace") or os.getenv("OPENVIBECODING_TEMPORAL_NAMESPACE", "default")),
             "status": "RUNNING",
         }
 
