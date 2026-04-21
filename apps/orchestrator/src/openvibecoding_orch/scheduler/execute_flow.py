@@ -11,7 +11,13 @@ def execute_task_flow(
     mock_mode: bool = False,
     workflow_binding: dict[str, str] | None = None,
 ) -> str:
-    return orchestrator.execute_task(contract_path, mock_mode=mock_mode, workflow_binding=workflow_binding)
+    if workflow_binding:
+        return orchestrator.execute_task(
+            contract_path,
+            mock_mode=mock_mode,
+            workflow_binding=workflow_binding,
+        )
+    return orchestrator.execute_task(contract_path, mock_mode=mock_mode)
 
 
 def execute_chain_flow(orchestrator: Orchestrator, chain_path: Path, mock_mode: bool = False) -> dict:
