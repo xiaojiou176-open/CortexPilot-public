@@ -213,6 +213,65 @@ def test_reexecute_soft_and_hard_diffs(tmp_path: Path, monkeypatch) -> None:
     assert report["soft_diffs"]
 
 
+def test_reexecute_allows_public_searcher_tests_skip_to_pass(tmp_path: Path, monkeypatch) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    baseline = _init_repo(repo)
+
+    runtime_root = tmp_path / "runtime"
+    runs_root = runtime_root / "runs"
+    worktree_root = runtime_root / "worktrees"
+    monkeypatch.setenv("OPENVIBECODING_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("OPENVIBECODING_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("OPENVIBECODING_WORKTREE_ROOT", str(worktree_root))
+    monkeypatch.chdir(repo)
+
+    store = RunStore(runs_root=runs_root)
+    run_id = store.create_run("reexec-search")
+    run_dir = runs_root / run_id
+
+    contract = _base_contract("reexec-search-0001", baseline)
+    contract["assigned_agent"] = {"role": "SEARCHER", "agent_id": "agent-1", "codex_thread_id": ""}
+    contract["inputs"]["artifacts"].append(
+        {"name": "search_requests.json", "uri": "search_requests.json", "sha256": "0" * 64}
+    )
+    _write(run_dir / "contract.json", contract)
+    _write(
+        run_dir / "manifest.json",
+        {"run_id": run_id, "task_id": "reexec-search-0001", "repo": {"root": str(repo), "baseline_ref": baseline, "final_ref": baseline}},
+    )
+    _write(run_dir / "patch.diff", "")
+    _write(run_dir / "diff_name_only.txt", "")
+    task_result = _task_result(run_id, "reexec-search-0001", baseline)
+    task_result["producer"] = {"role": "SEARCHER", "agent_id": "agent-1"}
+    task_result["git"]["baseline_ref"] = baseline
+    _write(run_dir / "reports" / "task_result.json", task_result)
+    _write(
+        run_dir / "reports" / "test_report.json",
+        {
+            "run_id": run_id,
+            "task_id": "reexec-search-0001",
+            "runner": {"role": "TEST_RUNNER", "agent_id": "tests"},
+            "started_at": "2024-01-01T00:00:00Z",
+            "finished_at": "2024-01-01T00:00:01Z",
+            "status": "SKIPPED",
+            "commands": [],
+            "artifacts": [],
+            "failure": {"message": "search pipeline completed successfully."},
+        },
+    )
+
+    monkeypatch.setattr("openvibecoding_orch.replay.replayer.run_acceptance_tests", lambda *args, **kwargs: {"ok": True, "reports": []})
+    monkeypatch.setattr("openvibecoding_orch.replay.replayer.worktree_manager.create_worktree", lambda *args, **kwargs: repo)
+    monkeypatch.setattr("openvibecoding_orch.replay.replayer.worktree_manager.remove_worktree", lambda *args, **kwargs: None)
+
+    runner = ReplayRunner(store)
+    report = runner.reexecute(run_id, strict=True)
+    assert report["status"] == "pass"
+    assert report["hard_equal_pass"] is True
+    assert {"key": "tests", "expected": "SKIPPED", "actual": "PASS"} in report["soft_diffs"]
+
+
 def test_reexecute_missing_baseline_and_head(tmp_path: Path) -> None:
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("reexec_missing")

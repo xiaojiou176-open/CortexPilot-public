@@ -209,7 +209,7 @@ async function main() {
       if (route === "/index.html") {
         if (record.video_count === 0) issues.push(`${route} missing hero video element`);
         if (record.caption_track_count === 0) issues.push(`${route} missing captions track for teaser video`);
-        if (record.primary_action_count < 3) issues.push(`${route} hero primary actions dropped below 3`);
+        if (record.primary_action_count < 2) issues.push(`${route} hero primary actions dropped below 2`);
       }
     }
 

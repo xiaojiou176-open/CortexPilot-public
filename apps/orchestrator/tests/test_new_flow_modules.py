@@ -61,8 +61,17 @@ def test_runtime_bootstrap_creates_target_dirs(tmp_path: Path, monkeypatch) -> N
 
 
 def test_execute_flow_helpers() -> None:
+    captured: dict[str, object] = {}
+
     class _DummyOrch:
-        def execute_task(self, contract_path: Path, mock_mode: bool = False) -> str:
+        def execute_task(
+            self,
+            contract_path: Path,
+            mock_mode: bool = False,
+            workflow_binding: dict[str, str] | None = None,
+        ) -> str:
+            if workflow_binding is not None:
+                captured["workflow_binding"] = dict(workflow_binding)
             return f"task:{contract_path.name}:{mock_mode}"
 
         def execute_chain(self, chain_path: Path, mock_mode: bool = False) -> dict:
@@ -70,6 +79,16 @@ def test_execute_flow_helpers() -> None:
 
     orch = _DummyOrch()
     assert execute_flow.execute_task_flow(orch, Path("a.json"), mock_mode=True).startswith("task:a.json")
+    execute_flow.execute_task_flow(
+        orch,
+        Path("b.json"),
+        workflow_binding={"workflow_id": "wf-1", "task_queue": "q", "namespace": "default"},
+    )
+    assert captured["workflow_binding"] == {
+        "workflow_id": "wf-1",
+        "task_queue": "q",
+        "namespace": "default",
+    }
     assert execute_flow.execute_chain_flow(orch, Path("chain.json"), mock_mode=False)["chain"] == "chain.json"
 
 

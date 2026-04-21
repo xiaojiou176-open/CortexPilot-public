@@ -12,7 +12,7 @@ Current truth:
 
 - the executable uses the OpenVibeCoding name
 - the primary live published PyPI package now also uses the OpenVibeCoding name
-- the legacy package `cortexpilot-orchestrator` remains only as a compatibility alias
+- the package path above is the canonical public install path
 
 ## OpenHands example
 

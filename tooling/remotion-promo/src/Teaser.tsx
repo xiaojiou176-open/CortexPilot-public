@@ -38,12 +38,11 @@ const FullscreenCard: React.FC<{
   title: string;
   caption: string;
   badge: string;
-  frameStart: number;
-}> = ({src, title, caption, badge, frameStart}) => {
+}> = ({src, title, caption, badge}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
   const enter = spring({
-    frame: frame - frameStart,
+    frame,
     fps,
     config: {
       damping: 16,
@@ -53,6 +52,14 @@ const FullscreenCard: React.FC<{
   });
   const translateY = interpolate(enter, [0, 1], [40, 0]);
   const opacity = interpolate(enter, [0, 1], [0, 1]);
+  const imageScale = interpolate(frame, [0, 90], [1.06, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const imageTranslateX = interpolate(frame, [0, 90], [18, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
     <div
@@ -126,6 +133,7 @@ const FullscreenCard: React.FC<{
           border: `1px solid ${palette.line}`,
           boxShadow: "0 36px 80px rgba(0,0,0,0.4)",
           background: palette.bgElevated,
+          position: "relative",
         }}
       >
         <Img
@@ -135,6 +143,17 @@ const FullscreenCard: React.FC<{
             height: "100%",
             objectFit: "cover",
             display: "block",
+            transform: `scale(${imageScale}) translateX(${imageTranslateX}px)`,
+            transformOrigin: "center center",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(180deg, rgba(8, 17, 29, 0.04) 0%, rgba(8, 17, 29, 0.18) 100%)",
+            pointerEvents: "none",
           }}
         />
       </div>
@@ -276,30 +295,27 @@ export const OpenVibeCodingTeaser: React.FC = () => {
       <Sequence from={120} durationInFrames={120}>
         <FullscreenCard
           src={dashboardHome}
-          title="One operator loop, not five scattered tools."
-          caption="OpenVibeCoding turns PM intake, Command Tower, Workflow Cases, and Proof & Replay into one governed operating path."
-          badge="Front door"
-          frameStart={120}
+          title="See the live board before you trust the run."
+          caption="One request becomes one visible workflow case and one proof trail instead of disappearing into scattered chats and shell logs."
+          badge="Proof-first loop"
         />
       </Sequence>
 
       <Sequence from={240} durationInFrames={90}>
         <FullscreenCard
           src={showcaseCard}
-          title="Read the board before you trust the result."
-          caption="Track live work, queue posture, blocker risk, and proof readiness before promotion or replay."
-          badge="Command tower"
-          frameStart={240}
+          title="From PM request to proof trail."
+          caption="Keep the handoff visible: one task enters, one live board tracks the run, and one proof lane stays ready for review or rerun."
+          badge="Visible handoff"
         />
       </Sequence>
 
       <Sequence from={330} durationInFrames={90}>
         <FullscreenCard
           src={desktopShell}
-          title="The same command tower lives on desktop, too."
-          caption="The desktop shell keeps the PM loop, hotkeys, drawers, and proof surfaces aligned with the web operator surface."
-          badge="Desktop shell"
-          frameStart={330}
+          title="Use the same loop from the macOS desktop shell."
+          caption="Keep the same board, proof surface, and operator shortcuts aligned when you want a native shell."
+          badge="macOS desktop"
         />
       </Sequence>
 
@@ -310,7 +326,7 @@ export const OpenVibeCodingTeaser: React.FC = () => {
             inset: 0,
             padding: "84px",
             display: "grid",
-            gridTemplateColumns: "0.92fr 1.08fr",
+            gridTemplateColumns: "0.84fr 1.16fr",
             gap: 28,
             opacity: interpolate(outroProgress, [0, 1], [0, 1]),
             transform: `translateY(${interpolate(outroProgress, [0, 1], [30, 0])}px)`,
@@ -339,38 +355,37 @@ export const OpenVibeCodingTeaser: React.FC = () => {
                 textTransform: "uppercase",
               }}
             >
-              Public boundary
+              Start here
             </div>
             <div
               style={{
                 fontFamily: displayFont,
-                fontSize: 76,
+                fontSize: 70,
                 lineHeight: 1.02,
                 letterSpacing: "-0.05em",
                 fontWeight: 700,
-                maxWidth: 520,
+                maxWidth: 460,
               }}
             >
-              Repo-backed. Proof-first. Read-only MCP.
+              Inspect before you trust.
             </div>
             <div
               style={{
                 color: palette.muted,
                 fontFamily: appFont,
-                fontSize: 26,
+                fontSize: 24,
                 lineHeight: 1.5,
-                maxWidth: 540,
+                maxWidth: 480,
               }}
             >
-              Start with one proven workflow. Then choose the adoption path that
-              matches the real job.
+              Repo-backed today. Start with one proven workflow, inspect the live
+              board, and open deeper docs only when the real job needs them.
             </div>
             <div style={{display: "flex", gap: 12, flexWrap: "wrap"}}>
               {[
-                "Command Tower",
-                "Workflow Cases",
-                "Proof & Replay",
-                "Read-only MCP",
+                "Live board",
+                "Proof trail",
+                "macOS shell",
               ].map((item) => (
                 <div
                   key={item}

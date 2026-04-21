@@ -5,7 +5,18 @@ from pathlib import Path
 from openvibecoding_orch.scheduler.scheduler import Orchestrator
 
 
-def execute_task_flow(orchestrator: Orchestrator, contract_path: Path, mock_mode: bool = False) -> str:
+def execute_task_flow(
+    orchestrator: Orchestrator,
+    contract_path: Path,
+    mock_mode: bool = False,
+    workflow_binding: dict[str, str] | None = None,
+) -> str:
+    if workflow_binding:
+        return orchestrator.execute_task(
+            contract_path,
+            mock_mode=mock_mode,
+            workflow_binding=workflow_binding,
+        )
     return orchestrator.execute_task(contract_path, mock_mode=mock_mode)
 
 

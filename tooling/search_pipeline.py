@@ -58,6 +58,8 @@ def _has_public_source_hits(results: list[dict[str, Any]]) -> bool:
     for item in results:
         if not isinstance(item, dict):
             continue
+        if not item.get("ok", True):
+            continue
         provider = item.get("provider") or item.get("resolved_provider") or item.get("mode") or "unknown"
         hits = item.get("results") if isinstance(item.get("results"), list) else []
         for hit in hits:
@@ -294,6 +296,8 @@ def _build_digest_result(
     public_source_hit_found = False
     for provider_entry in results:
         if not isinstance(provider_entry, dict):
+            continue
+        if not provider_entry.get("ok", True):
             continue
         provider = str(
             provider_entry.get("provider")

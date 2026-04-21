@@ -180,14 +180,14 @@ def run_search_pipeline(
         return mapping.get(value, value)
 
     task_template = str(request.get("task_template") or "").strip().lower()
-    topic_brief_mode = task_template == "topic_brief"
+    browser_public_source_mode = task_template in {"topic_brief", "news_digest"}
 
     queries = request.get("queries", [])
     repeat = int(request.get("repeat", 2))
     parallel = int(request.get("parallel", 2))
-    raw_providers = request.get("providers") or (["browser_ddg"] if topic_brief_mode else ["gemini_web", "grok_web"])
+    raw_providers = request.get("providers") or (["browser_ddg"] if browser_public_source_mode else ["gemini_web", "grok_web"])
     providers = [_normalize_provider(item) for item in raw_providers]
-    required_providers = {"browser_ddg"} if topic_brief_mode else {"gemini_web", "grok_web"}
+    required_providers = {"browser_ddg"} if browser_public_source_mode else {"gemini_web", "grok_web"}
     provider_set = {_normalize_provider(item) for item in providers}
     missing = sorted(required_providers - provider_set)
     policy_adjustments: dict[str, Any] = {}
@@ -209,10 +209,10 @@ def run_search_pipeline(
         policy_adjustments["parallel"] = {"from": parallel, "to": 2}
         parallel = 2
     verify = request.get("verify") or {}
-    verify_default_providers = ["browser_ddg"] if topic_brief_mode else ["gemini_web"]
+    verify_default_providers = ["browser_ddg"] if browser_public_source_mode else ["gemini_web"]
     verify_providers = [_normalize_provider(item) for item in (verify.get("providers") or verify_default_providers)]
     verify_repeat = int(verify.get("repeat", 1))
-    required_verify_provider = "browser_ddg" if topic_brief_mode else "gemini_web"
+    required_verify_provider = "browser_ddg" if browser_public_source_mode else "gemini_web"
     if required_verify_provider not in {str(item) for item in verify_providers}:
         verify_providers = [*verify_providers, required_verify_provider]
         policy_adjustments["verify_providers"] = f"{required_verify_provider} added"
@@ -352,18 +352,37 @@ def run_search_pipeline(
     verify_failures = [item for item in verify_results if isinstance(item, dict) and not item.get("ok", True)]
     verification["failure_count"] = len(failures)
     verification["verify_failure_count"] = len(verify_failures)
-    if failures or verify_failures or public_source_receipt_missing:
+    allow_partial_provider_failure = (
+        task_template == "news_digest"
+        and not public_source_receipt_missing
+        and bool(results)
+        and not verify_failures
+    )
+    if (failures or verify_failures) and not allow_partial_provider_failure:
         _write_public_task_result(
             run_id,
             request,
             results,
             store=store,
             status_override="FAILED",
-            failure_reason_zh=(
-                _summarize_news_digest_failure(failures, verify_failures)
-                if (failures or verify_failures)
-                else _summarize_public_source_receipt_failure(results)
-            ),
+            failure_reason_zh=_summarize_news_digest_failure(failures, verify_failures),
+        )
+        return {
+            "ok": False,
+            "runs": len(results),
+            "verification_runs": len(verify_results),
+            "failures": failures,
+            "verify_failures": verify_failures,
+            "public_source_receipt_missing": public_source_receipt_missing,
+        }
+    if public_source_receipt_missing:
+        _write_public_task_result(
+            run_id,
+            request,
+            results,
+            store=store,
+            status_override="FAILED",
+            failure_reason_zh=_summarize_public_source_receipt_failure(results),
         )
         return {
             "ok": False,

@@ -144,6 +144,8 @@ describe("dashboard home run-summary clarity", () => {
   it("keeps the shared home copy contract aligned across locales", () => {
     const en = getUiCopy("en").dashboard.homePhase2;
     const zh = getUiCopy("zh-CN").dashboard.homePhase2;
+    const enTopicBrief = en.publicTemplateCards.find((card) => card.title === "topic_brief");
+    const zhTopicBrief = zh.publicTemplateCards.find((card) => card.title === "topic_brief");
     const enPageBrief = en.publicTemplateCards.find((card) => card.title === "page_brief");
     const zhPageBrief = zh.publicTemplateCards.find((card) => card.title === "page_brief");
 
@@ -153,12 +155,16 @@ describe("dashboard home run-summary clarity", () => {
     expect(zh.publicAdvantageCards).toHaveLength(en.publicAdvantageCards.length);
     expect(zh.integrationCards).toHaveLength(en.integrationCards.length);
     expect(zh.firstTaskGuideSteps).toHaveLength(en.firstTaskGuideSteps.length);
-    expect(en.publicTemplatesDescription).toContain("`page_brief` now has a tracked browser-backed proof bundle");
-    expect(zh.publicTemplatesDescription).toContain("`page_brief` 现在已经有已追踪的浏览器证明包");
-    expect(enPageBrief?.badge).toBe("Tracked browser-backed bundle");
-    expect(enPageBrief?.proof).toBe("Proof state: tracked browser-backed public proof bundle");
-    expect(zhPageBrief?.badge).toBe("已追踪浏览器证明包");
-    expect(zhPageBrief?.proof).toBe("证明状态：已追踪的浏览器公开证明包");
+    expect(en.publicTemplatesDescription).toContain("`topic_brief` and `page_brief` now follow release-proven secondary paths");
+    expect(zh.publicTemplatesDescription).toContain("`topic_brief` 和 `page_brief` 现在都属于已发布验证的次级路径");
+    expect(enTopicBrief?.badge).toBe("Release-proven secondary path");
+    expect(enTopicBrief?.proof).toBe("Proof state: release-proven secondary search-backed path");
+    expect(zhTopicBrief?.badge).toBe("已发布验证次级路径");
+    expect(zhTopicBrief?.proof).toBe("证明状态：已发布验证的搜索次级路径");
+    expect(enPageBrief?.badge).toBe("Release-proven secondary path");
+    expect(enPageBrief?.proof).toBe("Proof state: release-proven secondary browser-backed path");
+    expect(zhPageBrief?.badge).toBe("已发布验证次级路径");
+    expect(zhPageBrief?.proof).toBe("证明状态：已发布验证的浏览器次级路径");
     expect(en.liveCaseGalleryDescription).toContain("proof-ready reference cases");
     expect(zh.liveCaseGalleryDescription).toContain("可验的参考案例");
     expect(en.aiSurfacesActionHref).toBe("/ai-surfaces/");

@@ -48,7 +48,7 @@ def _write_frontdoor_fixture(root: Path) -> None:
         """
         <h1>First proven workflow and public proof pack</h1>
         <p>news_digest is the only official release-proven public baseline.</p>
-        <p>topic_brief and page_brief are not yet equally release-proven.</p>
+        <p>topic_brief and page_brief are now release-proven secondary public paths.</p>
         <p>What we still do not claim</p>
         <p>This page is the human-readable proof story for that bundle.</p>
         <p>Proof you can rely on today</p>

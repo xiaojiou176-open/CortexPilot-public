@@ -136,3 +136,46 @@ def test_pm_chat_e2e_orchestration_smoke_must_not_treat_terminal_failure_as_succ
     text = _runner_text()
     assert "if status not in accepted_fail and (non_pm_roles or status in accepted_success or status in accepted_active):" in text
     assert 'raise RuntimeError(f"session run not successful: status={status!r}, failure_reason={failure_reason!r}")' in text
+
+
+def test_pm_chat_e2e_real_mode_verifies_workflow_case_and_proof_replay_surfaces() -> None:
+    text = _runner_text()
+    assert 'workflow_id' in text
+    assert '/workflows' in text
+    assert '/runs' in text
+    assert 'proof_pack.json' in text
+
+
+def test_pm_chat_e2e_objective_can_be_overridden_from_env() -> None:
+    text = _runner_text()
+    assert "OPENVIBECODING_E2E_OBJECTIVE" in text
+
+
+def test_pm_chat_e2e_api_start_exports_allowed_origins_for_dashboard_port() -> None:
+    text = _script_text()
+    assert "OPENVIBECODING_API_ALLOWED_ORIGINS" in text
+
+
+def test_pm_chat_e2e_ignores_draft_placeholder_when_extracting_session_ids() -> None:
+    text = _runner_text()
+    assert 'candidate.casefold()' in text
+    assert '"draft"' in text
+
+
+def test_pm_chat_e2e_browser_flow_defaults_api_auth_off() -> None:
+    text = _script_text()
+    assert 'OPENVIBECODING_E2E_API_AUTH_REQUIRED' in text or 'API_AUTH_REQUIRED="false"' in text
+
+
+def test_pm_chat_e2e_deterministic_template_payload_is_injected_for_pm_intake() -> None:
+    text = _runner_text()
+    assert "OPENVIBECODING_E2E_TASK_TEMPLATE" in text
+    assert "OPENVIBECODING_E2E_TEMPLATE_PAYLOAD_JSON" in text
+    assert '"task_template": task_template' in text
+    assert '"template_payload": template_payload' in text
+
+
+def test_pm_chat_e2e_reads_workflow_id_from_nested_run_manifest() -> None:
+    text = _runner_text()
+    assert 'refreshed_run_payload.get("manifest")' in text
+    assert 'manifest_payload.get("workflow")' in text

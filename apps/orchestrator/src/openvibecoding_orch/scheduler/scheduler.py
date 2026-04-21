@@ -214,7 +214,12 @@ class Orchestrator:
         return runner.run_chain(chain_path, mock_mode=mock_mode)
 
     @trace_span("orchestrator.execute_task")
-    def execute_task(self, contract_path: Path, mock_mode: bool = False) -> str:
+    def execute_task(
+        self,
+        contract_path: Path,
+        mock_mode: bool = False,
+        workflow_binding: dict[str, str] | None = None,
+    ) -> str:
         contract_path = contract_path.resolve()
         contract = self._validator.validate_contract(_read_contract(contract_path))
         log_event("INFO", "scheduler", "EXECUTE_TASK", run_id="", meta={"contract": str(contract_path)})
@@ -238,6 +243,7 @@ class Orchestrator:
             store=store,
             contract=contract,
             mock_mode=mock_mode,
+            workflow_binding=workflow_binding,
             run_store_cls=RunStore,
             allow_codex_exec_fn=policy_pipeline.allow_codex_exec,
             mcp_only_enabled_fn=policy_pipeline.mcp_only_enabled,

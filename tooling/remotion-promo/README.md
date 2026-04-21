@@ -17,8 +17,8 @@ pnpm --dir tooling/remotion-promo render:mp4
 ## Outputs
 
 - Poster: `docs/assets/storefront/openvibecoding-command-tower-teaser-poster.png`
-- MP4: `.runtime-cache/openvibecoding/media/openvibecoding-command-tower-teaser.mp4`
+- MP4: `docs/assets/storefront/openvibecoding-command-tower-teaser.mp4`
 
-The tracked public asset is the poster image. The MP4 first renders into
-runtime cache so we can inspect size and quality before deciding whether it
-belongs on the public surface.
+Both assets now belong to the tracked public storefront surface. Render into the
+repo-owned outputs above, then review size, readability, and truthfulness
+before calling the asset live on a public front door.

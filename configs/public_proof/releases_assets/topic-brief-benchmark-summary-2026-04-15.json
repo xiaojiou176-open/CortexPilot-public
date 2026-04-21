@@ -1,11 +1,11 @@
 {
   "artifact_type": "topic_brief_public_bundle_baseline",
-  "baseline_scope": "secondary_search_backed_bundle",
-  "proof_date": "2026-04-15",
+  "baseline_scope": "release_proven_secondary_search_backed_path",
+  "proof_date": "2026-04-21",
   "task_template": "topic_brief",
   "bundle_ok": true,
   "observed_run": {
-    "run_id": "run_20260416_023549_fcf0b6b4a6a849a88af876220bf0294f",
+    "run_id": "run_20260421_185017_bf5749219a934b1a8deb61c6f1b78629",
     "providers": {
       "browser_ddg": 2
     },
@@ -18,6 +18,7 @@
   },
   "truth_boundary": {
     "official_first_public_baseline": false,
+    "release_proven_secondary_business_path": true,
     "broad_multi_run_release_average": false,
     "hosted_production_proof": false
   }

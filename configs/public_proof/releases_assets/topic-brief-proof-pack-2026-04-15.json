@@ -1,12 +1,13 @@
 {
   "artifact_type": "topic_brief_public_proof_pack",
   "task_template": "topic_brief",
-  "status": "tracked_search_backed_public_proof_bundle",
-  "baseline_scope": "secondary_search_backed_bundle",
-  "summary": "This pack is the smallest truthful search-backed public trust bundle for topic_brief today. It combines the tracked healthy proof summary, a bundle baseline summary, a share-ready Workflow Case recap, and the shared storefront demo-status ledger without claiming that topic_brief replaced news_digest as the official first public baseline.",
+  "status": "release_proven_secondary_search_backed_path",
+  "baseline_scope": "release_proven_secondary_search_backed_path",
+  "summary": "This pack is the smallest truthful release-proven secondary search-backed business bundle for topic_brief today. It combines the fresh healthy proof summary, a fresh bundle baseline summary, a fresh Workflow Case recap, and the shared storefront demo-status ledger while preserving news_digest as the only official first public baseline.",
   "truth_boundary": {
     "official_first_public_baseline": false,
     "equally_release_proven_as_news_digest": false,
+    "release_proven_secondary_business_path": true,
     "hosted_production_proof": false,
     "public_write_capable_mcp_proof": false,
     "search_backed_bundle_present": true
@@ -21,7 +22,7 @@
   },
   "supporting_assets": {},
   "known_gaps": [
-    "topic_brief is still not the official first public baseline; news_digest retains that role.",
+    "topic_brief is now a release-proven secondary business path, but news_digest retains the official first public baseline.",
     "The current topic_brief bundle does not prove hosted production readiness, broad multi-run benchmark coverage, or public write-capable MCP."
   ]
 }

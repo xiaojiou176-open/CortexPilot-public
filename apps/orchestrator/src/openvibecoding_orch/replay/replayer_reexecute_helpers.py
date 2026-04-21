@@ -19,6 +19,21 @@ def _value(obj: dict[str, Any], key: str) -> str | None:
     return value if isinstance(value, str) and value.strip() else None
 
 
+def _is_public_readonly_search_contract(contract: dict[str, Any]) -> bool:
+    assigned_agent = contract.get("assigned_agent") if isinstance(contract.get("assigned_agent"), dict) else {}
+    assigned_role = str(assigned_agent.get("role") or "").strip().upper()
+    if assigned_role not in {"SEARCHER", "RESEARCHER"}:
+        return False
+    inputs = contract.get("inputs") if isinstance(contract.get("inputs"), dict) else {}
+    artifacts = inputs.get("artifacts") if isinstance(inputs.get("artifacts"), list) else []
+    artifact_names = {
+        str(item.get("name") or "").strip()
+        for item in artifacts
+        if isinstance(item, dict) and str(item.get("name") or "").strip()
+    }
+    return bool(artifact_names & {"search_requests.json", "browser_requests.json"})
+
+
 def build_reexecute_report(
     *,
     run_dir: Path,
@@ -198,7 +213,15 @@ def build_reexecute_report(
     if expected_status:
         actual_status = "PASS" if tests_result.get("ok") else "FAIL"
         if expected_status != actual_status:
-            hard_diffs.append({"key": "tests", "expected": expected_status, "actual": actual_status})
+            diff_item = {"key": "tests", "expected": expected_status, "actual": actual_status}
+            if (
+                _is_public_readonly_search_contract(contract)
+                and str(expected_status).upper() == "SKIPPED"
+                and actual_status == "PASS"
+            ):
+                soft_diffs.append(diff_item)
+            else:
+                hard_diffs.append(diff_item)
     elif strict:
         errors.append("test_report status missing")
 

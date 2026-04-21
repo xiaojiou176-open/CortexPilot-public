@@ -1,39 +1,47 @@
 # OpenVibeCoding
 
-The open command tower for AI engineering.
+One dashboard for long AI coding jobs.
 
-Stop babysitting AI coding work.
+OpenVibeCoding helps you watch the work, reopen the saved case, and inspect the
+evidence before you trust the result.
 
-AI coding does not lack models. It lacks a command tower.
-
-OpenVibeCoding is the command tower for AI engineering. It helps teams
-plan / delegate / track / resume / prove long-running engineering work across
-Codex and Claude Code instead of juggling scattered chats, local scripts, and
-after-the-fact logs.
+OpenVibeCoding is a governed workspace for planning, watching, resuming, and
+proving long AI coding jobs.
 
 OpenVibeCoding is a contract-first multi-agent orchestration repository.
 
-The public story is intentionally narrower than the full monorepo:
+Start with one proven workflow. Then open the adoption path that matches the
+real job.
+
+Current public boundary: OpenVibeCoding is a repo-backed control plane with
+docs backed by evidence, a **macOS desktop shell**, and a **read-only protocol
+view (MCP)**.
+Hosted operator and write-capable MCP stay outside the current promise.
+
+Think of it as the place where one long AI coding job stays visible from
+request to proof, instead of disappearing into scattered chats, scripts, and
+after-the-fact logs.
+
+Public entry ladder:
 
 - **See one proven workflow first**
-- **Choose the right adoption path second**
-- **Open MCP / API / builder / skills surfaces only after the real job is clear**
+- **Watch the teaser second**
+- **Open technical surfaces only after the real job is clear**
 
-Current public boundary: OpenVibeCoding is a repo-backed command tower, not a
-hosted product, and the shipped MCP surface remains **read-only**.
+[First Proven Workflow](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/) · [Watch the 18s Teaser](docs/assets/storefront/openvibecoding-command-tower-teaser.mp4) · [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/) · [Public Docs](https://xiaojiou176-open.github.io/OpenVibeCoding/)
 
-Current lane order is deliberate:
+<details>
+<summary>More technical surfaces</summary>
 
-- **Primary lane** = the read-only MCP package plus the Official MCP Registry entry
-- **Secondary lane** = the adoption-router public skill packet
-- **Companion/example lane** = local starter kits and coding-agent bundle examples, which are not the canonical public root
+[AI + MCP + API](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/) · [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/) · [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) · [Quickstart](#quickstart) · [Releases](https://github.com/xiaojiou176-open/OpenVibeCoding/releases)
 
-[Quickstart](#quickstart) · [Watch the 18s Teaser](docs/assets/storefront/openvibecoding-command-tower-teaser.mp4) · [First Proven Workflow](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/) · [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/) · [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) · [Public Docs](https://xiaojiou176-open.github.io/OpenVibeCoding/) · [AI + MCP + API Surfaces](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/) · [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/) · [Releases](https://github.com/xiaojiou176-open/OpenVibeCoding/releases)
+</details>
 
 ![OpenVibeCoding command tower showcase card](docs/assets/storefront/command-tower-showcase-card.svg)
 
 If you want the fastest product read instead of the full distribution matrix,
-open the 18-second teaser first.
+open the 18-second teaser first. If you need the stack map instead of the
+shortest proof story, open the compatibility matrix second.
 
 [![OpenVibeCoding command tower teaser poster](docs/assets/storefront/openvibecoding-command-tower-teaser-poster.png)](docs/assets/storefront/openvibecoding-command-tower-teaser.mp4)
 
@@ -56,6 +64,15 @@ The engineering philosophy underneath that loop is equally explicit:
 - **Prompt Engineering**: write the right worker brief, scope, constraints, and deliverables.
 - **Context Engineering**: keep the right material in the right head, and treat explicit handoff as a fallback rather than the default loop.
 - **Harness Engineering**: move work through contracts, runtime bindings, approvals, and proof surfaces so the system can keep operating safely.
+
+<details>
+<summary>Why the stack stays governed</summary>
+
+Those three layers explain why OpenVibeCoding stays legible under long-running work:
+prompts define the job, context keeps the right material in view, and the harness
+turns the run into something humans can inspect, compare, and safely resume.
+
+</details>
 
 OpenVibeCoding currently combines:
 
@@ -80,16 +97,15 @@ control-plane manual:
 The shortest truthful answer today is:
 
 > OpenVibeCoding currently ships through the public OpenVibeCoding repo, a public
-> Pages front door, a repo-local read-only MCP surface, the live
+> Pages front door, one proven workflow, the live
 > `openvibecoding-orchestrator==0.1.0a4` PyPI package plus the live
 > `io.github.xiaojiou176-open/openvibecoding-readonly@0.1.0a4` Official MCP
-> Registry entry for that same read-only runtime, and a live ClawHub skill. The adoption-router skill is
-> the secondary public lane. Local coding-agent starters and bundle examples
-> remain companion/example materials, not the canonical public root. MCP.so
-> still has an open external submission receipt, while the previous
-> OpenHands/extensions submission is closed without a live listing. Hosted
-> service, write-capable MCP, Docker distribution, and standalone npm releases
-> remain deferred.
+> Registry entry for that same read-only runtime, and a live ClawHub skill.
+> Local coding-agent starters and bundle examples remain helper materials, not
+> the primary public front door. MCP.so still has an open external submission
+> receipt, while the previous OpenHands/extensions submission is closed without
+> a live listing. Hosted service, write-capable MCP, Docker distribution, and
+> standalone npm releases remain deferred.
 
 Use these buckets:
 
@@ -147,12 +163,12 @@ A clean first pass should let you:
 
 For the public product story, the current official first proven workflow is
 [`news_digest`](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/).
-`topic_brief` now has a tracked search-backed public proof bundle, but it is
-still not the official first public baseline and should not be described as
-equally release-proven with `news_digest`.
-`page_brief` now has a tracked browser-backed public proof bundle, but it is
-still not the official first public baseline and should not be described as
-equally release-proven with `news_digest`.
+`topic_brief` is now a release-proven secondary search-backed public path, but
+it is still not the official first public baseline and should not be described
+as equally release-proven with `news_digest`.
+`page_brief` is now a release-proven secondary browser-backed public path, but
+it is still not the official first public baseline and should not be described
+as equally release-proven with `news_digest`.
 The public use-cases page is meant to act like the human-readable proof story,
 not a router into raw manifests, ledgers, or maintainer-grade capture
 contracts.
@@ -338,16 +354,17 @@ The current dashboard front door now surfaces all three public cases, while
 | Public case | Best for | Example input | Proof state |
 | --- | --- | --- | --- |
 | `news_digest` | the fastest proof-oriented public first run | one topic + 3 public domains + `24h` | **official first public baseline** |
-| `topic_brief` | a narrow topic brief with search-backed evidence | one topic + `7d` + max results | tracked search-backed public proof bundle |
-| `page_brief` | one URL with browser-backed evidence | one URL + one focused summary request | tracked browser-backed public proof bundle |
+| `topic_brief` | a narrow topic brief with search-backed evidence | one topic + `7d` + max results | release-proven secondary search-backed public path |
+| `page_brief` | one URL with browser-backed evidence | one URL + one focused summary request | release-proven secondary browser-backed public path |
 
 For the first public release bundle, `news_digest` is the only official
-proof-oriented first-run baseline. `topic_brief` now has its own tracked
-search-backed public proof bundle, but it still should not be described as the
-official first baseline or as equally release-proven with `news_digest`.
-`page_brief` now has its own tracked browser-backed public proof bundle, but it
-still should not be described as the official first baseline or as equally
-release-proven with `news_digest`.
+proof-oriented first-run baseline. `topic_brief` now has its own
+release-proven secondary search-backed public path, but it still should not be
+described as the official first baseline or as equally release-proven with
+`news_digest`.
+`page_brief` now has its own release-proven secondary browser-backed public
+path, but it still should not be described as the official first baseline or as
+equally release-proven with `news_digest`.
 
 ## Works With Today
 

@@ -125,6 +125,18 @@ def _strip_intake_only_contract_fields(contract: dict[str, Any]) -> dict[str, An
     return sanitized
 
 
+def _safe_workflow_component(value: Any, *, fallback: str) -> str:
+    normalized = re.sub(r"[^A-Za-z0-9._-]+", "-", str(value or "").strip()).strip("._-")
+    if not normalized:
+        normalized = fallback
+    return normalized[:40]
+
+
+def _build_local_pm_workflow_id(*, intake_id: str, task_id: str) -> str:
+    safe_task = _safe_workflow_component(task_id, fallback="task")
+    safe_intake = _safe_workflow_component(intake_id, fallback="intake")
+    return f"openvibecoding-pm-{safe_task}-{safe_intake}"[:96]
+
 def _artifact_ref_for_path(path: Path, *, rel_path: str, name: str, media_type: str = "application/json") -> dict[str, Any]:
     payload = path.read_bytes()
     return {
@@ -616,6 +628,7 @@ def run_intake(
     contract_dir.mkdir(parents=True, exist_ok=True)
     task_stem = str(contract.get("task_id") or intake_id).strip() or str(intake_id)
     safe_task_stem = re.sub(r"[^a-zA-Z0-9._-]+", "_", task_stem).strip("._-") or "task"
+    local_workflow_id = _build_local_pm_workflow_id(intake_id=intake_id, task_id=task_stem)
     contract_path = contract_dir / f"{safe_task_stem}-{uuid.uuid4().hex[:10]}.json"
     contract_path.write_text(json.dumps(contract, ensure_ascii=False, indent=2), encoding="utf-8")
 
@@ -631,8 +644,16 @@ def run_intake(
     done = threading.Event()
 
     def _execute_in_background() -> None:
+        execute_kwargs: dict[str, Any] = {"mock_mode": mock}
+        execute_signature = inspect.signature(orchestration_service.execute_task)
+        if "workflow_binding" in execute_signature.parameters:
+            execute_kwargs["workflow_binding"] = {
+                "workflow_id": local_workflow_id,
+                "task_queue": "openvibecoding-orch",
+                "namespace": "default",
+            }
         try:
-            execution_result["run_id"] = orchestration_service.execute_task(contract_path, mock_mode=mock)
+            execution_result["run_id"] = orchestration_service.execute_task(contract_path, **execute_kwargs)
         except Exception as exc:  # noqa: BLE001
             execution_result["error"] = exc
             log_event(
