@@ -21,6 +21,17 @@ def test_provider_runtime_path_matrix_uses_governance_wrapper() -> None:
     assert row["required_gates"][0] == expected
 
 
+def test_pm_chat_real_e2e_smoke_entrypoint_keeps_fast_gate_enabled() -> None:
+    matrix = json.loads(MATRIX_PATH.read_text(encoding="utf-8"))
+    row = next(item for item in matrix["matrix"] if item["integration_slice"] == "pm-chat-real-e2e")
+
+    smoke_entrypoint = row["smoke_entrypoint"]
+    assert "OPENVIBECODING_E2E_SKIP_FAST_GATE=1" not in smoke_entrypoint
+    assert "OPENVIBECODING_E2E_RUNNER=agents" in smoke_entrypoint
+    assert "OPENVIBECODING_E2E_WEB_MODE=prod" in smoke_entrypoint
+    assert "bash scripts/e2e_pm_chat_command_tower_success.sh" in smoke_entrypoint
+
+
 def test_verify_upstream_slices_handles_spacey_python_path_via_governance_wrapper(tmp_path: Path) -> None:
     spaced_python = tmp_path / "managed toolchain" / "python"
     spaced_python.parent.mkdir(parents=True, exist_ok=True)

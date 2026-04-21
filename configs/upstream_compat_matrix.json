@@ -69,7 +69,7 @@
         "python3 scripts/check_upstream_inventory.py --mode gate"
       ],
       "validation_gate": "OPENVIBECODING_E2E_RUNNER=agents OPENVIBECODING_E2E_WEB_MODE=prod bash scripts/e2e_pm_chat_command_tower_success.sh",
-      "smoke_entrypoint": "OPENVIBECODING_E2E_RUNNER=agents OPENVIBECODING_E2E_WEB_MODE=prod OPENVIBECODING_E2E_SKIP_FAST_GATE=1 OPENVIBECODING_E2E_CHECK_PM_STOP=0 OPENVIBECODING_E2E_ORCHESTRATION_SMOKE_MODE=1 OPENVIBECODING_E2E_API_PORT=18020 OPENVIBECODING_E2E_DASHBOARD_PORT=18120 bash scripts/e2e_pm_chat_command_tower_success.sh",
+      "smoke_entrypoint": "OPENVIBECODING_E2E_RUNNER=agents OPENVIBECODING_E2E_WEB_MODE=prod OPENVIBECODING_E2E_CHECK_PM_STOP=0 OPENVIBECODING_E2E_ORCHESTRATION_SMOKE_MODE=1 OPENVIBECODING_E2E_API_PORT=18020 OPENVIBECODING_E2E_DASHBOARD_PORT=18120 bash scripts/e2e_pm_chat_command_tower_success.sh",
       "smoke_timeout_sec": 600,
       "break_glass_policy": "Mock mode on CI requires explicit emergency override",
       "rollback_path": "Revert to the last passing PM chat real-E2E contract and rerun the real chain",
