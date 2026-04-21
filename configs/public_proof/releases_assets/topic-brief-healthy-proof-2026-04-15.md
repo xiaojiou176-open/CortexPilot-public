@@ -1,11 +1,11 @@
 # topic_brief Healthy Proof - 2026-04-15
 
-This file records the first repo-tracked search-backed `topic_brief` public
-proof bundle on the public surface.
+This file records the fresh repo-tracked release-proven secondary
+search-backed `topic_brief` business path on the public surface.
 
-It exists to move `topic_brief` out of the earlier `showcase_only` bucket
-without pretending that the search-backed path replaced `news_digest` as the
-official first public baseline.
+It exists to prove that `topic_brief` has moved beyond a tracked bundle into a
+release-proven secondary business path, without pretending that it replaced
+`news_digest` as the official first public baseline.
 
 This is repo-side proof packaging. It is not proof of a live hosted product, a
 public write-capable MCP surface, or equal release-proven status with
@@ -14,12 +14,12 @@ public write-capable MCP surface, or equal release-proven status with
 ## Bundle Snapshot
 
 - bundle id: `topic_brief`
-- proof state: `proof_bundle_tracked`
-- claim scope: `search_backed_public_proof_bundle`
-- proof date: `2026-04-15`
+- proof state: `release_proven_secondary`
+- claim scope: `search_backed_release_proven_secondary_path`
+- proof date: `2026-04-21`
 - public entrypoint: `docs/use-cases/index.html`
-- observed run id: `run_20260416_023549_fcf0b6b4a6a849a88af876220bf0294f`
-- observed generated at: `2026-04-16T02:35:54.827540+00:00`
+- observed run id: `run_20260421_185017_bf5749219a934b1a8deb61c6f1b78629`
+- observed generated at: `2026-04-21T18:50:28.462576+00:00`
 
 ## Tracked Proof Assets
 
@@ -31,11 +31,12 @@ public write-capable MCP surface, or equal release-proven status with
 
 ## What This Proves Today
 
-- `topic_brief` now has its own tracked search-backed public proof bundle.
-- public docs no longer need to describe `topic_brief` as a bundle-free
-  showcase path.
-- the tracked run produced three auditable public-source URLs for `Seattle AI`
-  and recorded a clean public-source receipt.
+- `topic_brief` now has its own release-proven secondary search-backed public
+  proof path.
+- public docs no longer need to describe `topic_brief` as a showcase path or
+  as only a tracked bundle.
+- the fresh rerun recorded three auditable public-source URLs for `Seattle AI`
+  with a clean public-source receipt.
 
 ## What This Does Not Prove
 
@@ -46,14 +47,14 @@ public write-capable MCP surface, or equal release-proven status with
 
 ## Observed Public Sources
 
+- `https://www.seattle24x7.com/community/whats-brewing/2026/03/05/seattles-ai-moment-how-the-pacific-northwest-quietly-became-americas-second-capital-of-ai/`
 - `https://www.builtinseattle.com/articles/artificial-intelligence-companies-seattle`
 - `https://www.ai2incubator.com/ai-house`
-- `https://www.seattle24x7.com/community/whats-brewing/2026/03/05/seattles-ai-moment-how-the-pacific-northwest-quietly-became-americas-second-capital-of-ai/`
 
 ## Truth Boundary
 
-- This proof source is a repo-tracked public bundle contract for the
-  search-backed `topic_brief` path.
+- This proof source is a repo-tracked public contract for the release-proven
+  secondary search-backed `topic_brief` path.
 - The current official first public baseline still belongs to `news_digest`.
-- `page_brief` remains a tracked browser-backed secondary proof path, not the
-  official first public baseline.
+- `page_brief` is now a release-proven secondary browser-backed business path,
+  not the official first public baseline.

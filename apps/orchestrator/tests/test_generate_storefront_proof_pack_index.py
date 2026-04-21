@@ -49,8 +49,8 @@ def test_generate_storefront_proof_pack_index_builds_assets_from_pack_manifest(t
             {
                 "bundle_id": "page_brief",
                 "task_template": "page_brief",
-                "proof_state": "proof_bundle_tracked",
-                "claim_scope": "browser_backed_public_proof_bundle",
+                "proof_state": "release_proven_secondary",
+                "claim_scope": "browser_backed_release_proven_secondary_path",
                 "authority_level": "repo_side_public_proof",
                 "public_entrypoint": "docs/use-cases/index.html",
                 "pack_manifest": "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json",
@@ -110,7 +110,8 @@ def test_generate_storefront_proof_pack_index_builds_assets_from_pack_manifest(t
     assert "gemini_proof_screenshot" in roles
     page = rendered["bundles"][1]
     page_roles = {item["role"] for item in page["assets"]}
-    assert page["proof_state"] == "proof_bundle_tracked"
+    assert page["proof_state"] == "release_proven_secondary"
+    assert page["claim_scope"] == "browser_backed_release_proven_secondary_path"
     assert page["pack_manifest"] == "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json"
     assert page_roles == {
         "healthy_proof_summary",
@@ -122,7 +123,7 @@ def test_generate_storefront_proof_pack_index_builds_assets_from_pack_manifest(t
     }
 
 
-def test_generate_storefront_proof_pack_index_supports_topic_brief_tracked_bundle(tmp_path: Path) -> None:
+def test_generate_storefront_proof_pack_index_supports_topic_brief_release_proven_secondary_bundle(tmp_path: Path) -> None:
     module = _load_generator_module()
     root = tmp_path
     (root / "configs" / "public_proof" / "releases_assets").mkdir(parents=True, exist_ok=True)
@@ -135,12 +136,12 @@ def test_generate_storefront_proof_pack_index_supports_topic_brief_tracked_bundl
             {
                 "bundle_id": "topic_brief",
                 "task_template": "topic_brief",
-                "proof_state": "proof_bundle_tracked",
-                "claim_scope": "search_backed_public_proof_bundle",
+                "proof_state": "release_proven_secondary",
+                "claim_scope": "search_backed_release_proven_secondary_path",
                 "authority_level": "repo_side_public_proof",
                 "public_entrypoint": "docs/use-cases/index.html",
                 "pack_manifest": "configs/public_proof/releases_assets/topic-brief-proof-pack-2026-04-15.json",
-                "safe_public_claims": ["topic_brief now has a tracked search-backed public proof bundle"],
+                "safe_public_claims": ["topic_brief is now a release-proven secondary search-backed path"],
                 "forbidden_claims": ["topic_brief is the official first public baseline today"],
                 "missing_expected_artifacts": [],
             }
@@ -170,8 +171,8 @@ def test_generate_storefront_proof_pack_index_supports_topic_brief_tracked_bundl
     rendered = module.build_index(module._load_json(registry_path))
     topic = rendered["bundles"][0]
     topic_roles = {item["role"] for item in topic["assets"]}
-    assert topic["proof_state"] == "proof_bundle_tracked"
-    assert topic["claim_scope"] == "search_backed_public_proof_bundle"
+    assert topic["proof_state"] == "release_proven_secondary"
+    assert topic["claim_scope"] == "search_backed_release_proven_secondary_path"
     assert topic_roles == {
         "healthy_proof_summary",
         "healthy_proof_summary_machine",

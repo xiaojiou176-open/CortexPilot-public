@@ -277,12 +277,17 @@
 
       .truth-strip,
       .hero-media-grid,
-      .loop-grid {
+      .loop-grid,
+      .glossary-strip {
         display: grid;
         gap: 16px;
       }
 
       .truth-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .glossary-strip {
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
@@ -309,6 +314,29 @@
         color: var(--muted);
         font-size: 14px;
         line-height: 1.6;
+      }
+
+      .glossary-card {
+        display: grid;
+        gap: 8px;
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: rgba(17, 26, 46, 0.58);
+      }
+
+      .glossary-card strong {
+        font-family: "Space Grotesk", "Manrope", sans-serif;
+        font-size: 17px;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+      }
+
+      .glossary-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
       }
 
       .truth-kicker,
@@ -411,31 +439,48 @@
         .loop-grid {
           grid-template-columns: 1fr;
         }
+
+        .hero-teaser-panel {
+          order: -1;
+        }
       }
     </style>
   </head>
   <body>
     <main>
       <section class="hero">
-        <span class="eyebrow">OpenVibeCoding / proof-first front door</span>
-        <h1>See every AI coding run on one live board.</h1>
+        <span class="eyebrow">OpenVibeCoding / start here</span>
+        <h1>One dashboard for long AI coding jobs.</h1>
         <p class="lede">
-          OpenVibeCoding turns one request into one visible workflow case and one
-          proof trail you can inspect before you trust the result.
+          OpenVibeCoding helps you watch the work, reopen the saved case, and inspect
+          the evidence before you trust the result.
         </p>
         <div class="actions">
           <a class="primary" href="./use-cases/">See the first proven workflow</a>
           <a class="secondary" href="./assets/storefront/openvibecoding-command-tower-teaser.mp4">Watch the 18s teaser</a>
         </div>
         <p class="caption">
-          Think of OpenVibeCoding as the place where one long AI coding job stays visible from
-          request to proof. Today you can use the repo, docs, the <strong>macOS desktop shell</strong>,
-          and the <strong>read-only MCP</strong> lane to inspect the same run.
+          Use the repo, docs, the <strong>macOS desktop shell</strong>, and a
+          <strong>secure read-only protocol view</strong> to inspect the same job from request to evidence.
         </p>
         <p class="caption">
-          Need the stack map instead of the shortest proof story?
+          Need the adoption map instead of the shortest proof story?
           <a href="./compatibility/">Choose the right adoption path</a>.
         </p>
+        <div class="glossary-strip" aria-label="Plain-language glossary">
+          <article class="glossary-card">
+            <strong>Workflow case</strong>
+            <p>The saved record of one job, so you can reopen the same work later.</p>
+          </article>
+          <article class="glossary-card">
+            <strong>Proof &amp; Replay</strong>
+            <p>The evidence and rerun view, so humans can inspect what happened.</p>
+          </article>
+          <article class="glossary-card">
+            <strong>Read-only protocol view</strong>
+            <p>The MCP layer for inspection only, not for write-capable mutation.</p>
+          </article>
+        </div>
         <div class="hero-media-grid">
           <div class="panel">
             <img
@@ -449,7 +494,7 @@
             </p>
           </div>
 
-          <div class="panel">
+          <div class="panel hero-teaser-panel">
             <video
               class="hero-video"
               controls
@@ -485,12 +530,12 @@
         <div class="truth-strip" aria-label="Current truth">
           <article class="truth-card">
             <span class="truth-kicker">Current boundary</span>
-            <strong>Repo front door, docs, macOS shell, and read-only MCP</strong>
-            <p>Start with one visible workflow and one proof trail before deciding whether the stack fits your team.</p>
+            <strong>Repo front door, docs, macOS shell, and a read-only protocol view</strong>
+            <p>Start with one visible workflow and one evidence trail before deciding whether the stack fits your team.</p>
           </article>
           <article class="truth-card">
             <span class="truth-kicker">Shipped now</span>
-            <strong>One proven workflow, one teaser, and a proof-first read path</strong>
+            <strong>One proven workflow, one teaser, and a clear first path</strong>
             <p>The first honest public story is the workflow guide, the live teaser, and the product surfaces that let you inspect the run.</p>
           </article>
           <article class="truth-card">
@@ -564,38 +609,34 @@
         <h2>Start with one proven workflow</h2>
         <p>
           If you only open one door after the hero, open the first proven workflow. It is the shortest path
-          from “what is this?” to “show me the proof loop.”
+          from “what is this?” to “show me one real example.”
         </p>
         <div class="grid">
           <article class="grid-card">
-            <h3>Fastest truthful path</h3>
-            <p>Run the smallest repo-local loop first, then confirm the live board and proof trail before trusting anything else.</p>
+            <h3>Fastest real path</h3>
+            <p>Run the smallest repo-local loop first, then confirm the live board and evidence trail before trusting anything else.</p>
           </article>
           <article class="grid-card">
             <h3>Official baseline</h3>
-            <p>The first public proof loop stays small and release-proven. The broader proof paths still exist, but they are follow-on expansions rather than the first promise.</p>
+            <p>The first public example stays small and release-proven. The broader proof paths still exist, but they are follow-on expansions rather than the first promise.</p>
           </article>
           <article class="grid-card">
-            <h3>Open the proof story</h3>
-            <p><a href="./use-cases/">Open the first proven workflow guide</a> before you fall into the full docs matrix.</p>
+            <h3>See a worked example</h3>
+            <p><a href="./use-cases/">Open the first proven workflow guide</a> before you open the full docs map.</p>
           </article>
         </div>
       </section>
 
       <section class="section">
-        <h2>What ships today</h2>
+        <h2>What you can use today</h2>
         <div class="grid">
           <article class="grid-card">
             <h3>Shipped now</h3>
-            <p>The repo front door, proof-first docs, the first proven workflow, the teaser, and the read-only MCP lane make up the public core you can inspect today.</p>
+            <p>The repo front door, docs with evidence, the first proven workflow, the teaser, and the read-only protocol view make up the public core you can inspect today.</p>
           </article>
           <article class="grid-card">
             <h3>Starter-only</h3>
             <p>Starter kits and local bundle examples help teams adopt the stack, but they are not automatic first-party plugin listings.</p>
-          </article>
-          <article class="grid-card">
-            <h3>Submitted externally</h3>
-            <p>Some public submission lanes still live as receipts and follow-up work, not as additional shipped storefront surfaces.</p>
           </article>
           <article class="grid-card">
             <h3>Explicitly deferred</h3>
@@ -606,6 +647,9 @@
           Need the exact shipped/starter/internal/deferred ledger instead of the short version?
           Open the
           <a href="./distribution/">distribution status</a>.
+        </p>
+        <p class="caption">
+          External submission receipts still exist, but they live on the distribution page rather than in the front-door story.
         </p>
         <details>
           <summary>See exact workflow names</summary>
@@ -704,12 +748,12 @@
           <article class="grid-card">
             <h3>topic_brief</h3>
             <p>Best for a bounded topic brief when you want search-backed evidence without broadening scope.</p>
-            <p><strong>Proof state:</strong> tracked search-backed public proof bundle; not the official first public baseline.</p>
+            <p><strong>Proof state:</strong> release-proven secondary search-backed public path; not the official first public baseline.</p>
           </article>
           <article class="grid-card">
             <h3>page_brief</h3>
             <p>Best for a single URL with browser-backed evidence and a read-only workflow case wrapper.</p>
-            <p><strong>Proof state:</strong> tracked browser-backed public proof bundle; not the official first public baseline.</p>
+            <p><strong>Proof state:</strong> release-proven secondary browser-backed public path; not the official first public baseline.</p>
           </article>
         </div>
         <p class="caption">

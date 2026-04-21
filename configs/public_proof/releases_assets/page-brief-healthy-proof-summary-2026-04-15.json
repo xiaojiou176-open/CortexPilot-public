@@ -1,11 +1,16 @@
 {
   "artifact_type": "page_brief_healthy_proof_summary",
-  "status": "TRACKED",
-  "proof_state": "proof_bundle_tracked",
-  "proof_date": "2026-04-15",
+  "status": "RELEASE_PROVEN_SECONDARY",
+  "proof_state": "release_proven_secondary",
+  "proof_date": "2026-04-21",
   "task_template": "page_brief",
-  "claim_scope": "browser_backed_public_proof_bundle",
-  "summary": "Repo-tracked healthy proof packaging now exists for the browser-backed page_brief path.",
+  "claim_scope": "browser_backed_release_proven_secondary_path",
+  "summary": "Fresh repo-tracked healthy proof packaging now exists for the release-proven secondary browser-backed page_brief path.",
+  "observed_run": {
+    "run_id": "run_20260421_185817_c6a72661842546ba9e11d41cc6045f5e",
+    "generated_at": "2026-04-21T18:58:18.416316+00:00",
+    "capture_mode": "playwright"
+  },
   "tracked_assets": {
     "proof_markdown": "configs/public_proof/releases_assets/page-brief-healthy-proof-2026-04-15.md",
     "benchmark_markdown": "configs/public_proof/releases_assets/page-brief-benchmark-summary-2026-04-15.md",
@@ -15,6 +20,7 @@
   "truth_boundary": {
     "official_first_public_baseline": false,
     "equally_release_proven_as_news_digest": false,
+    "release_proven_secondary_business_path": true,
     "hosted_production_proof": false,
     "browser_backed_bundle_present": true
   }

@@ -5,6 +5,7 @@ import argparse
 import importlib.util
 import json
 from pathlib import Path
+import re
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -63,10 +64,114 @@ def _asset_exists(path_text: str, errors: list[str], *, reason: str) -> None:
 
 
 def _require_text(path: Path, snippets: list[str], errors: list[str]) -> None:
-    text = path.read_text(encoding="utf-8")
+    text = _normalize_text(path.read_text(encoding="utf-8"))
     for snippet in snippets:
-        if snippet not in text:
+        if _normalize_text(snippet) not in text:
             errors.append(f"{path.relative_to(ROOT)} missing required text: {snippet}")
+
+
+def _normalize_text(value: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", value)).strip()
+
+
+def _require_any_text(path: Path, alternatives: list[str], errors: list[str], *, label: str) -> None:
+    text = _normalize_text(path.read_text(encoding="utf-8"))
+    if any(_normalize_text(snippet) in text for snippet in alternatives):
+        return
+    joined = " | ".join(alternatives)
+    errors.append(f"{path.relative_to(ROOT)} missing required text for {label}: {joined}")
+
+
+def _require_claim_lists(
+    bundle: dict,
+    bundle_id: str,
+    errors: list[str],
+    *,
+    require_secondary_wording: bool,
+) -> None:
+    safe_claims = bundle.get("safe_public_claims")
+    _require(
+        isinstance(safe_claims, list) and len(safe_claims) > 0,
+        f"{bundle_id} must keep explicit safe_public_claims",
+        errors,
+    )
+    forbidden_claims = bundle.get("forbidden_claims")
+    _require(
+        isinstance(forbidden_claims, list) and len(forbidden_claims) > 0,
+        f"{bundle_id} must keep explicit forbidden_claims",
+        errors,
+    )
+    if isinstance(forbidden_claims, list):
+        forbidden_text = " ".join(_normalize_text(str(item)).lower() for item in forbidden_claims)
+        if "official first public baseline" not in forbidden_text:
+            errors.append(f"{bundle_id} forbidden_claims must keep the official-first boundary explicit")
+    if require_secondary_wording and isinstance(safe_claims, list):
+        safe_text = " ".join(_normalize_text(str(item)).lower() for item in safe_claims)
+        if "secondary" not in safe_text:
+            errors.append(f"{bundle_id} safe_public_claims must describe the secondary public path")
+
+
+def _require_bundle_assets(
+    bundle: dict,
+    bundle_id: str,
+    errors: list[str],
+    *,
+    pack_manifest_error: str,
+    missing_list_error: str,
+    missing_nonempty_error: str,
+    assets_missing_error: str,
+    roles_missing_error: str,
+) -> None:
+    pack_manifest = str(bundle.get("pack_manifest") or "").strip()
+    _require(bool(pack_manifest), pack_manifest_error, errors)
+    if pack_manifest:
+        _asset_exists(pack_manifest, errors, reason=f"{bundle_id} pack manifest")
+        _require_path_prefix(
+            pack_manifest,
+            "configs/public_proof/releases_assets/",
+            errors,
+            reason=f"{bundle_id} pack manifest",
+        )
+
+    missing = bundle.get("missing_expected_artifacts")
+    _require(isinstance(missing, list), missing_list_error, errors)
+    if isinstance(missing, list) and missing:
+        errors.append(missing_nonempty_error)
+
+    assets = bundle.get("assets")
+    _require(isinstance(assets, list), assets_missing_error, errors)
+    if not isinstance(assets, list):
+        return
+
+    roles = {str(item.get("role")) for item in assets if isinstance(item, dict)}
+    required_roles = {
+        "healthy_proof_summary",
+        "healthy_proof_summary_machine",
+        "benchmark_summary",
+        "benchmark_summary_machine",
+        "workflow_case_recap",
+        "demo_status_ledger",
+    }
+    if not required_roles.issubset(roles):
+        errors.append(roles_missing_error)
+
+    for item in assets:
+        if not isinstance(item, dict):
+            errors.append(f"{bundle_id} assets[] must contain objects")
+            continue
+        path_text = str(item.get("path") or "").strip()
+        if not path_text:
+            errors.append(f"{bundle_id} assets[] contains an entry without path")
+            continue
+        _asset_exists(path_text, errors, reason=f"{bundle_id} asset")
+        if item.get("required_for_claim") is True:
+            _require_claim_asset_path(path_text, str(item.get("role") or ""), errors)
+        if item.get("required_for_claim") is False:
+            _require(
+                path_text.endswith((".png", ".gif", ".svg")),
+                f"supporting public capture should stay media-only: {path_text}",
+                errors,
+            )
 
 
 def _require_path_prefix(path_text: str, prefix: str, errors: list[str], *, reason: str) -> None:
@@ -326,23 +431,16 @@ def main() -> int:
     if isinstance(topic, dict):
         proof_state = str(topic.get("proof_state") or "").strip()
         _require(
-            proof_state in {"showcase_only", "proof_bundle_tracked"},
-            "topic_brief proof_state must stay on the showcase_only -> proof_bundle_tracked ladder",
+            proof_state in {"showcase_only", "proof_bundle_tracked", "release_proven_secondary"},
+            "topic_brief proof_state must stay on the showcase_only -> proof_bundle_tracked -> release_proven_secondary ladder",
             errors,
         )
         missing = topic.get("missing_expected_artifacts")
-        _require(isinstance(missing, list), "topic_brief must keep explicit missing_expected_artifacts", errors)
-        safe_claims = topic.get("safe_public_claims")
-        _require(
-            isinstance(safe_claims, list) and len(safe_claims) > 0,
-            "topic_brief must keep explicit safe_public_claims",
+        _require_claim_lists(
+            topic,
+            "topic_brief",
             errors,
-        )
-        forbidden_claims = topic.get("forbidden_claims")
-        _require(
-            isinstance(forbidden_claims, list) and len(forbidden_claims) > 0,
-            "topic_brief must keep explicit forbidden_claims",
-            errors,
+            require_secondary_wording=proof_state == "release_proven_secondary",
         )
         if isinstance(missing, list):
             expected_missing = {
@@ -387,120 +485,160 @@ def main() -> int:
                 "topic_brief must promote to repo_side_public_proof once its dedicated bundle lands",
                 errors,
             )
-            pack_manifest = str(topic.get("pack_manifest") or "").strip()
-            _require(bool(pack_manifest), "topic_brief tracked bundle must reference a pack_manifest", errors)
-            if pack_manifest:
-                _asset_exists(pack_manifest, errors, reason="topic_brief pack manifest")
-                _require_path_prefix(
-                    pack_manifest,
-                    "configs/public_proof/releases_assets/",
-                    errors,
-                    reason="topic_brief pack manifest",
-                )
-            if isinstance(missing, list) and missing:
-                errors.append("topic_brief missing_expected_artifacts must be empty once the tracked bundle lands")
-            _require(isinstance(assets, list), "topic_brief tracked bundle missing assets[]", errors)
-            if isinstance(assets, list):
-                roles = {str(item.get("role")) for item in assets if isinstance(item, dict)}
-                required_roles = {
-                    "healthy_proof_summary",
-                    "healthy_proof_summary_machine",
-                    "benchmark_summary",
-                    "benchmark_summary_machine",
-                    "workflow_case_recap",
-                    "demo_status_ledger",
-                }
-                if not required_roles.issubset(roles):
-                    errors.append("topic_brief tracked bundle lost one or more required proof asset roles")
+            _require_bundle_assets(
+                topic,
+                "topic_brief",
+                errors,
+                pack_manifest_error="topic_brief tracked bundle must reference a pack_manifest",
+                missing_list_error="topic_brief must keep explicit missing_expected_artifacts",
+                missing_nonempty_error="topic_brief missing_expected_artifacts must be empty once the tracked bundle lands",
+                assets_missing_error="topic_brief tracked bundle missing assets[]",
+                roles_missing_error="topic_brief tracked bundle lost one or more required proof asset roles",
+            )
+        elif proof_state == "release_proven_secondary":
+            _require(
+                topic.get("claim_scope") == "search_backed_release_proven_secondary_path",
+                "topic_brief must keep the search_backed_release_proven_secondary_path claim scope",
+                errors,
+            )
+            _require(
+                topic.get("authority_level") == "repo_side_public_proof",
+                "topic_brief must keep repo_side_public_proof authority once it becomes release-proven secondary",
+                errors,
+            )
+            _require_bundle_assets(
+                topic,
+                "topic_brief",
+                errors,
+                pack_manifest_error="topic_brief must reference a pack_manifest",
+                missing_list_error="topic_brief must keep explicit missing_expected_artifacts",
+                missing_nonempty_error="topic_brief missing_expected_artifacts must be empty once the release-proven secondary bundle lands",
+                assets_missing_error="topic_brief missing assets[]",
+                roles_missing_error="topic_brief bundle lost one or more required proof asset roles",
+            )
 
     page = bundle_map.get("page_brief", {})
+    page_proof_state = str(page.get("proof_state") or "").strip() if isinstance(page, dict) else ""
     if isinstance(page, dict):
         _require(
-            page.get("proof_state") == "proof_bundle_tracked",
-            "page_brief must stay proof_bundle_tracked once its tracked browser-backed bundle lands",
+            page_proof_state in {"proof_bundle_tracked", "release_proven_secondary"},
+            "page_brief must stay proof_bundle_tracked or release_proven_secondary once its browser-backed public proof bundle lands",
             errors,
         )
-        _require(
-            page.get("claim_scope") == "browser_backed_public_proof_bundle",
-            "page_brief must keep the browser_backed_public_proof_bundle claim scope",
+        _require_claim_lists(
+            page,
+            "page_brief",
             errors,
+            require_secondary_wording=page_proof_state == "release_proven_secondary",
         )
-        _require(
-            page.get("authority_level") == "repo_side_public_proof",
-            "page_brief must keep repo_side_public_proof authority",
-            errors,
-        )
-        pack_manifest = str(page.get("pack_manifest") or "").strip()
-        _require(bool(pack_manifest), "page_brief must reference a pack_manifest", errors)
-        if pack_manifest:
-            _asset_exists(pack_manifest, errors, reason="page_brief pack manifest")
-            _require_path_prefix(
-                pack_manifest,
-                "configs/public_proof/releases_assets/",
+        if page_proof_state == "proof_bundle_tracked":
+            _require(
+                page.get("claim_scope") == "browser_backed_public_proof_bundle",
+                "page_brief must keep the browser_backed_public_proof_bundle claim scope",
                 errors,
-                reason="page_brief pack manifest",
             )
-        missing = page.get("missing_expected_artifacts")
-        _require(
-            isinstance(missing, list),
-            "page_brief must keep an explicit missing_expected_artifacts list",
-            errors,
-        )
-        if isinstance(missing, list) and missing:
-            errors.append("page_brief missing_expected_artifacts must be empty once the tracked bundle lands")
-        assets = page.get("assets")
-        _require(isinstance(assets, list), "page_brief missing assets[]", errors)
-        if isinstance(assets, list):
-            roles = {str(item.get("role")) for item in assets if isinstance(item, dict)}
-            required_roles = {
-                "healthy_proof_summary",
-                "healthy_proof_summary_machine",
-                "benchmark_summary",
-                "benchmark_summary_machine",
-                "workflow_case_recap",
-                "demo_status_ledger",
-            }
-            if not required_roles.issubset(roles):
-                errors.append("page_brief bundle lost one or more required proof asset roles")
-            for item in assets:
-                if not isinstance(item, dict):
-                    errors.append("page_brief assets[] must contain objects")
-                    continue
-                path_text = str(item.get("path") or "").strip()
-                if not path_text:
-                    errors.append("page_brief assets[] contains an entry without path")
-                    continue
-                _asset_exists(path_text, errors, reason="page_brief asset")
-                if item.get("required_for_claim") is True:
-                    _require_claim_asset_path(path_text, str(item.get("role") or ""), errors)
-                if item.get("required_for_claim") is False:
-                    _require(
-                        path_text.endswith((".png", ".gif", ".svg")),
-                        f"supporting public capture should stay media-only: {path_text}",
-                        errors,
-                    )
+            _require(
+                page.get("authority_level") == "repo_side_public_proof",
+                "page_brief must keep repo_side_public_proof authority",
+                errors,
+            )
+            _require_bundle_assets(
+                page,
+                "page_brief",
+                errors,
+                pack_manifest_error="page_brief must reference a pack_manifest",
+                missing_list_error="page_brief must keep an explicit missing_expected_artifacts list",
+                missing_nonempty_error="page_brief missing_expected_artifacts must be empty once the tracked bundle lands",
+                assets_missing_error="page_brief missing assets[]",
+                roles_missing_error="page_brief bundle lost one or more required proof asset roles",
+            )
+        elif page_proof_state == "release_proven_secondary":
+            _require(
+                page.get("claim_scope") == "browser_backed_release_proven_secondary_path",
+                "page_brief must keep the browser_backed_release_proven_secondary_path claim scope",
+                errors,
+            )
+            _require(
+                page.get("authority_level") == "repo_side_public_proof",
+                "page_brief must keep repo_side_public_proof authority once it becomes release-proven secondary",
+                errors,
+            )
+            _require_bundle_assets(
+                page,
+                "page_brief",
+                errors,
+                pack_manifest_error="page_brief must reference a pack_manifest",
+                missing_list_error="page_brief must keep an explicit missing_expected_artifacts list",
+                missing_nonempty_error="page_brief missing_expected_artifacts must be empty once the release-proven secondary bundle lands",
+                assets_missing_error="page_brief missing assets[]",
+                roles_missing_error="page_brief bundle lost one or more required proof asset roles",
+            )
 
     required_use_case_text = [
-        "tracked browser-backed public proof bundle",
         "The current benchmark story is a tracked single-run baseline, not a broad release average.",
-        "Global proof-pack index across the official baseline, tracked bundle, and showcase bundles",
     ]
+    _require_text(USE_CASES_PATH, required_use_case_text, errors)
+    _require_any_text(
+        USE_CASES_PATH,
+        [
+            "Global proof-pack index across the official baseline, tracked bundle, and showcase bundles",
+            "Global proof-pack index across the official baseline and the release-proven secondary paths.",
+        ],
+        errors,
+        label="proof-pack index public wording",
+    )
+
     topic_state = str(topic.get("proof_state") or "").strip()
     if topic_state == "showcase_only":
-        required_use_case_text.extend(
+        _require_text(
+            USE_CASES_PATH,
             [
                 "dedicated healthy proof summary, dedicated benchmark summary, and share-ready recap before it can leave showcase status.",
                 "repo-tracked proof pack or another share-ready proof asset on the public surface.",
-            ]
+            ],
+            errors,
         )
     elif topic_state == "proof_bundle_tracked":
-        required_use_case_text.extend(
+        _require_any_text(
+            USE_CASES_PATH,
             [
                 "tracked search-backed public proof bundle",
-                "not yet equally release-proven",
-            ]
+                "release-proven secondary search-backed public path",
+            ],
+            errors,
+            label="topic_brief tracked/search-backed public wording",
         )
-    _require_text(USE_CASES_PATH, required_use_case_text, errors)
+    elif topic_state == "release_proven_secondary":
+        _require_any_text(
+            USE_CASES_PATH,
+            [
+                "release-proven secondary public path",
+                "release-proven secondary search-backed public path",
+            ],
+            errors,
+            label="topic_brief release-proven secondary wording",
+        )
+
+    if page_proof_state == "proof_bundle_tracked":
+        _require_any_text(
+            USE_CASES_PATH,
+            [
+                "tracked browser-backed public proof bundle",
+                "release-proven secondary browser-backed public path",
+            ],
+            errors,
+            label="page_brief browser-backed public wording",
+        )
+    elif page_proof_state == "release_proven_secondary":
+        _require_any_text(
+            USE_CASES_PATH,
+            [
+                "release-proven secondary public path",
+                "release-proven secondary browser-backed public path",
+            ],
+            errors,
+            label="page_brief release-proven secondary wording",
+        )
 
     if errors:
         print("❌ [storefront-proof-assets] public proof asset contract violations:")

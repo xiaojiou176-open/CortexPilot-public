@@ -70,6 +70,8 @@ def test_news_digest_intake_builds_contract_artifact(monkeypatch, tmp_path: Path
     assert request_payload["task_template"] == "news_digest"
     assert request_payload["template_payload"]["time_range"] == "24h"
     assert request_payload["queries"] == ["Seattle AI site:theverge.com", "Seattle AI site:techcrunch.com"]
+    assert request_payload["providers"] == ["browser_ddg"]
+    assert request_payload["verify"] == {"providers": ["browser_ddg"], "repeat": 1}
 
 
 def test_news_digest_result_builder_and_search_payload() -> None:
@@ -407,7 +409,7 @@ def test_page_brief_browser_task_writes_failed_report(monkeypatch, tmp_path: Pat
     assert "页面抓取失败" in report["failure_reason_zh"]
 
 
-def test_news_digest_result_writes_failed_report_when_search_pipeline_fails(monkeypatch, tmp_path: Path) -> None:
+def test_news_digest_run_search_pipeline_requires_browser_public_source_provider(monkeypatch, tmp_path: Path) -> None:
     runtime_root = tmp_path / "runtime"
     monkeypatch.setenv("OPENVIBECODING_RUNTIME_ROOT", str(runtime_root))
     monkeypatch.setenv("OPENVIBECODING_RUNS_ROOT", str(runtime_root / "runs"))
@@ -447,13 +449,8 @@ def test_news_digest_result_writes_failed_report_when_search_pipeline_fails(monk
         requested_by={"role": "PM", "agent_id": "pm-1"},
     )
     assert result["ok"] is False
-    run_dir = runtime_root / "runs" / run_id / "reports"
-    digest_path = run_dir / "news_digest_result.json"
-    assert digest_path.exists()
-    digest_payload = json.loads(digest_path.read_text(encoding="utf-8"))
-    assert digest_payload["status"] == "FAILED"
-    assert digest_payload["summary"].startswith("The news digest for 'Seattle AI' did not complete successfully.")
-    assert "来源链路失败" in digest_payload["failure_reason_zh"]
+    assert result["reason"] == "missing required providers"
+    assert result["missing"] == ["browser_ddg"]
 
 
 def test_topic_brief_run_search_pipeline_requires_browser_public_source_provider(monkeypatch, tmp_path: Path) -> None:

@@ -113,6 +113,40 @@ def _write_fixture(root: Path) -> None:
         + "\n",
         encoding="utf-8",
     )
+    (root / "configs" / "public_proof" / "releases_assets" / "topic-brief-proof-pack-2026-04-15.json").write_text(
+        json.dumps(
+            {
+                "artifact_type": "topic_brief_public_proof_pack",
+                "primary_assets": {
+                    "proof_summary_markdown": "configs/public_proof/releases_assets/topic-brief-healthy-proof-2026-04-15.md",
+                    "proof_summary_json": "configs/public_proof/releases_assets/topic-brief-healthy-proof-summary-2026-04-15.json",
+                    "benchmark_summary_markdown": "configs/public_proof/releases_assets/topic-brief-benchmark-summary-2026-04-15.md",
+                    "benchmark_summary_json": "configs/public_proof/releases_assets/topic-brief-benchmark-summary-2026-04-15.json",
+                    "workflow_case_recap_markdown": "configs/public_proof/releases_assets/topic-brief-workflow-case-recap-2026-04-15.md",
+                    "demo_status_markdown": "configs/public_proof/storefront/demo-status.md"
+                },
+                "supporting_assets": {}
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    for rel in [
+        "configs/public_proof/releases_assets/topic-brief-healthy-proof-2026-04-15.md",
+        "configs/public_proof/releases_assets/topic-brief-benchmark-summary-2026-04-15.md",
+        "configs/public_proof/releases_assets/topic-brief-workflow-case-recap-2026-04-15.md",
+    ]:
+        (root / rel).write_text("ok\n", encoding="utf-8")
+    (root / "configs" / "public_proof" / "releases_assets" / "topic-brief-healthy-proof-summary-2026-04-15.json").write_text(
+        json.dumps({"artifact_type": "topic-brief-healthy-proof-summary"}, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    (root / "configs" / "public_proof" / "releases_assets" / "topic-brief-benchmark-summary-2026-04-15.json").write_text(
+        json.dumps({"artifact_type": "topic-brief-benchmark-summary"}, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
 
     (root / "docs" / "use-cases" / "index.html").write_text(
         """
@@ -121,8 +155,8 @@ def _write_fixture(root: Path) -> None:
         <p>page_brief now has one tracked browser-backed public proof bundle beside the official news_digest baseline.</p>
         <p>The current benchmark story is a tracked single-run baseline, not a broad release average.</p>
         <p>Global proof-pack index across the official baseline, tracked bundle, and showcase bundles</p>
-        <p>topic_brief still needs its own dedicated healthy proof summary, dedicated benchmark summary, and share-ready recap before it can leave showcase status.</p>
-        <p>topic_brief does not yet have a repo-tracked proof pack or another share-ready proof asset on the public surface.</p>
+        <p>topic_brief is now a release-proven secondary public path beside the official news_digest baseline.</p>
+        <p>page_brief is now a release-proven secondary public path beside the official news_digest baseline.</p>
         """,
         encoding="utf-8",
     )
@@ -151,6 +185,7 @@ def _write_fixture(root: Path) -> None:
                     "tracked_contract_inputs": [
                         "configs/storefront_proof_bundle_registry.json",
                         "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json",
+                        "configs/public_proof/releases_assets/topic-brief-proof-pack-2026-04-15.json",
                         "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json",
                         "configs/public_proof/storefront/demo-status.md",
                         "configs/public_proof/storefront/live-capture-requirements.json"
@@ -182,32 +217,30 @@ def _write_fixture(root: Path) -> None:
                     {
                         "bundle_id": "topic_brief",
                         "task_template": "topic_brief",
-                        "proof_state": "showcase_only",
-                        "claim_scope": "public_showcase_path",
-                        "authority_level": "repo_side_story_surface",
+                        "proof_state": "release_proven_secondary",
+                        "claim_scope": "search_backed_release_proven_secondary_path",
+                        "authority_level": "repo_side_public_proof",
+                        "public_entrypoint": "docs/use-cases/index.html",
+                        "pack_manifest": "configs/public_proof/releases_assets/topic-brief-proof-pack-2026-04-15.json",
                         "safe_public_claims": [
-                            "topic_brief is a public showcase and discovery lane with search-backed evidence",
-                            "topic_brief is pending a dedicated healthy proof summary, a dedicated benchmark summary, and a share-ready recap before it can leave showcase status",
+                            "topic_brief is now a release-proven secondary search-backed public path",
+                            "topic_brief remains a secondary public proof path, not the official first public baseline",
                         ],
                         "forbidden_claims": [
                             "topic_brief is an equally release-proven baseline today",
-                            "topic_brief already has a tracked public proof bundle today",
+                            "topic_brief is the official first public baseline today",
                         ],
-                        "missing_expected_artifacts": [
-                            "dedicated_healthy_proof_summary",
-                            "dedicated_benchmark_summary",
-                            "share_ready_recap",
-                        ],
+                        "missing_expected_artifacts": [],
                     },
                     {
                         "bundle_id": "page_brief",
                         "task_template": "page_brief",
-                        "proof_state": "proof_bundle_tracked",
-                        "claim_scope": "browser_backed_public_proof_bundle",
+                        "proof_state": "release_proven_secondary",
+                        "claim_scope": "browser_backed_release_proven_secondary_path",
                         "authority_level": "repo_side_public_proof",
                         "public_entrypoint": "docs/use-cases/index.html",
                         "pack_manifest": "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json",
-                        "safe_public_claims": ["page_brief now has a tracked browser-backed public proof bundle"],
+                        "safe_public_claims": ["page_brief is now a release-proven secondary browser-backed public path"],
                         "forbidden_claims": ["page_brief is the official first public baseline today"],
                         "missing_expected_artifacts": [],
                     },
@@ -232,11 +265,13 @@ def _write_fixture(root: Path) -> None:
                             "scripts/generate_storefront_proof_pack_index.py",
                             "configs/storefront_proof_bundle_registry.json",
                             "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json",
+                            "configs/public_proof/releases_assets/topic-brief-proof-pack-2026-04-15.json",
                             "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json",
                         ],
                         "contract_inputs": [
                             "configs/storefront_proof_bundle_registry.json",
                             "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json",
+                            "configs/public_proof/releases_assets/topic-brief-proof-pack-2026-04-15.json",
                             "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json",
                             "configs/public_proof/storefront/demo-status.md",
                             "configs/public_proof/storefront/live-capture-requirements.json",
@@ -353,7 +388,7 @@ def test_storefront_proof_assets_gate_fails_when_topic_brief_claim_scope_drifts(
 
     registry_path = tmp_path / "configs" / "storefront_proof_bundle_registry.json"
     registry = json.loads(registry_path.read_text(encoding="utf-8"))
-    registry["bundles"][1]["claim_scope"] = "browser_backed_public_proof_bundle"
+    registry["bundles"][1]["claim_scope"] = "browser_backed_release_proven_secondary_path"
     registry_path.write_text(json.dumps(registry, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     generator.ROOT = tmp_path
@@ -372,10 +407,10 @@ def test_storefront_proof_assets_gate_fails_when_topic_brief_claim_scope_drifts(
     rc = module.main()
     out = capsys.readouterr().out
     assert rc == 1
-    assert "topic_brief must keep the public_showcase_path claim scope" in out
+    assert "topic_brief must keep the search_backed_release_proven_secondary_path claim scope" in out
 
 
-def test_storefront_proof_assets_gate_accepts_topic_brief_tracked_bundle_when_complete(
+def test_storefront_proof_assets_gate_accepts_topic_brief_release_proven_secondary_bundle_when_complete(
     tmp_path: Path, monkeypatch
 ) -> None:
     module = _load_gate_module()
@@ -414,12 +449,12 @@ def test_storefront_proof_assets_gate_accepts_topic_brief_tracked_bundle_when_co
 
     registry_path = tmp_path / "configs" / "storefront_proof_bundle_registry.json"
     registry = json.loads(registry_path.read_text(encoding="utf-8"))
-    registry["bundles"][1]["proof_state"] = "proof_bundle_tracked"
-    registry["bundles"][1]["claim_scope"] = "search_backed_public_proof_bundle"
+    registry["bundles"][1]["proof_state"] = "release_proven_secondary"
+    registry["bundles"][1]["claim_scope"] = "search_backed_release_proven_secondary_path"
     registry["bundles"][1]["authority_level"] = "repo_side_public_proof"
     registry["bundles"][1]["pack_manifest"] = "configs/public_proof/releases_assets/topic-brief-proof-pack-2026-04-15.json"
     registry["bundles"][1]["missing_expected_artifacts"] = []
-    registry["bundles"][1]["safe_public_claims"] = ["topic_brief now has a tracked search-backed public proof bundle"]
+    registry["bundles"][1]["safe_public_claims"] = ["topic_brief is now a release-proven secondary search-backed public path"]
     registry["bundles"][1]["forbidden_claims"] = ["topic_brief is the official first public baseline today"]
     registry_path.write_text(json.dumps(registry, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
@@ -427,11 +462,11 @@ def test_storefront_proof_assets_gate_accepts_topic_brief_tracked_bundle_when_co
         """
         <h1>First proven workflow and public proof pack</h1>
         <a href="../assets/storefront/proof-pack-index.json">Open proof-pack index</a>
-        <p>topic_brief now has one tracked search-backed public proof bundle beside the official news_digest baseline.</p>
-        <p>page_brief now has one tracked browser-backed public proof bundle beside the official news_digest baseline.</p>
+        <p>topic_brief is now a release-proven secondary search-backed public path beside the official news_digest baseline.</p>
+        <p>page_brief is now a release-proven secondary browser-backed public path beside the official news_digest baseline.</p>
         <p>The current benchmark story is a tracked single-run baseline, not a broad release average.</p>
-        <p>Global proof-pack index across the official baseline, tracked bundle, and showcase bundles</p>
-        <p>topic_brief is not yet equally release-proven with news_digest.</p>
+        <p>Global proof-pack index across the official baseline and the release-proven secondary paths.</p>
+        <p>topic_brief and page_brief do not replace the official news_digest baseline.</p>
         """,
         encoding="utf-8",
     )

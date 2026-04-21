@@ -1,9 +1,13 @@
 {
   "artifact_type": "page_brief_public_bundle_baseline",
-  "baseline_scope": "secondary_browser_backed_bundle",
-  "proof_date": "2026-04-15",
+  "baseline_scope": "release_proven_secondary_browser_backed_path",
+  "proof_date": "2026-04-21",
   "task_template": "page_brief",
   "bundle_ok": true,
+  "observed_run": {
+    "run_id": "run_20260421_185817_c6a72661842546ba9e11d41cc6045f5e",
+    "capture_mode": "playwright"
+  },
   "tracked_assets": {
     "benchmark_markdown": "configs/public_proof/releases_assets/page-brief-benchmark-summary-2026-04-15.md",
     "proof_summary_json": "configs/public_proof/releases_assets/page-brief-healthy-proof-summary-2026-04-15.json",
@@ -11,6 +15,7 @@
   },
   "truth_boundary": {
     "official_first_public_baseline": false,
+    "release_proven_secondary_business_path": true,
     "broad_multi_run_release_average": false,
     "hosted_production_proof": false
   }

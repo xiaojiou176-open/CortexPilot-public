@@ -73,6 +73,21 @@ def _require_substrings(path: Path, content: str, required: list[str], errors: l
             errors.append(f"{path.relative_to(ROOT)} missing required text: {snippet}")
 
 
+def _require_any_substring(
+    path: Path,
+    content: str,
+    alternatives: list[str],
+    errors: list[str],
+    *,
+    label: str,
+) -> None:
+    normalized = _normalize_text(content)
+    if any(_normalize_text(snippet) in normalized for snippet in alternatives):
+        return
+    joined = " | ".join(alternatives)
+    errors.append(f"{path.relative_to(ROOT)} missing required text for {label}: {joined}")
+
+
 def _require_anchor(path: Path, anchors: list[tuple[str, str]], href: str, text: str, errors: list[str]) -> None:
     target = (_normalize_text(href), _normalize_text(text))
     normalized = [(_normalize_text(item_href), _normalize_text(item_text)) for item_href, item_text in anchors]
@@ -169,10 +184,21 @@ def main() -> int:
             "only official release-proven public baseline",
             "topic_brief",
             "page_brief",
-            "not yet equally release-proven",
             "What we still do not claim",
         ],
         errors,
+    )
+    _require_any_substring(
+        USE_CASES_PATH,
+        use_cases_html,
+        [
+            "release-proven secondary public paths",
+            "release-proven secondary search-backed public path",
+            "release-proven secondary browser-backed public path",
+            "not yet equally release-proven",
+        ],
+        errors,
+        label="secondary proof-path wording",
     )
 
     _require_substrings(

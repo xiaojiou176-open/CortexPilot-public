@@ -22,6 +22,14 @@
       ]
     },
     {
+      "path": "apps/orchestrator/src/openvibecoding_orch/api/main_pm_intake_helpers.py",
+      "keys": [
+        "OPENVIBECODING_TEMPORAL_NAMESPACE",
+        "OPENVIBECODING_TEMPORAL_TASK_QUEUE",
+        "OPENVIBECODING_TEMPORAL_WORKFLOW_ID"
+      ]
+    },
+    {
       "path": "apps/orchestrator/src/openvibecoding_orch/chain/runner.py",
       "keys": [
         "OPENVIBECODING_CHAIN_EXEC_MODE",

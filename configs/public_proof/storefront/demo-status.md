@@ -49,8 +49,8 @@ ones that still need a real capture pass.
 | Healthy backend-backed `news_digest` public proof set | present | tracked proof summary: `configs/public_proof/releases_assets/news-digest-healthy-proof-2026-03-27.md` |
 | Public benchmark artifact from a real tracked run | present | first tracked single-run baseline: `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md` |
 | Share-ready Workflow Case recap asset | present | tracked recap asset: `configs/public_proof/releases_assets/news-digest-workflow-case-recap-2026-03-27.md` |
-| Tracked search-backed `topic_brief` public proof bundle | present | tracked proof pack: `configs/public_proof/releases_assets/topic-brief-proof-pack-2026-04-15.json` |
-| Tracked browser-backed `page_brief` public proof bundle | present | tracked proof pack: `configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json` |
+| Release-proven secondary search-backed `topic_brief` business path | present | tracked proof pack: `configs/public_proof/releases_assets/topic-brief-proof-pack-2026-04-15.json` |
+| Release-proven secondary browser-backed `page_brief` business path | present | tracked proof pack: `configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json` |
 | Published GitHub Release page/card | present | live release `v0.1.0-alpha.3` is the latest published prerelease baseline, but the repo has moved ahead and the tag now represents a lagging published snapshot |
 
 ## Still Missing
@@ -69,8 +69,8 @@ The public storytelling shorthand is now:
 
 - **first proven workflow** = `news_digest`
 - **public proof pack** = healthy proof summary + benchmark summary + Workflow Case recap + demo-status ledger
-- **tracked search-backed public proof bundle** = `topic_brief`
-- **tracked browser-backed public proof bundle** = `page_brief`
+- **release-proven secondary search-backed business path** = `topic_brief`
+- **release-proven secondary browser-backed business path** = `page_brief`
 - **showcase paths** = none on the current public task-template surface
 
 ## Truth Boundary
@@ -92,13 +92,13 @@ The public storytelling shorthand is now:
 - `configs/public_proof/releases_assets/news-digest-benchmark-summary-2026-03-27.md` is a real
   single-run baseline summary, not a broad multi-round benchmark campaign.
 - `configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json` and its
-  primary assets are repo-tracked proof packaging for the browser-backed
-  `page_brief` path, not proof that `page_brief` replaced `news_digest` as the
-  official first public baseline.
+  primary assets are repo-tracked proof packaging for the release-proven
+  secondary browser-backed `page_brief` path, not proof that `page_brief`
+  replaced `news_digest` as the official first public baseline.
 - `configs/public_proof/releases_assets/topic-brief-proof-pack-2026-04-15.json` and its
-  primary assets are repo-tracked proof packaging for the search-backed
-  `topic_brief` path, not proof that `topic_brief` replaced `news_digest` as
-  the official first public baseline.
+  primary assets are repo-tracked proof packaging for the release-proven
+  secondary search-backed `topic_brief` path, not proof that `topic_brief`
+  replaced `news_digest` as the official first public baseline.
 - the earlier benchmark-route and healthy-proof-route blocker receipts now live
   in the maintainer-only internal docs bundle, not on the default public docs
   surface.

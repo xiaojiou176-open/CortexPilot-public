@@ -108,10 +108,54 @@ def api_post_json(path: str, payload: dict) -> dict:
     with urllib.request.urlopen(req, timeout=api_post_timeout_sec) as resp:
         return json.loads(resp.read().decode("utf-8"))
 
-objective = (
-    "请在 apps/dashboard/README.md 追加一行 `- E2E_REAL_RUNNER_MARKER`，"
-    "并保证仅修改 apps/dashboard 目录。禁止执行任何版本控制命令（含 git add/commit/push/rebase/reset）。"
-)
+task_template = str(os.getenv("OPENVIBECODING_E2E_TASK_TEMPLATE", "news_digest")).strip().lower() or "news_digest"
+
+
+def _default_template_payload(template: str) -> dict[str, object]:
+    if template == "topic_brief":
+        return {
+            "topic": "Seattle AI",
+            "time_range": "24h",
+            "max_results": 5,
+        }
+    if template == "page_brief":
+        return {
+            "url": "https://openai.com/news/",
+            "focus": "Summarize the landing page and freshest visible updates",
+        }
+    return {
+        "topic": "Seattle AI",
+        "sources": ["theverge.com", "techcrunch.com", "openai.com/blog"],
+        "time_range": "24h",
+        "max_results": 5,
+    }
+
+
+def _default_objective(template: str, payload: dict[str, object]) -> str:
+    if template == "topic_brief":
+        topic = str(payload.get("topic") or "Seattle AI").strip() or "Seattle AI"
+        return f"Build a public read-only topic brief about {topic}. Do not edit repository files. Do not run any git commands. Keep the workflow inside the existing OpenVibeCoding product surfaces."
+    if template == "page_brief":
+        url = str(payload.get("url") or "https://openai.com/news/").strip() or "https://openai.com/news/"
+        return f"Build a public read-only page brief for {url}. Do not edit repository files. Do not run any git commands. Keep the workflow inside the existing OpenVibeCoding product surfaces."
+    topic = str(payload.get("topic") or "Seattle AI").strip() or "Seattle AI"
+    return f"Build a public read-only news digest about {topic}. Do not edit repository files. Do not run any git commands. Keep the workflow inside the existing OpenVibeCoding product surfaces."
+
+
+template_payload_raw = str(os.getenv("OPENVIBECODING_E2E_TEMPLATE_PAYLOAD_JSON", "")).strip()
+if template_payload_raw:
+    template_payload = json.loads(template_payload_raw)
+    if not isinstance(template_payload, dict):
+        raise RuntimeError("OPENVIBECODING_E2E_TEMPLATE_PAYLOAD_JSON must decode to an object")
+else:
+    template_payload = _default_template_payload(task_template)
+
+objective = str(
+    os.getenv(
+        "OPENVIBECODING_E2E_OBJECTIVE",
+        _default_objective(task_template, template_payload),
+    )
+).strip()
 answers = [
     "修改范围严格限制在 apps/dashboard 目录。",
     "禁止执行任何版本控制命令（含 git add/commit/push/rebase/reset）；只修改文件内容。",
@@ -138,6 +182,9 @@ with sync_playwright() as p:
                 payload = json.loads(raw)
             except json.JSONDecodeError:
                 payload = {}
+            payload["objective"] = objective
+            payload["task_template"] = task_template
+            payload["template_payload"] = dict(template_payload)
             if acceptance_cmd:
                 # Always override UI defaults so E2E acceptance remains deterministic in clean worktrees.
                 payload["acceptance_tests"] = [
@@ -233,6 +280,21 @@ with sync_playwright() as p:
     except Exception:
         pass
 
+    def _normalize_session_candidate(raw: object) -> str:
+        candidate = str(raw or "").strip()
+        if not candidate:
+            return ""
+        if candidate.casefold() in {
+            "-",
+            "(未创建)",
+            "未创建",
+            "(not created)",
+            "not created",
+            "draft",
+        }:
+            return ""
+        return candidate
+
     def extract_intake_id_from_body(text: str) -> str:
         patterns = [
             r"Session:\s*([A-Za-z0-9._:/\\-]+)",
@@ -244,8 +306,8 @@ with sync_playwright() as p:
             match = re.search(pattern, text)
             if not match:
                 continue
-            candidate = (match.group(1) or "").strip()
-            if candidate and candidate not in {"-", "(未创建)", "未创建", "(not created)", "not created"}:
+            candidate = _normalize_session_candidate(match.group(1))
+            if candidate:
                 return candidate
         return ""
 
@@ -380,7 +442,7 @@ with sync_playwright() as p:
         if not isinstance(row, dict):
             return ""
         for key in ("pm_session_id", "session_id", "id", "intake_id"):
-            value = str(row.get(key) or "").strip()
+            value = _normalize_session_candidate(row.get(key))
             if value:
                 return value
         return ""
@@ -390,24 +452,24 @@ with sync_playwright() as p:
             return ""
         candidates: list[str] = []
         for key in ("intake_id", "id"):
-            value = str(session_payload.get(key) or "").strip()
+            value = _normalize_session_candidate(session_payload.get(key))
             if value:
                 candidates.append(value)
         intake_obj = session_payload.get("intake")
         if isinstance(intake_obj, dict):
             for key in ("intake_id", "id"):
-                value = str(intake_obj.get(key) or "").strip()
+                value = _normalize_session_candidate(intake_obj.get(key))
                 if value:
                     candidates.append(value)
         response_obj = session_payload.get("response")
         if isinstance(response_obj, dict):
             for key in ("intake_id", "id"):
-                value = str(response_obj.get(key) or "").strip()
+                value = _normalize_session_candidate(response_obj.get(key))
                 if value:
                     candidates.append(value)
         session_obj = session_payload.get("session")
         if isinstance(session_obj, dict):
-            value = str(session_obj.get("intake_id") or "").strip()
+            value = _normalize_session_candidate(session_obj.get("intake_id"))
             if value:
                 candidates.append(value)
         for candidate in candidates:
@@ -421,11 +483,11 @@ with sync_playwright() as p:
         session_obj = session_payload.get("session")
         if isinstance(session_obj, dict):
             for key in ("pm_session_id", "session_id", "id"):
-                value = str(session_obj.get(key) or "").strip()
+                value = _normalize_session_candidate(session_obj.get(key))
                 if value:
                     return value
         for key in ("pm_session_id", "session_id", "id"):
-            value = str(session_payload.get(key) or "").strip()
+            value = _normalize_session_candidate(session_payload.get(key))
             if value:
                 return value
         return fallback
@@ -534,10 +596,12 @@ with sync_playwright() as p:
             except Exception:
                 payload = {}
             if isinstance(payload, dict):
-                candidate = str(payload.get("intake_id") or "").strip()
+                candidate = _normalize_session_candidate(payload.get("intake_id"))
                 if not candidate:
                     session_obj = payload.get("session") if isinstance(payload.get("session"), dict) else {}
-                    candidate = str(session_obj.get("pm_session_id") or session_obj.get("intake_id") or "").strip()
+                    candidate = _normalize_session_candidate(
+                        session_obj.get("pm_session_id") or session_obj.get("intake_id")
+                    )
                 if candidate:
                     session_id = candidate
                 raw_questions = payload.get("questions")
@@ -576,6 +640,8 @@ with sync_playwright() as p:
     def _build_api_create_payload() -> dict:
         return {
             "objective": objective,
+            "task_template": task_template,
+            "template_payload": template_payload,
             "allowed_paths": [item.strip() for item in re.split(r"[\n,]+", allowed_paths_override) if item.strip()] or ["apps/dashboard"],
             "constraints": [
                 "只修改 apps/dashboard 目录",
@@ -599,7 +665,7 @@ with sync_playwright() as p:
         try:
             create_payload = _build_api_create_payload()
             create_resp = api_post_json("/api/pm/intake", create_payload)
-            intake_id = str(create_resp.get("intake_id") or "").strip() if isinstance(create_resp, dict) else ""
+            intake_id = _normalize_session_candidate(create_resp.get("intake_id")) if isinstance(create_resp, dict) else ""
             if intake_id and not session_id:
                 session_id = intake_id
             raw_questions = create_resp.get("questions") if isinstance(create_resp, dict) else None
@@ -637,7 +703,7 @@ with sync_playwright() as p:
                 return current_intake, session_id or current_intake
         progress("intake payload missing mcp_tool_set; recreate deterministic intake via API before /answer")
         repair_resp = api_post_json("/api/pm/intake", _build_api_create_payload())
-        repaired_intake = str(repair_resp.get("intake_id") or "").strip() if isinstance(repair_resp, dict) else ""
+        repaired_intake = _normalize_session_candidate(repair_resp.get("intake_id")) if isinstance(repair_resp, dict) else ""
         if not repaired_intake:
             raise RuntimeError("repaired intake create did not return intake_id")
         raw_questions = repair_resp.get("questions") if isinstance(repair_resp, dict) else None
@@ -1064,6 +1130,15 @@ with sync_playwright() as p:
     page.screenshot(path=screen_pm, full_page=True)
 
     session_url = f"{dash_base}/command-tower/sessions/{session_lookup_id}"
+    workflow_url = ""
+    runs_url = ""
+    workflow_id = ""
+    workflow_screen = screen_session.replace("session_page", "workflow_page")
+    runs_screen = screen_session.replace("session_page", "runs_page")
+    workflow_page = None
+    runs_page = None
+    reports_payload: list[dict] | None = None
+    report_names: list[str] = []
     session_page = context.new_page()
     if not orchestration_smoke_mode:
         session_page.goto(session_url, wait_until="domcontentloaded")
@@ -1245,6 +1320,62 @@ with sync_playwright() as p:
     reexec_status = ""
     reexec_error = ""
     require_reexec = str(run_mode).strip().lower() == "real"
+    if run_id and status in accepted_success and not orchestration_smoke_mode:
+        workflow_deadline = time.time() + 120
+        while time.time() < workflow_deadline:
+            try:
+                refreshed_run_payload = api_get_json(f"/api/runs/{run_id}")
+            except Exception:
+                time.sleep(2)
+                continue
+            if isinstance(refreshed_run_payload, dict):
+                last_run_payload = refreshed_run_payload
+                manifest_payload = (
+                    refreshed_run_payload.get("manifest")
+                    if isinstance(refreshed_run_payload.get("manifest"), dict)
+                    else {}
+                )
+                workflow_payload = (
+                    manifest_payload.get("workflow")
+                    if isinstance(manifest_payload.get("workflow"), dict)
+                    else {}
+                )
+                workflow_id = str(
+                    refreshed_run_payload.get("workflow_id")
+                    or refreshed_run_payload.get("workflow_case_id")
+                    or workflow_payload.get("workflow_id")
+                    or ""
+                ).strip()
+            if workflow_id:
+                try:
+                    maybe_reports = api_get_json(f"/api/runs/{run_id}/reports")
+                except Exception:
+                    time.sleep(2)
+                    continue
+                if isinstance(maybe_reports, list):
+                    reports_payload = maybe_reports
+                    report_names = [
+                        str(item.get("name") or "").strip()
+                        for item in maybe_reports
+                        if isinstance(item, dict) and str(item.get("name") or "").strip()
+                    ]
+                    if "proof_pack.json" in report_names:
+                        break
+            time.sleep(2)
+        if not workflow_id:
+            raise RuntimeError(f"missing workflow_id for successful run receipt: run_id={run_id}")
+        if "proof_pack.json" not in report_names:
+            raise RuntimeError(f"missing proof_pack.json for successful run receipt: run_id={run_id}")
+        workflow_url = f"{dash_base}/workflows/{workflow_id}"
+        runs_url = f"{dash_base}/runs/{run_id}"
+        workflow_page = context.new_page()
+        workflow_page.goto(workflow_url, wait_until="domcontentloaded")
+        workflow_page.wait_for_timeout(1500)
+        workflow_page.screenshot(path=workflow_screen, full_page=True)
+        runs_page = context.new_page()
+        runs_page.goto(runs_url, wait_until="domcontentloaded")
+        runs_page.wait_for_timeout(1500)
+        runs_page.screenshot(path=runs_screen, full_page=True)
     if run_id and status in accepted_success:
         strict_flag = "true" if reexec_strict else "false"
         try:
@@ -1266,11 +1397,16 @@ with sync_playwright() as p:
         "plan_ready_probe": plan_ready_probe,
         "dashboard_url": f"{dash_base}/pm",
         "session_url": session_url,
+        "workflow_url": workflow_url,
+        "runs_url": runs_url,
         "session_id": session_lookup_id,
         "intake_id": intake_id,
         "run_id": run_id,
+        "workflow_id": workflow_id,
         "session_run_status": status,
         "session_failure_reason": failure_reason,
+        "report_names": report_names,
+        "proof_pack_present": "proof_pack.json" in report_names,
         "chain_roles_seen": sorted(chain_roles_seen),
         "orchestration_smoke_mode": orchestration_smoke_mode,
         "orchestration_smoke_ready": orchestration_smoke_ready,
@@ -1282,12 +1418,19 @@ with sync_playwright() as p:
         "pm_stop_probe": pm_stop_probe,
         "pm_screenshot": screen_pm,
         "session_screenshot": screen_session,
+        "workflow_screenshot": workflow_screen if workflow_url else "",
+        "runs_screenshot": runs_screen if runs_url else "",
         "session_payload": session_payload,
+        "reports_payload": reports_payload,
         "answer_degraded_due_to_mcp_tool_set_missing": bool(answer_degrade_state.get("mcp_tool_set_missing")),
         "answer_degrade_events": answer_degrade_events,
     }
 
     Path(evidence_path).write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    if workflow_page is not None:
+        workflow_page.close()
+    if runs_page is not None:
+        runs_page.close()
     browser.close()
 
     if orchestration_smoke_mode:

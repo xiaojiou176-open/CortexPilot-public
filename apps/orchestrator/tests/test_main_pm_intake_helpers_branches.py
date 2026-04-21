@@ -463,6 +463,58 @@ def test_run_intake_strips_intake_only_template_fields_before_execution(monkeypa
     assert observed_contract["runtime_options"]["strict_acceptance"] is True
 
 
+def test_run_intake_injects_stable_local_workflow_binding_and_restores_env(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(helpers, "IntakeStore", lambda: types.SimpleNamespace(append_event=lambda *_a, **_k: None))
+    monkeypatch.setattr(
+        helpers,
+        "load_config",
+        lambda: types.SimpleNamespace(
+            repo_root=tmp_path,
+            runs_root=tmp_path / "runs",
+            contract_root=tmp_path / "contracts",
+            runtime_contract_root=tmp_path / ".runtime-cache" / "openvibecoding" / "contracts",
+        ),
+    )
+    monkeypatch.delenv("OPENVIBECODING_TEMPORAL_WORKFLOW_ID", raising=False)
+
+    observed_env: dict[str, str] = {}
+
+    class _BuildOK:
+        def build_contract(self, intake_id: str) -> dict[str, object]:
+            assert intake_id == "pm-intake"
+            return {"task_id": "task-pm-intake", "runtime_options": {}}
+
+    class _InspectingOrchestrator:
+        @staticmethod
+        def execute_task(contract_path: Path, mock_mode: bool = False) -> str:
+            del contract_path, mock_mode
+            observed_env["workflow_id"] = str(
+                helpers.os.getenv("OPENVIBECODING_TEMPORAL_WORKFLOW_ID") or ""
+            ).strip()
+            observed_env["task_queue"] = str(
+                helpers.os.getenv("OPENVIBECODING_TEMPORAL_TASK_QUEUE") or ""
+            ).strip()
+            observed_env["namespace"] = str(
+                helpers.os.getenv("OPENVIBECODING_TEMPORAL_NAMESPACE") or ""
+            ).strip()
+            return "run-pm-workflow"
+
+    result = helpers.run_intake(
+        "pm-intake",
+        intake_service_cls=_BuildOK,
+        orchestration_service=_InspectingOrchestrator(),
+        error_detail_fn=lambda code: {"code": code},
+        current_request_id_fn=lambda: "req-pm-workflow",
+    )
+
+    assert result["ok"] is True
+    assert result["run_id"] == "run-pm-workflow"
+    assert observed_env["workflow_id"].startswith("openvibecoding-pm-task-pm-intake-pm-intake")
+    assert observed_env["task_queue"] == "openvibecoding-orch"
+    assert observed_env["namespace"] == "default"
+    assert helpers.os.getenv("OPENVIBECODING_TEMPORAL_WORKFLOW_ID") is None
+
+
 def test_run_intake_persists_planning_artifacts_into_run_bundle(monkeypatch, tmp_path: Path) -> None:
     runs_root = tmp_path / "runs"
     runtime_contract_root = tmp_path / ".runtime-cache" / "openvibecoding" / "contracts"

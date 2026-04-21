@@ -1,9 +1,9 @@
 # OpenVibeCoding
 
-One live board for AI coding work.
+One dashboard for long AI coding jobs.
 
-OpenVibeCoding turns one request into one visible workflow case and one proof
-trail you can inspect before you trust the result.
+OpenVibeCoding helps you watch the work, reopen the saved case, and inspect the
+evidence before you trust the result.
 
 OpenVibeCoding is a governed workspace for planning, watching, resuming, and
 proving long AI coding jobs.
@@ -14,7 +14,8 @@ Start with one proven workflow. Then open the adoption path that matches the
 real job.
 
 Current public boundary: OpenVibeCoding is a repo-backed control plane with
-proof-first docs, a **macOS desktop shell**, and a **read-only MCP** lane.
+docs backed by evidence, a **macOS desktop shell**, and a **read-only protocol
+view (MCP)**.
 Hosted operator and write-capable MCP stay outside the current promise.
 
 Think of it as the place where one long AI coding job stays visible from
@@ -25,12 +26,16 @@ Public entry ladder:
 
 - **See one proven workflow first**
 - **Watch the teaser second**
-- **Open MCP / API / builder / skills surfaces only after the real job is clear**
+- **Open technical surfaces only after the real job is clear**
 
-[First Proven Workflow](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/) · [Watch the 18s Teaser](docs/assets/storefront/openvibecoding-command-tower-teaser.mp4) · [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/) · [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) · [Public Docs](https://xiaojiou176-open.github.io/OpenVibeCoding/)
+[First Proven Workflow](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/) · [Watch the 18s Teaser](docs/assets/storefront/openvibecoding-command-tower-teaser.mp4) · [Compatibility Matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/) · [Public Docs](https://xiaojiou176-open.github.io/OpenVibeCoding/)
 
-Deeper technical surfaces:
-[AI + MCP + API](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/) · [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/) · [Quickstart](#quickstart) · [Releases](https://github.com/xiaojiou176-open/OpenVibeCoding/releases)
+<details>
+<summary>More technical surfaces</summary>
+
+[AI + MCP + API](https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/) · [Builder Quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/) · [Distribution Status](https://xiaojiou176-open.github.io/OpenVibeCoding/distribution/) · [Quickstart](#quickstart) · [Releases](https://github.com/xiaojiou176-open/OpenVibeCoding/releases)
+
+</details>
 
 ![OpenVibeCoding command tower showcase card](docs/assets/storefront/command-tower-showcase-card.svg)
 
@@ -59,6 +64,15 @@ The engineering philosophy underneath that loop is equally explicit:
 - **Prompt Engineering**: write the right worker brief, scope, constraints, and deliverables.
 - **Context Engineering**: keep the right material in the right head, and treat explicit handoff as a fallback rather than the default loop.
 - **Harness Engineering**: move work through contracts, runtime bindings, approvals, and proof surfaces so the system can keep operating safely.
+
+<details>
+<summary>Why the stack stays governed</summary>
+
+Those three layers explain why OpenVibeCoding stays legible under long-running work:
+prompts define the job, context keeps the right material in view, and the harness
+turns the run into something humans can inspect, compare, and safely resume.
+
+</details>
 
 OpenVibeCoding currently combines:
 
@@ -149,12 +163,12 @@ A clean first pass should let you:
 
 For the public product story, the current official first proven workflow is
 [`news_digest`](https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/).
-`topic_brief` now has a tracked search-backed public proof bundle, but it is
-still not the official first public baseline and should not be described as
-equally release-proven with `news_digest`.
-`page_brief` now has a tracked browser-backed public proof bundle, but it is
-still not the official first public baseline and should not be described as
-equally release-proven with `news_digest`.
+`topic_brief` is now a release-proven secondary search-backed public path, but
+it is still not the official first public baseline and should not be described
+as equally release-proven with `news_digest`.
+`page_brief` is now a release-proven secondary browser-backed public path, but
+it is still not the official first public baseline and should not be described
+as equally release-proven with `news_digest`.
 The public use-cases page is meant to act like the human-readable proof story,
 not a router into raw manifests, ledgers, or maintainer-grade capture
 contracts.
@@ -340,16 +354,17 @@ The current dashboard front door now surfaces all three public cases, while
 | Public case | Best for | Example input | Proof state |
 | --- | --- | --- | --- |
 | `news_digest` | the fastest proof-oriented public first run | one topic + 3 public domains + `24h` | **official first public baseline** |
-| `topic_brief` | a narrow topic brief with search-backed evidence | one topic + `7d` + max results | tracked search-backed public proof bundle |
-| `page_brief` | one URL with browser-backed evidence | one URL + one focused summary request | tracked browser-backed public proof bundle |
+| `topic_brief` | a narrow topic brief with search-backed evidence | one topic + `7d` + max results | release-proven secondary search-backed public path |
+| `page_brief` | one URL with browser-backed evidence | one URL + one focused summary request | release-proven secondary browser-backed public path |
 
 For the first public release bundle, `news_digest` is the only official
-proof-oriented first-run baseline. `topic_brief` now has its own tracked
-search-backed public proof bundle, but it still should not be described as the
-official first baseline or as equally release-proven with `news_digest`.
-`page_brief` now has its own tracked browser-backed public proof bundle, but it
-still should not be described as the official first baseline or as equally
-release-proven with `news_digest`.
+proof-oriented first-run baseline. `topic_brief` now has its own
+release-proven secondary search-backed public path, but it still should not be
+described as the official first baseline or as equally release-proven with
+`news_digest`.
+`page_brief` now has its own release-proven secondary browser-backed public
+path, but it still should not be described as the official first baseline or as
+equally release-proven with `news_digest`.
 
 ## Works With Today
 

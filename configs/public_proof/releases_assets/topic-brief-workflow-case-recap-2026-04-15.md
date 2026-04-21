@@ -1,7 +1,7 @@
 # topic_brief Workflow Case Recap - 2026-04-15
 
-This file is the share-ready recap asset for the tracked search-backed
-`topic_brief` public proof bundle.
+This file is the share-ready recap asset for the release-proven secondary
+search-backed `topic_brief` business path.
 
 It sits below the official `news_digest` baseline and above raw maintainer-only
 runtime receipts:
@@ -19,7 +19,8 @@ without reopening the full operator flow.
 
 ## Why This Case Matters
 
-`topic_brief` is now the clearest public example of the search-backed path:
+`topic_brief` is now the clearest public example of a release-proven secondary
+search-backed path:
 
 1. one topic becomes one bounded Workflow Case
 2. public-source evidence stays reviewable instead of collapsing into provider
@@ -31,9 +32,9 @@ without reopening the full operator flow.
 
 Use wording like:
 
-- "OpenVibeCoding now tracks one search-backed public proof bundle for `topic_brief`."
-- "`topic_brief` is a secondary search-backed proof path, not the official first public baseline."
-- "The search-backed path now has a healthy proof summary, a bundle baseline summary, and a share-ready recap."
+- "OpenVibeCoding now treats `topic_brief` as one release-proven secondary search-backed public path."
+- "`topic_brief` is a release-proven secondary path, not the official first public baseline."
+- "The search-backed path now has a fresh healthy proof summary, a fresh bundle baseline summary, and a fresh share-ready recap."
 
 Avoid wording like:
 
@@ -46,4 +47,4 @@ Avoid wording like:
 - This recap is fit for public explanation, not for hosted-product or
   production-scale claims.
 - `news_digest` still owns the official first public baseline.
-- `page_brief` remains a tracked browser-backed secondary proof path.
+- `page_brief` is now a release-proven secondary browser-backed business path.

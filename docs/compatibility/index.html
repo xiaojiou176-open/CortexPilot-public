@@ -181,6 +181,21 @@
         gap: 12px;
       }
 
+      details {
+        margin-top: 16px;
+      }
+
+      details summary {
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      details summary:hover,
+      details summary:focus-visible {
+        color: var(--accent-alt);
+      }
+
       .button {
         display: inline-flex;
         align-items: center;
@@ -253,33 +268,76 @@
         <nav class="mini-nav" aria-label="Top navigation">
           <a href="../">Back to the public landing page</a>
           <a href="../use-cases/">See the first proven workflow</a>
-          <a href="../integrations/">Integration guide</a>
-          <a href="../builders/">Builder quickstart</a>
         </nav>
         <h1>One truthful compatibility matrix for modern coding-agent teams.</h1>
         <p class="lede">
-          Use this page when the practical question is not “what is OpenVibeCoding?” but
-          “which entry surface fits our team today, and what should we avoid overclaiming?”
+          Use this page when the practical question is simple:
+          which entry surface fits our team today, and what should we avoid overclaiming?
         </p>
         <p class="lede">
-          The shortest honest story is simple: OpenVibeCoding already fits real
+          In plain language: OpenVibeCoding already works with real
           <strong>Codex</strong> and <strong>Claude Code</strong> workflows, can sit next to
           <strong>OpenClaw</strong> without fake plugin claims, and still ships a
-          <strong>read-only MCP</strong> public boundary rather than a hosted operator story.
+          <strong>read-only MCP</strong> boundary rather than a hosted operator story.
         </p>
         <div class="actions">
-          <a class="button primary" href="#compatibility-matrix">Open the compatibility matrix</a>
+          <a class="button primary" href="#first-move">Choose your first move</a>
           <a class="button secondary" href="../use-cases/">See the first proven workflow</a>
         </div>
-        <p class="lede">
-          Need deeper technical context instead of the shortest adoption answer?
-          Open <a href="../ai-surfaces/">AI + MCP + API surfaces</a> or the
-          <a href="../ecosystem/">ecosystem map</a>.
-        </p>
+        <details>
+          <summary>Plain-language glossary</summary>
+          <p class="lede">
+            Here, <strong>read-only MCP</strong> means a protocol layer for inspecting runs,
+            <strong>repo-owned skills</strong> means reusable playbooks, and
+            <strong>builder packages</strong> means the thin API and package entrypoints for teams that need integration.
+          </p>
+        </details>
+        <details>
+          <summary>Need deeper technical entrypoints?</summary>
+          <p class="lede">
+            Open <a href="../integrations/">integration guide</a>,
+            <a href="../builders/">builder quickstart</a>,
+            <a href="../ai-surfaces/">AI + MCP + API surfaces</a>, or the
+            <a href="../ecosystem/">ecosystem map</a>.
+          </p>
+        </details>
+      </section>
+
+      <section class="section" id="first-move">
+        <h2>Choose your first move</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="badge protocol">Protocol</span>
+            <h3>Start with read-only MCP</h3>
+            <p>If your team needs inspection first, start with the protocol boundary and confirm what agents can read before you talk about packages or skills.</p>
+            <p><a href="../mcp/">Open read-only MCP quickstart</a></p>
+          </article>
+          <article class="card">
+            <span class="badge primary">Playbooks</span>
+            <h3>Start with repo-owned skills</h3>
+            <p>If the main problem is repeatable agent behavior, start with the skill pack and reuse the repo's own playbooks instead of inventing plugin language.</p>
+            <p><a href="../skills/">Open skills quickstart</a></p>
+          </article>
+          <article class="card">
+            <span class="badge primary">Packages</span>
+            <h3>Start with builder entrypoints</h3>
+            <p>If you need a thin client, contract-facing types, or shared frontend substrate, move down the builder ladder after the protocol boundary is clear.</p>
+            <p><a href="../builders/">Open builder quickstart</a></p>
+          </article>
+          <article class="card">
+            <span class="badge warn">Proof</span>
+            <h3>Start with use cases</h3>
+            <p>If you need to prove the story to a team first, start with the public proof-first loop, the <code>news_digest</code> baseline, and the share-ready Workflow Case recap before deeper adoption.</p>
+            <p><a href="../use-cases/">See the first proven workflow</a></p>
+          </article>
+        </div>
       </section>
 
       <section class="section" id="compatibility-matrix">
-        <h2>What fits today?</h2>
+        <h2>Compare every surface in detail</h2>
+        <p class="lede">
+          Use the detailed matrix once you already know the kind of entry surface you want.
+        </p>
         <div class="table-shell">
           <table>
             <thead>
@@ -336,36 +394,6 @@
               </tr>
             </tbody>
           </table>
-        </div>
-      </section>
-
-      <section class="section">
-        <h2>Choose your first move</h2>
-        <div class="grid">
-          <article class="card">
-            <span class="badge protocol">Protocol</span>
-            <h3>Start with read-only MCP</h3>
-            <p>If your team needs inspection first, start with the protocol boundary and confirm what agents can read before you talk about packages or skills.</p>
-            <p><a href="../mcp/">Open read-only MCP quickstart</a></p>
-          </article>
-          <article class="card">
-            <span class="badge primary">Playbooks</span>
-            <h3>Start with repo-owned skills</h3>
-            <p>If the main problem is repeatable agent behavior, start with the skill pack and reuse the repo's own playbooks instead of inventing plugin language.</p>
-            <p><a href="../skills/">Open skills quickstart</a></p>
-          </article>
-          <article class="card">
-            <span class="badge primary">Packages</span>
-            <h3>Start with builder entrypoints</h3>
-            <p>If you need a thin client, contract-facing types, or shared frontend substrate, move down the builder ladder after the protocol boundary is clear.</p>
-            <p><a href="../builders/">Open builder quickstart</a></p>
-          </article>
-          <article class="card">
-            <span class="badge warn">Proof</span>
-            <h3>Start with use cases</h3>
-            <p>If you need to prove the story to a team first, start with the public proof-first loop, the <code>news_digest</code> baseline, and the share-ready Workflow Case recap before deeper adoption.</p>
-            <p><a href="../use-cases/">See the first proven workflow</a></p>
-          </article>
         </div>
       </section>
 
