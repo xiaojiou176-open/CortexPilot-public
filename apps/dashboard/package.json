@@ -18,7 +18,7 @@
     "@openvibecoding/frontend-api-contract": "file:../../packages/frontend-api-contract",
     "@openvibecoding/frontend-shared": "file:../../packages/frontend-shared",
     "@radix-ui/react-slot": "1.2.4",
-    "axe-core": "4.11.1",
+    "axe-core": "4.11.3",
     "class-variance-authority": "0.7.1",
     "diff2html": "3.4.56",
     "dompurify": "3.4.0",
