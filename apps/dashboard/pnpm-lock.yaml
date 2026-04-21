@@ -35,8 +35,8 @@ importers:
         specifier: 1.2.4
         version: 1.2.4(@types/react@19.2.14)(react@19.2.5)
       axe-core:
-        specifier: 4.11.1
-        version: 4.11.1
+        specifier: 4.11.3
+        version: 4.11.3
       class-variance-authority:
         specifier: 0.7.1
         version: 0.7.1
@@ -98,16 +98,6 @@ importers:
       vitest:
         specifier: 4.1.4
         version: 4.1.4(@opentelemetry/api@1.9.0)(@types/node@25.5.2)(@vitest/coverage-v8@4.1.4)(jsdom@29.0.2)(vite@8.0.7(@types/node@25.5.2)(esbuild@0.27.2))
-
-  ../..: {}
-
-  ../../packages/frontend-api-client: {}
-
-  ../../packages/frontend-api-contract: {}
-
-  ../../packages/frontend-shared: {}
-
-  ../desktop: {}
 
 packages:
 
@@ -1231,10 +1221,6 @@ packages:
 
   axe-core@4.10.3:
     resolution: {integrity: sha512-Xm7bpRXnDSX2YE2YFfBk2FnF0ep6tmG7xPh8iHee8MIcrgq762Nkce856dYtJYLkuIoYZvGfTs/PbZhideTcEg==}
-    engines: {node: '>=4'}
-
-  axe-core@4.11.1:
-    resolution: {integrity: sha512-BASOg+YwO2C+346x3LZOeoovTIoTrRqEsqMa6fmfAV0P+U9mFr9NsyOEpiYvFjbc64NMrSswhV50WdXzdb/Z5A==}
     engines: {node: '>=4'}
 
   axe-core@4.11.3:
@@ -2626,7 +2612,7 @@ snapshots:
 
   '@axe-core/webdriverjs@4.11.1(selenium-webdriver@4.22.0)':
     dependencies:
-      axe-core: 4.11.1
+      axe-core: 4.11.3
       selenium-webdriver: 4.22.0
 
   '@babel/code-frame@7.29.0':
@@ -3695,8 +3681,6 @@ snapshots:
       when-exit: 2.1.5
 
   axe-core@4.10.3: {}
-
-  axe-core@4.11.1: {}
 
   axe-core@4.11.3: {}
 
