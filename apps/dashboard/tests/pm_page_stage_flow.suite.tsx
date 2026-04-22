@@ -372,6 +372,52 @@ describe("pm intake component branches", () => {
     expect(screen.getByText("Loading session history")).toBeInTheDocument();
   });
 
+  it("keeps first-run session history failures as a non-blocking status note", () => {
+    render(
+      <PMIntakeLeftSidebar
+        {...buildLeftSidebarProps({
+          sessionHistoryError: "Failed to load session history: network error, please try again.",
+          sessionHistory: [],
+          intakeId: "",
+        })}
+      />,
+    );
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(
+      screen.getByText("Session history is temporarily unavailable. You can still start the first request and create the formal session.")
+    ).toBeInTheDocument();
+    expect(screen.getByText("No previous sessions yet. Send the first request to start.")).toBeInTheDocument();
+  });
+
+  it("keeps session-history failures blocking once a real session exists", () => {
+    render(
+      <PMIntakeLeftSidebar
+        {...buildLeftSidebarProps({
+          intakeId: "pm-history-1",
+          sessionHistoryError: "Failed to load session history: network error, please try again.",
+          sessionHistory: [
+            {
+              pm_session_id: "pm-history-1",
+              status: "active",
+              run_count: 1,
+              running_runs: 1,
+              failed_runs: 0,
+              success_runs: 0,
+              blocked_runs: 0,
+              latest_run_id: "run-1",
+              current_role: "PM",
+              current_step: "plan",
+              updated_at: "2026-03-01T10:00:00.000Z",
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Failed to load session history: network error, please try again.");
+  });
+
   it("covers center panel keyboard link actions and inline chain expand action", () => {
     const onLayoutModeChange = vi.fn();
     const onHoveredChainRoleChange = vi.fn();

@@ -239,7 +239,7 @@ export default async function WorkflowsPage() {
               <span className="muted">{workflowListPageCopy.emptyTitle}</span>
               <span className="mono muted">{workflowListPageCopy.emptyHint}</span>
               <Button asChild variant="default">
-                <Link href="/pm">打开 PM 入口</Link>
+                <Link href="/pm">{locale === "zh-CN" ? "打开 PM 入口" : "Open PM intake"}</Link>
               </Button>
             </div>
           </Card>

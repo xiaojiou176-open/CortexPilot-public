@@ -567,6 +567,14 @@ describe("dashboard home run-summary clarity", () => {
     expect(String(zhMetadata.description)).toContain("证明与回放桌面");
   });
 
+  it("renders the English runs desk with English-first copy", async () => {
+    render(await RunsPage({ searchParams: Promise.resolve({}) }));
+
+    expect(screen.getByRole("heading", { name: "Proof & Replay" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "证明与回放" })).not.toBeInTheDocument();
+    expect(screen.getByText("This desk should answer one question first: which run deserves proof right now.")).toBeInTheDocument();
+  });
+
   it("shows degraded risk summary when runs data is unavailable", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockFetchRuns.mockRejectedValueOnce(new Error("runs down"));

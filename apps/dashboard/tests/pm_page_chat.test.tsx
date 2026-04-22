@@ -769,7 +769,10 @@ describe("pm page chat-driven flow", () => {
     mockFetchPmSessions.mockRejectedValue(new Error("network down"));
     render(<PMIntakePage />);
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Failed to load session history: network error, please try again.");
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(
+      await screen.findByText("Session history is temporarily unavailable. You can still start the first request and create the formal session.")
+    ).toBeInTheDocument();
   });
 
   it("cancels in-flight chat request and keeps input draft", async () => {
