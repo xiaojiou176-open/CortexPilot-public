@@ -46,8 +46,11 @@ if check_cmd curl; then curl_ok=1; fi
 if [[ -n "${RUNNER_TEMP:-}" ]]; then runner_temp_ok=1; fi
 
 allowlist_json='["OPENVIBECODING_DOC_GATE_MODE","OPENVIBECODING_DOC_GATE_BASE_SHA","OPENVIBECODING_DOC_GATE_HEAD_SHA","OPENVIBECODING_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE","OPENVIBECODING_CI_LIVE_PREFLIGHT_PROVIDER_API_MODE","OPENVIBECODING_CI_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE"]'
+SOURCE_RUN_ID="${OPENVIBECODING_CI_SOURCE_RUN_ID:-}"
+SOURCE_ROUTE="${OPENVIBECODING_CI_SOURCE_ROUTE:-}"
+SOURCE_EVENT="${OPENVIBECODING_CI_SOURCE_EVENT:-}"
 
-python3 - "$REPORT_JSON" "$REPORT_MD" "$docker_ok" "$sudo_ok" "$jq_ok" "$curl_ok" "$runner_temp_ok" "$tool_cache_ok" "$allowlist_json" <<'PY'
+python3 - "$REPORT_JSON" "$REPORT_MD" "$docker_ok" "$sudo_ok" "$jq_ok" "$curl_ok" "$runner_temp_ok" "$tool_cache_ok" "$allowlist_json" "$SOURCE_RUN_ID" "$SOURCE_ROUTE" "$SOURCE_EVENT" <<'PY'
 import json
 import sys
 from datetime import datetime, timezone
@@ -63,6 +66,9 @@ from pathlib import Path
     runner_temp_ok,
     tool_cache_ok,
     allowlist_json,
+    source_run_id,
+    source_route,
+    source_event,
 ) = sys.argv[1:]
 
 payload = {
@@ -77,6 +83,9 @@ payload = {
         "tool_cache_contract": tool_cache_ok == "1",
     },
     "strict_ci_openvibecoding_allowlist": json.loads(allowlist_json),
+    "source_run_id": source_run_id,
+    "source_route": source_route,
+    "source_event": source_event,
 }
 Path(report_json).write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 Path(report_md).write_text(
@@ -90,6 +99,9 @@ Path(report_md).write_text(
             f"- curl: **{payload['checks']['curl']}**",
             f"- runner_temp: **{payload['checks']['runner_temp']}**",
             f"- tool_cache_contract: **{payload['checks']['tool_cache_contract']}**",
+            f"- source_run_id: `{payload['source_run_id']}`",
+            f"- source_route: `{payload['source_route']}`",
+            f"- source_event: `{payload['source_event']}`",
             f"- strict_ci_openvibecoding_allowlist: `{', '.join(payload['strict_ci_openvibecoding_allowlist'])}`",
             "",
         ]

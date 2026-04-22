@@ -1676,7 +1676,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         queueSummary: (count: number, slaState: string) => `queue: ${count} / SLA ${slaState}`,
       },
       runsPage: {
-        title: "证明与回放",
+        title: "Proof & Replay",
         subtitle:
           "Use this spine to inspect run evidence, compare posture, and replay decisions. Failed-run triage is only one lane inside the broader proof desk.",
         countsBadge: (runCount: number) => `${runCount} runs`,
