@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -244,6 +245,33 @@ def test_current_run_consistency_downgrades_stale_local_advisory_to_advisory(tmp
     assert payload["authoritative_current_truth"] is False
     assert payload["source_head_match"] is False
     assert "source_sha_mismatch" in payload["authority_reasons"]
+
+
+def test_ci_control_plane_doctor_can_emit_current_run_source_metadata(tmp_path: Path) -> None:
+    out_dir = tmp_path / "doctor"
+    env = {
+        "OPENVIBECODING_CI_CONTROL_PLANE_DOCTOR_OUT_DIR": str(out_dir),
+        "OPENVIBECODING_DOCTOR_REQUIRE_DOCKER": "0",
+        "OPENVIBECODING_DOCTOR_REQUIRE_SUDO": "0",
+        "RUNNER_TEMP": str(tmp_path / "runner-temp"),
+        "OPENVIBECODING_CI_SOURCE_RUN_ID": "local-run",
+        "OPENVIBECODING_CI_SOURCE_ROUTE": "local_full_ci",
+        "OPENVIBECODING_CI_SOURCE_EVENT": "local",
+    }
+    proc = subprocess.run(
+        ["bash", str(REPO_ROOT / "scripts" / "ci_control_plane_doctor.sh")],
+        cwd=REPO_ROOT,
+        text=True,
+        capture_output=True,
+        env={**os.environ, **env},
+        check=False,
+    )
+
+    assert proc.returncode == 0, proc.stderr or proc.stdout
+    payload = json.loads((out_dir / "report.json").read_text(encoding="utf-8"))
+    assert payload["source_run_id"] == "local-run"
+    assert payload["source_route"] == "local_full_ci"
+    assert payload["source_event"] == "local"
 
 
 def test_artifact_index_marks_head_mismatch_non_authoritative(tmp_path: Path) -> None:

@@ -23,6 +23,13 @@ run_ci_step126_current_run_fanin() {
     --github-ref "${GITHUB_REF:-local}" \
     --github-event-name "${GITHUB_EVENT_NAME:-local}" \
     --job-observed "release-evidence"
+  local_runner_temp="${RUNNER_TEMP:-${CI_REPORT_ROOT}/runner_temp}"
+  mkdir -p "${local_runner_temp}"
+  OPENVIBECODING_CI_SOURCE_RUN_ID="${GITHUB_RUN_ID:-local-run}" \
+  OPENVIBECODING_CI_SOURCE_ROUTE="${CI_ROUTE_ID}" \
+  OPENVIBECODING_CI_SOURCE_EVENT="${GITHUB_EVENT_NAME:-local}" \
+  RUNNER_TEMP="${local_runner_temp}" \
+  bash scripts/ci_control_plane_doctor.sh
   declare -a CI_SOURCE_MANIFEST_ARGS=(
     --output "${CI_SOURCE_MANIFEST_PATH}"
     --route-id "${CI_ROUTE_ID}"

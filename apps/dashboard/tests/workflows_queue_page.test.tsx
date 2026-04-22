@@ -138,4 +138,16 @@ describe("workflows queue page", () => {
     expect(screen.getByRole("link", { name: /打开 PM 入口|Open PM intake/ })).toHaveAttribute("href", "/pm");
     expect(screen.getByText(/No workflow cases yet|当前还没有工作流案例/)).toBeInTheDocument();
   });
+
+  it("keeps the English empty-state CTA in English", async () => {
+    vi.mocked(fetchWorkflows).mockResolvedValue([] as never);
+    vi.mocked(fetchQueue).mockResolvedValue([] as never);
+    vi.mocked(mutationExecutionCapability).mockReturnValue({ executable: false, operatorRole: null } as never);
+
+    const view = await WorkflowsPage();
+    render(view);
+
+    expect(screen.getByRole("link", { name: "Open PM intake" })).toHaveAttribute("href", "/pm");
+    expect(screen.queryByRole("link", { name: "打开 PM 入口" })).not.toBeInTheDocument();
+  });
 });

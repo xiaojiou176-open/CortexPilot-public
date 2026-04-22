@@ -48,6 +48,8 @@ export default function PMIntakeLeftSidebar(props: Props) {
     onFocusInput,
   } = props;
   const activeSession = sessionHistory.find((session) => session.pm_session_id === intakeId);
+  const showBlockingHistoryError = Boolean(sessionHistoryError) && (Boolean(intakeId) || sessionHistory.length > 0);
+  const showFirstRunHistoryNotice = Boolean(sessionHistoryError) && !showBlockingHistoryError;
   const activeSessionLabel = intakeId
     ? `${locale === "zh-CN" ? "当前会话" : "Current session"}: ${
         activeSession
@@ -119,7 +121,14 @@ export default function PMIntakeLeftSidebar(props: Props) {
         {activeSessionLabel}
       </p>
 
-      {sessionHistoryError && <p className="alert alert-danger" role="alert">{sessionHistoryError}</p>}
+      {showBlockingHistoryError ? <p className="alert alert-danger" role="alert">{sessionHistoryError}</p> : null}
+      {showFirstRunHistoryNotice ? (
+        <p className="alert alert-warning" role="status">
+          {locale === "zh-CN"
+            ? "会话历史暂时不可用。你仍然可以直接发出第一条请求，系统会创建正式会话。"
+            : "Session history is temporarily unavailable. You can still start the first request and create the formal session."}
+        </p>
+      ) : null}
       {newConversationError && (
         <p className="alert alert-danger" role="alert" data-testid="pm-new-conversation-error">
           {newConversationError}
