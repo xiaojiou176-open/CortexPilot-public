@@ -101,6 +101,10 @@ The shortest truthful answer today is:
 > `openvibecoding-orchestrator==0.1.0a4` PyPI package plus the live
 > `io.github.xiaojiou176-open/openvibecoding-readonly@0.1.0a4` Official MCP
 > Registry entry for that same read-only runtime, and a live ClawHub skill.
+> The older `cortexpilot-orchestrator==0.1.0a4` package and
+> `io.github.xiaojiou176-open/cortexpilot-readonly@0.1.0a4` registry entry
+> still remain online as legacy compatibility surfaces; the OpenVibeCoding names
+> are canonical, while the legacy MCP entry is now explicitly deprecated.
 > Local coding-agent starters and bundle examples remain helper materials, not
 > the primary public front door. MCP.so still has an open external submission
 > receipt, while the previous OpenHands/extensions submission is closed without
@@ -110,6 +114,7 @@ The shortest truthful answer today is:
 Use these buckets:
 
 - **Shipped now**: repo, Pages, proof-first docs, read-only MCP, live OpenVibeCoding PyPI package + Official MCP Registry entry, ClawHub skill
+- **Legacy compatibility still live**: `cortexpilot-orchestrator==0.1.0a4` and `io.github.xiaojiou176-open/cortexpilot-readonly@0.1.0a4` remain reachable; treat them as compatibility lanes rather than the canonical front door
 - **Starter-only / example lane**: Codex / Claude Code / OpenClaw local starter kits and local coding-agent bundle examples
 - **Submitted externally**: `chatmcp/mcpso#1559` is still open; `OpenHands/extensions#151` remains a public receipt but is closed without a live listing
 - **Publish-ready but deferred**:
