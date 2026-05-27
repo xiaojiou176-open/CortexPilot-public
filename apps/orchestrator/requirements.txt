@@ -37,7 +37,7 @@ pytest-xdist==3.8.0
 httpx==0.28.1
 hypothesis==6.152.1
 pip-audit==2.10.0
-pre-commit==4.5.1
+pre-commit==4.6.0
 vulture==2.14
 
 # Security-pinned transitive dependencies required by the mainline audit gate.
