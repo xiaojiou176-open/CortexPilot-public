@@ -1,0 +1,257 @@
+@import "./globals.run-detail.css";
+
+/* =========================================
+   OpenVibeCoding Command Tower — Design Tokens
+   Dark-neutral command deck baseline
+   ========================================= */
+
+:root {
+  color-scheme: dark;
+
+  /* ── Core Palette ── */
+  --color-bg: #142033;
+  --color-bg-elevated: #21324d;
+  --color-bg-surface: #30496c;
+  --color-surface-subtle: #273c59;
+  --color-surface-hover: #3a5479;
+
+  --color-text-primary: #f9fbff;
+  --color-text-secondary: #e9eff8;
+  --color-text-muted: #d3dceb;
+  --color-text-tertiary: #b2c1d4;
+
+  --color-primary: #1fb981;
+  --color-primary-hover: #17a16f;
+  --color-primary-soft: rgba(31, 185, 129, 0.16);
+  --color-primary-muted: rgba(31, 185, 129, 0.08);
+
+  --color-border: rgba(183, 197, 218, 0.3);
+  --color-border-strong: rgba(199, 211, 229, 0.44);
+  --color-border-subtle: rgba(183, 197, 218, 0.24);
+  --color-focus-ring: #1fb981;
+
+  /* ── Semantic Status ── */
+  --color-success: #1fb981;
+  --color-success-bg: rgba(31, 185, 129, 0.12);
+  --color-success-ink: #7fe0b7;
+  --color-warning: #e59a2f;
+  --color-warning-bg: rgba(229, 154, 47, 0.12);
+  --color-warning-ink: #f2c27d;
+  --color-danger: #d95c5c;
+  --color-danger-bg: rgba(217, 92, 92, 0.12);
+  --color-danger-ink: #f0aaaa;
+  --color-info-bg: rgba(31, 185, 129, 0.1);
+  --color-bg-glass: rgba(23, 35, 54, 0.9);
+  --color-bg-overlay: rgba(10, 16, 28, 0.56);
+  --color-text-on-primary: #08131c;
+  --color-border-success-soft: rgba(31, 185, 129, 0.28);
+  --color-border-primary-soft: rgba(31, 185, 129, 0.24);
+  --color-border-danger-soft: rgba(217, 92, 92, 0.24);
+  --color-border-warning-soft: rgba(229, 154, 47, 0.24);
+  --color-border-danger-mid: rgba(217, 92, 92, 0.34);
+  --color-border-warning-mid: rgba(229, 154, 47, 0.34);
+  --color-border-info-mid: rgba(31, 185, 129, 0.3);
+  --color-border-primary-mid: rgba(31, 185, 129, 0.4);
+  --color-border-success-mid: rgba(31, 185, 129, 0.4);
+  --color-border-success-strong: rgba(31, 185, 129, 0.5);
+  --color-gradient-primary-soft: linear-gradient(155deg, rgba(31, 185, 129, 0.05) 0%, transparent 58%);
+  --color-gradient-dark-overlay: linear-gradient(160deg, rgba(255, 255, 255, 0.025) 0%, transparent 46%);
+  --color-app-bg-radial-indigo: color-mix(in srgb, var(--color-primary) 9%, transparent);
+  --color-app-bg-radial-cyan: color-mix(in srgb, var(--color-warning) 5%, transparent);
+  --color-app-bg-base-start: color-mix(in srgb, var(--color-bg-elevated) 94%, var(--color-bg));
+  --color-app-bg-base-mid: color-mix(in srgb, var(--color-bg-surface) 64%, var(--color-bg-elevated));
+  --color-app-bg-base-end: var(--color-bg);
+  --color-app-grid-line: color-mix(in srgb, var(--color-border) 55%, transparent);
+  --shadow-pulse-start: 0 0 0 0 rgba(31, 185, 129, 0.08);
+  --shadow-pulse-mid: 0 0 0 4px rgba(31, 185, 129, 0);
+  --shadow-pulse-end: 0 0 0 0 rgba(31, 185, 129, 0);
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 3px 8px rgba(4, 7, 13, 0.34), 0 0 0 1px rgba(232, 238, 248, 0.06);
+  --shadow-md: 0 12px 30px rgba(4, 7, 13, 0.42), 0 0 0 1px rgba(232, 238, 248, 0.08);
+  --shadow-lg: 0 24px 52px rgba(4, 7, 13, 0.5), 0 0 0 1px rgba(232, 238, 248, 0.1);
+  --shadow-xl: 0 30px 68px rgba(4, 7, 13, 0.52);
+  --shadow-glow-primary: 0 14px 34px rgba(31, 185, 129, 0.08);
+
+  /* ── Radius ── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 999px;
+
+  /* ── Spacing ── */
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+
+  /* ── Typography ── */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-base: 15px;
+  --text-lg: 19px;
+  --text-xl: 24px;
+  --text-2xl: 34px;
+  --text-3xl: 36px;
+  --text-display: 44px;
+  --text-hero: 18px;
+  --text-kicker: 12px;
+  --page-title-line-height: 1.15;
+  --section-title-line-height: 1.3;
+  --surface-card-padding: var(--space-5);
+  --surface-card-gap: var(--space-3);
+  --table-cell-padding-y: var(--space-3);
+  --table-cell-padding-x: var(--space-4);
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --motion-fast: 150ms;
+  --motion-normal: 220ms;
+  --motion-slow: 320ms;
+  --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-in: cubic-bezier(0.32, 0, 0.67, 0);
+  --motion-ease-emphasis: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --interaction-link-underline-thickness: 1px;
+  --interaction-link-underline-offset: 0.14em;
+  --interaction-hover-lift-y: -1px;
+  --interaction-link-press-offset-y: 1px;
+  --interaction-press-scale: 0.99;
+  --interaction-press-opacity-soft: 0.96;
+  --interaction-press-opacity-strong: 0.94;
+  --interaction-link-press-opacity: var(--interaction-press-opacity-strong);
+  --interaction-scrollbar-thumb-opacity-idle: 1;
+  --interaction-scrollbar-thumb-opacity-active: 0.86;
+
+  /* ── Layout tokens ── */
+  --sidebar-width: 258px;
+  --topbar-height: 64px;
+  --ct-drawer-width: 320px;
+  --ct-panel-min: 260px;
+  --ct-toolbar-height: 32px;
+  --pm-shell-left-min: 220px;
+  --pm-shell-left-max: 300px;
+  --pm-shell-right-min: 260px;
+  --pm-shell-right-max: 340px;
+  --pm-shell-rails-max-height-offset: 148px;
+  --pm-chat-input-min-height: 96px;
+  --pm-chat-log-min-height: 416px;
+  --pm-chat-log-max-height-offset: 352px;
+  --pm-chat-item-max-width: 720px;
+  --pm-code-block-max-height: 420px;
+  --pm-shell-collapse-breakpoint: 1260px;
+  --pm-shell-min-height-offset: calc(var(--space-10) * 3);
+
+  /* ── Aliases ── */
+  --bg: var(--color-bg);
+  --bg-elevated: var(--color-bg-elevated);
+  --surface-subtle: var(--color-surface-subtle);
+  --ink: var(--color-text-primary);
+  --muted: var(--color-text-muted);
+  --accent: var(--color-primary);
+  --accent-soft: var(--color-primary-soft);
+  --border: var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --success: var(--color-success);
+  --success-bg: var(--color-success-bg);
+  --warn: var(--color-warning);
+  --warn-bg: var(--color-warning-bg);
+  --danger: var(--color-danger);
+  --danger-bg: var(--color-danger-bg);
+}
+
+/* =========================================
+   Global Reset & Base
+   ========================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-ui, var(--font-manrope, "Manrope")), -apple-system, "PingFang SC", "Microsoft YaHei",
+    "Noto Sans CJK SC", "Helvetica Neue", sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  font-optical-sizing: auto;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  min-height: 100%;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: var(--text-md);
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: var(--interaction-link-underline-thickness);
+  text-underline-offset: var(--interaction-link-underline-offset);
+  transition-property: color, text-decoration-color, transform, opacity;
+  transition-duration: var(--motion-fast);
+  transition-timing-function: var(--motion-ease-out);
+  transform: translateY(0);
+  opacity: 1;
+}
+
+a:hover {
+  color: var(--color-primary);
+  text-decoration-color: var(--color-primary);
+}
+
+a:active {
+  opacity: var(--interaction-link-press-opacity);
+  transform: translateY(var(--interaction-link-press-offset-y));
+}
+
+a:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-xs);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a {
+    transition: none;
+    transform: none;
+  }
+
+  a:active {
+    transform: none;
+  }
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+}
+
+main {
+  min-width: 0;
+}
+
+/* =========================================
+   App Shell
+   ========================================= */
