@@ -49,14 +49,14 @@ through environment variables.
 ```bash
 bash -lc 'source scripts/lib/env.sh >/dev/null 2>&1
 export PYTHONPATH="$PWD/apps/orchestrator/src:$PWD"
-export CORTEXPILOT_RUNTIME_ROOT="$PWD/.runtime-cache/w3-news-digest-attempt-profile-allowlist-v2"
-export CORTEXPILOT_RUNS_ROOT="$CORTEXPILOT_RUNTIME_ROOT/runs"
-export CORTEXPILOT_WEB_HEADLESS=1
-export CORTEXPILOT_BROWSER_PROFILE_MODE=allow_profile
-export CORTEXPILOT_BROWSER_PROFILE_NAME=Default
-export CORTEXPILOT_BROWSER_PROFILE_DIR="<chrome-profile-root>"
-export CORTEXPILOT_BROWSER_PROFILE_ALLOWLIST="<chrome-profile-root>"
-"$CORTEXPILOT_PYTHON" - <<'"'"'PY'"'"'
+export OPENVIBECODING_RUNTIME_ROOT="$PWD/.runtime-cache/w3-news-digest-attempt-profile-allowlist-v2"
+export OPENVIBECODING_RUNS_ROOT="$OPENVIBECODING_RUNTIME_ROOT/runs"
+export OPENVIBECODING_WEB_HEADLESS=1
+export OPENVIBECODING_BROWSER_PROFILE_MODE=allow_profile
+export OPENVIBECODING_BROWSER_PROFILE_NAME=Default
+export OPENVIBECODING_BROWSER_PROFILE_DIR="<chrome-profile-root>"
+export OPENVIBECODING_BROWSER_PROFILE_ALLOWLIST="<chrome-profile-root>"
+"$OPENVIBECODING_PYTHON" - <<'"'"'PY'"'"'
 import json
 from openvibecoding_orch.store.run_store import RunStore
 from openvibecoding_orch.runners.tool_runner import ToolRunner
