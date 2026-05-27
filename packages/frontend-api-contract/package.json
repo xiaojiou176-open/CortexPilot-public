@@ -1,0 +1,55 @@
+{
+  "name": "@openvibecoding/frontend-api-contract",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Generated frontend-safe route, query, and type contract surface for OpenVibeCoding control-plane consumers.",
+  "homepage": "https://xiaojiou176-open.github.io/OpenVibeCoding/api/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiaojiou176-open/OpenVibeCoding.git",
+    "directory": "packages/frontend-api-contract"
+  },
+  "bugs": {
+    "url": "https://github.com/xiaojiou176-open/OpenVibeCoding/issues"
+  },
+  "license": "MIT",
+  "keywords": [
+    "openvibecoding",
+    "frontend",
+    "api-contract",
+    "types",
+    "workflow-cases",
+    "command-tower"
+  ],
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "README.md",
+    "index.js",
+    "index.cjs",
+    "index.d.ts",
+    "ui-flow.js",
+    "ui-flow.cjs",
+    "ui-flow.d.ts",
+    "generated"
+  ],
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "require": "./index.cjs",
+      "default": "./index.js"
+    },
+    "./ui-flow": {
+      "types": "./ui-flow.d.ts",
+      "import": "./ui-flow.js",
+      "require": "./ui-flow.cjs",
+      "default": "./ui-flow.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

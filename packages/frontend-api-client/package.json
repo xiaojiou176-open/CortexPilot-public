@@ -1,0 +1,52 @@
+{
+  "name": "@openvibecoding/frontend-api-client",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Thin frontend API client and repo-owned control-plane starter for OpenVibeCoding dashboard, desktop, and web consumers.",
+  "homepage": "https://xiaojiou176-open.github.io/OpenVibeCoding/builders/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xiaojiou176-open/OpenVibeCoding.git",
+    "directory": "packages/frontend-api-client"
+  },
+  "bugs": {
+    "url": "https://github.com/xiaojiou176-open/OpenVibeCoding/issues"
+  },
+  "license": "MIT",
+  "keywords": [
+    "openvibecoding",
+    "frontend",
+    "api-client",
+    "command-tower",
+    "workflow-cases",
+    "proof-and-replay"
+  ],
+  "type": "module",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "README.md",
+    "index.js",
+    "index.d.ts",
+    "src",
+    "examples/control_plane_starter.local.mjs"
+  ],
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js",
+      "default": "./index.js"
+    }
+  },
+  "dependencies": {
+    "@openvibecoding/frontend-api-contract": "workspace:^0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "example:control-plane-starter": "node examples/control_plane_starter.local.mjs",
+    "test": "node --test tests/*.test.mjs"
+  }
+}

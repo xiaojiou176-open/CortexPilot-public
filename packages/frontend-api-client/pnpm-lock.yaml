@@ -1,0 +1,13 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      '@openvibecoding/frontend-api-contract':
+        specifier: workspace:^0.1.0
+        version: link:../frontend-api-contract
