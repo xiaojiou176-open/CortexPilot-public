@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenVibeCoding | First proven workflow and public proof pack</title>
+    <meta
+      name="description"
+      content="OpenVibeCoding's first proven workflow: the news_digest public baseline, its proof pack, and the shortest proof-first loop before deeper adoption."
+    />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/" />
+    <meta property="og:title" content="OpenVibeCoding | First proven workflow and public proof pack" />
+    <meta
+      property="og:description"
+      content="The first proven workflow, proof pack, benchmark summary, and Workflow Case recap for OpenVibeCoding."
+    />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/OpenVibeCoding/use-cases/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <meta
+      property="og:image:alt"
+      content="OpenVibeCoding first proven workflow preview showing the proof-first command tower product story."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="OpenVibeCoding | First proven workflow and public proof pack" />
+    <meta
+      name="twitter:description"
+      content="The first proven workflow, proof pack, benchmark summary, and Workflow Case recap for OpenVibeCoding."
+    />
+    <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <meta
+      name="twitter:image:alt"
+      content="OpenVibeCoding first proven workflow preview showing the proof-first command tower product story."
+    />
+    <style>
+      :root {
+        --bg: #f4efe7;
+        --paper: rgba(255, 251, 244, 0.92);
+        --ink: #17232c;
+        --muted: #536673;
+        --accent: #9f4c26;
+        --accent-dark: #244157;
+        --line: #d8ccbb;
+        --success: #215f48;
+        --warn: #8d5319;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font: 16px/1.65 "Trebuchet MS", Verdana, sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 12% 12%, rgba(203, 115, 73, 0.16), transparent 22%),
+          radial-gradient(circle at 88% 8%, rgba(36, 65, 87, 0.14), transparent 18%),
+          linear-gradient(180deg, #f7f2ea 0%, #efe6d8 100%);
+      }
+
+      main {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 48px 20px 88px;
+      }
+
+      a {
+        color: var(--accent-dark);
+        text-underline-offset: 2px;
+      }
+
+      .mini-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 14px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(36, 65, 87, 0.08);
+        color: var(--accent-dark);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .hero,
+      .panel,
+      .callout {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+      }
+
+      .hero {
+        padding: 28px;
+      }
+
+      .panel,
+      .callout {
+        padding: 22px;
+        margin-top: 24px;
+      }
+
+      h1,
+      h2 {
+        font-family: Georgia, "Times New Roman", serif;
+        line-height: 1.1;
+      }
+
+      h1 {
+        margin: 0 0 16px;
+        font-size: clamp(38px, 6vw, 60px);
+      }
+
+      h2 {
+        margin: 40px 0 14px;
+        font-size: 30px;
+      }
+
+      .lede {
+        color: var(--muted);
+        font-size: clamp(19px, 2.2vw, 24px);
+        margin: 0 0 14px;
+      }
+
+      .caption {
+        color: var(--muted);
+        margin: 10px 0 0;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .card {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 18px;
+      }
+
+      .card h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 19px;
+      }
+
+      .badge {
+        display: inline-block;
+        margin-bottom: 10px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .badge.success {
+        background: rgba(33, 95, 72, 0.12);
+        color: var(--success);
+      }
+
+      .badge.warn {
+        background: rgba(141, 83, 25, 0.12);
+        color: var(--warn);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 14px;
+        background: rgba(255, 255, 255, 0.55);
+        border-radius: 18px;
+        overflow: hidden;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 10px;
+        border-bottom: 1px solid #ece4d9;
+        vertical-align: top;
+      }
+
+      th {
+        background: rgba(36, 65, 87, 0.06);
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      code {
+        background: rgba(36, 65, 87, 0.08);
+        border-radius: 6px;
+        padding: 2px 6px;
+        font-family: "SFMono-Regular", Menlo, monospace;
+      }
+
+      ul,
+      ol {
+        padding-left: 22px;
+      }
+    </style>
+    <link rel="stylesheet" href="../assets/storefront/public-docs-command-deck.css" />
+  </head>
+  <body>
+    <main>
+      <nav class="mini-nav" aria-label="Top navigation">
+        <a href="../">Back to the public landing page</a>
+        <a href="../compatibility/">Compatibility matrix</a>
+        <a href="../ai-surfaces/">AI + MCP + API surfaces</a>
+        <a href="../ecosystem/">Ecosystem map</a>
+        <a href="../builders/">Builder quickstart</a>
+      </nav>
+
+      <section class="hero">
+        <span class="eyebrow">The public proof-first entrypoint</span>
+        <h1>First proven workflow and public proof pack</h1>
+        <p class="lede">
+          Start here if you want the shortest honest OpenVibeCoding story.
+          <strong>What can I run, inspect, and trust today before I dive into
+          the deeper protocol and builder surfaces?</strong>
+        </p>
+        <p class="caption">
+          The answer is still: start with <strong>news_digest</strong>. It is the
+          only official release-proven public baseline. <code>topic_brief</code>
+          and <code>page_brief</code> are now release-proven secondary public
+          paths, but neither path replaces the official first public baseline.
+        </p>
+        <div class="actions">
+          <a class="button primary" href="#proof-pack">Open the proof pack</a>
+          <a class="button secondary" href="../compatibility/">Open the compatibility matrix</a>
+          <a class="button secondary" href="../mcp/">Open the MCP quickstart</a>
+        </div>
+      </section>
+
+      <h2>The 10-minute proof-first loop</h2>
+      <ol>
+        <li>Start one `news_digest` run from the PM surface.</li>
+        <li>Watch it show up in Command Tower and confirm the Workflow Case exists.</li>
+        <li>Open Proof &amp; Replay and inspect the result before trusting it.</li>
+        <li>Reuse the Workflow Case recap as the share-ready proof asset.</li>
+      </ol>
+      <p>
+        If you arrived here from the
+        <a href="../agent-starters/">agent starter kits</a>,
+        this page is the post-install proof target. In plain English: do not
+        assume the starter file already proved a real integration. Come back
+        here and make sure the same proof pack still holds.
+      </p>
+
+      <h2>What success should look like</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="badge success">Visible run</span>
+          <h3>It shows up in the product</h3>
+          <p>One task exists in PM and one Workflow Case exists for that run. You are not relying on a shell success line alone.</p>
+        </article>
+        <article class="card">
+          <span class="badge success">Reviewable proof</span>
+          <h3>You can inspect what happened</h3>
+          <p>You can open proof, replay, and recap artifacts without guessing where they went or whether the run is real.</p>
+        </article>
+        <article class="card">
+          <span class="badge success">Honest boundary</span>
+          <h3>You know what is proven</h3>
+          <p>You can clearly explain why <strong>news_digest</strong> is the official first baseline and why the other two paths are release-proven secondary paths instead of equal first-entry claims.</p>
+        </article>
+      </div>
+
+      <h2>Proof status by public case</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Case</th>
+            <th>Current proof state</th>
+            <th>What to inspect today</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>news_digest</strong></td>
+            <td>Official release-proven first public baseline</td>
+            <td>Healthy proof summary plus a tracked single-run benchmark baseline remain available inside the repo-tracked public proof bundle.</td>
+          </tr>
+          <tr>
+            <td><strong>topic_brief</strong></td>
+            <td>Release-proven secondary search-backed public path; not the official first public baseline</td>
+            <td>Inspect the dedicated healthy proof summary, bundle baseline summary, and share-ready Workflow Case recap now tracked under the repo-side public proof bundle.</td>
+          </tr>
+          <tr>
+            <td><strong>page_brief</strong></td>
+            <td>Release-proven secondary browser-backed public path; not the official first public baseline</td>
+            <td>Inspect the dedicated healthy proof summary, bundle baseline summary, and share-ready Workflow Case recap now tracked under the repo-side public proof bundle.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>The proof pack for <code>news_digest</code></h2>
+      <div class="callout">
+        This is the smallest reusable trust bundle on the public surface today:
+        one healthy proof summary, one single-run benchmark, one Workflow Case
+        recap, and one storefront proof status snapshot. This page is the
+        human-readable proof story for that bundle. Repo-side receipts and
+        machine metadata still exist for maintainers and gates, but public
+        readers should not need to open raw ledgers or machine contracts just
+        to understand what is proven.
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Artifact</th>
+            <th>Why it matters</th>
+            <th>Open now</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Healthy proof summary</strong></td>
+            <td>Shows the tracked healthy result path for the official public baseline.</td>
+            <td>Summarized here; deeper audit metadata stays repo-side for maintainers and gates.</td>
+          </tr>
+          <tr>
+            <td><strong>Single-run benchmark summary</strong></td>
+            <td>Shows the current public performance baseline without pretending it is a broad benchmark campaign.</td>
+            <td>Summarized here; deeper audit metadata stays repo-side for maintainers and gates.</td>
+          </tr>
+          <tr>
+            <td><strong>Workflow Case recap</strong></td>
+            <td>Shows the strongest March 2026 share-ready artifact for why Workflow Cases matter outside the operator UI.</td>
+            <td>Summarized here; deeper audit metadata stays repo-side for maintainers and gates.</td>
+          </tr>
+          <tr>
+            <td><strong>Proof status snapshot</strong></td>
+            <td>Shows which storefront captures are healthy, degraded, missing, or still only explanation assets.</td>
+            <td>Summarized on this page instead of routed through raw status ledgers.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="caption">
+        Repo-side proof manifests, indexes, and capture contracts still exist
+        for maintainers and gates, but they are not required reading for a
+        public evaluator who just needs the shortest honest proof story.
+      </p>
+
+      <h2>Why this helps discovery</h2>
+      <p>
+        These use cases are not just examples for people who already know the
+        product. They are also the easiest way to explain what OpenVibeCoding does
+        with AI workflow cases, read-only proof surfaces, and share-ready recap
+        assets without jumping straight into the full operator UI.
+      </p>
+
+      <h2>Why share-ready Workflow Cases matter</h2>
+      <p>
+        The point is not just to export JSON. The point is to make a case easier
+        to review, easier to circulate, and easier to compare without sending
+        everyone back through the full operator UI.
+      </p>
+
+      <h2>Proof you can rely on today</h2>
+      <ul>
+        <li>The official public baseline still belongs to <strong>news_digest</strong>.</li>
+        <li>The current benchmark story is a tracked single-run baseline, not a broad release average.</li>
+        <li>The public recap story now includes the official <strong>news_digest</strong> recap plus tracked <strong>topic_brief</strong> and <strong>page_brief</strong> bundle assets.</li>
+        <li>Global proof-pack index across the official baseline, tracked bundle, and showcase bundles still exists as repo-side metadata for maintainers and audits, not as a front-door jump target.</li>
+        <li>Repo-side proof manifests, indexes, and capture contracts still exist for maintainers and gates, but they are not required reading for a public evaluator.</li>
+        <li>This page is the public proof story; raw manifests and ledger-style contracts stay behind the scenes.</li>
+      </ul>
+
+      <h2>Current gaps that still matter</h2>
+      <ul>
+        <li><strong>topic_brief</strong> is now a release-proven secondary search-backed public path, but it is still not the official first public baseline.</li>
+        <li><strong>page_brief</strong> is now a release-proven secondary browser-backed public path, but it is still not the official first public baseline.</li>
+        <li>The current benchmark story is a tracked single-run baseline, not a broad release average.</li>
+        <li>The current recap story now has one tracked <strong>news_digest</strong> Workflow Case asset, one tracked search-backed <strong>topic_brief</strong> recap asset, one tracked browser-backed <strong>page_brief</strong> recap asset, and one remaining broader benchmark gap.</li>
+      </ul>
+
+      <h2>What we still do not claim</h2>
+      <ul>
+        <li>We do not claim that <strong>topic_brief</strong> is the official first public baseline; it remains a release-proven secondary path.</li>
+        <li>We do not claim that <strong>page_brief</strong> replaced <strong>news_digest</strong> as the official first public baseline; it remains a release-proven secondary path.</li>
+        <li>We do not claim that a storyboard or degraded local capture counts as healthy end-to-end proof.</li>
+        <li>We do not claim that the current benchmark file is a broad multi-run release average.</li>
+        <li>We do not claim that a public evaluator should read raw machine metadata or maintainer-grade capture contracts to understand the proof story.</li>
+      </ul>
+
+      <p>
+        Need the surrounding operator and builder story? Visit the
+        <a href="../compatibility/">compatibility matrix</a>, the
+        <a href="../ai-surfaces/">AI + MCP + API surface guide</a>, the
+        <a href="../builders/">builder quickstart</a>, or the
+        <a href="../ecosystem/">ecosystem map</a>.
+      </p>
+    </main>
+  </body>
+</html>

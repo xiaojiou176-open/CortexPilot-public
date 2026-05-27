@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "plugins": {
+    "openvibecoding-coding-agent-bundle": {
+      "source": {
+        "path": "__OPENVIBECODING_REPO_ROOT__/examples/coding-agents/plugin-bundles/openvibecoding-coding-agent-bundle"
+      }
+    }
+  }
+}

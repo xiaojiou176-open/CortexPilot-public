@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenVibeCoding | AI, MCP, and API surfaces for the command tower</title>
+    <meta
+      name="description"
+      content="Secondary technical surfaces for OpenVibeCoding, the command tower for AI engineering: advisory AI briefs, read-only MCP, frontend API entrypoints, and contract-facing types for Codex and Claude Code workflows."
+    />
+    <meta
+      name="keywords"
+      content="OpenVibeCoding, OpenVibeCoding runtime, AI engineering command tower, advisory AI brief, read-only MCP, frontend API client, workflow automation"
+    />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/" />
+    <meta property="og:title" content="OpenVibeCoding | AI, MCP, and API surfaces for the command tower" />
+    <meta
+      property="og:description"
+      content="Secondary technical surfaces for OpenVibeCoding: advisory AI briefs, read-only MCP, and current API entrypoints."
+    />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/" />
+    <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="OpenVibeCoding | AI, MCP, and API surfaces for the command tower" />
+    <meta
+      name="twitter:description"
+      content="Truthful command-tower map for advisory AI briefs, read-only MCP, and API entrypoints in OpenVibeCoding."
+    />
+    <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
+    <link rel="stylesheet" href="../assets/storefront/public-docs-command-deck.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "OpenVibeCoding AI, MCP, and API surfaces for the command tower",
+        "url": "https://xiaojiou176-open.github.io/OpenVibeCoding/ai-surfaces/",
+        "description": "Truthful command-tower map for advisory AI briefs, read-only MCP, and current frontend API entrypoints."
+      }
+    </script>
+  </head>
+  <body>
+    <main class="plain-doc-shell">
+      <nav class="mini-nav" aria-label="Top navigation">
+        <a href="../">Back to the public landing page</a>
+        <a href="../compatibility/">Compatibility matrix</a>
+        <a href="../ecosystem/">Ecosystem map</a>
+        <a href="../integrations/">Integration guide</a>
+        <a href="../builders/">Builder quickstart</a>
+        <a href="../skills/">Skills quickstart</a>
+        <a href="../mcp/">MCP quickstart</a>
+        <a href="../api/">API quickstart</a>
+        <a href="../use-cases/">Use cases</a>
+      </nav>
+
+      <section class="hero">
+        <span class="eyebrow">Secondary technical surfaces</span>
+        <h1>AI, MCP, and API surfaces for the command tower</h1>
+        <p class="lede">
+          OpenVibeCoding is the command tower for AI engineering. This page is not the top-level product story; it is the
+          secondary technical map that shows which AI-facing, MCP-facing, and API-facing surfaces already exist for
+          <strong>Codex</strong> and <strong>Claude Code</strong> workflows.
+        </p>
+        <p class="caption">
+          Current boundary: these surfaces are <strong>not</strong> a hosted operator product, the shipped MCP node remains
+          <strong>read-only</strong>, and the frontend packages remain a <strong>thin client + contract + shared substrate</strong>
+          layer instead of a full SDK platform.
+        </p>
+      </section>
+
+      <h2>1. Explain-only AI operator copilot</h2>
+      <p>
+        OpenVibeCoding already exposes a bounded AI operator brief on the workflow path instead of an unbounded floating chat box.
+        Today it shows up in three major places:
+      </p>
+      <ul>
+        <li><strong>Flight Plan preview</strong>: a pre-run advisory brief before execution starts</li>
+        <li><strong>Workflow copilot</strong>: a workflow-scoped explainer over queue posture, latest run context, and next action</li>
+        <li><strong>Run / compare brief</strong>: a run-scoped explainer over deltas, proof, incident context, and next operator step</li>
+      </ul>
+      <p>
+        The detailed operator-copilot architecture stays repo-internal. This
+        public page intentionally summarizes only the bounded public contract.
+      </p>
+
+      <h2>2. Read-only MCP surface</h2>
+      <p>
+        OpenVibeCoding ships a <strong>real read-only MCP node</strong> for control-plane reads. The current public contract is:
+      </p>
+      <ul>
+        <li>inspect runs, workflow cases, queue posture, approvals, compare, proof, and incident summaries</li>
+        <li>return structured JSON for agent/tool consumption</li>
+        <li>do <strong>not</strong> mutate queue items, approvals, provider state, or workflow truth</li>
+      </ul>
+      <p>
+        This keeps MCP useful for external inspection while staying honest about the current boundary.
+      </p>
+      <p>
+        If you want the shortest MCP-specific map, go straight to the
+        <a href="../mcp/">read-only MCP quickstart</a>.
+      </p>
+
+      <h2>3. Frontend API and contract entrypoints</h2>
+      <p>
+        OpenVibeCoding also exposes a thin builder edge for frontend consumers that want the same routes and contracts the dashboard and desktop use today.
+      </p>
+      <ul>
+        <li><code>@openvibecoding/frontend-api-client</code>: thin JS/TS client helpers for runs, Workflow Cases, approvals, and command-tower reads</li>
+        <li><code>@openvibecoding/frontend-api-contract</code>: contract-facing route/query names and generated frontend-safe types</li>
+        <li><code>@openvibecoding/frontend-shared</code>: shared copy, locale, and status-presentation substrate for dashboard and desktop, kept workspace-only today</li>
+      </ul>
+      <p>
+        For the public machine-facing HTTP summary, use the
+        <a href="../api/">API and contract quickstart</a> instead of raw
+        internal contract files.
+      </p>
+      <p>
+        If you want the shortest API-oriented map, use the
+        <a href="../api/">API and contract quickstart</a>.
+      </p>
+
+      <h2>4. What we can say truthfully</h2>
+      <ul>
+        <li><strong>Codex</strong>: OpenVibeCoding is positioned for Codex workflows as an operator control plane, not as an official Codex product.</li>
+        <li><strong>Claude Code</strong>: OpenVibeCoding is positioned for Claude Code workflows as the same governed command-tower path, not as an Anthropic-managed surface.</li>
+        <li><strong>MCP</strong>: the current protocol story is real, but it is <strong>read-only only</strong>.</li>
+        <li><strong>API / builder layer</strong>: current packages are useful integration entrypoints, but they are <strong>not yet a full SDK platform</strong>.</li>
+        <li><strong>Queue pilot groundwork</strong>: repo-owned HTTP queue preview/cancel plus a confirm-gated, default-off queue-only MCP pilot server can exist internally without changing the public “read-only MCP” contract.</li>
+      </ul>
+
+      <h2>4.5. Integration and skills adoption</h2>
+      <p>
+        If your real question is “How do I plug this into a coding-agent team workflow without making fake plugin claims?”, use the
+        <a href="../compatibility/">compatibility matrix</a>, the
+        <a href="../integrations/">integration guide</a> and the
+        <a href="../skills/">skills quickstart</a>.
+      </p>
+      <ul>
+        <li><strong>Compatibility matrix</strong>: the fastest “which ladder fits my stack?” answer across agents, skills, builders, proof-first cases, and MCP.</li>
+        <li><strong>Integration guide</strong>: the truthful map for Codex, Claude Code, and OpenClaw usage.</li>
+        <li><strong>Skills quickstart</strong>: repo-owned playbooks and adoption guidance for repeatable agent behavior.</li>
+      </ul>
+
+      <h2>5. What stays explicitly out of scope</h2>
+      <ul>
+        <li>no hosted operator login surface</li>
+        <li>no write-capable MCP claim</li>
+        <li>no claim that queue pilot groundwork means general agent-safe mutation is already live</li>
+        <li>no official partnership implication with OpenAI or Anthropic</li>
+        <li>no claim that the current packages replace the orchestration runtime</li>
+      </ul>
+    </main>
+  </body>
+</html>

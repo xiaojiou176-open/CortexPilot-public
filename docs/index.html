@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenVibeCoding | One live board for AI coding work</title>
+    <meta
+      name="description"
+      content="OpenVibeCoding turns one request into one live board and one proof trail you can inspect before you trust the result."
+    />
+    <meta
+      name="keywords"
+      content="OpenVibeCoding, open command tower for AI engineering, Codex, Claude Code, MCP, Model Context Protocol, Workflow Cases, proof and replay, prompt engineering, context engineering, harness engineering"
+    />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/OpenVibeCoding/" />
+    <meta property="og:title" content="OpenVibeCoding | One live board for AI coding work" />
+    <meta
+      property="og:description"
+      content="One request, one live board, and one proof trail you can inspect before you trust the result."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/OpenVibeCoding/" />
+    <meta property="og:image" content="./assets/storefront/social-preview-1280x640.png" />
+    <meta
+      property="og:image:alt"
+      content="OpenVibeCoding social preview showing PM request, Command Tower, and Proof and Replay inside one repo-backed command tower."
+    />
+    <meta property="og:video" content="https://xiaojiou176-open.github.io/OpenVibeCoding/assets/storefront/openvibecoding-command-tower-teaser.mp4" />
+    <meta property="og:video:type" content="video/mp4" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="OpenVibeCoding | One live board for AI coding work" />
+    <meta
+      name="twitter:description"
+      content="One request, one live board, and one proof trail you can inspect before you trust the result."
+    />
+    <meta name="twitter:image" content="./assets/storefront/social-preview-1280x640.png" />
+    <meta
+      name="twitter:image:alt"
+      content="OpenVibeCoding social preview showing PM request, Command Tower, and Proof and Replay inside one repo-backed command tower."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "OpenVibeCoding",
+        "url": "https://xiaojiou176-open.github.io/OpenVibeCoding/",
+        "description": "The repo-backed command tower for AI engineering: one proven workflow, proof-first replay, a macOS desktop shell, and a read-only MCP lane.",
+        "keywords": [
+          "Codex",
+          "Claude Code",
+          "OpenClaw",
+          "MCP",
+          "AI workflow",
+          "command tower",
+          "operator copilot",
+          "compatibility matrix",
+          "skills",
+          "builders"
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "name": "OpenVibeCoding command tower teaser",
+        "description": "A short promo teaser showing one request, one live board, and one proof pack you can inspect before trust.",
+        "thumbnailUrl": "https://xiaojiou176-open.github.io/OpenVibeCoding/assets/storefront/openvibecoding-command-tower-teaser-poster.png",
+        "contentUrl": "https://xiaojiou176-open.github.io/OpenVibeCoding/assets/storefront/openvibecoding-command-tower-teaser.mp4",
+        "embedUrl": "https://xiaojiou176-open.github.io/OpenVibeCoding/assets/storefront/openvibecoding-command-tower-teaser.mp4",
+        "uploadDate": "2026-04-19"
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is OpenVibeCoding an official Codex or Claude Code plugin?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Not today. The current public contract is the repo front door, proof-first docs, a read-only MCP lane, repo-owned skills, and local starter materials rather than a published plugin listing."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is the public MCP surface write-capable?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. OpenVibeCoding's current public MCP contract is read-only, and write-capable mutation remains outside the public promise."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where does OpenClaw fit today?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "OpenClaw stays in the adjacent coding-agent layer. New teams should use the compatibility matrix, integration guide, and repo-owned skills path before implying a shipped native plugin."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What should a new team open first?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Start with the compatibility matrix if the main question is which adoption path fits your stack. Then choose read-only MCP, skills, builders, or the first success path based on the real job."
+            }
+          }
+        ]
+      }
+    </script>
+    <style>
+      :root {
+        --bg: #0b1220;
+        --bg-elevated: #111a2e;
+        --surface: #17233b;
+        --surface-subtle: #1c2a44;
+        --surface-hover: #223250;
+        --ink: #e8eef8;
+        --muted: #9fb0c8;
+        --accent: #1fb981;
+        --accent-strong: #7fe0b7;
+        --line: rgba(159, 176, 200, 0.18);
+        --line-strong: rgba(159, 176, 200, 0.32);
+        --danger: #d95c5c;
+        --warning: #e59a2f;
+        --shadow: 0 24px 60px rgba(4, 7, 13, 0.52);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Manrope", "Avenir Next", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 12% 10%, rgba(31, 185, 129, 0.14), transparent 20%),
+          radial-gradient(circle at 88% 12%, rgba(229, 154, 47, 0.08), transparent 16%),
+          linear-gradient(180deg, #0b1220 0%, #101a2e 48%, #09111e 100%);
+      }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 56px 24px 96px;
+      }
+
+      .hero {
+        display: grid;
+        gap: 24px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(31, 185, 129, 0.1);
+        color: var(--accent-strong);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 11ch;
+        font-family: "Space Grotesk", "Manrope", sans-serif;
+        font-size: clamp(46px, 7vw, 74px);
+        line-height: 0.98;
+        letter-spacing: -0.05em;
+        text-wrap: balance;
+      }
+
+      .lede {
+        max-width: 760px;
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(18px, 2.3vw, 24px);
+        line-height: 1.6;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .mini-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .mini-nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 9px 12px;
+        border: 1px solid var(--line);
+        background: rgba(17, 26, 46, 0.84);
+      }
+
+      .mini-nav a:hover,
+      .mini-nav a:focus-visible {
+        color: var(--ink);
+        border-color: rgba(127, 224, 183, 0.3);
+        background: rgba(23, 35, 59, 0.96);
+      }
+
+      .mini-nav a:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .hero-meta a {
+        color: var(--muted);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 12px;
+        text-decoration: none;
+      }
+
+      .hero-meta a:hover,
+      .hero-meta a:focus-visible {
+        color: var(--ink);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      .actions a {
+        text-decoration: none;
+        border-radius: 999px;
+        padding: 13px 18px;
+        font-weight: 700;
+      }
+
+      .actions .primary {
+        background: var(--accent);
+        color: #08131c;
+      }
+
+      .actions .secondary {
+        background: rgba(17, 26, 46, 0.92);
+        color: var(--ink);
+        border: 1px solid var(--line);
+      }
+
+      .panel,
+      .grid-card {
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 52%),
+          rgba(17, 26, 46, 0.9);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+      }
+
+      .panel {
+        padding: 24px;
+      }
+
+      .truth-strip,
+      .hero-media-grid,
+      .loop-grid,
+      .glossary-strip {
+        display: grid;
+        gap: 16px;
+      }
+
+      .truth-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .glossary-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .truth-card {
+        display: grid;
+        gap: 8px;
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: rgba(17, 26, 46, 0.72);
+      }
+
+      .truth-card strong,
+      .loop-card h3 {
+        font-family: "Space Grotesk", "Manrope", sans-serif;
+        font-size: 18px;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+      }
+
+      .truth-card p,
+      .loop-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .glossary-card {
+        display: grid;
+        gap: 8px;
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: rgba(17, 26, 46, 0.58);
+      }
+
+      .glossary-card strong {
+        font-family: "Space Grotesk", "Manrope", sans-serif;
+        font-size: 17px;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+      }
+
+      .glossary-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .truth-kicker,
+      .loop-kicker {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent-strong);
+      }
+
+      .hero-media-grid {
+        grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      }
+
+      .hero-image,
+      .hero-video {
+        width: 100%;
+        border-radius: 22px;
+        border: 1px solid var(--line);
+        background: rgba(8, 13, 28, 0.9);
+      }
+
+      .hero-video {
+        display: block;
+        box-shadow: var(--shadow);
+      }
+
+      .caption {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      .section {
+        margin-top: 48px;
+      }
+
+      .section h2 {
+        font-family: "Space Grotesk", "Manrope", sans-serif;
+        font-size: 30px;
+        margin: 0 0 14px;
+        letter-spacing: -0.04em;
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .grid-card {
+        padding: 20px;
+      }
+
+      .grid-card h3 {
+        margin-top: 0;
+        font-size: 19px;
+        line-height: 1.2;
+      }
+
+      .grid-card p,
+      .section p,
+      .section li {
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .loop-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
+      .loop-card {
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: rgba(17, 26, 46, 0.74);
+      }
+
+      code {
+        background: rgba(23, 35, 59, 0.82);
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        color: var(--accent-strong);
+      }
+
+      a {
+        color: var(--accent-strong);
+      }
+
+      a:hover,
+      a:focus-visible {
+        color: var(--ink);
+      }
+
+      @media (max-width: 960px) {
+        .truth-strip,
+        .hero-media-grid,
+        .loop-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-teaser-panel {
+          order: -1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <span class="eyebrow">OpenVibeCoding / start here</span>
+        <h1>One dashboard for long AI coding jobs.</h1>
+        <p class="lede">
+          OpenVibeCoding helps you watch the work, reopen the saved case, and inspect
+          the evidence before you trust the result.
+        </p>
+        <div class="actions">
+          <a class="primary" href="./use-cases/">See the first proven workflow</a>
+          <a class="secondary" href="./assets/storefront/openvibecoding-command-tower-teaser.mp4">Watch the 18s teaser</a>
+        </div>
+        <p class="caption">
+          Use the repo, docs, the <strong>macOS desktop shell</strong>, and a
+          <strong>secure read-only protocol view</strong> to inspect the same job from request to evidence.
+        </p>
+        <p class="caption">
+          Need the adoption map instead of the shortest proof story?
+          <a href="./compatibility/">Choose the right adoption path</a>.
+        </p>
+        <div class="glossary-strip" aria-label="Plain-language glossary">
+          <article class="glossary-card">
+            <strong>Workflow case</strong>
+            <p>The saved record of one job, so you can reopen the same work later.</p>
+          </article>
+          <article class="glossary-card">
+            <strong>Proof &amp; Replay</strong>
+            <p>The evidence and rerun view, so humans can inspect what happened.</p>
+          </article>
+          <article class="glossary-card">
+            <strong>Read-only protocol view</strong>
+            <p>The MCP layer for inspection only, not for write-capable mutation.</p>
+          </article>
+        </div>
+        <div class="hero-media-grid">
+          <div class="panel">
+            <img
+              class="hero-image"
+              src="./assets/storefront/dashboard-command-tower-current-1440x900.png"
+              alt="OpenVibeCoding Command Tower read-back showing live queue posture, blocker risk, and proof-ready state"
+            />
+            <p class="caption">
+              Live board read-back: queue posture, blocker risk, and proof-ready
+              state stay visible instead of hiding behind shell output.
+            </p>
+          </div>
+
+          <div class="panel hero-teaser-panel">
+            <video
+              class="hero-video"
+              controls
+              muted
+              playsinline
+              preload="metadata"
+              poster="./assets/storefront/openvibecoding-command-tower-teaser-poster.png"
+              aria-label="OpenVibeCoding 18-second product teaser"
+            >
+              <source src="./assets/storefront/openvibecoding-command-tower-teaser.mp4" type="video/mp4" />
+              <track
+                src="./assets/storefront/openvibecoding-command-tower-teaser.vtt"
+                kind="captions"
+                srclang="en"
+                label="English captions"
+                default
+              />
+            </video>
+            <p class="caption">
+              Watch the command-tower teaser first if you want the shortest product read before opening deeper docs and matrices.
+            </p>
+            <details>
+              <summary>Read the teaser transcript</summary>
+              <p class="caption">
+                Stop babysitting AI coding work. AI coding does not lack models. It lacks a command tower.
+                OpenVibeCoding turns one request into one live board and one proof trail you can inspect.
+                Keep the handoff visible from the web board to the macOS desktop shell, then start with one proven workflow before opening deeper docs.
+                Public boundary today: repo-backed, proof-first, macOS desktop shell, and read-only MCP.
+              </p>
+            </details>
+          </div>
+        </div>
+        <div class="truth-strip" aria-label="Current truth">
+          <article class="truth-card">
+            <span class="truth-kicker">Current boundary</span>
+            <strong>Repo front door, docs, macOS shell, and a read-only protocol view</strong>
+            <p>Start with one visible workflow and one evidence trail before deciding whether the stack fits your team.</p>
+          </article>
+          <article class="truth-card">
+            <span class="truth-kicker">Shipped now</span>
+            <strong>One proven workflow, one teaser, and a clear first path</strong>
+            <p>The first honest public story is the workflow guide, the live teaser, and the product surfaces that let you inspect the run.</p>
+          </article>
+          <article class="truth-card">
+            <span class="truth-kicker">Not live yet</span>
+            <strong>Hosted operator and write-capable distribution stay deferred</strong>
+            <p>Hosted service, public write-capable MCP, Docker distribution, and standalone npm releases still sit outside today's promise.</p>
+          </article>
+        </div>
+        <details>
+          <summary>Read the exact current contract</summary>
+          <p class="caption">
+            Current boundary: OpenVibeCoding is a <strong>repo-backed command tower</strong> with
+            <strong>proof-first docs</strong>, a <strong>macOS desktop shell</strong>, and a
+            <strong>read-only MCP</strong> lane. Hosted operator and write-capable MCP stay outside the
+            current promise. Exact contract today: <strong>repo-backed operator control plane, not a hosted product</strong>,
+            and the <strong>shipped MCP surface remains read-only</strong>.
+          </p>
+        </details>
+        <div class="hero-meta" aria-label="Repository meta">
+          <a href="https://github.com/xiaojiou176-open/OpenVibeCoding">Repository</a>
+          <a href="./use-cases/">First proven workflow</a>
+          <a href="./compatibility/">Compatibility matrix</a>
+          <a href="./distribution/">Distribution status</a>
+        </div>
+        <details>
+          <summary>Browse technical surfaces</summary>
+          <p class="caption">
+            Need protocol, package, or integration detail? Open
+            <a href="./ai-surfaces/">AI + MCP + API surfaces</a>,
+            <a href="./builders/">builder quickstart</a>,
+            <a href="./mcp/">read-only MCP</a>,
+            <a href="./integrations/">integrations</a>,
+            <a href="./skills/">skills quickstart</a>, or the
+            <a href="https://github.com/xiaojiou176-open/OpenVibeCoding/releases">release notes</a>.
+          </p>
+        </details>
+      </section>
+
+      <section class="section">
+        <h2>What happens after one request?</h2>
+        <div class="loop-grid">
+          <article class="loop-card">
+            <span class="loop-kicker">1 / Plan</span>
+            <h3>Start from a real request</h3>
+            <p>Write down the job, the constraints, and the finish bar before the run starts.</p>
+          </article>
+          <article class="loop-card">
+            <span class="loop-kicker">2 / Delegate</span>
+            <h3>Queue the work on one board</h3>
+            <p>Move the request into a live record so the next step stays visible when humans step away.</p>
+          </article>
+          <article class="loop-card">
+            <span class="loop-kicker">3 / Track</span>
+            <h3>See progress and blockers first</h3>
+            <p>Start from the live board so you can see which lane is moving and which lane needs attention.</p>
+          </article>
+          <article class="loop-card">
+            <span class="loop-kicker">4 / Resume</span>
+            <h3>Reopen the same case later</h3>
+            <p>Resume from the saved case record instead of rebuilding context from scattered notes and chat history.</p>
+          </article>
+          <article class="loop-card">
+            <span class="loop-kicker">5 / Prove</span>
+            <h3>Inspect proof before you trust it</h3>
+            <p>The loop closes only when evidence, replay, and operator judgment all line up.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Start with one proven workflow</h2>
+        <p>
+          If you only open one door after the hero, open the first proven workflow. It is the shortest path
+          from “what is this?” to “show me one real example.”
+        </p>
+        <div class="grid">
+          <article class="grid-card">
+            <h3>Fastest real path</h3>
+            <p>Run the smallest repo-local loop first, then confirm the live board and evidence trail before trusting anything else.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Official baseline</h3>
+            <p>The first public example stays small and release-proven. The broader proof paths still exist, but they are follow-on expansions rather than the first promise.</p>
+          </article>
+          <article class="grid-card">
+            <h3>See a worked example</h3>
+            <p><a href="./use-cases/">Open the first proven workflow guide</a> before you open the full docs map.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>What you can use today</h2>
+        <div class="grid">
+          <article class="grid-card">
+            <h3>Shipped now</h3>
+            <p>The repo front door, docs with evidence, the first proven workflow, the teaser, and the read-only protocol view make up the public core you can inspect today.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Starter-only</h3>
+            <p>Starter kits and local bundle examples help teams adopt the stack, but they are not automatic first-party plugin listings.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Explicitly deferred</h3>
+            <p>Hosted operator service, write-capable MCP, Docker distribution, and standalone npm releases still sit outside the current official promise.</p>
+          </article>
+        </div>
+        <p>
+          Need the exact shipped/starter/internal/deferred ledger instead of the short version?
+          Open the
+          <a href="./distribution/">distribution status</a>.
+        </p>
+        <p class="caption">
+          External submission receipts still exist, but they live on the distribution page rather than in the front-door story.
+        </p>
+        <details>
+          <summary>See exact workflow names</summary>
+          <p class="caption">
+            <code>news_digest</code> remains the official public baseline, while <code>topic_brief</code> and
+            <code>page_brief</code> stay tracked proof expansions rather than equal first-party baselines.
+          </p>
+        </details>
+      </section>
+
+      <section class="section">
+        <h2>FAQ</h2>
+        <div class="grid">
+          <article class="grid-card">
+            <h3>Is OpenVibeCoding an official Codex or Claude Code plugin?</h3>
+            <p>Not today. The current public contract is the repo front door, proof-first docs, a read-only MCP lane, repo-owned skills, and local starter materials rather than a published plugin listing.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Is the public MCP surface write-capable?</h3>
+            <p>OpenVibeCoding's current public MCP contract is read-only, and write-capable mutation remains outside the public promise.</p>
+          </article>
+          <article class="grid-card">
+            <h3>Where does OpenClaw fit today?</h3>
+            <p>OpenClaw stays in the adjacent coding-agent layer. New teams should use the compatibility matrix, integration guide, and repo-owned skills path before implying a shipped native plugin.</p>
+          </article>
+          <article class="grid-card">
+            <h3>What should a new team open first?</h3>
+            <p>Start with the compatibility matrix if the main question is which adoption path fits your stack. Then choose read-only MCP, skills, builders, or the first success path based on the real job.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Pick the next door</h2>
+        <p>
+          Keep the first decision simple. Start with one proven workflow, then open only the next surface that matches the job.
+        </p>
+        <div class="grid">
+          <article class="grid-card">
+            <h3>I want one proven workflow first</h3>
+            <p>Open this if you want the shortest honest story: one public baseline, one proof pack, and one share-ready Workflow Case recap.</p>
+            <p><a href="./use-cases/">Open the first proven workflow</a></p>
+          </article>
+          <article class="grid-card">
+            <h3>I need the adoption path</h3>
+            <p>Use this when the real question is which agent stack or integration path fits your team.</p>
+            <p><a href="./compatibility/">Open the compatibility matrix</a></p>
+          </article>
+          <article class="grid-card">
+            <h3>I build on protocols or packages</h3>
+            <p>Use this once the boundary is clear and you need read-only MCP, OpenAPI, contract-facing types, or the thin builder surfaces.</p>
+            <p><a href="./mcp/">Open read-only MCP</a> · <a href="./api/">Open API quickstart</a> · <a href="./builders/">Open builder quickstart</a></p>
+          </article>
+        </div>
+        <p class="caption">
+          Need exact starter files? Open <a href="./agent-starters/">agent starter kits</a>. Need the truthful Codex / Claude Code / OpenClaw map? Open
+          <a href="./integrations/">integrations</a>. Need repo-owned playbooks? Open <a href="./skills/">skills quickstart</a>. Need the broader market
+          framing? Open the <a href="./ecosystem/">ecosystem map</a>.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>First proven workflow</h2>
+        <p>
+          The shortest honest start is still repo-local. The host-compatible path stays:
+        </p>
+        <ol>
+          <li><code>npm run bootstrap:host</code></li>
+          <li><code>OPENVIBECODING_HOST_COMPAT=1 bash scripts/test_quick.sh --no-related</code></li>
+          <li><code>npm run dev</code></li>
+        </ol>
+        <p class="caption">
+          This local full-stack path boots the orchestrator API on localhost together with the dashboard, so the browser can exercise the operator loop without relying on a browser-side bearer token.
+        </p>
+        <p class="caption">
+          In practice, a clean first pass should take about 5-10 minutes and end with four visible signals:
+          one request created from PM, one case visible in Command Tower, one Workflow Case you can confirm,
+          and one Proof &amp; Replay surface you can inspect before trusting the result.
+        </p>
+        <p class="caption">
+          If the API is already running in another terminal, you can still use <code>npm run dashboard:dev</code>
+          for dashboard-only iteration on the web shell.
+        </p>
+        <p class="caption">
+          Official first public path: start with <code>news_digest</code> if you want the smallest release-proven
+          proof loop. Treat <code>topic_brief</code> as a tracked search-backed proof expansion, and treat
+          <code>page_brief</code> as a tracked browser-backed proof expansion that still is not the official
+          first public baseline or equally release-proven with <code>news_digest</code>.
+        </p>
+        <div class="grid">
+          <article class="grid-card">
+            <h3>news_digest</h3>
+            <p>Best for the fastest proof-oriented first run with one topic, a few domains, and a short time window.</p>
+            <p><strong>Proof state:</strong> official public baseline.</p>
+          </article>
+          <article class="grid-card">
+            <h3>topic_brief</h3>
+            <p>Best for a bounded topic brief when you want search-backed evidence without broadening scope.</p>
+            <p><strong>Proof state:</strong> release-proven secondary search-backed public path; not the official first public baseline.</p>
+          </article>
+          <article class="grid-card">
+            <h3>page_brief</h3>
+            <p>Best for a single URL with browser-backed evidence and a read-only workflow case wrapper.</p>
+            <p><strong>Proof state:</strong> release-proven secondary browser-backed public path; not the official first public baseline.</p>
+          </article>
+        </div>
+        <p class="caption">
+          See the full proof pack, benchmark summary, and share-ready Workflow Case recap in
+          <a href="./use-cases/"> the first proven workflow guide</a>.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
