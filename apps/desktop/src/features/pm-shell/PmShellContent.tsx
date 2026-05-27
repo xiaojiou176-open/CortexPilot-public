@@ -2,7 +2,7 @@ import { lazy, Suspense, useMemo } from "react";
 import { FolderGit2, GitBranch } from "lucide-react";
 import type { Edge, Node, NodeMouseHandler } from "@xyflow/react";
 import { toast } from "sonner";
-import { detectPreferredUiLocale } from "@openvibecoding/frontend-shared/uiLocale";
+import { detectPreferredUiLocale } from "@agentcoder/frontend-shared/uiLocale";
 import { Button } from "../../components/ui/Button";
 import { ChatPanel } from "../../components/conversation/ChatPanel";
 import { NodeDetailDrawer } from "../../components/chain/NodeDetailDrawer";

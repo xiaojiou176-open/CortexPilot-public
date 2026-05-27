@@ -5,8 +5,8 @@ import json
 import logging
 from pathlib import Path
 from typing import Any, Callable
-from openvibecoding_orch.services.session_index_service import SessionIndexService
-from openvibecoding_orch.store.workflow_case_store import WorkflowCaseStore
+from agentcoder_orch.services.session_index_service import SessionIndexService
+from agentcoder_orch.store.workflow_case_store import WorkflowCaseStore
 
 
 _logger = logging.getLogger(__name__)

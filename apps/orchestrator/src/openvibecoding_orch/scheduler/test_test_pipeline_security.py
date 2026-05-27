@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from openvibecoding_orch.scheduler.test_pipeline import cleanup_test_artifacts, read_artifact_text
+from agentcoder_orch.scheduler.test_pipeline import cleanup_test_artifacts, read_artifact_text
 
 
 def test_read_artifact_text_blocks_path_traversal(tmp_path: Path) -> None:

@@ -2,24 +2,24 @@
   "version": "v1",
   "agents": [
     {
-      "agent_id": "openvibecoding-pm",
+      "agent_id": "agentcoder-pm",
       "role": "PM",
       "description": "唯一对外入口：只产出合同，不跑命令/不改代码/不自搜",
-      "codex_home": "~/.codex-homes/openvibecoding-pm",
+      "codex_home": "~/.codex-homes/agentcoder-pm",
       "defaults": {"sandbox": "read-only", "approval_policy": "never", "network": "deny"}
     },
     {
-      "agent_id": "openvibecoding-worker-core",
+      "agent_id": "agentcoder-worker-core",
       "role": "WORKER",
       "description": "受控执行：只在 allowed_paths 内改动",
-      "codex_home": "~/.codex-homes/openvibecoding-worker-core",
+      "codex_home": "~/.codex-homes/agentcoder-worker-core",
       "defaults": {"sandbox": "workspace-write", "approval_policy": "on-request", "network": "deny"}
     },
     {
-      "agent_id": "openvibecoding-reviewer",
+      "agent_id": "agentcoder-reviewer",
       "role": "REVIEWER",
       "description": "只审不改：物理只读",
-      "codex_home": "~/.codex-homes/openvibecoding-reviewer",
+      "codex_home": "~/.codex-homes/agentcoder-reviewer",
       "defaults": {"sandbox": "read-only", "approval_policy": "never", "network": "deny"}
     }
   ]

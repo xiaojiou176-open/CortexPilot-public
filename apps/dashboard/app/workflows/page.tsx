@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
-import { getUiCopy } from "@openvibecoding/frontend-shared/uiCopy";
-import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@openvibecoding/frontend-shared/uiLocale";
-import { statusCtaFromCanonical, toCanonicalStatusFuzzy } from "@openvibecoding/frontend-shared/statusPresentation";
+import { getUiCopy } from "@agentcoder/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@agentcoder/frontend-shared/uiLocale";
+import { statusCtaFromCanonical, toCanonicalStatusFuzzy } from "@agentcoder/frontend-shared/statusPresentation";
 import Link from "next/link";
 import type { BadgeVariant } from "../../components/ui/badge";
 import { Badge } from "../../components/ui/badge";
@@ -23,16 +23,16 @@ const CJK_TEXT_RE = /[\u3400-\u9fff]/;
 export function buildWorkflowsMetadata(locale: "en" | "zh-CN"): Metadata {
   if (locale === "zh-CN") {
     return {
-      title: "工作流案例 | OpenVibeCoding",
+      title: "工作流案例 | Agentcoder",
       description:
-        "在 OpenVibeCoding 指挥塔里查看工作流案例、队列姿态、关联运行和下一步操作。",
+        "在 Agentcoder 指挥塔里查看工作流案例、队列姿态、关联运行和下一步操作。",
     };
   }
 
   return {
-    title: "Workflow Cases | OpenVibeCoding",
+    title: "Workflow Cases | Agentcoder",
     description:
-      "Review Workflow Cases, queue posture, linked runs, and next operator actions inside the OpenVibeCoding command tower.",
+      "Review Workflow Cases, queue posture, linked runs, and next operator actions inside the Agentcoder command tower.",
   };
 }
 
@@ -196,7 +196,7 @@ export default async function WorkflowsPage() {
       <header className="app-section">
         <div className="section-header">
           <div>
-            <p className="cell-sub mono muted">{locale === "zh-CN" ? "OpenVibeCoding / 工作流桌" : "OpenVibeCoding / workflow desk"}</p>
+            <p className="cell-sub mono muted">{locale === "zh-CN" ? "Agentcoder / 工作流桌" : "Agentcoder / workflow desk"}</p>
             <h1 id="workflows-page-title" className="page-title">{workflowListPageCopy.title}</h1>
             <p className="page-subtitle">{workflowListPageCopy.subtitle}</p>
           </div>

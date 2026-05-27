@@ -4,11 +4,11 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.contract.validator import evaluate_superpowers_gate
-from openvibecoding_orch.gates.diff_gate import validate_diff
-from openvibecoding_orch.gates.reviewer_gate import snapshot_worktree, validate_reviewer_isolation
-from openvibecoding_orch.gates.tests_gate import run_acceptance_tests, run_evals_gate
-from openvibecoding_orch.scheduler import (
+from agentcoder_orch.contract.validator import evaluate_superpowers_gate
+from agentcoder_orch.gates.diff_gate import validate_diff
+from agentcoder_orch.gates.reviewer_gate import snapshot_worktree, validate_reviewer_isolation
+from agentcoder_orch.gates.tests_gate import run_acceptance_tests, run_evals_gate
+from agentcoder_orch.scheduler import (
     gate_orchestration,
     policy_pipeline,
     runtime_utils,
@@ -17,7 +17,7 @@ from openvibecoding_orch.scheduler import (
     task_execution_runtime_helpers,
     core_helpers,
 )
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.store.run_store import RunStore
 
 _append_gate_failed = gate_orchestration.append_gate_failed
 _extract_user_request = core_helpers.extract_user_request

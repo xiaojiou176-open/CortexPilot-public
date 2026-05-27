@@ -5,8 +5,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.contract.validator import ContractValidator
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.contract.validator import ContractValidator
+from agentcoder_orch.store.run_store import RunStore
 
 
 def run_review_stage(
@@ -30,7 +30,7 @@ def run_review_stage(
 ) -> dict[str, Any]:
     report_validator = ContractValidator(schema_root=schema_root_fn())
     review_snapshot = snapshot_worktree_fn(worktree_path)
-    reviewer_mode = os.getenv("OPENVIBECODING_REVIEWER_MODE", "local").strip().lower()
+    reviewer_mode = os.getenv("AGENTCODER_REVIEWER_MODE", "local").strip().lower()
     store.append_event(
         run_id,
         {
@@ -52,7 +52,7 @@ def run_review_stage(
     review_report = None
     if reviewer_mode == "codex":
         try:
-            from openvibecoding_orch.reviewer.reviewer import CodexReviewer
+            from agentcoder_orch.reviewer.reviewer import CodexReviewer
 
             reviewer_meta["sandbox_mode"] = "read-only"
             review_report = CodexReviewer().review_task(

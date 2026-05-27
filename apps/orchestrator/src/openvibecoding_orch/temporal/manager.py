@@ -6,18 +6,18 @@ from typing import Any
 
 
 def _enabled() -> bool:
-    if os.getenv("OPENVIBECODING_TEMPORAL_ACTIVITY", "").strip() in {"1", "true", "yes"}:
+    if os.getenv("AGENTCODER_TEMPORAL_ACTIVITY", "").strip() in {"1", "true", "yes"}:
         return False
-    return os.getenv("OPENVIBECODING_TEMPORAL_ENABLED", "").strip().lower() in {"1", "true", "yes"}
+    return os.getenv("AGENTCODER_TEMPORAL_ENABLED", "").strip().lower() in {"1", "true", "yes"}
 
 
 def _required() -> bool:
-    return os.getenv("OPENVIBECODING_TEMPORAL_REQUIRED", "").strip().lower() in {"1", "true", "yes"}
+    return os.getenv("AGENTCODER_TEMPORAL_REQUIRED", "").strip().lower() in {"1", "true", "yes"}
 
 
 def _config() -> tuple[str, str]:
-    address = os.getenv("OPENVIBECODING_TEMPORAL_ADDRESS", "localhost:7233")
-    namespace = os.getenv("OPENVIBECODING_TEMPORAL_NAMESPACE", "default")
+    address = os.getenv("AGENTCODER_TEMPORAL_ADDRESS", "localhost:7233")
+    namespace = os.getenv("AGENTCODER_TEMPORAL_NAMESPACE", "default")
     return address, namespace
 
 

@@ -14,9 +14,9 @@ _CRITICAL_IGNORED_PATTERNS = (
     "*.key",
     "policies/*",
     "tooling/mcp/*",
-    "apps/orchestrator/src/openvibecoding_orch/api/*",
-    "apps/orchestrator/src/openvibecoding_orch/scheduler/*",
-    "apps/orchestrator/src/openvibecoding_orch/runners/*",
+    "apps/orchestrator/src/agentcoder_orch/api/*",
+    "apps/orchestrator/src/agentcoder_orch/scheduler/*",
+    "apps/orchestrator/src/agentcoder_orch/runners/*",
 )
 
 
@@ -137,7 +137,7 @@ def validate_reviewer_isolation(worktree: Path, snapshot: dict) -> dict:
         "changed": changed,
         "reason": "" if ok else "reviewer modified working tree",
     }
-    verbose = os.getenv("OPENVIBECODING_REVIEWER_SNAPSHOT_VERBOSE", "").strip().lower() in {"1", "true", "yes"}
+    verbose = os.getenv("AGENTCODER_REVIEWER_SNAPSHOT_VERBOSE", "").strip().lower() in {"1", "true", "yes"}
     if verbose:
         payload["before"] = before
         payload["after"] = after

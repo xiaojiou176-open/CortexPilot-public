@@ -9,8 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.config import get_logging_config, get_runtime_config
-from openvibecoding_orch.contract.validator import ContractValidator
+from agentcoder_orch.config import get_logging_config, get_runtime_config
+from agentcoder_orch.contract.validator import ContractValidator
 from .run_store_archive_helpers import (
     append_hashchain_entry,
     events_summary_path,

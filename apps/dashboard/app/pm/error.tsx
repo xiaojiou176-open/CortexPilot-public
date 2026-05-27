@@ -1,6 +1,6 @@
 "use client";
 
-import { detectPreferredUiLocale } from "@openvibecoding/frontend-shared/uiLocale";
+import { detectPreferredUiLocale } from "@agentcoder/frontend-shared/uiLocale";
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
 import { sanitizeUiError, uiErrorDetail } from "../../lib/uiError";

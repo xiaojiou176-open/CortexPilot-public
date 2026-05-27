@@ -5,9 +5,9 @@ import re
 from pathlib import Path
 from typing import Any, Callable
 
-from openvibecoding_orch.chain.chain_lifecycle import _build_lifecycle_summary
-from openvibecoding_orch.contract.validator import ContractValidator
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.chain.chain_lifecycle import _build_lifecycle_summary
+from agentcoder_orch.contract.validator import ContractValidator
+from agentcoder_orch.store.run_store import RunStore
 
 
 def _resolve_chain_failure_reason(

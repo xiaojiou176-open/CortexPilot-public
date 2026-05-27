@@ -4,9 +4,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.config import load_config
-from openvibecoding_orch.scheduler.rollback_pipeline import apply_rollback
-from openvibecoding_orch.store import run_store
+from agentcoder_orch.config import load_config
+from agentcoder_orch.scheduler.rollback_pipeline import apply_rollback
+from agentcoder_orch.store import run_store
 
 
 class RollbackService:

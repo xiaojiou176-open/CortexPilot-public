@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.config import OpenVibeCodingConfig
+from agentcoder_orch.config import AgentcoderConfig
 
 CANONICAL_CACHE_NAMESPACES = ("runtime", "test", "build")
 RETENTION_REPORT_SCHEMA_VERSION = 6
@@ -162,7 +162,7 @@ def _cache_namespace_summary(cache_candidates: list[Path], cache_root: Path) -> 
     }
 
 
-def _test_output_root(cfg: OpenVibeCodingConfig) -> Path:
+def _test_output_root(cfg: AgentcoderConfig) -> Path:
     return cfg.runtime_root.parent / "test_output"
 
 
@@ -204,7 +204,7 @@ def _test_output_visibility_summary(test_output_root: Path) -> dict[str, Any]:
     }
 
 
-def _cleanup_scope(cfg: OpenVibeCodingConfig) -> dict[str, Any]:
+def _cleanup_scope(cfg: AgentcoderConfig) -> dict[str, Any]:
     return {
         "labels": list(RETENTION_SCOPE_LABELS),
         "included_roots": {
@@ -234,7 +234,7 @@ def _cleanup_scope(cfg: OpenVibeCodingConfig) -> dict[str, Any]:
     }
 
 
-def _log_lane_summary(cfg: OpenVibeCodingConfig) -> dict[str, Any]:
+def _log_lane_summary(cfg: AgentcoderConfig) -> dict[str, Any]:
     summary: dict[str, Any] = {}
     for lane in ("runtime", "error", "access", "e2e", "ci", "governance"):
         lane_root = cfg.logs_root / lane
@@ -255,7 +255,7 @@ def _log_lane_summary(cfg: OpenVibeCodingConfig) -> dict[str, Any]:
     return summary
 
 
-def _space_bridge(cfg: OpenVibeCodingConfig) -> dict[str, Any]:
+def _space_bridge(cfg: AgentcoderConfig) -> dict[str, Any]:
     report_path = cfg.runtime_root / "reports" / "space_governance" / "report.json"
     if not report_path.exists():
         return {
@@ -288,17 +288,17 @@ def _space_bridge(cfg: OpenVibeCodingConfig) -> dict[str, Any]:
     }
 
 
-def _load_machine_cache_policy(cfg: OpenVibeCodingConfig) -> dict[str, Any] | None:
+def _load_machine_cache_policy(cfg: AgentcoderConfig) -> dict[str, Any] | None:
     policy_path = cfg.repo_root / "configs" / "space_governance_policy.json"
     if not policy_path.exists():
         return None
 
-    from openvibecoding_orch.runtime.space_governance import load_space_governance_policy
+    from agentcoder_orch.runtime.space_governance import load_space_governance_policy
 
     return load_space_governance_policy(policy_path)
 
 
-def _machine_cache_policy_prefixes(cfg: OpenVibeCodingConfig, key: str) -> list[Path]:
+def _machine_cache_policy_prefixes(cfg: AgentcoderConfig, key: str) -> list[Path]:
     policy = _load_machine_cache_policy(cfg)
     if not isinstance(policy, dict):
         return []
@@ -314,7 +314,7 @@ def _machine_cache_policy_prefixes(cfg: OpenVibeCodingConfig, key: str) -> list[
         text = str(raw_item or "").strip()
         if not text:
             continue
-        text = text.replace("${OPENVIBECODING_MACHINE_CACHE_ROOT}", str(cfg.machine_cache_root))
+        text = text.replace("${AGENTCODER_MACHINE_CACHE_ROOT}", str(cfg.machine_cache_root))
         path = Path(text).expanduser()
         path = path.resolve() if path.is_absolute() else (cfg.repo_root / path).resolve()
         normalized = str(path)
@@ -325,12 +325,12 @@ def _machine_cache_policy_prefixes(cfg: OpenVibeCodingConfig, key: str) -> list[
     return prefixes
 
 
-def _machine_cache_retention_entries(cfg: OpenVibeCodingConfig) -> list[dict[str, Any]]:
+def _machine_cache_retention_entries(cfg: AgentcoderConfig) -> list[dict[str, Any]]:
     policy = _load_machine_cache_policy(cfg)
     if not isinstance(policy, dict):
         return []
 
-    from openvibecoding_orch.runtime.space_governance import collect_process_matches, expand_policy_entry
+    from agentcoder_orch.runtime.space_governance import collect_process_matches, expand_policy_entry
 
     current_time = _utc_now()
     recent_window_hours = int(policy.get("recent_activity_hours", 24))
@@ -396,7 +396,7 @@ def _machine_cache_retention_entries(cfg: OpenVibeCodingConfig) -> list[dict[str
 
 
 def _machine_cache_retention_candidates(
-    cfg: OpenVibeCodingConfig,
+    cfg: AgentcoderConfig,
     *,
     entries: list[dict[str, Any]],
 ) -> list[MachineCacheCandidate]:
@@ -478,7 +478,7 @@ def _machine_cache_retention_candidates(
 
 
 def _machine_cache_summary(
-    cfg: OpenVibeCodingConfig,
+    cfg: AgentcoderConfig,
     entries: list[dict[str, Any]],
     candidates: list[MachineCacheCandidate],
 ) -> dict[str, Any]:
@@ -562,7 +562,7 @@ def _machine_cache_summary(
     }
 
 
-def _machine_cache_auto_prune_summary(cfg: OpenVibeCodingConfig) -> dict[str, Any] | None:
+def _machine_cache_auto_prune_summary(cfg: AgentcoderConfig) -> dict[str, Any] | None:
     state_path = cfg.machine_cache_root / "retention-auto-prune" / "state.json"
     if not state_path.exists():
         return None
@@ -617,7 +617,7 @@ def _collect_contract_artifacts(contract_root: Path) -> list[Path]:
     return items
 
 
-def build_retention_plan(cfg: OpenVibeCodingConfig) -> RetentionPlan:
+def build_retention_plan(cfg: AgentcoderConfig) -> RetentionPlan:
     runs = _safe_collect_dirs(cfg.runs_root)
     worktrees = _safe_collect_dirs(cfg.worktree_root)
     logs = _safe_collect_files(cfg.logs_root)
@@ -704,7 +704,7 @@ def _safe_remove_path(path: Path, allowed_root: Path) -> bool:
     return True
 
 
-def apply_retention_plan(cfg: OpenVibeCodingConfig, plan: RetentionPlan) -> dict[str, Any]:
+def apply_retention_plan(cfg: AgentcoderConfig, plan: RetentionPlan) -> dict[str, Any]:
     removed: dict[str, list[str]] = {
         "runs": [],
         "worktrees": [],
@@ -750,7 +750,7 @@ def apply_retention_plan(cfg: OpenVibeCodingConfig, plan: RetentionPlan) -> dict
     }
 
 
-def write_retention_report(cfg: OpenVibeCodingConfig, plan: RetentionPlan, applied: bool, apply_result: dict[str, Any] | None) -> Path:
+def write_retention_report(cfg: AgentcoderConfig, plan: RetentionPlan, applied: bool, apply_result: dict[str, Any] | None) -> Path:
     reports_dir = cfg.runtime_root / "reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
     report_path = reports_dir / "retention_report.json"

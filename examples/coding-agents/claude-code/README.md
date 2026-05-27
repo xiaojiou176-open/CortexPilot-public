@@ -1,17 +1,17 @@
 # Claude Code example
 
-This folder shows a truthful OpenVibeCoding starter for Claude Code style
+This folder shows a truthful Agentcoder starter for Claude Code style
 workflows without inventing a published marketplace package.
 
 ## What is here
 
-- `.claude/commands/openvibecoding-proof.md`: a slash-command style playbook
-- `.claude/agents/openvibecoding-reviewer.md`: a focused reviewer/subagent prompt
+- `.claude/commands/agentcoder-proof.md`: a slash-command style playbook
+- `.claude/agents/agentcoder-reviewer.md`: a focused reviewer/subagent prompt
 - `project.mcp.json`: a project-local MCP example for the real read-only server
 - `../mcp/readonly.mcp.json.example`: the shared read-only MCP config example
-- `../plugin-bundles/openvibecoding-coding-agent-bundle/`: a local plugin-dir
+- `../plugin-bundles/agentcoder-coding-agent-bundle/`: a local plugin-dir
   bundle with the same skill plus plugin-scoped MCP wiring
-- `../plugin-bundles/openvibecoding-coding-agent-bundle/skills/openvibecoding-adoption-router/manifest.yaml`:
+- `../plugin-bundles/agentcoder-coding-agent-bundle/skills/agentcoder-adoption-router/manifest.yaml`:
   registry-shaped metadata for the shared skill artifact
 
 ## Suggested setup
@@ -19,8 +19,8 @@ workflows without inventing a published marketplace package.
 1. Copy `.claude/commands/` and `.claude/agents/` into your project.
 2. Copy `project.mcp.json` into your project root as `.mcp.json`, or use
    `../mcp/readonly.mcp.json.example` as the shared host-level template and
-   replace `__OPENVIBECODING_REPO_ROOT__`.
-3. Keep the read order aligned with OpenVibeCoding truth sources:
+   replace `__AGENTCODER_REPO_ROOT__`.
+3. Keep the read order aligned with Agentcoder truth sources:
    - `README.md`
    - `docs/README.md`
    - `AGENTS.md`
@@ -29,7 +29,7 @@ workflows without inventing a published marketplace package.
 ## Expected success
 
 - the project-local `.mcp.json` still points at the same repo-root read-only MCP server
-- the copied `.claude/commands/openvibecoding-proof.md` playbook routes you back to
+- the copied `.claude/commands/agentcoder-proof.md` playbook routes you back to
   the same proof-first surfaces instead of inventing a new hosted/plugin story
 - the result is still described as local/project adoption, not as a published
   Claude Code marketplace listing

@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from openvibecoding_orch.temporal import workflows
+from agentcoder_orch.temporal import workflows
 
 
 def test_temporal_workflows_fallback_activity_raises() -> None:
@@ -13,13 +13,13 @@ def test_temporal_workflows_fallback_activity_raises() -> None:
         workflow_id="wf-1",
     )
 
-    if hasattr(workflows.OpenVibeCodingRunWorkflow, "run"):
+    if hasattr(workflows.AgentcoderRunWorkflow, "run"):
         pytest.skip("temporalio installed path covered elsewhere")
 
     with pytest.raises(RuntimeError, match="temporalio not installed"):
         asyncio.run(workflows.run_contract_activity(request))
 
-    assert workflows.OpenVibeCodingRunWorkflow is not None
+    assert workflows.AgentcoderRunWorkflow is not None
 
 
 def test_temporal_workflows_activity_and_workflow_paths(monkeypatch, tmp_path):
@@ -50,7 +50,7 @@ def test_temporal_workflows_activity_and_workflow_paths(monkeypatch, tmp_path):
 
     monkeypatch.setattr(workflows.workflow, "execute_activity", _fake_execute_activity)
 
-    wf = workflows.OpenVibeCodingRunWorkflow()
+    wf = workflows.AgentcoderRunWorkflow()
     workflow_result = asyncio.run(wf.run(request))
     assert workflow_result == {"run_id": "run-from-activity"}
 
@@ -61,7 +61,7 @@ def test_temporal_workflows_reload_activity_and_workflow_paths(monkeypatch, tmp_
     import sys
     import types
 
-    from openvibecoding_orch.temporal import workflows as workflows_module
+    from agentcoder_orch.temporal import workflows as workflows_module
 
     class _FakeActivity:
         @staticmethod
@@ -107,18 +107,18 @@ def test_temporal_workflows_reload_activity_and_workflow_paths(monkeypatch, tmp_
         workflow_id="wf-activity",
     )
 
-    monkeypatch.delenv("OPENVIBECODING_TEMPORAL_ACTIVITY", raising=False)
-    monkeypatch.delenv("OPENVIBECODING_TEMPORAL_WORKFLOW", raising=False)
-    monkeypatch.delenv("OPENVIBECODING_TEMPORAL_WORKFLOW_ID", raising=False)
+    monkeypatch.delenv("AGENTCODER_TEMPORAL_ACTIVITY", raising=False)
+    monkeypatch.delenv("AGENTCODER_TEMPORAL_WORKFLOW", raising=False)
+    monkeypatch.delenv("AGENTCODER_TEMPORAL_WORKFLOW_ID", raising=False)
 
     result = asyncio.run(reloaded.run_contract_activity(request))
     assert result["run_id"] == "run_from_activity"
     # Activity execution must not leak temporal flags to outer process env.
-    assert "OPENVIBECODING_TEMPORAL_ACTIVITY" not in os.environ
-    assert "OPENVIBECODING_TEMPORAL_WORKFLOW" not in os.environ
-    assert "OPENVIBECODING_TEMPORAL_WORKFLOW_ID" not in os.environ
+    assert "AGENTCODER_TEMPORAL_ACTIVITY" not in os.environ
+    assert "AGENTCODER_TEMPORAL_WORKFLOW" not in os.environ
+    assert "AGENTCODER_TEMPORAL_WORKFLOW_ID" not in os.environ
 
-    monkeypatch.setenv("OPENVIBECODING_TEMPORAL_ACTIVITY_TIMEOUT", "10")
-    workflow_result = asyncio.run(reloaded.OpenVibeCodingRunWorkflow().run(request))
+    monkeypatch.setenv("AGENTCODER_TEMPORAL_ACTIVITY_TIMEOUT", "10")
+    workflow_result = asyncio.run(reloaded.AgentcoderRunWorkflow().run(request))
     assert workflow_result["run_id"] == "run_from_activity"
     assert _FakeWorkflow.captured["timeout_sec"] == 60

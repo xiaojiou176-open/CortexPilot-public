@@ -6,12 +6,12 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.contract.validator import ContractValidator
-from openvibecoding_orch.observability.codex_event_parser import parse_codex_event_line
-from openvibecoding_orch.observability.tracer import trace_span
-from openvibecoding_orch.runners import common as runner_common
-from openvibecoding_orch.store.run_store import RunStore
-from openvibecoding_orch.transport.codex_profile_pool import pick_profile
+from agentcoder_orch.contract.validator import ContractValidator
+from agentcoder_orch.observability.codex_event_parser import parse_codex_event_line
+from agentcoder_orch.observability.tracer import trace_span
+from agentcoder_orch.runners import common as runner_common
+from agentcoder_orch.store.run_store import RunStore
+from agentcoder_orch.transport.codex_profile_pool import pick_profile
 
 
 def _is_task_result(payload: dict[str, Any]) -> bool:
@@ -75,26 +75,26 @@ def _codex_flags(contract: dict[str, Any]) -> list[str]:
 
 
 def _resolve_profile() -> str | None:
-    profile = os.getenv("OPENVIBECODING_CODEX_PROFILE", "").strip()
+    profile = os.getenv("AGENTCODER_CODEX_PROFILE", "").strip()
     if profile:
         return profile
     return pick_profile()
 
 
 def _resolve_model() -> str | None:
-    model = os.getenv("OPENVIBECODING_CODEX_MODEL", "").strip()
+    model = os.getenv("AGENTCODER_CODEX_MODEL", "").strip()
     if model:
         return model
     return None
 
 
 def _use_output_schema() -> bool:
-    raw = os.getenv("OPENVIBECODING_CODEX_USE_OUTPUT_SCHEMA", "").strip().lower()
+    raw = os.getenv("AGENTCODER_CODEX_USE_OUTPUT_SCHEMA", "").strip().lower()
     return raw in {"1", "true", "yes", "on"}
 
 
 def _exec_timeout_sec() -> int:
-    raw = os.getenv("OPENVIBECODING_CODEX_EXEC_TIMEOUT_SEC", "300").strip()
+    raw = os.getenv("AGENTCODER_CODEX_EXEC_TIMEOUT_SEC", "300").strip()
     try:
         value = int(raw)
     except ValueError:
@@ -175,8 +175,8 @@ class CodexRunner:
         instruction = runner_common.extract_instruction(contract, worktree_path)
         if not instruction:
             return runner_common.failure_result(contract, "missing instruction")
-        mcp_only = os.getenv("OPENVIBECODING_MCP_ONLY", "1").strip().lower() in {"1", "true", "yes"}
-        allow_codex = os.getenv("OPENVIBECODING_ALLOW_CODEX_EXEC", "").strip().lower() in {"1", "true", "yes"}
+        mcp_only = os.getenv("AGENTCODER_MCP_ONLY", "1").strip().lower() in {"1", "true", "yes"}
+        allow_codex = os.getenv("AGENTCODER_ALLOW_CODEX_EXEC", "").strip().lower() in {"1", "true", "yes"}
         if mcp_only and not mock_mode and not allow_codex:
             return runner_common.failure_result(contract, "mcp-only enforced: codex exec blocked")
 
@@ -261,7 +261,7 @@ class CodexRunner:
                     "run_id": run_id,
                     "meta": {
                         "schema_path": str(schema_path),
-                        "env": "OPENVIBECODING_CODEX_USE_OUTPUT_SCHEMA",
+                        "env": "AGENTCODER_CODEX_USE_OUTPUT_SCHEMA",
                     },
                 },
             )
@@ -316,7 +316,7 @@ class CodexRunner:
         transcript_lines: list[str] = []
         thread_id: str | None = None
         session_id: str | None = None
-        codex_version = os.getenv("OPENVIBECODING_CODEX_VERSION", "").strip() or None
+        codex_version = os.getenv("AGENTCODER_CODEX_VERSION", "").strip() or None
         for raw_line in (stdout_text or "").splitlines():
             line = raw_line.rstrip("\n")
             if not line.strip():

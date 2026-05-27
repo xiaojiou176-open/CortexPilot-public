@@ -7,8 +7,8 @@ import DashboardHomeStorySections from "../components/DashboardHomeStorySections
 import { fetchRuns, fetchWorkflows } from "../lib/api";
 import { safeLoad } from "../lib/serverPageData";
 import { formatDashboardDateTime, statusLabel } from "../lib/statusPresentation";
-import { getUiCopy } from "@openvibecoding/frontend-shared/uiCopy";
-import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@openvibecoding/frontend-shared/uiLocale";
+import { getUiCopy } from "@agentcoder/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@agentcoder/frontend-shared/uiLocale";
 
 const CJK_TEXT_RE = /[\u3400-\u9fff]/;
 

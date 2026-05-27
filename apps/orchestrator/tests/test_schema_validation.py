@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from openvibecoding_orch.contract.validator import ContractValidator, resolve_agent_registry_path
+from agentcoder_orch.contract.validator import ContractValidator, resolve_agent_registry_path
 
 
 def _output_schema_artifacts(role: str = "worker") -> list[dict]:
@@ -32,7 +32,7 @@ def _valid_contract() -> dict:
         "assigned_agent": {"role": "WORKER", "agent_id": "agent-1", "codex_thread_id": ""},
         "inputs": {"spec": "test", "artifacts": _output_schema_artifacts("worker")},
         "required_outputs": [{"name": "out.txt", "type": "file", "acceptance": "ok"}],
-        "allowed_paths": ["openvibecoding"],
+        "allowed_paths": ["agentcoder"],
         "forbidden_actions": ["rm -rf"],
         "acceptance_tests": [{"name": "noop", "cmd": "echo hello", "must_pass": True}],
         "tool_permissions": {
@@ -372,8 +372,8 @@ def test_new_operator_report_and_task_pack_schemas_pass() -> None:
     control_plane_runtime_policy = {
         "version": "v1",
         "product_identity": {
-            "title": "OpenVibeCoding L0 Command Tower",
-            "one_sentence": "OpenVibeCoding is the command tower for AI engineering.",
+            "title": "Agentcoder L0 Command Tower",
+            "one_sentence": "Agentcoder is the command tower for AI engineering.",
             "primary_execution_bases": ["Codex", "Claude Code"],
             "reference_only_systems": ["OpenClaw"],
         },
@@ -472,7 +472,7 @@ def test_new_operator_report_and_task_pack_schemas_pass() -> None:
     workflow_case = {
         "workflow_id": "wf-alpha",
         "namespace": "default",
-        "task_queue": "openvibecoding-orch",
+        "task_queue": "agentcoder-orch",
         "status": "RUNNING",
         "objective": "Ship workflow case persistence",
         "owner_pm": "pm-owner",
@@ -499,5 +499,5 @@ def test_resolve_agent_registry_path_prefers_policies(tmp_path: Path, monkeypatc
     override = repo_root / "custom" / "agents.json"
     override.parent.mkdir(parents=True, exist_ok=True)
     override.write_text("{}", encoding="utf-8")
-    monkeypatch.setenv("OPENVIBECODING_AGENT_REGISTRY", "custom/agents.json")
+    monkeypatch.setenv("AGENTCODER_AGENT_REGISTRY", "custom/agents.json")
     assert resolve_agent_registry_path(repo_root) == override

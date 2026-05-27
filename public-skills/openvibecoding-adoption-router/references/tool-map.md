@@ -1,6 +1,6 @@
-# OpenVibeCoding MCP Tool Map
+# Agentcoder MCP Tool Map
 
-These are the stable read-only tools exposed by the published OpenVibeCoding MCP.
+These are the stable read-only tools exposed by the published Agentcoder MCP.
 
 ## Safe-first tools
 

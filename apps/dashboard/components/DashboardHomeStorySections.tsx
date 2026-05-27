@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@openvibecoding/frontend-shared/uiCopy";
+import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@agentcoder/frontend-shared/uiCopy";
 import { resolveDashboardPublicDocsHref } from "../lib/env";
 import { Badge } from "./ui/badge";
 import { Button, type ButtonVariant } from "./ui/button";
@@ -38,7 +38,7 @@ export default function DashboardHomeStorySections({
           eyebrow: "值班入口",
           heroTitle: "AI 工程开放指挥塔",
           heroSubtitle:
-            "别再盯着模型跑到哪一步。OpenVibeCoding 把规划、派工、追踪、续跑和验真收进一条真正能值班的操作链。",
+            "别再盯着模型跑到哪一步。Agentcoder 把规划、派工、追踪、续跑和验真收进一条真正能值班的操作链。",
           primaryAction: hasRunHistory ? "打开指挥塔" : homePhase2Copy.startFirstTaskLabel,
           secondaryAction: hasRunHistory ? homePhase2Copy.startNewTaskLabel : homePhase2Copy.viewLatestRunsLabel,
           deskTitle: "第一排操作台",
@@ -60,7 +60,7 @@ export default function DashboardHomeStorySections({
           guidesMeta: ["方法层", "模板", "生态"],
         }
       : {
-          eyebrow: "OpenVibeCoding / command tower entry",
+          eyebrow: "Agentcoder / command tower entry",
           heroTitle: homePhase2Copy.heroTitle,
           heroSubtitle: homePhase2Copy.heroSubtitle,
           primaryAction: hasRunHistory ? "Open command tower" : homePhase2Copy.startFirstTaskLabel,

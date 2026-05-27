@@ -1,4 +1,4 @@
-# Project: OpenVibeCoding (Codex-governed)
+# Project: Agentcoder (Codex-governed)
 
 ## Red lines
 - File isolation is absolute: no two workers touch the same file.

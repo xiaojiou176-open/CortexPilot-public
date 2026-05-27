@@ -9,25 +9,25 @@ log_ci_event() {
   if [[ -z "$meta_json" ]]; then
     meta_json='{}'
   fi
-  local default_lane_path="$root_dir/.runtime-cache/logs/ci/openvibecoding-ci.jsonl"
-  if [[ "${OPENVIBECODING_LOG_LANE:-ci}" == "governance" || "${OPENVIBECODING_LOG_DOMAIN:-ci}" == "governance" ]]; then
-    default_lane_path="$root_dir/.runtime-cache/logs/governance/openvibecoding-governance.jsonl"
+  local default_lane_path="$root_dir/.runtime-cache/logs/ci/agentcoder-ci.jsonl"
+  if [[ "${AGENTCODER_LOG_LANE:-ci}" == "governance" || "${AGENTCODER_LOG_DOMAIN:-ci}" == "governance" ]]; then
+    default_lane_path="$root_dir/.runtime-cache/logs/governance/agentcoder-governance.jsonl"
   fi
-  local log_path="${OPENVIBECODING_CI_LOG_EVENT_PATH:-$default_lane_path}"
-  local run_id="${OPENVIBECODING_LOG_RUN_ID:-}"
-  local request_id="${OPENVIBECODING_LOG_REQUEST_ID:-}"
-  local trace_id="${OPENVIBECODING_LOG_TRACE_ID:-}"
-  local session_id="${OPENVIBECODING_LOG_SESSION_ID:-}"
-  local test_id="${OPENVIBECODING_LOG_TEST_ID:-}"
-  local artifact_kind="${OPENVIBECODING_LOG_ARTIFACT_KIND:-}"
-  local domain="${OPENVIBECODING_LOG_DOMAIN:-ci}"
-  local surface="${OPENVIBECODING_LOG_SURFACE:-ci}"
-  local service="${OPENVIBECODING_LOG_SERVICE:-openvibecoding-ci}"
-  local lane="${OPENVIBECODING_LOG_LANE:-ci}"
-  local correlation_kind="${OPENVIBECODING_LOG_CORRELATION_KIND:-}"
+  local log_path="${AGENTCODER_CI_LOG_EVENT_PATH:-$default_lane_path}"
+  local run_id="${AGENTCODER_LOG_RUN_ID:-}"
+  local request_id="${AGENTCODER_LOG_REQUEST_ID:-}"
+  local trace_id="${AGENTCODER_LOG_TRACE_ID:-}"
+  local session_id="${AGENTCODER_LOG_SESSION_ID:-}"
+  local test_id="${AGENTCODER_LOG_TEST_ID:-}"
+  local artifact_kind="${AGENTCODER_LOG_ARTIFACT_KIND:-}"
+  local domain="${AGENTCODER_LOG_DOMAIN:-ci}"
+  local surface="${AGENTCODER_LOG_SURFACE:-ci}"
+  local service="${AGENTCODER_LOG_SERVICE:-agentcoder-ci}"
+  local lane="${AGENTCODER_LOG_LANE:-ci}"
+  local correlation_kind="${AGENTCODER_LOG_CORRELATION_KIND:-}"
 
   mkdir -p "$(dirname "$log_path")"
-  python3 - "$log_path" "$component" "$event" "$level" "$meta_json" "${OPENVIBECODING_LOG_SCHEMA_VERSION:-log_event.v2}" "$run_id" "$request_id" "$trace_id" "$session_id" "$test_id" "$artifact_kind" "$domain" "$surface" "$service" "$lane" "$correlation_kind" <<'PY'
+  python3 - "$log_path" "$component" "$event" "$level" "$meta_json" "${AGENTCODER_LOG_SCHEMA_VERSION:-log_event.v2}" "$run_id" "$request_id" "$trace_id" "$session_id" "$test_id" "$artifact_kind" "$domain" "$surface" "$service" "$lane" "$correlation_kind" <<'PY'
 import json
 import sys
 from datetime import datetime, timezone
@@ -76,7 +76,7 @@ payload = {
     "level": level,
     "domain": domain or "ci",
     "surface": surface or "ci",
-    "service": service or "openvibecoding-ci",
+    "service": service or "agentcoder-ci",
     "component": component,
     "event": event,
     "lane": lane or "ci",
@@ -94,6 +94,6 @@ payload = {
 }
 with path.open("a", encoding="utf-8") as handle:
     handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
-print(f"OPENVIBECODING_LOG_EVENT {json.dumps(payload, ensure_ascii=False)}")
+print(f"AGENTCODER_LOG_EVENT {json.dumps(payload, ensure_ascii=False)}")
 PY
 }

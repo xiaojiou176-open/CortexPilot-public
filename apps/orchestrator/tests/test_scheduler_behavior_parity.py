@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from openvibecoding_orch.scheduler import scheduler as scheduler_module
-from openvibecoding_orch.scheduler import task_build_pipeline
+from agentcoder_orch.scheduler import scheduler as scheduler_module
+from agentcoder_orch.scheduler import task_build_pipeline
 
 
 def _base_args(run_dir: Path, status: str) -> dict:

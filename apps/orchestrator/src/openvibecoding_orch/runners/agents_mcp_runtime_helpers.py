@@ -5,8 +5,8 @@ import os
 from pathlib import Path
 from typing import Any, Callable
 
-from openvibecoding_orch.runners import agents_events, agents_payload, mcp_streaming
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.runners import agents_events, agents_payload, mcp_streaming
+from agentcoder_orch.store.run_store import RunStore
 
 
 class MCPMessageArchive:
@@ -27,7 +27,7 @@ class MCPMessageArchive:
         try:
             self._sample_every = max(
                 1,
-                int(os.getenv("OPENVIBECODING_MCP_EVENT_ROUTED_SAMPLE_EVERY", "20")),
+                int(os.getenv("AGENTCODER_MCP_EVENT_ROUTED_SAMPLE_EVERY", "20")),
             )
         except ValueError:
             self._sample_every = 20

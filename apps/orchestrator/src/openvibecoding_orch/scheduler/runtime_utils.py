@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.store.run_store import RunStore
 
 
 def git(args: list[str], cwd: Path) -> str:
@@ -129,8 +129,8 @@ def llm_params_snapshot(contract: dict[str, Any], runner_name: str, codex_versio
         tool_permissions = {}
     return {
         "runner": runner_name,
-        "model": os.getenv("OPENVIBECODING_CODEX_MODEL", ""),
-        "profile": os.getenv("OPENVIBECODING_CODEX_PROFILE", ""),
+        "model": os.getenv("AGENTCODER_CODEX_MODEL", ""),
+        "profile": os.getenv("AGENTCODER_CODEX_PROFILE", ""),
         "codex_version": codex_version or "",
         "filesystem": tool_permissions.get("filesystem", ""),
         "shell": tool_permissions.get("shell", ""),

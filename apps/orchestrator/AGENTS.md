@@ -9,10 +9,10 @@ Read root `AGENTS.md` first.
 
 ## Key Paths
 
-- `src/openvibecoding_orch/config.py`
-- `src/openvibecoding_orch/planning/`
-- `src/openvibecoding_orch/gates/`
-- `src/openvibecoding_orch/store/`
+- `src/agentcoder_orch/config.py`
+- `src/agentcoder_orch/planning/`
+- `src/agentcoder_orch/gates/`
+- `src/agentcoder_orch/store/`
 
 ## Commands
 

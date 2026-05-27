@@ -4,8 +4,8 @@ import importlib
 from pathlib import Path
 from typing import Any, Callable
 
-from openvibecoding_orch.runners.agents_runner import AgentsRunner
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.runners.agents_runner import AgentsRunner
+from agentcoder_orch.store.run_store import RunStore
 
 
 _LANGGRAPH_PROVIDER = "langgraph"

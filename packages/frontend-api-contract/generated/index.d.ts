@@ -1,16 +1,16 @@
 // GENERATED FILE. DO NOT EDIT.
-// Source: docs/api/openapi.openvibecoding.json
+// Source: docs/api/openapi.agentcoder.json
 
 export declare const FRONTEND_API_CONTRACT: {
   readonly defaultApiBase: "http://127.0.0.1:10000";
   readonly envKeys: readonly [
-    "NEXT_PUBLIC_OPENVIBECODING_API_BASE", "NEXT_PUBLIC_OPENVIBECODING_API_BASE", "VITE_OPENVIBECODING_API_BASE", "VITE_OPENVIBECODING_API_BASE", "OPENVIBECODING_API_BASE", "OPENVIBECODING_API_BASE"
+    "NEXT_PUBLIC_AGENTCODER_API_BASE", "NEXT_PUBLIC_AGENTCODER_API_BASE", "VITE_AGENTCODER_API_BASE", "VITE_AGENTCODER_API_BASE", "AGENTCODER_API_BASE", "AGENTCODER_API_BASE"
   ];
   readonly headers: {
     readonly requestId: "x-request-id";
     readonly traceId: "x-trace-id";
     readonly traceparent: "traceparent";
-    readonly runId: "x-openvibecoding-run-id";
+    readonly runId: "x-agentcoder-run-id";
   };
   readonly network: {
     readonly fetchCredentials: "include";
@@ -55,7 +55,7 @@ export declare const FRONTEND_API_CONTRACT: {
     readonly runtimeBindingAuthorityScopes: readonly ["contract-derived-read-model"];
     readonly runtimeBindingSourceRunners: readonly ["runtime_options.runner", "role_contract.runtime_binding.runner", "unresolved"];
     readonly runtimeBindingSourceProviders: readonly ["runtime_options.provider", "role_contract.runtime_binding.provider", "unresolved"];
-    readonly runtimeBindingSourceModels: readonly ["env.OPENVIBECODING_CODEX_MODEL", "env.OPENVIBECODING_PROVIDER_MODEL", "role_contract.runtime_binding.model", "unresolved"];
+    readonly runtimeBindingSourceModels: readonly ["env.AGENTCODER_CODEX_MODEL", "env.AGENTCODER_PROVIDER_MODEL", "role_contract.runtime_binding.model", "unresolved"];
     readonly roleBindingAuthorities: readonly ["contract-derived-read-model"];
     readonly roleBindingSources: readonly ["persisted from contract", "derived from compiled role_contract and runtime inputs; not an execution authority surface"];
     readonly roleConfigAuthorities: readonly ["repo-owned-role-config"];
@@ -91,7 +91,7 @@ export type RuntimeBindingStatus = "unresolved" | "partially-resolved" | "contra
 export type RuntimeBindingAuthorityScope = "contract-derived-read-model";
 export type RuntimeBindingSourceRunner = "runtime_options.runner" | "role_contract.runtime_binding.runner" | "unresolved";
 export type RuntimeBindingSourceProvider = "runtime_options.provider" | "role_contract.runtime_binding.provider" | "unresolved";
-export type RuntimeBindingSourceModel = "env.OPENVIBECODING_CODEX_MODEL" | "env.OPENVIBECODING_PROVIDER_MODEL" | "role_contract.runtime_binding.model" | "unresolved";
+export type RuntimeBindingSourceModel = "env.AGENTCODER_CODEX_MODEL" | "env.AGENTCODER_PROVIDER_MODEL" | "role_contract.runtime_binding.model" | "unresolved";
 export type RoleBindingReadModelAuthority = "contract-derived-read-model";
 export type RoleBindingReadModelSource = "persisted from contract" | "derived from compiled role_contract and runtime inputs; not an execution authority surface";
 export type RoleConfigAuthority = "repo-owned-role-config";

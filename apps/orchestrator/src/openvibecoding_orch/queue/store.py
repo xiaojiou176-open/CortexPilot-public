@@ -42,7 +42,7 @@ def _coerce_priority(raw: Any) -> int:
 
 class QueueStore:
     def __init__(self, queue_path: Path | None = None, *, ensure_storage: bool = True) -> None:
-        runtime_root = Path(os.getenv("OPENVIBECODING_RUNTIME_ROOT", ".runtime-cache/openvibecoding"))
+        runtime_root = Path(os.getenv("AGENTCODER_RUNTIME_ROOT", ".runtime-cache/agentcoder"))
         self._queue_path = queue_path or (runtime_root / "queue.jsonl")
         if ensure_storage:
             self._queue_path.parent.mkdir(parents=True, exist_ok=True)

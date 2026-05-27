@@ -1,6 +1,6 @@
 # Infrastructure
 
-Infrastructure and local runtime support for the OpenVibeCoding repository.
+Infrastructure and local runtime support for the Agentcoder repository.
 
 ## Layout
 

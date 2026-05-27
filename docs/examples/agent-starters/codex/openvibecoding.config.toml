@@ -1,10 +1,10 @@
-# OpenVibeCoding read-only MCP starter for Codex.
+# Agentcoder read-only MCP starter for Codex.
 # Place under ~/.codex/config.toml or .codex/config.toml and adjust paths as needed.
 
-[mcp_servers.openvibecoding_readonly]
+[mcp_servers.agentcoder_readonly]
 command = "bash"
-args = ["/absolute/path/to/OpenVibeCoding/scripts/run_openvibecoding_readonly_mcp.sh"]
-cwd = "/absolute/path/to/OpenVibeCoding"
+args = ["/absolute/path/to/Agentcoder/scripts/run_agentcoder_readonly_mcp.sh"]
+cwd = "/absolute/path/to/Agentcoder"
 startup_timeout_sec = 20
 tool_timeout_sec = 60
 enabled = true

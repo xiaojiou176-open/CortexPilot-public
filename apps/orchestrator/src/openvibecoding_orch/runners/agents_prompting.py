@@ -44,7 +44,7 @@ def resolve_roles_root(worktree_path: Path) -> Path | None:
 
 
 def _skip_role_prompt_requested() -> bool:
-    raw = os.getenv("OPENVIBECODING_SKIP_ROLE_PROMPT", "").strip().lower()
+    raw = os.getenv("AGENTCODER_SKIP_ROLE_PROMPT", "").strip().lower()
     return raw in {"1", "true", "yes"}
 
 
@@ -198,7 +198,7 @@ def decorate_instruction(
     if is_fixed_json_template(instruction):
         return instruction
     role_prompt = load_role_prompt(role, worktree_path)
-    inline_output_schema = os.getenv("OPENVIBECODING_INLINE_OUTPUT_SCHEMA", "true").strip().lower() in {
+    inline_output_schema = os.getenv("AGENTCODER_INLINE_OUTPUT_SCHEMA", "true").strip().lower() in {
         "1",
         "true",
         "yes",
@@ -242,7 +242,7 @@ def build_codex_payload(contract: dict[str, Any], instruction: str, worktree_pat
             payload["approval-policy"] = "never"
         elif shell in {"untrusted", "on-request", "never"}:
             payload["approval-policy"] = shell
-    model = os.getenv("OPENVIBECODING_CODEX_MODEL", "").strip()
+    model = os.getenv("AGENTCODER_CODEX_MODEL", "").strip()
     if model:
         payload["model"] = model
     return payload
@@ -255,7 +255,7 @@ def agent_instructions(
     force_exact_output: bool,
     output_schema_name: str,
 ) -> str:
-    timebox_raw = os.getenv("OPENVIBECODING_CODEX_TIMEBOX_SEC", "").strip()
+    timebox_raw = os.getenv("AGENTCODER_CODEX_TIMEBOX_SEC", "").strip()
     timebox_note = ""
     if timebox_raw:
         timebox_note = (

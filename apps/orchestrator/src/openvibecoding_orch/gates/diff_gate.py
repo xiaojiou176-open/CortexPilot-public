@@ -6,8 +6,8 @@ import subprocess
 from pathlib import Path
 from typing import Iterable
 
-from openvibecoding_orch.gates.path_match import is_allowed_path, normalize_path
-from openvibecoding_orch.observability.tracer import trace_span
+from agentcoder_orch.gates.path_match import is_allowed_path, normalize_path
+from agentcoder_orch.observability.tracer import trace_span
 
 
 def _git(cmd: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
@@ -23,10 +23,10 @@ def _is_allowed(path: str, allowed_paths: Iterable[str]) -> bool:
 
 
 def _default_protected_paths() -> list[str]:
-    raw = os.getenv("OPENVIBECODING_PROTECTED_PATHS", "")
+    raw = os.getenv("AGENTCODER_PROTECTED_PATHS", "")
     if raw.strip():
         return [item.strip() for item in raw.split(",") if item.strip()]
-    return [".git/", ".gitignore", "pytest.ini", ".runtime-cache/openvibecoding/", ".env*"]
+    return [".git/", ".gitignore", "pytest.ini", ".runtime-cache/agentcoder/", ".env*"]
 
 
 def _is_internal_memory_file(path: str) -> bool:

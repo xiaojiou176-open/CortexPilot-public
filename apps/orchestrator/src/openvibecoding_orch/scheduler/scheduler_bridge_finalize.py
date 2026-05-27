@@ -7,8 +7,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.contract.validator import ContractValidator
-from openvibecoding_orch.scheduler import (
+from agentcoder_orch.contract.validator import ContractValidator
+from agentcoder_orch.scheduler import (
     artifact_refs,
     completion_governance,
     core_helpers,
@@ -17,12 +17,12 @@ from openvibecoding_orch.scheduler import (
     report_builders,
     test_pipeline,
 )
-from openvibecoding_orch.scheduler.runtime_utils import schema_root, write_manifest
-from openvibecoding_orch.queue.store import QueueStore
-from openvibecoding_orch.store.run_store import RunStore
-from openvibecoding_orch.temporal.manager import notify_run_completed
-from openvibecoding_orch.worktrees import manager as worktree_manager
-from openvibecoding_orch.locks.locker import release_lock
+from agentcoder_orch.scheduler.runtime_utils import schema_root, write_manifest
+from agentcoder_orch.queue.store import QueueStore
+from agentcoder_orch.store.run_store import RunStore
+from agentcoder_orch.temporal.manager import notify_run_completed
+from agentcoder_orch.worktrees import manager as worktree_manager
+from agentcoder_orch.locks.locker import release_lock
 
 try:
     from tooling.search_pipeline import write_evidence_bundle

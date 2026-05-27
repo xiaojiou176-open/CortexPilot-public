@@ -6,8 +6,8 @@ import os
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.contract.validator import ContractValidator, _resolve_ref_fragment, resolve_agent_registry_path
-from openvibecoding_orch.contract.role_config_registry import build_runtime_capability_summary
+from agentcoder_orch.contract.validator import ContractValidator, _resolve_ref_fragment, resolve_agent_registry_path
+from agentcoder_orch.contract.role_config_registry import build_runtime_capability_summary
 
 _FORBIDDEN_POLICY_FILE = "policies/forbidden_actions.json"
 _SKILLS_BUNDLE_REGISTRY_FILE = "policies/skills_bundle_registry.json"
@@ -266,8 +266,8 @@ def _runtime_binding(contract: dict[str, Any], role_defaults: dict[str, Any] | N
     runner = str(runtime_options.get("runner") or "").strip() or _normalize_optional_ref(role_runtime_binding.get("runner"))
     provider = str(runtime_options.get("provider") or "").strip() or _normalize_optional_ref(role_runtime_binding.get("provider"))
     model = (
-        os.getenv("OPENVIBECODING_CODEX_MODEL", "").strip()
-        or os.getenv("OPENVIBECODING_PROVIDER_MODEL", "").strip()
+        os.getenv("AGENTCODER_CODEX_MODEL", "").strip()
+        or os.getenv("AGENTCODER_PROVIDER_MODEL", "").strip()
         or _normalize_optional_ref(role_runtime_binding.get("model"))
         or None
     )
@@ -351,11 +351,11 @@ def _runtime_binding_sources(contract: dict[str, Any], runtime_binding: dict[str
         "provider": "runtime_options.provider"
         if provider
         else ("role_contract.runtime_binding.provider" if role_runtime_binding.get("provider") else "unresolved"),
-        "model": "env.OPENVIBECODING_CODEX_MODEL"
-        if os.getenv("OPENVIBECODING_CODEX_MODEL", "").strip()
+        "model": "env.AGENTCODER_CODEX_MODEL"
+        if os.getenv("AGENTCODER_CODEX_MODEL", "").strip()
         else (
-            "env.OPENVIBECODING_PROVIDER_MODEL"
-            if os.getenv("OPENVIBECODING_PROVIDER_MODEL", "").strip()
+            "env.AGENTCODER_PROVIDER_MODEL"
+            if os.getenv("AGENTCODER_PROVIDER_MODEL", "").strip()
             else ("role_contract.runtime_binding.model" if model else "unresolved")
         ),
     }

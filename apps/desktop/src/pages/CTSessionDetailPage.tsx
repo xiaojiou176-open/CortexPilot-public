@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { UiLocale } from "@openvibecoding/frontend-shared/uiCopy";
-import { detectPreferredUiLocale } from "@openvibecoding/frontend-shared/uiLocale";
+import type { UiLocale } from "@agentcoder/frontend-shared/uiCopy";
+import { detectPreferredUiLocale } from "@agentcoder/frontend-shared/uiLocale";
 import type { EventRecord, JsonValue } from "../lib/types";
 import {
   fetchPmSession,

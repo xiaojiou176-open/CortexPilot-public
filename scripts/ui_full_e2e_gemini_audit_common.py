@@ -14,9 +14,9 @@ RUNTIME_LOGS = ROOT / ".runtime-cache" / "logs" / "runtime"
 PAGE_SCREEN_DIR = "pages"
 INTERACTION_SCREEN_DIR = "interactions"
 
-PROJECT_CONTEXT = """你正在审计 OpenVibeCoding Web Dashboard。
+PROJECT_CONTEXT = """你正在审计 Agentcoder Web Dashboard。
 
-OpenVibeCoding 是一个“AI 管家/指挥塔”系统，核心目标是：
+Agentcoder 是一个“AI 管家/指挥塔”系统，核心目标是：
 1. 让用户通过 PM 对话驱动任务编排（Discover/Clarify/Execute/Verify）。
 2. 在 Command Tower 里实时监控会话、风险和执行链路。
 3. 支持高风险操作（批准、拒绝、回滚、回放）且必须可审计。
@@ -30,7 +30,7 @@ OpenVibeCoding 是一个“AI 管家/指挥塔”系统，核心目标是：
 请严格基于给你的截图和交互上下文判断，不要编造不存在的信息。
 """
 
-PAGE_ANALYSIS_PROMPT = """你是 OpenVibeCoding UI 审计官。请分析单页截图并输出 JSON（不要附加多余文本）。
+PAGE_ANALYSIS_PROMPT = """你是 Agentcoder UI 审计官。请分析单页截图并输出 JSON（不要附加多余文本）。
 
 输出 JSON Schema:
 {
@@ -66,7 +66,7 @@ PAGE_ANALYSIS_PROMPT = """你是 OpenVibeCoding UI 审计官。请分析单页�
 5. 对于“视觉偏好、信息密度、术语风格、可进一步优化建议”这类不阻断任务的项，请标记为 minor，并且页面 verdict 仍应为 pass。
 """
 
-INTERACTION_ANALYSIS_PROMPT = """你是 OpenVibeCoding 交互验收官。你会收到一次按钮交互的前后截图与运行观察数据。请输出 JSON（不要附加多余文本）。
+INTERACTION_ANALYSIS_PROMPT = """你是 Agentcoder 交互验收官。你会收到一次按钮交互的前后截图与运行观察数据。请输出 JSON（不要附加多余文本）。
 
 输出 JSON Schema:
 {

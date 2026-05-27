@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.scheduler import core_helpers
+from agentcoder_orch.scheduler import core_helpers
 
 
 def artifact_ref(name: str, rel_path: str, content: str, media_type: str = "text/plain") -> dict[str, Any]:

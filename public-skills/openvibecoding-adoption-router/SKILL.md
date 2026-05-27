@@ -1,21 +1,21 @@
 ---
-name: openvibecoding-adoption-router
-description: Teach the agent how to connect the current live public package for the OpenVibeCoding read-only MCP, choose the right public lane, and use the stable read-only tools without overclaiming hosted or write-capable support.
+name: agentcoder-adoption-router
+description: Teach the agent how to connect the current live public package for the Agentcoder read-only MCP, choose the right public lane, and use the stable read-only tools without overclaiming hosted or write-capable support.
 triggers:
-  - openvibecoding
-  - openvibecoding setup
-  - openvibecoding mcp
-  - openvibecoding proof
-  - openvibecoding workflow
+  - agentcoder
+  - agentcoder setup
+  - agentcoder mcp
+  - agentcoder proof
+  - agentcoder workflow
 ---
 
-# OpenVibeCoding Adoption Router
+# Agentcoder Adoption Router
 
-Use this skill when the user needs the shortest truthful path into OpenVibeCoding.
+Use this skill when the user needs the shortest truthful path into Agentcoder.
 
 ## What this skill teaches
 
-- how to install the current live public package for the OpenVibeCoding read-only MCP
+- how to install the current live public package for the Agentcoder read-only MCP
 - how to choose the right read-only tool for the current job
 - how to start with one public lane instead of mixing every surface together
 - how to keep the answer inside the current read-only public boundary
@@ -24,9 +24,9 @@ Use this skill when the user needs the shortest truthful path into OpenVibeCodin
 
 Use this skill when the user asks to:
 
-- connect OpenVibeCoding to OpenHands or OpenClaw
+- connect Agentcoder to OpenHands or OpenClaw
 - inspect runs or workflows through the public read-only MCP
-- understand which public OpenVibeCoding lane to choose first
+- understand which public Agentcoder lane to choose first
 - inspect approvals, queue state, proof, compare, or incident summaries without
   mutating anything
 
@@ -67,7 +67,7 @@ Return a short answer with:
 
 ## Guardrails
 
-- Do not describe OpenVibeCoding as a hosted operator product.
+- Do not describe Agentcoder as a hosted operator product.
 - Do not describe the public MCP surface as write-capable.
 - Do not claim a first-party marketplace listing unless that host independently
   confirms it.

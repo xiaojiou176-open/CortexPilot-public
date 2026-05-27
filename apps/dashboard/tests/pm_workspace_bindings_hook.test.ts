@@ -13,8 +13,8 @@ describe("usePersistedWorkspaceBindings", () => {
     const setWorkspacePath = vi.fn();
     const setRepoName = vi.fn();
 
-    window.localStorage.setItem("openvibecoding.pm.workspace", "apps/custom");
-    window.localStorage.setItem("openvibecoding.pm.repo", "custom-repo");
+    window.localStorage.setItem("agentcoder.pm.workspace", "apps/custom");
+    window.localStorage.setItem("agentcoder.pm.repo", "custom-repo");
 
     renderHook(() =>
       usePersistedWorkspaceBindings({
@@ -46,7 +46,7 @@ describe("usePersistedWorkspaceBindings", () => {
 
     await waitFor(() => {
       expect(setWorkspacePath).toHaveBeenCalledWith("apps/dashboard");
-      expect(setRepoName).toHaveBeenCalledWith("openvibecoding");
+      expect(setRepoName).toHaveBeenCalledWith("agentcoder");
     });
   });
 
@@ -72,21 +72,21 @@ describe("usePersistedWorkspaceBindings", () => {
     );
 
     await waitFor(() => {
-      expect(window.localStorage.getItem("openvibecoding.pm.workspace")).toBeNull();
-      expect(window.localStorage.getItem("openvibecoding.pm.repo")).toBeNull();
+      expect(window.localStorage.getItem("agentcoder.pm.workspace")).toBeNull();
+      expect(window.localStorage.getItem("agentcoder.pm.repo")).toBeNull();
     });
 
     rerender({
       workspacePath: " apps/orchestrator ",
-      repoName: " openvibecoding-main ",
+      repoName: " agentcoder-main ",
     });
 
     await waitFor(() => {
-      expect(window.localStorage.getItem("openvibecoding.pm.workspace")).toBe("apps/orchestrator");
-      expect(window.localStorage.getItem("openvibecoding.pm.repo")).toBe("openvibecoding-main");
+      expect(window.localStorage.getItem("agentcoder.pm.workspace")).toBe("apps/orchestrator");
+      expect(window.localStorage.getItem("agentcoder.pm.repo")).toBe("agentcoder-main");
     });
 
-    expect(setItemSpy).toHaveBeenCalledWith("openvibecoding.pm.workspace", "apps/orchestrator");
-    expect(setItemSpy).toHaveBeenCalledWith("openvibecoding.pm.repo", "openvibecoding-main");
+    expect(setItemSpy).toHaveBeenCalledWith("agentcoder.pm.workspace", "apps/orchestrator");
+    expect(setItemSpy).toHaveBeenCalledWith("agentcoder.pm.repo", "agentcoder-main");
   });
 });

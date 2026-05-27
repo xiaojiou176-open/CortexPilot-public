@@ -8,13 +8,13 @@
     "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
-      "@openvibecoding/frontend-shared/uiCopy": [
+      "@agentcoder/frontend-shared/uiCopy": [
         "../../packages/frontend-shared/uiCopy.ts"
       ],
-      "@openvibecoding/frontend-shared/uiLocale": [
+      "@agentcoder/frontend-shared/uiLocale": [
         "../../packages/frontend-shared/uiLocale.ts"
       ],
-      "@openvibecoding/frontend-shared/types": [
+      "@agentcoder/frontend-shared/types": [
         "../../packages/frontend-shared/types.ts"
       ]
     },

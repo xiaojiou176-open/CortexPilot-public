@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { getUiCopy } from "@openvibecoding/frontend-shared/uiCopy";
-import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@openvibecoding/frontend-shared/uiLocale";
+import { getUiCopy } from "@agentcoder/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@agentcoder/frontend-shared/uiLocale";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Badge } from "../../components/ui/badge";
@@ -12,21 +12,21 @@ import ControlPlaneStatusCallout from "../../components/control-plane/ControlPla
 import { fetchCommandTowerOverview, fetchPmSessions } from "../../lib/api";
 import { safeLoad } from "../../lib/serverPageData";
 import type { CommandTowerOverviewPayload, PmSessionSummary } from "../../lib/types";
-import type { UiLocale } from "@openvibecoding/frontend-shared/uiCopy";
+import type { UiLocale } from "@agentcoder/frontend-shared/uiCopy";
 
 export function buildCommandTowerMetadata(locale: UiLocale): Metadata {
   if (locale === "zh-CN") {
     return {
-      title: "指挥塔 | OpenVibeCoding",
+      title: "指挥塔 | Agentcoder",
       description:
-        "从 OpenVibeCoding 指挥塔驾驶舱中监控实时可见性、关联工作流案例、阻塞点和下一步操作。",
+        "从 Agentcoder 指挥塔驾驶舱中监控实时可见性、关联工作流案例、阻塞点和下一步操作。",
     };
   }
 
   return {
-    title: "Command Tower | OpenVibeCoding",
+    title: "Command Tower | Agentcoder",
     description:
-      "Monitor live operator visibility, linked Workflow Cases, blockers, and next operator actions from the OpenVibeCoding command tower cockpit.",
+      "Monitor live operator visibility, linked Workflow Cases, blockers, and next operator actions from the Agentcoder command tower cockpit.",
   };
 }
 

@@ -6,15 +6,15 @@ import os
 from pathlib import Path
 from typing import Any, Awaitable, Callable, TextIO
 
-from openvibecoding_orch.runners import agents_events
-from openvibecoding_orch.runners.provider_resolution import (
+from agentcoder_orch.runners import agents_events
+from agentcoder_orch.runners.provider_resolution import (
     ProviderResolutionError,
     resolve_preferred_api_key,
     resolve_provider_credentials,
     resolve_runtime_provider,
     resolve_runtime_provider_from_env,
 )
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.store.run_store import RunStore
 
 
 _logger = logging.getLogger(__name__)
@@ -88,7 +88,7 @@ async def run_worker_execution(
     probe_mcp_ready: Callable[[Any, list[str]], Awaitable[dict[str, Any]]],
     runtime_provider: str | None = None,
 ) -> Any:
-    class _OpenVibeCodingMCPServerStdio(mcp_server_stdio_cls):
+    class _AgentcoderMCPServerStdio(mcp_server_stdio_cls):
         def __init__(
             self,
             params: Any,
@@ -174,10 +174,10 @@ async def run_worker_execution(
     except ProviderResolutionError as exc:
         raise RuntimeError(str(exc)) from exc
     normalized_provider = _normalize_provider_name(provider)
-    env["OPENVIBECODING_PROVIDER"] = provider
+    env["AGENTCODER_PROVIDER"] = provider
     codex_base_url = resolve_codex_base_url()
     if codex_base_url:
-        env["OPENVIBECODING_PROVIDER_BASE_URL"] = codex_base_url
+        env["AGENTCODER_PROVIDER_BASE_URL"] = codex_base_url
     resolved_api_key = _resolve_preferred_api_key_for_provider(resolve_provider_credentials(env), provider)
     if resolved_api_key:
         if normalized_provider == "gemini":
@@ -187,8 +187,8 @@ async def run_worker_execution(
         elif normalized_provider == "anthropic":
             env.setdefault("ANTHROPIC_API_KEY", resolved_api_key)
         elif normalized_provider in {"equilibrium", "codex_equilibrium"}:
-            env.setdefault("OPENVIBECODING_EQUILIBRIUM_API_KEY", resolved_api_key)
-    server = _OpenVibeCodingMCPServerStdio(
+            env.setdefault("AGENTCODER_EQUILIBRIUM_API_KEY", resolved_api_key)
+    server = _AgentcoderMCPServerStdio(
         params={"command": "codex", "args": args, "env": env},
         client_session_timeout_seconds=resolve_mcp_timeout_seconds(),
         errlog_path=mcp_stderr_path,
@@ -282,7 +282,7 @@ async def run_worker_execution(
             )
             raise RuntimeError("mcp ready probe did not reach ready state")
         agent_kwargs = {
-            "name": "OpenVibeCodingWorker",
+            "name": "AgentcoderWorker",
             "instructions": agent_instructions(
                 task_id,
                 tool_name,

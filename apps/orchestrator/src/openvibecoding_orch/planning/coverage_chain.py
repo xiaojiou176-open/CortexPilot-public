@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.contract.validator import ContractValidator
+from agentcoder_orch.contract.validator import ContractValidator
 
 DEFAULT_COVERAGE_JSON = Path(".runtime-cache/test_output/orchestrator_coverage.json")
 DEFAULT_COVERAGE_CMD = [
@@ -20,7 +20,7 @@ DEFAULT_COVERAGE_CMD = [
     "-m",
     "not e2e and not serial",
     "-q",
-    "--cov=openvibecoding_orch",
+    "--cov=agentcoder_orch",
     "--cov-branch",
 ]
 DEFAULT_OWNER_AGENT = {"role": "PM", "agent_id": "agent-1", "codex_thread_id": ""}
@@ -92,7 +92,7 @@ def load_coverage_targets(
     coverage_report_path: Path,
     threshold: float,
     max_workers: int,
-    include_prefix: str = "apps/orchestrator/src/openvibecoding_orch/",
+    include_prefix: str = "apps/orchestrator/src/agentcoder_orch/",
     coverage_metric: str = "branches",
 ) -> list[CoverageTarget]:
     payload = json.loads(coverage_report_path.read_text(encoding="utf-8"))
@@ -135,14 +135,14 @@ def load_coverage_targets(
 
 
 def _preferred_worker_python() -> str:
-    override = os.getenv("OPENVIBECODING_PYTHON", "").strip()
+    override = os.getenv("AGENTCODER_PYTHON", "").strip()
     if override:
         return override
     return str(Path(__file__).resolve().parents[5] / ".runtime-cache" / "cache" / "toolchains" / "python" / "current" / "bin" / "python")
 
 
 def _worker_timeout_sec() -> int:
-    raw = os.getenv("OPENVIBECODING_COVERAGE_WORKER_TIMEOUT_SEC", "300").strip()
+    raw = os.getenv("AGENTCODER_COVERAGE_WORKER_TIMEOUT_SEC", "300").strip()
     try:
         value = int(raw)
     except ValueError:
@@ -151,7 +151,7 @@ def _worker_timeout_sec() -> int:
 
 
 def _default_shell_permission() -> str:
-    runner_name = os.getenv("OPENVIBECODING_RUNNER", "").strip().lower()
+    runner_name = os.getenv("AGENTCODER_RUNNER", "").strip().lower()
     if runner_name == "codex":
         return "on-request"
     return "never"
@@ -199,7 +199,7 @@ def _worker_contract(
         "assigned_agent": {"role": role, "agent_id": "agent-1", "codex_thread_id": ""},
         "inputs": {
             "spec": (
-                "You are the OpenVibeCoding coverage self-heal worker. "
+                "You are the Agentcoder coverage self-heal worker. "
                 f"Current low-coverage module: {target.module_name} ({coverage_metric}={target.coverage:.2f}%). "
                 "Add non-happy-path tests that follow the current implementation and existing test style, prioritizing failure paths, exception branches, and early returns. "
                 f"You must create or update this test file: {test_output}. "
@@ -274,7 +274,7 @@ def build_coverage_self_heal_chain(
     if not targets:
         raise ValueError("no coverage targets selected")
 
-    resolved_chain_id = chain_id or f"task_chain_openvibecoding_self_heal_coverage_{_now_tag()}"
+    resolved_chain_id = chain_id or f"task_chain_agentcoder_self_heal_coverage_{_now_tag()}"
     resolved_test_gate_cmd = test_gate_cmd or _test_gate_acceptance_cmd(targets)
     steps: list[dict[str, Any]] = [
         {

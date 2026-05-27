@@ -1,4 +1,4 @@
-Design a **Run Detail / Proof & Replay** page for OpenVibeCoding.
+Design a **Run Detail / Proof & Replay** page for Agentcoder.
 
 This page is the truth room.
 

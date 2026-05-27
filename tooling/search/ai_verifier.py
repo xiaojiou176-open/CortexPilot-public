@@ -5,8 +5,8 @@ import json
 import os
 from typing import Any
 
-from openvibecoding_orch.contract.validator import ContractValidator
-from openvibecoding_orch.runners.provider_resolution import (
+from agentcoder_orch.contract.validator import ContractValidator
+from agentcoder_orch.runners.provider_resolution import (
     build_llm_compat_client,
     resolve_provider_credentials,
 )
@@ -65,7 +65,7 @@ def verify_search_results_ai(
         if isinstance(verification, dict)
         else None
     )
-    provider = str(requested_provider or os.getenv("OPENVIBECODING_SEARCH_PROVIDER", "") or "gemini").strip().lower()
+    provider = str(requested_provider or os.getenv("AGENTCODER_SEARCH_PROVIDER", "") or "gemini").strip().lower()
     if provider != "gemini":
         return {
             "ok": False,
@@ -87,7 +87,7 @@ def verify_search_results_ai(
     except Exception:  # noqa: BLE001
         set_default_openai_client = None
 
-    base_url = os.getenv("OPENVIBECODING_AGENTS_BASE_URL", "").strip()
+    base_url = os.getenv("AGENTCODER_AGENTS_BASE_URL", "").strip()
     if provider == "gemini" and not base_url:
         base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
 
@@ -101,11 +101,11 @@ def verify_search_results_ai(
     else:
         set_default_openai_api(api_key)
 
-    api_mode = os.getenv("OPENVIBECODING_AGENTS_API", "").strip()
+    api_mode = os.getenv("AGENTCODER_AGENTS_API", "").strip()
     if api_mode:
         set_default_openai_api(api_mode)
 
-    resolved_model = (model or os.getenv("OPENVIBECODING_SEARCH_VERIFY_MODEL", "")).strip()
+    resolved_model = (model or os.getenv("AGENTCODER_SEARCH_VERIFY_MODEL", "")).strip()
     if not resolved_model:
         resolved_model = "gemini-2.0-flash"
     instructions = (
@@ -114,7 +114,7 @@ def verify_search_results_ai(
         "summary, risks (array), followups (array), model."
     )
     agent = Agent(
-        name="OpenVibeCodingSearchVerifier",
+        name="AgentcoderSearchVerifier",
         instructions=instructions,
         model=resolved_model,
         mcp_servers=[],

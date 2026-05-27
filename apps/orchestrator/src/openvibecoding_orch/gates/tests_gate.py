@@ -11,8 +11,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
-from openvibecoding_orch.gates.tool_gate import validate_command
-from openvibecoding_orch.config import load_config
+from agentcoder_orch.gates.tool_gate import validate_command
+from agentcoder_orch.config import load_config
 
 
 _DEFAULT_TIMEOUT_SEC = 600
@@ -88,11 +88,11 @@ def _build_subprocess_env(worktree_root: Path) -> dict[str, str]:
     repo_src = str(repo_root / "apps" / "orchestrator" / "src")
     env["PYTHONPATH"] = repo_src if not existing_pythonpath else f"{repo_src}{os.pathsep}{existing_pythonpath}"
     env["PYTHONDONTWRITEBYTECODE"] = env.get("PYTHONDONTWRITEBYTECODE", "1")
-    env["OPENVIBECODING_LOG_SCHEMA_VERSION"] = env.get("OPENVIBECODING_LOG_SCHEMA_VERSION", "log_event.v2")
+    env["AGENTCODER_LOG_SCHEMA_VERSION"] = env.get("AGENTCODER_LOG_SCHEMA_VERSION", "log_event.v2")
     return env
 
 
-_STRICT_NONTRIVIAL_ENV = "OPENVIBECODING_ACCEPTANCE_STRICT_NONTRIVIAL"
+_STRICT_NONTRIVIAL_ENV = "AGENTCODER_ACCEPTANCE_STRICT_NONTRIVIAL"
 
 
 def _repo_root() -> Path:

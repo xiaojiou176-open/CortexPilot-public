@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from openvibecoding_orch.chain.parsers import _as_int, _is_subsequence
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.chain.parsers import _as_int, _is_subsequence
+from agentcoder_orch.store.run_store import RunStore
 
 _HANDOFF_ROLE_ORDER = [
     "PM",

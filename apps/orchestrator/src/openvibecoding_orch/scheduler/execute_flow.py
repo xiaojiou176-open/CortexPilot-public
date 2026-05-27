@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from openvibecoding_orch.scheduler.scheduler import Orchestrator
+from agentcoder_orch.scheduler.scheduler import Orchestrator
 
 
 def execute_task_flow(

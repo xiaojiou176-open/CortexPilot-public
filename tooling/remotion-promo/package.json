@@ -1,11 +1,11 @@
 {
-  "name": "openvibecoding-remotion-promo",
+  "name": "agentcoder-remotion-promo",
   "private": true,
   "version": "0.1.0",
   "scripts": {
     "studio": "remotion studio src/index.ts",
-    "render:mp4": "remotion render src/index.ts OpenVibeCodingTeaser ../../.runtime-cache/openvibecoding/media/openvibecoding-command-tower-teaser.mp4 --codec=h264 --crf=23",
-    "render:poster": "remotion still src/index.ts OpenVibeCodingTeaser ../../docs/assets/storefront/openvibecoding-command-tower-teaser-poster.png --frame=480"
+    "render:mp4": "remotion render src/index.ts AgentcoderTeaser ../../.runtime-cache/agentcoder/media/agentcoder-command-tower-teaser.mp4 --codec=h264 --crf=23",
+    "render:poster": "remotion still src/index.ts AgentcoderTeaser ../../docs/assets/storefront/agentcoder-command-tower-teaser-poster.png --frame=480"
   },
   "dependencies": {
     "react": "19.2.5",

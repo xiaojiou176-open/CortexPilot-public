@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from openvibecoding_orch.runners import agents_events
-from openvibecoding_orch.store import run_store_archive_helpers as archive_helpers
-from openvibecoding_orch.store import run_store_tool_call_helpers as tool_call_helpers
+from agentcoder_orch.runners import agents_events
+from agentcoder_orch.store import run_store_archive_helpers as archive_helpers
+from agentcoder_orch.store import run_store_tool_call_helpers as tool_call_helpers
 
 
 def test_normalize_tool_call_normalizes_invalid_fields() -> None:

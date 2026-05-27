@@ -4,7 +4,7 @@ import os
 
 
 def resolve_mcp_timeout_seconds() -> float | None:
-    raw = os.getenv("OPENVIBECODING_MCP_TIMEOUT_SEC", "").strip()
+    raw = os.getenv("AGENTCODER_MCP_TIMEOUT_SEC", "").strip()
     if not raw:
         return 600.0
     try:
@@ -15,7 +15,7 @@ def resolve_mcp_timeout_seconds() -> float | None:
 
 
 def resolve_mcp_connect_timeout_sec() -> float | None:
-    raw = os.getenv("OPENVIBECODING_MCP_CONNECT_TIMEOUT_SEC", "").strip()
+    raw = os.getenv("AGENTCODER_MCP_CONNECT_TIMEOUT_SEC", "").strip()
     if not raw:
         return 20.0
     try:
@@ -26,7 +26,7 @@ def resolve_mcp_connect_timeout_sec() -> float | None:
 
 
 def resolve_mcp_cleanup_timeout_sec() -> float | None:
-    raw = os.getenv("OPENVIBECODING_MCP_CLEANUP_TIMEOUT_SEC", "").strip()
+    raw = os.getenv("AGENTCODER_MCP_CLEANUP_TIMEOUT_SEC", "").strip()
     if not raw:
         return 5.0
     try:
@@ -37,7 +37,7 @@ def resolve_mcp_cleanup_timeout_sec() -> float | None:
 
 
 def resolve_mcp_tool_timeout_sec() -> float | None:
-    raw = os.getenv("OPENVIBECODING_MCP_TOOL_TIMEOUT_SEC", "").strip()
+    raw = os.getenv("AGENTCODER_MCP_TOOL_TIMEOUT_SEC", "").strip()
     if not raw:
         return None
     try:

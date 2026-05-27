@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.config import load_config
+from agentcoder_orch.config import load_config
 
 
 def _now_ts() -> str:

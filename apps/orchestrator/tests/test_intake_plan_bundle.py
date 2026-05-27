@@ -1,6 +1,6 @@
 import json
 
-from openvibecoding_orch.planning import intake
+from agentcoder_orch.planning import intake
 
 
 def test_generate_plan_bundle_prefers_agent_output(monkeypatch) -> None:

@@ -17,7 +17,7 @@ def _runner_text() -> str:
 
 def test_pm_chat_e2e_real_mode_requires_ui_intake_by_default() -> None:
     text = _runner_text()
-    assert 'OPENVIBECODING_E2E_REQUIRE_UI_INTAKE", "1" if run_mode == "real" else "0"' in text
+    assert 'AGENTCODER_E2E_REQUIRE_UI_INTAKE", "1" if run_mode == "real" else "0"' in text
     assert "failed to create intake through PM UI in strict mode" in text
 
 
@@ -69,15 +69,15 @@ def test_pm_chat_e2e_avoids_eval_for_codex_config_parsing() -> None:
 def test_pm_chat_e2e_config_api_key_import_requires_explicit_opt_in() -> None:
     text = _script_text()
     assert (
-        'IMPORT_CONFIG_API_KEY="${OPENVIBECODING_E2E_IMPORT_CONFIG_API_KEY:-0}"' in text
-        or 'IMPORT_CONFIG_API_KEY="$(openvibecoding_env_get OPENVIBECODING_E2E_IMPORT_CONFIG_API_KEY "0")"' in text
+        'IMPORT_CONFIG_API_KEY="${AGENTCODER_E2E_IMPORT_CONFIG_API_KEY:-0}"' in text
+        or 'IMPORT_CONFIG_API_KEY="$(agentcoder_env_get AGENTCODER_E2E_IMPORT_CONFIG_API_KEY "0")"' in text
     )
     assert 'if [[ "$IMPORT_CONFIG_API_KEY" == "1" ]]' in text
 
 
 def test_pm_chat_e2e_default_acceptance_command_avoids_bash_prefix_for_tool_gate() -> None:
     text = _script_text()
-    assert 'ACCEPTANCE_CMD="$(openvibecoding_env_get OPENVIBECODING_E2E_ACCEPTANCE_CMD "")"' in text
+    assert 'ACCEPTANCE_CMD="$(agentcoder_env_get AGENTCODER_E2E_ACCEPTANCE_CMD "")"' in text
     assert 'ACCEPTANCE_CMD="python3 -m pytest apps/orchestrator/tests/test_schema_validation.py apps/orchestrator/tests/test_policy_registry_alignment.py -q"' in text
     assert 'verify_third_party_refs.sh --strict' not in text
 
@@ -127,7 +127,7 @@ def test_pm_chat_e2e_repairs_ui_created_intake_when_tool_set_missing() -> None:
 
 def test_pm_chat_e2e_strict_acceptance_defaults_to_real_mode_and_supports_override() -> None:
     text = _runner_text()
-    assert 'strict_acceptance_env = str(os.getenv("OPENVIBECODING_E2E_STRICT_ACCEPTANCE", "")).strip().lower()' in text
+    assert 'strict_acceptance_env = str(os.getenv("AGENTCODER_E2E_STRICT_ACCEPTANCE", "")).strip().lower()' in text
     assert 'strict_acceptance = str(run_mode).strip().lower() == "real"' in text
     assert 'payload["strict_acceptance"] = strict_acceptance' in text
 
@@ -148,12 +148,12 @@ def test_pm_chat_e2e_real_mode_verifies_workflow_case_and_proof_replay_surfaces(
 
 def test_pm_chat_e2e_objective_can_be_overridden_from_env() -> None:
     text = _runner_text()
-    assert "OPENVIBECODING_E2E_OBJECTIVE" in text
+    assert "AGENTCODER_E2E_OBJECTIVE" in text
 
 
 def test_pm_chat_e2e_api_start_exports_allowed_origins_for_dashboard_port() -> None:
     text = _script_text()
-    assert "OPENVIBECODING_API_ALLOWED_ORIGINS" in text
+    assert "AGENTCODER_API_ALLOWED_ORIGINS" in text
 
 
 def test_pm_chat_e2e_ignores_draft_placeholder_when_extracting_session_ids() -> None:
@@ -164,13 +164,13 @@ def test_pm_chat_e2e_ignores_draft_placeholder_when_extracting_session_ids() -> 
 
 def test_pm_chat_e2e_browser_flow_defaults_api_auth_off() -> None:
     text = _script_text()
-    assert 'OPENVIBECODING_E2E_API_AUTH_REQUIRED' in text or 'API_AUTH_REQUIRED="false"' in text
+    assert 'AGENTCODER_E2E_API_AUTH_REQUIRED' in text or 'API_AUTH_REQUIRED="false"' in text
 
 
 def test_pm_chat_e2e_deterministic_template_payload_is_injected_for_pm_intake() -> None:
     text = _runner_text()
-    assert "OPENVIBECODING_E2E_TASK_TEMPLATE" in text
-    assert "OPENVIBECODING_E2E_TEMPLATE_PAYLOAD_JSON" in text
+    assert "AGENTCODER_E2E_TASK_TEMPLATE" in text
+    assert "AGENTCODER_E2E_TEMPLATE_PAYLOAD_JSON" in text
     assert '"task_template": task_template' in text
     assert '"template_payload": template_payload' in text
 

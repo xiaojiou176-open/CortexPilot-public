@@ -5,13 +5,13 @@ import type {
   RoleConfigApplyResponse,
   RoleConfigPreviewResponse,
   RoleConfigSurface,
-} from "@openvibecoding/frontend-api-contract";
+} from "@agentcoder/frontend-api-contract";
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
-export type OpenVibeCodingLogDomain = "runtime" | "api" | "ui" | "desktop" | "ci" | "e2e" | "test" | "governance";
-export type OpenVibeCodingLogSurface = "backend" | "dashboard" | "desktop" | "ci" | "tooling";
-export type OpenVibeCodingLogSourceKind = "app_log" | "test_log" | "ci_log" | "artifact_manifest" | "event_stream";
+export type AgentcoderLogDomain = "runtime" | "api" | "ui" | "desktop" | "ci" | "e2e" | "test" | "governance";
+export type AgentcoderLogSurface = "backend" | "dashboard" | "desktop" | "ci" | "tooling";
+export type AgentcoderLogSourceKind = "app_log" | "test_log" | "ci_log" | "artifact_manifest" | "event_stream";
 
 export type RequestControlOptions = {
   signal?: AbortSignal;
@@ -156,11 +156,11 @@ export declare function createHttpCore(options: {
   postJson: <T = unknown>(path: string, payload: Record<string, JsonValue>, errorFallback: string, options?: RequestControlOptions) => Promise<T>;
 };
 
-export type OpenVibeCodingLogEvent = {
+export type AgentcoderLogEvent = {
   ts: string;
   level: string;
-  domain: OpenVibeCodingLogDomain;
-  surface: OpenVibeCodingLogSurface;
+  domain: AgentcoderLogDomain;
+  surface: AgentcoderLogSurface;
   service: string;
   component: string;
   event: string;
@@ -170,7 +170,7 @@ export type OpenVibeCodingLogEvent = {
   trace_id: string;
   session_id: string;
   test_id: string;
-  source_kind: OpenVibeCodingLogSourceKind;
+  source_kind: AgentcoderLogSourceKind;
   artifact_kind: string;
   correlation_kind: "run" | "session" | "test" | "request" | "trace" | "none";
   meta: Record<string, unknown>;
@@ -178,10 +178,10 @@ export type OpenVibeCodingLogEvent = {
   schema_version: "log_event.v2";
 };
 
-export type OpenVibeCodingLogEventInput = {
+export type AgentcoderLogEventInput = {
   level?: string;
-  domain?: OpenVibeCodingLogDomain;
-  surface?: OpenVibeCodingLogSurface;
+  domain?: AgentcoderLogDomain;
+  surface?: AgentcoderLogSurface;
   service?: string;
   component?: string;
   event: string;
@@ -191,14 +191,14 @@ export type OpenVibeCodingLogEventInput = {
   trace_id?: string | null;
   session_id?: string | null;
   test_id?: string | null;
-  source_kind?: OpenVibeCodingLogSourceKind;
+  source_kind?: AgentcoderLogSourceKind;
   artifact_kind?: string | null;
   correlation_kind?: "run" | "session" | "test" | "request" | "trace" | "none";
   meta?: Record<string, unknown>;
 };
 
-export declare function buildFrontendLogEvent(input: OpenVibeCodingLogEventInput): OpenVibeCodingLogEvent;
-export declare function emitFrontendLogEvent(input: OpenVibeCodingLogEventInput): OpenVibeCodingLogEvent;
+export declare function buildFrontendLogEvent(input: AgentcoderLogEventInput): AgentcoderLogEvent;
+export declare function emitFrontendLogEvent(input: AgentcoderLogEventInput): AgentcoderLogEvent;
 
 export declare function createSseCore(options: {
   baseUrl: string;

@@ -1044,16 +1044,16 @@ def resolve_policy_path(*, raw_path: str, repo_root: Path) -> Path:
 
 def expand_policy_env_defaults(raw_path: str) -> str:
     normalized = raw_path
-    if not os.getenv("OPENVIBECODING_MACHINE_CACHE_ROOT"):
-        default_value = default_policy_env_value("OPENVIBECODING_MACHINE_CACHE_ROOT")
-        normalized = normalized.replace("${OPENVIBECODING_MACHINE_CACHE_ROOT}", default_value)
-        normalized = normalized.replace("$OPENVIBECODING_MACHINE_CACHE_ROOT", default_value)
+    if not os.getenv("AGENTCODER_MACHINE_CACHE_ROOT"):
+        default_value = default_policy_env_value("AGENTCODER_MACHINE_CACHE_ROOT")
+        normalized = normalized.replace("${AGENTCODER_MACHINE_CACHE_ROOT}", default_value)
+        normalized = normalized.replace("$AGENTCODER_MACHINE_CACHE_ROOT", default_value)
     return normalized
 
 
 def default_policy_env_value(env_name: str) -> str:
-    if env_name == "OPENVIBECODING_MACHINE_CACHE_ROOT":
-        return str(Path.home() / ".cache" / "openvibecoding")
+    if env_name == "AGENTCODER_MACHINE_CACHE_ROOT":
+        return str(Path.home() / ".cache" / "agentcoder")
     raise SpaceGovernancePolicyError(f"unsupported policy env default: {env_name}")
 
 
@@ -1115,7 +1115,7 @@ def infer_preserve_reason(*, entry_spec: dict[str, Any], layer_name: str) -> str
         "shared_observation",
     }:
         return "shared_cache"
-    if any(token in raw_path for token in (".runtime-cache/logs", ".runtime-cache/test_output", ".runtime-cache/openvibecoding/contracts")):
+    if any(token in raw_path for token in (".runtime-cache/logs", ".runtime-cache/test_output", ".runtime-cache/agentcoder/contracts")):
         return "runtime_evidence"
     if raw_path.startswith(".runtime-cache/"):
         return "runtime_evidence"
@@ -1136,7 +1136,7 @@ def infer_rebuild_cost_class(rebuildability: str) -> str:
 
 
 def load_retention_summary(*, repo_root: Path) -> dict[str, Any] | None:
-    report_path = repo_root / ".runtime-cache" / "openvibecoding" / "reports" / "retention_report.json"
+    report_path = repo_root / ".runtime-cache" / "agentcoder" / "reports" / "retention_report.json"
     if not report_path.exists():
         return None
     try:
@@ -1159,7 +1159,7 @@ def load_retention_summary(*, repo_root: Path) -> dict[str, Any] | None:
         result["machine_cache_auto_prune"] = payload["machine_cache_auto_prune"]
     if "machine_cache_auto_prune" not in result:
         try:
-            from openvibecoding_orch.config import load_config
+            from agentcoder_orch.config import load_config
 
             cfg = load_config()
             state_path = cfg.machine_cache_root / "retention-auto-prune" / "state.json"
@@ -1176,7 +1176,7 @@ def load_retention_summary(*, repo_root: Path) -> dict[str, Any] | None:
 
 
 def load_docker_runtime_summary(*, repo_root: Path) -> dict[str, Any] | None:
-    report_path = repo_root / ".runtime-cache" / "openvibecoding" / "reports" / "space_governance" / "docker_runtime.json"
+    report_path = repo_root / ".runtime-cache" / "agentcoder" / "reports" / "space_governance" / "docker_runtime.json"
     if not report_path.exists():
         return None
     try:

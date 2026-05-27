@@ -6,7 +6,7 @@ Use the home page as a **briefing deck**, not a documentation index.
 
 Teach the product in under 20 seconds:
 
-- what OpenVibeCoding is
+- what Agentcoder is
 - why it exists
 - what the operator loop is
 - where to start

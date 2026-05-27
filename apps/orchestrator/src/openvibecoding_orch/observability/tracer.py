@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Callable, TypeVar, Any
 
-from openvibecoding_orch.config import get_tracing_config
+from agentcoder_orch.config import get_tracing_config
 
 try:
     from opentelemetry import trace
@@ -23,7 +23,7 @@ def _setup_provider() -> None:
     if not _HAS_OTEL:
         return
     tracing_cfg = get_tracing_config()
-    resource = Resource.create({"service.name": "openvibecoding-orchestrator"})
+    resource = Resource.create({"service.name": "agentcoder-orchestrator"})
     provider = TracerProvider(resource=resource)
     exporter = None
 
@@ -94,7 +94,7 @@ def ensure_tracing() -> dict[str, Any]:
 def get_tracer():
     if not _HAS_OTEL:
         return None
-    return trace.get_tracer("openvibecoding-orchestrator")
+    return trace.get_tracer("agentcoder-orchestrator")
 
 
 def trace_span(name: str) -> Callable[[Callable[..., T]], Callable[..., T]]:

@@ -1,10 +1,10 @@
 import json
 
-from openvibecoding_orch.contract.compiler import build_role_binding_summary, sync_role_contract
-from openvibecoding_orch.scheduler import scheduler_bridge_contract
-from openvibecoding_orch.scheduler import scheduler_bridge_runtime as bridge_runtime
-from openvibecoding_orch.scheduler import scheduler_bridge_finalize as bridge_finalize
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.contract.compiler import build_role_binding_summary, sync_role_contract
+from agentcoder_orch.scheduler import scheduler_bridge_contract
+from agentcoder_orch.scheduler import scheduler_bridge_runtime as bridge_runtime
+from agentcoder_orch.scheduler import scheduler_bridge_finalize as bridge_finalize
+from agentcoder_orch.store.run_store import RunStore
 
 
 class DummyReplayRunner:

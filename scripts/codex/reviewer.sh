@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-CODEX_HOME="$HOME/.codex-homes/openvibecoding-reviewer"
+CODEX_HOME="$HOME/.codex-homes/agentcoder-reviewer"
 export CODEX_HOME
 exec codex "$@"

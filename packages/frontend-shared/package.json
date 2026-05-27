@@ -1,20 +1,20 @@
 {
-  "name": "@openvibecoding/frontend-shared",
+  "name": "@agentcoder/frontend-shared",
   "version": "0.1.0",
   "private": true,
-  "description": "Shared frontend copy, locale, status-presentation, and UI-facing types for OpenVibeCoding operator surfaces.",
-  "homepage": "https://xiaojiou176-open.github.io/OpenVibeCoding/builders/",
+  "description": "Shared frontend copy, locale, status-presentation, and UI-facing types for Agentcoder operator surfaces.",
+  "homepage": "https://xiaojiou176-open.github.io/agentcoder/builders/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xiaojiou176-open/OpenVibeCoding.git",
+    "url": "git+https://github.com/xiaojiou176-open/agentcoder.git",
     "directory": "packages/frontend-shared"
   },
   "bugs": {
-    "url": "https://github.com/xiaojiou176-open/OpenVibeCoding/issues"
+    "url": "https://github.com/xiaojiou176-open/agentcoder/issues"
   },
   "license": "MIT",
   "keywords": [
-    "openvibecoding",
+    "agentcoder",
     "frontend",
     "ui-copy",
     "locale",

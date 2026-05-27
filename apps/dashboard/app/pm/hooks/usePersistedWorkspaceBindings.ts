@@ -9,8 +9,8 @@ type UsePersistedWorkspaceBindingsParams = {
   setRepoName: (value: string) => void;
 };
 
-const PM_WORKSPACE_STORAGE_KEY = "openvibecoding.pm.workspace";
-const PM_REPO_STORAGE_KEY = "openvibecoding.pm.repo";
+const PM_WORKSPACE_STORAGE_KEY = "agentcoder.pm.workspace";
+const PM_REPO_STORAGE_KEY = "agentcoder.pm.repo";
 
 export function usePersistedWorkspaceBindings({
   workspacePath,
@@ -23,7 +23,7 @@ export function usePersistedWorkspaceBindings({
       return;
     }
     const rememberedWorkspace = window.localStorage.getItem(PM_WORKSPACE_STORAGE_KEY) || "apps/dashboard";
-    const rememberedRepo = window.localStorage.getItem(PM_REPO_STORAGE_KEY) || "openvibecoding";
+    const rememberedRepo = window.localStorage.getItem(PM_REPO_STORAGE_KEY) || "agentcoder";
     setWorkspacePath(rememberedWorkspace);
     setRepoName(rememberedRepo);
   }, [setWorkspacePath, setRepoName]);

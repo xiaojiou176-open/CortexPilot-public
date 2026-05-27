@@ -88,9 +88,9 @@ def test_ui_full_e2e_strict_gate_click_only_mode_passes_when_click_consistency_o
     env = dict(os.environ)
     env.update(
         {
-            "OPENVIBECODING_UI_STRICT_BREAK_GLASS": "1",
-            "OPENVIBECODING_UI_STRICT_BREAK_GLASS_REASON": "test-click-only",
-            "OPENVIBECODING_UI_STRICT_BREAK_GLASS_TICKET": "TEST-STRICT-001",
+            "AGENTCODER_UI_STRICT_BREAK_GLASS": "1",
+            "AGENTCODER_UI_STRICT_BREAK_GLASS_REASON": "test-click-only",
+            "AGENTCODER_UI_STRICT_BREAK_GLASS_TICKET": "TEST-STRICT-001",
         }
     )
     result = subprocess.run(
@@ -139,9 +139,9 @@ def test_ui_full_e2e_strict_gate_click_only_mode_blocks_summary_mismatch(tmp_pat
     env = dict(os.environ)
     env.update(
         {
-            "OPENVIBECODING_UI_STRICT_BREAK_GLASS": "1",
-            "OPENVIBECODING_UI_STRICT_BREAK_GLASS_REASON": "test-click-only-mismatch",
-            "OPENVIBECODING_UI_STRICT_BREAK_GLASS_TICKET": "TEST-STRICT-002",
+            "AGENTCODER_UI_STRICT_BREAK_GLASS": "1",
+            "AGENTCODER_UI_STRICT_BREAK_GLASS_REASON": "test-click-only-mismatch",
+            "AGENTCODER_UI_STRICT_BREAK_GLASS_TICKET": "TEST-STRICT-002",
         }
     )
     result = subprocess.run(
@@ -171,9 +171,9 @@ def test_ui_full_e2e_strict_gate_blocks_when_summary_mismatches_click_inventory_
     env = dict(os.environ)
     env.update(
         {
-            "OPENVIBECODING_UI_STRICT_BREAK_GLASS": "1",
-            "OPENVIBECODING_UI_STRICT_BREAK_GLASS_REASON": "test-click-summary-mismatch",
-            "OPENVIBECODING_UI_STRICT_BREAK_GLASS_TICKET": "TEST-STRICT-003",
+            "AGENTCODER_UI_STRICT_BREAK_GLASS": "1",
+            "AGENTCODER_UI_STRICT_BREAK_GLASS_REASON": "test-click-summary-mismatch",
+            "AGENTCODER_UI_STRICT_BREAK_GLASS_TICKET": "TEST-STRICT-003",
         }
     )
     result = subprocess.run(

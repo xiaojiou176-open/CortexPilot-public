@@ -1,6 +1,6 @@
 import pytest
 
-from openvibecoding_orch.planning import intake_policy_helpers
+from agentcoder_orch.planning import intake_policy_helpers
 
 
 def test_normalize_browser_policy_fail_closed_defaults() -> None:

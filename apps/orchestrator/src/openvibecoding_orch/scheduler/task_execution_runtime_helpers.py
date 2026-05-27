@@ -8,9 +8,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.contract.validator import ContractValidator
-from openvibecoding_orch.scheduler import task_execution_review_helpers
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.contract.validator import ContractValidator
+from agentcoder_orch.scheduler import task_execution_review_helpers
+from agentcoder_orch.store.run_store import RunStore
 
 _TRUTHY_VALUES = {"1", "true", "yes", "y", "on"}
 _FALSY_VALUES = {"0", "false", "no", "n", "off"}
@@ -223,7 +223,7 @@ def run_runner_fix_review_flow_runtime(
         if (
             isinstance(diff_gate, dict)
             and not diff_gate.get("ok")
-            and os.getenv("OPENVIBECODING_DIFF_GATE_SCOPED_REVERT", "").strip().lower()
+            and os.getenv("AGENTCODER_DIFF_GATE_SCOPED_REVERT", "").strip().lower()
             in {"1", "true", "yes"}
         ):
             revert_result = scoped_revert_fn(worktree_path, diff_gate.get("violations", []))
@@ -300,7 +300,7 @@ def run_runner_fix_review_flow_runtime(
             policy_pack=policy_pack,
             strict_nontrivial=strict_nontrivial_override,
         )
-        evals_enabled = os.getenv("OPENVIBECODING_EVALS_ENABLED", "").strip().lower() in {"1", "true", "yes"}
+        evals_enabled = os.getenv("AGENTCODER_EVALS_ENABLED", "").strip().lower() in {"1", "true", "yes"}
         evals_result: dict[str, Any] | None = None
         if evals_enabled:
             evals_result = run_evals_gate_fn(

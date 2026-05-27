@@ -230,7 +230,7 @@ def execute_chain_with_follow(
 
 
 def run_temporal_worker() -> None:
-    from openvibecoding_orch.temporal.worker import run_worker
+    from agentcoder_orch.temporal.worker import run_worker
 
     run_worker()
 

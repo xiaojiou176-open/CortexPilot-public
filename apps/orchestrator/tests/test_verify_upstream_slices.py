@@ -26,9 +26,9 @@ def test_pm_chat_real_e2e_smoke_entrypoint_keeps_fast_gate_enabled() -> None:
     row = next(item for item in matrix["matrix"] if item["integration_slice"] == "pm-chat-real-e2e")
 
     smoke_entrypoint = row["smoke_entrypoint"]
-    assert "OPENVIBECODING_E2E_SKIP_FAST_GATE=1" not in smoke_entrypoint
-    assert "OPENVIBECODING_E2E_RUNNER=agents" in smoke_entrypoint
-    assert "OPENVIBECODING_E2E_WEB_MODE=prod" in smoke_entrypoint
+    assert "AGENTCODER_E2E_SKIP_FAST_GATE=1" not in smoke_entrypoint
+    assert "AGENTCODER_E2E_RUNNER=agents" in smoke_entrypoint
+    assert "AGENTCODER_E2E_WEB_MODE=prod" in smoke_entrypoint
     assert "bash scripts/e2e_pm_chat_command_tower_success.sh" in smoke_entrypoint
 
 
@@ -71,7 +71,7 @@ def test_verify_upstream_slices_handles_spacey_python_path_via_governance_wrappe
 
     env = {
         **os.environ,
-        "OPENVIBECODING_PYTHON": str(spaced_python),
+        "AGENTCODER_PYTHON": str(spaced_python),
     }
     proc = subprocess.run(
         [sys.executable, str(VERIFY_SCRIPT), "--matrix", str(matrix_path), "--mode", "smoke"],

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "artifact_type": "openvibecoding_storefront_proof_bundle_registry",
+  "artifact_type": "agentcoder_storefront_proof_bundle_registry",
   "public_proof_contract": {
     "authoritative_registry_path": "configs/storefront_proof_bundle_registry.json",
     "render_manifest_path": "configs/docs_render_manifest.json",

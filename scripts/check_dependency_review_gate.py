@@ -144,7 +144,7 @@ def gh_api_json(path: str, *, token: str) -> object:
             "Accept": "application/vnd.github+json",
             "Authorization": f"Bearer {token}",
             "X-GitHub-Api-Version": "2022-11-28",
-            "User-Agent": "openvibecoding-dependency-review-gate",
+            "User-Agent": "agentcoder-dependency-review-gate",
         },
     )
     try:

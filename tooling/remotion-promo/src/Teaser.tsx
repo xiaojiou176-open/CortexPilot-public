@@ -161,7 +161,7 @@ const FullscreenCard: React.FC<{
   );
 };
 
-export const OpenVibeCodingTeaser: React.FC = () => {
+export const AgentcoderTeaser: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
   const introEnter = spring({
@@ -230,7 +230,7 @@ export const OpenVibeCodingTeaser: React.FC = () => {
                 textTransform: "uppercase",
               }}
             >
-              OpenVibeCoding / command tower
+              Agentcoder / command tower
             </div>
             <div
               style={{
@@ -412,7 +412,7 @@ export const OpenVibeCodingTeaser: React.FC = () => {
                 fontWeight: 700,
               }}
             >
-              xiaojiou176-open.github.io/OpenVibeCoding
+              xiaojiou176-open.github.io/agentcoder
             </div>
           </div>
 

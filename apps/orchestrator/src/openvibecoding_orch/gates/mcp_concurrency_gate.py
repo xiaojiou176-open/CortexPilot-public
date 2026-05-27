@@ -15,14 +15,14 @@ def validate_mcp_concurrency(mode: str | None) -> dict:
             "reason": "stdio transport is single-client; defaulting to single",
         }
     if raw in proxy_modes:
-        enabled = os.getenv("OPENVIBECODING_MCP_PROXY_ENABLED", "").strip().lower() in {"1", "true", "yes"}
+        enabled = os.getenv("AGENTCODER_MCP_PROXY_ENABLED", "").strip().lower() in {"1", "true", "yes"}
         return {
             "ok": enabled,
             "mode": "proxy",
-            "reason": "proxy enabled" if enabled else "proxy disabled; set OPENVIBECODING_MCP_PROXY_ENABLED=1",
+            "reason": "proxy enabled" if enabled else "proxy disabled; set AGENTCODER_MCP_PROXY_ENABLED=1",
         }
     if raw in multi_modes:
-        enabled = os.getenv("OPENVIBECODING_MCP_ALLOW_MULTI", "").strip().lower() in {"1", "true", "yes"}
+        enabled = os.getenv("AGENTCODER_MCP_ALLOW_MULTI", "").strip().lower() in {"1", "true", "yes"}
         return {
             "ok": enabled,
             "mode": "multi",

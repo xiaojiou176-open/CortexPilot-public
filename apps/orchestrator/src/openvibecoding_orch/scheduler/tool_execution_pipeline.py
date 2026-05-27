@@ -7,9 +7,9 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Callable
 
-from openvibecoding_orch.policy.browser_policy_resolver import resolve_browser_policy
-from openvibecoding_orch.runners.tool_runner import ToolRunner
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.policy.browser_policy_resolver import resolve_browser_policy
+from agentcoder_orch.runners.tool_runner import ToolRunner
+from agentcoder_orch.store.run_store import RunStore
 from tooling.page_brief_pipeline import write_page_brief_evidence_bundle, write_page_brief_result
 from tooling.search.ai_verifier import verify_search_results_ai
 from tooling.search_pipeline import (
@@ -315,7 +315,7 @@ def run_search_pipeline(
     _call_store_aware_writer(write_purified_summary, (run_id, results, verification), store=store)
     raw_question = "; ".join(queries) if queries else "search"
     verify_ai_cfg = request.get("verify_ai") if isinstance(request, dict) else {}
-    verify_ai_enabled = os.getenv("OPENVIBECODING_SEARCH_VERIFY_AI", "").strip().lower() in {"1", "true", "yes"}
+    verify_ai_enabled = os.getenv("AGENTCODER_SEARCH_VERIFY_AI", "").strip().lower() in {"1", "true", "yes"}
     if isinstance(verify_ai_cfg, dict):
         if verify_ai_cfg.get("enabled") is True:
             verify_ai_enabled = True

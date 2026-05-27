@@ -1,6 +1,6 @@
-# OpenVibeCoding MCP Capabilities
+# Agentcoder MCP Capabilities
 
-These are the stable read-only tools exposed by the published OpenVibeCoding MCP.
+These are the stable read-only tools exposed by the published Agentcoder MCP.
 
 ## Safe-first tools
 

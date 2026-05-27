@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from openvibecoding_orch.services.session_index_service import SessionIndexService
+from agentcoder_orch.services.session_index_service import SessionIndexService
 
 
 def test_session_index_list_and_read_files(tmp_path: Path) -> None:

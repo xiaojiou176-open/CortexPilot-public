@@ -3,10 +3,10 @@ from pathlib import Path
 
 import pytest
 
-from openvibecoding_orch.chain import helpers as chain_helpers
-from openvibecoding_orch.chain import runner as chain_runner
-from openvibecoding_orch.chain.runner import ChainRunner
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.chain import helpers as chain_helpers
+from agentcoder_orch.chain import runner as chain_runner
+from agentcoder_orch.chain.runner import ChainRunner
+from agentcoder_orch.store.run_store import RunStore
 import hashlib
 
 
@@ -30,7 +30,7 @@ def _output_schema_artifacts(role: str = "worker") -> list[dict]:
 
 @pytest.fixture(autouse=True)
 def _disable_strict_nontrivial(monkeypatch) -> None:
-    monkeypatch.setenv("OPENVIBECODING_ACCEPTANCE_STRICT_NONTRIVIAL", "0")
+    monkeypatch.setenv("AGENTCODER_ACCEPTANCE_STRICT_NONTRIVIAL", "0")
 
 
 def _contract(task_id: str, output_name: str = "out.txt") -> dict:

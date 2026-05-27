@@ -5,9 +5,9 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Protocol
 
-from openvibecoding_orch.runners.agents_runner import AgentsRunner
-from openvibecoding_orch.runners.codex_runner import CodexRunner
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.runners.agents_runner import AgentsRunner
+from agentcoder_orch.runners.codex_runner import CodexRunner
+from agentcoder_orch.store.run_store import RunStore
 
 ContractDict = dict[str, Any]
 TaskResult = dict[str, Any]

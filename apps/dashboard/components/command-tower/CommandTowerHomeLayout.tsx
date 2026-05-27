@@ -1,6 +1,6 @@
 import type { ComponentType, KeyboardEvent as ReactKeyboardEvent, RefObject } from "react";
 
-import type { UiCopy } from "@openvibecoding/frontend-shared/uiCopy";
+import type { UiCopy } from "@agentcoder/frontend-shared/uiCopy";
 import type { CommandTowerAlert, CommandTowerOverviewPayload, PmSessionStatus, PmSessionSummary } from "../../lib/types";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -10,7 +10,7 @@ import {
   statusLabelFromCanonical,
   toCanonicalStatusFuzzy,
   type StatusVariant,
-} from "@openvibecoding/frontend-shared/statusPresentation";
+} from "@agentcoder/frontend-shared/statusPresentation";
 
 type SortMode = "updated_desc" | "created_desc" | "failed_desc" | "blocked_desc";
 type FocusMode = "all" | "high_risk" | "blocked" | "running";

@@ -41,9 +41,9 @@ class ControlPlaneReadService:
 
     @classmethod
     def from_api_main(cls) -> "ControlPlaneReadService":
-        api_main = importlib.import_module("openvibecoding_orch.api.main")
-        main_state_store_helpers = importlib.import_module("openvibecoding_orch.api.main_state_store_helpers")
-        QueueStore = importlib.import_module("openvibecoding_orch.queue").QueueStore
+        api_main = importlib.import_module("agentcoder_orch.api.main")
+        main_state_store_helpers = importlib.import_module("agentcoder_orch.api.main_state_store_helpers")
+        QueueStore = importlib.import_module("agentcoder_orch.queue").QueueStore
 
         def _list_workflows_readonly() -> list[dict[str, Any]]:
             workflows = list(
@@ -136,11 +136,11 @@ class ControlPlaneReadService:
 
     @classmethod
     def from_runtime(cls) -> "ControlPlaneReadService":
-        main_run_views_helpers = importlib.import_module("openvibecoding_orch.api.main_run_views_helpers")
-        main_state_store_helpers = importlib.import_module("openvibecoding_orch.api.main_state_store_helpers")
-        load_config = importlib.import_module("openvibecoding_orch.config").load_config
-        build_role_binding_summary = importlib.import_module("openvibecoding_orch.contract.compiler").build_role_binding_summary
-        QueueStore = importlib.import_module("openvibecoding_orch.queue").QueueStore
+        main_run_views_helpers = importlib.import_module("agentcoder_orch.api.main_run_views_helpers")
+        main_state_store_helpers = importlib.import_module("agentcoder_orch.api.main_state_store_helpers")
+        load_config = importlib.import_module("agentcoder_orch.config").load_config
+        build_role_binding_summary = importlib.import_module("agentcoder_orch.contract.compiler").build_role_binding_summary
+        QueueStore = importlib.import_module("agentcoder_orch.queue").QueueStore
 
         cfg = load_config()
         runs_root = cfg.runs_root

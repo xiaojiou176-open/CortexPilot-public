@@ -8,7 +8,7 @@ _SAMPLING_TOOL_NAMES = {"sampling", "mcp.sampling"}
 
 
 def _sampling_approved() -> bool:
-    raw = os.getenv("OPENVIBECODING_SAMPLING_APPROVED", "").strip().lower()
+    raw = os.getenv("AGENTCODER_SAMPLING_APPROVED", "").strip().lower()
     return raw in {"1", "true", "yes"}
 
 

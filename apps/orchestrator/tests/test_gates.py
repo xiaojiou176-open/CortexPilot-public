@@ -2,11 +2,11 @@ import json
 import subprocess
 from pathlib import Path
 
-from openvibecoding_orch.gates.diff_gate import validate_diff
-from openvibecoding_orch.gates.tool_gate import validate_command
-from openvibecoding_orch.gates.mcp_concurrency_gate import validate_mcp_concurrency
-from openvibecoding_orch.gates.mcp_gate import validate_mcp_tools
-from openvibecoding_orch.gates.tests_gate import run_acceptance_tests
+from agentcoder_orch.gates.diff_gate import validate_diff
+from agentcoder_orch.gates.tool_gate import validate_command
+from agentcoder_orch.gates.mcp_concurrency_gate import validate_mcp_concurrency
+from agentcoder_orch.gates.mcp_gate import validate_mcp_tools
+from agentcoder_orch.gates.tests_gate import run_acceptance_tests
 
 
 def _write_allowlist(root: Path, allow: list[dict] | None = None) -> None:

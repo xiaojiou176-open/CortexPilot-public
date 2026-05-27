@@ -58,7 +58,7 @@ def create_tiny_repo(base_dir: Path) -> Path:
 
 
 def _acquire_ui_lock(repo_root: Path):
-    lock_dir = repo_root / ".runtime-cache" / "openvibecoding" / "locks"
+    lock_dir = repo_root / ".runtime-cache" / "agentcoder" / "locks"
     lock_dir.mkdir(parents=True, exist_ok=True)
     lock_file = (lock_dir / "dashboard_e2e_ui.lock").open("a+", encoding="utf-8")
     fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
@@ -87,13 +87,13 @@ def _orchestrator_cli_cmd(repo_root: Path, *args: str) -> list[str]:
         str(requirements_path),
         "python",
         "-m",
-        "openvibecoding_orch.cli",
+        "agentcoder_orch.cli",
         *args,
     ]
 
 
 def _repo_root_from_env(env: dict[str, str]) -> Path:
-    schema_root = Path(env["OPENVIBECODING_SCHEMA_ROOT"]).resolve()
+    schema_root = Path(env["AGENTCODER_SCHEMA_ROOT"]).resolve()
     return schema_root.parent
 
 
@@ -186,13 +186,13 @@ def build_env(repo_root: Path, runtime_root: Path, runs_root: Path, worktree_roo
     if base_env.get("PYTHONPATH"):
         pythonpath_entries.append(base_env["PYTHONPATH"])
     base_env["PYTHONPATH"] = os.pathsep.join(pythonpath_entries)
-    base_env["OPENVIBECODING_RUNTIME_ROOT"] = str(runtime_root)
-    base_env["OPENVIBECODING_RUNS_ROOT"] = str(runs_root)
-    base_env["OPENVIBECODING_WORKTREE_ROOT"] = str(worktree_root)
-    base_env["OPENVIBECODING_SCHEMA_ROOT"] = str(repo_root / "schemas")
-    base_env["OPENVIBECODING_CONTRACT_ROOT"] = str(runtime_root / "contracts")
-    base_env["OPENVIBECODING_TOOL_REGISTRY"] = str(repo_root / "tooling" / "registry.json")
-    base_env["OPENVIBECODING_AGENT_REGISTRY"] = str(repo_root / "policies" / "agent_registry.json")
+    base_env["AGENTCODER_RUNTIME_ROOT"] = str(runtime_root)
+    base_env["AGENTCODER_RUNS_ROOT"] = str(runs_root)
+    base_env["AGENTCODER_WORKTREE_ROOT"] = str(worktree_root)
+    base_env["AGENTCODER_SCHEMA_ROOT"] = str(repo_root / "schemas")
+    base_env["AGENTCODER_CONTRACT_ROOT"] = str(runtime_root / "contracts")
+    base_env["AGENTCODER_TOOL_REGISTRY"] = str(repo_root / "tooling" / "registry.json")
+    base_env["AGENTCODER_AGENT_REGISTRY"] = str(repo_root / "policies" / "agent_registry.json")
     base_env["NEXT_TELEMETRY_DISABLED"] = "1"
     return base_env
 
@@ -206,7 +206,7 @@ def start_api(repo_root: Path, env: dict[str, str], log_path: Path) -> tuple[Man
 def start_ui(repo_root: Path, env: dict[str, str], api_port: int, log_path: Path) -> tuple[ManagedProcess, int]:
     ui_port = free_port()
     ui_env = dict(env)
-    ui_env["NEXT_PUBLIC_OPENVIBECODING_API_BASE"] = f"http://127.0.0.1:{api_port}"
+    ui_env["NEXT_PUBLIC_AGENTCODER_API_BASE"] = f"http://127.0.0.1:{api_port}"
     # Isolate Next.js dev lock/artifacts per E2E process to avoid cross-stage lock contention.
     next_dist_dir = f".next-e2e-{ui_port}"
     ui_env["NEXT_DIST_DIR"] = next_dist_dir
@@ -271,7 +271,7 @@ def run_replay(repo: Path, env: dict[str, str], run_id: str) -> str:
     run_cmd = [
         sys.executable,
         "-m",
-        "openvibecoding_orch.cli",
+        "agentcoder_orch.cli",
         "replay",
         run_id,
     ]

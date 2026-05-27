@@ -39,10 +39,10 @@
   "artifact_roots_required": [
     ".runtime-cache/test_output",
     ".runtime-cache/logs",
-    ".runtime-cache/openvibecoding/reports"
+    ".runtime-cache/agentcoder/reports"
   ],
   "artifact_roots_release_required": [
-    ".runtime-cache/openvibecoding/release"
+    ".runtime-cache/agentcoder/release"
   ],
   "retry_green_policy": {
     "max_retry_green_count": 0
@@ -141,17 +141,17 @@
     }
   },
   "strict_env_contract": {
-    "allowlisted_openvibecoding_env": [
-      "OPENVIBECODING_DOC_GATE_MODE",
-      "OPENVIBECODING_DOC_GATE_BASE_SHA",
-      "OPENVIBECODING_DOC_GATE_HEAD_SHA",
-      "OPENVIBECODING_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE",
-      "OPENVIBECODING_CI_LIVE_PREFLIGHT_PROVIDER_API_MODE",
-      "OPENVIBECODING_CI_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE",
-      "OPENVIBECODING_CI_ROUTE_ID",
-      "OPENVIBECODING_CI_TRUST_CLASS",
-      "OPENVIBECODING_CI_RUNNER_CLASS",
-      "OPENVIBECODING_CI_CLOUD_BOOTSTRAP_ALLOWED"
+    "allowlisted_agentcoder_env": [
+      "AGENTCODER_DOC_GATE_MODE",
+      "AGENTCODER_DOC_GATE_BASE_SHA",
+      "AGENTCODER_DOC_GATE_HEAD_SHA",
+      "AGENTCODER_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE",
+      "AGENTCODER_CI_LIVE_PREFLIGHT_PROVIDER_API_MODE",
+      "AGENTCODER_CI_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE",
+      "AGENTCODER_CI_ROUTE_ID",
+      "AGENTCODER_CI_TRUST_CLASS",
+      "AGENTCODER_CI_RUNNER_CLASS",
+      "AGENTCODER_CI_CLOUD_BOOTSTRAP_ALLOWED"
     ],
     "forbid_dotenv_fallback": true
   },

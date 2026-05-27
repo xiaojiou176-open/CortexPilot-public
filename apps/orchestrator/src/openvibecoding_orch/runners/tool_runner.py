@@ -8,9 +8,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.gates.sampling_gate import is_sampling_tool, validate_sampling_policy
-from openvibecoding_orch.runners.mcp_adapter_runtime import execute_mcp_adapter, normalize_adapter_tool
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.gates.sampling_gate import is_sampling_tool, validate_sampling_policy
+from agentcoder_orch.runners.mcp_adapter_runtime import execute_mcp_adapter, normalize_adapter_tool
+from agentcoder_orch.store.run_store import RunStore
 
 ROOT = Path(__file__).resolve().parents[5]
 if str(ROOT) not in sys.path:

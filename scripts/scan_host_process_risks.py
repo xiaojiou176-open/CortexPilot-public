@@ -186,7 +186,7 @@ def print_findings(findings: list[dict[str, object]]) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Scan OpenVibeCoding for host-process safety risks."
+        description="Scan Agentcoder for host-process safety risks."
     )
     parser.add_argument(
         "--root",

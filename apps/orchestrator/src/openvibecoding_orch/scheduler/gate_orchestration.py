@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from openvibecoding_orch.scheduler import core_helpers
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.scheduler import core_helpers
+from agentcoder_orch.store.run_store import RunStore
 
 
 def gate_result(passed: bool, violations: list[str] | None = None) -> dict[str, Any]:
