@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "description": "Minimal navigation registry for the active public documentation surface only.",
+  "entries": [
+    {
+      "path": "docs/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/ecosystem/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/compatibility/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/distribution/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/agent-starters/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/use-cases/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/ai-surfaces/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/mcp/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/api/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/integrations/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/skills/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/builders/index.html",
+      "kind": "entrypoint",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": true
+    },
+    {
+      "path": "docs/robots.txt",
+      "kind": "reference",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    },
+    {
+      "path": "docs/sitemap.xml",
+      "kind": "reference",
+      "status": "active",
+      "canonical": true,
+      "generated": false,
+      "owner_surface": "docs",
+      "listed_in_primary_navigation": false
+    }
+  ]
+}

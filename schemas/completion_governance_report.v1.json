@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/completion_governance_report.v1.json",
+  "title": "CompletionGovernanceReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "report_type",
+    "generated_at",
+    "authority",
+    "source",
+    "execution_authority",
+    "overall_verdict",
+    "dod_checker",
+    "reply_auditor",
+    "continuation_decision",
+    "context_pack",
+    "harness_request"
+  ],
+  "$defs": {
+    "StatusSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "summary"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "properties": {
+    "report_type": {
+      "type": "string",
+      "const": "completion_governance_report"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "authority": {
+      "type": "string",
+      "const": "completion-governance-runtime"
+    },
+    "source": {
+      "type": "string",
+      "const": "finalize_run"
+    },
+    "execution_authority": {
+      "type": "string",
+      "const": "task_contract"
+    },
+    "overall_verdict": {
+      "type": "string",
+      "enum": [
+        "complete",
+        "continue_same_session",
+        "queue_unblock_task",
+        "manual_triage"
+      ]
+    },
+    "dod_checker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "summary",
+        "required_checks",
+        "unmet_checks"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "passed",
+            "failed"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required_checks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "unmet_checks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "reply_auditor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "summary",
+        "signals"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "accepted",
+            "needs_follow_up",
+            "blocked"
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "signals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "continuation_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "selected_action",
+        "action_source",
+        "unblock_task_id",
+        "summary"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "none",
+            "selected"
+          ]
+        },
+        "selected_action": {
+          "type": "string"
+        },
+        "action_source": {
+          "type": "string"
+        },
+        "unblock_task_id": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "context_pack": {
+      "$ref": "#/$defs/StatusSummary"
+    },
+    "harness_request": {
+      "$ref": "#/$defs/StatusSummary"
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "name": "openvibecoding-readonly",
+  "display_name": "OpenVibeCoding Read-only MCP",
+  "status": "repo-shipped-with-live-openvibecoding-publication",
+  "version": "0.1.0-alpha.4",
+  "version_truth": "The repo-owned read-only MCP surface is shipped, and the live public package plus Official MCP Registry entry use the OpenVibeCoding-branded identifiers (`openvibecoding-orchestrator` / `io.github.xiaojiou176-open/openvibecoding-readonly`).",
+  "release_represents_current_main": false,
+  "description": "Repo-owned read-only MCP server for OpenVibeCoding runs, workflows, approvals, compare, proof, and incident summaries.",
+  "homepage": "https://xiaojiou176-open.github.io/OpenVibeCoding/mcp/",
+  "distribution_page": "https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/DISTRIBUTION.md",
+  "repository": "https://github.com/xiaojiou176-open/OpenVibeCoding",
+  "transport": "stdio",
+  "protocol": "json-rpc",
+  "auth_boundary": {
+    "mode": "repo-local only",
+    "hosted_account": false,
+    "oauth": false,
+    "writes_enabled": false
+  },
+  "startup": {
+    "command": "bash",
+    "args": [
+      "/absolute/path/to/OpenVibeCoding/scripts/run_openvibecoding_readonly_mcp.sh"
+    ],
+    "working_directory": "optional",
+    "environment": {},
+    "notes": "For an interactive proof from the repo root, you can also run `bash scripts/run_openvibecoding_readonly_mcp.sh`."
+  },
+  "portable_examples": [
+    {
+      "surface": "shared-mcp-json",
+      "path": "examples/coding-agents/mcp/readonly.mcp.json.example"
+    },
+    {
+      "surface": "codex",
+      "path": "docs/examples/agent-starters/codex/openvibecoding.config.toml"
+    },
+    {
+      "surface": "claude-code",
+      "path": "docs/examples/agent-starters/claude/project.mcp.json"
+    },
+    {
+      "surface": "openclaw",
+      "path": "docs/examples/agent-starters/openclaw/openvibecoding-server.json"
+    },
+    {
+      "surface": "openclaw-toml",
+      "path": "docs/examples/agent-starters/openclaw/config.openclaw.example.toml"
+    }
+  ],
+  "capabilities": {
+    "mode": "read-only",
+    "tools": [
+      "list_runs",
+      "get_run",
+      "get_run_events",
+      "get_run_reports",
+      "list_workflows",
+      "get_workflow",
+      "list_queue",
+      "get_pending_approvals",
+      "get_diff_gate_state",
+      "get_compare_summary",
+      "get_proof_summary",
+      "get_incident_summary"
+    ]
+  },
+  "source_of_truth": {
+    "cli_entrypoint": "apps/orchestrator/src/openvibecoding_orch/cli.py",
+    "wrapper": "scripts/run_openvibecoding_readonly_mcp.sh",
+    "human_quickstart": "docs/mcp/index.html",
+    "distribution_status": "DISTRIBUTION.md"
+  },
+  "external_publication_truth": {
+    "live_pypi_package": "openvibecoding-orchestrator==0.1.0a4",
+    "live_registry_entry": "io.github.xiaojiou176-open/openvibecoding-readonly@0.1.0a4",
+    "openvibecoding_branded_publication_live": true
+  },
+  "explicit_non_claims": [
+    "not a hosted MCP account",
+    "not a write-capable MCP surface",
+    "not an OAuth login flow",
+    "not a replacement for the orchestration runtime itself"
+  ]
+}

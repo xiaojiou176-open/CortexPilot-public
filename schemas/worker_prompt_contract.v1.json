@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/worker_prompt_contract.v1.json",
+  "title": "WorkerPromptContract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "prompt_contract_id",
+    "objective",
+    "scope",
+    "assigned_agent",
+    "reading_list",
+    "done_definition",
+    "constraints",
+    "allowed_actions",
+    "blocked_when",
+    "deliverables",
+    "escalation_policy",
+    "continuation_policy",
+    "verification_requirements"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "v1"
+    },
+    "prompt_contract_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "assigned_agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "role",
+        "agent_id"
+      ],
+      "properties": {
+        "role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "agent_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "reading_list": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required",
+        "optional"
+      ],
+      "properties": {
+        "required": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "optional": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "done_definition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "summary",
+        "acceptance_checks"
+      ],
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "acceptance_checks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "allowed_actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "blocked_when": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "deliverables": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "escalation_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "trigger"
+      ],
+      "properties": {
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "trigger": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "continuation_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "on_incomplete",
+        "on_blocked"
+      ],
+      "properties": {
+        "on_incomplete": {
+          "type": "string",
+          "minLength": 1
+        },
+        "on_blocked": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "verification_requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "forbidden_actions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

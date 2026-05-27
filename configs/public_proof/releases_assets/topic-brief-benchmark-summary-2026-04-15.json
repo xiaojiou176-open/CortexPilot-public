@@ -1,0 +1,25 @@
+{
+  "artifact_type": "topic_brief_public_bundle_baseline",
+  "baseline_scope": "release_proven_secondary_search_backed_path",
+  "proof_date": "2026-04-21",
+  "task_template": "topic_brief",
+  "bundle_ok": true,
+  "observed_run": {
+    "run_id": "run_20260421_185017_bf5749219a934b1a8deb61c6f1b78629",
+    "providers": {
+      "browser_ddg": 2
+    },
+    "verification_runs": 1
+  },
+  "tracked_assets": {
+    "benchmark_markdown": "configs/public_proof/releases_assets/topic-brief-benchmark-summary-2026-04-15.md",
+    "proof_summary_json": "configs/public_proof/releases_assets/topic-brief-healthy-proof-summary-2026-04-15.json",
+    "workflow_case_recap_markdown": "configs/public_proof/releases_assets/topic-brief-workflow-case-recap-2026-04-15.md"
+  },
+  "truth_boundary": {
+    "official_first_public_baseline": false,
+    "release_proven_secondary_business_path": true,
+    "broad_multi_run_release_average": false,
+    "hosted_production_proof": false
+  }
+}

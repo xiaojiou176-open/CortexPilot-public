@@ -1,0 +1,16 @@
+{
+  "version": "2026-02-20",
+  "owner": "release-governance",
+  "canary": {
+    "error_rate_critical": 0.003,
+    "p95_latency_ms_critical": 900,
+    "cwv_failure_critical": 5,
+    "required_consecutive_breach": 2
+  },
+  "rum": {
+    "min_pv_for_release": 1000,
+    "target_coverage_ratio": 0.85,
+    "target_lcp_p75_ms": 2500,
+    "target_lcp_p95_ms": 4000
+  }
+}

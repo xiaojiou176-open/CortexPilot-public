@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "description": "Minimal public/generated doc outputs kept after the public-surface reduction; tracked proof/render contracts live under configs/public_proof rather than docs-side ledgers.",
+  "entries": [
+    {
+      "output_path": "configs/public_proof/storefront/proof-pack-index.json",
+      "mode": "full_render",
+      "source_inputs": [
+        "scripts/generate_storefront_proof_pack_index.py",
+        "configs/storefront_proof_bundle_registry.json",
+        "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json",
+        "configs/public_proof/releases_assets/topic-brief-proof-pack-2026-04-15.json",
+        "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json"
+      ],
+      "contract_inputs": [
+        "configs/storefront_proof_bundle_registry.json",
+        "configs/public_proof/releases_assets/news-digest-proof-pack-2026-03-27.json",
+        "configs/public_proof/releases_assets/topic-brief-proof-pack-2026-04-15.json",
+        "configs/public_proof/releases_assets/page-brief-proof-pack-2026-04-15.json",
+        "configs/public_proof/storefront/demo-status.md",
+        "configs/public_proof/storefront/live-capture-requirements.json"
+      ],
+      "generator": "python3 scripts/generate_storefront_proof_pack_index.py",
+      "freshness_strategy": "timestamp",
+      "authoritative_for": [
+        "public_storefront_proof_pack_index"
+      ],
+      "human_editable_regions": "none"
+    },
+    {
+      "output_path": "configs/generated_fragments/ci-topology-summary.md",
+      "mode": "full_render",
+      "source_inputs": [
+        "scripts/render_docs.py",
+        "configs/ci_governance_policy.json"
+      ],
+      "generator": "python3 scripts/render_docs.py",
+      "freshness_strategy": "existence_only",
+      "authoritative_for": [
+        "generated_ci_topology_summary"
+      ],
+      "human_editable_regions": "none"
+    },
+    {
+      "output_path": "configs/generated_fragments/current-run-evidence-summary.md",
+      "mode": "full_render",
+      "source_inputs": [
+        "scripts/render_docs.py"
+      ],
+      "generator": "python3 scripts/render_docs.py",
+      "freshness_strategy": "existence_only",
+      "authoritative_for": [
+        "generated_current_run_summary"
+      ],
+      "human_editable_regions": "none"
+    },
+    {
+      "output_path": "configs/generated_fragments/coverage-summary.md",
+      "mode": "full_render",
+      "source_inputs": [
+        "scripts/render_docs.py"
+      ],
+      "generator": "python3 scripts/render_docs.py",
+      "freshness_strategy": "existence_only",
+      "authoritative_for": [
+        "generated_coverage_summary"
+      ],
+      "human_editable_regions": "none"
+    }
+  ]
+}

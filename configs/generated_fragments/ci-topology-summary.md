@@ -1,0 +1,5 @@
+- trust flow: `ci-trust-boundary -> quick-feedback -> hosted policy/core slices -> pr-release-critical-gates -> pr-ci-gate`
+- hosted policy/core slices: `policy-and-security, core-tests`
+- untrusted PR path: `quick-feedback -> untrusted-pr-basic-gates -> pr-ci-gate`
+- protected sensitive lanes: `workflow_dispatch -> owner-approved-sensitive -> ui-truth / resilience-and-e2e / release-evidence`
+- canonical machine SSOT: `configs/ci_governance_policy.json`
