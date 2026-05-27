@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for considering a contribution to OpenVibeCoding.
+Thank you for considering a contribution to Agentcoder.
 
 ## Good Contributions
 

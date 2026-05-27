@@ -20,7 +20,7 @@ describe("command tower page SSR query reproduction", () => {
 
   it("publishes route-level metadata for discoverability", () => {
     const metadata = buildCommandTowerMetadata("en");
-    expect(metadata.title).toBe("Command Tower | OpenVibeCoding");
+    expect(metadata.title).toBe("Command Tower | Agentcoder");
     expect(String(metadata.description)).toContain("operator visibility");
   });
 });

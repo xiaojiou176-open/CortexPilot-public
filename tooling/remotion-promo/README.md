@@ -1,6 +1,6 @@
-# OpenVibeCoding Remotion Promo
+# Agentcoder Remotion Promo
 
-Repo-owned source for a short OpenVibeCoding promo video.
+Repo-owned source for a short Agentcoder promo video.
 
 This folder is intentionally standalone so we can iterate on public-facing video
 assets without expanding the main workspace graph.
@@ -16,8 +16,8 @@ pnpm --dir tooling/remotion-promo render:mp4
 
 ## Outputs
 
-- Poster: `docs/assets/storefront/openvibecoding-command-tower-teaser-poster.png`
-- MP4: `docs/assets/storefront/openvibecoding-command-tower-teaser.mp4`
+- Poster: `docs/assets/storefront/agentcoder-command-tower-teaser-poster.png`
+- MP4: `docs/assets/storefront/agentcoder-command-tower-teaser.mp4`
 
 Both assets now belong to the tracked public storefront surface. Render into the
 repo-owned outputs above, then review size, readability, and truthfulness

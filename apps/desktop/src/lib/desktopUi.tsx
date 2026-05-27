@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
-import type { UiLocale } from "@openvibecoding/frontend-shared/uiCopy";
-import { detectPreferredUiLocale } from "@openvibecoding/frontend-shared/uiLocale";
+import type { UiLocale } from "@agentcoder/frontend-shared/uiCopy";
+import { detectPreferredUiLocale } from "@agentcoder/frontend-shared/uiLocale";
 import {
   Compass,
   FlaskConical,
@@ -92,15 +92,15 @@ export type ChainNodeData = {
 
 export const WORKSPACES: Workspace[] = [
   {
-    id: "openvibecoding-main",
-    repo: "OpenVibeCoding",
+    id: "agentcoder-main",
+    repo: "Agentcoder",
     branch: "main",
     path: "current checkout",
     activeAgents: 3
   },
   {
-    id: "openvibecoding-feature",
-    repo: "OpenVibeCoding",
+    id: "agentcoder-feature",
+    repo: "Agentcoder",
     branch: "feature/pm-chat",
     path: "current checkout",
     activeAgents: 2
@@ -141,8 +141,8 @@ export function createSeedTimeline(sessionId: string): ChatMessage[] {
       id: `${sessionId}-intro`,
       role: "pm",
       content: isZh
-        ? "OpenVibeCoding Command Tower PM 已就绪。告诉我目标，我会去协调 TL 和各条工程执行线。"
-        : "OpenVibeCoding Command Tower PM is ready. Tell me the goal and I will coordinate the TL and engineering agents.",
+        ? "Agentcoder Command Tower PM 已就绪。告诉我目标，我会去协调 TL 和各条工程执行线。"
+        : "Agentcoder Command Tower PM is ready. Tell me the goal and I will coordinate the TL and engineering agents.",
       embeds: [
         {
           id: `${sessionId}-decision-bootstrap`,

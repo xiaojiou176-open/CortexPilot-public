@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import type { UiLocale } from "@openvibecoding/frontend-shared/uiCopy";
-import { detectPreferredUiLocale } from "@openvibecoding/frontend-shared/uiLocale";
+import type { UiLocale } from "@agentcoder/frontend-shared/uiCopy";
+import { detectPreferredUiLocale } from "@agentcoder/frontend-shared/uiLocale";
 import { fetchQueue, fetchWorkflows, runNextQueue } from "../lib/api";
 import type { QueueItemRecord, WorkflowRecord } from "../lib/types";
 import { statusLabelDesktop, statusVariant } from "../lib/statusPresentation";

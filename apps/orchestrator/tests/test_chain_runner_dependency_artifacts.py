@@ -3,9 +3,9 @@ import subprocess
 from pathlib import Path
 
 import pytest
-from openvibecoding_orch.chain.runner import ChainRunner
-from openvibecoding_orch.scheduler.scheduler import Orchestrator
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.chain.runner import ChainRunner
+from agentcoder_orch.scheduler.scheduler import Orchestrator
+from agentcoder_orch.store.run_store import RunStore
 
 
 SCHEMA_ROOT = Path(__file__).resolve().parents[3] / "schemas"
@@ -13,7 +13,7 @@ SCHEMA_ROOT = Path(__file__).resolve().parents[3] / "schemas"
 
 @pytest.fixture(autouse=True)
 def _disable_strict_nontrivial(monkeypatch) -> None:
-    monkeypatch.setenv("OPENVIBECODING_ACCEPTANCE_STRICT_NONTRIVIAL", "0")
+    monkeypatch.setenv("AGENTCODER_ACCEPTANCE_STRICT_NONTRIVIAL", "0")
 
 
 def _git(cmd: list[str], cwd: Path) -> None:
@@ -99,10 +99,10 @@ def test_chain_runner_injects_dependency_artifacts(tmp_path: Path, monkeypatch) 
     runtime_root = tmp_path / "runtime"
     runs_root = runtime_root / "runs"
     worktree_root = runtime_root / "worktrees"
-    monkeypatch.setenv("OPENVIBECODING_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("OPENVIBECODING_RUNS_ROOT", str(runs_root))
-    monkeypatch.setenv("OPENVIBECODING_WORKTREE_ROOT", str(worktree_root))
-    monkeypatch.setenv("OPENVIBECODING_SCHEMA_ROOT", str(SCHEMA_ROOT))
+    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("AGENTCODER_WORKTREE_ROOT", str(worktree_root))
+    monkeypatch.setenv("AGENTCODER_SCHEMA_ROOT", str(SCHEMA_ROOT))
 
     chain = {
         "chain_id": "chain_dep_artifacts",

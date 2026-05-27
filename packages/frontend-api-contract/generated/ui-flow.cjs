@@ -1,5 +1,5 @@
 // GENERATED FILE. DO NOT EDIT.
-// Source: docs/api/openapi.openvibecoding.json
+// Source: docs/api/openapi.agentcoder.json
 
 "use strict";
 

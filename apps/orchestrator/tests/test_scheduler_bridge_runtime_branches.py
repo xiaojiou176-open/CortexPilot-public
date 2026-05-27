@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from openvibecoding_orch.scheduler import scheduler_bridge_runtime as bridge_runtime
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.scheduler import scheduler_bridge_runtime as bridge_runtime
+from agentcoder_orch.store.run_store import RunStore
 
 
 class _DummyStore:
@@ -164,7 +164,7 @@ def test_select_runner_error_paths_and_fallback(monkeypatch, tmp_path: Path) -> 
         bridge_runtime.select_runner({"runtime_options": {"runner": "codex"}}, store)
 
     monkeypatch.setattr(bridge_runtime, "_build_runner_via_execution_adapter", lambda *_a, **_k: None)
-    monkeypatch.setenv("OPENVIBECODING_RUNNER", "unknown-runner")
+    monkeypatch.setenv("AGENTCODER_RUNNER", "unknown-runner")
     with pytest.raises(ValueError, match="unsupported runner"):
         bridge_runtime.select_runner({}, store)
 

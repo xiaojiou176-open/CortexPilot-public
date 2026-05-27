@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-import openvibecoding_orch.queue.store as queue_store_module
-from openvibecoding_orch.queue.store import QueueStore
+import agentcoder_orch.queue.store as queue_store_module
+from agentcoder_orch.queue.store import QueueStore
 
 
 def test_claim_next_is_atomic_for_single_pending_item(tmp_path: Path) -> None:

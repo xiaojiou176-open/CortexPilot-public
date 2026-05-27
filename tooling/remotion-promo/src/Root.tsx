@@ -1,12 +1,12 @@
 import {Composition} from "remotion";
-import {OpenVibeCodingTeaser} from "./Teaser";
+import {AgentcoderTeaser} from "./Teaser";
 
 export const RemotionRoot = () => {
   return (
     <>
       <Composition
-        id="OpenVibeCodingTeaser"
-        component={OpenVibeCodingTeaser}
+        id="AgentcoderTeaser"
+        component={AgentcoderTeaser}
         width={1280}
         height={720}
         fps={30}

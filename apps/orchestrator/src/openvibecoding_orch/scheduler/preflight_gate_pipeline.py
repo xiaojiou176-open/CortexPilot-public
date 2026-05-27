@@ -3,18 +3,18 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.contract.validator import find_wide_paths
-from openvibecoding_orch.gates.integrated_gate import validate_integrated_tools
-from openvibecoding_orch.gates.mcp_concurrency_gate import validate_mcp_concurrency
-from openvibecoding_orch.gates.mcp_gate import validate_mcp_tools
-from openvibecoding_orch.gates.network_gate import requires_network_items, validate_network_policy
-from openvibecoding_orch.gates.sampling_gate import validate_sampling_policy
-from openvibecoding_orch.gates.tool_gate import validate_command
-from openvibecoding_orch.locks.locker import acquire_lock_with_cleanup, release_lock, resolve_lock_ttl
-from openvibecoding_orch.scheduler import approval_flow, artifact_pipeline, core_helpers, policy_pipeline, scheduler_bridge
-from openvibecoding_orch.scheduler.preflight_gate_runtime_helpers import run_preflight_pipeline
-from openvibecoding_orch.scheduler.preflight_gate_types import PreflightOps
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.contract.validator import find_wide_paths
+from agentcoder_orch.gates.integrated_gate import validate_integrated_tools
+from agentcoder_orch.gates.mcp_concurrency_gate import validate_mcp_concurrency
+from agentcoder_orch.gates.mcp_gate import validate_mcp_tools
+from agentcoder_orch.gates.network_gate import requires_network_items, validate_network_policy
+from agentcoder_orch.gates.sampling_gate import validate_sampling_policy
+from agentcoder_orch.gates.tool_gate import validate_command
+from agentcoder_orch.locks.locker import acquire_lock_with_cleanup, release_lock, resolve_lock_ttl
+from agentcoder_orch.scheduler import approval_flow, artifact_pipeline, core_helpers, policy_pipeline, scheduler_bridge
+from agentcoder_orch.scheduler.preflight_gate_runtime_helpers import run_preflight_pipeline
+from agentcoder_orch.scheduler.preflight_gate_types import PreflightOps
+from agentcoder_orch.store.run_store import RunStore
 
 
 def _build_result(

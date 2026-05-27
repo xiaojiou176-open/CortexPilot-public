@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 from typing import Any, Callable
 
-from openvibecoding_orch.contract.validator import ContractValidator
-from openvibecoding_orch.replay import replay_helpers as _helpers
+from agentcoder_orch.contract.validator import ContractValidator
+from agentcoder_orch.replay import replay_helpers as _helpers
 
 _now_ts = _helpers._now_ts
 _sha256_text = _helpers._sha256_text

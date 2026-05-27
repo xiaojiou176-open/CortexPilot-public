@@ -7,8 +7,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.runners import agents_events
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.runners import agents_events
+from agentcoder_orch.store.run_store import RunStore
 
 
 @dataclass

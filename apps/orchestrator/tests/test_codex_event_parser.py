@@ -1,4 +1,4 @@
-from openvibecoding_orch.observability.codex_event_parser import parse_codex_event_line
+from agentcoder_orch.observability.codex_event_parser import parse_codex_event_line
 
 
 def test_parse_codex_event_json():

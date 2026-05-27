@@ -1,5 +1,5 @@
 {
-  "name": "openvibecoding-ci-core",
+  "name": "agentcoder-ci-core",
   "dockerComposeFile": [
     "../infra/ci/compose.yml"
   ],

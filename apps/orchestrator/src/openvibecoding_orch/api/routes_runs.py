@@ -9,12 +9,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, field_validator
 
-from openvibecoding_orch.api import deps as api_deps
-from openvibecoding_orch.api import main_run_views_helpers
-from openvibecoding_orch.api.security_validators import validate_run_id
-from openvibecoding_orch.config import load_config
-from openvibecoding_orch.locks.locker import release_lock
-from openvibecoding_orch.services.orchestration_service import OrchestrationService
+from agentcoder_orch.api import deps as api_deps
+from agentcoder_orch.api import main_run_views_helpers
+from agentcoder_orch.api.security_validators import validate_run_id
+from agentcoder_orch.config import load_config
+from agentcoder_orch.locks.locker import release_lock
+from agentcoder_orch.services.orchestration_service import OrchestrationService
 
 
 router = APIRouter(prefix="/api", tags=["runs"])
@@ -93,7 +93,7 @@ def _validated_run_id(run_id: str) -> str:
 
 
 def _mutation_roles() -> set[str]:
-    raw = os.getenv("OPENVIBECODING_APPROVAL_ALLOWED_ROLES", "").strip()
+    raw = os.getenv("AGENTCODER_APPROVAL_ALLOWED_ROLES", "").strip()
     if not raw:
         return set(_DEFAULT_MUTATION_ROLES)
     parsed = {item.strip().upper() for item in raw.split(",") if item.strip()}
@@ -103,7 +103,7 @@ def _mutation_roles() -> set[str]:
 def _request_role(request: Request | None) -> str:
     if request is None:
         return ""
-    return request.headers.get("x-openvibecoding-role", "").strip().upper()
+    return request.headers.get("x-agentcoder-role", "").strip().upper()
 
 
 def _role_header_is_trusted(request: Request | None) -> bool:
@@ -111,7 +111,7 @@ def _role_header_is_trusted(request: Request | None) -> bool:
         return True
     if not load_config().api_auth_required:
         return True
-    return bool(getattr(request.state, "openvibecoding_api_auth_verified", False))
+    return bool(getattr(request.state, "agentcoder_api_auth_verified", False))
 
 
 def _enforce_mutation_rbac(request: Request | None) -> None:

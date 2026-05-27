@@ -1,4 +1,4 @@
-"""Service package exports for OpenVibeCoding.
+"""Service package exports for Agentcoder.
 
 Keep this module import-light so read-only surfaces can import targeted service
 modules without pulling the full orchestration runtime into package import side

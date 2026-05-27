@@ -743,7 +743,7 @@
   border-color: var(--color-border-primary-soft);
 }
 
-.pm-chat-item.is-openvibecoding {
+.pm-chat-item.is-agentcoder {
   justify-self: start;
   align-self: flex-start;
   background: var(--color-bg-elevated);

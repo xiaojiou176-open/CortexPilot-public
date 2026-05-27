@@ -7,35 +7,35 @@ from functools import partial
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.contract.validator import (
+from agentcoder_orch.contract.validator import (
     ContractValidator,
     hash_contract,
     find_wide_paths,
     resolve_agent_registry_path,
     check_schema_registry,
 )
-from openvibecoding_orch.chain.runner import ChainRunner
-from openvibecoding_orch.gates.diff_gate import validate_diff
-from openvibecoding_orch.gates.reviewer_gate import snapshot_worktree, validate_reviewer_isolation
-from openvibecoding_orch.gates.integrated_gate import validate_integrated_tools
-from openvibecoding_orch.gates.mcp_concurrency_gate import validate_mcp_concurrency
-from openvibecoding_orch.gates.mcp_gate import validate_mcp_tools
-from openvibecoding_orch.gates.network_gate import requires_network_items, validate_network_policy
-from openvibecoding_orch.gates.sampling_gate import validate_sampling_policy
-from openvibecoding_orch.gates.tests_gate import run_acceptance_tests, run_evals_gate
-from openvibecoding_orch.gates.tool_gate import validate_command
-from openvibecoding_orch.locks.locker import acquire_lock_with_cleanup, release_lock, resolve_lock_ttl
-from openvibecoding_orch.observability.logger import log_event
-from openvibecoding_orch.observability.tracer import trace_span, ensure_tracing, tracing_status
-from openvibecoding_orch.replay.replayer import ReplayRunner
-from openvibecoding_orch.reviewer.reviewer import Reviewer
-from openvibecoding_orch.temporal.manager import notify_run_started, temporal_required
-from openvibecoding_orch.temporal.runner import run_workflow
-from openvibecoding_orch.runners.tool_runner import ToolRunner
-from openvibecoding_orch.store.run_store import RunStore
-from openvibecoding_orch.transport.codex_profile_pool import pick_profile
-from openvibecoding_orch.scheduler import artifact_refs, gate_orchestration
-from openvibecoding_orch.scheduler import (
+from agentcoder_orch.chain.runner import ChainRunner
+from agentcoder_orch.gates.diff_gate import validate_diff
+from agentcoder_orch.gates.reviewer_gate import snapshot_worktree, validate_reviewer_isolation
+from agentcoder_orch.gates.integrated_gate import validate_integrated_tools
+from agentcoder_orch.gates.mcp_concurrency_gate import validate_mcp_concurrency
+from agentcoder_orch.gates.mcp_gate import validate_mcp_tools
+from agentcoder_orch.gates.network_gate import requires_network_items, validate_network_policy
+from agentcoder_orch.gates.sampling_gate import validate_sampling_policy
+from agentcoder_orch.gates.tests_gate import run_acceptance_tests, run_evals_gate
+from agentcoder_orch.gates.tool_gate import validate_command
+from agentcoder_orch.locks.locker import acquire_lock_with_cleanup, release_lock, resolve_lock_ttl
+from agentcoder_orch.observability.logger import log_event
+from agentcoder_orch.observability.tracer import trace_span, ensure_tracing, tracing_status
+from agentcoder_orch.replay.replayer import ReplayRunner
+from agentcoder_orch.reviewer.reviewer import Reviewer
+from agentcoder_orch.temporal.manager import notify_run_started, temporal_required
+from agentcoder_orch.temporal.runner import run_workflow
+from agentcoder_orch.runners.tool_runner import ToolRunner
+from agentcoder_orch.store.run_store import RunStore
+from agentcoder_orch.transport.codex_profile_pool import pick_profile
+from agentcoder_orch.scheduler import artifact_refs, gate_orchestration
+from agentcoder_orch.scheduler import (
     approval_flow,
     artifact_pipeline,
     evidence_pipeline,
@@ -396,13 +396,13 @@ class Orchestrator:
 
         try:
             with execute_task_pipeline.isolated_execution_env():
-                os.environ["OPENVIBECODING_RUN_ID"] = run_id
-                os.environ["OPENVIBECODING_TRACE_ID"] = trace_id
-                os.environ["OPENVIBECODING_CODEX_VERSION"] = codex_version
+                os.environ["AGENTCODER_RUN_ID"] = run_id
+                os.environ["AGENTCODER_TRACE_ID"] = trace_id
+                os.environ["AGENTCODER_CODEX_VERSION"] = codex_version
                 if profile:
-                    os.environ["OPENVIBECODING_CODEX_PROFILE"] = profile
+                    os.environ["AGENTCODER_CODEX_PROFILE"] = profile
                 else:
-                    os.environ.pop("OPENVIBECODING_CODEX_PROFILE", None)
+                    os.environ.pop("AGENTCODER_CODEX_PROFILE", None)
                 execution_state = _run_execution_pipeline(
                     run_id=run_id,
                     task_id=task_id,

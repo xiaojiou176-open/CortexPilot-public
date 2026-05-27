@@ -11,12 +11,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.contract.compiler import compile_plan, sync_role_contract
-from openvibecoding_orch.contract.role_config_registry import build_runtime_capability_summary
-from openvibecoding_orch.contract.validator import ContractValidator
-from openvibecoding_orch.config import get_runner_config
-from openvibecoding_orch.scheduler import approval_flow
-from openvibecoding_orch.runners.provider_resolution import (
+from agentcoder_orch.contract.compiler import compile_plan, sync_role_contract
+from agentcoder_orch.contract.role_config_registry import build_runtime_capability_summary
+from agentcoder_orch.contract.validator import ContractValidator
+from agentcoder_orch.config import get_runner_config
+from agentcoder_orch.scheduler import approval_flow
+from agentcoder_orch.runners.provider_resolution import (
     build_llm_compat_client,
     merge_provider_credentials,
     ProviderResolutionError,
@@ -26,7 +26,7 @@ from openvibecoding_orch.runners.provider_resolution import (
     resolve_provider_credentials,
     resolve_runtime_provider_from_env,
 )
-from openvibecoding_orch.store.intake_store import IntakeStore
+from agentcoder_orch.store.intake_store import IntakeStore
 
 from . import intake_generation_helpers as _generation_helpers
 from . import intake_plan_bundle_helpers as _bundle_helpers
@@ -92,8 +92,8 @@ _PROVIDER_API_KEY_ENV_HINTS = {
     "claude": "ANTHROPIC_API_KEY",
     "anthropic-claude": "ANTHROPIC_API_KEY",
     "anthropic_claude": "ANTHROPIC_API_KEY",
-    "equilibrium": "OPENVIBECODING_EQUILIBRIUM_API_KEY",
-    "codex_equilibrium": "OPENVIBECODING_EQUILIBRIUM_API_KEY",
+    "equilibrium": "AGENTCODER_EQUILIBRIUM_API_KEY",
+    "codex_equilibrium": "AGENTCODER_EQUILIBRIUM_API_KEY",
 }
 _NEWS_DIGEST_TEMPLATE = "news_digest"
 _TOPIC_BRIEF_TEMPLATE = "topic_brief"
@@ -819,7 +819,7 @@ def _repo_root() -> Path:
 
 
 def _execute_chain(chain_path: Path, mock_mode: bool) -> dict[str, Any]:
-    from openvibecoding_orch.scheduler.scheduler import Orchestrator
+    from agentcoder_orch.scheduler.scheduler import Orchestrator
 
     orch = Orchestrator(_repo_root())
     return orch.execute_chain(chain_path, mock_mode=mock_mode)
@@ -850,8 +850,8 @@ def _build_plan_bundle_fallback(payload: dict[str, Any], answers: list[str]) -> 
 
 def _agents_available() -> bool:
     smoke_flags = (
-        os.getenv("OPENVIBECODING_ORCHESTRATION_SMOKE_MODE", "").strip().lower(),
-        os.getenv("OPENVIBECODING_E2E_ORCHESTRATION_SMOKE_MODE", "").strip().lower(),
+        os.getenv("AGENTCODER_ORCHESTRATION_SMOKE_MODE", "").strip().lower(),
+        os.getenv("AGENTCODER_E2E_ORCHESTRATION_SMOKE_MODE", "").strip().lower(),
     )
     if any(flag in {"1", "true", "yes", "y", "on"} for flag in smoke_flags):
         return False
@@ -863,7 +863,7 @@ def _agents_available() -> bool:
 
 
 def _resolve_agents_store() -> bool:
-    raw = os.getenv("OPENVIBECODING_AGENTS_STORE", "").strip().lower()
+    raw = os.getenv("AGENTCODER_AGENTS_STORE", "").strip().lower()
     if raw in {"1", "true", "yes"}:
         return True
     if raw in {"0", "false", "no"}:
@@ -948,7 +948,7 @@ def _run_agent(prompt: str, instructions: str) -> dict[str, Any]:
                 set_default_openai_client(compat_client)
         except Exception:  # noqa: BLE001
             pass
-    agent = Agent(name="OpenVibeCodingPlanner", instructions=instructions, mcp_servers=[])
+    agent = Agent(name="AgentcoderPlanner", instructions=instructions, mcp_servers=[])
 
     async def _run() -> Any:
         model_name = get_runner_config().agents_model or "gemini-2.5-flash"
@@ -959,7 +959,7 @@ def _run_agent(prompt: str, instructions: str) -> dict[str, Any]:
                 model=model_name,
                 tracing_disabled=True,
                 model_settings=ModelSettings(
-                    extra_headers={"x-openvibecoding-intake": "plan_bundle"},
+                    extra_headers={"x-agentcoder-intake": "plan_bundle"},
                     store=_resolve_agents_store(),
                 ),
                 call_model_input_filter=_strip_model_input_ids,
@@ -1151,8 +1151,8 @@ class IntakeService:
             if auto_run_chain:
                 snapshot_env = dict(os.environ)
                 try:
-                    if not os.getenv("OPENVIBECODING_RUNNER"):
-                        os.environ["OPENVIBECODING_RUNNER"] = "agents"
+                    if not os.getenv("AGENTCODER_RUNNER"):
+                        os.environ["AGENTCODER_RUNNER"] = "agents"
                     try:
                         chain_report = _execute_chain(chain_path, mock_chain)
                         response["chain_run_id"] = chain_report.get("run_id", "")

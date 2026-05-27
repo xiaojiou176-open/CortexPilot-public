@@ -1,20 +1,20 @@
 {
-  "name": "@openvibecoding/frontend-api-contract",
+  "name": "@agentcoder/frontend-api-contract",
   "version": "0.1.0",
   "private": false,
-  "description": "Generated frontend-safe route, query, and type contract surface for OpenVibeCoding control-plane consumers.",
-  "homepage": "https://xiaojiou176-open.github.io/OpenVibeCoding/api/",
+  "description": "Generated frontend-safe route, query, and type contract surface for Agentcoder control-plane consumers.",
+  "homepage": "https://xiaojiou176-open.github.io/agentcoder/api/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xiaojiou176-open/OpenVibeCoding.git",
+    "url": "git+https://github.com/xiaojiou176-open/agentcoder.git",
     "directory": "packages/frontend-api-contract"
   },
   "bugs": {
-    "url": "https://github.com/xiaojiou176-open/OpenVibeCoding/issues"
+    "url": "https://github.com/xiaojiou176-open/agentcoder/issues"
   },
   "license": "MIT",
   "keywords": [
-    "openvibecoding",
+    "agentcoder",
     "frontend",
     "api-contract",
     "types",

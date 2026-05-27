@@ -23,7 +23,7 @@ _PROVIDER_ALIASES = {
     "anthropic-claude": "anthropic",
     "anthropic_claude": "anthropic",
 }
-_PROVIDER_BASE_URL_ENV_KEYS = ("OPENVIBECODING_PROVIDER_BASE_URL",)
+_PROVIDER_BASE_URL_ENV_KEYS = ("AGENTCODER_PROVIDER_BASE_URL",)
 _REPO_ROOT = Path(__file__).resolve().parents[5]
 _SWITCHYARD_RUNTIME_INVOKE_PATH = "/v1/runtime/invoke"
 

@@ -498,7 +498,7 @@ describe("pm page chat-driven flow", () => {
     expect(within(chatLog).getByText("只清本地")).toBeInTheDocument();
     const remoteBubble = within(chatLog).getByText("远端进度").closest(".pm-chat-bubble");
     expect(remoteBubble).not.toBeNull();
-    expect(within(remoteBubble as HTMLElement).getByText("OpenVibeCoding Command Tower")).toBeInTheDocument();
+    expect(within(remoteBubble as HTMLElement).getByText("Agentcoder Command Tower")).toBeInTheDocument();
   });
 
   it("deduplicates optimistic user message when matching remote event arrives", async () => {
@@ -671,7 +671,7 @@ describe("pm page chat-driven flow", () => {
         expect.objectContaining({
           objective: "payload-shape",
           allowed_paths: ["apps/a", "apps/b", "apps/c"],
-          constraints: ["workspace=apps/dashboard", "repo=openvibecoding", "safe", "deterministic"],
+          constraints: ["workspace=apps/dashboard", "repo=agentcoder", "safe", "deterministic"],
           search_queries: ["query-1", "query-2"],
           mcp_tool_set: ["codex"],
           requester_role: "TECH_LEAD",

@@ -1,1 +1,1 @@
-"""Temporal helpers for the OpenVibeCoding orchestrator package."""
+"""Temporal helpers for the Agentcoder orchestrator package."""

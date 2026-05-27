@@ -1,4 +1,4 @@
-name: openvibecoding-codeql
+name: agentcoder-codeql
 
 paths-ignore:
   - .runtime-cache/**

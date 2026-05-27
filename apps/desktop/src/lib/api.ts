@@ -1,5 +1,5 @@
-import { createDesktopApiClient, type RequestControlOptions } from "@openvibecoding/frontend-api-client";
-import type { PmSessionSort } from "@openvibecoding/frontend-api-contract";
+import { createDesktopApiClient, type RequestControlOptions } from "@agentcoder/frontend-api-client";
+import type { PmSessionSort } from "@agentcoder/frontend-api-contract";
 import type {
   AgentCatalogPayload,
   AgentStatusPayload,

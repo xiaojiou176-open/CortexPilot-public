@@ -6,14 +6,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.config import load_config
-from openvibecoding_orch.replay.reexec_flow import reexecute_run
-from openvibecoding_orch.replay.replayer import ReplayRunner
-from openvibecoding_orch.replay.verify_flow import verify_run
-from openvibecoding_orch.scheduler import execute_flow
-from openvibecoding_orch.scheduler.scheduler import Orchestrator
-from openvibecoding_orch.store import run_store
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.config import load_config
+from agentcoder_orch.replay.reexec_flow import reexecute_run
+from agentcoder_orch.replay.replayer import ReplayRunner
+from agentcoder_orch.replay.verify_flow import verify_run
+from agentcoder_orch.scheduler import execute_flow
+from agentcoder_orch.scheduler.scheduler import Orchestrator
+from agentcoder_orch.store import run_store
+from agentcoder_orch.store.run_store import RunStore
 
 _REDACTED_VALUE = "[REDACTED]"
 _SENSITIVE_KEY_RE = re.compile(r"(token|secret|key|password|credential|auth|private|cert)", re.IGNORECASE)

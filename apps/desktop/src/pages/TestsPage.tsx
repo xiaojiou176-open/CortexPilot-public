@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import type { UiLocale } from "@openvibecoding/frontend-shared/uiCopy";
-import { detectPreferredUiLocale } from "@openvibecoding/frontend-shared/uiLocale";
+import type { UiLocale } from "@agentcoder/frontend-shared/uiCopy";
+import { detectPreferredUiLocale } from "@agentcoder/frontend-shared/uiLocale";
 import type { JsonValue } from "../lib/types";
 import { fetchTests } from "../lib/api";
 import { statusLabelDesktop, statusVariant } from "../lib/statusPresentation";

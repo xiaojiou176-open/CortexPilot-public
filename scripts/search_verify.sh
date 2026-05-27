@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/scripts/lib/env.sh"
-PYTHON="${PYTHON:-${OPENVIBECODING_PYTHON:-}}"
+PYTHON="${PYTHON:-${AGENTCODER_PYTHON:-}}"
 
 if [ ! -x "$PYTHON" ]; then
   echo "missing managed python at $PYTHON" >&2

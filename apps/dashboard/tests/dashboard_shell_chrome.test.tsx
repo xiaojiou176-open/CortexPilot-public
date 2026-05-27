@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { UI_LOCALE_STORAGE_KEY } from "@openvibecoding/frontend-shared/uiLocale";
+import { UI_LOCALE_STORAGE_KEY } from "@agentcoder/frontend-shared/uiLocale";
 
 const { mockRefresh, mockPathname } = vi.hoisted(() => ({
   mockRefresh: vi.fn(),
@@ -56,7 +56,7 @@ describe("DashboardShellChrome", () => {
       </DashboardShellChrome>,
     );
 
-    expect(screen.getByRole("link", { name: "OpenVibeCoding" })).toHaveTextContent("OVC");
+    expect(screen.getByRole("link", { name: "Agentcoder" })).toHaveTextContent("OVC");
     expect(screen.getByTestId("app-nav")).toHaveAttribute("data-compact", "true");
     expect(screen.queryByText("Governance view")).not.toBeInTheDocument();
     expect(screen.queryByText("Live verification required")).not.toBeInTheDocument();
@@ -72,7 +72,7 @@ describe("DashboardShellChrome", () => {
       </DashboardShellChrome>,
     );
 
-    expect(screen.getByRole("link", { name: "OpenVibeCoding" })).toHaveTextContent("OpenVibeCoding");
+    expect(screen.getByRole("link", { name: "Agentcoder" })).toHaveTextContent("Agentcoder");
     expect(screen.getByTestId("app-nav")).toHaveAttribute("data-compact", "false");
     expect(screen.getByText("Live operator shell")).toBeInTheDocument();
     expect(screen.getByText("Operator shell")).toBeInTheDocument();

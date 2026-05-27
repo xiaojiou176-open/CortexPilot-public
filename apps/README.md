@@ -1,6 +1,6 @@
 # Apps Overview
 
-`apps/` contains the three main operator-facing surfaces of OpenVibeCoding.
+`apps/` contains the three main operator-facing surfaces of Agentcoder.
 
 - `orchestrator/`: backend execution, orchestration, evidence, replay
 - `dashboard/`: web command surface

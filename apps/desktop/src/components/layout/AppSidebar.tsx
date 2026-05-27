@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@openvibecoding/frontend-shared/uiCopy";
+import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@agentcoder/frontend-shared/uiCopy";
 import type { DesktopPageKey } from "../../App";
 import { Button } from "../ui/Button";
 
@@ -121,7 +121,7 @@ type AppSidebarProps = {
   locale?: UiLocale;
 };
 
-const PUBLIC_BRAND_TITLE = "OpenVibeCoding";
+const PUBLIC_BRAND_TITLE = "Agentcoder";
 const PUBLIC_BRAND_SUBTITLE = "plan / delegate / track / resume / prove";
 
 export function AppSidebar({ activePage, onNavigate, locale = DEFAULT_UI_LOCALE }: AppSidebarProps) {

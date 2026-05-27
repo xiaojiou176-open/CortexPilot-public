@@ -11,12 +11,12 @@ REPO_ROOT = Path(__file__).resolve().parents[5]
 if str(REPO_ROOT) not in sys.path:
     sys.path.append(str(REPO_ROOT))
 
-from openvibecoding_orch.gates.mcp_gate import validate_mcp_tools
-from openvibecoding_orch.gates.reviewer_gate import snapshot_worktree, validate_reviewer_isolation
-from openvibecoding_orch.gates.tool_gate import validate_command
-from openvibecoding_orch.runners import mcp_adapter_runtime
-from openvibecoding_orch.runners.mcp_adapter_runtime import execute_mcp_adapter
-from openvibecoding_orch.scheduler import policy_pipeline
+from agentcoder_orch.gates.mcp_gate import validate_mcp_tools
+from agentcoder_orch.gates.reviewer_gate import snapshot_worktree, validate_reviewer_isolation
+from agentcoder_orch.gates.tool_gate import validate_command
+from agentcoder_orch.runners import mcp_adapter_runtime
+from agentcoder_orch.runners.mcp_adapter_runtime import execute_mcp_adapter
+from agentcoder_orch.scheduler import policy_pipeline
 from tooling.mcp.adapter import sanitize_mcp_payload
 
 

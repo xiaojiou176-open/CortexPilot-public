@@ -50,7 +50,7 @@ def hmac_sha256(key: str, payload: bytes) -> str:
 
 
 def load_hmac_key() -> str | None:
-    raw = os.getenv("OPENVIBECODING_CONTRACT_HMAC_KEY", "").strip()
+    raw = os.getenv("AGENTCODER_CONTRACT_HMAC_KEY", "").strip()
     return raw or None
 
 

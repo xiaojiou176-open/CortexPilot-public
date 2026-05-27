@@ -14,29 +14,29 @@ from rich.console import Console
 from rich.table import Table
 import uvicorn
 
-from openvibecoding_orch.api.main import app as api_app
-from openvibecoding_orch.contract.compiler import compile_plan
-from openvibecoding_orch.contract.validator import ContractValidator
-from openvibecoding_orch.config import load_config
-from openvibecoding_orch.mcp_queue_pilot_server import serve_queue_pilot_mcp
-from openvibecoding_orch.mcp_readonly_server import serve_readonly_mcp
-from openvibecoding_orch.planning.coverage_chain import (
+from agentcoder_orch.api.main import app as api_app
+from agentcoder_orch.contract.compiler import compile_plan
+from agentcoder_orch.contract.validator import ContractValidator
+from agentcoder_orch.config import load_config
+from agentcoder_orch.mcp_queue_pilot_server import serve_queue_pilot_mcp
+from agentcoder_orch.mcp_readonly_server import serve_readonly_mcp
+from agentcoder_orch.planning.coverage_chain import (
     DEFAULT_COVERAGE_JSON,
     build_coverage_self_heal_chain,
     load_coverage_targets,
     run_coverage_scan,
     write_chain,
 )
-from openvibecoding_orch.queue import QueueStore
-from openvibecoding_orch.scheduler.scheduler import Orchestrator
-from openvibecoding_orch.store.session_map import SessionAliasStore
-from openvibecoding_orch.locks.locker import release_lock
-from openvibecoding_orch.runtime.retention import (
+from agentcoder_orch.queue import QueueStore
+from agentcoder_orch.scheduler.scheduler import Orchestrator
+from agentcoder_orch.store.session_map import SessionAliasStore
+from agentcoder_orch.locks.locker import release_lock
+from agentcoder_orch.runtime.retention import (
     apply_retention_plan,
     build_retention_plan,
     write_retention_report,
 )
-from openvibecoding_orch import cli_command_helpers, cli_coverage_helpers, cli_runtime_helpers
+from agentcoder_orch import cli_command_helpers, cli_coverage_helpers, cli_runtime_helpers
 
 app = typer.Typer()
 session_app = typer.Typer()
@@ -126,7 +126,7 @@ def init() -> None:
 
 @app.command()
 def doctor() -> None:
-    table = Table(title="openvibecoding doctor")
+    table = Table(title="agentcoder doctor")
     table.add_column("tool")
     table.add_column("status")
 
@@ -161,11 +161,11 @@ def run(
     tail_event: str = typer.Option("", "--tail-event"),
 ) -> None:
     contract_path = contract_path.resolve()
-    prev_force_unlock = os.environ.get("OPENVIBECODING_FORCE_UNLOCK")
-    prev_runner = os.environ.get("OPENVIBECODING_RUNNER")
+    prev_force_unlock = os.environ.get("AGENTCODER_FORCE_UNLOCK")
+    prev_runner = os.environ.get("AGENTCODER_RUNNER")
     try:
         if force_unlock:
-            os.environ["OPENVIBECODING_FORCE_UNLOCK"] = "1"
+            os.environ["AGENTCODER_FORCE_UNLOCK"] = "1"
             validated_contract = ContractValidator().validate_contract_file(contract_path)
             allowed_paths = validated_contract.get("allowed_paths", [])
             if not isinstance(allowed_paths, list):
@@ -175,9 +175,9 @@ def run(
                 raise ValueError("force unlock requires non-empty allowed_paths")
             release_lock(scoped_paths)
         else:
-            os.environ.pop("OPENVIBECODING_FORCE_UNLOCK", None)
+            os.environ.pop("AGENTCODER_FORCE_UNLOCK", None)
         if runner:
-            os.environ["OPENVIBECODING_RUNNER"] = runner
+            os.environ["AGENTCODER_RUNNER"] = runner
         orch = Orchestrator(_repo_root())
         if not follow:
             run_id = orch.execute_task(contract_path, mock_mode=mock)
@@ -197,14 +197,14 @@ def run(
         console.print(f"run_id={run_id}")
     finally:
         if prev_force_unlock is None:
-            os.environ.pop("OPENVIBECODING_FORCE_UNLOCK", None)
+            os.environ.pop("AGENTCODER_FORCE_UNLOCK", None)
         else:
-            os.environ["OPENVIBECODING_FORCE_UNLOCK"] = prev_force_unlock
+            os.environ["AGENTCODER_FORCE_UNLOCK"] = prev_force_unlock
         if runner:
             if prev_runner is None:
-                os.environ.pop("OPENVIBECODING_RUNNER", None)
+                os.environ.pop("AGENTCODER_RUNNER", None)
             else:
-                os.environ["OPENVIBECODING_RUNNER"] = prev_runner
+                os.environ["AGENTCODER_RUNNER"] = prev_runner
 
 
 @app.command("run-chain")
@@ -217,9 +217,9 @@ def run_chain(
     tail_event: str = typer.Option("", "--tail-event"),
 ) -> None:
     chain_path = chain_path.resolve()
-    prev_force_unlock = os.environ.get("OPENVIBECODING_FORCE_UNLOCK")
+    prev_force_unlock = os.environ.get("AGENTCODER_FORCE_UNLOCK")
     try:
-        os.environ.pop("OPENVIBECODING_FORCE_UNLOCK", None)
+        os.environ.pop("AGENTCODER_FORCE_UNLOCK", None)
         orch = Orchestrator(_repo_root())
         if not follow:
             report = orch.execute_chain(chain_path, mock_mode=mock)
@@ -239,9 +239,9 @@ def run_chain(
         console.print(json.dumps(report, ensure_ascii=False, indent=2))
     finally:
         if prev_force_unlock is None:
-            os.environ.pop("OPENVIBECODING_FORCE_UNLOCK", None)
+            os.environ.pop("AGENTCODER_FORCE_UNLOCK", None)
         else:
-            os.environ["OPENVIBECODING_FORCE_UNLOCK"] = prev_force_unlock
+            os.environ["AGENTCODER_FORCE_UNLOCK"] = prev_force_unlock
 
 
 @app.command("coverage-self-heal-chain")

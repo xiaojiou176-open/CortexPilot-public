@@ -7,7 +7,7 @@ from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
 
-from openvibecoding_orch.config import load_config
+from agentcoder_orch.config import load_config
 
 _DEFAULT_LOCK_TTL_SEC = 900
 _DEFAULT_RUNNING_STALE_SEC = 1800
@@ -90,7 +90,7 @@ def _load_active_run_id(runtime_root: Path) -> str:
 
 
 def _resolve_running_stale_sec() -> int:
-    raw = os.getenv("OPENVIBECODING_RUNNING_LOCK_STALE_SEC", "").strip()
+    raw = os.getenv("AGENTCODER_RUNNING_LOCK_STALE_SEC", "").strip()
     if raw:
         try:
             return max(int(raw), 0)
@@ -104,14 +104,14 @@ def _truthy(raw: str) -> bool:
 
 
 def _force_unlock_enabled() -> bool:
-    return _truthy(os.getenv("OPENVIBECODING_FORCE_UNLOCK", ""))
+    return _truthy(os.getenv("AGENTCODER_FORCE_UNLOCK", ""))
 
 
 def _owner_token() -> str:
-    explicit = os.getenv("OPENVIBECODING_LOCK_OWNER_TOKEN", "").strip()
+    explicit = os.getenv("AGENTCODER_LOCK_OWNER_TOKEN", "").strip()
     if explicit:
         return explicit
-    run_id = os.getenv("OPENVIBECODING_RUN_ID", "").strip()
+    run_id = os.getenv("AGENTCODER_RUN_ID", "").strip()
     if run_id:
         return f"run:{run_id}:pid:{os.getpid()}"
     return f"pid:{os.getpid()}"
@@ -272,7 +272,7 @@ def cleanup_stale_locks(allowed_paths: Iterable[str], ttl_sec: int) -> tuple[lis
 
 
 def _resolve_lock_ttl(auto_cleanup: bool) -> tuple[int, str]:
-    ttl_raw = os.getenv("OPENVIBECODING_LOCK_TTL_SEC", "").strip()
+    ttl_raw = os.getenv("AGENTCODER_LOCK_TTL_SEC", "").strip()
     if ttl_raw != "":
         try:
             return max(int(ttl_raw), 0), "env"
@@ -280,7 +280,7 @@ def _resolve_lock_ttl(auto_cleanup: bool) -> tuple[int, str]:
             return 0, "env_invalid"
     if not auto_cleanup:
         return 0, "disabled"
-    default_raw = os.getenv("OPENVIBECODING_LOCK_TTL_SEC_DEFAULT", "").strip()
+    default_raw = os.getenv("AGENTCODER_LOCK_TTL_SEC_DEFAULT", "").strip()
     if default_raw != "":
         try:
             return max(int(default_raw), 0), "default_env"
@@ -320,7 +320,7 @@ def acquire_lock(allowed_paths: Iterable[str], reclaim_stale: bool = True) -> bo
     cfg = load_config()
     locks_root = cfg.runtime_root / "locks"
     locks_root.mkdir(parents=True, exist_ok=True)
-    run_id = os.getenv("OPENVIBECODING_RUN_ID", "unknown")
+    run_id = os.getenv("AGENTCODER_RUN_ID", "unknown")
     paths = _sanitize_allowed_paths(allowed_paths)
     if not paths:
         return False
@@ -360,10 +360,10 @@ def release_lock(allowed_paths: Iterable[str]) -> None:
     paths = _sanitize_allowed_paths(allowed_paths)
     if not paths:
         return
-    run_id = os.getenv("OPENVIBECODING_RUN_ID", "").strip()
+    run_id = os.getenv("AGENTCODER_RUN_ID", "").strip()
     current_pid = str(os.getpid())
     current_owner = _owner_token()
-    explicit_owner = os.getenv("OPENVIBECODING_LOCK_OWNER_TOKEN", "").strip()
+    explicit_owner = os.getenv("AGENTCODER_LOCK_OWNER_TOKEN", "").strip()
     force_unlock = _force_unlock_enabled()
     for path in paths:
         lock_path = _lock_path(path, locks_root)

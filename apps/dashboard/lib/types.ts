@@ -1,6 +1,6 @@
-import type { OperatorCopilotBrief as SharedOperatorCopilotBrief } from "@openvibecoding/frontend-shared/types";
+import type { OperatorCopilotBrief as SharedOperatorCopilotBrief } from "@agentcoder/frontend-shared/types";
 
-export * from "@openvibecoding/frontend-shared/types";
+export * from "@agentcoder/frontend-shared/types";
 export {
   GENERAL_TASK_TEMPLATE,
   buildTaskPackFieldStateForPack,
@@ -11,6 +11,6 @@ export {
   formatRoleBindingRuntimeSummary,
   hydrateTaskPackFieldStateFromPayload,
   mergeTaskPackFieldStateByTemplate,
-} from "@openvibecoding/frontend-shared/types";
+} from "@agentcoder/frontend-shared/types";
 
 export type OperatorCopilotBrief = SharedOperatorCopilotBrief;

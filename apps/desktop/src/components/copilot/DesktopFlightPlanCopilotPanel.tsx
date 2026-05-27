@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import type { UiLocale } from "@openvibecoding/frontend-shared/uiCopy";
-import { detectPreferredUiLocale } from "@openvibecoding/frontend-shared/uiLocale";
+import type { UiLocale } from "@agentcoder/frontend-shared/uiCopy";
+import { detectPreferredUiLocale } from "@agentcoder/frontend-shared/uiLocale";
 import type { FlightPlanCopilotBrief } from "../../lib/types";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";

@@ -10,9 +10,9 @@ from typing import Any, Callable
 from fastapi import HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 
-from openvibecoding_orch.api import search_payload_helpers
-from openvibecoding_orch.contract.compiler import build_role_binding_summary
-from openvibecoding_orch.contract.role_config_registry import (
+from agentcoder_orch.api import search_payload_helpers
+from agentcoder_orch.contract.compiler import build_role_binding_summary
+from agentcoder_orch.contract.role_config_registry import (
     apply_role_config_entry,
     build_role_config_surface,
     preview_role_config_entry,
@@ -854,7 +854,7 @@ def build_runs_handlers(
         )
 
     def get_operator_copilot_brief(run_id: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
-        from openvibecoding_orch.services.operator_copilot import generate_run_operator_copilot_brief
+        from agentcoder_orch.services.operator_copilot import generate_run_operator_copilot_brief
 
         _ = payload
         run_id = str(run_id).strip()
@@ -871,7 +871,7 @@ def build_runs_handlers(
         )
 
     def get_workflow_operator_copilot_brief(workflow_id: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
-        from openvibecoding_orch.services.operator_copilot import generate_workflow_operator_copilot_brief
+        from agentcoder_orch.services.operator_copilot import generate_workflow_operator_copilot_brief
 
         _ = payload
         workflow_id = str(workflow_id).strip()

@@ -13,19 +13,19 @@ import uuid
 
 from fastapi import FastAPI, HTTPException, Query, Request
 
-from openvibecoding_orch.api import pm_session_aggregation
-from openvibecoding_orch.cli_runtime_helpers import runs_root as resolve_runs_root
-from openvibecoding_orch.config import load_config
-from openvibecoding_orch.contract.compiler import build_role_binding_summary, sync_role_contract
-from openvibecoding_orch.observability.logger import log_event
-from openvibecoding_orch.planning.intake import (
+from agentcoder_orch.api import pm_session_aggregation
+from agentcoder_orch.cli_runtime_helpers import runs_root as resolve_runs_root
+from agentcoder_orch.config import load_config
+from agentcoder_orch.contract.compiler import build_role_binding_summary, sync_role_contract
+from agentcoder_orch.observability.logger import log_event
+from agentcoder_orch.planning.intake import (
     IntakeService,
     _build_unblock_tasks_from_worker_contracts,
     _build_wave_plan,
     _build_worker_prompt_contracts,
 )
-from openvibecoding_orch.store.intake_store import IntakeStore
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.store.intake_store import IntakeStore
+from agentcoder_orch.store.run_store import RunStore
 
 
 _TRUTHY_VALUES = {"1", "true", "yes", "y", "on"}
@@ -135,7 +135,7 @@ def _safe_workflow_component(value: Any, *, fallback: str) -> str:
 def _build_local_pm_workflow_id(*, intake_id: str, task_id: str) -> str:
     safe_task = _safe_workflow_component(task_id, fallback="task")
     safe_intake = _safe_workflow_component(intake_id, fallback="intake")
-    return f"openvibecoding-pm-{safe_task}-{safe_intake}"[:96]
+    return f"agentcoder-pm-{safe_task}-{safe_intake}"[:96]
 
 def _artifact_ref_for_path(path: Path, *, rel_path: str, name: str, media_type: str = "application/json") -> dict[str, Any]:
     payload = path.read_bytes()
@@ -495,7 +495,7 @@ def preview_intake_copilot_brief(
     error_detail_fn: Callable[[str], dict[str, str]],
     current_request_id_fn: Callable[[], str],
 ) -> dict:
-    from openvibecoding_orch.services.operator_copilot import generate_execution_plan_copilot_brief
+    from agentcoder_orch.services.operator_copilot import generate_execution_plan_copilot_brief
 
     try:
         preview_payload = payload
@@ -649,7 +649,7 @@ def run_intake(
         if "workflow_binding" in execute_signature.parameters:
             execute_kwargs["workflow_binding"] = {
                 "workflow_id": local_workflow_id,
-                "task_queue": "openvibecoding-orch",
+                "task_queue": "agentcoder-orch",
                 "namespace": "default",
             }
         try:

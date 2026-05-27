@@ -5,13 +5,13 @@ import os
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
-from openvibecoding_orch.contract.validator import ContractValidator
-from openvibecoding_orch.runners import agents_events, agents_handoff
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.contract.validator import ContractValidator
+from agentcoder_orch.runners import agents_events, agents_handoff
+from agentcoder_orch.store.run_store import RunStore
 
 
 def _handoff_timeout_fail_open_enabled() -> bool:
-    raw = os.getenv("OPENVIBECODING_AGENTS_HANDOFF_TIMEOUT_FAIL_OPEN", "").strip().lower()
+    raw = os.getenv("AGENTCODER_AGENTS_HANDOFF_TIMEOUT_FAIL_OPEN", "").strip().lower()
     return raw in {"1", "true", "yes", "on"}
 
 
@@ -118,7 +118,7 @@ def execute_handoff_flow(
                 from_role = chain_roles[idx]
                 to_role = chain_roles[idx + 1]
                 agent = agent_cls(
-                    name=f"OpenVibeCodingHandoff_{from_role}",
+                    name=f"AgentcoderHandoff_{from_role}",
                     instructions=handoff_instructions(from_role or "OWNER", to_role or "WORKER"),
                     mcp_servers=[],
                 )
@@ -267,7 +267,7 @@ def execute_handoff_flow(
 
     async def _run_handoff() -> Any:
         agent = agent_cls(
-            name="OpenVibeCodingOwner",
+            name="AgentcoderOwner",
             instructions=handoff_instructions(owner_role or "OWNER", assigned_role or "WORKER"),
             mcp_servers=[],
         )

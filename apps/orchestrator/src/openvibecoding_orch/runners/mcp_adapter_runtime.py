@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.gates.tool_gate import validate_command
+from agentcoder_orch.gates.tool_gate import validate_command
 
 _ADAPTER_ALIASES = {
     "aider": "aider",

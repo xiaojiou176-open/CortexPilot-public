@@ -1,7 +1,7 @@
 # Frontend API Client
 
-`@openvibecoding/frontend-api-client` is the thin JavaScript/TypeScript client
-layer for OpenVibeCoding command-tower consumers.
+`@agentcoder/frontend-api-client` is the thin JavaScript/TypeScript client
+layer for Agentcoder command-tower consumers.
 
 Current package boundary: this package now carries publish-ready metadata and a
 registry-safe manifest, but no public registry release is live yet. The
@@ -36,11 +36,11 @@ This package is useful when you want one import boundary for:
 import {
   createControlPlaneStarter,
   createDashboardApiClient,
-} from "@openvibecoding/frontend-api-client";
+} from "@agentcoder/frontend-api-client";
 
 const client = createDashboardApiClient({
   baseUrl: "http://localhost:8000",
-  resolveToken: () => window.localStorage.getItem("openvibecoding.token") || undefined,
+  resolveToken: () => window.localStorage.getItem("agentcoder.token") || undefined,
   resolveMutationRole: () => "TECH_LEAD",
 });
 
@@ -95,7 +95,7 @@ This example assumes you already have a truthful local control-plane context:
 
 ```bash
 npm run bootstrap:host
-OPENVIBECODING_HOST_COMPAT=1 bash scripts/test_quick.sh --no-related
+AGENTCODER_HOST_COMPAT=1 bash scripts/test_quick.sh --no-related
 ```
 
 Then either start the dashboard loop or make sure the API base URL you plan to
@@ -178,13 +178,13 @@ workflow instead of just reading the package in isolation:
    - OpenClaw: [repo](https://github.com/openclaw/openclaw),
      [skills docs](https://docs.openclaw.ai/tools/skills),
      [ClawHub](https://github.com/openclaw/clawhub)
-2. Use OpenVibeCoding's
-   [compatibility matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/)
+2. Use Agentcoder's
+   [compatibility matrix](https://xiaojiou176-open.github.io/agentcoder/compatibility/)
    and
-   [integration guide](https://xiaojiou176-open.github.io/OpenVibeCoding/integrations/)
-   to pick the first truthful OpenVibeCoding lane.
-3. Keep this package together with `@openvibecoding/frontend-api-contract` and
-   `@openvibecoding/frontend-shared` inside one clone or vendored workspace copy.
+   [integration guide](https://xiaojiou176-open.github.io/agentcoder/integrations/)
+   to pick the first truthful Agentcoder lane.
+3. Keep this package together with `@agentcoder/frontend-api-contract` and
+   `@agentcoder/frontend-shared` inside one clone or vendored workspace copy.
 4. Prove the integration with `createControlPlaneStarter(...)` before you
    enable any guarded operator mutation path.
 
@@ -195,8 +195,8 @@ yet. The current truthful reuse path is still shared-workspace or
 vendored-copy adoption, not `npm install` from a public registry.
 
 ```bash
-git clone https://github.com/xiaojiou176-open/OpenVibeCoding.git
-cd OpenVibeCoding
+git clone https://github.com/xiaojiou176-open/agentcoder.git
+cd Agentcoder
 npm run bootstrap:host
 node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
   --base-url http://127.0.0.1:10000 \
@@ -212,7 +212,7 @@ If another Codex / Claude Code / OpenClaw workspace wants the shortest truthful
 builder reuse path today, keep the copied surface explicit:
 
 ```text
-vendor/OpenVibeCoding/
+vendor/Agentcoder/
   packages/frontend-api-client/
   packages/frontend-api-contract/
   packages/frontend-shared/
@@ -232,7 +232,7 @@ Then keep the workflow small:
 
 - This is a thin client surface, not a full SDK platform.
 - It wraps the current HTTP routes that power the dashboard and desktop shells.
-- Where `@openvibecoding/frontend-api-contract` already publishes frontend-safe
+- Where `@agentcoder/frontend-api-contract` already publishes frontend-safe
   route or query truth, this client reuses that contract instead of keeping a
   second handwritten path map.
 - It does not replace the backend orchestration runtime or the read-only MCP
@@ -253,11 +253,11 @@ If you are onboarding a Codex / Claude Code / OpenClaw workflow and want the
 repo's truthful public explanation before you read the package internals, start
 here:
 
-- [Integration guide](https://xiaojiou176-open.github.io/OpenVibeCoding/integrations/)
-- [Compatibility matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/)
-- [Agent starter kits](https://xiaojiou176-open.github.io/OpenVibeCoding/agent-starters/)
-- [Read-only MCP quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/mcp/)
-- [API quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/api/)
-- [Builder quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/builders/)
+- [Integration guide](https://xiaojiou176-open.github.io/agentcoder/integrations/)
+- [Compatibility matrix](https://xiaojiou176-open.github.io/agentcoder/compatibility/)
+- [Agent starter kits](https://xiaojiou176-open.github.io/agentcoder/agent-starters/)
+- [Read-only MCP quickstart](https://xiaojiou176-open.github.io/agentcoder/mcp/)
+- [API quickstart](https://xiaojiou176-open.github.io/agentcoder/api/)
+- [Builder quickstart](https://xiaojiou176-open.github.io/agentcoder/builders/)
 - [Contract package guide](../frontend-api-contract/docs/README.md)
-- [Skills quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/skills/)
+- [Skills quickstart](https://xiaojiou176-open.github.io/agentcoder/skills/)

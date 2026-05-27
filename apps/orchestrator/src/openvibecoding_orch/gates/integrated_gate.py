@@ -7,7 +7,7 @@ from typing import Iterable
 
 
 def _load_registry(repo_root: Path) -> dict:
-    override = os.getenv("OPENVIBECODING_TOOL_REGISTRY", "").strip()
+    override = os.getenv("AGENTCODER_TOOL_REGISTRY", "").strip()
     if override:
         path = Path(override).expanduser()
         if not path.is_absolute():

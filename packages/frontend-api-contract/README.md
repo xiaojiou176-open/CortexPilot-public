@@ -1,7 +1,7 @@
 # Frontend API Contract
 
-`@openvibecoding/frontend-api-contract` is the generated route, query, and type
-boundary for OpenVibeCoding frontend consumers.
+`@agentcoder/frontend-api-contract` is the generated route, query, and type
+boundary for Agentcoder frontend consumers.
 
 Current package boundary: the manifest is ready for a future public package
 release, but no registry publication is live yet. The truthful adoption path

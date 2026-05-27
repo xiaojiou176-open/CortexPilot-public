@@ -1,5 +1,5 @@
 # ============================================================
-# OpenVibeCoding Git Ignore Policy (Layered)
+# Agentcoder Git Ignore Policy (Layered)
 # Goal: keep repo reproducible, clean, and noise-free.
 # ============================================================
 
@@ -88,7 +88,7 @@ coverage.xml
 .opencode/
 .serena/
 .cursorrules/
-**/.cache/openvibecoding/modules-root/
+**/.cache/agentcoder/modules-root/
 
 # ------------------------------
 # Generated contract outputs
@@ -96,8 +96,8 @@ coverage.xml
 contracts/results/
 contracts/reviews/
 contracts/tasks/
-.runtime-cache/openvibecoding/contracts/
-**/.runtime-cache/openvibecoding/contracts/
+.runtime-cache/agentcoder/contracts/
+**/.runtime-cache/agentcoder/contracts/
 
 # ------------------------------
 # Policies: ignore by default, track SSOT payloads only
@@ -130,3 +130,12 @@ policies/**
 .claude/sessions/
 **/rollout-*.jsonl
 **/session-*.jsonl
+
+# Common secret files (patch 2026-05-27)
+*.key
+*.pem
+id_rsa
+id_ed25519
+*.p12
+*.pfx
+

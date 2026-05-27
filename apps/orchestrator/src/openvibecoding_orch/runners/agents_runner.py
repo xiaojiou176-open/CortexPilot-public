@@ -9,13 +9,13 @@ import time
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.contract.validator import ContractValidator
-from openvibecoding_orch.observability.tracer import trace_span
-from openvibecoding_orch.store.run_store import RunStore
-from openvibecoding_orch.config import get_runner_config
-from openvibecoding_orch.runners.agents_runner_execution_helpers import execute_agents_contract
-from openvibecoding_orch.runners import common as runner_common
-from openvibecoding_orch.runners import (
+from agentcoder_orch.contract.validator import ContractValidator
+from agentcoder_orch.observability.tracer import trace_span
+from agentcoder_orch.store.run_store import RunStore
+from agentcoder_orch.config import get_runner_config
+from agentcoder_orch.runners.agents_runner_execution_helpers import execute_agents_contract
+from agentcoder_orch.runners import common as runner_common
+from agentcoder_orch.runners import (
     agents_binding,
     agents_events,
     agents_handoff,
@@ -26,7 +26,7 @@ from openvibecoding_orch.runners import (
     agents_runtime_helpers,
     agents_runner_phase2_helpers,
 )
-from openvibecoding_orch.runners import (
+from agentcoder_orch.runners import (
     agents_prompting,
     agents_session,
     agents_stream_runtime,
@@ -159,7 +159,7 @@ _resolve_agents_base_url = agents_runtime_helpers.resolve_agents_base_url
 
 
 def _resolve_codex_base_url() -> str:
-    explicit = os.getenv("OPENVIBECODING_CODEX_BASE_URL", "").strip()
+    explicit = os.getenv("AGENTCODER_CODEX_BASE_URL", "").strip()
     if explicit:
         return explicit
 

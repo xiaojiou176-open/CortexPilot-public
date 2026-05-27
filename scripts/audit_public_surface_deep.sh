@@ -18,7 +18,7 @@ node scripts/audit_desktop_surface.mjs
 echo "🚀 [public-surface-deep-audit] docs contract"
 npm run docs:check
 
-find apps/orchestrator/src/openvibecoding_orch tooling -type d -name '__pycache__' -prune -exec rm -rf {} + >/dev/null 2>&1 || true
+find apps/orchestrator/src/agentcoder_orch tooling -type d -name '__pycache__' -prune -exec rm -rf {} + >/dev/null 2>&1 || true
 
 echo "🚀 [public-surface-deep-audit] hygiene"
 bash scripts/check_repo_hygiene.sh

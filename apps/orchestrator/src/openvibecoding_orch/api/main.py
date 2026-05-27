@@ -16,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBearer
 
-from openvibecoding_orch.api import (
+from agentcoder_orch.api import (
     artifact_helpers,
     deps as api_deps,
     event_cursor,
@@ -31,18 +31,18 @@ from openvibecoding_orch.api import (
     routes_runs,
     search_payload_helpers,
 )
-from openvibecoding_orch.config import get_api_runtime_config, load_config
-from openvibecoding_orch.contract.compiler import build_role_binding_summary
-from openvibecoding_orch.contract.validator import resolve_agent_registry_path
-from openvibecoding_orch.observability.logger import log_event
-from openvibecoding_orch.services.orchestration_service import OrchestrationService
-from openvibecoding_orch.queue import QueueStore
-from openvibecoding_orch.services.rollback_service import RollbackService
-from openvibecoding_orch.planning.intake import IntakeService
-from openvibecoding_orch.store import run_store as run_store_fallback
-from openvibecoding_orch.worktrees import manager as worktree_manager
+from agentcoder_orch.config import get_api_runtime_config, load_config
+from agentcoder_orch.contract.compiler import build_role_binding_summary
+from agentcoder_orch.contract.validator import resolve_agent_registry_path
+from agentcoder_orch.observability.logger import log_event
+from agentcoder_orch.services.orchestration_service import OrchestrationService
+from agentcoder_orch.queue import QueueStore
+from agentcoder_orch.services.rollback_service import RollbackService
+from agentcoder_orch.planning.intake import IntakeService
+from agentcoder_orch.store import run_store as run_store_fallback
+from agentcoder_orch.worktrees import manager as worktree_manager
 
-app = FastAPI(title="OpenVibeCoding Orchestrator API")
+app = FastAPI(title="Agentcoder Orchestrator API")
 _api_runtime_config = get_api_runtime_config()
 
 
@@ -72,9 +72,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-_request_id_ctx: ContextVar[str] = ContextVar("openvibecoding_request_id", default="")
-_trace_id_ctx: ContextVar[str] = ContextVar("openvibecoding_trace_id", default="")
-_run_id_ctx: ContextVar[str] = ContextVar("openvibecoding_run_id", default="")
+_request_id_ctx: ContextVar[str] = ContextVar("agentcoder_request_id", default="")
+_trace_id_ctx: ContextVar[str] = ContextVar("agentcoder_trace_id", default="")
+_run_id_ctx: ContextVar[str] = ContextVar("agentcoder_run_id", default="")
 _bearer = HTTPBearer(auto_error=True)
 _rollback_service = RollbackService()
 _orchestration_service = OrchestrationService()
@@ -85,7 +85,7 @@ def _resolve_canary_percent() -> float:
 
 
 def _resolve_request_lane(request: Request, request_id: str) -> str:
-    explicit = request.headers.get("x-openvibecoding-lane", "").strip().lower()
+    explicit = request.headers.get("x-agentcoder-lane", "").strip().lower()
     if explicit in {"stable", "canary"}:
         return explicit
 
@@ -232,19 +232,19 @@ async def _request_guard(request: Request, call_next):
         or _trace_id_from_traceparent(traceparent)
         or uuid.uuid4().hex
     )
-    inbound_run_id = request.headers.get("x-openvibecoding-run-id", "").strip()
+    inbound_run_id = request.headers.get("x-agentcoder-run-id", "").strip()
     token = _request_id_ctx.set(request_id)
     trace_token = _trace_id_ctx.set(trace_id)
     run_token = _run_id_ctx.set(inbound_run_id)
     started_at = time.perf_counter()
     lane = _resolve_request_lane(request, request_id)
-    request.state.openvibecoding_lane = lane
+    request.state.agentcoder_lane = lane
     try:
         path = request.url.path
         cfg = load_config()
-        request.state.openvibecoding_api_auth_required = bool(cfg.api_auth_required)
-        request.state.openvibecoding_api_auth_verified = False
-        request.state.openvibecoding_api_auth_source = "none"
+        request.state.agentcoder_api_auth_required = bool(cfg.api_auth_required)
+        request.state.agentcoder_api_auth_verified = False
+        request.state.agentcoder_api_auth_source = "none"
         is_health_path = path in {"/health", "/api/health"}
         if path.startswith("/api/") and request.method != "OPTIONS" and not is_health_path and cfg.api_auth_required:
             if not cfg.api_token:
@@ -260,7 +260,7 @@ async def _request_guard(request: Request, call_next):
                 provided_token = ""
 
             if not provided_token:
-                cookie_token = request.cookies.get("openvibecoding_api_token", "").strip() or request.cookies.get(
+                cookie_token = request.cookies.get("agentcoder_api_token", "").strip() or request.cookies.get(
                     "api_token", ""
                 ).strip()
                 if cookie_token:
@@ -271,8 +271,8 @@ async def _request_guard(request: Request, call_next):
                 return JSONResponse(status_code=401, content={"detail": _error_detail("AUTH_MISSING_BEARER")})
             if not hmac.compare_digest(provided_token, cfg.api_token):
                 return JSONResponse(status_code=401, content={"detail": _error_detail("AUTH_INVALID_TOKEN")})
-            request.state.openvibecoding_api_auth_verified = True
-            request.state.openvibecoding_api_auth_source = auth_source
+            request.state.agentcoder_api_auth_verified = True
+            request.state.agentcoder_api_auth_source = auth_source
         response = await call_next(request)
         duration_ms = int((time.perf_counter() - started_at) * 1000)
         log_event(
@@ -300,8 +300,8 @@ async def _request_guard(request: Request, call_next):
         if traceparent:
             response.headers["traceparent"] = traceparent
         if inbound_run_id:
-            response.headers["x-openvibecoding-run-id"] = inbound_run_id
-        response.headers["x-openvibecoding-lane"] = lane
+            response.headers["x-agentcoder-run-id"] = inbound_run_id
+        response.headers["x-agentcoder-lane"] = lane
         return response
     except HTTPException:
         raise

@@ -1,4 +1,4 @@
-# OpenVibeCoding coding-agent bundle
+# Agentcoder coding-agent bundle
 
 This bundle keeps one repo-owned starter pack compatible with:
 
@@ -6,7 +6,7 @@ This bundle keeps one repo-owned starter pack compatible with:
 - Claude Code local `--plugin-dir` development
 - OpenClaw compatible bundle installs from a local path or link
 
-It is a local example lane, not OpenVibeCoding's canonical public root. The
+It is a local example lane, not Agentcoder's canonical public root. The
 read-only MCP surface stays primary, and the adoption-router public skill
 packet stays secondary.
 
@@ -15,13 +15,13 @@ packet stays secondary.
 - `.codex-plugin/plugin.json`: Codex bundle metadata
 - `.claude-plugin/plugin.json`: Claude Code plugin metadata
 - `.mcp.json`: plugin-scoped read-only MCP wiring
-- `skills/openvibecoding-adoption-router/SKILL.md`: route the job to the right
-  OpenVibeCoding lane without overclaiming
-- `skills/openvibecoding-adoption-router/manifest.yaml`: registry-shaped skill
+- `skills/agentcoder-adoption-router/SKILL.md`: route the job to the right
+  Agentcoder lane without overclaiming
+- `skills/agentcoder-adoption-router/manifest.yaml`: registry-shaped skill
   metadata with semver, host compatibility, and non-claim boundaries
-- `commands/openvibecoding-proof.md`: Claude-style proof-first command
-- `agents/openvibecoding-reviewer.md`: Claude-style focused reviewer prompt
-- `bin/run-openvibecoding-readonly-mcp.sh`: repo-aware wrapper for the real
+- `commands/agentcoder-proof.md`: Claude-style proof-first command
+- `agents/agentcoder-reviewer.md`: Claude-style focused reviewer prompt
+- `bin/run-agentcoder-readonly-mcp.sh`: repo-aware wrapper for the real
   read-only MCP server
 
 ## Skill packaging truth
@@ -41,17 +41,17 @@ those ecosystems.
 
 The wrapper works in two truthful modes:
 
-1. If the bundle still lives inside a real OpenVibeCoding clone, it auto-discovers
+1. If the bundle still lives inside a real Agentcoder clone, it auto-discovers
    the repo root.
-2. If the bundle is installed somewhere else, set `OPENVIBECODING_REPO_ROOT` to
+2. If the bundle is installed somewhere else, set `AGENTCODER_REPO_ROOT` to
    the real clone path before you load the plugin.
 
 The wrapper always runs the real stdio server through the repo-owned top-level wrapper:
 
 ```bash
-bash /absolute/path/to/OpenVibeCoding/scripts/run_openvibecoding_readonly_mcp.sh
+bash /absolute/path/to/Agentcoder/scripts/run_agentcoder_readonly_mcp.sh
 ```
 
-Under the hood that wrapper still launches `python3 -m openvibecoding_orch.cli mcp-readonly-server`
+Under the hood that wrapper still launches `python3 -m agentcoder_orch.cli mcp-readonly-server`
 with the repo-local Python path exported first. It never upgrades the public
 contract into hosted or write-capable MCP.

@@ -167,8 +167,8 @@ describe("command tower page render", () => {
 
   it("renders zh-CN route loading copy when the locale cookie requests it", async () => {
     mockCookies.mockResolvedValue({
-      get: (name: string) => (name === "openvibecoding.ui.locale" ? { value: "zh-CN" } : undefined),
-      toString: () => "openvibecoding.ui.locale=zh-CN",
+      get: (name: string) => (name === "agentcoder.ui.locale" ? { value: "zh-CN" } : undefined),
+      toString: () => "agentcoder.ui.locale=zh-CN",
     });
 
     render(await CommandTowerLoading());
@@ -211,8 +211,8 @@ describe("command tower page render", () => {
 
   it("switches the page intro into zh-CN partial-truth mode when warning data still has live context", async () => {
     mockCookies.mockResolvedValue({
-      get: (name: string) => (name === "openvibecoding.ui.locale" ? { value: "zh-CN" } : undefined),
-      toString: () => "openvibecoding.ui.locale=zh-CN",
+      get: (name: string) => (name === "agentcoder.ui.locale" ? { value: "zh-CN" } : undefined),
+      toString: () => "agentcoder.ui.locale=zh-CN",
     });
     mockFetchCommandTowerOverview.mockRejectedValueOnce(new Error("总览失败"));
     mockFetchPmSessions.mockResolvedValueOnce([
@@ -263,8 +263,8 @@ describe("command tower page render", () => {
 
   it("switches the page intro into zh-CN recovery mode when live data is unavailable", async () => {
     mockCookies.mockResolvedValue({
-      get: (name: string) => (name === "openvibecoding.ui.locale" ? { value: "zh-CN" } : undefined),
-      toString: () => "openvibecoding.ui.locale=zh-CN",
+      get: (name: string) => (name === "agentcoder.ui.locale" ? { value: "zh-CN" } : undefined),
+      toString: () => "agentcoder.ui.locale=zh-CN",
     });
     mockFetchCommandTowerOverview.mockRejectedValueOnce(new Error("总览失败"));
     mockFetchPmSessions.mockRejectedValueOnce(new Error("会话失败"));

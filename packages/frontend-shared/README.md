@@ -27,8 +27,8 @@ vendored internal reuse rather than a separate public package story.
 
 - This package is part of the frontend presentation substrate, not a standalone
   public SDK.
-- Public API contract types stay in `@openvibecoding/frontend-api-contract`.
-- Client entry points stay in `@openvibecoding/frontend-api-client`.
+- Public API contract types stay in `@agentcoder/frontend-api-contract`.
+- Client entry points stay in `@agentcoder/frontend-api-client`.
 - This package is not treated as a standalone public package surface today.
 
 ## Human-readable entrypoints
@@ -36,13 +36,13 @@ vendored internal reuse rather than a separate public package story.
 If you want the public explanation for how this shared substrate fits into
 Codex / Claude Code / OpenClaw workflows, use:
 
-- [Compatibility matrix](https://xiaojiou176-open.github.io/OpenVibeCoding/compatibility/)
-- [Integration guide](https://xiaojiou176-open.github.io/OpenVibeCoding/integrations/)
-- [Agent starter kits](https://xiaojiou176-open.github.io/OpenVibeCoding/agent-starters/)
-- [Read-only MCP quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/mcp/)
-- [API quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/api/)
+- [Compatibility matrix](https://xiaojiou176-open.github.io/agentcoder/compatibility/)
+- [Integration guide](https://xiaojiou176-open.github.io/agentcoder/integrations/)
+- [Agent starter kits](https://xiaojiou176-open.github.io/agentcoder/agent-starters/)
+- [Read-only MCP quickstart](https://xiaojiou176-open.github.io/agentcoder/mcp/)
+- [API quickstart](https://xiaojiou176-open.github.io/agentcoder/api/)
 - [Contract package guide](../frontend-api-contract/docs/README.md)
-- [Skills quickstart](https://xiaojiou176-open.github.io/OpenVibeCoding/skills/)
+- [Skills quickstart](https://xiaojiou176-open.github.io/agentcoder/skills/)
 
 ## Ecosystem reality anchors
 
@@ -63,6 +63,6 @@ native surfaces first:
 
 This package then stays in its narrower role:
 
-- shared UI copy, locale, and status presentation for OpenVibeCoding command-tower surfaces
+- shared UI copy, locale, and status presentation for Agentcoder command-tower surfaces
 - repo-owned presentation reuse across dashboard, desktop, and future web
 - not a native plugin for Codex, Claude Code, or OpenClaw

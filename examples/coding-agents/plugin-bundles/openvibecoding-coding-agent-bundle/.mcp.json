@@ -1,9 +1,9 @@
 {
   "mcpServers": {
-    "openvibecoding-readonly": {
+    "agentcoder-readonly": {
       "command": "bash",
       "args": [
-        "./bin/run-openvibecoding-readonly-mcp.sh"
+        "./bin/run-agentcoder-readonly-mcp.sh"
       ]
     }
   }

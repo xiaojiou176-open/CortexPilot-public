@@ -3,7 +3,7 @@
   "task_template": "news_digest",
   "status": "official_release_proven_baseline",
   "baseline_scope": "single-run public baseline",
-  "summary": "This pack is the smallest truthful public trust bundle for OpenVibeCoding today. It combines the official news_digest healthy proof summary, the tracked single-run benchmark summary, the share-ready Workflow Case recap, and the storefront demo-status ledger.",
+  "summary": "This pack is the smallest truthful public trust bundle for Agentcoder today. It combines the official news_digest healthy proof summary, the tracked single-run benchmark summary, the share-ready Workflow Case recap, and the storefront demo-status ledger.",
   "truth_boundary": {
     "healthy_public_baseline": true,
     "equally_proven_topic_brief": false,

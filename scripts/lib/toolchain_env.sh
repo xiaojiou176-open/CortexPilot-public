@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-openvibecoding_expand_home_path() {
+agentcoder_expand_home_path() {
   local raw="${1:-}"
   if [[ "$raw" == "~" ]]; then
     printf '%s\n' "$HOME"
@@ -9,50 +9,50 @@ openvibecoding_expand_home_path() {
   printf '%s\n' "${raw/#\~\//$HOME/}"
 }
 
-openvibecoding_machine_cache_root() {
+agentcoder_machine_cache_root() {
   local root_dir="${1:?root_dir required}"
-  if [[ -n "${OPENVIBECODING_MACHINE_CACHE_ROOT:-}" ]]; then
-    openvibecoding_expand_home_path "${OPENVIBECODING_MACHINE_CACHE_ROOT}"
+  if [[ -n "${AGENTCODER_MACHINE_CACHE_ROOT:-}" ]]; then
+    agentcoder_expand_home_path "${AGENTCODER_MACHINE_CACHE_ROOT}"
     return 0
   fi
   if [[ -n "${RUNNER_TEMP:-}" && ( "${CI:-}" == "1" || "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ) ]]; then
-    printf '%s\n' "${RUNNER_TEMP}/openvibecoding-machine-cache"
+    printf '%s\n' "${RUNNER_TEMP}/agentcoder-machine-cache"
     return 0
   fi
   local cache_home="${XDG_CACHE_HOME:-$HOME/.cache}"
-  printf '%s\n' "${cache_home}/openvibecoding"
+  printf '%s\n' "${cache_home}/agentcoder"
 }
 
-openvibecoding_toolchain_cache_root() {
+agentcoder_toolchain_cache_root() {
   local root_dir="${1:?root_dir required}"
-  if [[ -n "${OPENVIBECODING_TOOLCHAIN_CACHE_ROOT:-}" ]]; then
-    printf '%s\n' "${OPENVIBECODING_TOOLCHAIN_CACHE_ROOT}"
+  if [[ -n "${AGENTCODER_TOOLCHAIN_CACHE_ROOT:-}" ]]; then
+    printf '%s\n' "${AGENTCODER_TOOLCHAIN_CACHE_ROOT}"
     return 0
   fi
   local machine_root
-  machine_root="$(openvibecoding_machine_cache_root "$root_dir")"
+  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
   printf '%s\n' "${machine_root}/toolchains"
 }
 
-openvibecoding_machine_tmp_root() {
+agentcoder_machine_tmp_root() {
   local root_dir="${1:?root_dir required}"
   local machine_root
-  machine_root="$(openvibecoding_machine_cache_root "$root_dir")"
+  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
   printf '%s\n' "${machine_root}/tmp"
 }
 
-openvibecoding_docker_buildx_cache_root() {
+agentcoder_docker_buildx_cache_root() {
   local root_dir="${1:?root_dir required}"
   local machine_root
-  machine_root="$(openvibecoding_machine_cache_root "$root_dir")"
+  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
   printf '%s\n' "${machine_root}/docker-buildx-cache"
 }
 
-openvibecoding_docker_buildx_cache_dir() {
+agentcoder_docker_buildx_cache_dir() {
   local root_dir="${1:?root_dir required}"
   local image_name="${2:?image_name required}"
   local cache_root
-  cache_root="$(openvibecoding_docker_buildx_cache_root "$root_dir")"
+  cache_root="$(agentcoder_docker_buildx_cache_root "$root_dir")"
   local sanitized
   sanitized="${image_name//:/-}"
   sanitized="${sanitized//\//-}"
@@ -64,9 +64,9 @@ openvibecoding_docker_buildx_cache_dir() {
   printf '%s\n' "${cache_root}/${sanitized}"
 }
 
-openvibecoding_bootstrap_python_bin() {
-  if [[ -n "${OPENVIBECODING_BOOTSTRAP_PYTHON:-}" ]] && command -v "${OPENVIBECODING_BOOTSTRAP_PYTHON}" >/dev/null 2>&1; then
-    command -v "${OPENVIBECODING_BOOTSTRAP_PYTHON}"
+agentcoder_bootstrap_python_bin() {
+  if [[ -n "${AGENTCODER_BOOTSTRAP_PYTHON:-}" ]] && command -v "${AGENTCODER_BOOTSTRAP_PYTHON}" >/dev/null 2>&1; then
+    command -v "${AGENTCODER_BOOTSTRAP_PYTHON}"
     return 0
   fi
   if command -v python3 >/dev/null 2>&1; then
@@ -80,14 +80,14 @@ openvibecoding_bootstrap_python_bin() {
   return 1
 }
 
-openvibecoding_python_venv_root() {
+agentcoder_python_venv_root() {
   local root_dir="${1:?root_dir required}"
   local toolchain_root
-  toolchain_root="$(openvibecoding_toolchain_cache_root "$root_dir")"
-  if [[ -n "${OPENVIBECODING_PYTHON:-}" ]] && [[ -x "${OPENVIBECODING_PYTHON}" ]]; then
+  toolchain_root="$(agentcoder_toolchain_cache_root "$root_dir")"
+  if [[ -n "${AGENTCODER_PYTHON:-}" ]] && [[ -x "${AGENTCODER_PYTHON}" ]]; then
     local parent
-    parent="$(cd "$(dirname "${OPENVIBECODING_PYTHON}")/.." && pwd)"
-    if [[ -n "${OPENVIBECODING_TOOLCHAIN_CACHE_ROOT:-}" || -n "${OPENVIBECODING_MACHINE_CACHE_ROOT:-}" ]]; then
+    parent="$(cd "$(dirname "${AGENTCODER_PYTHON}")/.." && pwd)"
+    if [[ -n "${AGENTCODER_TOOLCHAIN_CACHE_ROOT:-}" || -n "${AGENTCODER_MACHINE_CACHE_ROOT:-}" ]]; then
       if [[ "$parent" == "${toolchain_root}/python/current" ]]; then
         printf '%s\n' "$parent"
         return 0
@@ -104,20 +104,20 @@ openvibecoding_python_venv_root() {
   printf '%s\n' "${toolchain_root}/python/current"
 }
 
-openvibecoding_python_bin() {
+agentcoder_python_bin() {
   local root_dir="${1:?root_dir required}"
   local toolchain_root
-  toolchain_root="$(openvibecoding_toolchain_cache_root "$root_dir")"
-  if [[ -n "${OPENVIBECODING_PYTHON:-}" ]] && [[ -x "${OPENVIBECODING_PYTHON}" ]]; then
+  toolchain_root="$(agentcoder_toolchain_cache_root "$root_dir")"
+  if [[ -n "${AGENTCODER_PYTHON:-}" ]] && [[ -x "${AGENTCODER_PYTHON}" ]]; then
     local parent
-    parent="$(cd "$(dirname "${OPENVIBECODING_PYTHON}")/.." && pwd)"
-    if [[ -n "${OPENVIBECODING_TOOLCHAIN_CACHE_ROOT:-}" || -n "${OPENVIBECODING_MACHINE_CACHE_ROOT:-}" ]]; then
+    parent="$(cd "$(dirname "${AGENTCODER_PYTHON}")/.." && pwd)"
+    if [[ -n "${AGENTCODER_TOOLCHAIN_CACHE_ROOT:-}" || -n "${AGENTCODER_MACHINE_CACHE_ROOT:-}" ]]; then
       if [[ "$parent" == "${toolchain_root}/python/current" ]]; then
-        printf '%s\n' "${OPENVIBECODING_PYTHON}"
+        printf '%s\n' "${AGENTCODER_PYTHON}"
         return 0
       fi
     else
-      printf '%s\n' "${OPENVIBECODING_PYTHON}"
+      printf '%s\n' "${AGENTCODER_PYTHON}"
       return 0
     fi
   fi
@@ -128,31 +128,31 @@ openvibecoding_python_bin() {
   return 1
 }
 
-openvibecoding_export_python_env() {
+agentcoder_export_python_env() {
   local root_dir="${1:?root_dir required}"
   local python_bin
-  python_bin="$(openvibecoding_python_bin "$root_dir")" || return 1
+  python_bin="$(agentcoder_python_bin "$root_dir")" || return 1
   local venv_root
-  venv_root="$(openvibecoding_python_venv_root "$root_dir")"
-  export OPENVIBECODING_PYTHON="${python_bin}"
+  venv_root="$(agentcoder_python_venv_root "$root_dir")"
+  export AGENTCODER_PYTHON="${python_bin}"
   export VIRTUAL_ENV="${venv_root}"
 }
 
-openvibecoding_cargo_home() {
+agentcoder_cargo_home() {
   local root_dir="${1:?root_dir required}"
   local machine_root
-  machine_root="$(openvibecoding_machine_cache_root "$root_dir")"
+  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
   printf '%s\n' "${machine_root}/cargo"
 }
 
-openvibecoding_pnpm_store_dir() {
+agentcoder_pnpm_store_dir() {
   local root_dir="${1:?root_dir required}"
-  if [[ -n "${OPENVIBECODING_PNPM_STORE_DIR:-}" ]]; then
-    printf '%s\n' "${OPENVIBECODING_PNPM_STORE_DIR}"
+  if [[ -n "${AGENTCODER_PNPM_STORE_DIR:-}" ]]; then
+    printf '%s\n' "${AGENTCODER_PNPM_STORE_DIR}"
     return 0
   fi
   local machine_root
-  machine_root="$(openvibecoding_machine_cache_root "$root_dir")"
+  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
   if [[ -n "${RUNNER_TEMP:-}" ]]; then
     printf '%s\n' "${machine_root}/pnpm-store-${GITHUB_JOB:-local}-${GITHUB_RUN_ID:-0}-${GITHUB_RUN_ATTEMPT:-0}"
     return 0
@@ -160,43 +160,43 @@ openvibecoding_pnpm_store_dir() {
   printf '%s\n' "${machine_root}/pnpm-store"
 }
 
-openvibecoding_pnpm_local_retry_prefix() {
+agentcoder_pnpm_local_retry_prefix() {
   local root_dir="${1:?root_dir required}"
   local lane="${2:?lane required}"
   local machine_root
-  machine_root="$(openvibecoding_machine_cache_root "$root_dir")"
+  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
   printf '%s\n' "${machine_root}/pnpm-store-local-${lane}"
 }
 
-openvibecoding_pnpm_local_retry_dir() {
+agentcoder_pnpm_local_retry_dir() {
   local root_dir="${1:?root_dir required}"
   local lane="${2:?lane required}"
   local prefix
-  prefix="$(openvibecoding_pnpm_local_retry_prefix "$root_dir" "$lane")"
+  prefix="$(agentcoder_pnpm_local_retry_prefix "$root_dir" "$lane")"
   mkdir -p "$(dirname "$prefix")"
   mktemp -d "${prefix}.XXXXXX"
 }
 
-openvibecoding_playwright_browsers_path() {
+agentcoder_playwright_browsers_path() {
   local root_dir="${1:?root_dir required}"
   if [[ -n "${PLAYWRIGHT_BROWSERS_PATH:-}" ]]; then
     printf '%s\n' "${PLAYWRIGHT_BROWSERS_PATH}"
     return 0
   fi
   local machine_root
-  machine_root="$(openvibecoding_machine_cache_root "$root_dir")"
+  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
   printf '%s\n' "${machine_root}/playwright"
 }
 
-openvibecoding_cargo_audit_ignore_config() {
+agentcoder_cargo_audit_ignore_config() {
   local root_dir="${1:?root_dir required}"
   printf '%s\n' "${root_dir}/configs/cargo_audit_ignored_advisories.json"
 }
 
-openvibecoding_cargo_audit_ignore_ids() {
+agentcoder_cargo_audit_ignore_ids() {
   local root_dir="${1:?root_dir required}"
   local config_path
-  config_path="$(openvibecoding_cargo_audit_ignore_config "$root_dir")"
+  config_path="$(agentcoder_cargo_audit_ignore_config "$root_dir")"
   python3 - "$config_path" <<'PY'
 import json
 import sys

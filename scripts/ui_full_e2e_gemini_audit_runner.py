@@ -43,7 +43,7 @@ def _apply_auth_cookies(*, context: Any, base_dashboard: str, api_token: str) ->
         return
     context.add_cookies(
         [
-            {"name": "openvibecoding_api_token", "value": token, "url": base_dashboard},
+            {"name": "agentcoder_api_token", "value": token, "url": base_dashboard},
             {"name": "api_token", "value": token, "url": base_dashboard},
         ]
     )

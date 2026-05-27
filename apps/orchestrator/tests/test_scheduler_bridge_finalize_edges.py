@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.scheduler import scheduler_bridge_finalize as bridge_finalize
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.scheduler import scheduler_bridge_finalize as bridge_finalize
+from agentcoder_orch.store.run_store import RunStore
 
 
 class _AlwaysValidValidator:

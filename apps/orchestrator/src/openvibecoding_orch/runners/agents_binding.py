@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from openvibecoding_orch.store.session_map import SessionAliasStore
+from agentcoder_orch.store.session_map import SessionAliasStore
 
 _THREAD_ID_RE = re.compile(
     r"^(?:urn:uuid:)?[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"

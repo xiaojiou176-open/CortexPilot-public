@@ -6,8 +6,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.chain import chain_lifecycle
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.chain import chain_lifecycle
+from agentcoder_orch.store.run_store import RunStore
 
 TERMINAL_RUN_STATUSES = {
     "SUCCESS",
@@ -225,7 +225,7 @@ def is_fanin_step(step: dict[str, Any]) -> bool:
 
 def normalize_fanin_summary(summary: str, dep_runs: list[str]) -> str:
     base = {
-        "format": "openvibecoding.fanin.summary.v1",
+        "format": "agentcoder.fanin.summary.v1",
         "inconsistencies": [],
         "duplicates": [],
         "stats": {"total": 0, "high": 0, "medium": 0, "low": 0},

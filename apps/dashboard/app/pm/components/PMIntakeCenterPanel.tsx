@@ -431,12 +431,12 @@ export default function PMIntakeCenterPanel(props: Props) {
                     {" ---"}
                   </div>
                 )}
-                <article className={`pm-chat-bubble ${item.role === "PM" ? "is-pm" : "is-openvibecoding"} is-${item.kind}`}>
+                <article className={`pm-chat-bubble ${item.role === "PM" ? "is-pm" : "is-agentcoder"} is-${item.kind}`}>
                   <header className="pm-bubble-header">
                     <span className="pm-bubble-role">
                       {item.role === "PM"
                         ? locale === "zh-CN" ? "你" : "You"
-                        : locale === "zh-CN" ? "OpenVibeCoding 指挥塔" : "OpenVibeCoding Command Tower"}
+                        : locale === "zh-CN" ? "Agentcoder 指挥塔" : "Agentcoder Command Tower"}
                     </span>
                     <time className="pm-bubble-time">{shortTime(item.createdAt)}</time>
                   </header>

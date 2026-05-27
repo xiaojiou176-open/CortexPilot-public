@@ -39,7 +39,7 @@ def _ci_or_container_env() -> bool:
     return (
         os.getenv("CI", "").strip().lower() in {"1", "true", "yes", "on"}
         or os.getenv("GITHUB_ACTIONS", "").strip().lower() in {"1", "true", "yes", "on"}
-        or os.getenv("OPENVIBECODING_CI_CONTAINER", "").strip().lower() in {"1", "true", "yes", "on"}
+        or os.getenv("AGENTCODER_CI_CONTAINER", "").strip().lower() in {"1", "true", "yes", "on"}
     )
 
 
@@ -118,36 +118,36 @@ def _env_default_policy() -> dict[str, Any]:
     default_profile_mode = _default_profile_mode()
     profile_mode = _normalize_profile_mode(
         _non_empty_text(
-            os.getenv("OPENVIBECODING_BROWSER_PROFILE_MODE", ""),
+            os.getenv("AGENTCODER_BROWSER_PROFILE_MODE", ""),
             default=default_profile_mode,
         ),
         default_profile_mode,
     )
     profile_dir = _non_empty_text(
-        os.getenv("OPENVIBECODING_BROWSER_PROFILE_DIR", ""),
+        os.getenv("AGENTCODER_BROWSER_PROFILE_DIR", ""),
         default="",
     )
     profile_name = _non_empty_text(
-        os.getenv("OPENVIBECODING_BROWSER_PROFILE_NAME", ""),
+        os.getenv("AGENTCODER_BROWSER_PROFILE_NAME", ""),
         default=_default_profile_name(profile_mode),
     )
     cookie_path = _non_empty_text(
-        os.getenv("OPENVIBECODING_BROWSER_COOKIE_PATH", ""),
+        os.getenv("AGENTCODER_BROWSER_COOKIE_PATH", ""),
         default="",
     )
     stealth_mode = _normalize_stealth_mode(
         _non_empty_text(
-            os.getenv("OPENVIBECODING_BROWSER_STEALTH_MODE", ""),
+            os.getenv("AGENTCODER_BROWSER_STEALTH_MODE", ""),
             default="none",
         ),
         "none",
     )
-    behavior_enabled = _raw_to_bool(os.getenv("OPENVIBECODING_BROWSER_HUMAN_BEHAVIOR", ""), default=False)
+    behavior_enabled = _raw_to_bool(os.getenv("AGENTCODER_BROWSER_HUMAN_BEHAVIOR", ""), default=False)
     behavior_level = _normalize_behavior_level(
-        _non_empty_text(os.getenv("OPENVIBECODING_BROWSER_HUMAN_BEHAVIOR_LEVEL", ""), default="low"),
+        _non_empty_text(os.getenv("AGENTCODER_BROWSER_HUMAN_BEHAVIOR_LEVEL", ""), default="low"),
         "low",
     )
-    plugin_optional = _raw_to_bool(os.getenv("OPENVIBECODING_BROWSER_PLUGIN_OPTIONAL", ""), default=True)
+    plugin_optional = _raw_to_bool(os.getenv("AGENTCODER_BROWSER_PLUGIN_OPTIONAL", ""), default=True)
     return {
         "profile_mode": profile_mode,
         "profile_ref": {"profile_dir": profile_dir, "profile_name": profile_name or "Default"},
@@ -166,8 +166,8 @@ def _local_profile_defaults_enabled() -> bool:
     if _ci_or_container_env():
         return False
     if _non_empty_text(
-        os.getenv("OPENVIBECODING_CLEAN_ROOM_MACHINE_TMP_ROOT", ""),
-        os.getenv("OPENVIBECODING_CLEAN_ROOM_PRESERVE_ROOT", ""),
+        os.getenv("AGENTCODER_CLEAN_ROOM_MACHINE_TMP_ROOT", ""),
+        os.getenv("AGENTCODER_CLEAN_ROOM_PRESERVE_ROOT", ""),
         default="",
     ):
         return False
@@ -188,8 +188,8 @@ def _forced_ephemeral_reason() -> str:
     if _ci_or_container_env():
         return "ci_or_container"
     if _non_empty_text(
-        os.getenv("OPENVIBECODING_CLEAN_ROOM_MACHINE_TMP_ROOT", ""),
-        os.getenv("OPENVIBECODING_CLEAN_ROOM_PRESERVE_ROOT", ""),
+        os.getenv("AGENTCODER_CLEAN_ROOM_MACHINE_TMP_ROOT", ""),
+        os.getenv("AGENTCODER_CLEAN_ROOM_PRESERVE_ROOT", ""),
         default="",
     ):
         return "clean_room"
@@ -201,8 +201,8 @@ def _explicit_profile_env_overrides() -> tuple[dict[str, Any], dict[str, str]]:
     sources: dict[str, str] = {}
 
     profile_mode = _non_empty_text(
-        os.getenv("OPENVIBECODING_BROWSER_PROFILE_MODE", ""),
-        os.getenv("OPENVIBECODING_WEB_PROFILE_MODE", ""),
+        os.getenv("AGENTCODER_BROWSER_PROFILE_MODE", ""),
+        os.getenv("AGENTCODER_WEB_PROFILE_MODE", ""),
         default="",
     )
     if profile_mode:
@@ -210,8 +210,8 @@ def _explicit_profile_env_overrides() -> tuple[dict[str, Any], dict[str, str]]:
         sources["profile_mode"] = "env"
 
     profile_dir = _non_empty_text(
-        os.getenv("OPENVIBECODING_BROWSER_PROFILE_DIR", ""),
-        os.getenv("OPENVIBECODING_WEB_PROFILE_DIR", ""),
+        os.getenv("AGENTCODER_BROWSER_PROFILE_DIR", ""),
+        os.getenv("AGENTCODER_WEB_PROFILE_DIR", ""),
         default="",
     )
     if profile_dir:
@@ -219,8 +219,8 @@ def _explicit_profile_env_overrides() -> tuple[dict[str, Any], dict[str, str]]:
         sources["profile_ref.profile_dir"] = "env"
 
     profile_name = _non_empty_text(
-        os.getenv("OPENVIBECODING_BROWSER_PROFILE_NAME", ""),
-        os.getenv("OPENVIBECODING_WEB_PROFILE_NAME", ""),
+        os.getenv("AGENTCODER_BROWSER_PROFILE_NAME", ""),
+        os.getenv("AGENTCODER_WEB_PROFILE_NAME", ""),
         default="",
     )
     if profile_name:
@@ -256,7 +256,7 @@ def _apply_default_profile_name(policy: dict[str, Any], policy_source: dict[str,
 
 
 def _profile_allowlist_roots() -> list[Path]:
-    configured = _non_empty_text(os.getenv("OPENVIBECODING_BROWSER_PROFILE_ALLOWLIST", ""), default="")
+    configured = _non_empty_text(os.getenv("AGENTCODER_BROWSER_PROFILE_ALLOWLIST", ""), default="")
     if configured:
         items = [item.strip() for item in configured.split(",") if item.strip()]
     else:
@@ -300,7 +300,7 @@ def resolve_browser_policy(
     task_id: str,
 ) -> dict[str, Any]:
     role = str((requested_by or {}).get("role", "")).strip().upper()
-    break_glass = _raw_to_bool(os.getenv("OPENVIBECODING_BROWSER_BREAK_GLASS", ""), default=False)
+    break_glass = _raw_to_bool(os.getenv("AGENTCODER_BROWSER_BREAK_GLASS", ""), default=False)
     break_glass_allowed = break_glass and role in _PRIVILEGED_BREAK_GLASS_ROLES
 
     requested = _env_default_policy()

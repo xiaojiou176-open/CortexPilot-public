@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getUiCopy, type UiLocale } from "@openvibecoding/frontend-shared/uiCopy";
+import { getUiCopy, type UiLocale } from "@agentcoder/frontend-shared/uiCopy";
 import {
   formatBindingReadModelLabel,
   formatRoleBindingRuntimeSummary,

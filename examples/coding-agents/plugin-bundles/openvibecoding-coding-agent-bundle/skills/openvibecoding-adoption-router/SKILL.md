@@ -1,11 +1,11 @@
 ---
-name: openvibecoding-adoption-router
-description: Route the current job to the right OpenVibeCoding surface without overclaiming hosted, write-capable MCP, or published plugin support.
+name: agentcoder-adoption-router
+description: Route the current job to the right Agentcoder surface without overclaiming hosted, write-capable MCP, or published plugin support.
 ---
 
 # Purpose
 
-Use this skill when a coding-agent workflow needs the shortest honest OpenVibeCoding
+Use this skill when a coding-agent workflow needs the shortest honest Agentcoder
 entrypoint.
 
 The job is to pick the right adoption lane first instead of treating every host
@@ -34,10 +34,10 @@ tool as the same kind of plugin system.
 
 # Guardrails
 
-- Do not describe OpenVibeCoding as a hosted operator product.
+- Do not describe Agentcoder as a hosted operator product.
 - Do not describe the public MCP surface as write-capable.
 - Do not claim this bundle is a published Codex or OpenClaw listing.
-- Do not describe Claude Code as if it has a OpenVibeCoding marketplace package.
+- Do not describe Claude Code as if it has a Agentcoder marketplace package.
 - Keep `task_contract` as the only execution authority.
 
 # Done Signal

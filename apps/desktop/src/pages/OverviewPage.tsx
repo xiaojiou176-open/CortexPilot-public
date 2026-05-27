@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { getUiCopy, type UiLocale } from "@openvibecoding/frontend-shared/uiCopy";
+import { getUiCopy, type UiLocale } from "@agentcoder/frontend-shared/uiCopy";
 import type { RunSummary, EventRecord } from "../lib/types";
 import type { CommandTowerOverviewPayload } from "../lib/types";
 import { fetchRuns, fetchAllEvents, fetchCommandTowerOverview } from "../lib/api";
@@ -52,7 +52,7 @@ export function OverviewPage({ onNavigate, onNavigateToRun, locale = "en" }: Ove
   const shellCopy =
     locale === "zh-CN"
       ? {
-          eyebrow: "OpenVibeCoding / 指挥总览",
+          eyebrow: "Agentcoder / 指挥总览",
           commandDeckTitle: "先看这四件事",
           commandDeckSubtitle: "第一屏先回答现在在发生什么、哪里堵住了、风险是否在上升、下一步该进哪条操作面。",
           nextActionTitle: "下一步",
@@ -61,7 +61,7 @@ export function OverviewPage({ onNavigate, onNavigateToRun, locale = "en" }: Ove
           nextActionClear: "从 PM 入口继续派发新任务",
         }
       : {
-          eyebrow: "OpenVibeCoding / command overview",
+          eyebrow: "Agentcoder / command overview",
           commandDeckTitle: "Start with these four checks",
           commandDeckSubtitle:
             "The first screen should tell you what is moving, what is blocked, whether risk is rising, and which surface to open next.",

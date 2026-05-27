@@ -4,8 +4,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-CURRENT_RUN_ROOT=".runtime-cache/openvibecoding/reports/ci/current_run"
-CURRENT_RUN_ROUTE_REPORT=".runtime-cache/openvibecoding/reports/ci/routes/local-advisory.json"
+CURRENT_RUN_ROOT=".runtime-cache/agentcoder/reports/ci/current_run"
+CURRENT_RUN_ROUTE_REPORT=".runtime-cache/agentcoder/reports/ci/routes/local-advisory.json"
 CURRENT_RUN_SOURCE_MANIFEST="${CURRENT_RUN_ROOT}/source_manifest.json"
 CURRENT_RUN_CONSISTENCY_JSON="${CURRENT_RUN_ROOT}/consistency.json"
 
@@ -62,8 +62,8 @@ preserve_authoritative_current_run_manifest() {
 import json
 from pathlib import Path
 
-manifest = Path(".runtime-cache/openvibecoding/reports/ci/current_run/source_manifest.json")
-consistency = Path(".runtime-cache/openvibecoding/reports/ci/current_run/consistency.json")
+manifest = Path(".runtime-cache/agentcoder/reports/ci/current_run/source_manifest.json")
+consistency = Path(".runtime-cache/agentcoder/reports/ci/current_run/consistency.json")
 if not manifest.is_file() or not consistency.is_file():
     raise SystemExit(1)
 
@@ -84,7 +84,7 @@ echo "== normalize transient residue =="
 cleanup_forbidden_python_residue
 echo
 echo "== repo-side truth =="
-OPENVIBECODING_HYGIENE_SKIP_UPSTREAM=1 bash scripts/check_repo_hygiene.sh
+AGENTCODER_HYGIENE_SKIP_UPSTREAM=1 bash scripts/check_repo_hygiene.sh
 echo
 
 echo "== external truth =="
@@ -104,4 +104,4 @@ echo
 echo "ℹ️ [truth-triage] completed"
 echo "   repo-side truth: see current shell output"
 echo "   external truth: .runtime-cache/test_output/governance/upstream_inventory_report.json + .runtime-cache/test_output/governance/upstream_same_run_cohesion.json"
-echo "   current-run truth: .runtime-cache/openvibecoding/reports/ci/current_run/consistency.json"
+echo "   current-run truth: .runtime-cache/agentcoder/reports/ci/current_run/consistency.json"

@@ -1,5 +1,5 @@
 // GENERATED FILE. DO NOT EDIT.
-// Source: docs/api/openapi.openvibecoding.json
+// Source: docs/api/openapi.agentcoder.json
 
 "use strict";
 
@@ -8,18 +8,18 @@ const uiFlow = require("./ui-flow.cjs");
 const FRONTEND_API_CONTRACT = {
   "defaultApiBase": "http://127.0.0.1:10000",
   "envKeys": [
-    "NEXT_PUBLIC_OPENVIBECODING_API_BASE",
-    "NEXT_PUBLIC_OPENVIBECODING_API_BASE",
-    "VITE_OPENVIBECODING_API_BASE",
-    "VITE_OPENVIBECODING_API_BASE",
-    "OPENVIBECODING_API_BASE",
-    "OPENVIBECODING_API_BASE"
+    "NEXT_PUBLIC_AGENTCODER_API_BASE",
+    "NEXT_PUBLIC_AGENTCODER_API_BASE",
+    "VITE_AGENTCODER_API_BASE",
+    "VITE_AGENTCODER_API_BASE",
+    "AGENTCODER_API_BASE",
+    "AGENTCODER_API_BASE"
   ],
   "headers": {
     "requestId": "x-request-id",
     "traceId": "x-trace-id",
     "traceparent": "traceparent",
-    "runId": "x-openvibecoding-run-id"
+    "runId": "x-agentcoder-run-id"
   },
   "network": {
     "fetchCredentials": "include",
@@ -87,8 +87,8 @@ const FRONTEND_API_CONTRACT = {
       "unresolved"
     ],
     "runtimeBindingSourceModels": [
-      "env.OPENVIBECODING_CODEX_MODEL",
-      "env.OPENVIBECODING_PROVIDER_MODEL",
+      "env.AGENTCODER_CODEX_MODEL",
+      "env.AGENTCODER_PROVIDER_MODEL",
       "role_contract.runtime_binding.model",
       "unresolved"
     ],

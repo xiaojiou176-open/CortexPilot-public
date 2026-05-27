@@ -1,7 +1,7 @@
 import type { CommandTowerPriorityLane } from "../../lib/frontendApiContract";
 import type { CommandTowerAlertsPayload } from "../../lib/types";
-import type { UiCopy } from "@openvibecoding/frontend-shared/uiCopy";
-import type { StatusVariant } from "@openvibecoding/frontend-shared/statusPresentation";
+import type { UiCopy } from "@agentcoder/frontend-shared/uiCopy";
+import type { StatusVariant } from "@agentcoder/frontend-shared/statusPresentation";
 
 export type SortMode = "updated_desc" | "created_desc" | "failed_desc" | "blocked_desc";
 export type FocusMode = "all" | "high_risk" | "blocked" | "running";

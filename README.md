@@ -2,16 +2,16 @@
   <img src="https://em-content.zobj.net/source/apple/391/headphone_1f3a7.png" width="120" alt="headphone" />
 </p>
 
-<h1 align="center">OpenVibeCoding</h1>
+<h1 align="center">Agentcoder</h1>
 
 <p align="center">
   <strong>AI codes overnight, you ship in the morning</strong>
 </p>
 
 <p align="center">
-  <a href="https://github.com/xiaojiou176-open/OpenVibeCoding/stargazers"><img src="https://img.shields.io/github/stars/xiaojiou176-open/OpenVibeCoding?style=flat&color=yellow" alt="Stars"></a>
-  <a href="https://github.com/xiaojiou176-open/OpenVibeCoding/commits/main"><img src="https://img.shields.io/github/last-commit/xiaojiou176-open/OpenVibeCoding?style=flat" alt="Last Commit"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/xiaojiou176-open/OpenVibeCoding?style=flat" alt="License"></a>
+  <a href="https://github.com/xiaojiou176-open/agentcoder/stargazers"><img src="https://img.shields.io/github/stars/xiaojiou176-open/agentcoder?style=flat&color=yellow" alt="Stars"></a>
+  <a href="https://github.com/xiaojiou176-open/agentcoder/commits/main"><img src="https://img.shields.io/github/last-commit/xiaojiou176-open/agentcoder?style=flat" alt="Last Commit"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/xiaojiou176-open/agentcoder?style=flat" alt="License"></a>
 </p>
 
 <p align="center">
@@ -23,7 +23,7 @@
 
 ---
 
-OpenVibeCoding is the orchestrator for long-haul AI coding tasks. Hand it a spec, walk away, come back to a branch, a diff, and a proof of work.
+Agentcoder is the orchestrator for long-haul AI coding tasks. Hand it a spec, walk away, come back to a branch, a diff, and a proof of work.
 
 ```
 ┌──────────────────────────────────────┐
@@ -53,14 +53,14 @@ OpenVibeCoding is the orchestrator for long-haul AI coding tasks. Hand it a spec
 ## Install
 
 ```bash
-git clone https://github.com/xiaojiou176-open/OpenVibeCoding.git
-cd OpenVibeCoding
+git clone https://github.com/xiaojiou176-open/agentcoder.git
+cd Agentcoder
 # follow the per-stack quickstart in INSTALL.md or docs/
 ```
 
 Three commands. No `curl | sh`. No login. Read what you run.
 
-Install break? Open your favorite agent and say *"Read AGENTS.md and bootstrap OpenVibeCoding for me."* Agent fix own brain. Long version: [`docs/`](./docs/).
+Install break? Open your favorite agent and say *"Read AGENTS.md and bootstrap Agentcoder for me."* Agent fix own brain. Long version: [`docs/`](./docs/).
 
 ## How It Work
 
@@ -69,7 +69,7 @@ The repo is seven layers — exactly the seven commits in `git log`. New work go
 | Layer | What |
 |---|---|
 | `chore: scaffold` | License, governance, hygiene gates, CI scaffolding. |
-| `feat(core)` | The primary engine. The reason OpenVibeCoding exists. |
+| `feat(core)` | The primary engine. The reason Agentcoder exists. |
 | `feat(modules)` | Packages, adapters, services, plugins. The second floor. |
 | `feat(contracts)` | Schemas, configs, public boundaries. Other code talks here. |
 | `test:` | Receipts. Everything in this layer must run. |
@@ -80,25 +80,25 @@ The repo is seven layers — exactly the seven commits in `git log`. New work go
 
 ## Ecosystem
 
-OpenVibeCoding lives in the **open family**: three open platforms. local-first, source-first, builder-first.
+Agentcoder lives in the **open family**: three open platforms. local-first, source-first, builder-first.
 
 | Repo | What |
 |---|---|
 | [**OpenCampus**](https://github.com/xiaojiou176-open/OpenCampus) | Canvas + Gradescope + EdStem on one calm desk |
-| [**OpenVibeCoding**](https://github.com/xiaojiou176-open/OpenVibeCoding) *(you here)* | AI codes overnight, you ship in the morning |
+| [**Agentcoder**](https://github.com/xiaojiou176-open/agentcoder) *(you here)* | AI codes overnight, you ship in the morning |
 | [**OpenUIStudio**](https://github.com/xiaojiou176-open/OpenUIStudio) | brief in, React + shadcn out, proof attached |
 
 Cross-family taste:
 [**BeamMe**](https://github.com/xiaojiou176-open/BeamMe) ·
 [**BrewMe**](https://github.com/xiaojiou176-open/BrewMe) ·
-[**OpenVibeCoding**](https://github.com/xiaojiou176-open/OpenVibeCoding) ·
+[**Agentcoder**](https://github.com/xiaojiou176-open/agentcoder) ·
 [**proofyard**](https://github.com/xiaojiou176-open/proofyard).
 
 ## Star This Repo
 
-If OpenVibeCoding saves you a click, an hour, or a headache — star costs zero. Fair trade. ⭐
+If Agentcoder saves you a click, an hour, or a headache — star costs zero. Fair trade. ⭐
 
-[![Star History Chart](https://api.star-history.com/svg?repos=xiaojiou176-open/OpenVibeCoding&type=Date)](https://star-history.com/#xiaojiou176-open/OpenVibeCoding&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=xiaojiou176-open/agentcoder&type=Date)](https://star-history.com/#xiaojiou176-open/agentcoder&Date)
 
 ## Also by Yifeng[Terry] Yu
 

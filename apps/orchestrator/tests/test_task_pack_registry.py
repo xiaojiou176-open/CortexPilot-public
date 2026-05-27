@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from openvibecoding_orch.planning import intake as intake_mod
+from agentcoder_orch.planning import intake as intake_mod
 
 
 def test_task_pack_registry_includes_public_templates() -> None:

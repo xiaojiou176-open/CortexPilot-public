@@ -21,7 +21,7 @@ import BlockerPanel from "../components/command-tower/BlockerPanel";
 import ConversationGraph from "../components/command-tower/ConversationGraph";
 import SessionBoard from "../components/command-tower/SessionBoard";
 import { buildCommandTowerMetadata } from "../app/command-tower/page";
-import { getUiCopy } from "@openvibecoding/frontend-shared/uiCopy";
+import { getUiCopy } from "@agentcoder/frontend-shared/uiCopy";
 
 function getRequiredSessionRow(sessionId: string): HTMLTableRowElement {
   const sessionLink = document.querySelector(`a[href="/command-tower/sessions/${sessionId}"]`);
@@ -252,7 +252,7 @@ describe("command tower ui surfaces", () => {
 
   it("exports command tower metadata for route-level discoverability", () => {
     const commandTowerMetadata = buildCommandTowerMetadata("en");
-    expect(commandTowerMetadata.title).toBe("Command Tower | OpenVibeCoding");
+    expect(commandTowerMetadata.title).toBe("Command Tower | Agentcoder");
     expect(commandTowerMetadata.description).toContain("Workflow Cases");
   });
 

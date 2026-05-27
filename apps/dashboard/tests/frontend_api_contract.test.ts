@@ -27,7 +27,7 @@ import type {
   RuntimeBindingReadModel as SharedRuntimeBindingReadModel,
   SkillsBundleReadModel as SharedSkillsBundleReadModel,
   WorkflowCaseReadModel as SharedWorkflowCaseReadModel,
-} from "@openvibecoding/frontend-shared/types";
+} from "@agentcoder/frontend-shared/types";
 
 import {
   FRONTEND_API_CONTRACT as localContract,
@@ -43,7 +43,7 @@ import {
   type FrontendApiContract as PackageFrontendApiContract,
   type PmJourneyContext as PackagePmJourneyContext,
   type PmJourneyStage as PackagePmJourneyStage,
-} from "@openvibecoding/frontend-api-contract";
+} from "@agentcoder/frontend-api-contract";
 
 describe("frontendApiContract re-export mapping", () => {
   it("re-exports the same contract object to prevent drift", () => {
@@ -67,7 +67,7 @@ describe("frontendApiContract re-export mapping", () => {
     expect(localContract.headers.requestId).toBe("x-request-id");
     expect(localContract.headers.traceId).toBe("x-trace-id");
     expect(localContract.headers.traceparent).toBe("traceparent");
-    expect(localContract.headers.runId).toBe("x-openvibecoding-run-id");
+    expect(localContract.headers.runId).toBe("x-agentcoder-run-id");
   });
 
   it("re-exports PM journey stages without mutation", () => {

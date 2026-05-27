@@ -8,11 +8,11 @@ from typing import Any, Callable
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Request
 
-from openvibecoding_orch.api import deps as api_deps
-from openvibecoding_orch.api.security_validators import validate_run_id
-from openvibecoding_orch.config import load_config
-from openvibecoding_orch.services.orchestration_service import OrchestrationService, sanitize_approval_payload
-from openvibecoding_orch.store import run_store
+from agentcoder_orch.api import deps as api_deps
+from agentcoder_orch.api.security_validators import validate_run_id
+from agentcoder_orch.config import load_config
+from agentcoder_orch.services.orchestration_service import OrchestrationService, sanitize_approval_payload
+from agentcoder_orch.store import run_store
 
 
 router = APIRouter(prefix="/api", tags=["admin"])
@@ -20,7 +20,7 @@ _orchestration_service = OrchestrationService()
 _RUM_JSONL_PATH: Path | None = None
 _DEFAULT_APPROVAL_ROLES = {"OWNER", "ARCHITECT", "OPS", "TECH_LEAD"}
 try:
-    _RUM_MAX_PAYLOAD_BYTES = max(1, int(os.getenv("OPENVIBECODING_RUM_MAX_PAYLOAD_BYTES", "32768")))
+    _RUM_MAX_PAYLOAD_BYTES = max(1, int(os.getenv("AGENTCODER_RUM_MAX_PAYLOAD_BYTES", "32768")))
 except ValueError:
     _RUM_MAX_PAYLOAD_BYTES = 32768
 
@@ -38,7 +38,7 @@ def _route_deps_not_configured_http_error(exc: api_deps.RouteDepsNotConfiguredEr
 
 
 def _approval_roles() -> set[str]:
-    raw = os.getenv("OPENVIBECODING_APPROVAL_ALLOWED_ROLES", "").strip()
+    raw = os.getenv("AGENTCODER_APPROVAL_ALLOWED_ROLES", "").strip()
     if not raw:
         return set(_DEFAULT_APPROVAL_ROLES)
     parsed = {item.strip().upper() for item in raw.split(",") if item.strip()}
@@ -48,7 +48,7 @@ def _approval_roles() -> set[str]:
 def _request_role(request: Request | None) -> str:
     if request is None:
         return ""
-    return request.headers.get("x-openvibecoding-role", "").strip().upper()
+    return request.headers.get("x-agentcoder-role", "").strip().upper()
 
 
 def _role_header_is_trusted(request: Request | None) -> bool:
@@ -56,7 +56,7 @@ def _role_header_is_trusted(request: Request | None) -> bool:
         return True
     if not load_config().api_auth_required:
         return True
-    return bool(getattr(request.state, "openvibecoding_api_auth_verified", False))
+    return bool(getattr(request.state, "agentcoder_api_auth_verified", False))
 
 
 def _enforce_approval_rbac(request: Request | None) -> None:
@@ -266,7 +266,7 @@ def _append_rum_record(payload: Any) -> tuple[bool, str]:
             "level": "INFO",
             "domain": "ui",
             "surface": "dashboard",
-            "service": "openvibecoding-dashboard",
+            "service": "agentcoder-dashboard",
             "component": "api.routes_admin",
             "event": "RUM_WEB_VITAL_RECEIVED",
             "lane": "runtime",

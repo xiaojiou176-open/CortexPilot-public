@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-from openvibecoding_orch.gates.diff_gate import run_diff_gate
+from agentcoder_orch.gates.diff_gate import run_diff_gate
 
 
 def _git(cmd, cwd: Path):

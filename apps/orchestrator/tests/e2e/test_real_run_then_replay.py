@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
-from openvibecoding_orch.scheduler.scheduler import Orchestrator
+from agentcoder_orch.scheduler.scheduler import Orchestrator
 import hashlib
 
 pytestmark = pytest.mark.e2e
@@ -53,9 +53,9 @@ def test_real_run_then_replay(tmp_path: Path, monkeypatch) -> None:
     worktree_root = runtime_root / "worktrees"
 
     monkeypatch.chdir(repo)
-    monkeypatch.setenv("OPENVIBECODING_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("OPENVIBECODING_RUNS_ROOT", str(runs_root))
-    monkeypatch.setenv("OPENVIBECODING_WORKTREE_ROOT", str(worktree_root))
+    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("AGENTCODER_WORKTREE_ROOT", str(worktree_root))
 
     contract = {
         "task_id": "task_real_run",

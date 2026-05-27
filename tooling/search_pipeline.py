@@ -7,8 +7,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.store.run_store import RunStore
-from openvibecoding_orch.contract.validator import ContractValidator
+from agentcoder_orch.store.run_store import RunStore
+from agentcoder_orch.contract.validator import ContractValidator
 
 _CHAT_PROVIDER_HOSTS: dict[str, set[str]] = {
     "gemini_web": {"gemini.google.com"},

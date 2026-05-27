@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.store.run_store import RunStore
 
 
 @pytest.mark.parametrize("bad_run_id", ["", "../escape", "run/../escape", "/abs/path", "..", "run..id"])
@@ -21,7 +21,7 @@ def test_run_dir_accepts_safe_run_id(tmp_path: Path) -> None:
 
 
 def test_active_contract_is_isolated_per_run(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("OPENVIBECODING_RUNTIME_ROOT", str(tmp_path / "runtime"))
+    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(tmp_path / "runtime"))
     store = RunStore(runs_root=tmp_path / "runs")
     run_a = "run_a"
     run_b = "run_b"

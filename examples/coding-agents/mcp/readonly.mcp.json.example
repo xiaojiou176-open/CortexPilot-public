@@ -1,11 +1,11 @@
 {
   "mcpServers": {
-    "openvibecoding-readonly": {
+    "agentcoder-readonly": {
       "command": "bash",
       "args": [
-        "__OPENVIBECODING_REPO_ROOT__/scripts/run_openvibecoding_readonly_mcp.sh"
+        "__AGENTCODER_REPO_ROOT__/scripts/run_agentcoder_readonly_mcp.sh"
       ],
-      "cwd": "__OPENVIBECODING_REPO_ROOT__"
+      "cwd": "__AGENTCODER_REPO_ROOT__"
     }
   }
 }

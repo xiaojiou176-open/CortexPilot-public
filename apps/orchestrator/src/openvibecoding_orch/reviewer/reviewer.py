@@ -7,9 +7,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from openvibecoding_orch.contract.validator import ContractValidator
-from openvibecoding_orch.observability.codex_event_parser import parse_codex_event_line
-from openvibecoding_orch.gates.path_match import is_allowed_path
+from agentcoder_orch.contract.validator import ContractValidator
+from agentcoder_orch.observability.codex_event_parser import parse_codex_event_line
+from agentcoder_orch.gates.path_match import is_allowed_path
 
 
 def _now_ts() -> str:
@@ -212,7 +212,7 @@ class CodexReviewer:
             "--sandbox",
             "read-only",
         ]
-        use_output_schema = os.getenv("OPENVIBECODING_CODEX_USE_OUTPUT_SCHEMA", "").strip().lower() in {
+        use_output_schema = os.getenv("AGENTCODER_CODEX_USE_OUTPUT_SCHEMA", "").strip().lower() in {
             "1",
             "true",
             "yes",
@@ -220,7 +220,7 @@ class CodexReviewer:
         }
         if use_output_schema:
             cmd.extend(["--output-schema", str(schema_path)])
-        model = os.getenv("OPENVIBECODING_CODEX_MODEL", "").strip()
+        model = os.getenv("AGENTCODER_CODEX_MODEL", "").strip()
         if model:
             cmd.extend(["--model", model])
         cmd.append(instruction)

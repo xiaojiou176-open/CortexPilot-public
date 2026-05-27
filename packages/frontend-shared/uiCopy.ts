@@ -1066,13 +1066,13 @@ export type UiCopy = {
 
 const UI_COPY: Record<UiLocale, UiCopy> = {
   en: {
-    brandTitle: "OpenVibeCoding",
+    brandTitle: "Agentcoder",
     brandSubtitle: "plan / delegate / track / resume / prove",
     dashboard: {
       homePhase2: {
         heroTitle: "The open command tower for AI engineering",
         heroSubtitle:
-          "Stop babysitting AI coding work. AI coding does not lack models. It lacks a command tower. OpenVibeCoding gives teams one governed operator path to plan, delegate, track, resume, and prove long-running engineering work across Codex and Claude Code.",
+          "Stop babysitting AI coding work. AI coding does not lack models. It lacks a command tower. Agentcoder gives teams one governed operator path to plan, delegate, track, resume, and prove long-running engineering work across Codex and Claude Code.",
         startFirstTaskLabel: "Start first task",
         startNewTaskLabel: "Start new task",
         viewLatestRunsLabel: "View latest runs",
@@ -1137,7 +1137,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         ],
         publicAdvantagesTitle: "Three engineering layers behind the command tower",
         publicAdvantagesDescription:
-          "OpenVibeCoding is not just one more prompt wrapper. It turns prompt, context, and harness decisions into explicit product surfaces so long-running work keeps moving when humans step away.",
+          "Agentcoder is not just one more prompt wrapper. It turns prompt, context, and harness decisions into explicit product surfaces so long-running work keeps moving when humans step away.",
         publicAdvantageCards: [
           {
             href: "/pm",
@@ -1164,7 +1164,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           {
             badge: "Primary workflow binding",
             title: "Codex workflows",
-            desc: "Use OpenVibeCoding when Codex-driven work needs one command tower, one case record, and one replayable proof path.",
+            desc: "Use Agentcoder when Codex-driven work needs one command tower, one case record, and one replayable proof path.",
             href: "/command-tower",
             prefetch: true,
           },
@@ -1216,7 +1216,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         ],
         aiSurfacesTitle: "AI surfaces in the real workflow",
         aiSurfacesDescription:
-          "AI in OpenVibeCoding is not a floating chat box. It already shows up as a pre-run advisor, a workflow-level explainer, and a run/compare operator brief.",
+          "AI in Agentcoder is not a floating chat box. It already shows up as a pre-run advisor, a workflow-level explainer, and a run/compare operator brief.",
         aiSurfacesActionLabel: "Open AI + MCP + API surfaces",
         aiSurfacesActionHref: "/ai-surfaces/",
         aiSurfaceCards: [
@@ -1262,21 +1262,21 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           },
           {
             badge: "Thin client surface",
-            title: "@openvibecoding/frontend-api-client",
+            title: "@agentcoder/frontend-api-client",
             desc: "Use the dashboard, desktop, and web client entry points when you want runs, Workflow Cases, approvals, and Command Tower reads from one import boundary.",
-            href: "https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/packages/frontend-api-client/README.md",
+            href: "https://github.com/xiaojiou176-open/agentcoder/blob/main/packages/frontend-api-client/README.md",
           },
           {
             badge: "Contract-facing",
-            title: "@openvibecoding/frontend-api-contract",
+            title: "@agentcoder/frontend-api-contract",
             desc: "Use the contract package README first when you want the human guide to the generated API boundary before opening raw type files.",
-            href: "https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/packages/frontend-api-contract/docs/README.md",
+            href: "https://github.com/xiaojiou176-open/agentcoder/blob/main/packages/frontend-api-contract/docs/README.md",
           },
           {
             badge: "Presentation substrate",
-            title: "@openvibecoding/frontend-shared",
+            title: "@agentcoder/frontend-shared",
             desc: "Use the shared brand copy, locale helpers, status presentation, and frontend-only types instead of rebuilding those surfaces per app.",
-            href: "https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/packages/frontend-shared/README.md",
+            href: "https://github.com/xiaojiou176-open/agentcoder/blob/main/packages/frontend-shared/README.md",
           },
         ],
         liveCaseGalleryTitle: "Live Workflow Case gallery",
@@ -1328,7 +1328,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       },
       skipToMainContent: "Skip to dashboard content",
       navigationAriaLabel: "Dashboard navigation",
-      topbarTitle: "OpenVibeCoding command tower",
+      topbarTitle: "Agentcoder command tower",
       platformStatusAriaLabel: "Platform status overview",
       lowFrequencyToolsLabel: "Low-frequency tools",
       localeToggleAriaLabel: "Switch to Chinese",
@@ -1515,7 +1515,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
             laneNote: "Each lane card exposes quick actions so you can jump straight into live control, risk focus, or the next operator step.",
           },
           drawer: {
-            projectKeyPlaceholder: "e.g. openvibecoding",
+            projectKeyPlaceholder: "e.g. agentcoder",
             focusViewSwitcherAriaLabel: "Focus view switcher",
           },
           viewModel: {
@@ -1902,7 +1902,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       sectionPrimary: "Core loop",
       sectionAdvanced: "Command deck",
       sectionGovernance: "Desks & controls",
-      shellAriaLabel: "OpenVibeCoding command tower desktop shell",
+      shellAriaLabel: "Agentcoder command tower desktop shell",
       skipToMainContent: "Skip to main content",
       workspacePickerLabel: "Workspace picker",
       selectWorkspace: "Select workspace",
@@ -1912,7 +1912,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       localeToggleButtonLabel: "中文",
       commandTower: {
         title: "Command Tower",
-        subtitle: "OpenVibeCoding on desktop stays focused on execution and operator decisions; deeper governance analysis still moves to the web view.",
+        subtitle: "Agentcoder on desktop stays focused on execution and operator decisions; deeper governance analysis still moves to the web view.",
         currentModePrefix: "Current mode:",
         badges: {
           liveRefresh: "Live refresh",
@@ -2243,7 +2243,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       overview: {
         title: "Command deck overview",
         subtitle:
-          "OpenVibeCoding starts with one loop: start the task, watch Command Tower, confirm the Workflow Case, then verify Proof & Replay. Only open approvals when the flow asks for one.",
+          "Agentcoder starts with one loop: start the task, watch Command Tower, confirm the Workflow Case, then verify Proof & Replay. Only open approvals when the flow asks for one.",
         refreshData: "Refresh data",
         metricsAriaLabel: "Overview metrics",
         metricLabels: {
@@ -2361,13 +2361,13 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
     },
   },
   "zh-CN": {
-    brandTitle: "OpenVibeCoding",
+    brandTitle: "Agentcoder",
     brandSubtitle: "规划 · 派工 · 追踪 · 续跑 · 验真",
     dashboard: {
       homePhase2: {
         heroTitle: "面向 AI 工程的开放指挥塔",
         heroSubtitle:
-          "别再盯着 AI 编码一步一步催了。AI 编码不缺模型，缺的是指挥塔。OpenVibeCoding 会围绕 Codex / Claude Code 去规划、派工、追踪、续跑和验真，把长期工程任务收进一条可治理、可续跑、可验真的操作路径。",
+          "别再盯着 AI 编码一步一步催了。AI 编码不缺模型，缺的是指挥塔。Agentcoder 会围绕 Codex / Claude Code 去规划、派工、追踪、续跑和验真，把长期工程任务收进一条可治理、可续跑、可验真的操作路径。",
         startFirstTaskLabel: "启动首个任务",
         startNewTaskLabel: "启动新任务",
         viewLatestRunsLabel: "查看最近运行",
@@ -2432,7 +2432,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         ],
         publicAdvantagesTitle: "指挥塔背后的三层工程能力",
         publicAdvantagesDescription:
-          "OpenVibeCoding 不是再包一层花哨提示词，而是把提示词、上下文和护栏这三类最容易失控的东西，都拉进显式、可检查、可演进的系统里。",
+          "Agentcoder 不是再包一层花哨提示词，而是把提示词、上下文和护栏这三类最容易失控的东西，都拉进显式、可检查、可演进的系统里。",
         publicAdvantageCards: [
           {
             href: "/pm",
@@ -2459,7 +2459,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           {
             badge: "主工作流绑定",
             title: "Codex 工作流",
-            desc: "当 Codex 驱动的工作需要统一指挥塔、案例记录和可回放证明路径时，就该由 OpenVibeCoding 承接。",
+            desc: "当 Codex 驱动的工作需要统一指挥塔、案例记录和可回放证明路径时，就该由 Agentcoder 承接。",
             href: "/command-tower",
             prefetch: true,
           },
@@ -2511,7 +2511,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
         ],
         aiSurfacesTitle: "AI 功能已经进入主工作流",
         aiSurfacesDescription:
-          "OpenVibeCoding 里的 AI 不是漂浮聊天框。它已经分别出现在执行前建议、工作流解释，以及运行/对比的操作摘要里。",
+          "Agentcoder 里的 AI 不是漂浮聊天框。它已经分别出现在执行前建议、工作流解释，以及运行/对比的操作摘要里。",
         aiSurfacesActionLabel: "打开 AI、MCP 与 API 页面",
         aiSurfacesActionHref: "/ai-surfaces/",
         aiSurfaceCards: [
@@ -2557,21 +2557,21 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
           },
           {
             badge: "薄客户端",
-            title: "@openvibecoding/frontend-api-client",
+            title: "@agentcoder/frontend-api-client",
             desc: "当你想从一个导入边界里拿到 runs、工作流案例、approvals 和指挥塔读取能力时，就从这里开始。",
-            href: "https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/packages/frontend-api-client/README.md",
+            href: "https://github.com/xiaojiou176-open/agentcoder/blob/main/packages/frontend-api-client/README.md",
           },
           {
             badge: "契约层",
-            title: "@openvibecoding/frontend-api-contract",
+            title: "@agentcoder/frontend-api-contract",
             desc: "如果你想先看生成契约边界的人类说明，再决定要不要打开原始类型文件，就先从这个 README 开始。",
-            href: "https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/packages/frontend-api-contract/docs/README.md",
+            href: "https://github.com/xiaojiou176-open/agentcoder/blob/main/packages/frontend-api-contract/docs/README.md",
           },
           {
             badge: "表现层 substrate",
-            title: "@openvibecoding/frontend-shared",
+            title: "@agentcoder/frontend-shared",
             desc: "品牌 copy、locale helper、status presentation 和 frontend-only types 已经集中到这一层，而不是散落在各 app 里。",
-            href: "https://github.com/xiaojiou176-open/OpenVibeCoding/blob/main/packages/frontend-shared/README.md",
+            href: "https://github.com/xiaojiou176-open/agentcoder/blob/main/packages/frontend-shared/README.md",
           },
         ],
         liveCaseGalleryTitle: "真实工作流案例画廊",
@@ -2623,7 +2623,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       },
       skipToMainContent: "跳到控制台主内容",
       navigationAriaLabel: "控制台导航",
-      topbarTitle: "OpenVibeCoding 指挥塔",
+      topbarTitle: "Agentcoder 指挥塔",
       platformStatusAriaLabel: "平台状态概览",
       lowFrequencyToolsLabel: "低频工具",
       localeToggleAriaLabel: "切换到英文",
@@ -2810,7 +2810,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
             laneNote: "每张 lane 卡都暴露了快捷动作，这样你可以直接跳到实时控制、风险聚焦或下一步操作。",
           },
           drawer: {
-            projectKeyPlaceholder: "例如 openvibecoding",
+            projectKeyPlaceholder: "例如 agentcoder",
             focusViewSwitcherAriaLabel: "焦点视图切换器",
           },
           viewModel: {
@@ -3188,7 +3188,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       sectionPrimary: "核心主线",
       sectionAdvanced: "检查与治理",
       sectionGovernance: "桌面与控制",
-      shellAriaLabel: "OpenVibeCoding 指挥塔桌面端",
+      shellAriaLabel: "Agentcoder 指挥塔桌面端",
       skipToMainContent: "跳到主内容",
       workspacePickerLabel: "工作区切换器",
       selectWorkspace: "选择工作区",
@@ -3198,7 +3198,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       localeToggleButtonLabel: "EN",
       commandTower: {
         title: "指挥塔",
-        subtitle: "OpenVibeCoding 的桌面端聚焦执行与操作决策；更深的治理分析仍留给 Web 视图。",
+        subtitle: "Agentcoder 的桌面端聚焦执行与操作决策；更深的治理分析仍留给 Web 视图。",
         currentModePrefix: "当前模式：",
         badges: {
           liveRefresh: "实时刷新",
@@ -3526,7 +3526,7 @@ const UI_COPY: Record<UiLocale, UiCopy> = {
       overview: {
         title: "指挥面总览",
         subtitle:
-          "OpenVibeCoding 的第一条主循环是：发起任务、观察指挥塔、确认工作流案例、再检查证明与回放。只有在流程要求时才进入审批。",
+          "Agentcoder 的第一条主循环是：发起任务、观察指挥塔、确认工作流案例、再检查证明与回放。只有在流程要求时才进入审批。",
         refreshData: "刷新数据",
         metricsAriaLabel: "总览指标",
         metricLabels: {

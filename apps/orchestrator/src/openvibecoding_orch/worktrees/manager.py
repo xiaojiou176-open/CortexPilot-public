@@ -6,7 +6,7 @@ import subprocess
 import threading
 from pathlib import Path
 
-from openvibecoding_orch.config import load_config
+from agentcoder_orch.config import load_config
 
 try:
     import fcntl
@@ -50,7 +50,7 @@ def _process_lock_for(path: Path) -> threading.RLock:
 
 @contextmanager
 def _worktree_file_lock(repo_root: Path):
-    lock_path = repo_root / ".git" / "openvibecoding-worktrees.lock"
+    lock_path = repo_root / ".git" / "agentcoder-worktrees.lock"
     lock_path.parent.mkdir(parents=True, exist_ok=True)
     process_lock = _process_lock_for(lock_path)
     with process_lock:
@@ -72,7 +72,7 @@ def _safe_segment(value: str) -> str:
 
 def _branch_name(run_id: str, task_id: str) -> str:
     safe_task = _safe_segment(task_id)
-    return f"openvibecoding-run-{run_id}-{safe_task}"
+    return f"agentcoder-run-{run_id}-{safe_task}"
 
 
 def _is_stale_worktree_metadata_error(stderr: str) -> bool:

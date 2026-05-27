@@ -1,4 +1,4 @@
-from openvibecoding_orch.gates.network_gate import validate_network_policy, requires_network_items
+from agentcoder_orch.gates.network_gate import validate_network_policy, requires_network_items
 
 
 def test_validate_network_policy_invalid() -> None:
@@ -8,13 +8,13 @@ def test_validate_network_policy_invalid() -> None:
 
 
 def test_validate_network_policy_on_request_approved(monkeypatch) -> None:
-    monkeypatch.setenv("OPENVIBECODING_NETWORK_APPROVED", "true")
+    monkeypatch.setenv("AGENTCODER_NETWORK_APPROVED", "true")
     result = validate_network_policy("on-request", requires_network=True)
     assert result["ok"] is True
 
 
 def test_validate_network_policy_on_request_denied(monkeypatch) -> None:
-    monkeypatch.delenv("OPENVIBECODING_NETWORK_APPROVED", raising=False)
+    monkeypatch.delenv("AGENTCODER_NETWORK_APPROVED", raising=False)
     result = validate_network_policy("on-request", requires_network=True)
     assert result["ok"] is False
     assert result["reason"] == "network access requires approval"

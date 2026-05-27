@@ -10,11 +10,11 @@ Starts both:
 - Desktop Tauri native window (automatically starts the frontend dev server)
 
 Optional environment variables:
-- OPENVIBECODING_DEV_HOST (default: 127.0.0.1)
-- OPENVIBECODING_API_PORT (default: 10000)
-- OPENVIBECODING_TAURI_DEV_PORT (default: 1420)
-- OPENVIBECODING_API_AUTH_REQUIRED (default: true)
-- OPENVIBECODING_API_TOKEN (default: openvibecoding-dev-token)
+- AGENTCODER_DEV_HOST (default: 127.0.0.1)
+- AGENTCODER_API_PORT (default: 10000)
+- AGENTCODER_TAURI_DEV_PORT (default: 1420)
+- AGENTCODER_API_AUTH_REQUIRED (default: true)
+- AGENTCODER_API_TOKEN (default: agentcoder-dev-token)
 
 Notes:
 - If a requested port is already in use, the script automatically shifts to the next available port without taking over existing processes.
@@ -25,17 +25,17 @@ fi
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 source "$ROOT_DIR/scripts/lib/env.sh"
-PYTHON_BIN="${OPENVIBECODING_PYTHON:-}"
+PYTHON_BIN="${AGENTCODER_PYTHON:-}"
 
-HOST="${OPENVIBECODING_DEV_HOST:-127.0.0.1}"
-API_PORT="${OPENVIBECODING_API_PORT:-10000}"
-TAURI_DEV_PORT="${OPENVIBECODING_TAURI_DEV_PORT:-1420}"
-API_AUTH_REQUIRED="${OPENVIBECODING_API_AUTH_REQUIRED:-true}"
-DEV_API_TOKEN="${OPENVIBECODING_API_TOKEN:-openvibecoding-dev-token}"
+HOST="${AGENTCODER_DEV_HOST:-127.0.0.1}"
+API_PORT="${AGENTCODER_API_PORT:-10000}"
+TAURI_DEV_PORT="${AGENTCODER_TAURI_DEV_PORT:-1420}"
+API_AUTH_REQUIRED="${AGENTCODER_API_AUTH_REQUIRED:-true}"
+DEV_API_TOKEN="${AGENTCODER_API_TOKEN:-agentcoder-dev-token}"
 
-PID_DIR="$ROOT_DIR/.runtime-cache/openvibecoding/temp"
+PID_DIR="$ROOT_DIR/.runtime-cache/agentcoder/temp"
 LOG_DIR="$ROOT_DIR/.runtime-cache/logs/runtime"
-PID_FILE="$PID_DIR/openvibecoding-dev-api.pid"
+PID_FILE="$PID_DIR/agentcoder-dev-api.pid"
 API_LOG_FILE="$LOG_DIR/api-dev.log"
 
 mkdir -p "$PID_DIR" "$LOG_DIR"
@@ -77,11 +77,11 @@ resolve_port() {
   echo "$resolved_port"
 }
 
-API_PORT="$(resolve_port "$API_PORT" "API" "OPENVIBECODING_API_PORT")"
-TAURI_DEV_PORT="$(resolve_port "$TAURI_DEV_PORT" "Tauri Dev Server" "OPENVIBECODING_TAURI_DEV_PORT" "$API_PORT")"
+API_PORT="$(resolve_port "$API_PORT" "API" "AGENTCODER_API_PORT")"
+TAURI_DEV_PORT="$(resolve_port "$TAURI_DEV_PORT" "Tauri Dev Server" "AGENTCODER_TAURI_DEV_PORT" "$API_PORT")"
 
 if [ -z "$PYTHON_BIN" ] || [ ! -x "$PYTHON_BIN" ]; then
-  echo "❌ managed Python toolchain not found: ${OPENVIBECODING_PYTHON:-<unset>}"
+  echo "❌ managed Python toolchain not found: ${AGENTCODER_PYTHON:-<unset>}"
   echo "Run: ./scripts/bootstrap.sh"
   exit 1
 fi
@@ -98,10 +98,10 @@ fi
 
 echo "🚀 starting Orchestrator API: http://$HOST:$API_PORT"
 PYTHONPATH=apps/orchestrator/src \
-OPENVIBECODING_API_AUTH_REQUIRED="$API_AUTH_REQUIRED" \
-OPENVIBECODING_API_TOKEN="$DEV_API_TOKEN" \
-OPENVIBECODING_DASHBOARD_PORT="$TAURI_DEV_PORT" \
-"$PYTHON_BIN" -m openvibecoding_orch.cli serve \
+AGENTCODER_API_AUTH_REQUIRED="$API_AUTH_REQUIRED" \
+AGENTCODER_API_TOKEN="$DEV_API_TOKEN" \
+AGENTCODER_DASHBOARD_PORT="$TAURI_DEV_PORT" \
+"$PYTHON_BIN" -m agentcoder_orch.cli serve \
   --host "$HOST" --port "$API_PORT" \
   >"$API_LOG_FILE" 2>&1 &
 API_PID=$!
@@ -137,6 +137,6 @@ fi
 tauri_config="$(printf '{"build":{"beforeDevCommand":"npm run dev -- --host 127.0.0.1 --port %s","devUrl":"http://localhost:%s"}}' "$TAURI_DEV_PORT" "$TAURI_DEV_PORT")"
 
 echo "🔐 API auth required: $API_AUTH_REQUIRED"
-VITE_OPENVIBECODING_API_BASE="http://$HOST:$API_PORT" \
-VITE_OPENVIBECODING_API_TOKEN="$desktop_api_token" \
+VITE_AGENTCODER_API_BASE="http://$HOST:$API_PORT" \
+VITE_AGENTCODER_API_TOKEN="$desktop_api_token" \
 bash scripts/run_workspace_app.sh desktop tauri:dev -- --config "$tauri_config"

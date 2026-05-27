@@ -5,7 +5,7 @@ import os
 import time
 from typing import Any
 
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.store.run_store import RunStore
 
 
 def requires_human_approval(
@@ -15,11 +15,11 @@ def requires_human_approval(
     network_policy: str,
     shell_policy: str,
 ) -> bool:
-    env_flag = os.getenv("OPENVIBECODING_GOD_MODE_REQUIRED", "").strip().lower()
+    env_flag = os.getenv("AGENTCODER_GOD_MODE_REQUIRED", "").strip().lower()
     if env_flag in {"1", "true", "yes"}:
         return True
 
-    on_request_flag = os.getenv("OPENVIBECODING_GOD_MODE_ON_REQUEST", "").strip().lower()
+    on_request_flag = os.getenv("AGENTCODER_GOD_MODE_ON_REQUEST", "").strip().lower()
     if on_request_flag not in {"1", "true", "yes"}:
         return filesystem_policy == "danger-full-access"
 
@@ -31,23 +31,23 @@ def requires_human_approval(
 
 
 def force_unlock_requested() -> bool:
-    raw = os.getenv("OPENVIBECODING_FORCE_UNLOCK", "").strip().lower()
+    raw = os.getenv("AGENTCODER_FORCE_UNLOCK", "").strip().lower()
     return raw in {"1", "true", "yes"}
 
 
 def auto_lock_cleanup_requested() -> bool:
-    raw = os.getenv("OPENVIBECODING_LOCK_AUTO_CLEANUP", "").strip().lower()
+    raw = os.getenv("AGENTCODER_LOCK_AUTO_CLEANUP", "").strip().lower()
     if raw in {"1", "true", "yes"}:
         return True
-    ttl_raw = os.getenv("OPENVIBECODING_LOCK_TTL_SEC", "").strip()
+    ttl_raw = os.getenv("AGENTCODER_LOCK_TTL_SEC", "").strip()
     if ttl_raw != "":
         return True
-    default_raw = os.getenv("OPENVIBECODING_LOCK_TTL_SEC_DEFAULT", "").strip()
+    default_raw = os.getenv("AGENTCODER_LOCK_TTL_SEC_DEFAULT", "").strip()
     return default_raw != ""
 
 
 def god_mode_timeout_sec() -> int:
-    timeout_raw = os.getenv("OPENVIBECODING_GOD_MODE_TIMEOUT_SEC", "0").strip()
+    timeout_raw = os.getenv("AGENTCODER_GOD_MODE_TIMEOUT_SEC", "0").strip()
     try:
         return int(timeout_raw)
     except ValueError:

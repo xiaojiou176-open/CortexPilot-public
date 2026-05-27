@@ -5,12 +5,12 @@ from pathlib import Path
 
 import pytest
 
-from openvibecoding_orch.contract import compiler as compiler_mod
-from openvibecoding_orch.contract import validator as validator_mod
-from openvibecoding_orch.gates import diff_gate
-from openvibecoding_orch.runners import tool_runner as tool_runner_mod
-from openvibecoding_orch.runners.tool_runner import ToolRunner
-from openvibecoding_orch.store.run_store import RunStore
+from agentcoder_orch.contract import compiler as compiler_mod
+from agentcoder_orch.contract import validator as validator_mod
+from agentcoder_orch.gates import diff_gate
+from agentcoder_orch.runners import tool_runner as tool_runner_mod
+from agentcoder_orch.runners.tool_runner import ToolRunner
+from agentcoder_orch.store.run_store import RunStore
 
 
 def _init_repo(repo: Path) -> None:
@@ -41,11 +41,11 @@ def test_validator_registry_resolution_and_loading_edges(tmp_path: Path, monkeyp
     monkeypatch.setattr(validator_mod, "_REPO_ROOT", fallback_root)
     assert validator_mod.resolve_agent_registry_path(repo) == preferred
 
-    monkeypatch.setenv("OPENVIBECODING_AGENT_REGISTRY", "relative/registry.json")
+    monkeypatch.setenv("AGENTCODER_AGENT_REGISTRY", "relative/registry.json")
     assert validator_mod.resolve_agent_registry_path(repo) == (repo / "relative/registry.json").resolve()
 
     absolute_override = tmp_path / "absolute-registry.json"
-    monkeypatch.setenv("OPENVIBECODING_AGENT_REGISTRY", str(absolute_override))
+    monkeypatch.setenv("AGENTCODER_AGENT_REGISTRY", str(absolute_override))
     assert validator_mod.resolve_agent_registry_path(repo) == absolute_override
 
 
@@ -359,7 +359,7 @@ def test_tool_runner_sync_artifacts_and_success_paths(tmp_path: Path, monkeypatc
     browser_result = runner.run_browser("https://example.com", "return 1", task_id="browser-success")
     assert browser_result["ok"] is True
 
-    search_result = runner.run_search("openvibecoding", provider="chatgpt_web")
+    search_result = runner.run_search("agentcoder", provider="chatgpt_web")
     assert search_result["ok"] is True
 
     store.clear_active_contract(run_id)

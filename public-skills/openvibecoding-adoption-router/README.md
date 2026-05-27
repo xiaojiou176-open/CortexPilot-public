@@ -1,17 +1,17 @@
-# OpenVibeCoding Adoption Router
+# Agentcoder Adoption Router
 
-This bundle teaches an agent how to connect the current live public OpenVibeCoding
+This bundle teaches an agent how to connect the current live public Agentcoder
 read-only MCP package and choose the right public adoption lane.
 
-This is OpenVibeCoding's secondary public adoption lane. The read-only MCP package
+This is Agentcoder's secondary public adoption lane. The read-only MCP package
 plus the Official MCP Registry entry remain the primary machine-readable front
 door, and local coding-agent bundles stay example-only.
 
 ## What the agent learns here
 
 - how to install the current live package
-  `openvibecoding-orchestrator==0.1.0a4` for the OpenVibeCoding read-only MCP
-- which read-only OpenVibeCoding tools exist and which are safe-first
+  `agentcoder-orchestrator==0.1.0a4` for the Agentcoder read-only MCP
+- which read-only Agentcoder tools exist and which are safe-first
 - how to choose between run/workflow inspection, queue/approval reads, and
   proof/incident reads
 - which hosted or write-capable claims stay out of bounds
@@ -34,11 +34,11 @@ door, and local coding-agent bundles stay example-only.
 Use the live public package, not a repo-local checkout:
 
 ```bash
-uvx --from openvibecoding-orchestrator==0.1.0a4 openvibecoding-readonly-mcp
+uvx --from agentcoder-orchestrator==0.1.0a4 agentcoder-readonly-mcp
 ```
 
 Today both the executable and the primary published PyPI package use the
-OpenVibeCoding name and should be treated as the canonical install path.
+Agentcoder name and should be treated as the canonical install path.
 
 If the host needs a saved MCP config snippet, use the host-specific examples in
 `references/INSTALL.md`.

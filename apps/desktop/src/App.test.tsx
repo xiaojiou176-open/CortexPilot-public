@@ -183,7 +183,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
 
     expectTopbarTitle("PM 入口");
     expect(screen.getByRole("button", { name: "检索" })).toBeInTheDocument();
-    expect(window.localStorage.getItem("openvibecoding.ui.locale")).toBe("zh-CN");
+    expect(window.localStorage.getItem("agentcoder.ui.locale")).toBe("zh-CN");
   });
 
   it("prevents duplicate send on rapid double click", async () => {
@@ -727,7 +727,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
     const pageNavigation = await screen.findByRole("navigation", { name: /页面组导航|Page group navigation/ });
     await user.click(within(pageNavigation).getByRole("button", { name: /指挥塔|Command Tower/ }));
     await screen.findByText(
-      /OpenVibeCoding 的桌面端聚焦执行与操作决策；更深的治理分析仍留给 Web 视图。|OpenVibeCoding on desktop stays focused on execution and operator decisions/,
+      /Agentcoder 的桌面端聚焦执行与操作决策；更深的治理分析仍留给 Web 视图。|Agentcoder on desktop stays focused on execution and operator decisions/,
     );
     expect(await screen.findByRole("button", { name: /暂停自动更新|Pause auto-refresh/ })).toBeInTheDocument();
 
@@ -772,7 +772,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
   it("restores recoverable draft from localStorage", async () => {
     const user = userEvent.setup();
     window.localStorage.setItem(
-      "openvibecoding.desktop.draft:openvibecoding-main:pm-live-1",
+      "agentcoder.desktop.draft:agentcoder-main:pm-live-1",
       "这是未提交的草稿"
     );
     render(<App />);
@@ -788,7 +788,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
 
   it("discards recoverable draft and removes prompt", async () => {
     const user = userEvent.setup();
-    const draftKey = "openvibecoding.desktop.draft:openvibecoding-main:pm-live-1";
+    const draftKey = "agentcoder.desktop.draft:agentcoder-main:pm-live-1";
     window.localStorage.setItem(draftKey, "待丢弃草稿");
     render(<App />);
     await navigateToPmEntry(user);
@@ -810,7 +810,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
     expect(screen.getByRole("button", { name: /第1步：先发一句需求|Step 1: send the first request/ })).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /我已了解|Got it/ }));
 
-    expect(window.localStorage.getItem("openvibecoding.desktop.onboarding.dismissed")).toBe("1");
+    expect(window.localStorage.getItem("agentcoder.desktop.onboarding.dismissed")).toBe("1");
     expect(screen.queryByText(/首次使用按 3 步走|First run in 3 steps:/)).not.toBeInTheDocument();
   });
 
@@ -837,7 +837,7 @@ describe("Desktop command center shell", { timeout: 15000 }, () => {
     render(<App />);
 
     await user.click(screen.getByRole("button", { name: /指挥塔|Command Tower/ }));
-    await screen.findByText(/OpenVibeCoding 的桌面端聚焦执行与操作决策；更深的治理分析仍留给 Web 视图。|OpenVibeCoding on desktop stays focused on execution and operator decisions/);
+    await screen.findByText(/Agentcoder 的桌面端聚焦执行与操作决策；更深的治理分析仍留给 Web 视图。|Agentcoder on desktop stays focused on execution and operator decisions/);
 
     expect(screen.getByRole("button", { name: /更新进展|Refresh progress/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /暂停自动更新|Pause auto-refresh/ })).toBeInTheDocument();
