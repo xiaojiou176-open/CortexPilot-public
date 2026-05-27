@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for considering a contribution to Agentcoder.
+Thank you for considering a contribution to Codeflow.
 
 ## Good Contributions
 

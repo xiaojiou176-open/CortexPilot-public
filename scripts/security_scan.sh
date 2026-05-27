@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="${AGENTCODER_SECURITY_SCAN_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
+ROOT_DIR="${CODEFLOW_SECURITY_SCAN_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
 cd "$ROOT_DIR"
 source "${SCRIPT_DIR}/lib/release_tool_helpers.sh"
 
@@ -23,7 +23,7 @@ is_mainline_context() {
   if is_truthy "${CI:-0}"; then
     return 0
   fi
-  if [[ "${AGENTCODER_CI_PROFILE:-}" == "strict" ]]; then
+  if [[ "${CODEFLOW_CI_PROFILE:-}" == "strict" ]]; then
     return 0
   fi
   if [[ "${GITHUB_REF_NAME:-}" == "main" || "${GITHUB_BASE_REF:-}" == "main" ]]; then
@@ -43,19 +43,19 @@ require_scanner_default="0"
 if is_mainline_context; then
   require_scanner_default="1"
 fi
-REQUIRE_SCANNER="${AGENTCODER_SECURITY_REQUIRE_SCANNER:-$require_scanner_default}"
+REQUIRE_SCANNER="${CODEFLOW_SECURITY_REQUIRE_SCANNER:-$require_scanner_default}"
 
 TRUFFLEHOG_BIN=""
 if command -v trufflehog >/dev/null 2>&1; then
   TRUFFLEHOG_BIN="$(command -v trufflehog)"
 else
-  TRUFFLEHOG_BIN="$(agentcoder_trufflehog_bin "$ROOT_DIR" 2>/dev/null || true)"
+  TRUFFLEHOG_BIN="$(codeflow_trufflehog_bin "$ROOT_DIR" 2>/dev/null || true)"
 fi
 
 if [[ -n "$TRUFFLEHOG_BIN" && -x "$TRUFFLEHOG_BIN" ]]; then
   echo "🚀 [security] scanning git history with trufflehog"
-  tmp_output="$(make_temp_report_file agentcoder-trufflehog.jsonl)"
-  filtered_output="$(make_temp_report_file agentcoder-trufflehog.filtered.jsonl)"
+  tmp_output="$(make_temp_report_file codeflow-trufflehog.jsonl)"
+  filtered_output="$(make_temp_report_file codeflow-trufflehog.filtered.jsonl)"
   cleanup_tmp_output() {
     rm -f "$tmp_output"
     rm -f "$filtered_output"
@@ -177,7 +177,7 @@ GITLEAKS_BIN=""
 if command -v gitleaks >/dev/null 2>&1; then
   GITLEAKS_BIN="$(command -v gitleaks)"
 else
-  GITLEAKS_BIN="$(agentcoder_gitleaks_bin "$ROOT_DIR" 2>/dev/null || true)"
+  GITLEAKS_BIN="$(codeflow_gitleaks_bin "$ROOT_DIR" 2>/dev/null || true)"
 fi
 
 if [[ -n "$GITLEAKS_BIN" && -x "$GITLEAKS_BIN" ]]; then
@@ -190,7 +190,7 @@ fi
 echo "⚠️ [security] trufflehog/gitleaks not found, using built-in regex gate"
 
 if [[ "$REQUIRE_SCANNER" == "1" ]]; then
-  echo "❌ [security] AGENTCODER_SECURITY_REQUIRE_SCANNER=1 but trufflehog/gitleaks is unavailable" >&2
+  echo "❌ [security] CODEFLOW_SECURITY_REQUIRE_SCANNER=1 but trufflehog/gitleaks is unavailable" >&2
   exit 1
 fi
 

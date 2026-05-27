@@ -6,9 +6,9 @@ APP_DIR="$ROOT_DIR/packages/frontend-api-client"
 source "$ROOT_DIR/scripts/lib/toolchain_env.sh"
 source "$ROOT_DIR/scripts/lib/machine_cache_retention.sh"
 
-STORE_DIR="${AGENTCODER_PNPM_STORE_DIR:-$(agentcoder_pnpm_store_dir "$ROOT_DIR")}"
+STORE_DIR="${CODEFLOW_PNPM_STORE_DIR:-$(codeflow_pnpm_store_dir "$ROOT_DIR")}"
 
-agentcoder_maybe_auto_prune_machine_cache "$ROOT_DIR" "install_frontend_api_client_deps"
+codeflow_maybe_auto_prune_machine_cache "$ROOT_DIR" "install_frontend_api_client_deps"
 
 resolve_writable_store_dir() {
   local candidate="$1"
@@ -16,7 +16,7 @@ resolve_writable_store_dir() {
     printf '%s\n' "$candidate"
     return 0
   fi
-  agentcoder_pnpm_local_retry_dir "$ROOT_DIR" "frontend-api-client"
+  codeflow_pnpm_local_retry_dir "$ROOT_DIR" "frontend-api-client"
 }
 
 if [[ -d "$ROOT_DIR/node_modules" ]]; then

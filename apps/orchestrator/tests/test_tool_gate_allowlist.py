@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from agentcoder_orch.gates.tool_gate import validate_command
+from codeflow_orch.gates.tool_gate import validate_command
 
 
 def _write_allowlist(root: Path, allow: list[dict] | None = None, deny: list[str] | None = None) -> None:

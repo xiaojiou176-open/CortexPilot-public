@@ -6,8 +6,8 @@ from typing import Any
 
 import pytest
 
-from agentcoder_orch.runners import agents_mcp_execution_helpers as helpers
-from agentcoder_orch.runners.provider_resolution import ProviderResolutionError
+from codeflow_orch.runners import agents_mcp_execution_helpers as helpers
+from codeflow_orch.runners.provider_resolution import ProviderResolutionError
 
 
 class _Store:
@@ -32,7 +32,7 @@ class _Store:
 
 class _Agent:
     def __init__(self, **kwargs: Any) -> None:
-        self.name = str(kwargs.get("name", "AgentcoderWorker"))
+        self.name = str(kwargs.get("name", "CodeflowWorker"))
 
 
 class _Result:
@@ -196,7 +196,7 @@ def test_run_worker_execution_sets_provider_specific_env_key(
     )
     result = asyncio.run(helpers.run_worker_execution(**kwargs))
     assert isinstance(result, _Result)
-    assert captured_env["AGENTCODER_PROVIDER"] == provider
+    assert captured_env["CODEFLOW_PROVIDER"] == provider
     assert captured_env[expected_key_name] in {"openai-key", "anthropic-key"}
 
 

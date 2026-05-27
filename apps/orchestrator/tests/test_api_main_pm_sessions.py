@@ -4,8 +4,8 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from agentcoder_orch.api import main as api_main
-from agentcoder_orch.api import pm_session_aggregation
+from codeflow_orch.api import main as api_main
+from codeflow_orch.api import pm_session_aggregation
 
 from .test_api_main import _write_events, _write_intake_bundle, _write_manifest
 
@@ -13,8 +13,8 @@ from .test_api_main import _write_events, _write_intake_bundle, _write_manifest
 def test_api_pm_sessions_and_command_tower_endpoints(tmp_path: Path, monkeypatch) -> None:
     runtime_root = tmp_path / "runtime"
     runs_root = runtime_root / "runs"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
 
     now = datetime.now(timezone.utc)
     run_a1 = runs_root / "run_a1"
@@ -109,7 +109,7 @@ def test_api_pm_sessions_and_command_tower_endpoints(tmp_path: Path, monkeypatch
             "intake_id": "session_a",
             "objective": "Build command tower",
             "owner_agent": {"role": "PM", "agent_id": "pm-alpha"},
-            "project_key": "agentcoder",
+            "project_key": "codeflow",
             "created_at": (now - timedelta(minutes=15)).isoformat(),
         },
         {
@@ -164,7 +164,7 @@ def test_api_pm_sessions_and_command_tower_endpoints(tmp_path: Path, monkeypatch
     assert owner_filter.status_code == 200
     assert [item["pm_session_id"] for item in owner_filter.json()] == ["session_b"]
 
-    project_filter = client.get("/api/pm/sessions", params={"project_key": "agentcoder"})
+    project_filter = client.get("/api/pm/sessions", params={"project_key": "codeflow"})
     assert project_filter.status_code == 200
     assert [item["pm_session_id"] for item in project_filter.json()] == ["session_a"]
 
@@ -339,8 +339,8 @@ def test_api_pm_sessions_openapi_exposes_status_array_filter() -> None:
 def test_api_pm_sessions_list_uses_lightweight_context(tmp_path: Path, monkeypatch) -> None:
     runtime_root = tmp_path / "runtime"
     runs_root = runtime_root / "runs"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
 
     now = datetime.now(timezone.utc)
     run_l1 = runs_root / "run_l1"

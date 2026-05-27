@@ -16,8 +16,8 @@ const serialCoverageMode = Boolean(
   coverageEnabled &&
     (
       process.env.CI ||
-      process.env.AGENTCODER_DASHBOARD_SERIAL_COVERAGE === "1" ||
-      process.env.AGENTCODER_CI_SERIAL_COVERAGE === "1"
+      process.env.CODEFLOW_DASHBOARD_SERIAL_COVERAGE === "1" ||
+      process.env.CODEFLOW_CI_SERIAL_COVERAGE === "1"
     ),
 );
 if (pool !== requestedPool) {
@@ -25,10 +25,10 @@ if (pool !== requestedPool) {
     `[vitest] pool '${requestedPool}' is downgraded to 'forks' to avoid ESM worker bootstrap conflicts in jsdom coverage mode`,
   );
 }
-const shouldEmitHtmlCoverage = !process.env.CI || process.env.AGENTCODER_COVERAGE_HTML === "1";
+const shouldEmitHtmlCoverage = !process.env.CI || process.env.CODEFLOW_COVERAGE_HTML === "1";
 const coverageReporter = shouldEmitHtmlCoverage ? ["text", "html", "json-summary"] : ["text", "json-summary"];
-const coverageReportsDirectory = process.env.AGENTCODER_DASHBOARD_COVERAGE_DIR
-  ? path.resolve(process.env.AGENTCODER_DASHBOARD_COVERAGE_DIR)
+const coverageReportsDirectory = process.env.CODEFLOW_DASHBOARD_COVERAGE_DIR
+  ? path.resolve(process.env.CODEFLOW_DASHBOARD_COVERAGE_DIR)
   : path.resolve(process.cwd(), "coverage");
 const coverageClean = !serialCoverageMode;
 const coverageProcessingConcurrency = serialCoverageMode ? 1 : undefined;
@@ -41,8 +41,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@agentcoder/frontend-shared/uiCopy": path.resolve(process.cwd(), "../../packages/frontend-shared/uiCopy.ts"),
-      "@agentcoder/frontend-shared/uiLocale": path.resolve(process.cwd(), "../../packages/frontend-shared/uiLocale.ts"),
+      "@codeflow/frontend-shared/uiCopy": path.resolve(process.cwd(), "../../packages/frontend-shared/uiCopy.ts"),
+      "@codeflow/frontend-shared/uiLocale": path.resolve(process.cwd(), "../../packages/frontend-shared/uiLocale.ts"),
     },
   },
   test: {

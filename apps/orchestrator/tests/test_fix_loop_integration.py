@@ -5,7 +5,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from agentcoder_orch.scheduler.scheduler import Orchestrator
+from codeflow_orch.scheduler.scheduler import Orchestrator
 import hashlib
 
 
@@ -43,10 +43,10 @@ def test_scheduler_creates_run(tmp_path: Path, monkeypatch) -> None:
     runs_root = runtime_root / "runs"
     worktree_root = runtime_root / "worktrees"
 
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
-    monkeypatch.setenv("AGENTCODER_WORKTREE_ROOT", str(worktree_root))
-    monkeypatch.setenv("AGENTCODER_SCHEMA_ROOT", str(Path("schemas")))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_WORKTREE_ROOT", str(worktree_root))
+    monkeypatch.setenv("CODEFLOW_SCHEMA_ROOT", str(Path("schemas")))
 
     repo = tmp_path / "repo"
     repo.mkdir()

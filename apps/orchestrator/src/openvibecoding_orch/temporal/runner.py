@@ -6,24 +6,24 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from agentcoder_orch.temporal.manager import temporal_required
+from codeflow_orch.temporal.manager import temporal_required
 
 
 def _enabled() -> bool:
-    return os.getenv("AGENTCODER_TEMPORAL_WORKFLOW", "").strip().lower() in {"1", "true", "yes"}
+    return os.getenv("CODEFLOW_TEMPORAL_WORKFLOW", "").strip().lower() in {"1", "true", "yes"}
 
 
 def _config() -> tuple[str, str, str]:
-    address = os.getenv("AGENTCODER_TEMPORAL_ADDRESS", "localhost:7233")
-    namespace = os.getenv("AGENTCODER_TEMPORAL_NAMESPACE", "default")
-    task_queue = os.getenv("AGENTCODER_TEMPORAL_TASK_QUEUE", "agentcoder-orch")
+    address = os.getenv("CODEFLOW_TEMPORAL_ADDRESS", "localhost:7233")
+    namespace = os.getenv("CODEFLOW_TEMPORAL_NAMESPACE", "default")
+    task_queue = os.getenv("CODEFLOW_TEMPORAL_TASK_QUEUE", "codeflow-orch")
     return address, namespace, task_queue
 
 
 def _workflow_id(task_id: str) -> str:
     suffix = uuid.uuid4().hex[:8]
-    base = task_id or "agentcoder"
-    return f"agentcoder-{base}-{suffix}"
+    base = task_id or "codeflow"
+    return f"codeflow-{base}-{suffix}"
 
 
 def run_workflow(repo_root: Path, contract_path: Path, mock_mode: bool) -> dict[str, Any]:
@@ -35,7 +35,7 @@ def run_workflow(repo_root: Path, contract_path: Path, mock_mode: bool) -> dict[
     except Exception as exc:  # noqa: BLE001
         raise RuntimeError(f"temporalio not installed: {exc}") from exc
 
-    from agentcoder_orch.temporal.workflows import AgentcoderRunWorkflow, RunRequest
+    from codeflow_orch.temporal.workflows import CodeflowRunWorkflow, RunRequest
 
     async def _run() -> dict[str, Any]:
         address, namespace, task_queue = _config()
@@ -49,7 +49,7 @@ def run_workflow(repo_root: Path, contract_path: Path, mock_mode: bool) -> dict[
         )
         try:
             handle = await client.start_workflow(
-                AgentcoderRunWorkflow.run,  # type: ignore[arg-type]
+                CodeflowRunWorkflow.run,  # type: ignore[arg-type]
                 request,
                 id=workflow_id,
                 task_queue=task_queue,
@@ -57,7 +57,7 @@ def run_workflow(repo_root: Path, contract_path: Path, mock_mode: bool) -> dict[
         except TypeError:
             # Compatibility for client stubs or older signatures using `_id`.
             handle = await client.start_workflow(
-                AgentcoderRunWorkflow.run,  # type: ignore[arg-type]
+                CodeflowRunWorkflow.run,  # type: ignore[arg-type]
                 request,
                 _id=workflow_id,
                 task_queue=task_queue,

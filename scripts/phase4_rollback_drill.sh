@@ -12,11 +12,11 @@ fail() {
 
 expect_fail() {
   set +e
-  "$@" >/tmp/agentcoder_phase4_drill_last.log 2>&1
+  "$@" >/tmp/codeflow_phase4_drill_last.log 2>&1
   local status=$?
   set -e
   if [ "$status" -eq 0 ]; then
-    cat /tmp/agentcoder_phase4_drill_last.log >&2 || true
+    cat /tmp/codeflow_phase4_drill_last.log >&2 || true
     fail "expected failure but command succeeded: $*"
   fi
 }
@@ -24,11 +24,11 @@ expect_fail() {
 tmpdir="$(mktemp -d)"
 cleanup() {
   rm -rf "$tmpdir"
-  rm -f /tmp/agentcoder_phase4_drill_last.log
+  rm -f /tmp/codeflow_phase4_drill_last.log
 }
 trap cleanup EXIT
 
-injected_root="$tmpdir/apps/orchestrator/src/agentcoder_orch/scheduler"
+injected_root="$tmpdir/apps/orchestrator/src/codeflow_orch/scheduler"
 mkdir -p "$injected_root"
 
 log "baseline checks"
@@ -43,25 +43,25 @@ def bad(provider: str) -> str:
     return "ok"
 PY
 expect_fail env \
-  AGENTCODER_ORCH_DECOUPLE_GATE_ROOT="$tmpdir" \
-  AGENTCODER_ORCH_DECOUPLE_GATE_PATHS="apps/orchestrator/src/agentcoder_orch/scheduler" \
+  CODEFLOW_ORCH_DECOUPLE_GATE_ROOT="$tmpdir" \
+  CODEFLOW_ORCH_DECOUPLE_GATE_PATHS="apps/orchestrator/src/codeflow_orch/scheduler" \
   bash scripts/orchestrator_decoupling_gate.sh
 
 log "inject provider hardcut violation (expect block)"
 expect_fail env \
-  AGENTCODER_PROVIDER_HARDCUT_SKIP_CODEX_CONFIG=1 \
-  AGENTCODER_E2E_CODEX_PROVIDER=cliproxyapi \
+  CODEFLOW_PROVIDER_HARDCUT_SKIP_CODEX_CONFIG=1 \
+  CODEFLOW_E2E_CODEX_PROVIDER=cliproxyapi \
   bash scripts/provider_hardcut_gate.sh
 
 log "rollback and recover"
 rm -f "$injected_root/bad_provider_branch.py"
 env \
-  AGENTCODER_ORCH_DECOUPLE_GATE_ROOT="$tmpdir" \
-  AGENTCODER_ORCH_DECOUPLE_GATE_PATHS="apps/orchestrator/src/agentcoder_orch/scheduler" \
+  CODEFLOW_ORCH_DECOUPLE_GATE_ROOT="$tmpdir" \
+  CODEFLOW_ORCH_DECOUPLE_GATE_PATHS="apps/orchestrator/src/codeflow_orch/scheduler" \
   bash scripts/orchestrator_decoupling_gate.sh
 env \
-  AGENTCODER_PROVIDER_HARDCUT_SKIP_CODEX_CONFIG=1 \
-  AGENTCODER_E2E_CODEX_PROVIDER=gemini \
+  CODEFLOW_PROVIDER_HARDCUT_SKIP_CODEX_CONFIG=1 \
+  CODEFLOW_E2E_CODEX_PROVIDER=gemini \
   bash scripts/provider_hardcut_gate.sh
 
 log "PASS"

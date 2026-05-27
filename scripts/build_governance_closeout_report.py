@@ -147,8 +147,8 @@ def main() -> int:
     parser.add_argument("--upstream-report", default=str(ROOT / ".runtime-cache" / "test_output" / "governance" / "upstream_inventory_report.json"))
     parser.add_argument("--upstream-same-run-report", default=str(ROOT / ".runtime-cache" / "test_output" / "governance" / "upstream_same_run_cohesion.json"))
     parser.add_argument("--clean-room-report", default=str(ROOT / ".runtime-cache" / "test_output" / "governance" / "clean_room_recovery.json"))
-    parser.add_argument("--retention-report", default=str(ROOT / ".runtime-cache" / "agentcoder" / "reports" / "retention_report.json"))
-    parser.add_argument("--current-run-consistency", default=str(ROOT / ".runtime-cache" / "agentcoder" / "reports" / "ci" / "current_run" / "consistency.json"))
+    parser.add_argument("--retention-report", default=str(ROOT / ".runtime-cache" / "codeflow" / "reports" / "retention_report.json"))
+    parser.add_argument("--current-run-consistency", default=str(ROOT / ".runtime-cache" / "codeflow" / "reports" / "ci" / "current_run" / "consistency.json"))
     parser.add_argument("--output-json", default=str(DEFAULT_JSON))
     parser.add_argument("--output-md", default=str(DEFAULT_MD))
     parser.add_argument("--mode", default="manual")
@@ -234,7 +234,7 @@ def main() -> int:
         fresh_commands.append("python3 scripts/check_ci_current_run_sources.py")
 
     report = {
-        "report_type": "agentcoder_governance_closeout",
+        "report_type": "codeflow_governance_closeout",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "mode": args.mode,
         "fresh_commands": fresh_commands,

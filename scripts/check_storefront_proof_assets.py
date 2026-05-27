@@ -194,7 +194,7 @@ def _require_claim_asset_path(path_text: str, role: str, errors: list[str]) -> N
 
 def _load_generator_module() -> object:
     script_path = Path(__file__).resolve().with_name("generate_storefront_proof_pack_index.py")
-    spec = importlib.util.spec_from_file_location("agentcoder_generate_storefront_proof_pack_index", script_path)
+    spec = importlib.util.spec_from_file_location("codeflow_generate_storefront_proof_pack_index", script_path)
     module = importlib.util.module_from_spec(spec)
     assert spec and spec.loader
     spec.loader.exec_module(module)
@@ -314,7 +314,7 @@ def main() -> int:
             errors,
         )
     _require(
-        payload.get("artifact_type") == "agentcoder_public_proof_pack_index",
+        payload.get("artifact_type") == "codeflow_public_proof_pack_index",
         "proof-pack index has unexpected artifact_type",
         errors,
     )

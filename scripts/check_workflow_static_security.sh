@@ -7,12 +7,12 @@ source "$ROOT_DIR/scripts/lib/release_tool_helpers.sh"
 
 echo "🔐 [workflow-static-security] start"
 
-actionlint_bin="$(agentcoder_actionlint_bin "$ROOT_DIR")"
+actionlint_bin="$(codeflow_actionlint_bin "$ROOT_DIR")"
 echo "🚀 [workflow-static-security] actionlint using ${actionlint_bin}"
 "$actionlint_bin"
 echo "✅ [workflow-static-security] actionlint passed"
 
-zizmor_bin="$(agentcoder_zizmor_bin "$ROOT_DIR")"
+zizmor_bin="$(codeflow_zizmor_bin "$ROOT_DIR")"
 echo "🚀 [workflow-static-security] zizmor using ${zizmor_bin}"
 "$zizmor_bin" --offline --collect=workflows --min-severity medium .
 echo "✅ [workflow-static-security] zizmor passed"

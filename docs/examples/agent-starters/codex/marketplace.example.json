@@ -1,9 +1,9 @@
 {
   "version": 1,
   "plugins": {
-    "agentcoder-coding-agent-bundle": {
+    "codeflow-coding-agent-bundle": {
       "source": {
-        "path": "__AGENTCODER_REPO_ROOT__/examples/coding-agents/plugin-bundles/agentcoder-coding-agent-bundle"
+        "path": "__CODEFLOW_REPO_ROOT__/examples/coding-agents/plugin-bundles/codeflow-coding-agent-bundle"
       }
     }
   }

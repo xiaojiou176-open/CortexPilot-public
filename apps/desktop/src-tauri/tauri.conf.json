@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Agentcoder Command Tower Desktop",
+  "productName": "Codeflow Command Tower Desktop",
   "version": "0.1.0",
-  "identifier": "com.agentcoder.desktop",
+  "identifier": "com.codeflow.desktop",
   "build": {
     "beforeDevCommand": "npm run dev -- --host 127.0.0.1 --port 1420",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "macOSPrivateApi": true,
     "windows": [
       {
-        "title": "Agentcoder Command Tower Desktop",
+        "title": "Codeflow Command Tower Desktop",
         "width": 1400,
         "height": 900,
         "minWidth": 1024,
@@ -43,7 +43,7 @@
     "deep-link": {
       "desktop": {
         "schemes": [
-          "agentcoder"
+          "codeflow"
         ]
       }
     }

@@ -20,7 +20,7 @@ def repo_root() -> Path:
 
 
 def runs_root(current_repo_root: Path) -> Path:
-    return current_repo_root / ".runtime-cache" / "agentcoder" / "runs"
+    return current_repo_root / ".runtime-cache" / "codeflow" / "runs"
 
 
 def wait_for_latest_run_id(runs_root_path: Path, start_ts: float, timeout_sec: float = 30.0) -> str:
@@ -166,7 +166,7 @@ def read_manifest_status(run_id: str, runs_root_path: Path) -> str:
 
 
 def hooks_auto_install_enabled() -> bool:
-    raw = os.getenv("AGENTCODER_HOOKS_AUTO_INSTALL", "1").strip().lower()
+    raw = os.getenv("CODEFLOW_HOOKS_AUTO_INSTALL", "1").strip().lower()
     return raw in {"1", "true", "yes"}
 
 

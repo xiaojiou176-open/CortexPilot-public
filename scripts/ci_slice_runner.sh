@@ -39,8 +39,8 @@ PY
 artifact_roots=(
   ".runtime-cache/test_output"
   ".runtime-cache/logs"
-  ".runtime-cache/agentcoder/release"
-  ".runtime-cache/agentcoder/reports"
+  ".runtime-cache/codeflow/release"
+  ".runtime-cache/codeflow/reports"
 )
 
 write_summary() {
@@ -57,9 +57,9 @@ write_summary() {
     --source-sha "${GITHUB_SHA:-}"
     --source-ref "${GITHUB_REF:-}"
     --source-event "${GITHUB_EVENT_NAME:-}"
-    --source-route "${AGENTCODER_CI_ROUTE_ID:-}"
-    --source-trust-class "${AGENTCODER_CI_TRUST_CLASS:-}"
-    --source-runner-class "${AGENTCODER_CI_RUNNER_CLASS:-}"
+    --source-route "${CODEFLOW_CI_ROUTE_ID:-}"
+    --source-trust-class "${CODEFLOW_CI_TRUST_CLASS:-}"
+    --source-runner-class "${CODEFLOW_CI_RUNNER_CLASS:-}"
   )
   local root
   for root in "${artifact_roots[@]}"; do
@@ -72,8 +72,8 @@ write_summary "running"
 trap 'write_summary "$final_status"' EXIT
 
 export CI=1
-export AGENTCODER_CI_PROFILE="${AGENTCODER_CI_PROFILE:-strict}"
-export AGENTCODER_CI_SLICE="$SLICE"
+export CODEFLOW_CI_PROFILE="${CODEFLOW_CI_PROFILE:-strict}"
+export CODEFLOW_CI_SLICE="$SLICE"
 export PYTHONDONTWRITEBYTECODE=1
 
 bash scripts/lib/ci_main_impl.sh "$@"

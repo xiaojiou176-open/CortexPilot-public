@@ -10,23 +10,23 @@ import {
 } from "../lib/env";
 
 const ORIGINAL_API_BASE = process.env.NEXT_PUBLIC_API_BASE;
-const ORIGINAL_AGENTCODER_API_BASE = process.env.NEXT_PUBLIC_AGENTCODER_API_BASE;
-const ORIGINAL_AGENTCODER_PUBLIC_DOCS_BASE_URL = process.env.NEXT_PUBLIC_AGENTCODER_PUBLIC_DOCS_BASE_URL;
-const ORIGINAL_AGENTCODER_OPERATOR_ROLE = process.env.NEXT_PUBLIC_AGENTCODER_OPERATOR_ROLE;
+const ORIGINAL_CODEFLOW_API_BASE = process.env.NEXT_PUBLIC_CODEFLOW_API_BASE;
+const ORIGINAL_CODEFLOW_PUBLIC_DOCS_BASE_URL = process.env.NEXT_PUBLIC_CODEFLOW_PUBLIC_DOCS_BASE_URL;
+const ORIGINAL_CODEFLOW_OPERATOR_ROLE = process.env.NEXT_PUBLIC_CODEFLOW_OPERATOR_ROLE;
 const ORIGINAL_PM_COPY_VARIANT = process.env.NEXT_PUBLIC_PM_COPY_VARIANT;
 
 function restoreEnv(): void {
   if (ORIGINAL_API_BASE === undefined) delete process.env.NEXT_PUBLIC_API_BASE;
   else process.env.NEXT_PUBLIC_API_BASE = ORIGINAL_API_BASE;
 
-  if (ORIGINAL_AGENTCODER_API_BASE === undefined) delete process.env.NEXT_PUBLIC_AGENTCODER_API_BASE;
-  else process.env.NEXT_PUBLIC_AGENTCODER_API_BASE = ORIGINAL_AGENTCODER_API_BASE;
+  if (ORIGINAL_CODEFLOW_API_BASE === undefined) delete process.env.NEXT_PUBLIC_CODEFLOW_API_BASE;
+  else process.env.NEXT_PUBLIC_CODEFLOW_API_BASE = ORIGINAL_CODEFLOW_API_BASE;
 
-  if (ORIGINAL_AGENTCODER_PUBLIC_DOCS_BASE_URL === undefined) delete process.env.NEXT_PUBLIC_AGENTCODER_PUBLIC_DOCS_BASE_URL;
-  else process.env.NEXT_PUBLIC_AGENTCODER_PUBLIC_DOCS_BASE_URL = ORIGINAL_AGENTCODER_PUBLIC_DOCS_BASE_URL;
+  if (ORIGINAL_CODEFLOW_PUBLIC_DOCS_BASE_URL === undefined) delete process.env.NEXT_PUBLIC_CODEFLOW_PUBLIC_DOCS_BASE_URL;
+  else process.env.NEXT_PUBLIC_CODEFLOW_PUBLIC_DOCS_BASE_URL = ORIGINAL_CODEFLOW_PUBLIC_DOCS_BASE_URL;
 
-  if (ORIGINAL_AGENTCODER_OPERATOR_ROLE === undefined) delete process.env.NEXT_PUBLIC_AGENTCODER_OPERATOR_ROLE;
-  else process.env.NEXT_PUBLIC_AGENTCODER_OPERATOR_ROLE = ORIGINAL_AGENTCODER_OPERATOR_ROLE;
+  if (ORIGINAL_CODEFLOW_OPERATOR_ROLE === undefined) delete process.env.NEXT_PUBLIC_CODEFLOW_OPERATOR_ROLE;
+  else process.env.NEXT_PUBLIC_CODEFLOW_OPERATOR_ROLE = ORIGINAL_CODEFLOW_OPERATOR_ROLE;
 
   if (ORIGINAL_PM_COPY_VARIANT === undefined) delete process.env.NEXT_PUBLIC_PM_COPY_VARIANT;
   else process.env.NEXT_PUBLIC_PM_COPY_VARIANT = ORIGINAL_PM_COPY_VARIANT;
@@ -37,11 +37,11 @@ describe("dashboard env helpers", () => {
     restoreEnv();
   });
 
-  it("prefers NEXT_PUBLIC_AGENTCODER_API_BASE and trims trailing slashes", () => {
-    process.env.NEXT_PUBLIC_AGENTCODER_API_BASE = " https://agentcoder.example/api/// ";
+  it("prefers NEXT_PUBLIC_CODEFLOW_API_BASE and trims trailing slashes", () => {
+    process.env.NEXT_PUBLIC_CODEFLOW_API_BASE = " https://codeflow.example/api/// ";
     process.env.NEXT_PUBLIC_API_BASE = "https://fallback.example";
 
-    expect(resolveDashboardApiBase()).toBe("https://agentcoder.example/api");
+    expect(resolveDashboardApiBase()).toBe("https://codeflow.example/api");
   });
 
   it("falls back to NEXT_PUBLIC_API_BASE when the product-specific env is absent", () => {
@@ -51,21 +51,21 @@ describe("dashboard env helpers", () => {
   });
 
   it("falls back to NEXT_PUBLIC_API_BASE when the preferred env is blank", () => {
-    process.env.NEXT_PUBLIC_AGENTCODER_API_BASE = "   ";
+    process.env.NEXT_PUBLIC_CODEFLOW_API_BASE = "   ";
     process.env.NEXT_PUBLIC_API_BASE = "https://fallback.example/base//";
 
     expect(resolveDashboardApiBase()).toBe("https://fallback.example/base");
   });
 
   it("uses the frontend contract default when both env values are absent", () => {
-    delete process.env.NEXT_PUBLIC_AGENTCODER_API_BASE;
+    delete process.env.NEXT_PUBLIC_CODEFLOW_API_BASE;
     delete process.env.NEXT_PUBLIC_API_BASE;
 
     expect(resolveDashboardApiBase()).toBe(FRONTEND_API_CONTRACT.defaultApiBase);
   });
 
   it("falls through to the final default return when every candidate is empty", () => {
-    delete process.env.NEXT_PUBLIC_AGENTCODER_API_BASE;
+    delete process.env.NEXT_PUBLIC_CODEFLOW_API_BASE;
     delete process.env.NEXT_PUBLIC_API_BASE;
     const previousDefault = FRONTEND_API_CONTRACT.defaultApiBase;
     try {
@@ -83,42 +83,42 @@ describe("dashboard env helpers", () => {
   });
 
   it("uses the default public docs base when the env override is absent", () => {
-    delete process.env.NEXT_PUBLIC_AGENTCODER_PUBLIC_DOCS_BASE_URL;
+    delete process.env.NEXT_PUBLIC_CODEFLOW_PUBLIC_DOCS_BASE_URL;
 
-    expect(resolveDashboardPublicDocsBaseUrl()).toBe("https://xiaojiou176-open.github.io/agentcoder");
+    expect(resolveDashboardPublicDocsBaseUrl()).toBe("https://xiaojiou176-open.github.io/codeflow");
     expect(resolveDashboardPublicDocsHref("/ai-surfaces/")).toBe(
-      "https://xiaojiou176-open.github.io/agentcoder/ai-surfaces/"
+      "https://xiaojiou176-open.github.io/codeflow/ai-surfaces/"
     );
   });
 
   it("uses a configured public docs base and trims trailing slashes", () => {
-    process.env.NEXT_PUBLIC_AGENTCODER_PUBLIC_DOCS_BASE_URL = " https://docs.example/agentcoder/// ";
+    process.env.NEXT_PUBLIC_CODEFLOW_PUBLIC_DOCS_BASE_URL = " https://docs.example/codeflow/// ";
 
-    expect(resolveDashboardPublicDocsBaseUrl()).toBe("https://docs.example/agentcoder");
-    expect(resolveDashboardPublicDocsHref("/builders/")).toBe("https://docs.example/agentcoder/builders/");
-    expect(resolveDashboardPublicDocsHref("/compatibility/")).toBe("https://docs.example/agentcoder/compatibility/");
-    expect(resolveDashboardPublicDocsHref("/integrations/")).toBe("https://docs.example/agentcoder/integrations/");
-    expect(resolveDashboardPublicDocsHref("/skills/")).toBe("https://docs.example/agentcoder/skills/");
+    expect(resolveDashboardPublicDocsBaseUrl()).toBe("https://docs.example/codeflow");
+    expect(resolveDashboardPublicDocsHref("/builders/")).toBe("https://docs.example/codeflow/builders/");
+    expect(resolveDashboardPublicDocsHref("/compatibility/")).toBe("https://docs.example/codeflow/compatibility/");
+    expect(resolveDashboardPublicDocsHref("/integrations/")).toBe("https://docs.example/codeflow/integrations/");
+    expect(resolveDashboardPublicDocsHref("/skills/")).toBe("https://docs.example/codeflow/skills/");
   });
 
   it("allows same-origin public docs routes when the override is slash", () => {
-    process.env.NEXT_PUBLIC_AGENTCODER_PUBLIC_DOCS_BASE_URL = "/";
+    process.env.NEXT_PUBLIC_CODEFLOW_PUBLIC_DOCS_BASE_URL = "/";
 
     expect(resolveDashboardPublicDocsBaseUrl()).toBe("");
     expect(resolveDashboardPublicDocsHref("/mcp/")).toBe("/mcp/");
   });
 
   it("leaves non-public-docs href values untouched", () => {
-    process.env.NEXT_PUBLIC_AGENTCODER_PUBLIC_DOCS_BASE_URL = "https://docs.example/agentcoder";
+    process.env.NEXT_PUBLIC_CODEFLOW_PUBLIC_DOCS_BASE_URL = "https://docs.example/codeflow";
 
     expect(resolveDashboardPublicDocsHref("/pm")).toBe("/pm");
-    expect(resolveDashboardPublicDocsHref("https://github.com/xiaojiou176-open/agentcoder")).toBe(
-      "https://github.com/xiaojiou176-open/agentcoder"
+    expect(resolveDashboardPublicDocsHref("https://github.com/xiaojiou176-open/codeflow")).toBe(
+      "https://github.com/xiaojiou176-open/codeflow"
     );
   });
 
-  it("uses NEXT_PUBLIC_AGENTCODER_OPERATOR_ROLE and normalizes casing", () => {
-    process.env.NEXT_PUBLIC_AGENTCODER_OPERATOR_ROLE = " tech_lead ";
+  it("uses NEXT_PUBLIC_CODEFLOW_OPERATOR_ROLE and normalizes casing", () => {
+    process.env.NEXT_PUBLIC_CODEFLOW_OPERATOR_ROLE = " tech_lead ";
     expect(resolveDashboardOperatorRoleEnv()).toBe("TECH_LEAD");
   });
 });

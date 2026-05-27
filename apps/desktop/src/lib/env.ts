@@ -1,4 +1,4 @@
-import { FRONTEND_API_CONTRACT } from "@agentcoder/frontend-api-contract";
+import { FRONTEND_API_CONTRACT } from "@codeflow/frontend-api-contract";
 
 type ImportMetaLike = {
   env?: Record<string, unknown>;
@@ -11,7 +11,7 @@ type ProcessEnvCarrier = {
 };
 
 function readViteEnv(
-  keyName: "VITE_AGENTCODER_API_BASE" | "VITE_AGENTCODER_API_TOKEN" | "VITE_AGENTCODER_OPERATOR_ROLE",
+  keyName: "VITE_CODEFLOW_API_BASE" | "VITE_CODEFLOW_API_TOKEN" | "VITE_CODEFLOW_OPERATOR_ROLE",
 ): string {
   const env = (import.meta as unknown as ImportMetaLike).env || {};
   const fromVite = String(env[keyName] || "").trim();
@@ -26,7 +26,7 @@ function readViteEnv(
 }
 
 export function resolveDesktopApiBase(): string {
-  const candidate = readViteEnv("VITE_AGENTCODER_API_BASE");
+  const candidate = readViteEnv("VITE_CODEFLOW_API_BASE");
   if (!candidate) {
     return FRONTEND_API_CONTRACT.defaultApiBase;
   }
@@ -34,10 +34,10 @@ export function resolveDesktopApiBase(): string {
 }
 
 export function resolveDesktopApiToken(): string {
-  return readViteEnv("VITE_AGENTCODER_API_TOKEN");
+  return readViteEnv("VITE_CODEFLOW_API_TOKEN");
 }
 
 export function resolveDesktopOperatorRoleEnv(): string {
-  const role = readViteEnv("VITE_AGENTCODER_OPERATOR_ROLE");
+  const role = readViteEnv("VITE_CODEFLOW_OPERATOR_ROLE");
   return role ? role.toUpperCase() : "";
 }

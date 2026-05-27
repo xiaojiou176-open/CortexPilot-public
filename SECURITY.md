@@ -4,9 +4,9 @@
 
 - Do not open a public issue or pull request for a suspected security problem.
 - Current live private reporting path: the public repository
-  `xiaojiou176-open/agentcoder` has GitHub private vulnerability
+  `xiaojiou176-open/codeflow` has GitHub private vulnerability
   reporting enabled. Submit reports through the advisory form at
-  `https://github.com/xiaojiou176-open/agentcoder/security/advisories/new`.
+  `https://github.com/xiaojiou176-open/codeflow/security/advisories/new`.
 - If that form is unavailable, do not disclose details publicly. This
   repository still does not publish a second verified fallback private
   reporting channel, so none should be assumed by reporters.
@@ -48,4 +48,4 @@ Please report issues involving:
 - branch protection and other GitHub security controls should be treated as
   separate governance checks; they do not replace the private reporting path
 
-Thank you for helping keep Agentcoder safer for contributors and users.
+Thank you for helping keep Codeflow safer for contributors and users.

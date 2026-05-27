@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
-import { getUiCopy } from "@agentcoder/frontend-shared/uiCopy";
-import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@agentcoder/frontend-shared/uiLocale";
+import { getUiCopy } from "@codeflow/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@codeflow/frontend-shared/uiLocale";
 import { fetchAgents, fetchAgentStatus } from "../../lib/api";
 import { Button, buttonClasses } from "../../components/ui/button";
 import { Badge, type BadgeVariant } from "../../components/ui/badge";

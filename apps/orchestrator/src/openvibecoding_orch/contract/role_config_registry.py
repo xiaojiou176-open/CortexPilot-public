@@ -6,13 +6,13 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any, Mapping
 
-from agentcoder_orch.contract.validator import (
+from codeflow_orch.contract.validator import (
     ContractValidator,
     _load_agent_registry,
     _validate_ref_path,
     validate_role_config_fields,
 )
-from agentcoder_orch.runners.provider_capability import (
+from codeflow_orch.runners.provider_capability import (
     ProviderResolutionError,
     resolve_compat_api_mode,
     resolve_runtime_base_url_from_env,
@@ -20,7 +20,7 @@ from agentcoder_orch.runners.provider_capability import (
 )
 
 
-ROLE_CONFIG_REGISTRY_ENV = "AGENTCODER_ROLE_CONFIG_REGISTRY"
+ROLE_CONFIG_REGISTRY_ENV = "CODEFLOW_ROLE_CONFIG_REGISTRY"
 ROLE_CONFIG_REGISTRY_FILE = "policies/role_config_registry.json"
 ROLE_CONFIG_AUTHORITY = "repo-owned-role-config"
 ROLE_CONFIG_FIELD_MODES = {

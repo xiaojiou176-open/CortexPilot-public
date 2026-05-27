@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@agentcoder/frontend-shared/uiLocale";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@codeflow/frontend-shared/uiLocale";
 import { Card } from "../components/ui/card";
 
 export default async function Loading() {

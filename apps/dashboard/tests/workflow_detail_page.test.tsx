@@ -138,20 +138,20 @@ describe("workflow detail page", () => {
     await expect(
       generateMetadata({ params: Promise.resolve({ id: "wf-1" }) }),
     ).resolves.toMatchObject({
-      title: "Workflow Case detail · wf-1 | Agentcoder",
+      title: "Workflow Case detail · wf-1 | Codeflow",
     });
   });
 
   it("exports zh-CN workflow detail metadata when the locale cookie is set", async () => {
     mockCookies.mockResolvedValueOnce({
       get: () => ({ value: "zh-CN" }),
-      toString: () => "agentcoder.ui.locale=zh-CN",
+      toString: () => "codeflow.ui.locale=zh-CN",
     });
 
     await expect(
       generateMetadata({ params: Promise.resolve({ id: "wf-zh" }) }),
     ).resolves.toMatchObject({
-      title: "工作流案例详情 · wf-zh | Agentcoder",
+      title: "工作流案例详情 · wf-zh | Codeflow",
     });
   });
 
@@ -168,7 +168,7 @@ describe("workflow detail page", () => {
   it("renders zh-CN page-level copy when the locale cookie is set", async () => {
     mockCookies.mockResolvedValueOnce({
       get: () => ({ value: "zh-CN" }),
-      toString: () => "agentcoder.ui.locale=zh-CN",
+      toString: () => "codeflow.ui.locale=zh-CN",
     });
 
     const view = await WorkflowDetailPage({

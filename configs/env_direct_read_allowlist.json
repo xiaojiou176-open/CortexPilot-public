@@ -1,703 +1,703 @@
 {
   "version": 1,
-  "description": "Backend direct os.getenv/os.environ reads must be explicitly allowlisted by file and key. Provider runtime supports gemini/openai/anthropic and unified AGENTCODER_PROVIDER* compatibility keys.",
+  "description": "Backend direct os.getenv/os.environ reads must be explicitly allowlisted by file and key. Provider runtime supports gemini/openai/anthropic and unified CODEFLOW_PROVIDER* compatibility keys.",
   "entries": [
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/api/routes_admin.py",
+      "path": "apps/orchestrator/src/codeflow_orch/api/routes_admin.py",
       "keys": [
-        "AGENTCODER_APPROVAL_ALLOWED_ROLES",
-        "AGENTCODER_RUM_MAX_PAYLOAD_BYTES"
+        "CODEFLOW_APPROVAL_ALLOWED_ROLES",
+        "CODEFLOW_RUM_MAX_PAYLOAD_BYTES"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/api/routes_runs.py",
+      "path": "apps/orchestrator/src/codeflow_orch/api/routes_runs.py",
       "keys": [
-        "AGENTCODER_APPROVAL_ALLOWED_ROLES"
+        "CODEFLOW_APPROVAL_ALLOWED_ROLES"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/api/pm_session_aggregation.py",
+      "path": "apps/orchestrator/src/codeflow_orch/api/pm_session_aggregation.py",
       "keys": [
-        "AGENTCODER_COMMAND_TOWER_OVERVIEW_TTL_SEC"
+        "CODEFLOW_COMMAND_TOWER_OVERVIEW_TTL_SEC"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/chain/runner.py",
+      "path": "apps/orchestrator/src/codeflow_orch/chain/runner.py",
       "keys": [
-        "AGENTCODER_CHAIN_EXEC_MODE",
-        "AGENTCODER_CHAIN_SUBPROCESS_TIMEOUT_SEC"
+        "CODEFLOW_CHAIN_EXEC_MODE",
+        "CODEFLOW_CHAIN_SUBPROCESS_TIMEOUT_SEC"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/cli.py",
+      "path": "apps/orchestrator/src/codeflow_orch/cli.py",
       "keys": [
-        "AGENTCODER_FORCE_UNLOCK",
-        "AGENTCODER_RUNNER"
+        "CODEFLOW_FORCE_UNLOCK",
+        "CODEFLOW_RUNNER"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/cli_coverage_helpers.py",
+      "path": "apps/orchestrator/src/codeflow_orch/cli_coverage_helpers.py",
       "keys": [
         "EQUILIBRIUM_BASE_URL",
-        "AGENTCODER_AGENTS_BASE_URL",
-        "AGENTCODER_ALLOW_CODEX_EXEC",
-        "AGENTCODER_CHAIN_EXEC_MODE",
-        "AGENTCODER_CHAIN_SUBPROCESS_TIMEOUT_SEC",
-        "AGENTCODER_LOCK_AUTO_CLEANUP",
-        "AGENTCODER_LOCK_TTL_SEC",
-        "AGENTCODER_PROVIDER_BASE_URL",
-        "AGENTCODER_PYTHON",
-        "AGENTCODER_RUNNER"
+        "CODEFLOW_AGENTS_BASE_URL",
+        "CODEFLOW_ALLOW_CODEX_EXEC",
+        "CODEFLOW_CHAIN_EXEC_MODE",
+        "CODEFLOW_CHAIN_SUBPROCESS_TIMEOUT_SEC",
+        "CODEFLOW_LOCK_AUTO_CLEANUP",
+        "CODEFLOW_LOCK_TTL_SEC",
+        "CODEFLOW_PROVIDER_BASE_URL",
+        "CODEFLOW_PYTHON",
+        "CODEFLOW_RUNNER"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/cli_runtime_helpers.py",
+      "path": "apps/orchestrator/src/codeflow_orch/cli_runtime_helpers.py",
       "keys": [
-        "AGENTCODER_HOOKS_AUTO_INSTALL"
+        "CODEFLOW_HOOKS_AUTO_INSTALL"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/mcp_queue_pilot_server.py",
+      "path": "apps/orchestrator/src/codeflow_orch/mcp_queue_pilot_server.py",
       "keys": [
-        "AGENTCODER_APPROVAL_ALLOWED_ROLES",
-        "AGENTCODER_MCP_QUEUE_PILOT_ENABLE_APPLY"
+        "CODEFLOW_APPROVAL_ALLOWED_ROLES",
+        "CODEFLOW_MCP_QUEUE_PILOT_ENABLE_APPLY"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/config.py",
+      "path": "apps/orchestrator/src/codeflow_orch/config.py",
       "keys": [
         "ANTHROPIC_BASE_URL",
         "CI",
-        "AGENTCODER_API_AUTH_REQUIRED",
-        "AGENTCODER_API_ALLOWED_ORIGINS",
-        "AGENTCODER_API_TOKEN",
-        "AGENTCODER_CACHE_ROOT",
-        "AGENTCODER_DASHBOARD_PORT",
-        "AGENTCODER_LOGS_ROOT",
-        "AGENTCODER_REPO_ROOT",
-        "AGENTCODER_RUNTIME_ROOT",
+        "CODEFLOW_API_AUTH_REQUIRED",
+        "CODEFLOW_API_ALLOWED_ORIGINS",
+        "CODEFLOW_API_TOKEN",
+        "CODEFLOW_CACHE_ROOT",
+        "CODEFLOW_DASHBOARD_PORT",
+        "CODEFLOW_LOGS_ROOT",
+        "CODEFLOW_REPO_ROOT",
+        "CODEFLOW_RUNTIME_ROOT",
         "EQUILIBRIUM_BASE_URL",
         "GEMINI_BASE_URL",
         "GITHUB_ACTIONS",
-        "AGENTCODER_AGENTS_API",
-        "AGENTCODER_AGENTS_BASE_URL",
-        "AGENTCODER_AGENTS_MODEL",
-        "AGENTCODER_AGENTS_STORE",
-        "AGENTCODER_CANARY_PERCENT",
-        "AGENTCODER_CODEX_MODEL",
-        "AGENTCODER_CONTRACT_ROOT",
-        "AGENTCODER_DEFAULT_ENV_ROOT",
-        "AGENTCODER_ENABLE_CONSOLE_TRACE",
-        "AGENTCODER_ENV_FILE",
-        "AGENTCODER_LANGFUSE_HEADERS",
-        "AGENTCODER_LANGFUSE_OTLP_ENDPOINT",
-        "AGENTCODER_LOG_BACKUP_COUNT",
-        "AGENTCODER_LOG_MAX_BYTES",
-        "AGENTCODER_LOG_SCHEMA_VERSION",
-        "AGENTCODER_MACHINE_CACHE_ROOT",
-        "AGENTCODER_MCP_SERVER_CONNECT_TIMEOUT_SEC",
-        "AGENTCODER_MCP_SERVER_TIMEOUT_SEC",
-        "AGENTCODER_OTEL_REQUIRED",
-        "AGENTCODER_OTLP_ENDPOINT",
-        "AGENTCODER_OTLP_HEADERS",
-        "AGENTCODER_OTLP_PROTOCOL",
-        "AGENTCODER_PNPM_STORE_DIR",
-        "AGENTCODER_PROVIDER",
-        "AGENTCODER_PROVIDER_BASE_URL",
-        "AGENTCODER_PROVIDER_MODEL",
-        "AGENTCODER_RETENTION_CACHE_HOURS",
-        "AGENTCODER_RETENTION_CODEX_HOME_DAYS",
-        "AGENTCODER_RETENTION_INTAKE_DAYS",
-        "AGENTCODER_RETENTION_LOG_DAYS",
-        "AGENTCODER_RETENTION_LOG_MAX_FILES",
-        "AGENTCODER_RETENTION_MACHINE_CACHE_CAP_BYTES",
-        "AGENTCODER_RETENTION_MAX_CODEX_HOMES",
-        "AGENTCODER_RETENTION_MAX_INTAKES",
-        "AGENTCODER_RETENTION_MAX_RUNS",
-        "AGENTCODER_RETENTION_RUN_DAYS",
-        "AGENTCODER_RETENTION_WORKTREE_DAYS",
-        "AGENTCODER_RUNS_ROOT",
-        "AGENTCODER_RUNTIME_CONTRACT_ROOT",
-        "AGENTCODER_SCHEMA_ROOT",
-        "AGENTCODER_TOOLCHAIN_CACHE_ROOT",
-        "AGENTCODER_TRACE_ID",
-        "AGENTCODER_TRACING_ENABLED",
-        "AGENTCODER_TRACING_ENDPOINT",
-        "AGENTCODER_TRACING_HEADERS",
-        "AGENTCODER_WORKTREE_ROOT",
+        "CODEFLOW_AGENTS_API",
+        "CODEFLOW_AGENTS_BASE_URL",
+        "CODEFLOW_AGENTS_MODEL",
+        "CODEFLOW_AGENTS_STORE",
+        "CODEFLOW_CANARY_PERCENT",
+        "CODEFLOW_CODEX_MODEL",
+        "CODEFLOW_CONTRACT_ROOT",
+        "CODEFLOW_DEFAULT_ENV_ROOT",
+        "CODEFLOW_ENABLE_CONSOLE_TRACE",
+        "CODEFLOW_ENV_FILE",
+        "CODEFLOW_LANGFUSE_HEADERS",
+        "CODEFLOW_LANGFUSE_OTLP_ENDPOINT",
+        "CODEFLOW_LOG_BACKUP_COUNT",
+        "CODEFLOW_LOG_MAX_BYTES",
+        "CODEFLOW_LOG_SCHEMA_VERSION",
+        "CODEFLOW_MACHINE_CACHE_ROOT",
+        "CODEFLOW_MCP_SERVER_CONNECT_TIMEOUT_SEC",
+        "CODEFLOW_MCP_SERVER_TIMEOUT_SEC",
+        "CODEFLOW_OTEL_REQUIRED",
+        "CODEFLOW_OTLP_ENDPOINT",
+        "CODEFLOW_OTLP_HEADERS",
+        "CODEFLOW_OTLP_PROTOCOL",
+        "CODEFLOW_PNPM_STORE_DIR",
+        "CODEFLOW_PROVIDER",
+        "CODEFLOW_PROVIDER_BASE_URL",
+        "CODEFLOW_PROVIDER_MODEL",
+        "CODEFLOW_RETENTION_CACHE_HOURS",
+        "CODEFLOW_RETENTION_CODEX_HOME_DAYS",
+        "CODEFLOW_RETENTION_INTAKE_DAYS",
+        "CODEFLOW_RETENTION_LOG_DAYS",
+        "CODEFLOW_RETENTION_LOG_MAX_FILES",
+        "CODEFLOW_RETENTION_MACHINE_CACHE_CAP_BYTES",
+        "CODEFLOW_RETENTION_MAX_CODEX_HOMES",
+        "CODEFLOW_RETENTION_MAX_INTAKES",
+        "CODEFLOW_RETENTION_MAX_RUNS",
+        "CODEFLOW_RETENTION_RUN_DAYS",
+        "CODEFLOW_RETENTION_WORKTREE_DAYS",
+        "CODEFLOW_RUNS_ROOT",
+        "CODEFLOW_RUNTIME_CONTRACT_ROOT",
+        "CODEFLOW_SCHEMA_ROOT",
+        "CODEFLOW_TOOLCHAIN_CACHE_ROOT",
+        "CODEFLOW_TRACE_ID",
+        "CODEFLOW_TRACING_ENABLED",
+        "CODEFLOW_TRACING_ENDPOINT",
+        "CODEFLOW_TRACING_HEADERS",
+        "CODEFLOW_WORKTREE_ROOT",
         "OPENAI_BASE_URL",
         "RUNNER_TEMP",
         "XDG_CACHE_HOME"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/contract/compiler.py",
+      "path": "apps/orchestrator/src/codeflow_orch/contract/compiler.py",
       "keys": [
-        "AGENTCODER_CODEX_MODEL",
-        "AGENTCODER_PROVIDER_MODEL"
+        "CODEFLOW_CODEX_MODEL",
+        "CODEFLOW_PROVIDER_MODEL"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/contract/role_config_registry.py",
+      "path": "apps/orchestrator/src/codeflow_orch/contract/role_config_registry.py",
       "keys": [
-        "AGENTCODER_ROLE_CONFIG_REGISTRY"
+        "CODEFLOW_ROLE_CONFIG_REGISTRY"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/contract/validator.py",
+      "path": "apps/orchestrator/src/codeflow_orch/contract/validator.py",
       "keys": [
-        "AGENTCODER_AGENT_REGISTRY",
-        "AGENTCODER_SUPERPOWERS_GATE_ENFORCE"
+        "CODEFLOW_AGENT_REGISTRY",
+        "CODEFLOW_SUPERPOWERS_GATE_ENFORCE"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/gates/diff_gate.py",
+      "path": "apps/orchestrator/src/codeflow_orch/gates/diff_gate.py",
       "keys": [
-        "AGENTCODER_PROTECTED_PATHS"
+        "CODEFLOW_PROTECTED_PATHS"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/gates/integrated_gate.py",
+      "path": "apps/orchestrator/src/codeflow_orch/gates/integrated_gate.py",
       "keys": [
-        "AGENTCODER_TOOL_REGISTRY"
+        "CODEFLOW_TOOL_REGISTRY"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/gates/mcp_concurrency_gate.py",
+      "path": "apps/orchestrator/src/codeflow_orch/gates/mcp_concurrency_gate.py",
       "keys": [
-        "AGENTCODER_MCP_ALLOW_MULTI",
-        "AGENTCODER_MCP_PROXY_ENABLED"
+        "CODEFLOW_MCP_ALLOW_MULTI",
+        "CODEFLOW_MCP_PROXY_ENABLED"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/gates/network_gate.py",
+      "path": "apps/orchestrator/src/codeflow_orch/gates/network_gate.py",
       "keys": [
-        "AGENTCODER_NETWORK_APPROVED"
+        "CODEFLOW_NETWORK_APPROVED"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/gates/reviewer_gate.py",
+      "path": "apps/orchestrator/src/codeflow_orch/gates/reviewer_gate.py",
       "keys": [
-        "AGENTCODER_REVIEWER_SNAPSHOT_VERBOSE"
+        "CODEFLOW_REVIEWER_SNAPSHOT_VERBOSE"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/gates/sampling_gate.py",
+      "path": "apps/orchestrator/src/codeflow_orch/gates/sampling_gate.py",
       "keys": [
-        "AGENTCODER_SAMPLING_APPROVED"
+        "CODEFLOW_SAMPLING_APPROVED"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/gates/tests_gate.py",
+      "path": "apps/orchestrator/src/codeflow_orch/gates/tests_gate.py",
       "keys": [
-        "AGENTCODER_ACCEPTANCE_STRICT_NONTRIVIAL"
+        "CODEFLOW_ACCEPTANCE_STRICT_NONTRIVIAL"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/gates/tool_gate.py",
+      "path": "apps/orchestrator/src/codeflow_orch/gates/tool_gate.py",
       "keys": [
-        "AGENTCODER_NETWORK_APPROVED"
+        "CODEFLOW_NETWORK_APPROVED"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/locks/locker.py",
+      "path": "apps/orchestrator/src/codeflow_orch/locks/locker.py",
       "keys": [
-        "AGENTCODER_FORCE_UNLOCK",
-        "AGENTCODER_LOCK_OWNER_TOKEN",
-        "AGENTCODER_LOCK_TTL_SEC",
-        "AGENTCODER_LOCK_TTL_SEC_DEFAULT",
-        "AGENTCODER_RUNNING_LOCK_STALE_SEC",
-        "AGENTCODER_RUN_ID"
+        "CODEFLOW_FORCE_UNLOCK",
+        "CODEFLOW_LOCK_OWNER_TOKEN",
+        "CODEFLOW_LOCK_TTL_SEC",
+        "CODEFLOW_LOCK_TTL_SEC_DEFAULT",
+        "CODEFLOW_RUNNING_LOCK_STALE_SEC",
+        "CODEFLOW_RUN_ID"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/planning/coverage_chain.py",
+      "path": "apps/orchestrator/src/codeflow_orch/planning/coverage_chain.py",
       "keys": [
-        "AGENTCODER_COVERAGE_WORKER_TIMEOUT_SEC",
-        "AGENTCODER_PYTHON",
-        "AGENTCODER_RUNNER"
+        "CODEFLOW_COVERAGE_WORKER_TIMEOUT_SEC",
+        "CODEFLOW_PYTHON",
+        "CODEFLOW_RUNNER"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/planning/intake.py",
+      "path": "apps/orchestrator/src/codeflow_orch/planning/intake.py",
       "keys": [
         "GEMINI_API_KEY",
-        "AGENTCODER_AGENTS_STORE",
-        "AGENTCODER_RUNNER",
-        "AGENTCODER_ORCHESTRATION_SMOKE_MODE",
-        "AGENTCODER_E2E_ORCHESTRATION_SMOKE_MODE"
+        "CODEFLOW_AGENTS_STORE",
+        "CODEFLOW_RUNNER",
+        "CODEFLOW_ORCHESTRATION_SMOKE_MODE",
+        "CODEFLOW_E2E_ORCHESTRATION_SMOKE_MODE"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/policy/browser_policy_resolver.py",
+      "path": "apps/orchestrator/src/codeflow_orch/policy/browser_policy_resolver.py",
       "keys": [
         "CI",
-        "AGENTCODER_BROWSER_BREAK_GLASS",
-        "AGENTCODER_BROWSER_COOKIE_PATH",
-        "AGENTCODER_BROWSER_HUMAN_BEHAVIOR",
-        "AGENTCODER_BROWSER_HUMAN_BEHAVIOR_LEVEL",
-        "AGENTCODER_BROWSER_PLUGIN_OPTIONAL",
-        "AGENTCODER_BROWSER_PROFILE_ALLOWLIST",
-        "AGENTCODER_BROWSER_CDP_HOST",
-        "AGENTCODER_BROWSER_CDP_PORT",
-        "AGENTCODER_BROWSER_PROFILE_DIR",
-        "AGENTCODER_BROWSER_PROFILE_MODE",
-        "AGENTCODER_BROWSER_PROFILE_NAME",
-        "AGENTCODER_CI_CONTAINER",
-        "AGENTCODER_CLEAN_ROOM_MACHINE_TMP_ROOT",
-        "AGENTCODER_CLEAN_ROOM_PRESERVE_ROOT",
-        "AGENTCODER_BROWSER_STEALTH_MODE",
+        "CODEFLOW_BROWSER_BREAK_GLASS",
+        "CODEFLOW_BROWSER_COOKIE_PATH",
+        "CODEFLOW_BROWSER_HUMAN_BEHAVIOR",
+        "CODEFLOW_BROWSER_HUMAN_BEHAVIOR_LEVEL",
+        "CODEFLOW_BROWSER_PLUGIN_OPTIONAL",
+        "CODEFLOW_BROWSER_PROFILE_ALLOWLIST",
+        "CODEFLOW_BROWSER_CDP_HOST",
+        "CODEFLOW_BROWSER_CDP_PORT",
+        "CODEFLOW_BROWSER_PROFILE_DIR",
+        "CODEFLOW_BROWSER_PROFILE_MODE",
+        "CODEFLOW_BROWSER_PROFILE_NAME",
+        "CODEFLOW_CI_CONTAINER",
+        "CODEFLOW_CLEAN_ROOM_MACHINE_TMP_ROOT",
+        "CODEFLOW_CLEAN_ROOM_PRESERVE_ROOT",
+        "CODEFLOW_BROWSER_STEALTH_MODE",
         "GITHUB_ACTIONS",
-        "AGENTCODER_WEB_COOKIE_PATH",
-        "AGENTCODER_WEB_PROFILE_DIR",
-        "AGENTCODER_WEB_PROFILE_MODE",
-        "AGENTCODER_WEB_PROFILE_NAME",
-        "AGENTCODER_WEB_STEALTH_MODE"
+        "CODEFLOW_WEB_COOKIE_PATH",
+        "CODEFLOW_WEB_PROFILE_DIR",
+        "CODEFLOW_WEB_PROFILE_MODE",
+        "CODEFLOW_WEB_PROFILE_NAME",
+        "CODEFLOW_WEB_STEALTH_MODE"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/provider_capability.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/provider_capability.py",
       "keys": [
-        "AGENTCODER_PROVIDER_BASE_URL"
+        "CODEFLOW_PROVIDER_BASE_URL"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/queue/store.py",
+      "path": "apps/orchestrator/src/codeflow_orch/queue/store.py",
       "keys": [
-        "AGENTCODER_RUNTIME_ROOT"
+        "CODEFLOW_RUNTIME_ROOT"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runtime/space_governance.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runtime/space_governance.py",
       "keys": [
-        "AGENTCODER_MACHINE_CACHE_ROOT"
+        "CODEFLOW_MACHINE_CACHE_ROOT"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/replay/replay_helpers.py",
+      "path": "apps/orchestrator/src/codeflow_orch/replay/replay_helpers.py",
       "keys": [
-        "AGENTCODER_CONTRACT_HMAC_KEY"
+        "CODEFLOW_CONTRACT_HMAC_KEY"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/replay/replayer_verify_helpers.py",
+      "path": "apps/orchestrator/src/codeflow_orch/replay/replayer_verify_helpers.py",
       "keys": [
-        "AGENTCODER_CONTRACT_HMAC_KEY"
+        "CODEFLOW_CONTRACT_HMAC_KEY"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/reviewer/reviewer.py",
+      "path": "apps/orchestrator/src/codeflow_orch/reviewer/reviewer.py",
       "keys": [
-        "AGENTCODER_CODEX_MODEL",
-        "AGENTCODER_CODEX_USE_OUTPUT_SCHEMA"
+        "CODEFLOW_CODEX_MODEL",
+        "CODEFLOW_CODEX_USE_OUTPUT_SCHEMA"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/agents_contract_flow.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/agents_contract_flow.py",
       "keys": [
-        "AGENTCODER_LANGGRAPH_CONTRACT_SUBFLOW"
+        "CODEFLOW_LANGGRAPH_CONTRACT_SUBFLOW"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/agents_handoff.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/agents_handoff.py",
       "keys": [
-        "AGENTCODER_AGENTS_FORCE_HANDOFF"
+        "CODEFLOW_AGENTS_FORCE_HANDOFF"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/agents_handoff_runtime.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/agents_handoff_runtime.py",
       "keys": [
-        "AGENTCODER_AGENTS_HANDOFF_TIMEOUT_FAIL_OPEN"
+        "CODEFLOW_AGENTS_HANDOFF_TIMEOUT_FAIL_OPEN"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/agents_mcp_runtime.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/agents_mcp_runtime.py",
       "keys": [
         "CODEX_HOME",
         "GEMINI_API_KEY",
-        "AGENTCODER_AGENTS_MODEL",
-        "AGENTCODER_CODEX_BASE_HOME",
-        "AGENTCODER_CODEX_MODEL",
-        "AGENTCODER_PROVIDER_MODEL",
-        "AGENTCODER_RUNTIME_ROOT"
+        "CODEFLOW_AGENTS_MODEL",
+        "CODEFLOW_CODEX_BASE_HOME",
+        "CODEFLOW_CODEX_MODEL",
+        "CODEFLOW_PROVIDER_MODEL",
+        "CODEFLOW_RUNTIME_ROOT"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/agents_mcp_runtime_helpers.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/agents_mcp_runtime_helpers.py",
       "keys": [
-        "AGENTCODER_MCP_EVENT_ROUTED_SAMPLE_EVERY"
+        "CODEFLOW_MCP_EVENT_ROUTED_SAMPLE_EVERY"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/agents_prompting.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/agents_prompting.py",
       "keys": [
-        "AGENTCODER_CODEX_MODEL",
-        "AGENTCODER_CODEX_TIMEBOX_SEC",
-        "AGENTCODER_INLINE_OUTPUT_SCHEMA",
-        "AGENTCODER_SKIP_ROLE_PROMPT"
+        "CODEFLOW_CODEX_MODEL",
+        "CODEFLOW_CODEX_TIMEBOX_SEC",
+        "CODEFLOW_INLINE_OUTPUT_SCHEMA",
+        "CODEFLOW_SKIP_ROLE_PROMPT"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/agents_runner.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/agents_runner.py",
       "keys": [
-        "AGENTCODER_CODEX_BASE_URL"
+        "CODEFLOW_CODEX_BASE_URL"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/agents_runner_execution_helpers.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/agents_runner_execution_helpers.py",
       "keys": [
         "GEMINI_API_KEY",
-        "AGENTCODER_AGENTS_LLM_CLIENT_RETRIES",
-        "AGENTCODER_AGENTS_LLM_TIMEOUT_SEC",
-        "AGENTCODER_AGENTS_STREAM_RETRY_BACKOFF_SEC",
-        "AGENTCODER_AGENTS_STREAM_TIMEOUT_FALLBACK",
-        "AGENTCODER_AGENTS_STREAM_TIMEOUT_RETRIES"
+        "CODEFLOW_AGENTS_LLM_CLIENT_RETRIES",
+        "CODEFLOW_AGENTS_LLM_TIMEOUT_SEC",
+        "CODEFLOW_AGENTS_STREAM_RETRY_BACKOFF_SEC",
+        "CODEFLOW_AGENTS_STREAM_TIMEOUT_FALLBACK",
+        "CODEFLOW_AGENTS_STREAM_TIMEOUT_RETRIES"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/agents_runtime_helpers.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/agents_runtime_helpers.py",
       "keys": [
         "EQUILIBRIUM_BASE_URL",
-        "AGENTCODER_CODEX_PROFILE"
+        "CODEFLOW_CODEX_PROFILE"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/agents_stream_runtime.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/agents_stream_runtime.py",
       "keys": [
-        "AGENTCODER_CODEX_TIMEBOX_SEC",
-        "AGENTCODER_MCP_BROKEN_PIPE_FAIL",
-        "AGENTCODER_STREAM_IDLE_TIMEOUT_SEC"
+        "CODEFLOW_CODEX_TIMEBOX_SEC",
+        "CODEFLOW_MCP_BROKEN_PIPE_FAIL",
+        "CODEFLOW_STREAM_IDLE_TIMEOUT_SEC"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/app_server_runner.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/app_server_runner.py",
       "keys": [
-        "AGENTCODER_CODEX_MODEL"
+        "CODEFLOW_CODEX_MODEL"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/codex_runner.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/codex_runner.py",
       "keys": [
-        "AGENTCODER_ALLOW_CODEX_EXEC",
-        "AGENTCODER_CODEX_EXEC_TIMEOUT_SEC",
-        "AGENTCODER_CODEX_MODEL",
-        "AGENTCODER_CODEX_PROFILE",
-        "AGENTCODER_CODEX_USE_OUTPUT_SCHEMA",
-        "AGENTCODER_CODEX_VERSION",
-        "AGENTCODER_MCP_ONLY"
+        "CODEFLOW_ALLOW_CODEX_EXEC",
+        "CODEFLOW_CODEX_EXEC_TIMEOUT_SEC",
+        "CODEFLOW_CODEX_MODEL",
+        "CODEFLOW_CODEX_PROFILE",
+        "CODEFLOW_CODEX_USE_OUTPUT_SCHEMA",
+        "CODEFLOW_CODEX_VERSION",
+        "CODEFLOW_MCP_ONLY"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/common.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/common.py",
       "keys": [
-        "AGENTCODER_RUN_ID"
+        "CODEFLOW_RUN_ID"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/execution_adapter.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/execution_adapter.py",
       "keys": [
-        "AGENTCODER_PROVIDER"
+        "CODEFLOW_PROVIDER"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/mcp_server_lifecycle.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/mcp_server_lifecycle.py",
       "keys": [
-        "AGENTCODER_MCP_CLEANUP_TIMEOUT_SEC",
-        "AGENTCODER_MCP_CONNECT_TIMEOUT_SEC",
-        "AGENTCODER_MCP_SERVER_CLEANUP_TIMEOUT_SEC",
-        "AGENTCODER_MCP_SERVER_CONNECT_TIMEOUT_SEC",
-        "AGENTCODER_MCP_SERVER_TIMEOUT_SEC",
-        "AGENTCODER_MCP_TIMEOUT_SEC",
-        "AGENTCODER_MCP_TOOL_TIMEOUT_SEC"
+        "CODEFLOW_MCP_CLEANUP_TIMEOUT_SEC",
+        "CODEFLOW_MCP_CONNECT_TIMEOUT_SEC",
+        "CODEFLOW_MCP_SERVER_CLEANUP_TIMEOUT_SEC",
+        "CODEFLOW_MCP_SERVER_CONNECT_TIMEOUT_SEC",
+        "CODEFLOW_MCP_SERVER_TIMEOUT_SEC",
+        "CODEFLOW_MCP_TIMEOUT_SEC",
+        "CODEFLOW_MCP_TOOL_TIMEOUT_SEC"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/mcp_streaming.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/mcp_streaming.py",
       "keys": [
-        "AGENTCODER_STREAM_LOG_EVERY"
+        "CODEFLOW_STREAM_LOG_EVERY"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/runners/provider_resolution.py",
+      "path": "apps/orchestrator/src/codeflow_orch/runners/provider_resolution.py",
       "keys": [
         "ANTHROPIC_API_KEY",
         "GEMINI_API_KEY",
         "GOOGLE_API_KEY",
-        "AGENTCODER_AGENTS_BASE_URL",
-        "AGENTCODER_AGENTS_MODEL",
-        "AGENTCODER_PROVIDER",
-        "AGENTCODER_PROVIDER_BASE_URL",
-        "AGENTCODER_PROVIDER_MODEL",
+        "CODEFLOW_AGENTS_BASE_URL",
+        "CODEFLOW_AGENTS_MODEL",
+        "CODEFLOW_PROVIDER",
+        "CODEFLOW_PROVIDER_BASE_URL",
+        "CODEFLOW_PROVIDER_MODEL",
         "OPENAI_API_KEY"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/approval_flow.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/approval_flow.py",
       "keys": [
-        "AGENTCODER_FORCE_UNLOCK",
-        "AGENTCODER_GOD_MODE_ON_REQUEST",
-        "AGENTCODER_GOD_MODE_REQUIRED",
-        "AGENTCODER_GOD_MODE_TIMEOUT_SEC",
-        "AGENTCODER_LOCK_AUTO_CLEANUP",
-        "AGENTCODER_LOCK_TTL_SEC",
-        "AGENTCODER_LOCK_TTL_SEC_DEFAULT"
+        "CODEFLOW_FORCE_UNLOCK",
+        "CODEFLOW_GOD_MODE_ON_REQUEST",
+        "CODEFLOW_GOD_MODE_REQUIRED",
+        "CODEFLOW_GOD_MODE_TIMEOUT_SEC",
+        "CODEFLOW_LOCK_AUTO_CLEANUP",
+        "CODEFLOW_LOCK_TTL_SEC",
+        "CODEFLOW_LOCK_TTL_SEC_DEFAULT"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/artifact_pipeline.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/artifact_pipeline.py",
       "keys": [
-        "AGENTCODER_RUNTIME_ROOT"
+        "CODEFLOW_RUNTIME_ROOT"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/core_helpers.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/core_helpers.py",
       "keys": [
         "CODEX_HOME",
-        "AGENTCODER_CODEX_HOME_PER_RUN",
-        "AGENTCODER_TRACE_BASE_URL",
-        "AGENTCODER_TRACE_URL_TEMPLATE"
+        "CODEFLOW_CODEX_HOME_PER_RUN",
+        "CODEFLOW_TRACE_BASE_URL",
+        "CODEFLOW_TRACE_URL_TEMPLATE"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/execute_task_pipeline.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/execute_task_pipeline.py",
       "keys": [
         "CODEX_HOME",
-        "AGENTCODER_CODEX_PROFILE",
-        "AGENTCODER_CODEX_VERSION",
-        "AGENTCODER_DIAGNOSTIC_RUNS_ROOT",
-        "AGENTCODER_NETWORK_APPROVED",
-        "AGENTCODER_NODE_VERSION",
-        "AGENTCODER_ORCHESTRATOR_VERSION",
-        "AGENTCODER_RUNNER",
-        "AGENTCODER_RUNS_ROOT",
-        "AGENTCODER_RUN_ID",
-        "AGENTCODER_RUNTIME_ROOT",
-        "AGENTCODER_TEMPORAL_NAMESPACE",
-        "AGENTCODER_TEMPORAL_TASK_QUEUE",
-        "AGENTCODER_TEMPORAL_WORKFLOW_ID",
-        "AGENTCODER_TRACE_ID"
+        "CODEFLOW_CODEX_PROFILE",
+        "CODEFLOW_CODEX_VERSION",
+        "CODEFLOW_DIAGNOSTIC_RUNS_ROOT",
+        "CODEFLOW_NETWORK_APPROVED",
+        "CODEFLOW_NODE_VERSION",
+        "CODEFLOW_ORCHESTRATOR_VERSION",
+        "CODEFLOW_RUNNER",
+        "CODEFLOW_RUNS_ROOT",
+        "CODEFLOW_RUN_ID",
+        "CODEFLOW_RUNTIME_ROOT",
+        "CODEFLOW_TEMPORAL_NAMESPACE",
+        "CODEFLOW_TEMPORAL_TASK_QUEUE",
+        "CODEFLOW_TEMPORAL_WORKFLOW_ID",
+        "CODEFLOW_TRACE_ID"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/execute_task_preflight.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/execute_task_preflight.py",
       "keys": [
-        "AGENTCODER_TEMPORAL_ACTIVITY",
-        "AGENTCODER_TEMPORAL_WORKFLOW"
+        "CODEFLOW_TEMPORAL_ACTIVITY",
+        "CODEFLOW_TEMPORAL_WORKFLOW"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/policy_pipeline.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/policy_pipeline.py",
       "keys": [
-        "AGENTCODER_ALLOW_CODEX_EXEC",
-        "AGENTCODER_MCP_ONLY"
+        "CODEFLOW_ALLOW_CODEX_EXEC",
+        "CODEFLOW_MCP_ONLY"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/preflight_gate_runtime_helpers.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/preflight_gate_runtime_helpers.py",
       "keys": [
-        "AGENTCODER_MCP_CONCURRENCY_MODE",
-        "AGENTCODER_MCP_CONCURRENCY_REQUIRED",
-        "AGENTCODER_NETWORK_APPROVED"
+        "CODEFLOW_MCP_CONCURRENCY_MODE",
+        "CODEFLOW_MCP_CONCURRENCY_REQUIRED",
+        "CODEFLOW_NETWORK_APPROVED"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/runtime_utils.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/runtime_utils.py",
       "keys": [
-        "AGENTCODER_CODEX_MODEL",
-        "AGENTCODER_CODEX_PROFILE"
+        "CODEFLOW_CODEX_MODEL",
+        "CODEFLOW_CODEX_PROFILE"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/scheduler.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/scheduler.py",
       "keys": [
-        "AGENTCODER_CODEX_PROFILE",
-        "AGENTCODER_CODEX_VERSION",
-        "AGENTCODER_RUN_ID",
-        "AGENTCODER_TRACE_ID"
+        "CODEFLOW_CODEX_PROFILE",
+        "CODEFLOW_CODEX_VERSION",
+        "CODEFLOW_RUN_ID",
+        "CODEFLOW_TRACE_ID"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/scheduler_bridge_runtime.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/scheduler_bridge_runtime.py",
       "keys": [
-        "AGENTCODER_RUNNER"
+        "CODEFLOW_RUNNER"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/task_execution_review_helpers.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/task_execution_review_helpers.py",
       "keys": [
-        "AGENTCODER_REVIEWER_MODE"
+        "CODEFLOW_REVIEWER_MODE"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/task_execution_runtime_helpers.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/task_execution_runtime_helpers.py",
       "keys": [
-        "AGENTCODER_DIFF_GATE_SCOPED_REVERT",
-        "AGENTCODER_EVALS_ENABLED"
+        "CODEFLOW_DIFF_GATE_SCOPED_REVERT",
+        "CODEFLOW_EVALS_ENABLED"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/test_wave_b2_regressions.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/test_wave_b2_regressions.py",
       "keys": [
         "CODEX_HOME",
-        "AGENTCODER_RUN_ID"
+        "CODEFLOW_RUN_ID"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/scheduler/tool_execution_pipeline.py",
+      "path": "apps/orchestrator/src/codeflow_orch/scheduler/tool_execution_pipeline.py",
       "keys": [
-        "AGENTCODER_SEARCH_VERIFY_AI"
+        "CODEFLOW_SEARCH_VERIFY_AI"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/store/run_store_primitives.py",
+      "path": "apps/orchestrator/src/codeflow_orch/store/run_store_primitives.py",
       "keys": [
-        "AGENTCODER_CONTRACT_HMAC_KEY"
+        "CODEFLOW_CONTRACT_HMAC_KEY"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/store/session_map.py",
+      "path": "apps/orchestrator/src/codeflow_orch/store/session_map.py",
       "keys": [
-        "AGENTCODER_CODEX_SESSIONS_ROOT",
-        "AGENTCODER_SESSION_ALIAS_PATH"
+        "CODEFLOW_CODEX_SESSIONS_ROOT",
+        "CODEFLOW_SESSION_ALIAS_PATH"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/temporal/manager.py",
+      "path": "apps/orchestrator/src/codeflow_orch/temporal/manager.py",
       "keys": [
-        "AGENTCODER_TEMPORAL_ACTIVITY",
-        "AGENTCODER_TEMPORAL_ADDRESS",
-        "AGENTCODER_TEMPORAL_ENABLED",
-        "AGENTCODER_TEMPORAL_NAMESPACE",
-        "AGENTCODER_TEMPORAL_REQUIRED"
+        "CODEFLOW_TEMPORAL_ACTIVITY",
+        "CODEFLOW_TEMPORAL_ADDRESS",
+        "CODEFLOW_TEMPORAL_ENABLED",
+        "CODEFLOW_TEMPORAL_NAMESPACE",
+        "CODEFLOW_TEMPORAL_REQUIRED"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/temporal/runner.py",
+      "path": "apps/orchestrator/src/codeflow_orch/temporal/runner.py",
       "keys": [
-        "AGENTCODER_TEMPORAL_ADDRESS",
-        "AGENTCODER_TEMPORAL_NAMESPACE",
-        "AGENTCODER_TEMPORAL_TASK_QUEUE",
-        "AGENTCODER_TEMPORAL_WORKFLOW"
+        "CODEFLOW_TEMPORAL_ADDRESS",
+        "CODEFLOW_TEMPORAL_NAMESPACE",
+        "CODEFLOW_TEMPORAL_TASK_QUEUE",
+        "CODEFLOW_TEMPORAL_WORKFLOW"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/temporal/test_workflows.py",
+      "path": "apps/orchestrator/src/codeflow_orch/temporal/test_workflows.py",
       "keys": [
-        "AGENTCODER_TEMPORAL_ACTIVITY",
-        "AGENTCODER_TEMPORAL_WORKFLOW",
-        "AGENTCODER_TEMPORAL_WORKFLOW_ID"
+        "CODEFLOW_TEMPORAL_ACTIVITY",
+        "CODEFLOW_TEMPORAL_WORKFLOW",
+        "CODEFLOW_TEMPORAL_WORKFLOW_ID"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/temporal/worker.py",
+      "path": "apps/orchestrator/src/codeflow_orch/temporal/worker.py",
       "keys": [
-        "AGENTCODER_TEMPORAL_ADDRESS",
-        "AGENTCODER_TEMPORAL_NAMESPACE",
-        "AGENTCODER_TEMPORAL_TASK_QUEUE"
+        "CODEFLOW_TEMPORAL_ADDRESS",
+        "CODEFLOW_TEMPORAL_NAMESPACE",
+        "CODEFLOW_TEMPORAL_TASK_QUEUE"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/temporal/workflows.py",
+      "path": "apps/orchestrator/src/codeflow_orch/temporal/workflows.py",
       "keys": [
-        "AGENTCODER_TEMPORAL_ACTIVITY",
-        "AGENTCODER_TEMPORAL_ACTIVITY_TIMEOUT",
-        "AGENTCODER_TEMPORAL_WORKFLOW",
-        "AGENTCODER_TEMPORAL_WORKFLOW_ID"
+        "CODEFLOW_TEMPORAL_ACTIVITY",
+        "CODEFLOW_TEMPORAL_ACTIVITY_TIMEOUT",
+        "CODEFLOW_TEMPORAL_WORKFLOW",
+        "CODEFLOW_TEMPORAL_WORKFLOW_ID"
       ]
     },
     {
-      "path": "apps/orchestrator/src/agentcoder_orch/transport/codex_profile_pool.py",
+      "path": "apps/orchestrator/src/codeflow_orch/transport/codex_profile_pool.py",
       "keys": [
-        "AGENTCODER_CODEX_PROFILE_POOL",
-        "AGENTCODER_CODEX_PROFILE_POOL_LOCK_TTL_SEC",
-        "AGENTCODER_RUNTIME_ROOT"
+        "CODEFLOW_CODEX_PROFILE_POOL",
+        "CODEFLOW_CODEX_PROFILE_POOL_LOCK_TTL_SEC",
+        "CODEFLOW_RUNTIME_ROOT"
       ]
     },
     {
       "path": "tooling/briefing_generator.py",
       "keys": [
-        "AGENTCODER_RUNS_ROOT"
+        "CODEFLOW_RUNS_ROOT"
       ]
     },
     {
       "path": "tooling/browser/playwright_runner.py",
       "keys": [
-        "AGENTCODER_BROWSER_ALLOWLIST",
-        "AGENTCODER_HEADLESS",
-        "AGENTCODER_PLAYWRIGHT_TIMEOUT_MS"
+        "CODEFLOW_BROWSER_ALLOWLIST",
+        "CODEFLOW_HEADLESS",
+        "CODEFLOW_PLAYWRIGHT_TIMEOUT_MS"
       ]
     },
     {
       "path": "tooling/browser/policy.py",
       "keys": [
-        "AGENTCODER_BROWSER_HUMAN_BEHAVIOR",
-        "AGENTCODER_BROWSER_HUMAN_BEHAVIOR_LEVEL",
-        "AGENTCODER_BROWSER_PLUGIN_OPTIONAL"
+        "CODEFLOW_BROWSER_HUMAN_BEHAVIOR",
+        "CODEFLOW_BROWSER_HUMAN_BEHAVIOR_LEVEL",
+        "CODEFLOW_BROWSER_PLUGIN_OPTIONAL"
       ]
     },
     {
       "path": "tooling/browser/session_manager.py",
       "keys": [
         "CHROME_PATH",
-        "AGENTCODER_BROWSER_CDP_HOST",
-        "AGENTCODER_BROWSER_CDP_PORT",
+        "CODEFLOW_BROWSER_CDP_HOST",
+        "CODEFLOW_BROWSER_CDP_PORT",
         "CI",
-        "AGENTCODER_BROWSER_COOKIE_PATH",
-        "AGENTCODER_BROWSER_PROFILE_DIR",
-        "AGENTCODER_BROWSER_PROFILE_MODE",
-        "AGENTCODER_BROWSER_PROFILE_NAME",
-        "AGENTCODER_CI_CONTAINER",
-        "AGENTCODER_CLEAN_ROOM_MACHINE_TMP_ROOT",
-        "AGENTCODER_CLEAN_ROOM_PRESERVE_ROOT",
-        "AGENTCODER_RUNTIME_ROOT",
+        "CODEFLOW_BROWSER_COOKIE_PATH",
+        "CODEFLOW_BROWSER_PROFILE_DIR",
+        "CODEFLOW_BROWSER_PROFILE_MODE",
+        "CODEFLOW_BROWSER_PROFILE_NAME",
+        "CODEFLOW_CI_CONTAINER",
+        "CODEFLOW_CLEAN_ROOM_MACHINE_TMP_ROOT",
+        "CODEFLOW_CLEAN_ROOM_PRESERVE_ROOT",
+        "CODEFLOW_RUNTIME_ROOT",
         "GITHUB_ACTIONS",
-        "AGENTCODER_WEB_COOKIE_PATH",
-        "AGENTCODER_WEB_PROFILE_DIR",
-        "AGENTCODER_WEB_PROFILE_MODE",
-        "AGENTCODER_WEB_PROFILE_NAME"
+        "CODEFLOW_WEB_COOKIE_PATH",
+        "CODEFLOW_WEB_PROFILE_DIR",
+        "CODEFLOW_WEB_PROFILE_MODE",
+        "CODEFLOW_WEB_PROFILE_NAME"
       ]
     },
     {
       "path": "tooling/browser/stealth_provider.py",
       "keys": [
-        "AGENTCODER_BROWSER_PLUGIN_OPTIONAL",
-        "AGENTCODER_BROWSER_STEALTH_MODE",
-        "AGENTCODER_WEB_STEALTH_MODE"
+        "CODEFLOW_BROWSER_PLUGIN_OPTIONAL",
+        "CODEFLOW_BROWSER_STEALTH_MODE",
+        "CODEFLOW_WEB_STEALTH_MODE"
       ]
     },
     {
       "path": "tooling/mcp/sampling_runner.py",
       "keys": [
         "GEMINI_API_KEY",
-        "AGENTCODER_AGENTS_BASE_URL",
-        "AGENTCODER_SAMPLING_MODE",
-        "AGENTCODER_SAMPLING_MODEL",
-        "AGENTCODER_SAMPLING_PROVIDER"
+        "CODEFLOW_AGENTS_BASE_URL",
+        "CODEFLOW_SAMPLING_MODE",
+        "CODEFLOW_SAMPLING_MODEL",
+        "CODEFLOW_SAMPLING_PROVIDER"
       ]
     },
     {
       "path": "tooling/search/ai_verifier.py",
       "keys": [
-        "AGENTCODER_AGENTS_API",
-        "AGENTCODER_AGENTS_BASE_URL",
-        "AGENTCODER_SEARCH_PROVIDER",
-        "AGENTCODER_SEARCH_VERIFY_MODEL"
+        "CODEFLOW_AGENTS_API",
+        "CODEFLOW_AGENTS_BASE_URL",
+        "CODEFLOW_SEARCH_PROVIDER",
+        "CODEFLOW_SEARCH_VERIFY_MODEL"
       ]
     },
     {
       "path": "tooling/search/search_engine.py",
       "keys": [
-        "AGENTCODER_BROWSER_PROFILE_MODE",
-        "AGENTCODER_BROWSER_STEALTH_MODE",
-        "AGENTCODER_RUNTIME_ROOT",
-        "AGENTCODER_SEARCH_MODE",
-        "AGENTCODER_SEARCH_PROVIDER",
-        "AGENTCODER_WEB_ALLOWLIST",
-        "AGENTCODER_WEB_HEADLESS",
-        "AGENTCODER_WEB_PROFILE_MODE",
-        "AGENTCODER_WEB_SEARCH_FALLBACK",
-        "AGENTCODER_WEB_SEARCH_FALLBACK_POLICY",
-        "AGENTCODER_WEB_STEALTH_MODE"
+        "CODEFLOW_BROWSER_PROFILE_MODE",
+        "CODEFLOW_BROWSER_STEALTH_MODE",
+        "CODEFLOW_RUNTIME_ROOT",
+        "CODEFLOW_SEARCH_MODE",
+        "CODEFLOW_SEARCH_PROVIDER",
+        "CODEFLOW_WEB_ALLOWLIST",
+        "CODEFLOW_WEB_HEADLESS",
+        "CODEFLOW_WEB_PROFILE_MODE",
+        "CODEFLOW_WEB_SEARCH_FALLBACK",
+        "CODEFLOW_WEB_SEARCH_FALLBACK_POLICY",
+        "CODEFLOW_WEB_STEALTH_MODE"
       ]
     }
   ]

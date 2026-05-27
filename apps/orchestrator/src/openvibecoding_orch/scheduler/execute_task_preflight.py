@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Any, Callable
 
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.store.run_store import RunStore
 
 
 def maybe_execute_temporal_workflow(
@@ -18,8 +18,8 @@ def maybe_execute_temporal_workflow(
     temporal_required_fn: Callable[[], bool],
     ensure_evidence_bundle_placeholder_fn: Callable[[RunStore, str, dict[str, Any], str], None],
 ) -> tuple[str | None, str]:
-    temporal_workflow = os.getenv("AGENTCODER_TEMPORAL_WORKFLOW", "").strip().lower() in {"1", "true", "yes"}
-    in_temporal_activity = os.getenv("AGENTCODER_TEMPORAL_ACTIVITY", "").strip().lower() in {"1", "true", "yes"}
+    temporal_workflow = os.getenv("CODEFLOW_TEMPORAL_WORKFLOW", "").strip().lower() in {"1", "true", "yes"}
+    in_temporal_activity = os.getenv("CODEFLOW_TEMPORAL_ACTIVITY", "").strip().lower() in {"1", "true", "yes"}
     if not temporal_workflow or in_temporal_activity:
         return None, ""
 

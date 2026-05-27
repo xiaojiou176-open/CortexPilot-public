@@ -3,8 +3,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROMO_DIR="$ROOT_DIR/tooling/remotion-promo"
-POSTER_OUT="$ROOT_DIR/docs/assets/storefront/agentcoder-command-tower-teaser-poster.png"
-VIDEO_OUT="$ROOT_DIR/docs/assets/storefront/agentcoder-command-tower-teaser.mp4"
+POSTER_OUT="$ROOT_DIR/docs/assets/storefront/codeflow-command-tower-teaser-poster.png"
+VIDEO_OUT="$ROOT_DIR/docs/assets/storefront/codeflow-command-tower-teaser.mp4"
 
 if [[ ! -d "$PROMO_DIR" ]]; then
   echo "❌ [storefront-teaser] missing promo source: $PROMO_DIR" >&2
@@ -25,13 +25,13 @@ echo "🚀 [storefront-teaser] typecheck"
 echo "🚀 [storefront-teaser] render poster"
 (
   cd "$PROMO_DIR"
-  ./node_modules/.bin/remotion still src/index.ts AgentcoderTeaser "$POSTER_OUT" --frame=480
+  ./node_modules/.bin/remotion still src/index.ts CodeflowTeaser "$POSTER_OUT" --frame=480
 )
 
 echo "🚀 [storefront-teaser] render video"
 (
   cd "$PROMO_DIR"
-  ./node_modules/.bin/remotion render src/index.ts AgentcoderTeaser "$VIDEO_OUT" --codec=h264 --crf=23
+  ./node_modules/.bin/remotion render src/index.ts CodeflowTeaser "$VIDEO_OUT" --codec=h264 --crf=23
 )
 
 echo "✅ [storefront-teaser] rendered:"

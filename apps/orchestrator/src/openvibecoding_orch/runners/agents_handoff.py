@@ -112,7 +112,7 @@ def _parse_handoff_payload(
 
 
 def _handoff_required(contract: dict[str, Any]) -> bool:
-    force = os.getenv("AGENTCODER_AGENTS_FORCE_HANDOFF", "").strip().lower() in {"1", "true", "yes"}
+    force = os.getenv("CODEFLOW_AGENTS_FORCE_HANDOFF", "").strip().lower() in {"1", "true", "yes"}
     owner = _agent_role(contract.get("owner_agent", {}))
     assigned = _agent_role(contract.get("assigned_agent", {}))
     if force:

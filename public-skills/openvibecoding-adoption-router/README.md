@@ -1,17 +1,17 @@
-# Agentcoder Adoption Router
+# Codeflow Adoption Router
 
-This bundle teaches an agent how to connect the current live public Agentcoder
+This bundle teaches an agent how to connect the current live public Codeflow
 read-only MCP package and choose the right public adoption lane.
 
-This is Agentcoder's secondary public adoption lane. The read-only MCP package
+This is Codeflow's secondary public adoption lane. The read-only MCP package
 plus the Official MCP Registry entry remain the primary machine-readable front
 door, and local coding-agent bundles stay example-only.
 
 ## What the agent learns here
 
 - how to install the current live package
-  `agentcoder-orchestrator==0.1.0a4` for the Agentcoder read-only MCP
-- which read-only Agentcoder tools exist and which are safe-first
+  `codeflow-orchestrator==0.1.0a4` for the Codeflow read-only MCP
+- which read-only Codeflow tools exist and which are safe-first
 - how to choose between run/workflow inspection, queue/approval reads, and
   proof/incident reads
 - which hosted or write-capable claims stay out of bounds
@@ -34,11 +34,11 @@ door, and local coding-agent bundles stay example-only.
 Use the live public package, not a repo-local checkout:
 
 ```bash
-uvx --from agentcoder-orchestrator==0.1.0a4 agentcoder-readonly-mcp
+uvx --from codeflow-orchestrator==0.1.0a4 codeflow-readonly-mcp
 ```
 
 Today both the executable and the primary published PyPI package use the
-Agentcoder name and should be treated as the canonical install path.
+Codeflow name and should be treated as the canonical install path.
 
 If the host needs a saved MCP config snippet, use the host-specific examples in
 `references/INSTALL.md`.

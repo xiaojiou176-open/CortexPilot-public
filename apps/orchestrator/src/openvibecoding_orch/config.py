@@ -7,7 +7,7 @@ from pathlib import Path
 from threading import RLock
 
 from dotenv import load_dotenv
-from agentcoder_orch.runners.provider_resolution import (
+from codeflow_orch.runners.provider_resolution import (
     resolve_provider_credentials,
     resolve_runtime_base_url_from_env,
     resolve_runtime_model_from_env,
@@ -95,7 +95,7 @@ class RunnerConfig:
 
 
 @dataclass(frozen=True)
-class AgentcoderConfig:
+class CodeflowConfig:
     runtime: RuntimeConfig
     security: SecurityConfig
     retention: RetentionConfig
@@ -208,11 +208,11 @@ class AgentcoderConfig:
 _ENV_LOAD_LOCK = RLock()
 _ENV_LOADED = False
 _CONFIG_CACHE_LOCK = RLock()
-_CONFIG_CACHE: AgentcoderConfig | None = None
+_CONFIG_CACHE: CodeflowConfig | None = None
 _ENV_OVERRIDE_ORDER = {
-    "provider": ("AGENTCODER_PROVIDER",),
-    "base_url": ("AGENTCODER_PROVIDER_BASE_URL",),
-    "model": ("AGENTCODER_PROVIDER_MODEL",),
+    "provider": ("CODEFLOW_PROVIDER",),
+    "base_url": ("CODEFLOW_PROVIDER_BASE_URL",),
+    "model": ("CODEFLOW_PROVIDER_MODEL",),
 }
 
 
@@ -247,10 +247,10 @@ def _resolve_repo_relative_path(path: Path, repo_root: Path) -> Path:
 
 
 def _explicit_env_candidates(repo_root: Path) -> list[Path]:
-    explicit_path = os.getenv("AGENTCODER_ENV_FILE", "").strip()
+    explicit_path = os.getenv("CODEFLOW_ENV_FILE", "").strip()
     if explicit_path:
         return [Path(explicit_path)]
-    env_root = Path(os.getenv("AGENTCODER_DEFAULT_ENV_ROOT", "~/.config/agentcoder")).expanduser()
+    env_root = Path(os.getenv("CODEFLOW_DEFAULT_ENV_ROOT", "~/.config/codeflow")).expanduser()
     return [
         env_root / ".env.local",
         env_root / ".env",
@@ -278,9 +278,9 @@ def describe_env_override_order() -> dict[str, tuple[str, ...]]:
 
 def _assert_no_shadowed_env_values() -> None:
     env_values = {
-        "AGENTCODER_PROVIDER": os.getenv("AGENTCODER_PROVIDER"),
-        "AGENTCODER_PROVIDER_BASE_URL": os.getenv("AGENTCODER_PROVIDER_BASE_URL"),
-        "AGENTCODER_PROVIDER_MODEL": os.getenv("AGENTCODER_PROVIDER_MODEL"),
+        "CODEFLOW_PROVIDER": os.getenv("CODEFLOW_PROVIDER"),
+        "CODEFLOW_PROVIDER_BASE_URL": os.getenv("CODEFLOW_PROVIDER_BASE_URL"),
+        "CODEFLOW_PROVIDER_MODEL": os.getenv("CODEFLOW_PROVIDER_MODEL"),
     }
     for field_name, keys in _ENV_OVERRIDE_ORDER.items():
         resolved_idx = -1
@@ -309,13 +309,13 @@ def _load_explicit_env_files() -> None:
     with _ENV_LOAD_LOCK:
         if _ENV_LOADED:
             return
-        explicit_path = _normalize_env_value(os.getenv("AGENTCODER_ENV_FILE"))
+        explicit_path = _normalize_env_value(os.getenv("CODEFLOW_ENV_FILE"))
         if explicit_path:
             explicit_candidate = Path(explicit_path).expanduser()
             if not explicit_candidate.is_absolute():
                 explicit_candidate = (_repo_root() / explicit_candidate).resolve()
             if not explicit_candidate.exists() or not explicit_candidate.is_file():
-                raise RuntimeError(f"env effective-chain breakpoint: AGENTCODER_ENV_FILE not found: {explicit_candidate}")
+                raise RuntimeError(f"env effective-chain breakpoint: CODEFLOW_ENV_FILE not found: {explicit_candidate}")
         for candidate in _explicit_env_candidates(_repo_root()):
             if candidate.exists() and candidate.is_file():
                 load_dotenv(dotenv_path=candidate, override=False)
@@ -378,17 +378,17 @@ def _resolve_runtime_path(name: str, default: str, repo_root: Path | None = None
 
 
 def _default_machine_cache_root() -> Path:
-    explicit = os.getenv("AGENTCODER_MACHINE_CACHE_ROOT", "").strip()
+    explicit = os.getenv("CODEFLOW_MACHINE_CACHE_ROOT", "").strip()
     if explicit:
         return Path(explicit).expanduser()
     runner_temp = os.getenv("RUNNER_TEMP", "").strip()
     ci = os.getenv("CI", "").strip().lower() in {"1", "true", "yes", "on"} or os.getenv("GITHUB_ACTIONS", "").strip().lower() == "true"
     if ci and runner_temp:
-        return Path(runner_temp) / "agentcoder-machine-cache"
+        return Path(runner_temp) / "codeflow-machine-cache"
     xdg_cache_home = os.getenv("XDG_CACHE_HOME", "").strip()
     if xdg_cache_home:
-        return Path(xdg_cache_home) / "agentcoder"
-    return Path.home() / ".cache" / "agentcoder"
+        return Path(xdg_cache_home) / "codeflow"
+    return Path.home() / ".cache" / "codeflow"
 
 
 def _default_machine_cache_cap_bytes(repo_root: Path) -> int:
@@ -409,44 +409,44 @@ def _default_machine_cache_cap_bytes(repo_root: Path) -> int:
     return value if value > 0 else fallback
 
 
-def load_config() -> AgentcoderConfig:
+def load_config() -> CodeflowConfig:
     _load_explicit_env_files()
 
     repo_root = _resolve_repo_relative_path(
-        Path(_env_value(os.getenv("AGENTCODER_REPO_ROOT"), str(_repo_root()))),
+        Path(_env_value(os.getenv("CODEFLOW_REPO_ROOT"), str(_repo_root()))),
         _repo_root(),
     )
     runtime_root = _resolve_repo_relative_path(
         Path(
             _env_value(
-                os.getenv("AGENTCODER_RUNTIME_ROOT"),
-                ".runtime-cache/agentcoder",
+                os.getenv("CODEFLOW_RUNTIME_ROOT"),
+                ".runtime-cache/codeflow",
             )
         ),
         repo_root,
     )
-    schema_root, _ = _resolve_runtime_path("AGENTCODER_SCHEMA_ROOT", "schemas", repo_root)
+    schema_root, _ = _resolve_runtime_path("CODEFLOW_SCHEMA_ROOT", "schemas", repo_root)
     contract_root, contract_root_explicit = _resolve_runtime_path(
-        "AGENTCODER_CONTRACT_ROOT", "contracts", repo_root
+        "CODEFLOW_CONTRACT_ROOT", "contracts", repo_root
     )
     runtime_contract_root = _resolve_repo_relative_path(
-        Path(os.getenv("AGENTCODER_RUNTIME_CONTRACT_ROOT", ".runtime-cache/agentcoder/contracts")),
+        Path(os.getenv("CODEFLOW_RUNTIME_CONTRACT_ROOT", ".runtime-cache/codeflow/contracts")),
         repo_root,
     )
     machine_cache_root = _default_machine_cache_root()
-    toolchain_cache_root = Path(os.getenv("AGENTCODER_TOOLCHAIN_CACHE_ROOT", str(machine_cache_root / "toolchains")))
+    toolchain_cache_root = Path(os.getenv("CODEFLOW_TOOLCHAIN_CACHE_ROOT", str(machine_cache_root / "toolchains")))
     worktree_root = _resolve_repo_relative_path(
-        Path(os.getenv("AGENTCODER_WORKTREE_ROOT", ".runtime-cache/agentcoder/worktrees")),
+        Path(os.getenv("CODEFLOW_WORKTREE_ROOT", ".runtime-cache/codeflow/worktrees")),
         repo_root,
     )
     runs_root = _resolve_repo_relative_path(
-        Path(os.getenv("AGENTCODER_RUNS_ROOT", ".runtime-cache/agentcoder/runs")),
+        Path(os.getenv("CODEFLOW_RUNS_ROOT", ".runtime-cache/codeflow/runs")),
         repo_root,
     )
     logs_root = _resolve_repo_relative_path(
         Path(
             _env_value(
-                os.getenv("AGENTCODER_LOGS_ROOT"),
+                os.getenv("CODEFLOW_LOGS_ROOT"),
                 ".runtime-cache/logs",
             )
         ),
@@ -455,7 +455,7 @@ def load_config() -> AgentcoderConfig:
     cache_root = _resolve_repo_relative_path(
         Path(
             _env_value(
-                os.getenv("AGENTCODER_CACHE_ROOT"),
+                os.getenv("CODEFLOW_CACHE_ROOT"),
                 ".runtime-cache/cache",
             )
         ),
@@ -478,54 +478,54 @@ def load_config() -> AgentcoderConfig:
     )
 
     security = SecurityConfig(
-        api_auth_required=_env_flag("AGENTCODER_API_AUTH_REQUIRED", True),
-        api_token=_env_value(os.getenv("AGENTCODER_API_TOKEN")),
+        api_auth_required=_env_flag("CODEFLOW_API_AUTH_REQUIRED", True),
+        api_token=_env_value(os.getenv("CODEFLOW_API_TOKEN")),
     )
 
     retention = RetentionConfig(
-        run_days=_env_int("AGENTCODER_RETENTION_RUN_DAYS", 7, min_value=1),
-        max_runs=_env_int("AGENTCODER_RETENTION_MAX_RUNS", 200, min_value=1),
-        log_days=_env_int("AGENTCODER_RETENTION_LOG_DAYS", 7, min_value=1),
-        worktree_days=_env_int("AGENTCODER_RETENTION_WORKTREE_DAYS", 2, min_value=1),
-        log_max_files=_env_int("AGENTCODER_RETENTION_LOG_MAX_FILES", 5, min_value=1),
-        cache_hours=_env_int("AGENTCODER_RETENTION_CACHE_HOURS", 24, min_value=1),
-        codex_home_days=_env_int("AGENTCODER_RETENTION_CODEX_HOME_DAYS", 3, min_value=1),
-        max_codex_homes=_env_int("AGENTCODER_RETENTION_MAX_CODEX_HOMES", 500, min_value=1),
-        intake_days=_env_int("AGENTCODER_RETENTION_INTAKE_DAYS", 7, min_value=1),
-        max_intakes=_env_int("AGENTCODER_RETENTION_MAX_INTAKES", 500, min_value=1),
+        run_days=_env_int("CODEFLOW_RETENTION_RUN_DAYS", 7, min_value=1),
+        max_runs=_env_int("CODEFLOW_RETENTION_MAX_RUNS", 200, min_value=1),
+        log_days=_env_int("CODEFLOW_RETENTION_LOG_DAYS", 7, min_value=1),
+        worktree_days=_env_int("CODEFLOW_RETENTION_WORKTREE_DAYS", 2, min_value=1),
+        log_max_files=_env_int("CODEFLOW_RETENTION_LOG_MAX_FILES", 5, min_value=1),
+        cache_hours=_env_int("CODEFLOW_RETENTION_CACHE_HOURS", 24, min_value=1),
+        codex_home_days=_env_int("CODEFLOW_RETENTION_CODEX_HOME_DAYS", 3, min_value=1),
+        max_codex_homes=_env_int("CODEFLOW_RETENTION_MAX_CODEX_HOMES", 500, min_value=1),
+        intake_days=_env_int("CODEFLOW_RETENTION_INTAKE_DAYS", 7, min_value=1),
+        max_intakes=_env_int("CODEFLOW_RETENTION_MAX_INTAKES", 500, min_value=1),
         machine_cache_cap_bytes=_env_int(
-            "AGENTCODER_RETENTION_MACHINE_CACHE_CAP_BYTES",
+            "CODEFLOW_RETENTION_MACHINE_CACHE_CAP_BYTES",
             _default_machine_cache_cap_bytes(repo_root),
             min_value=1,
         ),
     )
 
     tracing = TracingConfig(
-        enabled=_env_flag("AGENTCODER_TRACING_ENABLED", True),
-        endpoint=os.getenv("AGENTCODER_OTLP_ENDPOINT", "").strip(),
-        headers=os.getenv("AGENTCODER_OTLP_HEADERS", "").strip(),
-        protocol=os.getenv("AGENTCODER_OTLP_PROTOCOL", "grpc").strip().lower() or "grpc",
-        console_enabled=_env_flag("AGENTCODER_ENABLE_CONSOLE_TRACE", False),
-        required=_env_flag("AGENTCODER_OTEL_REQUIRED", False),
+        enabled=_env_flag("CODEFLOW_TRACING_ENABLED", True),
+        endpoint=os.getenv("CODEFLOW_OTLP_ENDPOINT", "").strip(),
+        headers=os.getenv("CODEFLOW_OTLP_HEADERS", "").strip(),
+        protocol=os.getenv("CODEFLOW_OTLP_PROTOCOL", "grpc").strip().lower() or "grpc",
+        console_enabled=_env_flag("CODEFLOW_ENABLE_CONSOLE_TRACE", False),
+        required=_env_flag("CODEFLOW_OTEL_REQUIRED", False),
     )
 
     logging = LoggingConfig(
-        max_bytes=_env_int("AGENTCODER_LOG_MAX_BYTES", 100 * 1024 * 1024, min_value=1024),
-        backup_count=_env_int("AGENTCODER_LOG_BACKUP_COUNT", 5, min_value=1),
-        trace_id=os.getenv("AGENTCODER_TRACE_ID", "").strip(),
-        schema_version=os.getenv("AGENTCODER_LOG_SCHEMA_VERSION", "log_event.v2").strip() or "log_event.v2",
+        max_bytes=_env_int("CODEFLOW_LOG_MAX_BYTES", 100 * 1024 * 1024, min_value=1024),
+        backup_count=_env_int("CODEFLOW_LOG_BACKUP_COUNT", 5, min_value=1),
+        trace_id=os.getenv("CODEFLOW_TRACE_ID", "").strip(),
+        schema_version=os.getenv("CODEFLOW_LOG_SCHEMA_VERSION", "log_event.v2").strip() or "log_event.v2",
     )
 
     api_runtime = ApiRuntimeConfig(
         dashboard_port=(
             _env_value(
-                os.getenv("AGENTCODER_DASHBOARD_PORT"),
+                os.getenv("CODEFLOW_DASHBOARD_PORT"),
                 "3100",
             )
             or "3100"
         ),
-        canary_percent=_env_percent("AGENTCODER_CANARY_PERCENT", 0.0),
-        allowed_origins=_env_csv("AGENTCODER_API_ALLOWED_ORIGINS"),
+        canary_percent=_env_percent("CODEFLOW_CANARY_PERCENT", 0.0),
+        allowed_origins=_env_csv("CODEFLOW_API_ALLOWED_ORIGINS"),
     )
 
     provider_credentials = resolve_provider_credentials()
@@ -536,19 +536,19 @@ def load_config() -> AgentcoderConfig:
     runner = RunnerConfig(
         provider=runtime_provider,
         agents_base_url=runtime_base_url,
-        agents_api=os.getenv("AGENTCODER_AGENTS_API", "").strip(),
+        agents_api=os.getenv("CODEFLOW_AGENTS_API", "").strip(),
         agents_model=runtime_model,
-        codex_model=os.getenv("AGENTCODER_CODEX_MODEL", "").strip() or runtime_model,
-        agents_store=_env_flag("AGENTCODER_AGENTS_STORE", False),
+        codex_model=os.getenv("CODEFLOW_CODEX_MODEL", "").strip() or runtime_model,
+        agents_store=_env_flag("CODEFLOW_AGENTS_STORE", False),
         equilibrium_api_key=provider_credentials.equilibrium_api_key,
         openai_api_key=provider_credentials.openai_api_key,
         anthropic_api_key=provider_credentials.anthropic_api_key,
         gemini_api_key=provider_credentials.gemini_api_key,
-        mcp_timeout_seconds=_env_float("AGENTCODER_MCP_SERVER_TIMEOUT_SEC", 30.0, min_value=0.1),
-        mcp_connect_timeout_seconds=_env_float("AGENTCODER_MCP_SERVER_CONNECT_TIMEOUT_SEC", 10.0, min_value=0.1),
+        mcp_timeout_seconds=_env_float("CODEFLOW_MCP_SERVER_TIMEOUT_SEC", 30.0, min_value=0.1),
+        mcp_connect_timeout_seconds=_env_float("CODEFLOW_MCP_SERVER_CONNECT_TIMEOUT_SEC", 10.0, min_value=0.1),
     )
 
-    return AgentcoderConfig(
+    return CodeflowConfig(
         runtime=runtime,
         security=security,
         retention=retention,
@@ -559,7 +559,7 @@ def load_config() -> AgentcoderConfig:
     )
 
 
-def get_cached_config(force_reload: bool = False) -> AgentcoderConfig:
+def get_cached_config(force_reload: bool = False) -> CodeflowConfig:
     global _CONFIG_CACHE
     if force_reload:
         with _CONFIG_CACHE_LOCK:

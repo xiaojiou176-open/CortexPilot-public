@@ -3,38 +3,38 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agentcoder | Builder quickstart</title>
+    <title>Codeflow | Builder quickstart</title>
     <meta
       name="description"
-      content="Builder quickstart for Agentcoder: current client entrypoints, contract-facing types, shared presentation substrate, and the shortest package-adoption path for Codex, Claude Code, and OpenClaw teams on top of the Agentcoder runtime."
+      content="Builder quickstart for Codeflow: current client entrypoints, contract-facing types, shared presentation substrate, and the shortest package-adoption path for Codex, Claude Code, and OpenClaw teams on top of the Codeflow runtime."
     />
     <meta
       name="keywords"
-      content="Agentcoder builder quickstart, Agentcoder runtime, frontend API client, frontend API contract, shared UI substrate, Codex builders, Claude Code builders, OpenClaw builders"
+      content="Codeflow builder quickstart, Codeflow runtime, frontend API client, frontend API contract, shared UI substrate, Codex builders, Claude Code builders, OpenClaw builders"
     />
-    <link rel="canonical" href="https://xiaojiou176-open.github.io/agentcoder/builders/" />
-    <meta property="og:title" content="Agentcoder | Builder quickstart" />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/codeflow/builders/" />
+    <meta property="og:title" content="Codeflow | Builder quickstart" />
     <meta
       property="og:description"
-      content="Current builder entrypoints for the Agentcoder API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
+      content="Current builder entrypoints for the Codeflow API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
     />
     <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
-    <meta property="og:url" content="https://xiaojiou176-open.github.io/agentcoder/builders/" />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/codeflow/builders/" />
     <meta property="og:type" content="article" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Agentcoder | Builder quickstart" />
+    <meta name="twitter:title" content="Codeflow | Builder quickstart" />
     <meta
       name="twitter:description"
-      content="Current builder entrypoints for the Agentcoder API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
+      content="Current builder entrypoints for the Codeflow API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
     />
     <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "TechArticle",
-        "headline": "Agentcoder builder quickstart",
-        "url": "https://xiaojiou176-open.github.io/agentcoder/builders/",
-        "description": "Current builder entrypoints for the Agentcoder API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
+        "headline": "Codeflow builder quickstart",
+        "url": "https://xiaojiou176-open.github.io/codeflow/builders/",
+        "description": "Current builder entrypoints for the Codeflow API client, contract package, shared UI substrate, and read-only MCP-aware control-plane reads."
       }
     </script>
     <script type="application/ld+json">
@@ -47,7 +47,7 @@
             "name": "Is the builder layer the same thing as a full SDK platform?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No. Agentcoder already exposes useful builder entrypoints, but the public builder story remains a thin client, contract package, and shared frontend substrate on top of the Agentcoder runtime rather than a full SDK platform."
+              "text": "No. Codeflow already exposes useful builder entrypoints, but the public builder story remains a thin client, contract package, and shared frontend substrate on top of the Codeflow runtime rather than a full SDK platform."
             }
           },
           {
@@ -239,18 +239,18 @@
         </nav>
         <h1>Builder quickstart.</h1>
         <p class="lede">
-          Agentcoder is the command tower for AI engineering, and it already exposes a useful builder surface across three layers:
+          Codeflow is the command tower for AI engineering, and it already exposes a useful builder surface across three layers:
           a thin frontend API client, contract-facing route/type bindings, and a shared presentation substrate.
         </p>
         <p class="lede">
           If your team already understands the workflow and protocol boundary and now wants the shortest repo-owned package path, this page is the right next click.
         </p>
         <p class="lede">
-          Current package boundary: <code>@agentcoder/frontend-api-client</code> and
-          <code>@agentcoder/frontend-api-contract</code> now carry publish-ready metadata,
+          Current package boundary: <code>@codeflow/frontend-api-client</code> and
+          <code>@codeflow/frontend-api-contract</code> now carry publish-ready metadata,
           but no public package release is live yet. The current official install path
           is still clone/workspace reuse or vendor copy, while
-          <code>@agentcoder/frontend-shared</code> remains a repo-owned presentation
+          <code>@codeflow/frontend-shared</code> remains a repo-owned presentation
           substrate instead of a standalone package story.
         </p>
         <div class="actions">
@@ -276,17 +276,17 @@
             <tbody>
               <tr>
                 <td><strong>Convenience client</strong></td>
-                <td><code>@agentcoder/frontend-api-client</code></td>
+                <td><code>@codeflow/frontend-api-client</code></td>
                 <td>Use it when you are working inside a clone or shared workspace copy and want overview, runs, Workflow Cases, approvals, and bootstrap reads through one thin helper layer.</td>
               </tr>
               <tr>
                 <td><strong>Route/type boundary</strong></td>
-                <td><code>@agentcoder/frontend-api-contract</code></td>
+                <td><code>@codeflow/frontend-api-contract</code></td>
                 <td>Use it when your real need is generated contract-facing types without backend imports inside the same repo or a vendored package copy.</td>
               </tr>
               <tr>
                 <td><strong>Shared presentation</strong></td>
-                <td><code>@agentcoder/frontend-shared</code></td>
+                <td><code>@codeflow/frontend-shared</code></td>
                 <td>Use it when you need repo-owned copy, locale, and status-presentation substrate for dashboard, desktop, and future web consumers inside the same workspace story.</td>
               </tr>
               <tr>
@@ -305,25 +305,25 @@
           <article class="card">
             <span class="badge primary">Client</span>
             <h3>Frontend API client</h3>
-            <p>Use the repo-owned client when you are consuming Agentcoder from a clone or vendored workspace and want convenience helpers for command-tower overview, runs, Workflow Cases, approvals, and role-config preview reads.</p>
-            <p><a href="https://github.com/xiaojiou176-open/agentcoder/blob/main/packages/frontend-api-client/README.md">Open package README</a></p>
+            <p>Use the repo-owned client when you are consuming Codeflow from a clone or vendored workspace and want convenience helpers for command-tower overview, runs, Workflow Cases, approvals, and role-config preview reads.</p>
+            <p><a href="https://github.com/xiaojiou176-open/codeflow/blob/main/packages/frontend-api-client/README.md">Open package README</a></p>
           </article>
           <article class="card">
             <span class="badge primary">Contract</span>
             <h3>Generated type edge</h3>
             <p>Use the contract package when you are already inside the same repo or a vendored workspace copy and want route/query/type boundaries without importing backend modules into your frontend surface.</p>
-            <p><a href="https://github.com/xiaojiou176-open/agentcoder/blob/main/packages/frontend-api-contract/docs/README.md">Open contract package guide</a></p>
+            <p><a href="https://github.com/xiaojiou176-open/codeflow/blob/main/packages/frontend-api-contract/docs/README.md">Open contract package guide</a></p>
           </article>
           <article class="card">
             <span class="badge primary">Shared UI</span>
             <h3>Presentation substrate</h3>
-            <p>Use the shared package when you are reusing Agentcoder from a clone or vendored workspace and want brand copy, locale, and status presentation to stay aligned across dashboard, desktop, and future web consumers.</p>
-            <p><a href="https://github.com/xiaojiou176-open/agentcoder/blob/main/packages/frontend-shared/README.md">Open shared README</a></p>
+            <p>Use the shared package when you are reusing Codeflow from a clone or vendored workspace and want brand copy, locale, and status presentation to stay aligned across dashboard, desktop, and future web consumers.</p>
+            <p><a href="https://github.com/xiaojiou176-open/codeflow/blob/main/packages/frontend-shared/README.md">Open shared README</a></p>
           </article>
           <article class="card">
             <span class="badge warn">Boundary</span>
             <h3>Still repo-owned</h3>
-            <p>These are real builder entrypoints, but they do not turn Agentcoder into a hosted SDK platform, marketplace artifact, or write-capable MCP product.</p>
+            <p>These are real builder entrypoints, but they do not turn Codeflow into a hosted SDK platform, marketplace artifact, or write-capable MCP product.</p>
           </article>
           <article class="card">
             <span class="badge warn">Boundary</span>
@@ -333,7 +333,7 @@
           <article class="card">
             <span class="badge warn">Boundary</span>
             <h3>Shared stays repo-owned</h3>
-            <p><code>@agentcoder/frontend-shared</code> is useful, but it is still the repo-owned presentation substrate rather than a standalone distribution unit.</p>
+            <p><code>@codeflow/frontend-shared</code> is useful, but it is still the repo-owned presentation substrate rather than a standalone distribution unit.</p>
           </article>
         </div>
       </section>
@@ -362,13 +362,13 @@
       <section class="section">
         <h2>Vendor or shared-workspace adoption recipe</h2>
         <ol>
-          <li>Confirm the host ecosystem first: Codex, Claude Code, or OpenClaw should be understood from their own official docs before you import any Agentcoder package.</li>
-          <li>Keep the three Agentcoder packages together in one clone or vendored workspace copy: <code>frontend-api-client</code>, <code>frontend-api-contract</code>, and <code>frontend-shared</code>.</li>
+          <li>Confirm the host ecosystem first: Codex, Claude Code, or OpenClaw should be understood from their own official docs before you import any Codeflow package.</li>
+          <li>Keep the three Codeflow packages together in one clone or vendored workspace copy: <code>frontend-api-client</code>, <code>frontend-api-contract</code>, and <code>frontend-shared</code>.</li>
           <li>Use the repo-owned starter example as the first proof that your workspace wiring is correct.</li>
           <li>Only promote to guarded operator actions such as <code>--apply</code> after preview works and your team accepts the trusted-operator boundary.</li>
         </ol>
-        <pre><code>git clone https://github.com/xiaojiou176-open/agentcoder.git
-cd Agentcoder
+        <pre><code>git clone https://github.com/xiaojiou176-open/codeflow.git
+cd Codeflow
 npm run bootstrap:host
 node packages/frontend-api-client/examples/control_plane_starter.local.mjs \
   --base-url http://127.0.0.1:10000 \

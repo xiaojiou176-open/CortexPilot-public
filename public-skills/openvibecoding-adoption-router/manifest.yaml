@@ -2,8 +2,8 @@ schema_version: 1
 artifact: public-skill-listing-manifest
 
 skill:
-  name: agentcoder-adoption-router
-  display_name: Agentcoder Adoption Router
+  name: codeflow-adoption-router
+  display_name: Codeflow Adoption Router
   version: 1.1.1
   entrypoint: SKILL.md
   package_shape: skill-folder
@@ -12,8 +12,8 @@ registry_targets:
   clawhub:
     status: listed-live
     package_shape: skill-folder
-    listing_url: https://www.clawhub.ai/skills/agentcoder-adoption-router
-    submit_via: clawhub publish . --slug agentcoder-adoption-router --name "Agentcoder Adoption Router" --version 1.1.1 --tags mcp,workflow,proof,read-only,agentcoder
+    listing_url: https://www.clawhub.ai/skills/codeflow-adoption-router
+    submit_via: clawhub publish . --slug codeflow-adoption-router --name "Codeflow Adoption Router" --version 1.1.1 --tags mcp,workflow,proof,read-only,codeflow
   openhands-extensions:
     status: closed-receipt-no-live-listing
     package_shape: skill-folder
@@ -21,7 +21,7 @@ registry_targets:
     submit_via: historical receipt only; reopen or replace the submission before claiming any live OpenHands/extensions listing
 
 boundaries:
-  product_identity: Secondary public adoption skill for Agentcoder's proof-first command tower through the published read-only MCP surface.
+  product_identity: Secondary public adoption skill for Codeflow's proof-first command tower through the published read-only MCP surface.
   canonical_repo_version: 0.1.0a4
   official_listing_state: clawhub-live-openhands-closed-receipt-other-hosts-pending
   not_claimed:

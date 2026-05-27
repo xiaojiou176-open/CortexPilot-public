@@ -5,17 +5,17 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
 source "$ROOT_DIR/scripts/lib/env.sh"
-PYTHON_BIN="${AGENTCODER_PYTHON:-}"
+PYTHON_BIN="${CODEFLOW_PYTHON:-}"
 
-HOST="$(agentcoder_env_get AGENTCODER_DEV_HOST "127.0.0.1")"
-API_PORT="$(agentcoder_env_get AGENTCODER_API_PORT "10000")"
-DASHBOARD_PORT="$(agentcoder_env_get AGENTCODER_DASHBOARD_PORT "3100")"
-API_AUTH_REQUIRED="$(agentcoder_env_normalize_bool "$(agentcoder_env_get AGENTCODER_API_AUTH_REQUIRED "false")")"
-DEV_API_TOKEN="$(agentcoder_env_get AGENTCODER_API_TOKEN "agentcoder-dev-token")"
+HOST="$(codeflow_env_get CODEFLOW_DEV_HOST "127.0.0.1")"
+API_PORT="$(codeflow_env_get CODEFLOW_API_PORT "10000")"
+DASHBOARD_PORT="$(codeflow_env_get CODEFLOW_DASHBOARD_PORT "3100")"
+API_AUTH_REQUIRED="$(codeflow_env_normalize_bool "$(codeflow_env_get CODEFLOW_API_AUTH_REQUIRED "false")")"
+DEV_API_TOKEN="$(codeflow_env_get CODEFLOW_API_TOKEN "codeflow-dev-token")"
 
-PID_DIR="$ROOT_DIR/.runtime-cache/agentcoder/temp"
+PID_DIR="$ROOT_DIR/.runtime-cache/codeflow/temp"
 LOG_DIR="$ROOT_DIR/.runtime-cache/logs/runtime"
-PID_FILE="$PID_DIR/agentcoder-dev-api.pid"
+PID_FILE="$PID_DIR/codeflow-dev-api.pid"
 API_LOG_FILE="$LOG_DIR/api-dev.log"
 DASHBOARD_LOCK_FILE="$ROOT_DIR/apps/dashboard/.next/dev/lock"
 
@@ -76,12 +76,12 @@ clear_stale_dashboard_lock() {
   echo "🧹 cleared stale Dashboard lock: $DASHBOARD_LOCK_FILE"
 }
 
-API_PORT="$(resolve_port "$API_PORT" "API" "AGENTCODER_API_PORT")"
-DASHBOARD_PORT="$(resolve_port "$DASHBOARD_PORT" "Dashboard" "AGENTCODER_DASHBOARD_PORT" "$API_PORT")"
+API_PORT="$(resolve_port "$API_PORT" "API" "CODEFLOW_API_PORT")"
+DASHBOARD_PORT="$(resolve_port "$DASHBOARD_PORT" "Dashboard" "CODEFLOW_DASHBOARD_PORT" "$API_PORT")"
 clear_stale_dashboard_lock
 
 if [ -z "$PYTHON_BIN" ] || [ ! -x "$PYTHON_BIN" ]; then
-  echo "❌ managed Python toolchain not found: ${AGENTCODER_PYTHON:-<unset>}"
+  echo "❌ managed Python toolchain not found: ${CODEFLOW_PYTHON:-<unset>}"
   echo "Run: ./scripts/bootstrap.sh"
   exit 1
 fi
@@ -98,10 +98,10 @@ fi
 
 echo "🚀 starting Orchestrator API: http://$HOST:$API_PORT"
 PYTHONPATH=apps/orchestrator/src \
-AGENTCODER_API_AUTH_REQUIRED="$API_AUTH_REQUIRED" \
-AGENTCODER_API_TOKEN="$DEV_API_TOKEN" \
-AGENTCODER_DASHBOARD_PORT="$DASHBOARD_PORT" \
-"$PYTHON_BIN" -m agentcoder_orch.cli serve \
+CODEFLOW_API_AUTH_REQUIRED="$API_AUTH_REQUIRED" \
+CODEFLOW_API_TOKEN="$DEV_API_TOKEN" \
+CODEFLOW_DASHBOARD_PORT="$DASHBOARD_PORT" \
+"$PYTHON_BIN" -m codeflow_orch.cli serve \
   --host "$HOST" --port "$API_PORT" \
   >"$API_LOG_FILE" 2>&1 &
 API_PID=$!
@@ -127,7 +127,7 @@ trap cleanup EXIT INT TERM
 
 echo "✅ API started (pid=$API_PID), log: $API_LOG_FILE"
 echo "🌐 starting Dashboard: http://$HOST:$DASHBOARD_PORT"
-echo "ℹ️ local full-stack dev uses a localhost-only API lane; browser bearer auth stays disabled unless you explicitly set AGENTCODER_API_AUTH_REQUIRED=true"
+echo "ℹ️ local full-stack dev uses a localhost-only API lane; browser bearer auth stays disabled unless you explicitly set CODEFLOW_API_AUTH_REQUIRED=true"
 
 if ! command -v pnpm >/dev/null 2>&1; then
   echo "❌ pnpm not found. Install pnpm and retry."
@@ -135,12 +135,12 @@ if ! command -v pnpm >/dev/null 2>&1; then
 fi
 
 dashboard_api_token=""
-if agentcoder_env_is_true "$API_AUTH_REQUIRED"; then
+if codeflow_env_is_true "$API_AUTH_REQUIRED"; then
   dashboard_api_token="$DEV_API_TOKEN"
 fi
 
 echo "🔐 API auth required: $API_AUTH_REQUIRED"
-NEXT_PUBLIC_AGENTCODER_API_BASE="http://$HOST:$API_PORT" \
-NEXT_PUBLIC_AGENTCODER_API_TOKEN="$dashboard_api_token" \
+NEXT_PUBLIC_CODEFLOW_API_BASE="http://$HOST:$API_PORT" \
+NEXT_PUBLIC_CODEFLOW_API_TOKEN="$dashboard_api_token" \
 PORT="$DASHBOARD_PORT" \
 bash scripts/run_workspace_app.sh dashboard dev

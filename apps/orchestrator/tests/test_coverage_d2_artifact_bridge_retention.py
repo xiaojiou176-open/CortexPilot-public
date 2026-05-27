@@ -6,12 +6,12 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-import agentcoder_orch.config as config_module
-from agentcoder_orch.config import load_config
-from agentcoder_orch.runtime import retention as retention_module
-from agentcoder_orch.runtime.retention import RetentionPlan, apply_retention_plan, build_retention_plan
-from agentcoder_orch.scheduler import artifact_pipeline, scheduler_bridge_finalize as bridge_finalize
-from agentcoder_orch.store.run_store import RunStore
+import codeflow_orch.config as config_module
+from codeflow_orch.config import load_config
+from codeflow_orch.runtime import retention as retention_module
+from codeflow_orch.runtime.retention import RetentionPlan, apply_retention_plan, build_retention_plan
+from codeflow_orch.scheduler import artifact_pipeline, scheduler_bridge_finalize as bridge_finalize
+from codeflow_orch.store.run_store import RunStore
 
 
 def _artifact_contract(name: str, uri: str) -> dict[str, Any]:
@@ -487,35 +487,35 @@ def test_scheduler_bridge_finalize_d2_execute_finalizer_without_lock_or_worktree
 
 def test_retention_d2_namespace_contract_overflow_and_apply_edges(tmp_path: Path, monkeypatch) -> None:
     repo_root = tmp_path / "repo"
-    runtime_root = repo_root / ".runtime-cache" / "agentcoder"
+    runtime_root = repo_root / ".runtime-cache" / "codeflow"
     runs_root = runtime_root / "runs"
     worktree_root = runtime_root / "worktrees"
     logs_root = runtime_root / "logs"
     cache_root = runtime_root / "cache"
     contract_root = tmp_path / "contracts"
 
-    monkeypatch.setenv("AGENTCODER_REPO_ROOT", str(repo_root))
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
-    monkeypatch.setenv("AGENTCODER_WORKTREE_ROOT", str(worktree_root))
-    monkeypatch.setenv("AGENTCODER_LOGS_ROOT", str(logs_root))
-    monkeypatch.setenv("AGENTCODER_CACHE_ROOT", str(cache_root))
-    monkeypatch.setenv("AGENTCODER_CONTRACT_ROOT", str(contract_root))
-    monkeypatch.setenv("AGENTCODER_MACHINE_CACHE_ROOT", str(tmp_path / "machine-cache"))
-    monkeypatch.setenv("AGENTCODER_RETENTION_RUN_DAYS", "30")
-    monkeypatch.setenv("AGENTCODER_RETENTION_MAX_RUNS", "10")
-    monkeypatch.setenv("AGENTCODER_RETENTION_LOG_DAYS", "30")
-    monkeypatch.setenv("AGENTCODER_RETENTION_WORKTREE_DAYS", "30")
-    monkeypatch.setenv("AGENTCODER_RETENTION_LOG_MAX_FILES", "10")
-    monkeypatch.setenv("AGENTCODER_RETENTION_CACHE_HOURS", "48")
-    monkeypatch.setenv("AGENTCODER_RETENTION_CODEX_HOME_DAYS", "30")
-    monkeypatch.setenv("AGENTCODER_RETENTION_MAX_CODEX_HOMES", "1")
-    monkeypatch.setenv("AGENTCODER_RETENTION_INTAKE_DAYS", "30")
-    monkeypatch.setenv("AGENTCODER_RETENTION_MAX_INTAKES", "1")
-    monkeypatch.delenv("AGENTCODER_ENV_FILE", raising=False)
-    monkeypatch.delenv("AGENTCODER_PROVIDER", raising=False)
-    monkeypatch.delenv("AGENTCODER_PROVIDER_BASE_URL", raising=False)
-    monkeypatch.delenv("AGENTCODER_PROVIDER_MODEL", raising=False)
+    monkeypatch.setenv("CODEFLOW_REPO_ROOT", str(repo_root))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_WORKTREE_ROOT", str(worktree_root))
+    monkeypatch.setenv("CODEFLOW_LOGS_ROOT", str(logs_root))
+    monkeypatch.setenv("CODEFLOW_CACHE_ROOT", str(cache_root))
+    monkeypatch.setenv("CODEFLOW_CONTRACT_ROOT", str(contract_root))
+    monkeypatch.setenv("CODEFLOW_MACHINE_CACHE_ROOT", str(tmp_path / "machine-cache"))
+    monkeypatch.setenv("CODEFLOW_RETENTION_RUN_DAYS", "30")
+    monkeypatch.setenv("CODEFLOW_RETENTION_MAX_RUNS", "10")
+    monkeypatch.setenv("CODEFLOW_RETENTION_LOG_DAYS", "30")
+    monkeypatch.setenv("CODEFLOW_RETENTION_WORKTREE_DAYS", "30")
+    monkeypatch.setenv("CODEFLOW_RETENTION_LOG_MAX_FILES", "10")
+    monkeypatch.setenv("CODEFLOW_RETENTION_CACHE_HOURS", "48")
+    monkeypatch.setenv("CODEFLOW_RETENTION_CODEX_HOME_DAYS", "30")
+    monkeypatch.setenv("CODEFLOW_RETENTION_MAX_CODEX_HOMES", "1")
+    monkeypatch.setenv("CODEFLOW_RETENTION_INTAKE_DAYS", "30")
+    monkeypatch.setenv("CODEFLOW_RETENTION_MAX_INTAKES", "1")
+    monkeypatch.delenv("CODEFLOW_ENV_FILE", raising=False)
+    monkeypatch.delenv("CODEFLOW_PROVIDER", raising=False)
+    monkeypatch.delenv("CODEFLOW_PROVIDER_BASE_URL", raising=False)
+    monkeypatch.delenv("CODEFLOW_PROVIDER_MODEL", raising=False)
     config_module._ENV_LOADED = False
     config_module.reset_cached_config()
     cfg = load_config()

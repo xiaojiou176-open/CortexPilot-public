@@ -1,7 +1,7 @@
 import { useState } from "react";
 
-import type { UiLocale } from "@agentcoder/frontend-shared/uiCopy";
-import { detectPreferredUiLocale } from "@agentcoder/frontend-shared/uiLocale";
+import type { UiLocale } from "@codeflow/frontend-shared/uiCopy";
+import { detectPreferredUiLocale } from "@codeflow/frontend-shared/uiLocale";
 import type { FlightPlanCopilotBrief, OperatorCopilotBrief } from "../../lib/types";
 import { Badge } from "../ui/Badge";
 import { Button } from "../ui/Button";

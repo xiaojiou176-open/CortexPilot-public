@@ -1,11 +1,11 @@
 {
   "mcpServers": {
-    "agentcoder-readonly": {
+    "codeflow-readonly": {
       "command": "bash",
       "args": [
-        "__AGENTCODER_REPO_ROOT__/scripts/run_agentcoder_readonly_mcp.sh"
+        "__CODEFLOW_REPO_ROOT__/scripts/run_codeflow_readonly_mcp.sh"
       ],
-      "cwd": "__AGENTCODER_REPO_ROOT__"
+      "cwd": "__CODEFLOW_REPO_ROOT__"
     }
   }
 }

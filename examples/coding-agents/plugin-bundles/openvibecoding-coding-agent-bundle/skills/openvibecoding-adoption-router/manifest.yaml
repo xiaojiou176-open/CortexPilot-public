@@ -1,17 +1,17 @@
 schema_version: 1
-name: agentcoder-adoption-router
-display_name: Agentcoder Adoption Router
+name: codeflow-adoption-router
+display_name: Codeflow Adoption Router
 version: 0.1.0
 status: shipped
 summary: >
   Repo-owned cross-tool skill that routes Codex, Claude Code, and OpenClaw-style
-  workflows to the right Agentcoder adoption lane without overclaiming hosted,
+  workflows to the right Codeflow adoption lane without overclaiming hosted,
   write-capable MCP, or published listing support.
-homepage: https://github.com/xiaojiou176-open/agentcoder
-repository: https://github.com/xiaojiou176-open/agentcoder
+homepage: https://github.com/xiaojiou176-open/codeflow
+repository: https://github.com/xiaojiou176-open/codeflow
 license: MIT
 authors:
-  - name: Agentcoder
+  - name: Codeflow
 entrypoints:
   skill_markdown: SKILL.md
   bundle_root: ../../
@@ -29,7 +29,7 @@ compatibility:
     mode: local bundle or copied skill workspace item
     published_listing: true
 capabilities:
-  - route to the truthful Agentcoder adoption lane
+  - route to the truthful Codeflow adoption lane
   - keep read order anchored to repo docs and MCP truth
   - preserve hosted, OAuth, and write-MCP stop signs
 boundaries:

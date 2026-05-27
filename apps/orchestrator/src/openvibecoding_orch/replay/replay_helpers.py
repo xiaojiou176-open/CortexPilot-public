@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from agentcoder_orch.gates.path_match import is_allowed_path
+from codeflow_orch.gates.path_match import is_allowed_path
 
 
 def _now_ts() -> str:
@@ -53,7 +53,7 @@ def _hmac_sha256(key: str, payload: bytes) -> str:
 
 
 def _verify_contract_signature(contract_path: Path, sig_path: Path) -> tuple[bool, str]:
-    key = os.getenv("AGENTCODER_CONTRACT_HMAC_KEY", "").strip()
+    key = os.getenv("CODEFLOW_CONTRACT_HMAC_KEY", "").strip()
     if not key:
         return False, "hmac key missing"
     try:

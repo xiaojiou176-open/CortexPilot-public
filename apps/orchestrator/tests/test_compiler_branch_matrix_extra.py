@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from agentcoder_orch.contract import compiler as compiler_mod
+from codeflow_orch.contract import compiler as compiler_mod
 
 
 def _plan_base() -> dict:

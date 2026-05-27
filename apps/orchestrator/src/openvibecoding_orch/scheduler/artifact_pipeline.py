@@ -6,8 +6,8 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from agentcoder_orch.contract.validator import ContractValidator, resolve_agent_registry_path
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.contract.validator import ContractValidator, resolve_agent_registry_path
+from codeflow_orch.store.run_store import RunStore
 
 
 def is_within(path: Path, root: Path) -> bool:
@@ -26,7 +26,7 @@ def safe_artifact_path(uri: str, repo_root: Path) -> Path | None:
         candidate = (repo_root / candidate).resolve()
     else:
         candidate = candidate.resolve()
-    runtime_root = Path(os.getenv("AGENTCODER_RUNTIME_ROOT", repo_root / ".runtime-cache/agentcoder")).resolve()
+    runtime_root = Path(os.getenv("CODEFLOW_RUNTIME_ROOT", repo_root / ".runtime-cache/codeflow")).resolve()
     if is_within(candidate, repo_root) or is_within(candidate, runtime_root):
         return candidate
     return None

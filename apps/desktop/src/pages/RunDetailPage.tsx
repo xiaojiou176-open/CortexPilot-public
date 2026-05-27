@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
-import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@agentcoder/frontend-shared/uiCopy";
+import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@codeflow/frontend-shared/uiCopy";
 import {
   formatBindingReadModelLabel,
   formatRoleBindingRuntimeCapabilitySummary,

@@ -7,8 +7,8 @@ import shutil
 import subprocess
 import sys
 
-from agentcoder_orch.mcp_readonly_server import AgentcoderReadonlyMcpServer
-from agentcoder_orch.transport.mcp_jsonl import JsonlStream, send_json
+from codeflow_orch.mcp_readonly_server import CodeflowReadonlyMcpServer
+from codeflow_orch.transport.mcp_jsonl import JsonlStream, send_json
 
 from .helpers.api_main_test_io import _write_contract, _write_events, _write_manifest, _write_report
 
@@ -51,7 +51,7 @@ def test_mcp_readonly_server_lists_tools_and_calls_with_structured_content() -> 
         def get_incident_summary(self, run_id: str) -> dict:
             return {"run_id": run_id, "summary": "gate blocked"}
 
-    server = AgentcoderReadonlyMcpServer(read_service=_FakeReadService())  # type: ignore[arg-type]
+    server = CodeflowReadonlyMcpServer(read_service=_FakeReadService())  # type: ignore[arg-type]
 
     init_response = server.handle_message(
         {
@@ -72,7 +72,7 @@ def test_mcp_readonly_server_lists_tools_and_calls_with_structured_content() -> 
     )
 
     assert init_response is not None
-    assert init_response["result"]["serverInfo"]["name"] == "agentcoder-readonly"
+    assert init_response["result"]["serverInfo"]["name"] == "codeflow-readonly"
     assert tools_response is not None
     tool_names = [item["name"] for item in tools_response["result"]["tools"]]
     assert "list_runs" in tool_names
@@ -94,7 +94,7 @@ def _start_mcp_subprocess(repo_root: Path, env: dict[str, str]) -> subprocess.Po
             str(requirements_path),
             "python",
             "-m",
-            "agentcoder_orch.cli",
+            "codeflow_orch.cli",
             "mcp-readonly-server",
         ],
         cwd=repo_root,
@@ -165,7 +165,7 @@ def test_mcp_readonly_server_cli_supports_runs_reports_and_keeps_read_only(tmp_p
             "workflow": {
                 "workflow_id": "wf-alpha",
                 "status": "FAILED",
-                "task_queue": "agentcoder-orch",
+                "task_queue": "codeflow-orch",
                 "namespace": "default",
             },
         },
@@ -203,8 +203,8 @@ def test_mcp_readonly_server_cli_supports_runs_reports_and_keeps_read_only(tmp_p
     pythonpath = str(repo_root / "apps/orchestrator/src")
     existing_pythonpath = env.get("PYTHONPATH", "").strip()
     env["PYTHONPATH"] = pythonpath if not existing_pythonpath else f"{pythonpath}{os.pathsep}{existing_pythonpath}"
-    env["AGENTCODER_RUNTIME_ROOT"] = str(runtime_root)
-    env["AGENTCODER_RUNS_ROOT"] = str(runs_root)
+    env["CODEFLOW_RUNTIME_ROOT"] = str(runtime_root)
+    env["CODEFLOW_RUNS_ROOT"] = str(runs_root)
 
     proc = _start_mcp_subprocess(repo_root, env)
     try:

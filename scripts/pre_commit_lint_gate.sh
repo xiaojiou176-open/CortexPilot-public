@@ -19,13 +19,13 @@ RUN_ID="$(date +%Y%m%d_%H%M%S)"
 FRONT_LOG=".runtime-cache/test_output/pre_commit/frontend_lint_${RUN_ID}.log"
 BACK_LOG=".runtime-cache/test_output/pre_commit/backend_lint_${RUN_ID}.log"
 
-scope="${AGENTCODER_PRECOMMIT_SCOPE:-changed}"
-if [[ "${AGENTCODER_PRECOMMIT_FULL:-0}" == "1" ]]; then
+scope="${CODEFLOW_PRECOMMIT_SCOPE:-changed}"
+if [[ "${CODEFLOW_PRECOMMIT_FULL:-0}" == "1" ]]; then
   scope="full"
 fi
 
 if [[ "$scope" != "changed" && "$scope" != "full" ]]; then
-  echo "❌ [pre-commit-lint-gate] unsupported AGENTCODER_PRECOMMIT_SCOPE=$scope (expected: changed|full)"
+  echo "❌ [pre-commit-lint-gate] unsupported CODEFLOW_PRECOMMIT_SCOPE=$scope (expected: changed|full)"
   exit 2
 fi
 

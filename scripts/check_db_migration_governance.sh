@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-OUT_PATH="$ROOT_DIR/.runtime-cache/agentcoder/release/db_migration_governance.json"
+OUT_PATH="$ROOT_DIR/.runtime-cache/codeflow/release/db_migration_governance.json"
 BASE_REF="${DB_MIGRATION_BASE_REF:-}"
 
 usage() {
@@ -11,7 +11,7 @@ Usage:
   bash scripts/check_db_migration_governance.sh [--base-ref <git-ref>]
 
 Outputs:
-  .runtime-cache/agentcoder/release/db_migration_governance.json
+  .runtime-cache/codeflow/release/db_migration_governance.json
 EOF
 }
 

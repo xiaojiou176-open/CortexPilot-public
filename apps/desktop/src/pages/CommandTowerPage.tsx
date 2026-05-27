@@ -1,6 +1,6 @@
 import { type KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@agentcoder/frontend-shared/uiCopy";
-import type { DesktopWorkMode } from "@agentcoder/frontend-api-contract/ui-flow";
+import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@codeflow/frontend-shared/uiCopy";
+import type { DesktopWorkMode } from "@codeflow/frontend-api-contract/ui-flow";
 import type {
   CommandTowerOverviewPayload,
   CommandTowerAlertsPayload,
@@ -68,7 +68,7 @@ export function CommandTowerPage({
   locale?: UiLocale;
 }) {
   const commandTowerCopy = getUiCopy(locale).desktop.commandTower;
-  const shellEyebrow = locale === "zh-CN" ? "Agentcoder / 实时指挥塔" : "Agentcoder / live command tower";
+  const shellEyebrow = locale === "zh-CN" ? "Codeflow / 实时指挥塔" : "Codeflow / live command tower";
   const liveBadgeTextResolved = (mode: LiveMode) =>
     mode === "paused"
       ? commandTowerCopy.badges.paused
@@ -524,7 +524,7 @@ export function CommandTowerPage({
               </fieldset>
               <label className="ct-filter-group">
                 <span className="ct-filter-label">{commandTowerCopy.projectKey}</span>
-                <Input ref={projectInputRef} className="ct-filter-input" value={draftProjectKey} onChange={(e) => setDraftProjectKey(e.target.value)} onKeyDown={handleFilterKeyDown} placeholder="agentcoder" />
+                <Input ref={projectInputRef} className="ct-filter-input" value={draftProjectKey} onChange={(e) => setDraftProjectKey(e.target.value)} onKeyDown={handleFilterKeyDown} placeholder="codeflow" />
               </label>
               <label className="ct-filter-group ct-filter-group-sort">
                 <span className="ct-filter-label">{commandTowerCopy.sort}</span>

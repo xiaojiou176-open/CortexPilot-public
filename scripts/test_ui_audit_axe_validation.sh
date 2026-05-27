@@ -71,9 +71,9 @@ JSON
 verify_axe_payloads() {
   local max_violations="$1"
   shift
-  AGENTCODER_UI_AUDIT_AXE_MAX_VIOLATIONS="$max_violations" node -e '
+  CODEFLOW_UI_AUDIT_AXE_MAX_VIOLATIONS="$max_violations" node -e '
 const fs = require("node:fs");
-const maxViolations = Number(process.env.AGENTCODER_UI_AUDIT_AXE_MAX_VIOLATIONS ?? "0");
+const maxViolations = Number(process.env.CODEFLOW_UI_AUDIT_AXE_MAX_VIOLATIONS ?? "0");
 if (!Number.isFinite(maxViolations) || maxViolations < 0) {
   console.error("invalid max violations");
   process.exit(1);

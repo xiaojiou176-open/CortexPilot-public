@@ -1,7 +1,7 @@
 # Orchestrator Module
-<!-- mcp-name: io.github.xiaojiou176-open/agentcoder-readonly -->
+<!-- mcp-name: io.github.xiaojiou176-open/codeflow-readonly -->
 
-`apps/orchestrator/` is the backend core of Agentcoder.
+`apps/orchestrator/` is the backend core of Codeflow.
 
 ## What It Owns
 
@@ -15,19 +15,19 @@
 
 ## Key Paths
 
-- `src/agentcoder_orch/config.py`
-- `src/agentcoder_orch/planning/`
-- `src/agentcoder_orch/gates/`
-- `src/agentcoder_orch/store/`
-- `src/agentcoder_orch/policy/browser_policy_resolver.py`
+- `src/codeflow_orch/config.py`
+- `src/codeflow_orch/planning/`
+- `src/codeflow_orch/gates/`
+- `src/codeflow_orch/store/`
+- `src/codeflow_orch/policy/browser_policy_resolver.py`
 
 ## Search And Browser Policy Notes
 
 - search-task execution resolves browser policy before a web provider runs
 - local host development defaults to `allow_profile` with the repo-owned
-  Chrome singleton root `~/.cache/agentcoder/browser/chrome-user-data`
+  Chrome singleton root `~/.cache/codeflow/browser/chrome-user-data`
 - run `npm run browser:chrome:migrate` once to seed that root from the default
-  Chrome display name `agentcoder`; the repo rewrites it into `Profile 1`
+  Chrome display name `codeflow`; the repo rewrites it into `Profile 1`
 - `allow_profile` then behaves as attach-or-launch against the singleton CDP
   endpoint `127.0.0.1:9341`, so manual and automated runs share the same
   headed Chrome instance instead of re-launching the default Chrome root
@@ -80,7 +80,7 @@ bash scripts/run_orchestrator_cli.sh --help
 
 ## Runtime Provider Compatibility Notes
 
-- `AGENTCODER_PROVIDER_BASE_URL` may point either at a normal OpenAI-compatible
+- `CODEFLOW_PROVIDER_BASE_URL` may point either at a normal OpenAI-compatible
   `/v1` endpoint or at the Switchyard runtime-first surface
   `/v1/runtime/invoke`.
 - When the base URL points at `Switchyard /v1/runtime/invoke`, the orchestrator
@@ -88,7 +88,7 @@ bash scripts/run_orchestrator_cli.sh --help
   `responses` path, because Switchyard is being consumed as a runtime-first
   invoke surface rather than as a fake OpenAI-compatible gateway.
 - The current thin slice supports:
-  - standard BYOK routing when Agentcoder keeps a normal runtime provider such
+  - standard BYOK routing when Codeflow keeps a normal runtime provider such
     as `gemini`, `openai`, or `anthropic`
   - explicit web-provider routing when the model is written as
     `provider/model`, for example `chatgpt/gpt-4o` or `claude/claude-3-5-sonnet`
@@ -123,8 +123,8 @@ bash scripts/run_orchestrator_cli.sh --help
   from `contract.json` without upgrading that read surface into execution
   authority
 - the Prompt 8 frontend contract convergence now publishes the same run/workflow
-  read-model truth through `docs/api/openapi.agentcoder.json` and generated
-  `@agentcoder/frontend-api-contract` artifacts, so frontend consumers no
+  read-model truth through `docs/api/openapi.codeflow.json` and generated
+  `@codeflow/frontend-api-contract` artifacts, so frontend consumers no
   longer have to infer Prompt 5/6/7 payload shapes from helper code alone
 - role prompt refs now resolve from `policies/agents/codex/roles/` as the
   repository-owned prompt asset root when a worktree-local `codex/roles/`
@@ -138,9 +138,9 @@ bash scripts/run_orchestrator_cli.sh --help
 
 ## Read-Only MCP + Copilot Notes
 
-- the shortest repo-local MCP entry for external stdio clients is `bash scripts/run_agentcoder_readonly_mcp.sh`
-- the underlying raw MCP runtime entry remains `python -m agentcoder_orch.cli mcp-readonly-server`
-- the later-gated queue write pilot entry is `python -m agentcoder_orch.cli mcp-queue-pilot-server`
+- the shortest repo-local MCP entry for external stdio clients is `bash scripts/run_codeflow_readonly_mcp.sh`
+- the underlying raw MCP runtime entry remains `python -m codeflow_orch.cli mcp-readonly-server`
+- the later-gated queue write pilot entry is `python -m codeflow_orch.cli mcp-queue-pilot-server`
 - copy-paste host-tool starters now live in `docs/agent-starters/index.html`,
   `docs/examples/agent-starters/`, and `examples/coding-agents/`, so Codex,
   Claude Code, and OpenClaw teams can wire the same read-only stdio server
@@ -150,7 +150,7 @@ bash scripts/run_orchestrator_cli.sh --help
 - the queue pilot server stays outside the public product contract; it only
   supports `preview_enqueue_from_run` plus a single confirm-gated
   `enqueue_from_run` mutation, and that mutation stays default-off until
-  `AGENTCODER_MCP_QUEUE_PILOT_ENABLE_APPLY=1` is set in a trusted operator
+  `CODEFLOW_MCP_QUEUE_PILOT_ENABLE_APPLY=1` is set in a trusted operator
   environment; queue cancel remains an HTTP control-plane recovery path
 - the authoritative operator runbook for that later-gated mutation slice lives
   at `.agents/InternalDocs/runbooks/write-mcp-queue-pilot.md`; treat that internal note
@@ -158,7 +158,7 @@ bash scripts/run_orchestrator_cli.sh --help
   source for preview / approval / audit / rollback wording rather than
   improvising broader write-capable MCP claims
 - shared control-plane reads flow through
-  `src/agentcoder_orch/services/control_plane_read_service.py`
+  `src/codeflow_orch/services/control_plane_read_service.py`
 - workflow/control-plane reads now also carry `workflow_case_read_model`, which
   points back to the latest linked run's persisted `role_binding_summary`
   without turning workflow cards into execution authority
@@ -180,21 +180,21 @@ bash scripts/run_orchestrator_cli.sh --help
   a derived runtime capability summary (`lane`, `compat_api_mode`,
   `provider_status`, `tool_execution`) so runtime/provider posture is readable
   from repo-owned control-plane reads without implying full tool parity
-- the `agentcoder_orch.contract` package now lazy-loads `compiler` and
+- the `codeflow_orch.contract` package now lazy-loads `compiler` and
   `validator`, so governance-only entrypoints such as
   `scripts/check_schedule_boundary.py` can import `ContractValidator` without
   accidentally loading runtime-provider dependencies like `httpx`; this keeps
   Quick Feedback contract checks lightweight without changing execution
   authority or runtime capability semantics
 - the role-config runtime capability preview now resolves through
-  `src/agentcoder_orch/runners/provider_capability.py`, which keeps the
+  `src/codeflow_orch/runners/provider_capability.py`, which keeps the
   advisory control-plane lane honest without forcing GitHub-hosted quick
   hygiene checks to import the full provider transport runtime
 - `/api/contracts` now normalizes contract artifact rows into a read-only
   bundle/runtime inspector payload instead of leaving dashboard/desktop pages
   to guess from heterogeneous raw JSON blobs
 - the bounded operator brief is generated by
-  `src/agentcoder_orch/services/operator_copilot.py`
+  `src/codeflow_orch/services/operator_copilot.py`
 - the current operator-copilot contract is explain-only, not a write or
   recovery action surface
 
@@ -213,7 +213,7 @@ bash scripts/run_orchestrator_cli.sh --help
   fragments at runtime instead of checking in public raw literals that look
   like real provider/API credentials.
 - Public-path contract tests now use generic workspace-style sample roots such
-  as `/workspace/Agentcoder Repo/...` instead of developer-local absolute
+  as `/workspace/Codeflow Repo/...` instead of developer-local absolute
   paths, so repo fixtures keep path-with-spaces coverage without publishing a
   maintainer machine path.
 - PM intake responses only emit `task_template` / `template_payload` when those
@@ -244,7 +244,7 @@ bash scripts/run_orchestrator_cli.sh --help
   `run_compare_report.json`, so Run Detail surfaces can show compare summaries
   without re-deriving them client-side.
 - Workflow reads now persist a governed `workflow_case` snapshot under
-  `.runtime-cache/agentcoder/workflow-cases/`, so case metadata is not rebuilt
+  `.runtime-cache/codeflow/workflow-cases/`, so case metadata is not rebuilt
   from PM session bindings on every page load alone.
 
 ## Mainline CI Notes

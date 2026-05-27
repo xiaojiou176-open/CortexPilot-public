@@ -35,7 +35,7 @@ aligned so module docs do not rely on `uv run pytest` selecting a compatible
 interpreter by accident.
 
 `run_orchestrator_cli.sh` is the matching repo-owned wrapper for
-`agentcoder_orch.cli` commands. It keeps the managed Python toolchain and
+`codeflow_orch.cli` commands. It keeps the managed Python toolchain and
 `PYTHONPATH=apps/orchestrator/src` aligned so module docs do not depend on the
 user's ambient Python environment.
 
@@ -80,9 +80,9 @@ user's ambient Python environment.
 - Bootstrap/install/docker-ci/clean-room entrypoints now run a rate-limited
   machine-cache auto-prune hook before creating new repo-owned external caches.
   The hook reuses `scripts/cleanup_runtime.sh apply` with root-noise cleanup
-  disabled, so Agentcoder still has one cleanup world instead of a separate
+  disabled, so Codeflow still has one cleanup world instead of a separate
   cache-only deletion path.
-- Temporary pnpm retry stores now stay under `~/.cache/agentcoder` with the
+- Temporary pnpm retry stores now stay under `~/.cache/codeflow` with the
   shared `pnpm-store-local-*` naming contract instead of ad-hoc
   `pnpm-store-dashboard-retry.*` / `pnpm-store-desktop-retry.*` variants.
 - Hosted CI lanes now try `sudo -E bash scripts/docker_ci.sh ...` only when
@@ -90,17 +90,17 @@ user's ambient Python environment.
   `bash scripts/docker_ci.sh ...` execution so `main` push lanes do not fail on
   runners that can invoke Docker without an interactive sudo prompt.
 - `prune_docker_runtime.sh` is the dedicated Docker runtime lane helper for
-  Agentcoder-owned local CI residue. It can remove stopped containers for the
+  Codeflow-owned local CI residue. It can remove stopped containers for the
   canonical core and desktop-native local CI images plus optional repo-prefixed
   volumes, while keeping workstation-global Docker/cache totals strictly
   observation-only.
 - `docker_runtime_governance.py` is the structured report engine behind that
-  lane. It writes `.runtime-cache/agentcoder/reports/space_governance/docker_runtime.json`
+  lane. It writes `.runtime-cache/codeflow/reports/space_governance/docker_runtime.json`
   so Docker residue no longer exists only as shell stdout.
 - `repo_chrome_singleton.py` is the repo-owned browser entrypoint for the
   local singleton Chrome model:
   - `npm run browser:chrome:migrate` copies the named default-Chrome profile
-    into `~/.cache/agentcoder/browser/chrome-user-data/` once
+    into `~/.cache/codeflow/browser/chrome-user-data/` once
   - `npm run browser:chrome:launch` attaches to or launches the repo-owned
     Chrome singleton on the fixed CDP endpoint
   - `npm run browser:chrome:status` reports whether the repo-owned root is
@@ -108,7 +108,7 @@ user's ambient Python environment.
     whether the last-known singleton state has gone stale, plus whether the
     current machine browser load still permits a safe new repo-owned launch
 - `docker_ci.sh` now prefers repo-owned local buildx cache directories under
-  `~/.cache/agentcoder/docker-buildx-cache/` when `docker buildx` is
+  `~/.cache/codeflow/docker-buildx-cache/` when `docker buildx` is
   available, which turns rebuildable Docker image cache into a governed
   repo-owned external cache instead of a purely opaque daemon-side layer.
   GitHub-hosted / in-container CI lanes intentionally keep that optimization
@@ -123,7 +123,7 @@ user's ambient Python environment.
   admin-only repository APIs such as Actions permissions, branch protection,
   and vulnerability-alert proofs.
 - `docker_ci.sh` and `check_clean_room_recovery.sh` now keep their heavy
-  machine-scoped temp roots under `~/.cache/agentcoder/tmp/` by default
+  machine-scoped temp roots under `~/.cache/codeflow/tmp/` by default
   (for example `tmp/docker-ci/runner-temp-*` and
   `tmp/clean-room-machine-cache.*`) so Darwin `TMPDIR` is no longer the
   default landing zone for those repo-owned heavy temp surfaces.
@@ -155,7 +155,7 @@ user's ambient Python environment.
   `.runtime-cache/test_output/governance/quick_checks/` so retention-report
   discipline no longer has to tolerate root-level `test_output` files.
 - `check_schedule_boundary.py` now guards the queue/schedule runtime contract:
-  `.runtime-cache/agentcoder/queue.jsonl` must stay compatible with
+  `.runtime-cache/codeflow/queue.jsonl` must stay compatible with
   `queue_item.v1.json`, `scheduled_run.v1.json`, and `sla_state.v1.json`
   before repo-side hygiene accepts scheduling changes.
 - `check_public_sensitive_surface.py` is the fail-closed gate for tracked

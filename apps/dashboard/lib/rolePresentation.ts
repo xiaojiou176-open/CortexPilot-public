@@ -1,4 +1,4 @@
-import type { UiLocale } from "@agentcoder/frontend-shared/uiCopy";
+import type { UiLocale } from "@codeflow/frontend-shared/uiCopy";
 
 const ROLE_PURPOSE_ZH: Record<string, string> = {
   AI: "负责在受控边界内接入模型、运行时与工具能力，不扩大产品范围。",

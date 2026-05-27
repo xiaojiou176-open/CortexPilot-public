@@ -115,7 +115,7 @@ def _merge_forbidden_actions(
 
 
 def _network_approved() -> bool:
-    raw = os.getenv("AGENTCODER_NETWORK_APPROVED", "").strip().lower()
+    raw = os.getenv("CODEFLOW_NETWORK_APPROVED", "").strip().lower()
     return raw in {"1", "true", "yes"}
 
 

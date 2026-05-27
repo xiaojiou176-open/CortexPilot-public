@@ -143,7 +143,7 @@ describe("pm intake center panel component branches", () => {
     const chatLog: ChatItem[] = [
       {
         id: "decision-1",
-        role: "Agentcoder Command Tower",
+        role: "Codeflow Command Tower",
         text: "Created session pm-clarify. Continue by answering these clarifiers.",
         createdAt: "2026-03-01T10:00:00.000Z",
         kind: "decision",
@@ -208,7 +208,7 @@ describe("pm intake center panel component branches", () => {
       },
       {
         id: "m2",
-        role: "Agentcoder Command Tower",
+        role: "Codeflow Command Tower",
         text: "second",
         createdAt: "2026-03-01T10:10:00.000Z",
         kind: "progress",

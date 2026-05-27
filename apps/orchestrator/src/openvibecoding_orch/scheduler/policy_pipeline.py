@@ -82,12 +82,12 @@ def codex_shell_policy(contract: dict[str, Any]) -> dict[str, str | bool]:
 
 
 def mcp_only_enabled() -> bool:
-    raw = os.getenv("AGENTCODER_MCP_ONLY", "1").strip().lower()
+    raw = os.getenv("CODEFLOW_MCP_ONLY", "1").strip().lower()
     return raw in {"1", "true", "yes"}
 
 
 def allow_codex_exec() -> bool:
-    raw = os.getenv("AGENTCODER_ALLOW_CODEX_EXEC", "").strip().lower()
+    raw = os.getenv("CODEFLOW_ALLOW_CODEX_EXEC", "").strip().lower()
     return raw in {"1", "true", "yes"}
 
 

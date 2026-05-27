@@ -9,8 +9,8 @@ from uuid import uuid4
 
 import httpx
 
-from agentcoder_orch.runners import provider_capability as provider_capability_module
-from agentcoder_orch.runners.provider_capability import (
+from codeflow_orch.runners import provider_capability as provider_capability_module
+from codeflow_orch.runners.provider_capability import (
     PROVIDER_UNSUPPORTED_ERROR,
     _is_switchyard_runtime_base_url,
     _provider_gateway_ids,
@@ -19,17 +19,17 @@ from agentcoder_orch.runners.provider_capability import (
 )
 
 _PROVIDER_ENV_KEYS = (
-    "AGENTCODER_PROVIDER",
+    "CODEFLOW_PROVIDER",
 )
 _PROVIDER_MODEL_ENV_KEYS = (
-    "AGENTCODER_PROVIDER_MODEL",
+    "CODEFLOW_PROVIDER_MODEL",
 )
 _PROVIDER_DEFAULT_MODELS = {
     "gemini": "gemini-2.5-flash",
     "openai": "gpt-4o-mini",
     "anthropic": "claude-3-5-sonnet-latest",
 }
-_LITELLM_ENABLE_ENV_KEYS = ("AGENTCODER_PROVIDER_USE_LITELLM",)
+_LITELLM_ENABLE_ENV_KEYS = ("CODEFLOW_PROVIDER_USE_LITELLM",)
 _SWITCHYARD_RUNTIME_INVOKE_PATH = "/v1/runtime/invoke"
 _SWITCHYARD_WEB_PROVIDERS = {"chatgpt", "gemini", "claude", "grok", "qwen"}
 
@@ -247,7 +247,7 @@ def _resolve_switchyard_target(model: str, *, provider: str | None = None) -> tu
 
     raise RuntimeError(
         "Switchyard adapter could not infer a runtime provider. "
-        "Use `provider/model` for web providers or keep a supported runtime provider in Agentcoder config."
+        "Use `provider/model` for web providers or keep a supported runtime provider in Codeflow config."
     )
 
 
@@ -393,7 +393,7 @@ def resolve_provider_credentials(env: Mapping[str, str] | None = None) -> Provid
     gemini_api_key = str(source.get("GEMINI_API_KEY", "")).strip()
     openai_api_key = str(source.get("OPENAI_API_KEY", "")).strip()
     anthropic_api_key = str(source.get("ANTHROPIC_API_KEY", "")).strip()
-    equilibrium_api_key = str(source.get("AGENTCODER_EQUILIBRIUM_API_KEY", "")).strip()
+    equilibrium_api_key = str(source.get("CODEFLOW_EQUILIBRIUM_API_KEY", "")).strip()
     return ProviderCredentials(
         gemini_api_key=gemini_api_key,
         openai_api_key=openai_api_key,

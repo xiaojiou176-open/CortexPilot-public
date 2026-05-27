@@ -11,7 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 
 def _load_module():
     spec = importlib.util.spec_from_file_location(
-        "agentcoder_docker_runtime_governance",
+        "codeflow_docker_runtime_governance",
         REPO_ROOT / "scripts" / "docker_runtime_governance.py",
     )
     assert spec is not None and spec.loader is not None
@@ -73,16 +73,16 @@ def test_build_docker_runtime_report_tracks_build_cache_and_skipped_active(monke
         dry_run=True,
         include_image=True,
         include_volumes=True,
-        image_name="agentcoder-ci-core:local",
-        desktop_image_name="agentcoder-ci-desktop-native:local",
-        volume_prefix="agentcoder",
+        image_name="codeflow-ci-core:local",
+        desktop_image_name="codeflow-ci-desktop-native:local",
+        volume_prefix="codeflow",
     )
 
     assert report["status"] == "ok"
     assert report["plan"]["removable_build_cache_paths"] == ["/tmp/core-cache", "/tmp/desktop-cache"]
-    assert report["plan"]["removable_image_names"] == ["agentcoder-ci-desktop-native:local"]
+    assert report["plan"]["removable_image_names"] == ["codeflow-ci-desktop-native:local"]
     assert report["plan"]["skipped_active"] == [
-        {"kind": "image", "name": "agentcoder-ci-core:local", "reason": "active_container"}
+        {"kind": "image", "name": "codeflow-ci-core:local", "reason": "active_container"}
     ]
     assert report["managed_totals"]["build_cache_bytes"] == 160
     assert report["plan"]["planned_reclaim_bytes"] == 440
@@ -109,7 +109,7 @@ def test_build_docker_runtime_report_apply_records_removed_build_cache(monkeypat
     )
     monkeypatch.setattr(module, "_docker_container_entries", lambda container_ids, image_name: [])
     monkeypatch.setattr(module, "_docker_volume_entries", lambda prefix: [])
-    cache_dir = tmp_path / "docker-buildx-cache" / "agentcoder-ci-core-local"
+    cache_dir = tmp_path / "docker-buildx-cache" / "codeflow-ci-core-local"
     cache_dir.mkdir(parents=True, exist_ok=True)
     (cache_dir / "marker.txt").write_text("cache", encoding="utf-8")
     monkeypatch.setattr(
@@ -133,9 +133,9 @@ def test_build_docker_runtime_report_apply_records_removed_build_cache(monkeypat
         dry_run=False,
         include_image=False,
         include_volumes=False,
-        image_name="agentcoder-ci-core:local",
-        desktop_image_name="agentcoder-ci-desktop-native:local",
-        volume_prefix="agentcoder",
+        image_name="codeflow-ci-core:local",
+        desktop_image_name="codeflow-ci-desktop-native:local",
+        volume_prefix="codeflow",
     )
 
     assert report["result"]["removed"]["build_caches"] == [str(cache_dir)]

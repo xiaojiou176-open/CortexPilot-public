@@ -20,15 +20,15 @@ source "$ROOT_DIR/scripts/lib/env.sh"
 source "$ROOT_DIR/scripts/lib/test_heartbeat.sh"
 source "$ROOT_DIR/scripts/lib/toolchain_env.sh"
 
-PYTHON="$(agentcoder_python_bin "$ROOT_DIR" || true)"
+PYTHON="$(codeflow_python_bin "$ROOT_DIR" || true)"
 PYTHON_LOCKFILE="apps/orchestrator/uv.lock"
-AGENTCODER_E2E_NON_SERIAL_PARALLEL="${AGENTCODER_E2E_NON_SERIAL_PARALLEL:-1}"
-AGENTCODER_E2E_NON_SERIAL_WORKERS="${AGENTCODER_E2E_NON_SERIAL_WORKERS:-auto}"
-AGENTCODER_E2E_HEARTBEAT_INTERVAL_SEC="${AGENTCODER_E2E_HEARTBEAT_INTERVAL_SEC:-20}"
-AGENTCODER_E2E_FAST_GATE_TIMEOUT_SEC="${AGENTCODER_E2E_FAST_GATE_TIMEOUT_SEC:-900}"
-AGENTCODER_E2E_LIVE_PREFLIGHT_TIMEOUT_SEC="${AGENTCODER_E2E_LIVE_PREFLIGHT_TIMEOUT_SEC:-180}"
-AGENTCODER_E2E_NON_SERIAL_TIMEOUT_SEC="${AGENTCODER_E2E_NON_SERIAL_TIMEOUT_SEC:-2400}"
-AGENTCODER_E2E_SERIAL_TIMEOUT_SEC="${AGENTCODER_E2E_SERIAL_TIMEOUT_SEC:-1800}"
+CODEFLOW_E2E_NON_SERIAL_PARALLEL="${CODEFLOW_E2E_NON_SERIAL_PARALLEL:-1}"
+CODEFLOW_E2E_NON_SERIAL_WORKERS="${CODEFLOW_E2E_NON_SERIAL_WORKERS:-auto}"
+CODEFLOW_E2E_HEARTBEAT_INTERVAL_SEC="${CODEFLOW_E2E_HEARTBEAT_INTERVAL_SEC:-20}"
+CODEFLOW_E2E_FAST_GATE_TIMEOUT_SEC="${CODEFLOW_E2E_FAST_GATE_TIMEOUT_SEC:-900}"
+CODEFLOW_E2E_LIVE_PREFLIGHT_TIMEOUT_SEC="${CODEFLOW_E2E_LIVE_PREFLIGHT_TIMEOUT_SEC:-180}"
+CODEFLOW_E2E_NON_SERIAL_TIMEOUT_SEC="${CODEFLOW_E2E_NON_SERIAL_TIMEOUT_SEC:-2400}"
+CODEFLOW_E2E_SERIAL_TIMEOUT_SEC="${CODEFLOW_E2E_SERIAL_TIMEOUT_SEC:-1800}"
 SKIP_FAST_GATE=0
 SKIP_LIVE_PREFLIGHT=0
 
@@ -63,12 +63,12 @@ ensure_python() {
     return
   fi
   local venv_root
-  venv_root="$(agentcoder_python_venv_root "$ROOT_DIR")"
+  venv_root="$(codeflow_python_venv_root "$ROOT_DIR")"
   echo "⚠️ [e2e] broken or missing Python toolchain, recreating at ${venv_root}..."
   rm -rf "$venv_root"
   mkdir -p "$(dirname "$venv_root")"
   python3 -m venv "$venv_root"
-  PYTHON="$(agentcoder_python_bin "$ROOT_DIR")"
+  PYTHON="$(codeflow_python_bin "$ROOT_DIR")"
   uv pip sync --python "$PYTHON" --link-mode copy "$PYTHON_LOCKFILE"
 }
 
@@ -106,7 +106,7 @@ if [[ "$SKIP_FAST_GATE" -eq 1 ]]; then
   echo "ℹ️ [e2e] skip fast gate (already verified upstream)"
   fast_gate_status=0
 else
-  run_with_heartbeat_and_timeout "e2e-fast-gate-test-quick" "$AGENTCODER_E2E_FAST_GATE_TIMEOUT_SEC" "$AGENTCODER_E2E_HEARTBEAT_INTERVAL_SEC" -- \
+  run_with_heartbeat_and_timeout "e2e-fast-gate-test-quick" "$CODEFLOW_E2E_FAST_GATE_TIMEOUT_SEC" "$CODEFLOW_E2E_HEARTBEAT_INTERVAL_SEC" -- \
     bash scripts/test_quick.sh &
   fast_gate_pid=$!
 fi
@@ -115,13 +115,13 @@ if [[ "$SKIP_LIVE_PREFLIGHT" -eq 1 ]]; then
   echo "ℹ️ [e2e] skip live preflight (already verified upstream)"
   live_preflight_status=0
 else
-  run_with_heartbeat_and_timeout "e2e-live-preflight" "$AGENTCODER_E2E_LIVE_PREFLIGHT_TIMEOUT_SEC" "$AGENTCODER_E2E_HEARTBEAT_INTERVAL_SEC" -- \
+  run_with_heartbeat_and_timeout "e2e-live-preflight" "$CODEFLOW_E2E_LIVE_PREFLIGHT_TIMEOUT_SEC" "$CODEFLOW_E2E_HEARTBEAT_INTERVAL_SEC" -- \
     "$PYTHON" scripts/e2e_external_web_probe.py \
-      --url "${AGENTCODER_E2E_LIVE_PREFLIGHT_URL:-https://example.com}" \
-      --timeout-ms "${AGENTCODER_E2E_LIVE_PREFLIGHT_NAV_TIMEOUT_MS:-15000}" \
-      --provider-api-mode "${AGENTCODER_E2E_LIVE_PREFLIGHT_PROVIDER_API_MODE:-require}" \
-      --provider-api-timeout-sec "${AGENTCODER_E2E_LIVE_PREFLIGHT_PROVIDER_TIMEOUT_SEC:-12}" \
-      --hard-timeout-sec "${AGENTCODER_E2E_LIVE_PREFLIGHT_HARD_TIMEOUT_SEC:-120}" &
+      --url "${CODEFLOW_E2E_LIVE_PREFLIGHT_URL:-https://example.com}" \
+      --timeout-ms "${CODEFLOW_E2E_LIVE_PREFLIGHT_NAV_TIMEOUT_MS:-15000}" \
+      --provider-api-mode "${CODEFLOW_E2E_LIVE_PREFLIGHT_PROVIDER_API_MODE:-require}" \
+      --provider-api-timeout-sec "${CODEFLOW_E2E_LIVE_PREFLIGHT_PROVIDER_TIMEOUT_SEC:-12}" \
+      --hard-timeout-sec "${CODEFLOW_E2E_LIVE_PREFLIGHT_HARD_TIMEOUT_SEC:-120}" &
   live_preflight_pid=$!
 fi
 
@@ -159,25 +159,25 @@ fi
 echo "✅ [STEP 4/5] Done"
 
 echo "🚀 [STEP 5/5] Start: E2E execution"
-export AGENTCODER_ENABLE_MCP_E2E="${AGENTCODER_ENABLE_MCP_E2E:-1}"
-if [[ -z "${AGENTCODER_REQUIRE_MCP_E2E:-}" ]]; then
-  if [[ -n "${CI:-}" ]] || [[ "${AGENTCODER_CI_PROFILE:-}" == "strict" ]]; then
-    export AGENTCODER_REQUIRE_MCP_E2E="1"
+export CODEFLOW_ENABLE_MCP_E2E="${CODEFLOW_ENABLE_MCP_E2E:-1}"
+if [[ -z "${CODEFLOW_REQUIRE_MCP_E2E:-}" ]]; then
+  if [[ -n "${CI:-}" ]] || [[ "${CODEFLOW_CI_PROFILE:-}" == "strict" ]]; then
+    export CODEFLOW_REQUIRE_MCP_E2E="1"
   elif command -v codex >/dev/null 2>&1; then
-    export AGENTCODER_REQUIRE_MCP_E2E="1"
+    export CODEFLOW_REQUIRE_MCP_E2E="1"
   else
-    export AGENTCODER_REQUIRE_MCP_E2E="0"
-    echo "⚠️ [e2e] codex not found; default AGENTCODER_REQUIRE_MCP_E2E=0 (MCP e2e will skip instead of fail)"
+    export CODEFLOW_REQUIRE_MCP_E2E="0"
+    echo "⚠️ [e2e] codex not found; default CODEFLOW_REQUIRE_MCP_E2E=0 (MCP e2e will skip instead of fail)"
   fi
 else
-  export AGENTCODER_REQUIRE_MCP_E2E
+  export CODEFLOW_REQUIRE_MCP_E2E
 fi
-if ! command -v codex >/dev/null 2>&1 && [[ "${AGENTCODER_REQUIRE_MCP_E2E}" =~ ^(1|true|yes)$ ]]; then
-  export AGENTCODER_REQUIRE_MCP_E2E="0"
-  echo "⚠️ [e2e] codex not found but AGENTCODER_REQUIRE_MCP_E2E was truthy; force-downgrade to 0 for deterministic minimal-runner compatibility"
+if ! command -v codex >/dev/null 2>&1 && [[ "${CODEFLOW_REQUIRE_MCP_E2E}" =~ ^(1|true|yes)$ ]]; then
+  export CODEFLOW_REQUIRE_MCP_E2E="0"
+  echo "⚠️ [e2e] codex not found but CODEFLOW_REQUIRE_MCP_E2E was truthy; force-downgrade to 0 for deterministic minimal-runner compatibility"
 fi
-if [ "$AGENTCODER_E2E_NON_SERIAL_PARALLEL" = "1" ]; then
-  NON_SERIAL_WORKERS="$AGENTCODER_E2E_NON_SERIAL_WORKERS"
+if [ "$CODEFLOW_E2E_NON_SERIAL_PARALLEL" = "1" ]; then
+  NON_SERIAL_WORKERS="$CODEFLOW_E2E_NON_SERIAL_WORKERS"
   NON_SERIAL_MODE="parallel"
 else
   NON_SERIAL_WORKERS="0"
@@ -185,12 +185,12 @@ else
 fi
 
 echo "🚀 [STEP 5A/5] Start: e2e(non-serial) execution (${NON_SERIAL_MODE}, -n ${NON_SERIAL_WORKERS})"
-run_with_heartbeat_and_timeout "e2e-non-serial" "$AGENTCODER_E2E_NON_SERIAL_TIMEOUT_SEC" "$AGENTCODER_E2E_HEARTBEAT_INTERVAL_SEC" -- \
+run_with_heartbeat_and_timeout "e2e-non-serial" "$CODEFLOW_E2E_NON_SERIAL_TIMEOUT_SEC" "$CODEFLOW_E2E_HEARTBEAT_INTERVAL_SEC" -- \
   "$PYTHON" -m pytest apps/orchestrator/tests -m "e2e and not serial" -n "$NON_SERIAL_WORKERS" --no-cov
 echo "✅ [STEP 5A/5] Done"
 
 echo "🚀 [STEP 5B/5] Start: serial execution (-n 0)"
-run_with_heartbeat_and_timeout "e2e-serial" "$AGENTCODER_E2E_SERIAL_TIMEOUT_SEC" "$AGENTCODER_E2E_HEARTBEAT_INTERVAL_SEC" -- \
+run_with_heartbeat_and_timeout "e2e-serial" "$CODEFLOW_E2E_SERIAL_TIMEOUT_SEC" "$CODEFLOW_E2E_HEARTBEAT_INTERVAL_SEC" -- \
   "$PYTHON" -m pytest apps/orchestrator/tests -m "serial" -n 0 --no-cov
 echo "✅ [STEP 5B/5] Done"
 echo "✅ [STEP 5/5] Done"

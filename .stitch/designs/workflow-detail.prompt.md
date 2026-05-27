@@ -1,4 +1,4 @@
-Design a **Workflow Case detail** page for Agentcoder.
+Design a **Workflow Case detail** page for Codeflow.
 
 This is the durable operating record for one case. It should make it obvious:
 

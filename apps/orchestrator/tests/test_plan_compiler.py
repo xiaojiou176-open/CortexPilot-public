@@ -1,7 +1,7 @@
 import pytest
 
-from agentcoder_orch.contract.compiler import compile_plan, compile_plan_text
-from agentcoder_orch.contract.validator import ContractValidator
+from codeflow_orch.contract.compiler import compile_plan, compile_plan_text
+from codeflow_orch.contract.validator import ContractValidator
 
 
 def test_compile_plan_defaults():

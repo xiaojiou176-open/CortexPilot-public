@@ -1,11 +1,11 @@
 {
-  "name": "agentcoder-coding-agent-bundle",
-  "description": "Repo-owned Agentcoder starter bundle for Claude Code, Codex, and compatible coding-agent installs.",
+  "name": "codeflow-coding-agent-bundle",
+  "description": "Repo-owned Codeflow starter bundle for Claude Code, Codex, and compatible coding-agent installs.",
   "version": "0.1.0",
   "author": {
-    "name": "Agentcoder"
+    "name": "Codeflow"
   },
-  "homepage": "https://github.com/xiaojiou176-open/agentcoder",
-  "repository": "https://github.com/xiaojiou176-open/agentcoder",
+  "homepage": "https://github.com/xiaojiou176-open/codeflow",
+  "repository": "https://github.com/xiaojiou176-open/codeflow",
   "license": "MIT"
 }

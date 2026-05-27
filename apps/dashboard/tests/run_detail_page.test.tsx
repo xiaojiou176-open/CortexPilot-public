@@ -52,7 +52,7 @@ describe("run detail page copy", () => {
   it("switches page-level copy with the zh-CN locale cookie", async () => {
     mockCookies.mockResolvedValueOnce({
       get: () => ({ value: "zh-CN" }),
-      toString: () => "agentcoder.ui.locale=zh-CN",
+      toString: () => "codeflow.ui.locale=zh-CN",
     });
 
     render(await RunDetailPage({ params: Promise.resolve({ id: "run-zh" }) }));

@@ -1,10 +1,10 @@
-# Agentcoder read-only MCP starter for Codex.
+# Codeflow read-only MCP starter for Codex.
 # Place under ~/.codex/config.toml or .codex/config.toml and adjust paths as needed.
 
-[mcp_servers.agentcoder_readonly]
+[mcp_servers.codeflow_readonly]
 command = "bash"
-args = ["/absolute/path/to/Agentcoder/scripts/run_agentcoder_readonly_mcp.sh"]
-cwd = "/absolute/path/to/Agentcoder"
+args = ["/absolute/path/to/Codeflow/scripts/run_codeflow_readonly_mcp.sh"]
+cwd = "/absolute/path/to/Codeflow"
 startup_timeout_sec = 20
 tool_timeout_sec = 60
 enabled = true

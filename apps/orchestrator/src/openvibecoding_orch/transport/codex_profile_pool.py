@@ -20,7 +20,7 @@ def _now_ts() -> str:
 
 
 def _runtime_root() -> Path:
-    return Path(os.getenv("AGENTCODER_RUNTIME_ROOT", ".runtime-cache/agentcoder")).resolve()
+    return Path(os.getenv("CODEFLOW_RUNTIME_ROOT", ".runtime-cache/codeflow")).resolve()
 
 
 def _pool_path() -> Path:
@@ -32,7 +32,7 @@ def _pool_lock_path() -> Path:
 
 
 def _lock_ttl_sec() -> float:
-    raw = os.getenv("AGENTCODER_CODEX_PROFILE_POOL_LOCK_TTL_SEC", "").strip()
+    raw = os.getenv("CODEFLOW_CODEX_PROFILE_POOL_LOCK_TTL_SEC", "").strip()
     if not raw:
         return _DEFAULT_LOCK_TTL_SEC
     try:
@@ -143,7 +143,7 @@ def _release_file_lock(fd: int | None) -> None:
 
 
 def _parse_pool_env() -> list[str]:
-    raw = os.getenv("AGENTCODER_CODEX_PROFILE_POOL", "")
+    raw = os.getenv("CODEFLOW_CODEX_PROFILE_POOL", "")
     if not raw:
         return []
     profiles = [item.strip() for item in raw.split(",") if item.strip()]

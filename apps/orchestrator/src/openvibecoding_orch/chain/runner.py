@@ -6,13 +6,13 @@ import os
 from pathlib import Path
 from typing import Any, Callable
 
-from agentcoder_orch.chain import chain_lifecycle, chain_reporting
-from agentcoder_orch.chain.helpers import _check_exclusive_paths, _normalize_depends, _step_task_id
-from agentcoder_orch.chain.runner_execution_helpers import (
+from codeflow_orch.chain import chain_lifecycle, chain_reporting
+from codeflow_orch.chain.helpers import _check_exclusive_paths, _normalize_depends, _step_task_id
+from codeflow_orch.chain.runner_execution_helpers import (
     execute_chain_step as _execute_chain_step,
     execute_task_subprocess as _execute_task_subprocess_helper,
 )
-from agentcoder_orch.chain.runtime_helpers import (
+from codeflow_orch.chain.runtime_helpers import (
     _SCHEMA_KEYS_CACHE,
     TERMINAL_RUN_STATUSES as _TERMINAL_RUN_STATUSES,
     apply_context_policy as _apply_context_policy,
@@ -39,8 +39,8 @@ from agentcoder_orch.chain.runtime_helpers import (
     sha256_file as _sha256_file,
     should_propagate_dependency_patch as _should_propagate_dependency_patch,
 )
-from agentcoder_orch.contract.validator import ContractValidator
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.contract.validator import ContractValidator
+from codeflow_orch.store.run_store import RunStore
 
 
 _HANDOFF_ROLE_ORDER = chain_lifecycle._HANDOFF_ROLE_ORDER
@@ -104,10 +104,10 @@ class ChainRunner:
         self._validator = ContractValidator()
 
     def _chain_exec_mode(self) -> str:
-        return os.getenv("AGENTCODER_CHAIN_EXEC_MODE", "inline").strip().lower()
+        return os.getenv("CODEFLOW_CHAIN_EXEC_MODE", "inline").strip().lower()
 
     def _resolve_chain_subprocess_timeout_sec(self) -> float | None:
-        raw = os.getenv("AGENTCODER_CHAIN_SUBPROCESS_TIMEOUT_SEC", "").strip()
+        raw = os.getenv("CODEFLOW_CHAIN_SUBPROCESS_TIMEOUT_SEC", "").strip()
         if not raw:
             return None
         try:

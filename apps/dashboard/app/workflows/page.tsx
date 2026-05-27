@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
-import { getUiCopy } from "@agentcoder/frontend-shared/uiCopy";
-import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@agentcoder/frontend-shared/uiLocale";
-import { statusCtaFromCanonical, toCanonicalStatusFuzzy } from "@agentcoder/frontend-shared/statusPresentation";
+import { getUiCopy } from "@codeflow/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@codeflow/frontend-shared/uiLocale";
+import { statusCtaFromCanonical, toCanonicalStatusFuzzy } from "@codeflow/frontend-shared/statusPresentation";
 import Link from "next/link";
 import type { BadgeVariant } from "../../components/ui/badge";
 import { Badge } from "../../components/ui/badge";
@@ -23,16 +23,16 @@ const CJK_TEXT_RE = /[\u3400-\u9fff]/;
 export function buildWorkflowsMetadata(locale: "en" | "zh-CN"): Metadata {
   if (locale === "zh-CN") {
     return {
-      title: "工作流案例 | Agentcoder",
+      title: "工作流案例 | Codeflow",
       description:
-        "在 Agentcoder 指挥塔里查看工作流案例、队列姿态、关联运行和下一步操作。",
+        "在 Codeflow 指挥塔里查看工作流案例、队列姿态、关联运行和下一步操作。",
     };
   }
 
   return {
-    title: "Workflow Cases | Agentcoder",
+    title: "Workflow Cases | Codeflow",
     description:
-      "Review Workflow Cases, queue posture, linked runs, and next operator actions inside the Agentcoder command tower.",
+      "Review Workflow Cases, queue posture, linked runs, and next operator actions inside the Codeflow command tower.",
   };
 }
 
@@ -196,7 +196,7 @@ export default async function WorkflowsPage() {
       <header className="app-section">
         <div className="section-header">
           <div>
-            <p className="cell-sub mono muted">{locale === "zh-CN" ? "Agentcoder / 工作流桌" : "Agentcoder / workflow desk"}</p>
+            <p className="cell-sub mono muted">{locale === "zh-CN" ? "Codeflow / 工作流桌" : "Codeflow / workflow desk"}</p>
             <h1 id="workflows-page-title" className="page-title">{workflowListPageCopy.title}</h1>
             <p className="page-subtitle">{workflowListPageCopy.subtitle}</p>
           </div>

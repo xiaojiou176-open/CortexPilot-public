@@ -1,12 +1,12 @@
 import os
 from pathlib import Path
 
-from agentcoder_orch.store.session_map import SessionAliasStore
+from codeflow_orch.store.session_map import SessionAliasStore
 
 
 def test_session_alias_store_roundtrip(tmp_path: Path):
     path = tmp_path / "alias_map.json"
-    os.environ["AGENTCODER_SESSION_ALIAS_PATH"] = str(path)
+    os.environ["CODEFLOW_SESSION_ALIAS_PATH"] = str(path)
     try:
         store = SessionAliasStore()
 
@@ -24,4 +24,4 @@ def test_session_alias_store_roundtrip(tmp_path: Path):
         assert store.delete("plan-1") is True
         assert store.resolve("plan-1") is None
     finally:
-        os.environ.pop("AGENTCODER_SESSION_ALIAS_PATH", None)
+        os.environ.pop("CODEFLOW_SESSION_ALIAS_PATH", None)

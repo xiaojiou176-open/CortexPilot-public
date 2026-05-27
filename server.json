@@ -1,18 +1,18 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.xiaojiou176-open/agentcoder-readonly",
-  "title": "Agentcoder Read-only MCP",
-  "description": "Read-only MCP for Agentcoder runs, workflows, proof, queue, replay, and incident reads.",
-  "websiteUrl": "https://xiaojiou176-open.github.io/agentcoder/mcp/",
+  "name": "io.github.xiaojiou176-open/codeflow-readonly",
+  "title": "Codeflow Read-only MCP",
+  "description": "Read-only MCP for Codeflow runs, workflows, proof, queue, replay, and incident reads.",
+  "websiteUrl": "https://xiaojiou176-open.github.io/codeflow/mcp/",
   "repository": {
-    "url": "https://github.com/xiaojiou176-open/agentcoder",
+    "url": "https://github.com/xiaojiou176-open/codeflow",
     "source": "github"
   },
   "version": "0.1.0a4",
   "packages": [
     {
       "registryType": "pypi",
-      "identifier": "agentcoder-orchestrator",
+      "identifier": "codeflow-orchestrator",
       "version": "0.1.0a4",
       "transport": {
         "type": "stdio"

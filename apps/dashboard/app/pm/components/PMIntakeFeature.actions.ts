@@ -99,7 +99,7 @@ export async function runChatSendFlow(params: RunChatSendFlowParams): Promise<vo
         const runMissingMessage = "No executable intake is available yet; the session has not been created.";
         setChatError(runMissingMessage);
         setChatNotice("");
-        appendChat("Agentcoder Command Tower", `Action failed: ${runMissingMessage}`, targetSessionId, {
+        appendChat("Codeflow Command Tower", `Action failed: ${runMissingMessage}`, targetSessionId, {
           kind: "alert",
           card: { title: "Execution failed", subtitle: runMissingMessage },
         });
@@ -110,7 +110,7 @@ export async function runChatSendFlow(params: RunChatSendFlowParams): Promise<vo
       const nextRunId = asString(runResponse.run_id);
       setRunId(nextRunId);
       setChatNotice(`Execution started (run_id: ${nextRunId || "-"})`);
-      appendChat("Agentcoder Command Tower", `Execution started, run_id: ${nextRunId || "(empty)"}`, intakeId, {
+      appendChat("Codeflow Command Tower", `Execution started, run_id: ${nextRunId || "(empty)"}`, intakeId, {
         kind: "delegation",
         card: {
           title: "Delegation summary",
@@ -136,7 +136,7 @@ export async function runChatSendFlow(params: RunChatSendFlowParams): Promise<vo
 
       if (nextQuestions.length > 0) {
         setChatNotice(`Session ${nextIntakeId} created. ${nextQuestions.length} clarifiers remaining.`);
-        appendChat("Agentcoder Command Tower", `Created session ${nextIntakeId}. Continue by answering these clarifiers: ${nextQuestions.join("; ")}`, nextIntakeId, {
+        appendChat("Codeflow Command Tower", `Created session ${nextIntakeId}. Continue by answering these clarifiers: ${nextQuestions.join("; ")}`, nextIntakeId, {
           kind: "decision",
           card: {
             title: "Decision required",
@@ -150,7 +150,7 @@ export async function runChatSendFlow(params: RunChatSendFlowParams): Promise<vo
       } else {
         setChatNotice(`Session ${nextIntakeId} created. Type /run to start execution.`);
         appendChat(
-          "Agentcoder Command Tower",
+          "Codeflow Command Tower",
           `Created session ${nextIntakeId}. There are no clarifiers right now. Keep chatting or type /run to start execution.`,
           nextIntakeId,
           {
@@ -180,7 +180,7 @@ export async function runChatSendFlow(params: RunChatSendFlowParams): Promise<vo
 
       if (nextQuestions.length > 0) {
         setChatNotice(`Answer saved. ${nextQuestions.length} clarifiers remaining.`);
-        appendChat("Agentcoder Command Tower", `Answer saved. Remaining clarifiers: ${nextQuestions.join("; ")}`, intakeId, {
+        appendChat("Codeflow Command Tower", `Answer saved. Remaining clarifiers: ${nextQuestions.join("; ")}`, intakeId, {
           kind: "decision",
           card: {
             title: "More input needed",
@@ -193,7 +193,7 @@ export async function runChatSendFlow(params: RunChatSendFlowParams): Promise<vo
         });
       } else {
         setChatNotice("Clarifiers complete. Type /run to start execution.");
-        appendChat("Agentcoder Command Tower", "Clarifiers complete. Keep instructing Agentcoder Command Tower or type /run.", intakeId, {
+        appendChat("Codeflow Command Tower", "Clarifiers complete. Keep instructing Codeflow Command Tower or type /run.", intakeId, {
           kind: "report",
           card: {
             title: "Clarifiers complete",
@@ -215,8 +215,8 @@ export async function runChatSendFlow(params: RunChatSendFlowParams): Promise<vo
       },
       { signal: controller.signal },
     );
-    setChatNotice("Message sent. Agentcoder Command Tower is continuing the flow.");
-    appendChat("Agentcoder Command Tower", "Message received. TL and the worker flow will continue from here. Use the right sidebar for live progress.", intakeId, {
+    setChatNotice("Message sent. Codeflow Command Tower is continuing the flow.");
+    appendChat("Codeflow Command Tower", "Message received. TL and the worker flow will continue from here. Use the right sidebar for live progress.", intakeId, {
       kind: "delegation",
       card: {
         title: "Delegated to Tech Lead",
@@ -228,7 +228,7 @@ export async function runChatSendFlow(params: RunChatSendFlowParams): Promise<vo
     if (isRequestAborted(cause)) {
       setChatError("");
       setChatNotice("The active request was cancelled.");
-      appendChat("Agentcoder Command Tower", "Cancelled the active request.", targetSessionId, {
+      appendChat("Codeflow Command Tower", "Cancelled the active request.", targetSessionId, {
         kind: "alert",
         card: { title: "Request cancelled", subtitle: "Existing context is preserved. You can enter a new instruction now." },
       });
@@ -239,7 +239,7 @@ export async function runChatSendFlow(params: RunChatSendFlowParams): Promise<vo
     const nextError = sanitizeErrorMessage(cause, "Conversation flow failed");
     setChatError(nextError);
     setChatNotice("");
-    appendChat("Agentcoder Command Tower", `Action failed: ${nextError}`, targetSessionId, {
+    appendChat("Codeflow Command Tower", `Action failed: ${nextError}`, targetSessionId, {
       kind: "alert",
       card: { title: "Conversation flow failed", subtitle: nextError },
     });

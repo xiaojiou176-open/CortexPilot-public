@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from agentcoder_orch.scheduler import scheduler as sched
+from codeflow_orch.scheduler import scheduler as sched
 
 
 def _git(cmd: list[str], cwd: Path) -> None:

@@ -9,20 +9,20 @@ if [[ -z "${GEMINI_API_KEY:-}" ]]; then
   exit 1
 fi
 
-PROVIDER="$(printf '%s' "${AGENTCODER_EVAL_PROVIDER:-gemini}" | tr '[:upper:]' '[:lower:]')"
-MODEL="${AGENTCODER_EVAL_MODEL:-}"
-CONFIG="${AGENTCODER_EVAL_CONFIG:-$ROOT_DIR/tests/evals/promptfoo/promptfooconfig.yaml}"
+PROVIDER="$(printf '%s' "${CODEFLOW_EVAL_PROVIDER:-gemini}" | tr '[:upper:]' '[:lower:]')"
+MODEL="${CODEFLOW_EVAL_MODEL:-}"
+CONFIG="${CODEFLOW_EVAL_CONFIG:-$ROOT_DIR/tests/evals/promptfoo/promptfooconfig.yaml}"
 TMP_CONFIG=""
 
 case "$PROVIDER" in
   gemini)
     MODEL="${MODEL:-gemini-2.0-flash}"
-    TMP_CONFIG="$(mktemp "${TMPDIR:-/tmp}/agentcoder-evals.XXXXXX.yaml")"
-    sed "s|__AGENTCODER_EVAL_MODEL__|${MODEL}|g" "$CONFIG" >"$TMP_CONFIG"
+    TMP_CONFIG="$(mktemp "${TMPDIR:-/tmp}/codeflow-evals.XXXXXX.yaml")"
+    sed "s|__CODEFLOW_EVAL_MODEL__|${MODEL}|g" "$CONFIG" >"$TMP_CONFIG"
     CONFIG="$TMP_CONFIG"
     ;;
   *)
-    echo "unsupported AGENTCODER_EVAL_PROVIDER: $PROVIDER (only: gemini)" >&2
+    echo "unsupported CODEFLOW_EVAL_PROVIDER: $PROVIDER (only: gemini)" >&2
     exit 1
     ;;
 esac

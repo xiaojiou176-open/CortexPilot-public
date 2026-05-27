@@ -1,6 +1,6 @@
-# Agentcoder Remotion Promo
+# Codeflow Remotion Promo
 
-Repo-owned source for a short Agentcoder promo video.
+Repo-owned source for a short Codeflow promo video.
 
 This folder is intentionally standalone so we can iterate on public-facing video
 assets without expanding the main workspace graph.
@@ -16,8 +16,8 @@ pnpm --dir tooling/remotion-promo render:mp4
 
 ## Outputs
 
-- Poster: `docs/assets/storefront/agentcoder-command-tower-teaser-poster.png`
-- MP4: `docs/assets/storefront/agentcoder-command-tower-teaser.mp4`
+- Poster: `docs/assets/storefront/codeflow-command-tower-teaser-poster.png`
+- MP4: `docs/assets/storefront/codeflow-command-tower-teaser.mp4`
 
 Both assets now belong to the tracked public storefront surface. Render into the
 repo-owned outputs above, then review size, readability, and truthfulness

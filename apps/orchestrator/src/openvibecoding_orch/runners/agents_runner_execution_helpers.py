@@ -8,8 +8,8 @@ import time
 from pathlib import Path
 from typing import Any, Callable
 
-from agentcoder_orch.contract.validator import ContractValidator
-from agentcoder_orch.runners.provider_resolution import (
+from codeflow_orch.contract.validator import ContractValidator
+from codeflow_orch.runners.provider_resolution import (
     build_llm_compat_client,
     ProviderCredentials,
     ProviderResolutionError,
@@ -17,8 +17,8 @@ from agentcoder_orch.runners.provider_resolution import (
     resolve_preferred_api_key,
     resolve_runtime_provider_from_contract,
 )
-from agentcoder_orch.store.run_store import RunStore
-from agentcoder_orch.runners.agents_runner_result_helpers import finalize_agents_run_result
+from codeflow_orch.store.run_store import RunStore
+from codeflow_orch.runners.agents_runner_result_helpers import finalize_agents_run_result
 
 
 _logger = logging.getLogger(__name__)
@@ -34,8 +34,8 @@ _PROVIDER_API_KEY_ENV_HINTS = {
     "claude": "ANTHROPIC_API_KEY",
     "anthropic-claude": "ANTHROPIC_API_KEY",
     "anthropic_claude": "ANTHROPIC_API_KEY",
-    "equilibrium": "AGENTCODER_EQUILIBRIUM_API_KEY",
-    "codex_equilibrium": "AGENTCODER_EQUILIBRIUM_API_KEY",
+    "equilibrium": "CODEFLOW_EQUILIBRIUM_API_KEY",
+    "codex_equilibrium": "CODEFLOW_EQUILIBRIUM_API_KEY",
 }
 
 
@@ -229,11 +229,11 @@ def execute_agents_contract(
     compat_client = None
     try:
         llm_timeout_sec = _resolve_positive_float(
-            os.getenv("AGENTCODER_AGENTS_LLM_TIMEOUT_SEC", "180.0").strip(),
+            os.getenv("CODEFLOW_AGENTS_LLM_TIMEOUT_SEC", "180.0").strip(),
             180.0,
         )
         llm_client_retries = _resolve_non_negative_int(
-            os.getenv("AGENTCODER_AGENTS_LLM_CLIENT_RETRIES", "2").strip(),
+            os.getenv("CODEFLOW_AGENTS_LLM_CLIENT_RETRIES", "2").strip(),
             2,
         )
         compat_client = build_llm_compat_client(
@@ -271,8 +271,8 @@ def execute_agents_contract(
     ) -> Any:
         tool_context = tool_context or {}
         extra_headers = {
-            "x-agentcoder-run-id": run_id,
-            "x-agentcoder-task-id": task_id,
+            "x-codeflow-run-id": run_id,
+            "x-codeflow-task-id": task_id,
         }
         model_name = module._resolve_agents_model()
         run_config = RunConfig(
@@ -284,18 +284,18 @@ def execute_agents_contract(
             ),
             call_model_input_filter=module._strip_model_input_ids,
         )
-        fallback_enabled = os.getenv("AGENTCODER_AGENTS_STREAM_TIMEOUT_FALLBACK", "").strip().lower() in {
+        fallback_enabled = os.getenv("CODEFLOW_AGENTS_STREAM_TIMEOUT_FALLBACK", "").strip().lower() in {
             "1",
             "true",
             "yes",
             "on",
         }
         stream_timeout_retries = _resolve_non_negative_int(
-            os.getenv("AGENTCODER_AGENTS_STREAM_TIMEOUT_RETRIES", "2").strip(),
+            os.getenv("CODEFLOW_AGENTS_STREAM_TIMEOUT_RETRIES", "2").strip(),
             2,
         )
         retry_backoff_sec = _resolve_positive_float(
-            os.getenv("AGENTCODER_AGENTS_STREAM_RETRY_BACKOFF_SEC", "1.5").strip(),
+            os.getenv("CODEFLOW_AGENTS_STREAM_RETRY_BACKOFF_SEC", "1.5").strip(),
             1.5,
         )
         max_attempts = stream_timeout_retries + 1

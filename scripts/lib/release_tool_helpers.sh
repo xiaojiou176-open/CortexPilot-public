@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ -n "${__AGENTCODER_RELEASE_TOOL_HELPERS_LOADED:-}" ]]; then
+if [[ -n "${__CODEFLOW_RELEASE_TOOL_HELPERS_LOADED:-}" ]]; then
   return 0
 fi
-readonly __AGENTCODER_RELEASE_TOOL_HELPERS_LOADED=1
+readonly __CODEFLOW_RELEASE_TOOL_HELPERS_LOADED=1
 
-__agentcoder_release_tool_root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-source "${__agentcoder_release_tool_root_dir}/scripts/lib/toolchain_env.sh"
+__codeflow_release_tool_root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+source "${__codeflow_release_tool_root_dir}/scripts/lib/toolchain_env.sh"
 
-agentcoder_release_tool_os() {
+codeflow_release_tool_os() {
   case "$(uname -s)" in
     Darwin)
       printf '%s\n' "darwin"
@@ -24,7 +24,7 @@ agentcoder_release_tool_os() {
   esac
 }
 
-agentcoder_release_tool_arch() {
+codeflow_release_tool_arch() {
   case "$(uname -m)" in
     arm64|aarch64)
       printf '%s\n' "arm64"
@@ -39,33 +39,33 @@ agentcoder_release_tool_arch() {
   esac
 }
 
-agentcoder_release_tool_bin_dir() {
+codeflow_release_tool_bin_dir() {
   local root_dir="${1:?root_dir required}"
   local tool_name="${2:?tool_name required}"
   local version="${3:?version required}"
   local toolchain_root
-  toolchain_root="$(agentcoder_toolchain_cache_root "$root_dir")"
+  toolchain_root="$(codeflow_toolchain_cache_root "$root_dir")"
   printf '%s\n' "${toolchain_root}/release-tools/${tool_name}/${version}"
 }
 
-agentcoder_release_tool_cache_dir() {
+codeflow_release_tool_cache_dir() {
   local root_dir="${1:?root_dir required}"
   local tool_name="${2:?tool_name required}"
   local toolchain_root
-  toolchain_root="$(agentcoder_toolchain_cache_root "$root_dir")"
+  toolchain_root="$(codeflow_toolchain_cache_root "$root_dir")"
   printf '%s\n' "${toolchain_root}/release-tools/${tool_name}/cache"
 }
 
-_agentcoder_release_tool_tmp_dir() {
+_codeflow_release_tool_tmp_dir() {
   local root_dir="${1:?root_dir required}"
   local tool_name="${2:?tool_name required}"
   local tmp_root
-  tmp_root="$(agentcoder_machine_tmp_root "$root_dir")"
+  tmp_root="$(codeflow_machine_tmp_root "$root_dir")"
   mkdir -p "$tmp_root"
   mktemp -d "${tmp_root}/${tool_name}.XXXXXX"
 }
 
-_agentcoder_install_release_binary() {
+_codeflow_install_release_binary() {
   local root_dir="${1:?root_dir required}"
   local tool_name="${2:?tool_name required}"
   local version="${3:?version required}"
@@ -74,7 +74,7 @@ _agentcoder_install_release_binary() {
   local binary_name="${6:?binary_name required}"
 
   local bin_dir
-  bin_dir="$(agentcoder_release_tool_bin_dir "$root_dir" "$tool_name" "$version")"
+  bin_dir="$(codeflow_release_tool_bin_dir "$root_dir" "$tool_name" "$version")"
   local target_bin="${bin_dir}/${binary_name}"
   if [[ -x "$target_bin" ]]; then
     printf '%s\n' "$target_bin"
@@ -82,7 +82,7 @@ _agentcoder_install_release_binary() {
   fi
 
   local tmp_dir
-  tmp_dir="$(_agentcoder_release_tool_tmp_dir "$root_dir" "$tool_name")"
+  tmp_dir="$(_codeflow_release_tool_tmp_dir "$root_dir" "$tool_name")"
   mkdir -p "$bin_dir"
 
   curl -fsSL "$archive_url" -o "${tmp_dir}/${archive_name}"
@@ -113,17 +113,17 @@ _agentcoder_install_release_binary() {
   printf '%s\n' "$target_bin"
 }
 
-agentcoder_actionlint_version() {
-  printf '%s\n' "${AGENTCODER_ACTIONLINT_VERSION:-1.7.12}"
+codeflow_actionlint_version() {
+  printf '%s\n' "${CODEFLOW_ACTIONLINT_VERSION:-1.7.12}"
 }
 
-agentcoder_actionlint_bin() {
+codeflow_actionlint_bin() {
   local root_dir="${1:?root_dir required}"
   local version
-  version="$(agentcoder_actionlint_version)"
+  version="$(codeflow_actionlint_version)"
   local os arch asset
-  os="$(agentcoder_release_tool_os)"
-  arch="$(agentcoder_release_tool_arch)"
+  os="$(codeflow_release_tool_os)"
+  arch="$(codeflow_release_tool_arch)"
   case "${os}/${arch}" in
     darwin/amd64) asset="actionlint_${version}_darwin_amd64.tar.gz" ;;
     darwin/arm64) asset="actionlint_${version}_darwin_arm64.tar.gz" ;;
@@ -134,7 +134,7 @@ agentcoder_actionlint_bin() {
       return 1
       ;;
   esac
-  _agentcoder_install_release_binary \
+  _codeflow_install_release_binary \
     "$root_dir" \
     "actionlint" \
     "$version" \
@@ -143,17 +143,17 @@ agentcoder_actionlint_bin() {
     "actionlint"
 }
 
-agentcoder_zizmor_version() {
-  printf '%s\n' "${AGENTCODER_ZIZMOR_VERSION:-1.23.1}"
+codeflow_zizmor_version() {
+  printf '%s\n' "${CODEFLOW_ZIZMOR_VERSION:-1.23.1}"
 }
 
-agentcoder_zizmor_bin() {
+codeflow_zizmor_bin() {
   local root_dir="${1:?root_dir required}"
   local version
-  version="$(agentcoder_zizmor_version)"
+  version="$(codeflow_zizmor_version)"
   local os arch asset
-  os="$(agentcoder_release_tool_os)"
-  arch="$(agentcoder_release_tool_arch)"
+  os="$(codeflow_release_tool_os)"
+  arch="$(codeflow_release_tool_arch)"
   case "${os}/${arch}" in
     darwin/amd64) asset="zizmor-x86_64-apple-darwin.tar.gz" ;;
     darwin/arm64) asset="zizmor-aarch64-apple-darwin.tar.gz" ;;
@@ -164,7 +164,7 @@ agentcoder_zizmor_bin() {
       return 1
       ;;
   esac
-  _agentcoder_install_release_binary \
+  _codeflow_install_release_binary \
     "$root_dir" \
     "zizmor" \
     "$version" \
@@ -173,17 +173,17 @@ agentcoder_zizmor_bin() {
     "zizmor"
 }
 
-agentcoder_trivy_version() {
-  printf '%s\n' "${AGENTCODER_TRIVY_VERSION:-0.69.3}"
+codeflow_trivy_version() {
+  printf '%s\n' "${CODEFLOW_TRIVY_VERSION:-0.69.3}"
 }
 
-agentcoder_trivy_bin() {
+codeflow_trivy_bin() {
   local root_dir="${1:?root_dir required}"
   local version
-  version="$(agentcoder_trivy_version)"
+  version="$(codeflow_trivy_version)"
   local os arch asset
-  os="$(agentcoder_release_tool_os)"
-  arch="$(agentcoder_release_tool_arch)"
+  os="$(codeflow_release_tool_os)"
+  arch="$(codeflow_release_tool_arch)"
   case "${os}/${arch}" in
     darwin/amd64) asset="trivy_${version}_macOS-64bit.tar.gz" ;;
     darwin/arm64) asset="trivy_${version}_macOS-ARM64.tar.gz" ;;
@@ -194,7 +194,7 @@ agentcoder_trivy_bin() {
       return 1
       ;;
   esac
-  _agentcoder_install_release_binary \
+  _codeflow_install_release_binary \
     "$root_dir" \
     "trivy" \
     "$version" \
@@ -203,17 +203,17 @@ agentcoder_trivy_bin() {
     "trivy"
 }
 
-agentcoder_gitleaks_version() {
-  printf '%s\n' "${AGENTCODER_GITLEAKS_VERSION:-8.30.1}"
+codeflow_gitleaks_version() {
+  printf '%s\n' "${CODEFLOW_GITLEAKS_VERSION:-8.30.1}"
 }
 
-agentcoder_gitleaks_bin() {
+codeflow_gitleaks_bin() {
   local root_dir="${1:?root_dir required}"
   local version
-  version="$(agentcoder_gitleaks_version)"
+  version="$(codeflow_gitleaks_version)"
   local os arch asset
-  os="$(agentcoder_release_tool_os)"
-  arch="$(agentcoder_release_tool_arch)"
+  os="$(codeflow_release_tool_os)"
+  arch="$(codeflow_release_tool_arch)"
   case "${os}/${arch}" in
     darwin/amd64) asset="gitleaks_${version}_darwin_x64.tar.gz" ;;
     darwin/arm64) asset="gitleaks_${version}_darwin_arm64.tar.gz" ;;
@@ -224,7 +224,7 @@ agentcoder_gitleaks_bin() {
       return 1
       ;;
   esac
-  _agentcoder_install_release_binary \
+  _codeflow_install_release_binary \
     "$root_dir" \
     "gitleaks" \
     "$version" \
@@ -233,17 +233,17 @@ agentcoder_gitleaks_bin() {
     "gitleaks"
 }
 
-agentcoder_trufflehog_version() {
-  printf '%s\n' "${AGENTCODER_TRUFFLEHOG_VERSION:-3.94.2}"
+codeflow_trufflehog_version() {
+  printf '%s\n' "${CODEFLOW_TRUFFLEHOG_VERSION:-3.94.2}"
 }
 
-agentcoder_trufflehog_bin() {
+codeflow_trufflehog_bin() {
   local root_dir="${1:?root_dir required}"
   local version
-  version="$(agentcoder_trufflehog_version)"
+  version="$(codeflow_trufflehog_version)"
   local os arch asset
-  os="$(agentcoder_release_tool_os)"
-  arch="$(agentcoder_release_tool_arch)"
+  os="$(codeflow_release_tool_os)"
+  arch="$(codeflow_release_tool_arch)"
   case "${os}/${arch}" in
     darwin/amd64) asset="trufflehog_${version}_darwin_amd64.tar.gz" ;;
     darwin/arm64) asset="trufflehog_${version}_darwin_arm64.tar.gz" ;;
@@ -254,7 +254,7 @@ agentcoder_trufflehog_bin() {
       return 1
       ;;
   esac
-  _agentcoder_install_release_binary \
+  _codeflow_install_release_binary \
     "$root_dir" \
     "trufflehog" \
     "$version" \

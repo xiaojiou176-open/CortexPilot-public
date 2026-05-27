@@ -1,5 +1,5 @@
 {
-  "name": "agentcoder-ci-core",
+  "name": "codeflow-ci-core",
   "dockerComposeFile": [
     "../infra/ci/compose.yml"
   ],

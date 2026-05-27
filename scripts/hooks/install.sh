@@ -30,4 +30,4 @@ SH
 install_hook pre-commit
 install_hook pre-push
 
-echo "installed agentcoder hooks: pre-commit, pre-push"
+echo "installed codeflow hooks: pre-commit, pre-push"

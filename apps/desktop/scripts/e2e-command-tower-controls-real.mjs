@@ -34,7 +34,7 @@ const repoRoot = resolve(desktopDir, "..", "..");
 const outputDir = resolve(repoRoot, ".runtime-cache", "test_output", "ui_regression");
 mkdirSync(outputDir, { recursive: true });
 
-const artifactSuffix = String(process.env.AGENTCODER_E2E_ARTIFACT_SUFFIX || "").trim();
+const artifactSuffix = String(process.env.CODEFLOW_E2E_ARTIFACT_SUFFIX || "").trim();
 function withSuffix(filename) {
   if (!artifactSuffix) return filename;
   const dot = filename.lastIndexOf(".");
@@ -48,7 +48,7 @@ const networkPath = resolve(outputDir, withSuffix("desktop_ct_controls_real.netw
 
 function resolvePythonBin() {
   const candidates = [
-    String(process.env.AGENTCODER_PYTHON || "").trim(),
+    String(process.env.CODEFLOW_PYTHON || "").trim(),
     resolve(repoRoot, ".runtime-cache", "cache", "toolchains", "python", "current", "bin", "python"),
     resolve(repoRoot, ".venv", "bin", "python"),
   ].filter(Boolean);
@@ -277,8 +277,8 @@ async function clickLiveToggle(page) {
 }
 
 async function run() {
-  const requestedApiPort = Number.parseInt(String(process.env.AGENTCODER_E2E_API_PORT || ""), 10);
-  const requestedWebPort = Number.parseInt(String(process.env.AGENTCODER_E2E_WEB_PORT || ""), 10);
+  const requestedApiPort = Number.parseInt(String(process.env.CODEFLOW_E2E_API_PORT || ""), 10);
+  const requestedWebPort = Number.parseInt(String(process.env.CODEFLOW_E2E_WEB_PORT || ""), 10);
   const apiPort = Number.isFinite(requestedApiPort) && requestedApiPort > 0
     ? requestedApiPort
     : await findAvailablePort(18500, 60);
@@ -287,7 +287,7 @@ async function run() {
     : await findAvailablePort(4173, 60);
   const apiBase = `http://127.0.0.1:${apiPort}`;
   const webBase = `http://127.0.0.1:${webPort}`;
-  const apiToken = String(process.env.AGENTCODER_API_TOKEN || "agentcoder-dev-token").trim();
+  const apiToken = String(process.env.CODEFLOW_API_TOKEN || "codeflow-dev-token").trim();
 
   const report = {
     scenario: "desktop command tower controls + session detail message (real backend)",
@@ -308,16 +308,16 @@ async function run() {
   const pythonBin = resolvePythonBin();
   const apiServer = spawn(
     pythonBin,
-    ["-m", "agentcoder_orch.cli", "serve", "--host", "127.0.0.1", "--port", String(apiPort)],
+    ["-m", "codeflow_orch.cli", "serve", "--host", "127.0.0.1", "--port", String(apiPort)],
     {
       cwd: repoRoot,
       stdio: "ignore",
       env: {
         ...process.env,
         PYTHONPATH: "apps/orchestrator/src",
-        AGENTCODER_API_AUTH_REQUIRED: "true",
-        AGENTCODER_API_TOKEN: apiToken,
-        AGENTCODER_DASHBOARD_PORT: String(webPort),
+        CODEFLOW_API_AUTH_REQUIRED: "true",
+        CODEFLOW_API_TOKEN: apiToken,
+        CODEFLOW_DASHBOARD_PORT: String(webPort),
       },
     },
   );
@@ -330,8 +330,8 @@ async function run() {
       stdio: "ignore",
       env: {
         ...process.env,
-        VITE_AGENTCODER_API_BASE: apiBase,
-        VITE_AGENTCODER_API_TOKEN: apiToken,
+        VITE_CODEFLOW_API_BASE: apiBase,
+        VITE_CODEFLOW_API_TOKEN: apiToken,
       },
     },
   );
@@ -453,10 +453,10 @@ async function run() {
     const sessionsGetCountBeforeApply = networkEvidence.filter((item) =>
       item.method === "GET" && item.url.includes("/api/pm/sessions?"),
     ).length;
-    const projectKeyInput = filterCard.getByPlaceholder("agentcoder");
+    const projectKeyInput = filterCard.getByPlaceholder("codeflow");
     await projectKeyInput.waitFor({ state: "visible", timeout: 10000 });
-    await projectKeyInput.fill("agentcoder");
-    const projectInputReady = await waitFor(async () => (await projectKeyInput.inputValue()) === "agentcoder", 10000, 250);
+    await projectKeyInput.fill("codeflow");
+    const projectInputReady = await waitFor(async () => (await projectKeyInput.inputValue()) === "codeflow", 10000, 250);
     if (!projectInputReady) {
       throw new Error("project key input did not keep expected value");
     }
@@ -481,9 +481,9 @@ async function run() {
       if (item.status !== 200) return false;
       try {
         const parsed = new URL(item.url);
-        return parsed.searchParams.get("project_key") === "agentcoder";
+        return parsed.searchParams.get("project_key") === "codeflow";
       } catch {
-        return item.url.includes("project_key=agentcoder");
+        return item.url.includes("project_key=codeflow");
       }
     });
     const applyFilterPass = draftApplied;

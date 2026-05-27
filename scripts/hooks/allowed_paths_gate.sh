@@ -2,25 +2,25 @@
 set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-CONTRACT_PATH="${AGENTCODER_ACTIVE_CONTRACT:-$REPO_ROOT/.runtime-cache/agentcoder/active/contract.json}"
+CONTRACT_PATH="${CODEFLOW_ACTIVE_CONTRACT:-$REPO_ROOT/.runtime-cache/codeflow/active/contract.json}"
 source "$REPO_ROOT/scripts/lib/toolchain_env.sh"
-PYTHON_BIN="${AGENTCODER_PYTHON:-}"
+PYTHON_BIN="${CODEFLOW_PYTHON:-}"
 
 if [ -z "$PYTHON_BIN" ]; then
-  PYTHON_BIN="$(agentcoder_python_bin "$REPO_ROOT" 2>/dev/null || true)"
+  PYTHON_BIN="$(codeflow_python_bin "$REPO_ROOT" 2>/dev/null || true)"
 fi
 if [ -z "$PYTHON_BIN" ]; then
-  echo "Agentcoder diff gate blocked: managed python interpreter not found (set AGENTCODER_PYTHON or run ./scripts/bootstrap.sh)" >&2
+  echo "Codeflow diff gate blocked: managed python interpreter not found (set CODEFLOW_PYTHON or run ./scripts/bootstrap.sh)" >&2
   exit 1
 fi
 
 if [ ! -x "$PYTHON_BIN" ]; then
-  echo "Agentcoder diff gate blocked: python interpreter not executable at $PYTHON_BIN" >&2
+  echo "Codeflow diff gate blocked: python interpreter not executable at $PYTHON_BIN" >&2
   exit 1
 fi
 
 if [ ! -f "$CONTRACT_PATH" ]; then
-  echo "Agentcoder diff gate skipped: active contract not found at $CONTRACT_PATH" >&2
+  echo "Codeflow diff gate skipped: active contract not found at $CONTRACT_PATH" >&2
   exit 0
 fi
 
@@ -33,8 +33,8 @@ import os
 import sys
 from pathlib import Path
 
-from agentcoder_orch.contract.validator import ContractValidator
-from agentcoder_orch.gates.diff_gate import validate_diff
+from codeflow_orch.contract.validator import ContractValidator
+from codeflow_orch.gates.diff_gate import validate_diff
 
 repo_root = Path(os.environ["REPO_ROOT"])
 contract_path = Path(os.environ["CONTRACT_PATH"])
@@ -43,7 +43,7 @@ try:
     contract = json.loads(contract_path.read_text(encoding="utf-8"))
     ContractValidator().validate_contract(contract)
 except Exception as exc:  # noqa: BLE001
-    print(f"Agentcoder diff gate blocked: invalid contract: {exc}", file=sys.stderr)
+    print(f"Codeflow diff gate blocked: invalid contract: {exc}", file=sys.stderr)
     sys.exit(1)
 
 allowed_paths = contract.get("allowed_paths", [])
@@ -57,7 +57,7 @@ if isinstance(rollback, dict):
 result = validate_diff(repo_root, allowed_paths, baseline_ref=baseline_ref)
 if not result.get("ok"):
     reason = result.get("reason", "diff gate violation")
-    print(f"Agentcoder diff gate blocked: {reason}", file=sys.stderr)
+    print(f"Codeflow diff gate blocked: {reason}", file=sys.stderr)
     violations = result.get("violations") or []
     if violations:
         print("Violations:", ", ".join(violations), file=sys.stderr)

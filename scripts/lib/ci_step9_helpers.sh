@@ -2,14 +2,14 @@
 
 run_ci_step9_resilience_gates() {
   echo "🚀 [STEP 9/12] Start: Command Tower rollback/perf drills"
-  if [ "${AGENTCODER_CI_RESILIENCE_GATES:-1}" = "1" ]; then
-    PERF_API_HOST="${AGENTCODER_CI_PERF_API_HOST:-127.0.0.1}"
-    PERF_API_PORT="${AGENTCODER_CI_PERF_API_PORT:-18080}"
-    PERF_API_PORT="$(resolve_port "$PERF_API_PORT" "PERF_API_PORT" "AGENTCODER_CI_PERF_API_PORT")"
+  if [ "${CODEFLOW_CI_RESILIENCE_GATES:-1}" = "1" ]; then
+    PERF_API_HOST="${CODEFLOW_CI_PERF_API_HOST:-127.0.0.1}"
+    PERF_API_PORT="${CODEFLOW_CI_PERF_API_PORT:-18080}"
+    PERF_API_PORT="$(resolve_port "$PERF_API_PORT" "PERF_API_PORT" "CODEFLOW_CI_PERF_API_PORT")"
     PERF_API_BASE_URL="http://${PERF_API_HOST}:${PERF_API_PORT}"
     PERF_API_LOG=".runtime-cache/logs/runtime/ci_perf/ci_perf_api.log"
-    STEP9_ROLLBACK_TIMEOUT_SEC="$(resolve_step_timeout "AGENTCODER_CI_STEP9_ROLLBACK_TIMEOUT_SEC" "1800" "AGENTCODER_CI_STEP9_TIMEOUT_SEC" "AGENTCODER_CI_STEP_TIMEOUT_SEC")"
-    STEP9_PERF_ATTEMPT_TIMEOUT_SEC="$(resolve_step_timeout "AGENTCODER_CI_STEP9_PERF_ATTEMPT_TIMEOUT_SEC" "600" "AGENTCODER_CI_STEP9_TIMEOUT_SEC" "AGENTCODER_CI_STEP_TIMEOUT_SEC")"
+    STEP9_ROLLBACK_TIMEOUT_SEC="$(resolve_step_timeout "CODEFLOW_CI_STEP9_ROLLBACK_TIMEOUT_SEC" "1800" "CODEFLOW_CI_STEP9_TIMEOUT_SEC" "CODEFLOW_CI_STEP_TIMEOUT_SEC")"
+    STEP9_PERF_ATTEMPT_TIMEOUT_SEC="$(resolve_step_timeout "CODEFLOW_CI_STEP9_PERF_ATTEMPT_TIMEOUT_SEC" "600" "CODEFLOW_CI_STEP9_TIMEOUT_SEC" "CODEFLOW_CI_STEP_TIMEOUT_SEC")"
     mkdir -p .runtime-cache/logs/runtime/ci_perf
     run_with_timeout_heartbeat_and_cleanup \
       "step9:rollback-drill" \
@@ -25,8 +25,8 @@ run_ci_step9_resilience_gates() {
       }
       trap cleanup_perf_api EXIT INT TERM
       PYTHONPATH=apps/orchestrator/src \
-      AGENTCODER_API_AUTH_REQUIRED=false \
-      "$PYTHON" -m agentcoder_orch.cli serve --host "$PERF_API_HOST" --port "$PERF_API_PORT" \
+      CODEFLOW_API_AUTH_REQUIRED=false \
+      "$PYTHON" -m codeflow_orch.cli serve --host "$PERF_API_HOST" --port "$PERF_API_PORT" \
         >"$PERF_API_LOG" 2>&1 &
       PERF_API_PID=$!
       perf_probe_ready=0
@@ -41,7 +41,7 @@ run_ci_step9_resilience_gates() {
         echo "❌ [ci] perf probe api not ready: ${PERF_API_BASE_URL} (log: ${PERF_API_LOG})"
         exit 1
       fi
-      PERF_MAX_ATTEMPTS="${AGENTCODER_CI_PERF_MAX_ATTEMPTS:-2}"
+      PERF_MAX_ATTEMPTS="${CODEFLOW_CI_PERF_MAX_ATTEMPTS:-2}"
       if [[ "$PERF_MAX_ATTEMPTS" -lt 1 ]]; then
         PERF_MAX_ATTEMPTS=1
       fi
@@ -84,8 +84,8 @@ run_ci_step9_resilience_gates() {
         ".runtime-cache/test_output/ci_retry_telemetry/command_tower_perf_smoke.json"
     )
   else
-    require_skip_gate_break_glass_or_fail "AGENTCODER_CI_RESILIENCE_GATES" "resilience_gates_skip"
-    echo "⚠️ [WARN] AGENTCODER_CI_RESILIENCE_GATES=0; skipping rollback/perf gates (break-glass)"
+    require_skip_gate_break_glass_or_fail "CODEFLOW_CI_RESILIENCE_GATES" "resilience_gates_skip"
+    echo "⚠️ [WARN] CODEFLOW_CI_RESILIENCE_GATES=0; skipping rollback/perf gates (break-glass)"
   fi
   echo "✅ [STEP 9/12] Completed"
 }

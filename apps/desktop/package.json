@@ -1,5 +1,5 @@
 {
-  "name": "agentcoder-desktop",
+  "name": "codeflow-desktop",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -29,9 +29,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@agentcoder/frontend-api-client": "file:../../packages/frontend-api-client",
-    "@agentcoder/frontend-api-contract": "file:../../packages/frontend-api-contract",
-    "@agentcoder/frontend-shared": "file:../../packages/frontend-shared",
+    "@codeflow/frontend-api-client": "file:../../packages/frontend-api-client",
+    "@codeflow/frontend-api-contract": "file:../../packages/frontend-api-contract",
+    "@codeflow/frontend-shared": "file:../../packages/frontend-shared",
     "@tauri-apps/api": "2.10.1",
     "@tauri-apps/plugin-deep-link": "2.4.7",
     "@tauri-apps/plugin-global-shortcut": "2.3.1",

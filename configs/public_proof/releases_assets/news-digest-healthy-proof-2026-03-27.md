@@ -49,18 +49,18 @@ through environment variables.
 ```bash
 bash -lc 'source scripts/lib/env.sh >/dev/null 2>&1
 export PYTHONPATH="$PWD/apps/orchestrator/src:$PWD"
-export AGENTCODER_RUNTIME_ROOT="$PWD/.runtime-cache/w3-news-digest-attempt-profile-allowlist-v2"
-export AGENTCODER_RUNS_ROOT="$AGENTCODER_RUNTIME_ROOT/runs"
-export AGENTCODER_WEB_HEADLESS=1
-export AGENTCODER_BROWSER_PROFILE_MODE=allow_profile
-export AGENTCODER_BROWSER_PROFILE_NAME=Default
-export AGENTCODER_BROWSER_PROFILE_DIR="<chrome-profile-root>"
-export AGENTCODER_BROWSER_PROFILE_ALLOWLIST="<chrome-profile-root>"
-"$AGENTCODER_PYTHON" - <<'"'"'PY'"'"'
+export CODEFLOW_RUNTIME_ROOT="$PWD/.runtime-cache/w3-news-digest-attempt-profile-allowlist-v2"
+export CODEFLOW_RUNS_ROOT="$CODEFLOW_RUNTIME_ROOT/runs"
+export CODEFLOW_WEB_HEADLESS=1
+export CODEFLOW_BROWSER_PROFILE_MODE=allow_profile
+export CODEFLOW_BROWSER_PROFILE_NAME=Default
+export CODEFLOW_BROWSER_PROFILE_DIR="<chrome-profile-root>"
+export CODEFLOW_BROWSER_PROFILE_ALLOWLIST="<chrome-profile-root>"
+"$CODEFLOW_PYTHON" - <<'"'"'PY'"'"'
 import json
-from agentcoder_orch.store.run_store import RunStore
-from agentcoder_orch.runners.tool_runner import ToolRunner
-from agentcoder_orch.scheduler.tool_execution_pipeline import run_search_pipeline
+from codeflow_orch.store.run_store import RunStore
+from codeflow_orch.runners.tool_runner import ToolRunner
+from codeflow_orch.scheduler.tool_execution_pipeline import run_search_pipeline
 
 store = RunStore()
 run_id = store.create_run("w3-news-digest-profile-allowlist-v2")

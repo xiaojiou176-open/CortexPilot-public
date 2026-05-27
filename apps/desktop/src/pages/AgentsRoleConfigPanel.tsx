@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { UiLocale } from "@agentcoder/frontend-shared/uiCopy";
+import type { UiLocale } from "@codeflow/frontend-shared/uiCopy";
 
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";

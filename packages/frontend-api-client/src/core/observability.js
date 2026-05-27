@@ -1,5 +1,5 @@
-const LOG_EVENT_NAME = "agentcoder:log-event";
-const LOG_PREFIX = "AGENTCODER_LOG_EVENT ";
+const LOG_EVENT_NAME = "codeflow:log-event";
+const LOG_PREFIX = "CODEFLOW_LOG_EVENT ";
 const REDACTION_VERSION = "redaction.v1";
 const SCHEMA_VERSION = "log_event.v2";
 const SENSITIVE_KEY_PATTERN = /(token|secret|password|credential|api[_-]?key|bearer)/i;
@@ -56,10 +56,10 @@ function normalizeEnum(name, value, allowedValues, fallback) {
 }
 
 function inferService(surface) {
-  if (surface === "dashboard") return "agentcoder-dashboard";
-  if (surface === "desktop") return "agentcoder-desktop";
-  if (surface === "ci") return "agentcoder-ci";
-  return "agentcoder-tooling";
+  if (surface === "dashboard") return "codeflow-dashboard";
+  if (surface === "desktop") return "codeflow-desktop";
+  if (surface === "ci") return "codeflow-ci";
+  return "codeflow-tooling";
 }
 
 function inferLane(domain, inputLane) {

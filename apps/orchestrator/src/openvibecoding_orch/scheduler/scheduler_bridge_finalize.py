@@ -7,8 +7,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-from agentcoder_orch.contract.validator import ContractValidator
-from agentcoder_orch.scheduler import (
+from codeflow_orch.contract.validator import ContractValidator
+from codeflow_orch.scheduler import (
     artifact_refs,
     completion_governance,
     core_helpers,
@@ -17,12 +17,12 @@ from agentcoder_orch.scheduler import (
     report_builders,
     test_pipeline,
 )
-from agentcoder_orch.scheduler.runtime_utils import schema_root, write_manifest
-from agentcoder_orch.queue.store import QueueStore
-from agentcoder_orch.store.run_store import RunStore
-from agentcoder_orch.temporal.manager import notify_run_completed
-from agentcoder_orch.worktrees import manager as worktree_manager
-from agentcoder_orch.locks.locker import release_lock
+from codeflow_orch.scheduler.runtime_utils import schema_root, write_manifest
+from codeflow_orch.queue.store import QueueStore
+from codeflow_orch.store.run_store import RunStore
+from codeflow_orch.temporal.manager import notify_run_completed
+from codeflow_orch.worktrees import manager as worktree_manager
+from codeflow_orch.locks.locker import release_lock
 
 try:
     from tooling.search_pipeline import write_evidence_bundle

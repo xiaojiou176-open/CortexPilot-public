@@ -6,13 +6,13 @@ import time
 from pathlib import Path
 from typing import Any
 
-from agentcoder_orch.runners import agents_events, agents_payload, mcp_server_lifecycle, mcp_streaming
-from agentcoder_orch.runners.agents_stream_watch_helpers import (
+from codeflow_orch.runners import agents_events, agents_payload, mcp_server_lifecycle, mcp_streaming
+from codeflow_orch.runners.agents_stream_watch_helpers import (
     StreamWatchState,
     cancel_watch_tasks,
     start_watch_tasks,
 )
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.store.run_store import RunStore
 
 
 async def consume_stream_events(
@@ -56,7 +56,7 @@ async def consume_stream_events(
     watch_state = StreamWatchState()
 
     tool_timeout_event: asyncio.Event | None = asyncio.Event() if tool_timeout_sec is not None else None
-    idle_timeout_raw = os.getenv("AGENTCODER_STREAM_IDLE_TIMEOUT_SEC", "").strip()
+    idle_timeout_raw = os.getenv("CODEFLOW_STREAM_IDLE_TIMEOUT_SEC", "").strip()
     idle_timeout_sec: float | None = None
     if idle_timeout_raw:
         try:
@@ -66,7 +66,7 @@ async def consume_stream_events(
     if idle_timeout_sec is not None and idle_timeout_sec <= 0:
         idle_timeout_sec = None
     stream_idle_event: asyncio.Event | None = asyncio.Event() if idle_timeout_sec is not None else None
-    hard_timebox_raw = os.getenv("AGENTCODER_CODEX_TIMEBOX_SEC", "").strip()
+    hard_timebox_raw = os.getenv("CODEFLOW_CODEX_TIMEBOX_SEC", "").strip()
     hard_timebox_sec: float | None = None
     if hard_timebox_raw:
         try:
@@ -75,7 +75,7 @@ async def consume_stream_events(
             hard_timebox_sec = None
     if hard_timebox_sec is not None and hard_timebox_sec <= 0:
         hard_timebox_sec = None
-    broken_pipe_enabled = os.getenv("AGENTCODER_MCP_BROKEN_PIPE_FAIL", "1").strip().lower() in {
+    broken_pipe_enabled = os.getenv("CODEFLOW_MCP_BROKEN_PIPE_FAIL", "1").strip().lower() in {
         "1",
         "true",
         "yes",

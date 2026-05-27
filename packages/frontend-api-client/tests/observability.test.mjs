@@ -16,7 +16,7 @@ test("buildFrontendLogEvent emits log_event.v2 defaults", () => {
   assert.equal(event.schema_version, "log_event.v2");
   assert.equal(event.redaction_version, "redaction.v1");
   assert.equal(event.surface, "dashboard");
-  assert.equal(event.service, "agentcoder-dashboard");
+  assert.equal(event.service, "codeflow-dashboard");
   assert.equal(event.component, "pm_shell");
   assert.equal(event.event, "pm_send_attempt");
   assert.equal(event.lane, "runtime");
@@ -61,10 +61,10 @@ test("emitFrontendLogEvent dispatches browser event and redacts sensitive metada
       meta: { reason: "offline", api_key: "secret-value" },
     });
     assert.equal(captured.length, 1);
-    assert.equal(captured[0].type, "agentcoder:log-event");
+    assert.equal(captured[0].type, "codeflow:log-event");
     assert.equal(captured[0].detail.event, "pm_send_blocked");
     assert.equal(captured[0].detail.meta.api_key, "[REDACTED]");
-    assert.match(consoleLines[0], /^AGENTCODER_LOG_EVENT /);
+    assert.match(consoleLines[0], /^CODEFLOW_LOG_EVENT /);
     assert.equal(event.meta.api_key, "[REDACTED]");
   } finally {
     globalThis.window = originalWindow;

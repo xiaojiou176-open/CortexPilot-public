@@ -25,7 +25,7 @@ def test_web_allowlist_match() -> None:
 
 
 def test_default_web_allowlist_minimal(monkeypatch) -> None:
-    monkeypatch.delenv("AGENTCODER_WEB_ALLOWLIST", raising=False)
+    monkeypatch.delenv("CODEFLOW_WEB_ALLOWLIST", raising=False)
     allowlist = _web_allowlist()
     assert len(allowlist) >= 3
     assert any(urlparse(item).hostname == "chatgpt.com" for item in allowlist)
@@ -33,10 +33,10 @@ def test_default_web_allowlist_minimal(monkeypatch) -> None:
 
 
 def test_web_search_strict_failure(monkeypatch) -> None:
-    monkeypatch.setenv("AGENTCODER_WEB_SEARCH_FALLBACK_POLICY", "strict")
-    monkeypatch.setenv("AGENTCODER_BROWSER_PROFILE_MODE", "allow_profile")
-    monkeypatch.setenv("AGENTCODER_BROWSER_PROFILE_DIR", os.path.join(os.getcwd(), "missing_profile_dir"))
-    result = search_verify("agentcoder", provider="chatgpt_web")
+    monkeypatch.setenv("CODEFLOW_WEB_SEARCH_FALLBACK_POLICY", "strict")
+    monkeypatch.setenv("CODEFLOW_BROWSER_PROFILE_MODE", "allow_profile")
+    monkeypatch.setenv("CODEFLOW_BROWSER_PROFILE_DIR", os.path.join(os.getcwd(), "missing_profile_dir"))
+    result = search_verify("codeflow", provider="chatgpt_web")
     assert result["ok"] is False
     assert result["mode"] == "web"
     assert "error" in result
@@ -493,9 +493,9 @@ def test_browser_search_closes_session_before_playwright_exit(monkeypatch, tmp_p
         "tooling.search.search_engine._web_stealth_provider",
         lambda browser_policy=None: types.SimpleNamespace(launch_args=lambda: [], apply=lambda **_kwargs: {"events": []}),
     )
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(tmp_path / ".runtime-cache" / "agentcoder"))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(tmp_path / ".runtime-cache" / "codeflow"))
 
-    results, error = _browser_search("agentcoder")
+    results, error = _browser_search("codeflow")
 
     assert error is None
     assert results == [{"title": "ok", "href": "https://example.com"}]
@@ -508,7 +508,7 @@ def test_browser_ddg_fail_closed_when_singleton_attach_fails(monkeypatch) -> Non
         lambda query, browser_policy=None: ([], "browser_ddg_failed: singleton attach failed"),
     )
 
-    result = search_verify("agentcoder", provider="browser_ddg")
+    result = search_verify("codeflow", provider="browser_ddg")
 
     assert result["ok"] is False
     assert result["mode"] == "browser"

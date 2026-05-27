@@ -1,6 +1,6 @@
 # Public Benchmark Methodology
 
-This document exists so Agentcoder can talk about benchmark evidence without
+This document exists so Codeflow can talk about benchmark evidence without
 inventing numbers.
 
 ## Current State
@@ -75,9 +75,9 @@ npm run bench:e2e:speed:gate
 
 Default thresholds are driven by:
 
-- `AGENTCODER_BENCH_MAX_FAIL_RATE`
-- `AGENTCODER_BENCH_UI_FULL_GEMINI_STRICT_MAX_P95_SEC`
-- `AGENTCODER_BENCH_DASHBOARD_HIGH_RISK_E2E_MAX_P95_SEC`
+- `CODEFLOW_BENCH_MAX_FAIL_RATE`
+- `CODEFLOW_BENCH_UI_FULL_GEMINI_STRICT_MAX_P95_SEC`
+- `CODEFLOW_BENCH_DASHBOARD_HIGH_RISK_E2E_MAX_P95_SEC`
 
 The gate is intentionally strict about artifact presence: if no benchmark
 summary exists yet, it fails instead of inventing a baseline.

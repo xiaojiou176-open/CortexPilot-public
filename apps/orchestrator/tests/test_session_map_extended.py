@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from agentcoder_orch.store import session_map as session_map_module
-from agentcoder_orch.store.session_map import SessionAliasStore
+from codeflow_orch.store import session_map as session_map_module
+from codeflow_orch.store.session_map import SessionAliasStore
 
 
 def test_session_map_corrupt_json_creates_backup(tmp_path: Path) -> None:
@@ -59,12 +59,12 @@ def test_session_map_load_non_dict_payload(tmp_path: Path) -> None:
 
 
 def test_session_map_default_paths(tmp_path: Path, monkeypatch) -> None:
-    monkeypatch.setenv("AGENTCODER_CODEX_SESSIONS_ROOT", str(tmp_path / "sessions"))
-    from agentcoder_orch.store import session_map as mod
+    monkeypatch.setenv("CODEFLOW_CODEX_SESSIONS_ROOT", str(tmp_path / "sessions"))
+    from codeflow_orch.store import session_map as mod
     root = mod._default_sessions_root()
     assert root == tmp_path / "sessions"
 
-    monkeypatch.setenv("AGENTCODER_SESSION_ALIAS_PATH", str(tmp_path / "alias.json"))
+    monkeypatch.setenv("CODEFLOW_SESSION_ALIAS_PATH", str(tmp_path / "alias.json"))
     alias_path = mod._default_alias_path()
     assert alias_path == tmp_path / "alias.json"
 
@@ -77,9 +77,9 @@ def test_session_map_list_aliases_non_dict(monkeypatch, tmp_path: Path) -> None:
 
 def test_session_map_module_functions(tmp_path: Path, monkeypatch) -> None:
     alias_path = tmp_path / "alias.json"
-    monkeypatch.setenv("AGENTCODER_SESSION_ALIAS_PATH", str(alias_path))
+    monkeypatch.setenv("CODEFLOW_SESSION_ALIAS_PATH", str(alias_path))
 
-    from agentcoder_orch.store import session_map as mod
+    from codeflow_orch.store import session_map as mod
 
     record = mod.set_alias("agent-x", "session-x", thread_id="thread-x", note="note")
     assert record.alias == "agent-x"

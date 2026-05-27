@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-MODE="${AGENTCODER_UI_PROTOCOL_MODE:-gate}"
+MODE="${CODEFLOW_UI_PROTOCOL_MODE:-gate}"
 if [[ "${1:-}" == "--mode" ]]; then
   MODE="${2:-}"
   shift 2
@@ -14,8 +14,8 @@ if [[ "$MODE" != "warn" && "$MODE" != "gate" ]]; then
   exit 2
 fi
 
-FAIL_ON_WARN="${AGENTCODER_UI_PROTOCOL_FAIL_ON_WARN:-0}"
-ALLOWLIST_PATH="${AGENTCODER_UI_PROTOCOL_ALLOWLIST:-configs/ui_protocol_allowlist.json}"
+FAIL_ON_WARN="${CODEFLOW_UI_PROTOCOL_FAIL_ON_WARN:-0}"
+ALLOWLIST_PATH="${CODEFLOW_UI_PROTOCOL_ALLOWLIST:-configs/ui_protocol_allowlist.json}"
 REPORT_DIR=".runtime-cache/test_output/ui_protocol"
 REPORT_JSON="${REPORT_DIR}/ui_protocol_gate.json"
 REPORT_MD="${REPORT_DIR}/ui_protocol_gate.md"

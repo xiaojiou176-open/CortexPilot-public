@@ -160,7 +160,7 @@ describe("pm intake component branches", () => {
       onStartNewConversation: vi.fn(),
       objective: "",
       workspacePath: "apps/dashboard",
-      repoName: "agentcoder",
+      repoName: "codeflow",
       onWorkspacePathChange: vi.fn(),
       onRepoNameChange: vi.fn(),
       stage: "discover",
@@ -202,7 +202,7 @@ describe("pm intake component branches", () => {
       chatLog: [
         {
           id: "chat-1",
-          role: "Agentcoder Command Tower",
+          role: "Codeflow Command Tower",
           text: "delegation message",
           createdAt: "2026-03-01T10:00:00.000Z",
           kind: "delegation",
@@ -328,9 +328,9 @@ describe("pm intake component branches", () => {
     expect(repoInput).toHaveClass("input");
 
     fireEvent.change(screen.getByLabelText("Workspace path"), { target: { value: "apps/new" } });
-    fireEvent.change(screen.getByLabelText("Repository slug"), { target: { value: "agentcoder-next" } });
+    fireEvent.change(screen.getByLabelText("Repository slug"), { target: { value: "codeflow-next" } });
     expect(onWorkspacePathChange).toHaveBeenCalledWith("apps/new");
-    expect(onRepoNameChange).toHaveBeenCalledWith("agentcoder-next");
+    expect(onRepoNameChange).toHaveBeenCalledWith("codeflow-next");
 
     fireEvent.click(screen.getByRole("button", { name: "+ New chat" }));
     expect(onStartNewConversation).toHaveBeenCalledTimes(1);
@@ -359,7 +359,7 @@ describe("pm intake component branches", () => {
         {...buildLeftSidebarProps({
           intakeId: "pm-live-1",
           objective: "Polish dashboard copy and session naming.",
-          repoName: "agentcoder",
+          repoName: "codeflow",
           sessionHistory: [],
         })}
       />,

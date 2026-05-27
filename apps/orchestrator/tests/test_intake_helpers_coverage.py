@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from agentcoder_orch.api import main_pm_intake_helpers
-from agentcoder_orch.planning import intake
-from agentcoder_orch.store.intake_store import IntakeStore
+from codeflow_orch.api import main_pm_intake_helpers
+from codeflow_orch.planning import intake
+from codeflow_orch.store.intake_store import IntakeStore
 
 
 def test_intake_normalizers_and_defaults() -> None:
@@ -105,9 +105,9 @@ def test_bundle_normalization_and_rebalance() -> None:
 
 
 def test_agents_config_helpers_and_strip_model_input_ids(monkeypatch) -> None:
-    monkeypatch.setenv("AGENTCODER_AGENTS_STORE", "true")
+    monkeypatch.setenv("CODEFLOW_AGENTS_STORE", "true")
     assert intake._resolve_agents_store() is True
-    monkeypatch.setenv("AGENTCODER_AGENTS_STORE", "no")
+    monkeypatch.setenv("CODEFLOW_AGENTS_STORE", "no")
     assert intake._resolve_agents_store() is False
 
     assert intake._is_local_base_url("http://127.0.0.1:1456/v1")
@@ -205,8 +205,8 @@ def test_intake_run_agent_with_fake_sdk(monkeypatch) -> None:
     monkeypatch.setitem(sys.modules, "agents", agents_mod)
     monkeypatch.setitem(sys.modules, "openai", openai_mod)
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
-    monkeypatch.setenv("AGENTCODER_AGENTS_API", "responses")
-    monkeypatch.setenv("AGENTCODER_PROVIDER_MODEL", "gpt-test")
+    monkeypatch.setenv("CODEFLOW_AGENTS_API", "responses")
+    monkeypatch.setenv("CODEFLOW_PROVIDER_MODEL", "gpt-test")
 
     result = intake._run_agent("prompt", "instructions")
     assert result == {"questions": ["Q1"]}
@@ -383,9 +383,9 @@ def test_intake_service_answer_and_build_contract(monkeypatch, tmp_path: Path) -
     ]:
         (schema_root / name).write_text((source_schema_root / name).read_text(encoding="utf-8"), encoding="utf-8")
 
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
-    monkeypatch.setenv("AGENTCODER_REPO_ROOT", str(repo_root))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_REPO_ROOT", str(repo_root))
 
     service = intake.IntakeService()
 
@@ -405,7 +405,7 @@ def test_intake_service_answer_and_build_contract(monkeypatch, tmp_path: Path) -
             "network": "deny",
             "mcp_tools": ["codex"],
         },
-        "search_queries": ["agentcoder orchestrator"],
+        "search_queries": ["codeflow orchestrator"],
     }
     created = service.create(payload)
     assert created["status"] == "NEEDS_INPUT"
@@ -452,15 +452,15 @@ def test_intake_service_auto_run_chain_restores_runner_env(monkeypatch, tmp_path
     ]:
         (schema_root / name).write_text((source_schema_root / name).read_text(encoding="utf-8"), encoding="utf-8")
 
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
-    monkeypatch.setenv("AGENTCODER_REPO_ROOT", str(repo_root))
-    monkeypatch.delenv("AGENTCODER_RUNNER", raising=False)
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_REPO_ROOT", str(repo_root))
+    monkeypatch.delenv("CODEFLOW_RUNNER", raising=False)
 
     observed_runner: dict[str, str] = {}
 
     def _fake_execute_chain(_chain_path: Path, _mock_mode: bool) -> dict[str, object]:
-        observed_runner["value"] = os.getenv("AGENTCODER_RUNNER", "")
+        observed_runner["value"] = os.getenv("CODEFLOW_RUNNER", "")
         return {"run_id": "run-auto-chain"}
 
     monkeypatch.setattr(intake, "_execute_chain", _fake_execute_chain)
@@ -479,14 +479,14 @@ def test_intake_service_auto_run_chain_restores_runner_env(monkeypatch, tmp_path
     assert answered["status"] == "READY"
     assert answered["chain_run_id"] == "run-auto-chain"
     assert observed_runner["value"] == "agents"
-    assert os.getenv("AGENTCODER_RUNNER", "") == ""
+    assert os.getenv("CODEFLOW_RUNNER", "") == ""
 
 
 def test_intake_service_page_brief_does_not_auto_run_chain_by_default(monkeypatch, tmp_path: Path) -> None:
     runtime_root = tmp_path / "runtime"
     runs_root = runtime_root / "runs"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
 
     def _unexpected_execute_chain(*_args, **_kwargs):
         raise AssertionError("page_brief template should not auto-run the task chain during answer()")
@@ -542,10 +542,10 @@ def test_run_intake_strict_acceptance_isolation_across_concurrent_requests(monke
     contracts_root = tmp_path / "contracts"
     runtime_root = tmp_path / "runtime"
     runs_root = runtime_root / "runs"
-    monkeypatch.setenv("AGENTCODER_CONTRACT_ROOT", str(contracts_root))
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
-    monkeypatch.delenv("AGENTCODER_ACCEPTANCE_STRICT_NONTRIVIAL", raising=False)
+    monkeypatch.setenv("CODEFLOW_CONTRACT_ROOT", str(contracts_root))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
+    monkeypatch.delenv("CODEFLOW_ACCEPTANCE_STRICT_NONTRIVIAL", raising=False)
 
     class FakeIntakeService:
         def build_contract(self, intake_id: str) -> dict[str, object]:
@@ -610,17 +610,17 @@ def test_run_intake_strict_acceptance_isolation_across_concurrent_requests(monke
     assert not errors
     assert observed_runtime_options["task-strict"]["strict_acceptance"] is True
     assert observed_runtime_options["task-non-strict"]["strict_acceptance"] is False
-    assert os.getenv("AGENTCODER_ACCEPTANCE_STRICT_NONTRIVIAL", "") == ""
+    assert os.getenv("CODEFLOW_ACCEPTANCE_STRICT_NONTRIVIAL", "") == ""
 
 
 def test_run_intake_contract_path_uniqueness_under_high_concurrency(monkeypatch, tmp_path: Path) -> None:
     contracts_root = tmp_path / "contracts"
     runtime_root = tmp_path / "runtime"
     runs_root = runtime_root / "runs"
-    monkeypatch.setenv("AGENTCODER_CONTRACT_ROOT", str(contracts_root))
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
-    monkeypatch.delenv("AGENTCODER_ACCEPTANCE_STRICT_NONTRIVIAL", raising=False)
+    monkeypatch.setenv("CODEFLOW_CONTRACT_ROOT", str(contracts_root))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
+    monkeypatch.delenv("CODEFLOW_ACCEPTANCE_STRICT_NONTRIVIAL", raising=False)
 
     class FakeIntakeService:
         def build_contract(self, intake_id: str) -> dict[str, object]:

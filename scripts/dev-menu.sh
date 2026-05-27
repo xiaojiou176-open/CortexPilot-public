@@ -13,8 +13,8 @@ DEFAULT_API_PORT="10000"
 DEFAULT_DASHBOARD_PORT="3100"
 DEFAULT_DESKTOP_PORT="18173"
 DEFAULT_TAURI_PORT="1420"
-DEFAULT_AUTH_REQUIRED="$(agentcoder_env_normalize_bool "$(agentcoder_env_get AGENTCODER_API_AUTH_REQUIRED "true")")"
-DEFAULT_API_TOKEN="$(agentcoder_env_get AGENTCODER_API_TOKEN "agentcoder-dev-token")"
+DEFAULT_AUTH_REQUIRED="$(codeflow_env_normalize_bool "$(codeflow_env_get CODEFLOW_API_AUTH_REQUIRED "true")")"
+DEFAULT_API_TOKEN="$(codeflow_env_get CODEFLOW_API_TOKEN "codeflow-dev-token")"
 
 HOST="$DEFAULT_HOST"
 API_PORT="$DEFAULT_API_PORT"
@@ -100,31 +100,31 @@ configure_all() {
 
 run_web() {
   cd "$ROOT_DIR"
-  AGENTCODER_DEV_HOST="$HOST" \
-  AGENTCODER_API_PORT="$API_PORT" \
-  AGENTCODER_DASHBOARD_PORT="$DASHBOARD_PORT" \
-  AGENTCODER_API_AUTH_REQUIRED="$(agentcoder_env_normalize_bool "$API_AUTH_REQUIRED")" \
-  AGENTCODER_API_TOKEN="$API_TOKEN" \
+  CODEFLOW_DEV_HOST="$HOST" \
+  CODEFLOW_API_PORT="$API_PORT" \
+  CODEFLOW_DASHBOARD_PORT="$DASHBOARD_PORT" \
+  CODEFLOW_API_AUTH_REQUIRED="$(codeflow_env_normalize_bool "$API_AUTH_REQUIRED")" \
+  CODEFLOW_API_TOKEN="$API_TOKEN" \
   npm run dev:up
 }
 
 run_desktop() {
   cd "$ROOT_DIR"
-  AGENTCODER_DEV_HOST="$HOST" \
-  AGENTCODER_API_PORT="$API_PORT" \
-  AGENTCODER_DESKTOP_PORT="$DESKTOP_PORT" \
-  AGENTCODER_API_AUTH_REQUIRED="$(agentcoder_env_normalize_bool "$API_AUTH_REQUIRED")" \
-  AGENTCODER_API_TOKEN="$API_TOKEN" \
+  CODEFLOW_DEV_HOST="$HOST" \
+  CODEFLOW_API_PORT="$API_PORT" \
+  CODEFLOW_DESKTOP_PORT="$DESKTOP_PORT" \
+  CODEFLOW_API_AUTH_REQUIRED="$(codeflow_env_normalize_bool "$API_AUTH_REQUIRED")" \
+  CODEFLOW_API_TOKEN="$API_TOKEN" \
   npm run desktop:up
 }
 
 run_tauri() {
   cd "$ROOT_DIR"
-  AGENTCODER_DEV_HOST="$HOST" \
-  AGENTCODER_API_PORT="$API_PORT" \
-  AGENTCODER_TAURI_DEV_PORT="$TAURI_PORT" \
-  AGENTCODER_API_AUTH_REQUIRED="$(agentcoder_env_normalize_bool "$API_AUTH_REQUIRED")" \
-  AGENTCODER_API_TOKEN="$API_TOKEN" \
+  CODEFLOW_DEV_HOST="$HOST" \
+  CODEFLOW_API_PORT="$API_PORT" \
+  CODEFLOW_TAURI_DEV_PORT="$TAURI_PORT" \
+  CODEFLOW_API_AUTH_REQUIRED="$(codeflow_env_normalize_bool "$API_AUTH_REQUIRED")" \
+  CODEFLOW_API_TOKEN="$API_TOKEN" \
   npm run desktop:up:tauri
 }
 
@@ -152,7 +152,7 @@ run_quick_wizard() {
 main_menu() {
   while true; do
     echo "=============================="
-    echo " Agentcoder launch console"
+    echo " Codeflow launch console"
     echo "=============================="
     echo "1) Start Web (backend + Dashboard)"
     echo "2) Start Desktop (backend + Desktop Vite)"

@@ -3,7 +3,7 @@ import subprocess
 import hashlib
 from pathlib import Path
 
-from agentcoder_orch.scheduler.scheduler import Orchestrator
+from codeflow_orch.scheduler.scheduler import Orchestrator
 
 
 def _git(cmd: list[str], cwd: Path) -> None:
@@ -133,9 +133,9 @@ def test_scheduler_network_gate_blocks(tmp_path: Path, monkeypatch) -> None:
     runs_root = runtime_root / "runs"
     worktree_root = runtime_root / "worktrees"
     monkeypatch.chdir(repo)
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
-    monkeypatch.setenv("AGENTCODER_WORKTREE_ROOT", str(worktree_root))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_WORKTREE_ROOT", str(worktree_root))
 
     search_path = repo / "search_requests.json"
     search_path.write_text(json.dumps(["q1"]), encoding="utf-8")
@@ -164,9 +164,9 @@ def test_scheduler_search_owner_forbidden(tmp_path: Path, monkeypatch) -> None:
     runs_root = runtime_root / "runs"
     worktree_root = runtime_root / "worktrees"
     monkeypatch.chdir(repo)
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
-    monkeypatch.setenv("AGENTCODER_WORKTREE_ROOT", str(worktree_root))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_WORKTREE_ROOT", str(worktree_root))
 
     search_path = repo / "search_requests.json"
     search_path.write_text(json.dumps(["q1"]), encoding="utf-8")
@@ -194,9 +194,9 @@ def test_scheduler_tool_gate_and_mcp_gate_failures(tmp_path: Path, monkeypatch) 
     runs_root = runtime_root / "runs"
     worktree_root = runtime_root / "worktrees"
     monkeypatch.chdir(repo)
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
-    monkeypatch.setenv("AGENTCODER_WORKTREE_ROOT", str(worktree_root))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_WORKTREE_ROOT", str(worktree_root))
 
     contract = _base_contract("task_mcp_fail")
     contract["tool_permissions"]["mcp_tools"] = []
@@ -222,11 +222,11 @@ def test_scheduler_mcp_concurrency_required(tmp_path: Path, monkeypatch) -> None
     runs_root = runtime_root / "runs"
     worktree_root = runtime_root / "worktrees"
     monkeypatch.chdir(repo)
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
-    monkeypatch.setenv("AGENTCODER_WORKTREE_ROOT", str(worktree_root))
-    monkeypatch.setenv("AGENTCODER_MCP_CONCURRENCY_MODE", "multi")
-    monkeypatch.setenv("AGENTCODER_MCP_CONCURRENCY_REQUIRED", "1")
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_WORKTREE_ROOT", str(worktree_root))
+    monkeypatch.setenv("CODEFLOW_MCP_CONCURRENCY_MODE", "multi")
+    monkeypatch.setenv("CODEFLOW_MCP_CONCURRENCY_REQUIRED", "1")
 
     contract = _base_contract("task_mcp_concurrency")
     contract_path = repo / "contract_mcp_concurrency.json"
@@ -244,9 +244,9 @@ def test_scheduler_diff_gate_violation(tmp_path: Path, monkeypatch) -> None:
     runs_root = runtime_root / "runs"
     worktree_root = runtime_root / "worktrees"
     monkeypatch.chdir(repo)
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
-    monkeypatch.setenv("AGENTCODER_WORKTREE_ROOT", str(worktree_root))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_WORKTREE_ROOT", str(worktree_root))
 
     contract = _base_contract("task_diff_fail", output_name="output.txt")
     contract["allowed_paths"] = ["allowed.txt"]
@@ -265,17 +265,17 @@ def test_scheduler_mcp_only_blocks_codex_runner(tmp_path: Path, monkeypatch) -> 
     runs_root = runtime_root / "runs"
     worktree_root = runtime_root / "worktrees"
     monkeypatch.chdir(repo)
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
-    monkeypatch.setenv("AGENTCODER_WORKTREE_ROOT", str(worktree_root))
-    monkeypatch.setenv("AGENTCODER_RUNNER", "codex")
-    monkeypatch.setenv("AGENTCODER_MCP_ONLY", "1")
-    monkeypatch.delenv("AGENTCODER_ALLOW_CODEX_EXEC", raising=False)
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_WORKTREE_ROOT", str(worktree_root))
+    monkeypatch.setenv("CODEFLOW_RUNNER", "codex")
+    monkeypatch.setenv("CODEFLOW_MCP_ONLY", "1")
+    monkeypatch.delenv("CODEFLOW_ALLOW_CODEX_EXEC", raising=False)
 
     def _boom(*args, **kwargs):
         raise RuntimeError("codex runner should not be called")
 
-    monkeypatch.setattr("agentcoder_orch.runners.codex_runner.CodexRunner.run_contract", _boom)
+    monkeypatch.setattr("codeflow_orch.runners.codex_runner.CodexRunner.run_contract", _boom)
 
     contract = _base_contract("task_mcp_only")
     contract_path = repo / "contract_mcp_only.json"

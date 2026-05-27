@@ -33,7 +33,7 @@ class RunSummary:
 
 
 def _runs_root() -> Path:
-    return Path(os.getenv("AGENTCODER_RUNS_ROOT", ".runtime-cache/agentcoder/runs"))
+    return Path(os.getenv("CODEFLOW_RUNS_ROOT", ".runtime-cache/codeflow/runs"))
 
 
 def _parse_ts(raw: str) -> datetime | None:
@@ -197,7 +197,7 @@ def generate_briefing(
     lines.append("")
 
     if output_path is None:
-        output_path = Path(".runtime-cache/agentcoder/briefings")
+        output_path = Path(".runtime-cache/codeflow/briefings")
         output_path.mkdir(parents=True, exist_ok=True)
         output_path = output_path / f"briefing_{start.date().isoformat()}.md"
     else:
@@ -208,8 +208,8 @@ def generate_briefing(
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Generate a Agentcoder morning briefing.")
-    parser.add_argument("--runs-root", default=".runtime-cache/agentcoder/runs")
+    parser = argparse.ArgumentParser(description="Generate a Codeflow morning briefing.")
+    parser.add_argument("--runs-root", default=".runtime-cache/codeflow/runs")
     parser.add_argument(
         "--date",
         default="",

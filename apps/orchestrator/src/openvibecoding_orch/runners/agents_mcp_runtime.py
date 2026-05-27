@@ -8,20 +8,20 @@ import tomllib
 from pathlib import Path
 from typing import Any, Callable
 
-from agentcoder_orch.runners import agents_mcp_config, agents_prompting, mcp_streaming as _mcp_streaming
-from agentcoder_orch.runners.provider_resolution import (
+from codeflow_orch.runners import agents_mcp_config, agents_prompting, mcp_streaming as _mcp_streaming
+from codeflow_orch.runners.provider_resolution import (
     ProviderResolutionError,
     resolve_preferred_api_key,
     resolve_provider_credentials,
     resolve_runtime_provider,
     resolve_runtime_provider_from_env,
 )
-from agentcoder_orch.runners.agents_mcp_execution_helpers import run_worker_execution
-from agentcoder_orch.runners.agents_mcp_runtime_helpers import (
+from codeflow_orch.runners.agents_mcp_execution_helpers import run_worker_execution
+from codeflow_orch.runners.agents_mcp_runtime_helpers import (
     MCPMessageArchive,
     bind_mcp_log_paths,
 )
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.store.run_store import RunStore
 
 
 _logger = logging.getLogger(__name__)
@@ -204,7 +204,7 @@ def _build_write_safe_worker_config(config_text: str) -> str:
 
 def runtime_root_from_store(store: RunStore) -> Path:
     fallback = store._runs_root.parent
-    return Path(os.getenv("AGENTCODER_RUNTIME_ROOT", str(fallback)))
+    return Path(os.getenv("CODEFLOW_RUNTIME_ROOT", str(fallback)))
 
 
 def fixed_output_cwd(store: RunStore) -> str:
@@ -255,7 +255,7 @@ def resolve_mcp_server_names(tool_set: list[str], available: set[str]) -> tuple[
                     "ctx-long-01-context7",
                     "ctx-long-02-openai-developer-docs",
                     "ctx-long-04-r2r-openai",
-                    "ctx-long-05-r2r-agentcoder",
+                    "ctx-long-05-r2r-codeflow",
                     "vcs-02-github-ro",
                 ]
             )
@@ -308,7 +308,7 @@ def materialize_worker_codex_home(
     if not role_config_path.exists():
         raise RuntimeError(f"codex role config missing: {role_config_path}")
 
-    catalog_home_raw = os.getenv("AGENTCODER_CODEX_BASE_HOME", "").strip()
+    catalog_home_raw = os.getenv("CODEFLOW_CODEX_BASE_HOME", "").strip()
     if catalog_home_raw:
         catalog_home = Path(Path(catalog_home_raw).expanduser())
     else:
@@ -356,7 +356,7 @@ def materialize_worker_codex_home(
                     )
 
     if missing:
-        raise RuntimeError("mcp_tool_set missing in base config " f"(set AGENTCODER_CODEX_BASE_HOME): {missing}")
+        raise RuntimeError("mcp_tool_set missing in base config " f"(set CODEFLOW_CODEX_BASE_HOME): {missing}")
 
     runtime_root = runtime_root_from_store(store)
     target = runtime_root / "codex-homes" / run_id / task_id
@@ -405,8 +405,8 @@ def materialize_worker_codex_home(
             if provider_section:
                 merged = f"{merged.rstrip()}\n\n{provider_section}"
     runtime_model = (
-        os.getenv("AGENTCODER_CODEX_MODEL", "").strip()
-        or os.getenv("AGENTCODER_PROVIDER_MODEL", "").strip()
+        os.getenv("CODEFLOW_CODEX_MODEL", "").strip()
+        or os.getenv("CODEFLOW_PROVIDER_MODEL", "").strip()
     )
     if runtime_model:
         merged = _override_top_level_toml_key(merged, "model", runtime_model)
@@ -433,14 +433,14 @@ def patch_mcp_codex_event_notifications() -> tuple[bool, str]:
     except Exception as exc:  # noqa: BLE001
         return False, f"mcp import failed: {exc}"
 
-    if getattr(mcp_types, "_AGENTCODER_CODEX_EVENT_PATCHED", False):
+    if getattr(mcp_types, "_CODEFLOW_CODEX_EVENT_PATCHED", False):
         return True, "already patched"
 
     try:
         mcp_types.ServerNotification.model_validate(
             {"jsonrpc": "2.0", "method": "codex/event", "params": {"msg": {}}}
         )
-        mcp_types._AGENTCODER_CODEX_EVENT_PATCHED = True
+        mcp_types._CODEFLOW_CODEX_EVENT_PATCHED = True
         return True, "already supported"
     except Exception as exc:  # noqa: BLE001
         _logger.debug("agents_mcp_runtime: codex/event not natively supported, patching: %s", exc)
@@ -459,7 +459,7 @@ def patch_mcp_codex_event_notifications() -> tuple[bool, str]:
 
         mcp_types.ServerNotificationType = server_type
         mcp_types.ServerNotification = PatchedServerNotification
-        mcp_types._AGENTCODER_CODEX_EVENT_PATCHED = True
+        mcp_types._CODEFLOW_CODEX_EVENT_PATCHED = True
         return True, "patched"
     except Exception as exc:  # noqa: BLE001
         return False, f"patch failed: {exc}"
@@ -474,7 +474,7 @@ def patch_mcp_initialized_notification() -> tuple[bool, str]:
     except Exception as exc:  # noqa: BLE001
         return False, f"mcp import failed: {exc}"
 
-    if getattr(mcp_session, "_AGENTCODER_INITIALIZED_PATCHED", False):
+    if getattr(mcp_session, "_CODEFLOW_INITIALIZED_PATCHED", False):
         return True, "already patched"
 
     original_initialize = mcp_session.ClientSession.initialize
@@ -528,8 +528,8 @@ def patch_mcp_initialized_notification() -> tuple[bool, str]:
         return result
 
     mcp_session.ClientSession.initialize = _patched_initialize  # type: ignore[assignment]
-    mcp_session._AGENTCODER_INITIALIZED_PATCHED = True
-    mcp_session._AGENTCODER_INITIALIZED_ORIGINAL = original_initialize
+    mcp_session._CODEFLOW_INITIALIZED_PATCHED = True
+    mcp_session._CODEFLOW_INITIALIZED_ORIGINAL = original_initialize
     return True, "patched"
 
 

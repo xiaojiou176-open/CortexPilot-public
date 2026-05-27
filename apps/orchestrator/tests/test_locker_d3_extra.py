@@ -2,17 +2,17 @@ import json
 import os
 from pathlib import Path
 
-from agentcoder_orch.locks import locker
+from codeflow_orch.locks import locker
 
 
 def test_locker_helper_edge_branches(tmp_path: Path, monkeypatch) -> None:
     assert locker._normalize_lock_path("././src/main.py/") == "src/main.py"
 
-    monkeypatch.setenv("AGENTCODER_RUN_ID", "run-edge")
-    monkeypatch.delenv("AGENTCODER_LOCK_OWNER_TOKEN", raising=False)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", "run-edge")
+    monkeypatch.delenv("CODEFLOW_LOCK_OWNER_TOKEN", raising=False)
     assert locker._owner_token().startswith("run:run-edge:pid:")
 
-    monkeypatch.setenv("AGENTCODER_RUNNING_LOCK_STALE_SEC", "invalid")
+    monkeypatch.setenv("CODEFLOW_RUNNING_LOCK_STALE_SEC", "invalid")
     assert locker._resolve_running_stale_sec() == locker._DEFAULT_RUNNING_STALE_SEC
 
     assert locker._sanitize_allowed_paths("src/a.py") == ["src/a.py"]
@@ -83,8 +83,8 @@ def test_locker_unlink_and_stale_pid_branches(tmp_path: Path, monkeypatch) -> No
 
 def test_locker_cleanup_ttl_release_and_acquire_retries(tmp_path: Path, monkeypatch) -> None:
     runtime_root = tmp_path / "runtime"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUN_ID", "run-main")
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUN_ID", "run-main")
 
     removed, remaining = locker.cleanup_stale_locks(["src/missing.py"], ttl_sec=0)
     assert removed == []
@@ -114,8 +114,8 @@ def test_locker_cleanup_ttl_release_and_acquire_retries(tmp_path: Path, monkeypa
     assert len(removed_after) == 1
     assert remaining_after == []
 
-    monkeypatch.delenv("AGENTCODER_LOCK_TTL_SEC", raising=False)
-    monkeypatch.setenv("AGENTCODER_LOCK_TTL_SEC_DEFAULT", "invalid")
+    monkeypatch.delenv("CODEFLOW_LOCK_TTL_SEC", raising=False)
+    monkeypatch.setenv("CODEFLOW_LOCK_TTL_SEC_DEFAULT", "invalid")
     assert locker.resolve_lock_ttl(auto_cleanup=True) == (0, "default_env_invalid")
 
     # acquire_lock_with_cleanup final retry fails -> returns False with cleanup records.
@@ -141,9 +141,9 @@ def test_locker_cleanup_ttl_release_and_acquire_retries(tmp_path: Path, monkeypa
 
 def test_locker_release_missing_and_unlink_file_not_found(tmp_path: Path, monkeypatch) -> None:
     runtime_root = tmp_path / "runtime"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUN_ID", "run-release")
-    monkeypatch.setenv("AGENTCODER_LOCK_OWNER_TOKEN", "owner-release")
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUN_ID", "run-release")
+    monkeypatch.setenv("CODEFLOW_LOCK_OWNER_TOKEN", "owner-release")
 
     # Missing lock path branch.
     locker.release_lock(["src/not-found.py"])
@@ -165,16 +165,16 @@ def test_locker_release_missing_and_unlink_file_not_found(tmp_path: Path, monkey
 
 def test_locker_release_allows_same_pid_without_run_context(tmp_path: Path, monkeypatch) -> None:
     runtime_root = tmp_path / "runtime"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUN_ID", "run-same-pid")
-    monkeypatch.delenv("AGENTCODER_LOCK_OWNER_TOKEN", raising=False)
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUN_ID", "run-same-pid")
+    monkeypatch.delenv("CODEFLOW_LOCK_OWNER_TOKEN", raising=False)
 
     target = ["src/same-pid.py"]
     assert locker.acquire_lock(target) is True
     lock_path = locker._lock_path("src/same-pid.py", runtime_root / "locks")
     assert lock_path.exists()
 
-    monkeypatch.delenv("AGENTCODER_RUN_ID", raising=False)
-    monkeypatch.delenv("AGENTCODER_LOCK_OWNER_TOKEN", raising=False)
+    monkeypatch.delenv("CODEFLOW_RUN_ID", raising=False)
+    monkeypatch.delenv("CODEFLOW_LOCK_OWNER_TOKEN", raising=False)
     locker.release_lock(target)
     assert not lock_path.exists()

@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any, Callable
 
-from agentcoder_orch.contract.role_config_registry import effective_role_contract_defaults
+from codeflow_orch.contract.role_config_registry import effective_role_contract_defaults
 
 
 def _normalize_optional_text(value: Any) -> str | None:

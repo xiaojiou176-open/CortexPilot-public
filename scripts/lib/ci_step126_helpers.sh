@@ -3,13 +3,13 @@
 run_ci_step126_current_run_fanin() {
   echo "🚀 [STEP 12.6/12] Start: CI evidence/dashboard/SBOM fan-in"
   export PYTHONDONTWRITEBYTECODE=1
-  CI_REPORT_ROOT=".runtime-cache/agentcoder/reports/ci"
+  CI_REPORT_ROOT=".runtime-cache/codeflow/reports/ci"
   CI_SOURCE_MANIFEST_PATH="${CI_REPORT_ROOT}/current_run/source_manifest.json"
-  CI_ROUTE_ID="${AGENTCODER_CI_ROUTE_ID:-local_full_ci}"
-  CI_TRUST_CLASS="${AGENTCODER_CI_TRUST_CLASS:-trusted}"
-  CI_RUNNER_CLASS="${AGENTCODER_CI_RUNNER_CLASS:-local}"
-  CI_CLOUD_BOOTSTRAP_ALLOWED="${AGENTCODER_CI_CLOUD_BOOTSTRAP_ALLOWED:-false}"
-  CI_CLOUD_BOOTSTRAP_USED="${AGENTCODER_CI_CLOUD_BOOTSTRAP_USED:-false}"
+  CI_ROUTE_ID="${CODEFLOW_CI_ROUTE_ID:-local_full_ci}"
+  CI_TRUST_CLASS="${CODEFLOW_CI_TRUST_CLASS:-trusted}"
+  CI_RUNNER_CLASS="${CODEFLOW_CI_RUNNER_CLASS:-local}"
+  CI_CLOUD_BOOTSTRAP_ALLOWED="${CODEFLOW_CI_CLOUD_BOOTSTRAP_ALLOWED:-false}"
+  CI_CLOUD_BOOTSTRAP_USED="${CODEFLOW_CI_CLOUD_BOOTSTRAP_USED:-false}"
   CI_ROUTE_REPORT_PATH="${CI_REPORT_ROOT}/routes/${CI_ROUTE_ID}.json"
   python3 scripts/build_ci_route_report.py seed \
     --output "${CI_ROUTE_REPORT_PATH}" \
@@ -25,9 +25,9 @@ run_ci_step126_current_run_fanin() {
     --job-observed "release-evidence"
   local_runner_temp="${RUNNER_TEMP:-${CI_REPORT_ROOT}/runner_temp}"
   mkdir -p "${local_runner_temp}"
-  AGENTCODER_CI_SOURCE_RUN_ID="${GITHUB_RUN_ID:-local-run}" \
-  AGENTCODER_CI_SOURCE_ROUTE="${CI_ROUTE_ID}" \
-  AGENTCODER_CI_SOURCE_EVENT="${GITHUB_EVENT_NAME:-local}" \
+  CODEFLOW_CI_SOURCE_RUN_ID="${GITHUB_RUN_ID:-local-run}" \
+  CODEFLOW_CI_SOURCE_ROUTE="${CI_ROUTE_ID}" \
+  CODEFLOW_CI_SOURCE_EVENT="${GITHUB_EVENT_NAME:-local}" \
   RUNNER_TEMP="${local_runner_temp}" \
   bash scripts/ci_control_plane_doctor.sh
   declare -a CI_SOURCE_MANIFEST_ARGS=(
@@ -52,7 +52,7 @@ run_ci_step126_current_run_fanin() {
     --report "artifact_index_verdict=${CI_REPORT_ROOT}/artifact_index/verdict.json"
     --report "current_run_index=${CI_REPORT_ROOT}/artifact_index/current_run_index.json"
     --report "sbom=${CI_REPORT_ROOT}/sbom/image_sbom.json"
-    --report "provenance=.runtime-cache/agentcoder/release/provenance/provenance.json"
+    --report "provenance=.runtime-cache/codeflow/release/provenance/provenance.json"
     --report "portal=${CI_REPORT_ROOT}/portal/portal.json"
   )
 
@@ -95,7 +95,7 @@ run_ci_step126_current_run_fanin() {
   python3 scripts/build_ci_release_provenance.py \
     --source-manifest "${CI_SOURCE_MANIFEST_PATH}" \
     $([[ "${GITHUB_ACTIONS:-0}" == "1" ]] && printf '%s' '--strict')
-  python3 scripts/build_ci_image_sbom.py --image agentcoder-ci-core:local --source-manifest "${CI_SOURCE_MANIFEST_PATH}"
+  python3 scripts/build_ci_image_sbom.py --image codeflow-ci-core:local --source-manifest "${CI_SOURCE_MANIFEST_PATH}"
   python3 scripts/build_ci_break_glass_dashboard.py
   python3 scripts/build_ci_cost_profile.py --source-manifest "${CI_SOURCE_MANIFEST_PATH}"
   bash scripts/run_governance_py.sh scripts/check_ci_retry_green_policy.py

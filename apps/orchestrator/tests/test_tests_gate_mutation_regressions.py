@@ -17,7 +17,7 @@ def _write_checker(path: Path, trigger_texts: list[str]) -> None:
         (
             "from pathlib import Path\n"
             "import os\n\n"
-            "target = Path(os.environ['AGENTCODER_MUTATION_TARGET_FILE'])\n"
+            "target = Path(os.environ['CODEFLOW_MUTATION_TARGET_FILE'])\n"
             "text = target.read_text(encoding='utf-8')\n"
             f"{checks}\n"
             "raise SystemExit(0)\n"
@@ -70,12 +70,12 @@ def test_mutation_gate_writes_report_and_enforces_kill_rate(tmp_path: Path) -> N
     env.update(
         {
                 "PYTHON_BIN": sys.executable,
-                "AGENTCODER_MUTATION_TARGET_FILE": str(target_file),
-                "AGENTCODER_MUTATION_CONFIG_FILE": str(config_file),
-                "AGENTCODER_MUTATION_TEST_CMD": f"\"{sys.executable}\" \"{checker}\"",
-                "AGENTCODER_MUTATION_REPORT_PATH": str(report_path),
-                "AGENTCODER_MUTATION_MIN_MUTANTS": "3",
-                "AGENTCODER_MUTATION_MIN_KILL_RATE": "1.0",
+                "CODEFLOW_MUTATION_TARGET_FILE": str(target_file),
+                "CODEFLOW_MUTATION_CONFIG_FILE": str(config_file),
+                "CODEFLOW_MUTATION_TEST_CMD": f"\"{sys.executable}\" \"{checker}\"",
+                "CODEFLOW_MUTATION_REPORT_PATH": str(report_path),
+                "CODEFLOW_MUTATION_MIN_MUTANTS": "3",
+                "CODEFLOW_MUTATION_MIN_KILL_RATE": "1.0",
             }
     )
 
@@ -131,12 +131,12 @@ def test_mutation_gate_fail_closed_when_kill_rate_below_threshold(tmp_path: Path
     env.update(
         {
                 "PYTHON_BIN": sys.executable,
-                "AGENTCODER_MUTATION_TARGET_FILE": str(target_file),
-                "AGENTCODER_MUTATION_CONFIG_FILE": str(config_file),
-                "AGENTCODER_MUTATION_TEST_CMD": f"\"{sys.executable}\" \"{checker}\"",
-                "AGENTCODER_MUTATION_REPORT_PATH": str(report_path),
-                "AGENTCODER_MUTATION_MIN_MUTANTS": "2",
-                "AGENTCODER_MUTATION_MIN_KILL_RATE": "1.0",
+                "CODEFLOW_MUTATION_TARGET_FILE": str(target_file),
+                "CODEFLOW_MUTATION_CONFIG_FILE": str(config_file),
+                "CODEFLOW_MUTATION_TEST_CMD": f"\"{sys.executable}\" \"{checker}\"",
+                "CODEFLOW_MUTATION_REPORT_PATH": str(report_path),
+                "CODEFLOW_MUTATION_MIN_MUTANTS": "2",
+                "CODEFLOW_MUTATION_MIN_KILL_RATE": "1.0",
             }
     )
 

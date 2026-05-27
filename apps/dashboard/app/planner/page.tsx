@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@agentcoder/frontend-shared/uiLocale";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@codeflow/frontend-shared/uiLocale";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
@@ -15,14 +15,14 @@ const CJK_TEXT_RE = /[\u3400-\u9fff]/;
 export function buildPlannerMetadata(locale: "en" | "zh-CN"): Metadata {
   if (locale === "zh-CN") {
     return {
-      title: "规划桌 | Agentcoder",
+      title: "规划桌 | Codeflow",
       description:
         "在同一张规划桌里分诊波次计划、worker 提示词合约、解阻塞任务和续跑治理。",
     };
   }
 
   return {
-    title: "Planner desk | Agentcoder",
+    title: "Planner desk | Codeflow",
     description:
       "Triages wave plans, worker prompt contracts, unblock tasks, and continuation governance from one planner-facing control desk.",
   };
@@ -126,7 +126,7 @@ export function plannerText(locale: "en" | "zh-CN") {
       triageSubtitle: "先确认哪条波次缺工作者合约、哪条已经进入续跑、哪条该优先处理解阻塞任务，再去下一张桌子。",
       inspectionTitle: "规划细节档案",
       inspectionSubtitle: "把原始规划产物留在第二层阅读，同时保留规划桌自己的队列与派发控制，不再让它只是一个跳转台。",
-    shellLabel: "Agentcoder / 规划桌",
+    shellLabel: "Codeflow / 规划桌",
     summaryAriaLabel: "规划桌摘要",
     warningFallback: "当前运行列表暂时不可用，请稍后再试。",
     launchChecklistLabel: "规划桌启动清单",
@@ -181,7 +181,7 @@ export function plannerText(locale: "en" | "zh-CN") {
     inspectionTitle: "Planning inspection archive",
     inspectionSubtitle:
       "Keep the raw planning artifacts in a second layer while the desk itself keeps minimal queue and dispatch controls close to the triage row.",
-    shellLabel: "Agentcoder / planner desk",
+    shellLabel: "Codeflow / planner desk",
     summaryAriaLabel: "Planner desk summary",
     warningFallback: "Run list is temporarily unavailable. Try again later.",
     launchChecklistLabel: "Planner launch checklist",

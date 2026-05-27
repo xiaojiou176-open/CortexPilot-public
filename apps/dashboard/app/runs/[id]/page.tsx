@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
-import { getUiCopy } from "@agentcoder/frontend-shared/uiCopy";
-import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@agentcoder/frontend-shared/uiLocale";
+import { getUiCopy } from "@codeflow/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@codeflow/frontend-shared/uiLocale";
 import RunDetail from "../../../components/RunDetail";
 import { Badge } from "../../../components/ui/badge";
 import { Card } from "../../../components/ui/card";

@@ -1,6 +1,6 @@
-import type { OperatorCopilotBrief as SharedOperatorCopilotBrief } from "@agentcoder/frontend-shared/types";
+import type { OperatorCopilotBrief as SharedOperatorCopilotBrief } from "@codeflow/frontend-shared/types";
 
-export * from "@agentcoder/frontend-shared/types";
+export * from "@codeflow/frontend-shared/types";
 export {
   GENERAL_TASK_TEMPLATE,
   buildTaskPackFieldStateForPack,
@@ -11,6 +11,6 @@ export {
   formatRoleBindingRuntimeSummary,
   hydrateTaskPackFieldStateFromPayload,
   mergeTaskPackFieldStateByTemplate,
-} from "@agentcoder/frontend-shared/types";
+} from "@codeflow/frontend-shared/types";
 
 export type OperatorCopilotBrief = SharedOperatorCopilotBrief;

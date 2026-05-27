@@ -14,13 +14,13 @@
     "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
-      "@agentcoder/frontend-shared/uiCopy": [
+      "@codeflow/frontend-shared/uiCopy": [
         "../../packages/frontend-shared/uiCopy.ts"
       ],
-      "@agentcoder/frontend-shared/uiLocale": [
+      "@codeflow/frontend-shared/uiLocale": [
         "../../packages/frontend-shared/uiLocale.ts"
       ],
-      "@agentcoder/frontend-shared/types": [
+      "@codeflow/frontend-shared/types": [
         "../../packages/frontend-shared/types.ts"
       ]
     },

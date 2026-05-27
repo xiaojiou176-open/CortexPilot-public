@@ -1,19 +1,19 @@
 import json
 from pathlib import Path
 
-from agentcoder_orch.scheduler.tool_execution_pipeline import run_browser_tasks, run_search_pipeline
-from agentcoder_orch.runners.tool_runner import ToolRunner
-from agentcoder_orch.store.run_store import RunStore
-from agentcoder_orch.api import search_payload_helpers
-from agentcoder_orch.planning import intake
+from codeflow_orch.scheduler.tool_execution_pipeline import run_browser_tasks, run_search_pipeline
+from codeflow_orch.runners.tool_runner import ToolRunner
+from codeflow_orch.store.run_store import RunStore
+from codeflow_orch.api import search_payload_helpers
+from codeflow_orch.planning import intake
 from tooling.page_brief_pipeline import DEFAULT_PAGE_BRIEF_FOCUS, build_page_brief_result
 from tooling import search_pipeline
 
 
 def test_news_digest_intake_builds_contract_artifact(monkeypatch, tmp_path: Path) -> None:
     runtime_root = tmp_path / "runtime"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runtime_root / "runs"))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runtime_root / "runs"))
 
     service = intake.IntakeService()
     payload = {
@@ -157,8 +157,8 @@ def test_topic_brief_intake_and_result_builder() -> None:
 
 def test_topic_brief_build_contract_writes_browser_provider_defaults(monkeypatch, tmp_path: Path) -> None:
     runtime_root = tmp_path / "runtime"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runtime_root / "runs"))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runtime_root / "runs"))
 
     service = intake.IntakeService()
     payload = {
@@ -241,8 +241,8 @@ def test_topic_brief_fail_closes_when_only_provider_homepages_are_captured() -> 
 
 def test_page_brief_intake_builds_browser_contract_artifact(monkeypatch, tmp_path: Path) -> None:
     runtime_root = tmp_path / "runtime"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runtime_root / "runs"))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runtime_root / "runs"))
 
     service = intake.IntakeService()
     payload = {
@@ -369,8 +369,8 @@ def test_page_brief_result_builder_and_browser_payload() -> None:
 
 def test_page_brief_browser_task_writes_failed_report(monkeypatch, tmp_path: Path) -> None:
     runtime_root = tmp_path / "runtime"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runtime_root / "runs"))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runtime_root / "runs"))
 
     store = RunStore()
     run_id = store.create_run("page-brief-failure")
@@ -411,8 +411,8 @@ def test_page_brief_browser_task_writes_failed_report(monkeypatch, tmp_path: Pat
 
 def test_news_digest_run_search_pipeline_requires_browser_public_source_provider(monkeypatch, tmp_path: Path) -> None:
     runtime_root = tmp_path / "runtime"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runtime_root / "runs"))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runtime_root / "runs"))
 
     store = RunStore()
     run_id = store.create_run("news-digest-failure")
@@ -455,8 +455,8 @@ def test_news_digest_run_search_pipeline_requires_browser_public_source_provider
 
 def test_topic_brief_run_search_pipeline_requires_browser_public_source_provider(monkeypatch, tmp_path: Path) -> None:
     runtime_root = tmp_path / "runtime"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runtime_root / "runs"))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runtime_root / "runs"))
 
     store = RunStore()
     run_id = store.create_run("topic-brief-provider-homepage-only")

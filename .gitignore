@@ -1,5 +1,5 @@
 # ============================================================
-# Agentcoder Git Ignore Policy (Layered)
+# Codeflow Git Ignore Policy (Layered)
 # Goal: keep repo reproducible, clean, and noise-free.
 # ============================================================
 
@@ -88,7 +88,7 @@ coverage.xml
 .opencode/
 .serena/
 .cursorrules/
-**/.cache/agentcoder/modules-root/
+**/.cache/codeflow/modules-root/
 
 # ------------------------------
 # Generated contract outputs
@@ -96,8 +96,8 @@ coverage.xml
 contracts/results/
 contracts/reviews/
 contracts/tasks/
-.runtime-cache/agentcoder/contracts/
-**/.runtime-cache/agentcoder/contracts/
+.runtime-cache/codeflow/contracts/
+**/.runtime-cache/codeflow/contracts/
 
 # ------------------------------
 # Policies: ignore by default, track SSOT payloads only

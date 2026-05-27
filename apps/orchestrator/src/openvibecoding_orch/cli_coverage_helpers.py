@@ -6,7 +6,7 @@ from typing import Any, Callable
 from urllib.parse import urlsplit, urlunsplit
 from urllib.request import urlopen
 
-from agentcoder_orch.runners.provider_resolution import ProviderCredentials, resolve_preferred_api_key
+from codeflow_orch.runners.provider_resolution import ProviderCredentials, resolve_preferred_api_key
 
 
 def equilibrium_health_url(base_url: str) -> str:
@@ -28,14 +28,14 @@ def equilibrium_healthcheck(base_url: str, timeout_sec: float = 1.5) -> bool:
 
 
 def enable_lock_auto_cleanup_for_coverage() -> dict[str, Any]:
-    lock_auto_cleanup_raw = os.getenv("AGENTCODER_LOCK_AUTO_CLEANUP", "").strip().lower()
+    lock_auto_cleanup_raw = os.getenv("CODEFLOW_LOCK_AUTO_CLEANUP", "").strip().lower()
     if lock_auto_cleanup_raw in {"1", "true", "yes"}:
         cleanup_source = "env"
     else:
-        os.environ["AGENTCODER_LOCK_AUTO_CLEANUP"] = "1"
+        os.environ["CODEFLOW_LOCK_AUTO_CLEANUP"] = "1"
         cleanup_source = "coverage_execute_default"
 
-    ttl_raw = os.getenv("AGENTCODER_LOCK_TTL_SEC", "").strip()
+    ttl_raw = os.getenv("CODEFLOW_LOCK_TTL_SEC", "").strip()
     if ttl_raw:
         ttl_source = "env"
         ttl_display: int | str = ttl_raw
@@ -44,7 +44,7 @@ def enable_lock_auto_cleanup_for_coverage() -> dict[str, Any]:
         except ValueError:
             ttl_display = ttl_raw
     else:
-        os.environ["AGENTCODER_LOCK_TTL_SEC"] = "120"
+        os.environ["CODEFLOW_LOCK_TTL_SEC"] = "120"
         ttl_source = "coverage_execute_default"
         ttl_display = 120
 
@@ -57,16 +57,16 @@ def enable_lock_auto_cleanup_for_coverage() -> dict[str, Any]:
 
 
 def enable_chain_subprocess_timeout_for_coverage() -> dict[str, Any]:
-    chain_mode_raw = os.getenv("AGENTCODER_CHAIN_EXEC_MODE", "").strip().lower()
+    chain_mode_raw = os.getenv("CODEFLOW_CHAIN_EXEC_MODE", "").strip().lower()
     if chain_mode_raw:
         chain_mode = chain_mode_raw
         chain_mode_source = "env"
     else:
-        os.environ["AGENTCODER_CHAIN_EXEC_MODE"] = "subprocess"
+        os.environ["CODEFLOW_CHAIN_EXEC_MODE"] = "subprocess"
         chain_mode = "subprocess"
         chain_mode_source = "coverage_execute_default"
 
-    timeout_raw = os.getenv("AGENTCODER_CHAIN_SUBPROCESS_TIMEOUT_SEC", "").strip()
+    timeout_raw = os.getenv("CODEFLOW_CHAIN_SUBPROCESS_TIMEOUT_SEC", "").strip()
     if timeout_raw:
         timeout_source = "env"
         timeout_display: int | str = timeout_raw
@@ -75,7 +75,7 @@ def enable_chain_subprocess_timeout_for_coverage() -> dict[str, Any]:
         except ValueError:
             timeout_display = timeout_raw
     else:
-        os.environ["AGENTCODER_CHAIN_SUBPROCESS_TIMEOUT_SEC"] = "300"
+        os.environ["CODEFLOW_CHAIN_SUBPROCESS_TIMEOUT_SEC"] = "300"
         timeout_source = "coverage_execute_default"
         timeout_display = 300
 
@@ -88,14 +88,14 @@ def enable_chain_subprocess_timeout_for_coverage() -> dict[str, Any]:
 
 
 def ensure_coverage_python_env(repo_root: Path) -> dict[str, Any]:
-    raw = os.getenv("AGENTCODER_PYTHON", "").strip()
+    raw = os.getenv("CODEFLOW_PYTHON", "").strip()
     if raw:
         return {"python": raw, "source": "env"}
 
     candidate = repo_root / ".venv" / "bin" / "python"
     if candidate.exists() and os.access(candidate, os.X_OK):
         value = str(candidate)
-        os.environ["AGENTCODER_PYTHON"] = value
+        os.environ["CODEFLOW_PYTHON"] = value
         return {"python": value, "source": "coverage_execute_default"}
 
     return {"python": "", "source": "unresolved"}
@@ -112,7 +112,7 @@ def prepare_coverage_execute_env(
     if mock_mode:
         return {
             "mode": "mock",
-            "runner": os.getenv("AGENTCODER_RUNNER", "agents") or "agents",
+            "runner": os.getenv("CODEFLOW_RUNNER", "agents") or "agents",
             "lock_auto_cleanup": {"enabled": False, "source": "mock_skip"},
         }
 
@@ -121,7 +121,7 @@ def prepare_coverage_execute_env(
     python_env = ensure_coverage_python_env(repo_root)
 
     runner_cfg = load_config_fn().runner
-    runner_env_raw = os.getenv("AGENTCODER_RUNNER", "").strip().lower()
+    runner_env_raw = os.getenv("CODEFLOW_RUNNER", "").strip().lower()
     runner_name = runner_env_raw or "agents"
     base_url = (runner_cfg.agents_base_url or "").strip()
     api_key = resolve_preferred_api_key(
@@ -160,8 +160,8 @@ def prepare_coverage_execute_env(
 
     fallback_base_url = "http://127.0.0.1:1456/v1"
     if fallback_base_url and equilibrium_healthcheck_fn(fallback_base_url):
-        os.environ["AGENTCODER_PROVIDER_BASE_URL"] = fallback_base_url
-        os.environ.setdefault("AGENTCODER_EQUILIBRIUM_API_KEY", "local-equilibrium")
+        os.environ["CODEFLOW_PROVIDER_BASE_URL"] = fallback_base_url
+        os.environ.setdefault("CODEFLOW_EQUILIBRIUM_API_KEY", "local-equilibrium")
         return {
             "mode": "equilibrium_fallback",
             "runner": "agents",
@@ -173,9 +173,9 @@ def prepare_coverage_execute_env(
         }
 
     if not runner_env_raw:
-        os.environ["AGENTCODER_RUNNER"] = "codex"
-        codex_allow_exists = bool(os.getenv("AGENTCODER_ALLOW_CODEX_EXEC", "").strip())
-        os.environ.setdefault("AGENTCODER_ALLOW_CODEX_EXEC", "1")
+        os.environ["CODEFLOW_RUNNER"] = "codex"
+        codex_allow_exists = bool(os.getenv("CODEFLOW_ALLOW_CODEX_EXEC", "").strip())
+        os.environ.setdefault("CODEFLOW_ALLOW_CODEX_EXEC", "1")
         return {
             "mode": "codex_runner_fallback",
             "runner": "codex",

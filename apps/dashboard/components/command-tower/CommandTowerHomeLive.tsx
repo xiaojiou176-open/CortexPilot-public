@@ -2,12 +2,12 @@
 
 import dynamic from "next/dynamic";
 import { type KeyboardEvent as ReactKeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getUiCopy, type UiLocale } from "@agentcoder/frontend-shared/uiCopy";
+import { getUiCopy, type UiLocale } from "@codeflow/frontend-shared/uiCopy";
 import {
   statusLabelFromCanonical,
   toCanonicalStatusFuzzy,
   type StatusVariant,
-} from "@agentcoder/frontend-shared/statusPresentation";
+} from "@codeflow/frontend-shared/statusPresentation";
 
 import { fetchCommandTowerAlerts, fetchCommandTowerOverview, fetchPmSessions } from "../../lib/api";
 import type {
@@ -39,8 +39,8 @@ const BASE_INTERVAL_MS = 3000;
 const MAX_INTERVAL_MS = 8000;
 const REQUEST_TIMEOUT_MS = 12000;
 const REQUEST_RETRY_ATTEMPTS = 2;
-const HOME_DRAWER_COLLAPSED_KEY = "agentcoder.commandTower.home.drawerCollapsed";
-const HOME_DRAWER_PINNED_KEY = "agentcoder.commandTower.home.drawerPinned";
+const HOME_DRAWER_COLLAPSED_KEY = "codeflow.commandTower.home.drawerCollapsed";
+const HOME_DRAWER_PINNED_KEY = "codeflow.commandTower.home.drawerPinned";
 
 type CommandTowerHomeLiveProps = {
   initialOverview: CommandTowerOverviewPayload;

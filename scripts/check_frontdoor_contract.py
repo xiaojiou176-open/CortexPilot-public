@@ -17,7 +17,7 @@ COMPATIBILITY_PATH = ROOT / "docs" / "compatibility" / "index.html"
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Validate the static public front-door contract for Agentcoder."
+        description="Validate the static public front-door contract for Codeflow."
     )
     return parser.parse_args()
 

@@ -1,6 +1,6 @@
 import { lazy, Suspense, type RefObject } from "react";
 import { ArrowUp } from "lucide-react";
-import { detectPreferredUiLocale } from "@agentcoder/frontend-shared/uiLocale";
+import { detectPreferredUiLocale } from "@codeflow/frontend-shared/uiLocale";
 import { previewFlightPlanCopilotBrief } from "../../lib/api";
 import { Button } from "../ui/Button";
 import { Input, Select, Textarea } from "../ui/Input";
@@ -408,7 +408,7 @@ export function ChatPanel({
                   data-message-id={item.id}
                   className={`chat-bubble ${item.role === "user" ? "is-user" : "is-pm"}`.trim()}
                 >
-                  <strong>{item.role === "user" ? (isZh ? "你" : "You") : "Agentcoder Command Tower PM"}</strong>
+                  <strong>{item.role === "user" ? (isZh ? "你" : "You") : "Codeflow Command Tower PM"}</strong>
                   <div className="markdown-content">
                     {shouldRenderMarkdown(item.content) ? (
                       <Suspense fallback={<p className="chat-plain-text">{item.content}</p>}>
@@ -424,7 +424,7 @@ export function ChatPanel({
             )}
             {activeSessionGenerating ? (
               <article className="chat-bubble is-pm typing-bubble" aria-live="polite">
-                <strong>Agentcoder Command Tower PM</strong>
+                <strong>Codeflow Command Tower PM</strong>
                 <p>{streamingText || phaseText}</p>
               </article>
             ) : null}

@@ -15,14 +15,14 @@ _FORBIDDEN_PATH_MARKERS = {"*", "**", ".", "/"}
 _GLOB_CHARS = {"*", "?", "["}
 _WIDE_PATH_MARKERS = {"src", "docs"}
 _REPO_ROOT = Path(__file__).resolve().parents[5]
-_AGENT_REGISTRY_ENV = "AGENTCODER_AGENT_REGISTRY"
+_AGENT_REGISTRY_ENV = "CODEFLOW_AGENT_REGISTRY"
 _SCHEMA_REGISTRY_FILE = "schema_registry.json"
-_SUPERPOWERS_GATE_ENV = "AGENTCODER_SUPERPOWERS_GATE_ENFORCE"
+_SUPERPOWERS_GATE_ENV = "CODEFLOW_SUPERPOWERS_GATE_ENFORCE"
 _SUPERPOWERS_GATE_MARKERS = {
     "superpowers://required",
     "superpowers:required",
     "gate:superpowers",
-    "agentcoder://superpowers-gate",
+    "codeflow://superpowers-gate",
 }
 _PLAN_STAGE_MARKERS = {
     "plan",

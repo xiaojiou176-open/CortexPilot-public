@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { getUiCopy, type UiLocale } from "@agentcoder/frontend-shared/uiCopy";
-import { detectPreferredUiLocale } from "@agentcoder/frontend-shared/uiLocale";
+import { getUiCopy, type UiLocale } from "@codeflow/frontend-shared/uiCopy";
+import { detectPreferredUiLocale } from "@codeflow/frontend-shared/uiLocale";
 import type { RunSummary } from "../lib/types";
 import { fetchRuns } from "../lib/api";
 import {

@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 source "$ROOT_DIR/scripts/lib/env.sh"
 
-OUT_FILE=".runtime-cache/agentcoder/reports/ai/ai-repo-full-context.generated.md"
+OUT_FILE=".runtime-cache/codeflow/reports/ai/ai-repo-full-context.generated.md"
 mkdir -p "$(dirname "$OUT_FILE")"
 
 if ! command -v rg >/dev/null 2>&1; then
@@ -18,7 +18,7 @@ TS="$(date '+%Y-%m-%d %H:%M:%S %Z')"
 echo "🚀 [ai-pack] generating offline AI context pack: ${OUT_FILE}"
 
 {
-  echo '# Agentcoder Offline AI Context Pack (Generated)'
+  echo '# Codeflow Offline AI Context Pack (Generated)'
   echo
   printf '> Generated at: %s\n' "$TS"
   printf '> Source repo root: %s\n' "<repo-root>"
@@ -42,18 +42,18 @@ EOF
 ## 3) Orchestrator Module Map
 EOF
 
-  find apps/orchestrator/src/agentcoder_orch -maxdepth 1 -mindepth 1 -type d \
-    | sed 's#^apps/orchestrator/src/agentcoder_orch/##' \
+  find apps/orchestrator/src/codeflow_orch -maxdepth 1 -mindepth 1 -type d \
+    | sed 's#^apps/orchestrator/src/codeflow_orch/##' \
     | rg -v '^__pycache__$' \
     | sort \
-    | sed 's#^#- `agentcoder_orch/#; s#$#`#'
+    | sed 's#^#- `codeflow_orch/#; s#$#`#'
 
   cat <<'EOF'
 
 ## 4) Backend API Route Inventory
 EOF
 
-  rg -n "@app\.(get|post|put|patch|delete)\(" apps/orchestrator/src/agentcoder_orch/api/main.py -S \
+  rg -n "@app\.(get|post|put|patch|delete)\(" apps/orchestrator/src/codeflow_orch/api/main.py -S \
     | sed 's#^#- `#; s#$#`#'
 
   cat <<'EOF'
@@ -61,7 +61,7 @@ EOF
 ## 5) Backend CLI Command Inventory
 EOF
 
-  rg -n "@app\.command\(" apps/orchestrator/src/agentcoder_orch/cli.py -S \
+  rg -n "@app\.command\(" apps/orchestrator/src/codeflow_orch/cli.py -S \
     | sed 's#^#- `#; s#$#`#'
 
   cat <<'EOF'
@@ -75,7 +75,7 @@ route registry and config manifests over archived internal markdown:
 - `configs/repo_positioning.json`
 - `configs/docs_nav_registry.json`
 - `configs/runtime_artifact_policy.json`
-- `docs/api/openapi.agentcoder.json`
+- `docs/api/openapi.codeflow.json`
 - `AGENTS.md`
 - `CLAUDE.md`
 
@@ -88,15 +88,15 @@ EOF
 
 ## 8) Runtime Contract Anchors
 
-- Run artifacts: `.runtime-cache/agentcoder/runs/`
+- Run artifacts: `.runtime-cache/codeflow/runs/`
 - Logs: `.runtime-cache/logs/{runtime,error,e2e,access,ci,governance}/`
 - Cache: `.runtime-cache/cache/{runtime,test,build}/`
 
 ## 9) Latest Coverage Snapshot (if present)
 EOF
 
-  if [ -f .runtime-cache/test_output/orchestrator_coverage.json ] && [ -n "${AGENTCODER_PYTHON:-}" ] && [ -x "${AGENTCODER_PYTHON}" ]; then
-    "${AGENTCODER_PYTHON}" - <<'PY'
+  if [ -f .runtime-cache/test_output/orchestrator_coverage.json ] && [ -n "${CODEFLOW_PYTHON:-}" ] && [ -x "${CODEFLOW_PYTHON}" ]; then
+    "${CODEFLOW_PYTHON}" - <<'PY'
 import json
 from pathlib import Path
 p = Path('.runtime-cache/test_output/orchestrator_coverage.json')
@@ -143,7 +143,7 @@ EOF
     configs/repo_positioning.json \
     configs/docs_nav_registry.json \
     configs/runtime_artifact_policy.json \
-    docs/api/openapi.agentcoder.json \
+    docs/api/openapi.codeflow.json \
     | sed 's#^#- `#; s#$#`#'
 
   cat <<'EOF'

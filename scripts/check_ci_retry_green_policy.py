@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_POLICY = ROOT / "configs" / "ci_governance_policy.json"
-DEFAULT_COST_PROFILE = ROOT / ".runtime-cache" / "agentcoder" / "reports" / "ci" / "cost_profile" / "cost_profile.json"
+DEFAULT_COST_PROFILE = ROOT / ".runtime-cache" / "codeflow" / "reports" / "ci" / "cost_profile" / "cost_profile.json"
 
 
 def main() -> int:

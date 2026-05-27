@@ -17,7 +17,7 @@ const repoRoot = resolve(desktopDir, "..", "..");
 const outputDir = resolve(repoRoot, ".runtime-cache", "test_output", "desktop_trust");
 mkdirSync(outputDir, { recursive: true });
 
-const artifactSuffix = String(process.env.AGENTCODER_E2E_ARTIFACT_SUFFIX || "").trim();
+const artifactSuffix = String(process.env.CODEFLOW_E2E_ARTIFACT_SUFFIX || "").trim();
 function withSuffix(filename) {
   if (!artifactSuffix) return filename;
   const dot = filename.lastIndexOf(".");
@@ -31,7 +31,7 @@ const networkPath = resolve(outputDir, withSuffix("first_entry_degraded_real.net
 
 function resolvePythonBin() {
   const candidates = [
-    String(process.env.AGENTCODER_PYTHON || "").trim(),
+    String(process.env.CODEFLOW_PYTHON || "").trim(),
     resolve(repoRoot, ".runtime-cache", "cache", "toolchains", "python", "current", "bin", "python"),
     resolve(repoRoot, ".venv", "bin", "python"),
   ].filter(Boolean);
@@ -111,7 +111,7 @@ async function fetchWithRetry(input, init = {}, options = {}) {
 }
 
 async function postJson(baseUrl, path, payload) {
-  const apiToken = String(process.env.AGENTCODER_API_TOKEN || "agentcoder-dev-token").trim();
+  const apiToken = String(process.env.CODEFLOW_API_TOKEN || "codeflow-dev-token").trim();
   const headers = { "Content-Type": "application/json" };
   if (apiToken) headers.Authorization = `Bearer ${apiToken}`;
   const res = await fetchWithRetry(`${baseUrl}${path}`, {
@@ -338,7 +338,7 @@ async function run() {
   const webPort = await findAvailablePort(19273, 200);
   const apiBase = `http://127.0.0.1:${apiPort}`;
   const webBase = `http://127.0.0.1:${webPort}`;
-  const apiToken = String(process.env.AGENTCODER_API_TOKEN || "agentcoder-dev-token").trim();
+  const apiToken = String(process.env.CODEFLOW_API_TOKEN || "codeflow-dev-token").trim();
 
   const report = {
     scenario: "desktop first entry degraded path should fail soft and remain interactive",
@@ -357,16 +357,16 @@ async function run() {
   const pythonBin = resolvePythonBin();
   const apiServer = spawn(
     pythonBin,
-    ["-m", "agentcoder_orch.cli", "serve", "--host", "127.0.0.1", "--port", String(apiPort)],
+    ["-m", "codeflow_orch.cli", "serve", "--host", "127.0.0.1", "--port", String(apiPort)],
     {
       cwd: repoRoot,
       stdio: "ignore",
       env: {
         ...process.env,
         PYTHONPATH: "apps/orchestrator/src",
-        AGENTCODER_API_AUTH_REQUIRED: "true",
-        AGENTCODER_API_TOKEN: apiToken,
-        AGENTCODER_DASHBOARD_PORT: String(webPort),
+        CODEFLOW_API_AUTH_REQUIRED: "true",
+        CODEFLOW_API_TOKEN: apiToken,
+        CODEFLOW_DASHBOARD_PORT: String(webPort),
       },
     },
   );
@@ -379,8 +379,8 @@ async function run() {
       stdio: "ignore",
       env: {
         ...process.env,
-        VITE_AGENTCODER_API_BASE: apiBase,
-        VITE_AGENTCODER_API_TOKEN: apiToken,
+        VITE_CODEFLOW_API_BASE: apiBase,
+        VITE_CODEFLOW_API_TOKEN: apiToken,
       },
     },
   );

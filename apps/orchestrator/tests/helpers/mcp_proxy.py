@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from itertools import count
 from typing import Any
 
-from agentcoder_orch.transport.mcp_jsonl import send_json
+from codeflow_orch.transport.mcp_jsonl import send_json
 
 
 # -------------------------------------------------------------------
@@ -91,10 +91,10 @@ def _reader_loop(handle: ProxyHandle) -> None:
 
 
 def _build_isolated_codex_env() -> tuple[dict[str, str], str]:
-    codex_home = tempfile.mkdtemp(prefix="agentcoder_mcp_proxy_home_")
+    codex_home = tempfile.mkdtemp(prefix="codeflow_mcp_proxy_home_")
     env = os.environ.copy()
     env["CODEX_HOME"] = codex_home
-    env["AGENTCODER_CODEX_BASE_HOME"] = codex_home
+    env["CODEFLOW_CODEX_BASE_HOME"] = codex_home
     return env, codex_home
 
 

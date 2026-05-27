@@ -7,11 +7,11 @@ from typing import Any
 
 import pytest
 
-from agentcoder_orch.chain import parsers as chain_parsers
-from agentcoder_orch.chain import helpers as chain_helpers
-from agentcoder_orch.chain import runner as chain_runner
-from agentcoder_orch.chain.runner import ChainRunner
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.chain import parsers as chain_parsers
+from codeflow_orch.chain import helpers as chain_helpers
+from codeflow_orch.chain import runner as chain_runner
+from codeflow_orch.chain.runner import ChainRunner
+from codeflow_orch.store.run_store import RunStore
 
 
 def _execute_stub(_contract_path: Path, _mock_mode: bool) -> str:
@@ -272,13 +272,13 @@ def test_chain_lifecycle_helpers_and_subprocess_paths(tmp_path: Path, monkeypatc
 
     runner = ChainRunner(tmp_path, store, _execute_stub)
 
-    monkeypatch.delenv("AGENTCODER_CHAIN_SUBPROCESS_TIMEOUT_SEC", raising=False)
+    monkeypatch.delenv("CODEFLOW_CHAIN_SUBPROCESS_TIMEOUT_SEC", raising=False)
     assert runner._resolve_chain_subprocess_timeout_sec() is None
-    monkeypatch.setenv("AGENTCODER_CHAIN_SUBPROCESS_TIMEOUT_SEC", "abc")
+    monkeypatch.setenv("CODEFLOW_CHAIN_SUBPROCESS_TIMEOUT_SEC", "abc")
     assert runner._resolve_chain_subprocess_timeout_sec() is None
-    monkeypatch.setenv("AGENTCODER_CHAIN_SUBPROCESS_TIMEOUT_SEC", "0")
+    monkeypatch.setenv("CODEFLOW_CHAIN_SUBPROCESS_TIMEOUT_SEC", "0")
     assert runner._resolve_chain_subprocess_timeout_sec() is None
-    monkeypatch.setenv("AGENTCODER_CHAIN_SUBPROCESS_TIMEOUT_SEC", "3.5")
+    monkeypatch.setenv("CODEFLOW_CHAIN_SUBPROCESS_TIMEOUT_SEC", "3.5")
     assert runner._resolve_chain_subprocess_timeout_sec() == 3.5
 
     def _timeout_run(*args, **kwargs):
@@ -334,7 +334,7 @@ def test_chain_lifecycle_helpers_and_subprocess_paths(tmp_path: Path, monkeypatc
             "event": "CHAIN_SUBPROCESS_TIMEOUT",
             "run_id": timeout_run_id,
             "meta": {
-                "cmd": ["python", "-m", "agentcoder_orch.cli", "run", "artifacts/chain_step_2_worker_cov_02.json"],
+                "cmd": ["python", "-m", "codeflow_orch.cli", "run", "artifacts/chain_step_2_worker_cov_02.json"],
                 "timeout_sec": 12,
                 "stdout": "",
                 "stderr": "timeout",
@@ -348,7 +348,7 @@ def test_chain_lifecycle_helpers_and_subprocess_paths(tmp_path: Path, monkeypatc
             "event": "CHAIN_SUBPROCESS_TIMEOUT",
             "run_id": timeout_run_id,
             "meta": {
-                "cmd": ["python", "-m", "agentcoder_orch.cli", "run", "artifacts/chain_step_3_worker_cov_03.json"],
+                "cmd": ["python", "-m", "codeflow_orch.cli", "run", "artifacts/chain_step_3_worker_cov_03.json"],
                 "timeout_sec": 12,
                 "stdout": "",
                 "stderr": "timeout",

@@ -9,8 +9,8 @@ from typing import Any
 
 import pytest
 
-from agentcoder_orch.runners import agents_runner_execution_helpers as execution_helpers
-from agentcoder_orch.runners.provider_resolution import ProviderCredentials, ProviderResolutionError
+from codeflow_orch.runners import agents_runner_execution_helpers as execution_helpers
+from codeflow_orch.runners.provider_resolution import ProviderCredentials, ProviderResolutionError
 
 
 class _DummyStore:
@@ -552,9 +552,9 @@ def test_execute_agents_contract_stream_timeout_retry_mode_stream(
     _install_stream_test_sdk(monkeypatch, _Runner)
     monkeypatch.setattr(execution_helpers, "resolve_runtime_provider_from_contract", lambda _contract: "gemini")
     monkeypatch.setattr(execution_helpers, "build_llm_compat_client", lambda **_kwargs: object())
-    monkeypatch.setenv("AGENTCODER_AGENTS_STREAM_TIMEOUT_RETRIES", "1")
-    monkeypatch.setenv("AGENTCODER_AGENTS_STREAM_TIMEOUT_RETRY_BACKOFF_SEC", "0.01")
-    monkeypatch.delenv("AGENTCODER_AGENTS_STREAM_TIMEOUT_FALLBACK", raising=False)
+    monkeypatch.setenv("CODEFLOW_AGENTS_STREAM_TIMEOUT_RETRIES", "1")
+    monkeypatch.setenv("CODEFLOW_AGENTS_STREAM_TIMEOUT_RETRY_BACKOFF_SEC", "0.01")
+    monkeypatch.delenv("CODEFLOW_AGENTS_STREAM_TIMEOUT_FALLBACK", raising=False)
 
     async def _no_sleep(_delay: float) -> None:
         return None
@@ -618,9 +618,9 @@ def test_execute_agents_contract_stream_timeout_fallback_mode(
     _install_stream_test_sdk(monkeypatch, _Runner)
     monkeypatch.setattr(execution_helpers, "resolve_runtime_provider_from_contract", lambda _contract: "gemini")
     monkeypatch.setattr(execution_helpers, "build_llm_compat_client", lambda **_kwargs: object())
-    monkeypatch.setenv("AGENTCODER_AGENTS_STREAM_TIMEOUT_RETRIES", "1")
-    monkeypatch.setenv("AGENTCODER_AGENTS_STREAM_RETRY_BACKOFF_SEC", "0.01")
-    monkeypatch.setenv("AGENTCODER_AGENTS_STREAM_TIMEOUT_FALLBACK", "1")
+    monkeypatch.setenv("CODEFLOW_AGENTS_STREAM_TIMEOUT_RETRIES", "1")
+    monkeypatch.setenv("CODEFLOW_AGENTS_STREAM_RETRY_BACKOFF_SEC", "0.01")
+    monkeypatch.setenv("CODEFLOW_AGENTS_STREAM_TIMEOUT_FALLBACK", "1")
 
     async def _no_sleep(_delay: float) -> None:
         return None

@@ -5,7 +5,7 @@ import sys
 from dataclasses import dataclass
 from typing import Any, Callable, TextIO
 
-from agentcoder_orch.services.control_plane_read_service import ControlPlaneReadService
+from codeflow_orch.services.control_plane_read_service import ControlPlaneReadService
 
 try:
     from mcp.shared.version import LATEST_PROTOCOL_VERSION
@@ -15,8 +15,8 @@ except Exception:  # noqa: BLE001
 
 JSONRPC_VERSION = "2.0"
 SERVER_INFO = {
-    "name": "agentcoder-readonly",
-    "title": "Agentcoder Read-only MCP",
+    "name": "codeflow-readonly",
+    "title": "Codeflow Read-only MCP",
     "version": "0.1.0a4",
 }
 
@@ -99,7 +99,7 @@ def build_readonly_tools(read_service: ControlPlaneReadService) -> list[Readonly
         ReadonlyToolSpec(
             name="list_runs",
             title="List runs",
-            description="Return the current Agentcoder run ledger as a structured read-only list.",
+            description="Return the current Codeflow run ledger as a structured read-only list.",
             input_schema=_schema_object(),
             output_schema=_schema_object(properties={"runs": {"type": "array", "items": {"type": "object"}}}, required=["runs"]),
             handler=lambda _arguments: {"runs": read_service.list_runs()},
@@ -327,7 +327,7 @@ def build_readonly_tools(read_service: ControlPlaneReadService) -> list[Readonly
     ]
 
 
-class AgentcoderReadonlyMcpServer:
+class CodeflowReadonlyMcpServer:
     def __init__(self, read_service: ControlPlaneReadService | None = None) -> None:
         self._read_service = read_service or ControlPlaneReadService.from_runtime()
         self._tools = build_readonly_tools(self._read_service)
@@ -433,4 +433,4 @@ class AgentcoderReadonlyMcpServer:
 
 
 def serve_readonly_mcp() -> None:
-    AgentcoderReadonlyMcpServer().serve_forever()
+    CodeflowReadonlyMcpServer().serve_forever()

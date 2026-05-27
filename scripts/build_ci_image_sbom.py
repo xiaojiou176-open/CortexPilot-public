@@ -11,8 +11,8 @@ from ci_current_run_support import current_truth_authority, load_source_manifest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT_DIR = ROOT / ".runtime-cache" / "agentcoder" / "reports" / "ci" / "sbom"
-DOCKER_METADATA_TIMEOUT_SEC = int(os.environ.get("AGENTCODER_CI_DOCKER_METADATA_TIMEOUT_SEC", "30"))
+OUT_DIR = ROOT / ".runtime-cache" / "codeflow" / "reports" / "ci" / "sbom"
+DOCKER_METADATA_TIMEOUT_SEC = int(os.environ.get("CODEFLOW_CI_DOCKER_METADATA_TIMEOUT_SEC", "30"))
 
 
 def _run(args: list[str]) -> tuple[str, dict[str, object]]:
@@ -45,8 +45,8 @@ def _run(args: list[str]) -> tuple[str, dict[str, object]]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build a lightweight SBOM/inventory for agentcoder-ci-core image.")
-    parser.add_argument("--image", default="agentcoder-ci-core:local", help="Docker image name")
+    parser = argparse.ArgumentParser(description="Build a lightweight SBOM/inventory for codeflow-ci-core image.")
+    parser.add_argument("--image", default="codeflow-ci-core:local", help="Docker image name")
     parser.add_argument("--source-manifest", default="")
     parser.add_argument("--out-dir", default=str(OUT_DIR), help="Output directory")
     args = parser.parse_args()
@@ -71,7 +71,7 @@ def main() -> int:
         ]
     )
     payload = {
-        "report_type": "agentcoder_ci_image_sbom",
+        "report_type": "codeflow_ci_image_sbom",
         "generated_at": now_utc(),
         "authoritative": bool(authority["authoritative_current_truth"]),
         **authority,

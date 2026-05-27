@@ -1,4 +1,4 @@
-Design a **desktop overview** surface for Agentcoder's macOS shell.
+Design a **desktop overview** surface for Codeflow's macOS shell.
 
 It should mirror the web command-tower story, but feel denser and more
 operator-focused.

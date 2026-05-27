@@ -1,12 +1,12 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FolderGit2, GitBranch } from "lucide-react";
 import { Toaster, toast } from "sonner";
-import { getUiCopy, type UiLocale } from "@agentcoder/frontend-shared/uiCopy";
+import { getUiCopy, type UiLocale } from "@codeflow/frontend-shared/uiCopy";
 import {
   detectPreferredUiLocale,
   persistPreferredUiLocale,
   toggleUiLocale,
-} from "@agentcoder/frontend-shared/uiLocale";
+} from "@codeflow/frontend-shared/uiLocale";
 import { Button } from "./components/ui/Button";
 import { AppSidebar } from "./components/layout/AppSidebar";
 import { useDesktopData } from "./hooks/useDesktopData";

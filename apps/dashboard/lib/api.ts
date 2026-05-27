@@ -1,6 +1,6 @@
-import { createAuthCore, createDashboardApiClient, createHttpCore } from "@agentcoder/frontend-api-client";
-import { FRONTEND_API_CONTRACT } from "@agentcoder/frontend-api-contract";
-import type { PmSessionSort } from "@agentcoder/frontend-api-contract";
+import { createAuthCore, createDashboardApiClient, createHttpCore } from "@codeflow/frontend-api-client";
+import { FRONTEND_API_CONTRACT } from "@codeflow/frontend-api-contract";
+import type { PmSessionSort } from "@codeflow/frontend-api-contract";
 import type {
   AgentCatalogPayload,
   AgentStatusPayload,
@@ -47,11 +47,11 @@ function resolveServerApiToken(): string | undefined {
   if (typeof process === "undefined" || !process.env) {
     return undefined;
   }
-  const primary = process.env.AGENTCODER_API_TOKEN?.trim();
+  const primary = process.env.CODEFLOW_API_TOKEN?.trim();
   if (primary) {
     return primary;
   }
-  const fallback = process.env.AGENTCODER_E2E_API_TOKEN?.trim();
+  const fallback = process.env.CODEFLOW_E2E_API_TOKEN?.trim();
   return fallback || undefined;
 }
 

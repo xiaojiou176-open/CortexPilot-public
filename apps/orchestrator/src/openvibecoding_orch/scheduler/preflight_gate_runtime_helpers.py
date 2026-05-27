@@ -4,10 +4,10 @@ import os
 from pathlib import Path
 from typing import Any
 
-from agentcoder_orch.scheduler import gate_orchestration
-from agentcoder_orch.scheduler.preflight_gate_types import BuildResultFn, PreflightOps, PreflightState
-from agentcoder_orch.store.run_store import RunStore
-from agentcoder_orch.worktrees import manager as worktree_manager
+from codeflow_orch.scheduler import gate_orchestration
+from codeflow_orch.scheduler.preflight_gate_types import BuildResultFn, PreflightOps, PreflightState
+from codeflow_orch.store.run_store import RunStore
+from codeflow_orch.worktrees import manager as worktree_manager
 
 def run_preflight_pipeline(
     *,
@@ -249,7 +249,7 @@ def run_preflight_pipeline(
         state.failure_reason = "tool not integrated"
         rebuild_policy_gate()
         return finish(False)
-    mcp_mode = os.getenv("AGENTCODER_MCP_CONCURRENCY_MODE", "single")
+    mcp_mode = os.getenv("CODEFLOW_MCP_CONCURRENCY_MODE", "single")
     mcp_concurrency = ops.validate_mcp_concurrency(mcp_mode)
     store.append_event(
         run_id,
@@ -260,7 +260,7 @@ def run_preflight_pipeline(
             "meta": mcp_concurrency,
         },
     )
-    if not mcp_concurrency.get("ok") and os.getenv("AGENTCODER_MCP_CONCURRENCY_REQUIRED", "").strip().lower() in {
+    if not mcp_concurrency.get("ok") and os.getenv("CODEFLOW_MCP_CONCURRENCY_REQUIRED", "").strip().lower() in {
         "1",
         "true",
         "yes",
@@ -327,7 +327,7 @@ def run_preflight_pipeline(
         )
         state.human_approved = approved
         if approved and requires_network and network_policy == "on-request":
-            os.environ["AGENTCODER_NETWORK_APPROVED"] = "1"
+            os.environ["CODEFLOW_NETWORK_APPROVED"] = "1"
         if approved and force_unlock:
             ops.release_lock(state.allowed_paths)
             store.append_event(

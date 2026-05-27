@@ -35,7 +35,7 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ -f "$LOCKFILE_PATH" ]]; then
-  BACKUP_PATH="$(mktemp "${TMPDIR:-/tmp}/agentcoder-package-lock.XXXXXX")"
+  BACKUP_PATH="$(mktemp "${TMPDIR:-/tmp}/codeflow-package-lock.XXXXXX")"
   cp "$LOCKFILE_PATH" "$BACKUP_PATH"
 fi
 
