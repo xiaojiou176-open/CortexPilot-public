@@ -1,0 +1,32 @@
+name: CodeQL (manual fallback)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  codeql:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+        with:
+          clean: true
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@95e58e9a2cdfd71adc6e0353d5c52f41a045d225
+        with:
+          languages: python,javascript
+          config-file: ./.github/codeql/codeql-config.yml
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@95e58e9a2cdfd71adc6e0353d5c52f41a045d225
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@95e58e9a2cdfd71adc6e0353d5c52f41a045d225
