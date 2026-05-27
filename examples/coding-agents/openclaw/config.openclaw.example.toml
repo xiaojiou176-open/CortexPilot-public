@@ -1,18 +1,18 @@
 # Merge this into your OpenClaw config when you want the compatible local
-# Agentcoder bundle plus the same read-only MCP server definition.
+# Codeflow bundle plus the same read-only MCP server definition.
 
 [plugins]
 enabled = true
 
 [plugins.load]
 paths = [
-  "__AGENTCODER_REPO_ROOT__/examples/coding-agents/plugin-bundles/agentcoder-coding-agent-bundle"
+  "__CODEFLOW_REPO_ROOT__/examples/coding-agents/plugin-bundles/codeflow-coding-agent-bundle"
 ]
 
-[plugins.entries.agentcoder-coding-agent-bundle]
+[plugins.entries.codeflow-coding-agent-bundle]
 enabled = true
 
-[mcp.servers.agentcoder]
+[mcp.servers.codeflow]
 command = "bash"
-args = ["__AGENTCODER_REPO_ROOT__/scripts/run_agentcoder_readonly_mcp.sh"]
-cwd = "__AGENTCODER_REPO_ROOT__"
+args = ["__CODEFLOW_REPO_ROOT__/scripts/run_codeflow_readonly_mcp.sh"]
+cwd = "__CODEFLOW_REPO_ROOT__"

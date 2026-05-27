@@ -9,10 +9,10 @@ Read root `AGENTS.md` first.
 
 ## Key Paths
 
-- `src/agentcoder_orch/config.py`
-- `src/agentcoder_orch/planning/`
-- `src/agentcoder_orch/gates/`
-- `src/agentcoder_orch/store/`
+- `src/codeflow_orch/config.py`
+- `src/codeflow_orch/planning/`
+- `src/codeflow_orch/gates/`
+- `src/codeflow_orch/store/`
 
 ## Commands
 

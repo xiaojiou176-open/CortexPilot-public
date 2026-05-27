@@ -10,7 +10,7 @@ Runbook:
 4. Generate strong secrets where needed (for example: `openssl rand -hex 32` for `ENCRYPTION_KEY`).
 5. `docker compose up -d`
 6. Open Langfuse Web at `http://localhost:18130` (host port; container internal web port remains `3000`).
-7. Local exposed infra ports are pinned to Agentcoder `18xxx` namespace:
+7. Local exposed infra ports are pinned to Codeflow `18xxx` namespace:
    - Postgres: `127.0.0.1:18132 -> 5432`
    - Redis: `127.0.0.1:18179 -> 6379`
    - MinIO API: `127.0.0.1:18190 -> 9000`
@@ -24,7 +24,7 @@ OTel bridge:
   - `LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT=http://localhost:18190`
   - `LANGFUSE_S3_BATCH_EXPORT_EXTERNAL_ENDPOINT=http://localhost:18190`
 - Then set orchestrator env:
-  - `AGENTCODER_OTLP_ENDPOINT=http://127.0.0.1:4318`
-  - `AGENTCODER_OTLP_PROTOCOL=http`
-  - `AGENTCODER_OTLP_HEADERS=Authorization=Basic <base64>`
+  - `CODEFLOW_OTLP_ENDPOINT=http://127.0.0.1:4318`
+  - `CODEFLOW_OTLP_PROTOCOL=http`
+  - `CODEFLOW_OTLP_HEADERS=Authorization=Basic <base64>`
 Note: Langfuse OTel ingestion expects HTTP/protobuf, not gRPC.

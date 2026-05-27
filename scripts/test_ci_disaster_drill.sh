@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-bash scripts/ci_disaster_drill.sh | tee /tmp/agentcoder_ci_disaster_drill.log
-if ! grep -q "PASS" /tmp/agentcoder_ci_disaster_drill.log; then
+bash scripts/ci_disaster_drill.sh | tee /tmp/codeflow_ci_disaster_drill.log
+if ! grep -q "PASS" /tmp/codeflow_ci_disaster_drill.log; then
   echo "ci disaster drill did not report PASS" >&2
   exit 1
 fi

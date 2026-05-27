@@ -5,8 +5,8 @@ import os
 from pathlib import Path
 from typing import Any
 
-from agentcoder_orch.contract.validator import ContractValidator
-from agentcoder_orch.replay import replay_helpers as _helpers
+from codeflow_orch.contract.validator import ContractValidator
+from codeflow_orch.replay import replay_helpers as _helpers
 
 _sha256_file = _helpers._sha256_file
 _hash_events = _helpers._hash_events
@@ -80,7 +80,7 @@ def build_verify_report(
             else:
                 warnings.append(f"contract signature invalid: {reason}")
     else:
-        if os.getenv("AGENTCODER_CONTRACT_HMAC_KEY", "").strip():
+        if os.getenv("CODEFLOW_CONTRACT_HMAC_KEY", "").strip():
             if strict:
                 errors.append(
                     {

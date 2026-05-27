@@ -26,8 +26,8 @@ import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 
 const SESSION_MAIN_TAB_ORDER: SessionMainTab[] = ["runs", "graph", "timeline"];
-const SESSION_DRAWER_COLLAPSED_KEY = "agentcoder.commandTower.session.drawerCollapsed";
-const SESSION_DRAWER_PINNED_KEY = "agentcoder.commandTower.session.drawerPinned";
+const SESSION_DRAWER_COLLAPSED_KEY = "codeflow.commandTower.session.drawerCollapsed";
+const SESSION_DRAWER_PINNED_KEY = "codeflow.commandTower.session.drawerPinned";
 type CommandTowerSessionLiveProps = { pmSessionId: string; initialDetail: PmSessionDetailPayload; initialEvents: EventRecord[]; initialGraph: PmSessionConversationGraphPayload; initialMetrics: PmSessionMetricsPayload };
 type SessionMainTab = "runs" | "graph" | "timeline";
 type RunDetailViewState = "idle" | "loading" | "ready" | "empty" | "error";

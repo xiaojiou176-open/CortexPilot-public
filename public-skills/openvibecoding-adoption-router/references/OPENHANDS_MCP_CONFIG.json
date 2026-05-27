@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "agentcoder-readonly": {
+    "codeflow-readonly": {
       "command": "uvx",
-      "args": ["--from", "agentcoder-orchestrator==0.1.0a4", "agentcoder-readonly-mcp"]
+      "args": ["--from", "codeflow-orchestrator==0.1.0a4", "codeflow-readonly-mcp"]
     }
   }
 }

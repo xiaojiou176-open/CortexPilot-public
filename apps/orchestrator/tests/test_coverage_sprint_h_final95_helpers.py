@@ -7,11 +7,11 @@ import types
 import pytest
 from fastapi import HTTPException
 
-from agentcoder_orch.api import event_cursor
-from agentcoder_orch.api import main_pm_intake_helpers as pm_helpers
-from agentcoder_orch.api import run_state_helpers
-from agentcoder_orch.chain import runtime_helpers
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.api import event_cursor
+from codeflow_orch.api import main_pm_intake_helpers as pm_helpers
+from codeflow_orch.api import run_state_helpers
+from codeflow_orch.chain import runtime_helpers
+from codeflow_orch.store.run_store import RunStore
 
 
 def _err(code: str) -> dict[str, str]:
@@ -78,7 +78,7 @@ def test_pm_intake_bool_runner_and_http_exception_paths(tmp_path: Path, monkeypa
         "load_config",
         lambda: types.SimpleNamespace(
             contract_root=tmp_path / "contracts",
-            runtime_contract_root=tmp_path / ".runtime-cache" / "agentcoder" / "contracts",
+            runtime_contract_root=tmp_path / ".runtime-cache" / "codeflow" / "contracts",
         ),
     )
     appended: list[tuple[str, dict[str, object]]] = []

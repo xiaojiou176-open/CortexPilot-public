@@ -7,11 +7,11 @@ import time
 from pathlib import Path
 from typing import Any
 
-from agentcoder_orch.contract.validator import ContractValidator
-from agentcoder_orch.observability.tracer import trace_span
-from agentcoder_orch.runners import common as runner_common
-from agentcoder_orch.store.run_store import RunStore
-from agentcoder_orch.transport.mcp_jsonl import JsonlStream, send_json
+from codeflow_orch.contract.validator import ContractValidator
+from codeflow_orch.observability.tracer import trace_span
+from codeflow_orch.runners import common as runner_common
+from codeflow_orch.store.run_store import RunStore
+from codeflow_orch.transport.mcp_jsonl import JsonlStream, send_json
 
 
 def _codex_allowed(contract: dict[str, Any]) -> bool:
@@ -68,7 +68,7 @@ def _build_turn_params(
     approval = _approval_policy(contract)
     if approval:
         params["approvalPolicy"] = approval
-    model = os.getenv("AGENTCODER_CODEX_MODEL", "").strip()
+    model = os.getenv("CODEFLOW_CODEX_MODEL", "").strip()
     if model:
         params["model"] = model
     if schema_path.exists():
@@ -215,7 +215,7 @@ class AppServerRunner:
                     "method": "initialize",
                     "id": 0,
                     "params": {
-                        "clientInfo": {"name": "agentcoder_orch", "title": "Agentcoder Orchestrator", "version": "0.1.0"}
+                        "clientInfo": {"name": "codeflow_orch", "title": "Codeflow Orchestrator", "version": "0.1.0"}
                     },
                 },
             )
@@ -247,7 +247,7 @@ class AppServerRunner:
                 send_json(proc, {"method": "thread/resume", "id": 1, "params": {"threadId": resume_thread}})
             else:
                 thread_params: dict[str, Any] = {"cwd": str(worktree_path)}
-                model = os.getenv("AGENTCODER_CODEX_MODEL", "").strip()
+                model = os.getenv("CODEFLOW_CODEX_MODEL", "").strip()
                 if model:
                     thread_params["model"] = model
                 approval = _approval_policy(contract)

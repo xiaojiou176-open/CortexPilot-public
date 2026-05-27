@@ -3,7 +3,7 @@ services:
     build:
       context: ../..
       dockerfile: infra/ci/Dockerfile.core
-    image: agentcoder-ci-core:local
+    image: codeflow-ci-core:local
     init: true
     command: ["bash", "-lc", "sleep infinity"]
     tty: true
@@ -16,9 +16,9 @@ services:
       GITHUB_RUN_ATTEMPT: ${GITHUB_RUN_ATTEMPT:-0}
       GITHUB_EVENT_NAME: ${GITHUB_EVENT_NAME:-local}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
-      RUNNER_TEMP: /tmp/agentcoder-runner-temp
-      AGENTCODER_CI_CONTAINER: "1"
+      RUNNER_TEMP: /tmp/codeflow-runner-temp
+      CODEFLOW_CI_CONTAINER: "1"
       PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
     volumes:
       - ../..:/workspace
-      - ${AGENTCODER_DOCKER_CI_RUNNER_TEMP_HOST:-/tmp/agentcoder-docker-ci-runner-temp}:/tmp/agentcoder-runner-temp
+      - ${CODEFLOW_DOCKER_CI_RUNNER_TEMP_HOST:-/tmp/codeflow-docker-ci-runner-temp}:/tmp/codeflow-runner-temp

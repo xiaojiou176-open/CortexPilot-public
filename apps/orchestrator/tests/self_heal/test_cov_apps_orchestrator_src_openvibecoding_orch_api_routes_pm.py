@@ -5,7 +5,7 @@ from typing import Any
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from agentcoder_orch.api import routes_pm
+from codeflow_orch.api import routes_pm
 
 
 def _build_app(
@@ -81,7 +81,7 @@ def test_routes_pm_list_sessions_forwards_status_array_filters() -> None:
             ("status[]", "failed"),
             ("status[]", "archived"),
             ("owner_pm", "pm-a"),
-            ("project_key", "agentcoder"),
+            ("project_key", "codeflow"),
             ("sort", "failed_desc"),
             ("limit", "25"),
             ("offset", "3"),
@@ -91,7 +91,7 @@ def test_routes_pm_list_sessions_forwards_status_array_filters() -> None:
     assert capture["list"]["status"] == "active"
     assert capture["list"]["status_filters"] == ["failed", "archived"]
     assert capture["list"]["owner_pm"] == "pm-a"
-    assert capture["list"]["project_key"] == "agentcoder"
+    assert capture["list"]["project_key"] == "codeflow"
     assert capture["list"]["sort"] == "failed_desc"
     assert capture["list"]["limit"] == 25
     assert capture["list"]["offset"] == 3

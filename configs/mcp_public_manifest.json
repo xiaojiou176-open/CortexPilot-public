@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "name": "agentcoder-readonly",
-  "display_name": "Agentcoder Read-only MCP",
-  "status": "repo-shipped-with-live-agentcoder-publication",
+  "name": "codeflow-readonly",
+  "display_name": "Codeflow Read-only MCP",
+  "status": "repo-shipped-with-live-codeflow-publication",
   "version": "0.1.0-alpha.4",
-  "version_truth": "The repo-owned read-only MCP surface is shipped, and the live public package plus Official MCP Registry entry use the Agentcoder-branded identifiers (`agentcoder-orchestrator` / `io.github.xiaojiou176-open/agentcoder-readonly`).",
+  "version_truth": "The repo-owned read-only MCP surface is shipped, and the live public package plus Official MCP Registry entry use the Codeflow-branded identifiers (`codeflow-orchestrator` / `io.github.xiaojiou176-open/codeflow-readonly`).",
   "release_represents_current_main": false,
-  "description": "Repo-owned read-only MCP server for Agentcoder runs, workflows, approvals, compare, proof, and incident summaries.",
-  "homepage": "https://xiaojiou176-open.github.io/agentcoder/mcp/",
-  "distribution_page": "https://github.com/xiaojiou176-open/agentcoder/blob/main/DISTRIBUTION.md",
-  "repository": "https://github.com/xiaojiou176-open/agentcoder",
+  "description": "Repo-owned read-only MCP server for Codeflow runs, workflows, approvals, compare, proof, and incident summaries.",
+  "homepage": "https://xiaojiou176-open.github.io/codeflow/mcp/",
+  "distribution_page": "https://github.com/xiaojiou176-open/codeflow/blob/main/DISTRIBUTION.md",
+  "repository": "https://github.com/xiaojiou176-open/codeflow",
   "transport": "stdio",
   "protocol": "json-rpc",
   "auth_boundary": {
@@ -21,11 +21,11 @@
   "startup": {
     "command": "bash",
     "args": [
-      "/absolute/path/to/Agentcoder/scripts/run_agentcoder_readonly_mcp.sh"
+      "/absolute/path/to/Codeflow/scripts/run_codeflow_readonly_mcp.sh"
     ],
     "working_directory": "optional",
     "environment": {},
-    "notes": "For an interactive proof from the repo root, you can also run `bash scripts/run_agentcoder_readonly_mcp.sh`."
+    "notes": "For an interactive proof from the repo root, you can also run `bash scripts/run_codeflow_readonly_mcp.sh`."
   },
   "portable_examples": [
     {
@@ -34,7 +34,7 @@
     },
     {
       "surface": "codex",
-      "path": "docs/examples/agent-starters/codex/agentcoder.config.toml"
+      "path": "docs/examples/agent-starters/codex/codeflow.config.toml"
     },
     {
       "surface": "claude-code",
@@ -42,7 +42,7 @@
     },
     {
       "surface": "openclaw",
-      "path": "docs/examples/agent-starters/openclaw/agentcoder-server.json"
+      "path": "docs/examples/agent-starters/openclaw/codeflow-server.json"
     },
     {
       "surface": "openclaw-toml",
@@ -67,15 +67,15 @@
     ]
   },
   "source_of_truth": {
-    "cli_entrypoint": "apps/orchestrator/src/agentcoder_orch/cli.py",
-    "wrapper": "scripts/run_agentcoder_readonly_mcp.sh",
+    "cli_entrypoint": "apps/orchestrator/src/codeflow_orch/cli.py",
+    "wrapper": "scripts/run_codeflow_readonly_mcp.sh",
     "human_quickstart": "docs/mcp/index.html",
     "distribution_status": "DISTRIBUTION.md"
   },
   "external_publication_truth": {
-    "live_pypi_package": "agentcoder-orchestrator==0.1.0a4",
-    "live_registry_entry": "io.github.xiaojiou176-open/agentcoder-readonly@0.1.0a4",
-    "agentcoder_branded_publication_live": true
+    "live_pypi_package": "codeflow-orchestrator==0.1.0a4",
+    "live_registry_entry": "io.github.xiaojiou176-open/codeflow-readonly@0.1.0a4",
+    "codeflow_branded_publication_live": true
   },
   "explicit_non_claims": [
     "not a hosted MCP account",

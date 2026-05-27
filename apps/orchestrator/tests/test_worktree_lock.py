@@ -4,8 +4,8 @@ import threading
 import time
 from pathlib import Path
 
-from agentcoder_orch.locks import locker
-from agentcoder_orch.worktrees import manager
+from codeflow_orch.locks import locker
+from codeflow_orch.worktrees import manager
 
 
 def _git_output(args: list[str], cwd: Path | None = None) -> str:
@@ -27,7 +27,7 @@ def _init_repo(repo: Path) -> None:
 
 
 def test_worktree_create_and_remove(tmp_path: Path):
-    os.environ["AGENTCODER_WORKTREE_ROOT"] = str(tmp_path)
+    os.environ["CODEFLOW_WORKTREE_ROOT"] = str(tmp_path)
     run_id = "run_test_worktree"
     task_id = "task-worktree"
     baseline = "HEAD"
@@ -56,20 +56,20 @@ def test_worktree_create_and_remove(tmp_path: Path):
 
 
 def test_locks_atomic(tmp_path: Path):
-    os.environ["AGENTCODER_RUNTIME_ROOT"] = str(tmp_path)
-    os.environ["AGENTCODER_RUN_ID"] = "run_a"
+    os.environ["CODEFLOW_RUNTIME_ROOT"] = str(tmp_path)
+    os.environ["CODEFLOW_RUN_ID"] = "run_a"
     target = ["src/main.py"]
 
     assert locker.acquire_lock(target) is True
 
-    os.environ["AGENTCODER_RUN_ID"] = "run_b"
+    os.environ["CODEFLOW_RUN_ID"] = "run_b"
     assert locker.acquire_lock(target) is False
 
     locker.release_lock(target)
     assert locker.acquire_lock(target) is False
-    os.environ["AGENTCODER_RUN_ID"] = "run_a"
+    os.environ["CODEFLOW_RUN_ID"] = "run_a"
     locker.release_lock(target)
-    os.environ["AGENTCODER_RUN_ID"] = "run_b"
+    os.environ["CODEFLOW_RUN_ID"] = "run_b"
     assert locker.acquire_lock(target) is True
     locker.release_lock(target)
 
@@ -83,7 +83,7 @@ def test_worktree_create_serializes_parallel_mutations(tmp_path: Path, monkeypat
     _git(["git", "commit", "-m", "init"], cwd=repo)
     baseline = _git_output(["git", "rev-parse", "HEAD"], cwd=repo).strip()
 
-    os.environ["AGENTCODER_WORKTREE_ROOT"] = str(tmp_path / "worktrees")
+    os.environ["CODEFLOW_WORKTREE_ROOT"] = str(tmp_path / "worktrees")
     cwd = Path.cwd()
     active_mutation_calls = 0
     overlap_detected = False

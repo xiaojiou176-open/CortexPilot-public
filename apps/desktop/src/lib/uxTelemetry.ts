@@ -1,4 +1,4 @@
-import { emitFrontendLogEvent } from "@agentcoder/frontend-api-client";
+import { emitFrontendLogEvent } from "@codeflow/frontend-api-client";
 
 type UxTelemetryEventName = "pm_starter_prompt_used" | "pm_send_attempt" | "pm_send_blocked";
 

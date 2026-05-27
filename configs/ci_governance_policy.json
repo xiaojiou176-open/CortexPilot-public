@@ -39,10 +39,10 @@
   "artifact_roots_required": [
     ".runtime-cache/test_output",
     ".runtime-cache/logs",
-    ".runtime-cache/agentcoder/reports"
+    ".runtime-cache/codeflow/reports"
   ],
   "artifact_roots_release_required": [
-    ".runtime-cache/agentcoder/release"
+    ".runtime-cache/codeflow/release"
   ],
   "retry_green_policy": {
     "max_retry_green_count": 0
@@ -141,17 +141,17 @@
     }
   },
   "strict_env_contract": {
-    "allowlisted_agentcoder_env": [
-      "AGENTCODER_DOC_GATE_MODE",
-      "AGENTCODER_DOC_GATE_BASE_SHA",
-      "AGENTCODER_DOC_GATE_HEAD_SHA",
-      "AGENTCODER_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE",
-      "AGENTCODER_CI_LIVE_PREFLIGHT_PROVIDER_API_MODE",
-      "AGENTCODER_CI_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE",
-      "AGENTCODER_CI_ROUTE_ID",
-      "AGENTCODER_CI_TRUST_CLASS",
-      "AGENTCODER_CI_RUNNER_CLASS",
-      "AGENTCODER_CI_CLOUD_BOOTSTRAP_ALLOWED"
+    "allowlisted_codeflow_env": [
+      "CODEFLOW_DOC_GATE_MODE",
+      "CODEFLOW_DOC_GATE_BASE_SHA",
+      "CODEFLOW_DOC_GATE_HEAD_SHA",
+      "CODEFLOW_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE",
+      "CODEFLOW_CI_LIVE_PREFLIGHT_PROVIDER_API_MODE",
+      "CODEFLOW_CI_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE",
+      "CODEFLOW_CI_ROUTE_ID",
+      "CODEFLOW_CI_TRUST_CLASS",
+      "CODEFLOW_CI_RUNNER_CLASS",
+      "CODEFLOW_CI_CLOUD_BOOTSTRAP_ALLOWED"
     ],
     "forbid_dotenv_fallback": true
   },

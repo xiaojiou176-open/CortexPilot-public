@@ -1,5 +1,5 @@
 // GENERATED FILE. DO NOT EDIT.
-// Source: docs/api/openapi.agentcoder.json
+// Source: docs/api/openapi.codeflow.json
 
 export declare const PM_JOURNEY_STAGES: readonly ["discover", "clarify", "execute", "verify"];
 export type PmJourneyStage = "discover" | "clarify" | "execute" | "verify";

@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
-import { getUiCopy } from "@agentcoder/frontend-shared/uiCopy";
-import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@agentcoder/frontend-shared/uiLocale";
+import { getUiCopy } from "@codeflow/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@codeflow/frontend-shared/uiLocale";
 import Link from "next/link";
 import EventTimeline from "../../../components/EventTimeline";
 import type { BadgeVariant } from "../../../components/ui/badge";
@@ -93,15 +93,15 @@ export async function generateMetadata({
   const titleSuffix = workflowId ? ` · ${workflowId}` : "";
   if (locale === "zh-CN") {
     return {
-      title: `工作流案例详情${titleSuffix} | Agentcoder`,
+      title: `工作流案例详情${titleSuffix} | Codeflow`,
       description:
         "围绕风险、队列姿态、关联运行、事件时间线和下一步操作查看单个工作流案例。",
     };
   }
   return {
-    title: `Workflow Case detail${titleSuffix} | Agentcoder`,
+    title: `Workflow Case detail${titleSuffix} | Codeflow`,
     description:
-      "Inspect one Workflow Case across risk, queue posture, linked runs, event timeline, and the next operator action inside the Agentcoder command tower.",
+      "Inspect one Workflow Case across risk, queue posture, linked runs, event timeline, and the next operator action inside the Codeflow command tower.",
   };
 }
 
@@ -163,7 +163,7 @@ export default async function WorkflowDetailPage({
           <div className="section-header">
             <div>
               <p className="cell-sub mono muted">
-                {locale === "zh-CN" ? "Agentcoder / 工作流案例详情" : "Agentcoder / workflow case detail"}
+                {locale === "zh-CN" ? "Codeflow / 工作流案例详情" : "Codeflow / workflow case detail"}
               </p>
               <h1 id="workflow-detail-title">{workflowDetailPageCopy.title}</h1>
               <p>{workflowDetailPageCopy.subtitle}</p>
@@ -236,7 +236,7 @@ export default async function WorkflowDetailPage({
         <div className="section-header">
           <div>
             <p className="cell-sub mono muted">
-              {locale === "zh-CN" ? "Agentcoder / 工作流案例详情" : "Agentcoder / workflow case detail"}
+              {locale === "zh-CN" ? "Codeflow / 工作流案例详情" : "Codeflow / workflow case detail"}
             </p>
             <h1 id="workflow-detail-title">{workflowDetailPageCopy.title}</h1>
             <p>{workflowDetailPageCopy.subtitle}</p>

@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from agentcoder_orch.runners import agents_prompting
-from agentcoder_orch.runners import agents_runner as runner
+from codeflow_orch.runners import agents_prompting
+from codeflow_orch.runners import agents_runner as runner
 
 
 def _contract_with_worker_schema() -> dict:
@@ -32,7 +32,7 @@ def test_agents_prompt_aliases_match_module(monkeypatch, tmp_path: Path) -> None
     module_path = agents_prompting.resolve_output_schema_path(contract, "WORKER", schema_root)
     assert wrapper_path == module_path
 
-    monkeypatch.setenv("AGENTCODER_CODEX_MODEL", "gpt-test")
+    monkeypatch.setenv("CODEFLOW_CODEX_MODEL", "gpt-test")
     wrapper_payload = runner._build_codex_payload(contract, "do it", tmp_path)
     module_payload = agents_prompting.build_codex_payload(contract, "do it", tmp_path)
     assert wrapper_payload == module_payload

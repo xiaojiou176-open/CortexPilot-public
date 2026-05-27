@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.store.run_store import RunStore
 
 TASK_RESULT_ROLES = {
     "PM",
@@ -79,13 +79,13 @@ def sha256_file(path: Path) -> str:
 
 
 def trace_url(trace_id: str, run_id: str) -> str:
-    template = os.getenv("AGENTCODER_TRACE_URL_TEMPLATE", "").strip()
+    template = os.getenv("CODEFLOW_TRACE_URL_TEMPLATE", "").strip()
     if template:
         try:
             return template.format(trace_id=trace_id, run_id=run_id)
         except KeyError:
             return ""
-    base = os.getenv("AGENTCODER_TRACE_BASE_URL", "").strip()
+    base = os.getenv("CODEFLOW_TRACE_BASE_URL", "").strip()
     if not base:
         return ""
     return f"{base.rstrip('/')}/{trace_id}"
@@ -185,7 +185,7 @@ def detect_agents_overrides(repo_root: Path) -> list[str]:
 
 
 def per_run_codex_home_enabled() -> bool:
-    raw = os.getenv("AGENTCODER_CODEX_HOME_PER_RUN", "").strip().lower()
+    raw = os.getenv("CODEFLOW_CODEX_HOME_PER_RUN", "").strip().lower()
     return raw in {"1", "true", "yes"}
 
 

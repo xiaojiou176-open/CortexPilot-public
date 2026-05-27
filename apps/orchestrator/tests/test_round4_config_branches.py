@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 
-import agentcoder_orch.config as config_module
+import codeflow_orch.config as config_module
 
 
 def _reset_config_state() -> None:
@@ -24,22 +24,22 @@ def test_round4_config_properties_and_public_getters(monkeypatch: pytest.MonkeyP
     schema_root.mkdir(parents=True, exist_ok=True)
     contract_root.mkdir(parents=True, exist_ok=True)
 
-    monkeypatch.delenv("AGENTCODER_ENV_FILE", raising=False)
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_SCHEMA_ROOT", str(schema_root))
-    monkeypatch.setenv("AGENTCODER_CONTRACT_ROOT", str(contract_root))
-    monkeypatch.setenv("AGENTCODER_REPO_ROOT", str(tmp_path))
-    monkeypatch.setenv("AGENTCODER_LOGS_ROOT", str(logs_root))
-    monkeypatch.setenv("AGENTCODER_CACHE_ROOT", str(cache_root))
-    monkeypatch.setenv("AGENTCODER_MACHINE_CACHE_ROOT", str(tmp_path / "machine-cache"))
-    monkeypatch.setenv("AGENTCODER_RETENTION_MACHINE_CACHE_CAP_BYTES", "4096")
+    monkeypatch.delenv("CODEFLOW_ENV_FILE", raising=False)
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_SCHEMA_ROOT", str(schema_root))
+    monkeypatch.setenv("CODEFLOW_CONTRACT_ROOT", str(contract_root))
+    monkeypatch.setenv("CODEFLOW_REPO_ROOT", str(tmp_path))
+    monkeypatch.setenv("CODEFLOW_LOGS_ROOT", str(logs_root))
+    monkeypatch.setenv("CODEFLOW_CACHE_ROOT", str(cache_root))
+    monkeypatch.setenv("CODEFLOW_MACHINE_CACHE_ROOT", str(tmp_path / "machine-cache"))
+    monkeypatch.setenv("CODEFLOW_RETENTION_MACHINE_CACHE_CAP_BYTES", "4096")
 
     cfg = config_module.load_config()
 
     assert cfg.schema_root == schema_root
     assert cfg.repo_root == tmp_path
     assert cfg.contract_root_explicit is True
-    assert cfg.runtime_contract_root == tmp_path / ".runtime-cache" / "agentcoder" / "contracts"
+    assert cfg.runtime_contract_root == tmp_path / ".runtime-cache" / "codeflow" / "contracts"
     assert cfg.machine_cache_root == tmp_path / "machine-cache"
     assert cfg.retention_machine_cache_cap_bytes == 4096
 
@@ -51,7 +51,7 @@ def test_round4_config_properties_and_public_getters(monkeypatch: pytest.MonkeyP
 def test_round4_config_env_helpers_and_runtime_path_fallback(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     _reset_config_state()
 
-    monkeypatch.setenv("AGENTCODER_ENV_FILE", "custom.env")
+    monkeypatch.setenv("CODEFLOW_ENV_FILE", "custom.env")
     candidates = config_module._explicit_env_candidates(tmp_path)
     assert candidates == [Path("custom.env")]
 
@@ -123,15 +123,15 @@ def test_round4_config_machine_cache_cap_defaults_from_space_policy(
 }""",
         encoding="utf-8",
     )
-    monkeypatch.setenv("AGENTCODER_REPO_ROOT", str(tmp_path))
-    monkeypatch.delenv("AGENTCODER_RETENTION_MACHINE_CACHE_CAP_BYTES", raising=False)
+    monkeypatch.setenv("CODEFLOW_REPO_ROOT", str(tmp_path))
+    monkeypatch.delenv("CODEFLOW_RETENTION_MACHINE_CACHE_CAP_BYTES", raising=False)
 
     cfg = config_module.load_config()
 
     assert cfg.retention_machine_cache_cap_bytes == 7777
 
 
-def test_round4_config_prefers_agentcoder_aliases_for_core_runtime_inputs(
+def test_round4_config_prefers_codeflow_aliases_for_core_runtime_inputs(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     _reset_config_state()
@@ -140,13 +140,13 @@ def test_round4_config_prefers_agentcoder_aliases_for_core_runtime_inputs(
     repo_root = tmp_path / "repo-new"
     logs_root = tmp_path / "logs-new"
     cache_root = tmp_path / "cache-new"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_REPO_ROOT", str(repo_root))
-    monkeypatch.setenv("AGENTCODER_LOGS_ROOT", str(logs_root))
-    monkeypatch.setenv("AGENTCODER_CACHE_ROOT", str(cache_root))
-    monkeypatch.setenv("AGENTCODER_API_AUTH_REQUIRED", "false")
-    monkeypatch.setenv("AGENTCODER_API_TOKEN", "cp-token")
-    monkeypatch.setenv("AGENTCODER_DASHBOARD_PORT", "4100")
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_REPO_ROOT", str(repo_root))
+    monkeypatch.setenv("CODEFLOW_LOGS_ROOT", str(logs_root))
+    monkeypatch.setenv("CODEFLOW_CACHE_ROOT", str(cache_root))
+    monkeypatch.setenv("CODEFLOW_API_AUTH_REQUIRED", "false")
+    monkeypatch.setenv("CODEFLOW_API_TOKEN", "cp-token")
+    monkeypatch.setenv("CODEFLOW_DASHBOARD_PORT", "4100")
 
     cfg = config_module.load_config()
 
@@ -169,27 +169,27 @@ def test_round4_config_default_relative_runtime_paths_anchor_to_repo_root(
     work_dir.mkdir(parents=True, exist_ok=True)
 
     monkeypatch.chdir(work_dir)
-    monkeypatch.delenv("AGENTCODER_ENV_FILE", raising=False)
-    monkeypatch.delenv("AGENTCODER_RUNTIME_ROOT", raising=False)
-    monkeypatch.delenv("AGENTCODER_SCHEMA_ROOT", raising=False)
-    monkeypatch.delenv("AGENTCODER_CONTRACT_ROOT", raising=False)
-    monkeypatch.delenv("AGENTCODER_RUNTIME_CONTRACT_ROOT", raising=False)
-    monkeypatch.delenv("AGENTCODER_WORKTREE_ROOT", raising=False)
-    monkeypatch.delenv("AGENTCODER_RUNS_ROOT", raising=False)
-    monkeypatch.delenv("AGENTCODER_LOGS_ROOT", raising=False)
-    monkeypatch.delenv("AGENTCODER_CACHE_ROOT", raising=False)
-    monkeypatch.delenv("AGENTCODER_REPO_ROOT", raising=False)
+    monkeypatch.delenv("CODEFLOW_ENV_FILE", raising=False)
+    monkeypatch.delenv("CODEFLOW_RUNTIME_ROOT", raising=False)
+    monkeypatch.delenv("CODEFLOW_SCHEMA_ROOT", raising=False)
+    monkeypatch.delenv("CODEFLOW_CONTRACT_ROOT", raising=False)
+    monkeypatch.delenv("CODEFLOW_RUNTIME_CONTRACT_ROOT", raising=False)
+    monkeypatch.delenv("CODEFLOW_WORKTREE_ROOT", raising=False)
+    monkeypatch.delenv("CODEFLOW_RUNS_ROOT", raising=False)
+    monkeypatch.delenv("CODEFLOW_LOGS_ROOT", raising=False)
+    monkeypatch.delenv("CODEFLOW_CACHE_ROOT", raising=False)
+    monkeypatch.delenv("CODEFLOW_REPO_ROOT", raising=False)
     monkeypatch.setattr(config_module, "_repo_root", lambda: repo_root)
 
     cfg = config_module.load_config()
 
     assert cfg.repo_root == repo_root
-    assert cfg.runtime_root == repo_root / ".runtime-cache" / "agentcoder"
+    assert cfg.runtime_root == repo_root / ".runtime-cache" / "codeflow"
     assert cfg.schema_root == repo_root / "schemas"
     assert cfg.contract_root == repo_root / "contracts"
-    assert cfg.runtime_contract_root == repo_root / ".runtime-cache" / "agentcoder" / "contracts"
-    assert cfg.worktree_root == repo_root / ".runtime-cache" / "agentcoder" / "worktrees"
-    assert cfg.runs_root == repo_root / ".runtime-cache" / "agentcoder" / "runs"
+    assert cfg.runtime_contract_root == repo_root / ".runtime-cache" / "codeflow" / "contracts"
+    assert cfg.worktree_root == repo_root / ".runtime-cache" / "codeflow" / "worktrees"
+    assert cfg.runs_root == repo_root / ".runtime-cache" / "codeflow" / "runs"
     assert cfg.logs_root == repo_root / ".runtime-cache" / "logs"
     assert cfg.cache_root == repo_root / ".runtime-cache" / "cache"
 
@@ -201,17 +201,17 @@ def test_round4_config_shadowed_env_and_explicit_env_loading(monkeypatch: pytest
     monkeypatch.setattr(
         config_module,
         "_ENV_OVERRIDE_ORDER",
-        {"base_url": ("AGENTCODER_PROVIDER_BASE_URL", "AGENTCODER_PROVIDER_MODEL")},
+        {"base_url": ("CODEFLOW_PROVIDER_BASE_URL", "CODEFLOW_PROVIDER_MODEL")},
     )
-    monkeypatch.setenv("AGENTCODER_PROVIDER_BASE_URL", "https://api.primary.local/v1")
-    monkeypatch.setenv("AGENTCODER_PROVIDER_MODEL", "https://api.shadow.local/v1")
+    monkeypatch.setenv("CODEFLOW_PROVIDER_BASE_URL", "https://api.primary.local/v1")
+    monkeypatch.setenv("CODEFLOW_PROVIDER_MODEL", "https://api.shadow.local/v1")
     with pytest.raises(RuntimeError, match="env effective-chain breakpoint"):
         config_module._assert_no_shadowed_env_values()
 
     _reset_config_state()
     monkeypatch.setattr(config_module, "_ENV_OVERRIDE_ORDER", original_override_order)
-    monkeypatch.delenv("AGENTCODER_PROVIDER_BASE_URL", raising=False)
-    monkeypatch.delenv("AGENTCODER_PROVIDER_MODEL", raising=False)
+    monkeypatch.delenv("CODEFLOW_PROVIDER_BASE_URL", raising=False)
+    monkeypatch.delenv("CODEFLOW_PROVIDER_MODEL", raising=False)
 
     class _FlipLoadedLock:
         def __enter__(self):
@@ -230,17 +230,17 @@ def test_round4_config_shadowed_env_and_explicit_env_loading(monkeypatch: pytest
     repo_root = tmp_path / "repo"
     env_file = repo_root / "envs" / "local.env"
     env_file.parent.mkdir(parents=True, exist_ok=True)
-    env_file.write_text("AGENTCODER_PROVIDER=gemini\n", encoding="utf-8")
+    env_file.write_text("CODEFLOW_PROVIDER=gemini\n", encoding="utf-8")
 
     monkeypatch.setattr(config_module, "_repo_root", lambda: repo_root)
-    monkeypatch.setenv("AGENTCODER_ENV_FILE", "envs/local.env")
+    monkeypatch.setenv("CODEFLOW_ENV_FILE", "envs/local.env")
     config_module._load_explicit_env_files()
     assert config_module._ENV_LOADED is True
 
     _reset_config_state()
     monkeypatch.setattr(config_module, "_repo_root", lambda: repo_root)
-    monkeypatch.setenv("AGENTCODER_ENV_FILE", "envs/missing.env")
-    with pytest.raises(RuntimeError, match="AGENTCODER_ENV_FILE not found"):
+    monkeypatch.setenv("CODEFLOW_ENV_FILE", "envs/missing.env")
+    with pytest.raises(RuntimeError, match="CODEFLOW_ENV_FILE not found"):
         config_module._load_explicit_env_files()
 
 

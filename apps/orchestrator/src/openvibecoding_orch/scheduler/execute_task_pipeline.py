@@ -8,46 +8,46 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Callable
 
-from agentcoder_orch.runners.tool_runner import ToolRunner
-from agentcoder_orch.store.run_store import RunStore
-from agentcoder_orch.scheduler.execute_task_preflight import (
+from codeflow_orch.runners.tool_runner import ToolRunner
+from codeflow_orch.store.run_store import RunStore
+from codeflow_orch.scheduler.execute_task_preflight import (
     maybe_execute_temporal_workflow,
     prepare_runtime_and_policy_gates,
 )
-from agentcoder_orch.scheduler.execute_task_types import ExecutionRuntimeState, ExecutionSetup
+from codeflow_orch.scheduler.execute_task_types import ExecutionRuntimeState, ExecutionSetup
 
 
 @contextmanager
 def isolated_execution_env() -> Any:
-    snapshot_agentcoder_run_id = os.environ.get("AGENTCODER_RUN_ID")
-    snapshot_agentcoder_trace_id = os.environ.get("AGENTCODER_TRACE_ID")
-    snapshot_agentcoder_codex_profile = os.environ.get("AGENTCODER_CODEX_PROFILE")
-    snapshot_agentcoder_codex_version = os.environ.get("AGENTCODER_CODEX_VERSION")
-    snapshot_agentcoder_network_approved = os.environ.get("AGENTCODER_NETWORK_APPROVED")
+    snapshot_codeflow_run_id = os.environ.get("CODEFLOW_RUN_ID")
+    snapshot_codeflow_trace_id = os.environ.get("CODEFLOW_TRACE_ID")
+    snapshot_codeflow_codex_profile = os.environ.get("CODEFLOW_CODEX_PROFILE")
+    snapshot_codeflow_codex_version = os.environ.get("CODEFLOW_CODEX_VERSION")
+    snapshot_codeflow_network_approved = os.environ.get("CODEFLOW_NETWORK_APPROVED")
     snapshot_codex_home = os.environ.get("CODEX_HOME")
     try:
         yield
     finally:
-        if snapshot_agentcoder_run_id is None:
-            os.environ.pop("AGENTCODER_RUN_ID", None)
+        if snapshot_codeflow_run_id is None:
+            os.environ.pop("CODEFLOW_RUN_ID", None)
         else:
-            os.environ["AGENTCODER_RUN_ID"] = snapshot_agentcoder_run_id
-        if snapshot_agentcoder_trace_id is None:
-            os.environ.pop("AGENTCODER_TRACE_ID", None)
+            os.environ["CODEFLOW_RUN_ID"] = snapshot_codeflow_run_id
+        if snapshot_codeflow_trace_id is None:
+            os.environ.pop("CODEFLOW_TRACE_ID", None)
         else:
-            os.environ["AGENTCODER_TRACE_ID"] = snapshot_agentcoder_trace_id
-        if snapshot_agentcoder_codex_profile is None:
-            os.environ.pop("AGENTCODER_CODEX_PROFILE", None)
+            os.environ["CODEFLOW_TRACE_ID"] = snapshot_codeflow_trace_id
+        if snapshot_codeflow_codex_profile is None:
+            os.environ.pop("CODEFLOW_CODEX_PROFILE", None)
         else:
-            os.environ["AGENTCODER_CODEX_PROFILE"] = snapshot_agentcoder_codex_profile
-        if snapshot_agentcoder_codex_version is None:
-            os.environ.pop("AGENTCODER_CODEX_VERSION", None)
+            os.environ["CODEFLOW_CODEX_PROFILE"] = snapshot_codeflow_codex_profile
+        if snapshot_codeflow_codex_version is None:
+            os.environ.pop("CODEFLOW_CODEX_VERSION", None)
         else:
-            os.environ["AGENTCODER_CODEX_VERSION"] = snapshot_agentcoder_codex_version
-        if snapshot_agentcoder_network_approved is None:
-            os.environ.pop("AGENTCODER_NETWORK_APPROVED", None)
+            os.environ["CODEFLOW_CODEX_VERSION"] = snapshot_codeflow_codex_version
+        if snapshot_codeflow_network_approved is None:
+            os.environ.pop("CODEFLOW_NETWORK_APPROVED", None)
         else:
-            os.environ["AGENTCODER_NETWORK_APPROVED"] = snapshot_agentcoder_network_approved
+            os.environ["CODEFLOW_NETWORK_APPROVED"] = snapshot_codeflow_network_approved
         if snapshot_codex_home is None:
             os.environ.pop("CODEX_HOME", None)
         else:
@@ -78,11 +78,11 @@ def prepare_execution_setup(
 ) -> ExecutionSetup:
     runtime_options = contract.get("runtime_options") if isinstance(contract.get("runtime_options"), dict) else {}
     runtime_runner = str(runtime_options.get("runner", "")).strip().lower()
-    runner_name = runtime_runner or os.getenv("AGENTCODER_RUNNER", "agents").strip().lower()
+    runner_name = runtime_runner or os.getenv("CODEFLOW_RUNNER", "agents").strip().lower()
     allow_codex_exec = allow_codex_exec_fn()
     parent_task_id = str(contract.get("parent_task_id", "")).strip()
-    diagnostic_root_override = os.getenv("AGENTCODER_DIAGNOSTIC_RUNS_ROOT", "").strip()
-    runs_root_override = os.getenv("AGENTCODER_RUNS_ROOT", "").strip()
+    diagnostic_root_override = os.getenv("CODEFLOW_DIAGNOSTIC_RUNS_ROOT", "").strip()
+    runs_root_override = os.getenv("CODEFLOW_RUNS_ROOT", "").strip()
     diagnostic_mode = (
         runner_name == "codex"
         and allow_codex_exec
@@ -91,8 +91,8 @@ def prepare_execution_setup(
         and (not mock_mode or bool(diagnostic_root_override))
     )
     if diagnostic_mode:
-        raw_root = diagnostic_root_override or ".runtime-cache/agentcoder/runs_diagnostic"
-        diagnostic_root = Path(raw_root) if raw_root else Path(".runtime-cache/agentcoder/runs_diagnostic")
+        raw_root = diagnostic_root_override or ".runtime-cache/codeflow/runs_diagnostic"
+        diagnostic_root = Path(raw_root) if raw_root else Path(".runtime-cache/codeflow/runs_diagnostic")
         store = run_store_cls(runs_root=diagnostic_root)
 
     task_id = contract.get("task_id", "task")
@@ -100,13 +100,13 @@ def prepare_execution_setup(
     trace_id = uuid.uuid4().hex
 
     mcp_only = mcp_only_enabled_fn()
-    workflow_id = str((workflow_binding or {}).get("workflow_id") or os.getenv("AGENTCODER_TEMPORAL_WORKFLOW_ID", "")).strip()
+    workflow_id = str((workflow_binding or {}).get("workflow_id") or os.getenv("CODEFLOW_TEMPORAL_WORKFLOW_ID", "")).strip()
     workflow_info: dict[str, Any] | None = None
     if workflow_id:
         workflow_info = {
             "workflow_id": workflow_id,
-            "task_queue": str((workflow_binding or {}).get("task_queue") or os.getenv("AGENTCODER_TEMPORAL_TASK_QUEUE", "agentcoder-orch")),
-            "namespace": str((workflow_binding or {}).get("namespace") or os.getenv("AGENTCODER_TEMPORAL_NAMESPACE", "default")),
+            "task_queue": str((workflow_binding or {}).get("task_queue") or os.getenv("CODEFLOW_TEMPORAL_TASK_QUEUE", "codeflow-orch")),
+            "namespace": str((workflow_binding or {}).get("namespace") or os.getenv("CODEFLOW_TEMPORAL_NAMESPACE", "default")),
             "status": "RUNNING",
         }
 
@@ -115,7 +115,7 @@ def prepare_execution_setup(
     policy_pack = resolve_policy_pack_fn(contract)
     contract["policy_pack"] = policy_pack
 
-    profile = os.getenv("AGENTCODER_CODEX_PROFILE", "").strip()
+    profile = os.getenv("CODEFLOW_CODEX_PROFILE", "").strip()
     if not profile:
         profile = pick_profile_fn() or ""
     contract["log_refs"] = build_log_refs_fn(run_id, task_id, store._runs_root, trace_id)
@@ -147,10 +147,10 @@ def prepare_execution_setup(
         },
         "versions": {
             "contracts_schema": "v1",
-            "orchestrator": os.getenv("AGENTCODER_ORCHESTRATOR_VERSION", "local"),
+            "orchestrator": os.getenv("CODEFLOW_ORCHESTRATOR_VERSION", "local"),
             "codex_cli": codex_version or "unknown",
             "python": sys.version.split()[0],
-            "node": os.getenv("AGENTCODER_NODE_VERSION", ""),
+            "node": os.getenv("CODEFLOW_NODE_VERSION", ""),
         },
         "tasks": [],
         "artifacts": [],
@@ -344,7 +344,7 @@ def run_execution_pipeline(
             return state
         if codex_home:
             if per_run_codex_home_enabled_fn():
-                runtime_root = Path(os.getenv("AGENTCODER_RUNTIME_ROOT", repo_root / ".runtime-cache/agentcoder")).resolve()
+                runtime_root = Path(os.getenv("CODEFLOW_RUNTIME_ROOT", repo_root / ".runtime-cache/codeflow")).resolve()
                 codex_home = str(materialize_codex_home_fn(Path(codex_home), run_id, runtime_root))
             os.environ["CODEX_HOME"] = codex_home
             store.append_event(

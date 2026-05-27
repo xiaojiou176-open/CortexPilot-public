@@ -33,7 +33,7 @@ def http_json(
     headers: dict[str, str] = {}
     if token:
         headers["Authorization"] = f"Bearer {token}"
-        headers["x-agentcoder-role"] = "OWNER"
+        headers["x-codeflow-role"] = "OWNER"
     if payload is not None:
         data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         headers["Content-Type"] = "application/json"
@@ -156,7 +156,7 @@ def _probe_playwright_browser() -> None:
 def _ensure_playwright_tmpdir(scope: str = "ui-full-e2e") -> None:
     temp_root = str(os.environ.get("RUNNER_TEMP", "")).strip()
     if not temp_root:
-        temp_root = str(ROOT / ".runtime-cache" / "agentcoder" / "temp")
+        temp_root = str(ROOT / ".runtime-cache" / "codeflow" / "temp")
     target_dir = Path(temp_root) / "playwright-artifacts" / scope
     ensure_dir(target_dir)
     os.environ["TMPDIR"] = str(target_dir)
@@ -171,8 +171,8 @@ def _playwright_browser_bootstrap_lock() -> Any:
         return
     lock_path = Path(
             os.environ.get(
-                "AGENTCODER_UI_PLAYWRIGHT_BOOTSTRAP_LOCK",
-                str(ROOT / ".runtime-cache" / "agentcoder" / "locks" / "ui_playwright_browser_bootstrap.lock"),
+                "CODEFLOW_UI_PLAYWRIGHT_BOOTSTRAP_LOCK",
+                str(ROOT / ".runtime-cache" / "codeflow" / "locks" / "ui_playwright_browser_bootstrap.lock"),
             )
     )
     ensure_dir(lock_path.parent)

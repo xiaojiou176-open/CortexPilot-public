@@ -11,12 +11,12 @@ ORCH_SRC = ROOT_DIR / "apps" / "orchestrator" / "src"
 if str(ORCH_SRC) not in sys.path:
     sys.path.insert(0, str(ORCH_SRC))
 
-from agentcoder_orch.contract.validator import ContractValidator
-from agentcoder_orch.queue import QueueStore
+from codeflow_orch.contract.validator import ContractValidator
+from codeflow_orch.queue import QueueStore
 
 
 def _queue_path() -> Path:
-    runtime_root = Path(os.getenv("AGENTCODER_RUNTIME_ROOT", ".runtime-cache/agentcoder"))
+    runtime_root = Path(os.getenv("CODEFLOW_RUNTIME_ROOT", ".runtime-cache/codeflow"))
     return runtime_root / "queue.jsonl"
 
 

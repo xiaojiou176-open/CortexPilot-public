@@ -1,9 +1,9 @@
 import json
 from pathlib import Path
 
-from agentcoder_orch.services.rollback_service import RollbackService
-from agentcoder_orch.store import run_store as run_store_module
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.services.rollback_service import RollbackService
+from codeflow_orch.store import run_store as run_store_module
+from codeflow_orch.store.run_store import RunStore
 
 
 def _write_json(path: Path, payload: dict) -> None:
@@ -79,7 +79,7 @@ def test_rollback_service_apply_failure_updates_manifest(tmp_path: Path, monkeyp
     (run_dir / "worktree_ref.txt").write_text(str(worktree_root), encoding="utf-8")
 
     monkeypatch.setattr(
-        "agentcoder_orch.services.rollback_service.apply_rollback",
+        "codeflow_orch.services.rollback_service.apply_rollback",
         lambda _worktree_path, _rollback: {"ok": False, "error": "synthetic failure"},
     )
 

@@ -4,7 +4,7 @@ set -euo pipefail
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$REPO_ROOT"
 
-MAP_PATH="${AGENTCODER_DOC_DRIFT_MAP:-$REPO_ROOT/configs/doc_drift_map.json}"
+MAP_PATH="${CODEFLOW_DOC_DRIFT_MAP:-$REPO_ROOT/configs/doc_drift_map.json}"
 
 if [[ ! -f "$MAP_PATH" ]]; then
   echo "❌ [doc-drift-gate] mapping file not found: $MAP_PATH" >&2
@@ -12,10 +12,10 @@ if [[ ! -f "$MAP_PATH" ]]; then
 fi
 
 collect_target_files() {
-  local mode="${AGENTCODER_DOC_GATE_MODE:-staged}"
+  local mode="${CODEFLOW_DOC_GATE_MODE:-staged}"
   if [[ "$mode" == "staged" ]]; then
-    if [[ -n "${AGENTCODER_STAGED_FILES:-}" ]]; then
-      printf '%s\n' "$AGENTCODER_STAGED_FILES" | tr ' ' '\n' | sed '/^$/d'
+    if [[ -n "${CODEFLOW_STAGED_FILES:-}" ]]; then
+      printf '%s\n' "$CODEFLOW_STAGED_FILES" | tr ' ' '\n' | sed '/^$/d'
     else
       git diff --cached --name-only --diff-filter=ACMR
     fi
@@ -23,10 +23,10 @@ collect_target_files() {
   fi
 
   if [[ "$mode" == "ci-diff" ]]; then
-    local base_sha="${AGENTCODER_DOC_GATE_BASE_SHA:-}"
-    local head_sha="${AGENTCODER_DOC_GATE_HEAD_SHA:-}"
+    local base_sha="${CODEFLOW_DOC_GATE_BASE_SHA:-}"
+    local head_sha="${CODEFLOW_DOC_GATE_HEAD_SHA:-}"
     if [[ -z "$base_sha" || -z "$head_sha" ]]; then
-      echo "❌ [doc-drift-gate] ci-diff mode requires AGENTCODER_DOC_GATE_BASE_SHA and AGENTCODER_DOC_GATE_HEAD_SHA." >&2
+      echo "❌ [doc-drift-gate] ci-diff mode requires CODEFLOW_DOC_GATE_BASE_SHA and CODEFLOW_DOC_GATE_HEAD_SHA." >&2
       return 1
     fi
     if [[ "$base_sha" == "0000000000000000000000000000000000000000" ]]; then
@@ -45,7 +45,7 @@ collect_target_files() {
     return 0
   fi
 
-  echo "❌ [doc-drift-gate] unsupported AGENTCODER_DOC_GATE_MODE=$mode (expected: staged|ci-diff)." >&2
+  echo "❌ [doc-drift-gate] unsupported CODEFLOW_DOC_GATE_MODE=$mode (expected: staged|ci-diff)." >&2
   return 1
 }
 
@@ -57,7 +57,7 @@ if [[ -z "$staged_files" ]]; then
   exit 0
 fi
 
-export AGENTCODER_DOC_DRIFT_STAGED_FILES="$staged_files"
+export CODEFLOW_DOC_DRIFT_STAGED_FILES="$staged_files"
 
 python3 - "$MAP_PATH" <<'PY'
 from __future__ import annotations
@@ -127,7 +127,7 @@ def _matches(path: str, glob_patterns: list[str]) -> bool:
 
 
 map_path = sys.argv[1]
-staged_raw = os.environ.get("AGENTCODER_DOC_DRIFT_STAGED_FILES", "")
+staged_raw = os.environ.get("CODEFLOW_DOC_DRIFT_STAGED_FILES", "")
 staged_files = [line.strip() for line in staged_raw.splitlines() if line.strip()]
 rules = _load_rules(map_path)
 rules.extend(

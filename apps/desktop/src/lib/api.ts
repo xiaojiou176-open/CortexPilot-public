@@ -1,5 +1,5 @@
-import { createDesktopApiClient, type RequestControlOptions } from "@agentcoder/frontend-api-client";
-import type { PmSessionSort } from "@agentcoder/frontend-api-contract";
+import { createDesktopApiClient, type RequestControlOptions } from "@codeflow/frontend-api-client";
+import type { PmSessionSort } from "@codeflow/frontend-api-contract";
 import type {
   AgentCatalogPayload,
   AgentStatusPayload,

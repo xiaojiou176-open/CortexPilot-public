@@ -1,5 +1,5 @@
 // GENERATED FILE. DO NOT EDIT.
-// Source: docs/api/openapi.agentcoder.json
+// Source: docs/api/openapi.codeflow.json
 
 export const PM_JOURNEY_STAGES = [
   "discover",

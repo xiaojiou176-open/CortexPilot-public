@@ -1,4 +1,4 @@
-import { detectPreferredUiLocale } from "@agentcoder/frontend-shared/uiLocale";
+import { detectPreferredUiLocale } from "@codeflow/frontend-shared/uiLocale";
 import { Button } from "../ui/Button";
 import type { ChainNodeData } from "../../lib/desktopUi";
 import type { Node } from "@xyflow/react";

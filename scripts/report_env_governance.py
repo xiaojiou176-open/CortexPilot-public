@@ -116,12 +116,12 @@ def collect_report(
     def timeout_family_key(name: str) -> str | None:
         if not name.endswith("_TIMEOUT_SEC"):
             return None
-        if not name.startswith("AGENTCODER_CI_STEP"):
+        if not name.startswith("CODEFLOW_CI_STEP"):
             return None
         base = name[: -len("_TIMEOUT_SEC")]
         parts = base.split("_")
-        # AGENTCODER_CI_STEP8_4_INVENTORY -> AGENTCODER_CI_STEP8_4_TIMEOUT_SEC
-        # AGENTCODER_CI_STEP8_2 -> AGENTCODER_CI_STEP8_TIMEOUT_SEC
+        # CODEFLOW_CI_STEP8_4_INVENTORY -> CODEFLOW_CI_STEP8_4_TIMEOUT_SEC
+        # CODEFLOW_CI_STEP8_2 -> CODEFLOW_CI_STEP8_TIMEOUT_SEC
         if len(parts) >= 5 and parts[4].isdigit():
             return "_".join(parts[:5]) + "_TIMEOUT_SEC"
         if len(parts) >= 4:

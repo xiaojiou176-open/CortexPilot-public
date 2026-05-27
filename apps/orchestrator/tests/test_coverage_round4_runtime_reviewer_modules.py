@@ -7,11 +7,11 @@ from pathlib import Path
 
 import pytest
 
-from agentcoder_orch.chain import runtime_helpers as runtime_helpers
-from agentcoder_orch.contract import validator as validator_mod
-from agentcoder_orch.reviewer import reviewer as reviewer_mod
-from agentcoder_orch.runners import codex_runner as codex_mod
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.chain import runtime_helpers as runtime_helpers
+from codeflow_orch.contract import validator as validator_mod
+from codeflow_orch.reviewer import reviewer as reviewer_mod
+from codeflow_orch.runners import codex_runner as codex_mod
+from codeflow_orch.store.run_store import RunStore
 
 
 def _output_schema_artifacts(role: str = "worker") -> list[dict]:
@@ -71,9 +71,9 @@ def test_validator_helper_edge_branches(monkeypatch: pytest.MonkeyPatch, tmp_pat
     assert validator_mod._normalize_command(None) == ""
     assert validator_mod._is_trivial_acceptance_command(":") is True
 
-    monkeypatch.setenv("AGENTCODER_SUPERPOWERS_GATE_ENFORCE", "1")
+    monkeypatch.setenv("CODEFLOW_SUPERPOWERS_GATE_ENFORCE", "1")
     assert validator_mod.is_superpowers_gate_required({}) is True
-    monkeypatch.delenv("AGENTCODER_SUPERPOWERS_GATE_ENFORCE", raising=False)
+    monkeypatch.delenv("CODEFLOW_SUPERPOWERS_GATE_ENFORCE", raising=False)
     assert validator_mod.is_superpowers_gate_required({"evidence_links": [1, "no-match"]}) is False
     assert (
         validator_mod.is_superpowers_gate_required(
@@ -276,7 +276,7 @@ def test_runtime_helpers_edge_branches(tmp_path: Path) -> None:
 def test_codex_runner_helper_and_no_communicate_path(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    monkeypatch.setenv("AGENTCODER_CODEX_EXEC_TIMEOUT_SEC", "bad")
+    monkeypatch.setenv("CODEFLOW_CODEX_EXEC_TIMEOUT_SEC", "bad")
     assert codex_mod._exec_timeout_sec() == 300
 
     assert (
@@ -307,9 +307,9 @@ def test_codex_runner_helper_and_no_communicate_path(
 
     store = RunStore(runs_root=tmp_path / "runs")
     run_id = store.create_run("task_codex_no_communicate")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
-    monkeypatch.setenv("AGENTCODER_MCP_ONLY", "0")
-    monkeypatch.setenv("AGENTCODER_CODEX_USE_OUTPUT_SCHEMA", "1")
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_MCP_ONLY", "0")
+    monkeypatch.setenv("CODEFLOW_CODEX_USE_OUTPUT_SCHEMA", "1")
 
     payload = {
         "event": "MESSAGE",
@@ -424,8 +424,8 @@ def test_reviewer_and_codex_reviewer_edge_branches(
         return _ProcOk()
 
     monkeypatch.setattr("subprocess.Popen", _popen_ok)
-    monkeypatch.setenv("AGENTCODER_CODEX_USE_OUTPUT_SCHEMA", "1")
-    monkeypatch.setenv("AGENTCODER_CODEX_MODEL", "gemini-test")
+    monkeypatch.setenv("CODEFLOW_CODEX_USE_OUTPUT_SCHEMA", "1")
+    monkeypatch.setenv("CODEFLOW_CODEX_MODEL", "gemini-test")
 
     contract_audit = dict(contract)
     contract_audit["audit_only"] = True

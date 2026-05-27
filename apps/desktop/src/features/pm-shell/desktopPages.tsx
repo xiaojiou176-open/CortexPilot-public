@@ -1,5 +1,5 @@
 import { lazy, type ReactElement } from "react";
-import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@agentcoder/frontend-shared/uiCopy";
+import { DEFAULT_UI_LOCALE, getUiCopy, type UiLocale } from "@codeflow/frontend-shared/uiCopy";
 
 export type DesktopPageKey =
   | "overview"
@@ -72,7 +72,7 @@ export function getDesktopPageTitle(page: DesktopPageKey, locale: UiLocale): str
     search: localized.search,
     "change-gates": localized.diffGate,
   };
-  return titles[page] || "Agentcoder Command Tower";
+  return titles[page] || "Codeflow Command Tower";
 }
 
 const OverviewPage = lazy(async () => {

@@ -80,7 +80,7 @@ describe("workflows queue page", () => {
 
   it("exports workflow list metadata for route-level discoverability", () => {
     const workflowsMetadata = buildWorkflowsMetadata("en");
-    expect(workflowsMetadata.title).toBe("Workflow Cases | Agentcoder");
+    expect(workflowsMetadata.title).toBe("Workflow Cases | Codeflow");
     expect(workflowsMetadata.description).toContain("queue posture");
   });
 
@@ -100,7 +100,7 @@ describe("workflows queue page", () => {
   it("uses shared locale copy for the workflow list surface", async () => {
     mockCookies.mockResolvedValue({
       get: () => ({ value: "zh-CN" }),
-      toString: () => "agentcoder.ui-locale=zh-CN",
+      toString: () => "codeflow.ui-locale=zh-CN",
     });
 
     const view = await WorkflowsPage();

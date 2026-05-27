@@ -9,8 +9,8 @@ from fastapi.testclient import TestClient
 from hypothesis import given
 from hypothesis import strategies as st
 
-from agentcoder_orch.api import main as api_main
-from agentcoder_orch.gates import tests_gate
+from codeflow_orch.api import main as api_main
+from codeflow_orch.gates import tests_gate
 
 
 def test_normalize_command_fuzz_never_raises() -> None:
@@ -24,8 +24,8 @@ def test_normalize_command_fuzz_never_raises() -> None:
 def test_command_tower_alerts_contract_shape(tmp_path: Path, monkeypatch) -> None:
     runtime_root = tmp_path / "runtime"
     runs_root = runtime_root / "runs"
-    monkeypatch.setenv("AGENTCODER_RUNTIME_ROOT", str(runtime_root))
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_RUNTIME_ROOT", str(runtime_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
 
     client = TestClient(api_main.app)
     response = client.get("/api/command-tower/alerts")

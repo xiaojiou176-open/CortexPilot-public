@@ -1,43 +1,43 @@
 services:
   - type: web
-    name: agentcoder-api
+    name: codeflow-api
     runtime: python
     plan: free
     buildCommand: python -m pip install --upgrade pip && python -m pip install -r apps/orchestrator/requirements.txt && python -m pip install -e apps/orchestrator
-    startCommand: PYTHONPATH=apps/orchestrator/src python -m agentcoder_orch.cli serve --host 0.0.0.0 --port $PORT
+    startCommand: PYTHONPATH=apps/orchestrator/src python -m codeflow_orch.cli serve --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
-      - key: AGENTCODER_API_AUTH_REQUIRED
+      - key: CODEFLOW_API_AUTH_REQUIRED
         value: "true"
-      - key: AGENTCODER_API_ALLOWED_ORIGINS
+      - key: CODEFLOW_API_ALLOWED_ORIGINS
         sync: false
-      - key: AGENTCODER_API_TOKEN
+      - key: CODEFLOW_API_TOKEN
         sync: false
-      - key: AGENTCODER_PROVIDER
+      - key: CODEFLOW_PROVIDER
         value: gemini
       - key: GEMINI_API_KEY
         sync: false
-      - key: AGENTCODER_RUNTIME_ROOT
-        value: /var/data/agentcoder
-      - key: AGENTCODER_RUNS_ROOT
-        value: /var/data/agentcoder/runs
-      - key: AGENTCODER_WORKTREE_ROOT
-        value: /var/data/agentcoder/worktrees
-      - key: AGENTCODER_LOGS_ROOT
+      - key: CODEFLOW_RUNTIME_ROOT
+        value: /var/data/codeflow
+      - key: CODEFLOW_RUNS_ROOT
+        value: /var/data/codeflow/runs
+      - key: CODEFLOW_WORKTREE_ROOT
+        value: /var/data/codeflow/worktrees
+      - key: CODEFLOW_LOGS_ROOT
         value: /var/data/logs
     disk:
-      name: agentcoder-runtime
+      name: codeflow-runtime
       mountPath: /var/data
       sizeGB: 1
 
   - type: web
-    name: agentcoder-dashboard
+    name: codeflow-dashboard
     runtime: node
     plan: free
     buildCommand: corepack enable pnpm && pnpm install --frozen-lockfile && pnpm --dir apps/dashboard build
     startCommand: corepack enable pnpm && pnpm --dir apps/dashboard exec next start -p $PORT -H 0.0.0.0
     envVars:
-      - key: NEXT_PUBLIC_AGENTCODER_API_BASE
+      - key: NEXT_PUBLIC_CODEFLOW_API_BASE
         sync: false
-      - key: AGENTCODER_API_TOKEN
+      - key: CODEFLOW_API_TOKEN
         sync: false

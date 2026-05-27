@@ -19,15 +19,15 @@ from tests.helpers.mcp_proxy import ProxyClient, start_proxy, stop_proxy
 
 
 def _mcp_e2e_enabled() -> bool:
-    return os.getenv("AGENTCODER_ENABLE_MCP_E2E", "").strip().lower() in {"1", "true", "yes"}
+    return os.getenv("CODEFLOW_ENABLE_MCP_E2E", "").strip().lower() in {"1", "true", "yes"}
 
 
 def _require_mcp_e2e_or_skip() -> None:
     enabled = _mcp_e2e_enabled()
-    require = os.getenv("AGENTCODER_REQUIRE_MCP_E2E", "").strip().lower() in {"1", "true", "yes"}
+    require = os.getenv("CODEFLOW_REQUIRE_MCP_E2E", "").strip().lower() in {"1", "true", "yes"}
     if not enabled:
         if require:
-            pytest.fail("mcp concurrency e2e is required but disabled (set AGENTCODER_ENABLE_MCP_E2E=1)")
+            pytest.fail("mcp concurrency e2e is required but disabled (set CODEFLOW_ENABLE_MCP_E2E=1)")
         pytest.skip("mcp concurrency e2e disabled")
     if shutil.which("codex") is None:
         if require:
@@ -70,7 +70,7 @@ def test_mcp_server_single_process_multi_request(tmp_path: Path) -> None:
         assert "codex" in names_b
 
         # stdio transport is single-client; probe secondary initialize for evidence.
-        probe_initialize(handle, request_id=4, client_name="agentcoder_test_b", timeout=2.0)
+        probe_initialize(handle, request_id=4, client_name="codeflow_test_b", timeout=2.0)
     finally:
         terminate_mcp_server(handle)
 
@@ -100,8 +100,8 @@ def test_mcp_multi_client_proxy(tmp_path: Path) -> None:
                 handle.proc.stdin.write(json.dumps(send_payload) + "\n")
                 handle.proc.stdin.flush()
 
-        _init(client_a, "agentcoder_a")
-        _init(client_b, "agentcoder_b")
+        _init(client_a, "codeflow_a")
+        _init(client_b, "codeflow_b")
 
         def _tools(client: ProxyClient):
             resp = client.call("tools/list", {}, timeout=5.0)

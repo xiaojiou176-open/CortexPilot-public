@@ -29,7 +29,7 @@ def test_doctor_e2e(tmp_path: Path) -> None:
             str(requirements_path),
             "python",
             "-m",
-            "agentcoder_orch.cli",
+            "codeflow_orch.cli",
             "doctor",
         ],
         cwd=repo_root,

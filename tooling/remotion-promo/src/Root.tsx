@@ -1,12 +1,12 @@
 import {Composition} from "remotion";
-import {AgentcoderTeaser} from "./Teaser";
+import {CodeflowTeaser} from "./Teaser";
 
 export const RemotionRoot = () => {
   return (
     <>
       <Composition
-        id="AgentcoderTeaser"
-        component={AgentcoderTeaser}
+        id="CodeflowTeaser"
+        component={CodeflowTeaser}
         width={1280}
         height={720}
         fps={30}

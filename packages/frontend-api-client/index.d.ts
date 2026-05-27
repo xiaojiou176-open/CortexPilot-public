@@ -5,13 +5,13 @@ import type {
   RoleConfigApplyResponse,
   RoleConfigPreviewResponse,
   RoleConfigSurface,
-} from "@agentcoder/frontend-api-contract";
+} from "@codeflow/frontend-api-contract";
 
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
-export type AgentcoderLogDomain = "runtime" | "api" | "ui" | "desktop" | "ci" | "e2e" | "test" | "governance";
-export type AgentcoderLogSurface = "backend" | "dashboard" | "desktop" | "ci" | "tooling";
-export type AgentcoderLogSourceKind = "app_log" | "test_log" | "ci_log" | "artifact_manifest" | "event_stream";
+export type CodeflowLogDomain = "runtime" | "api" | "ui" | "desktop" | "ci" | "e2e" | "test" | "governance";
+export type CodeflowLogSurface = "backend" | "dashboard" | "desktop" | "ci" | "tooling";
+export type CodeflowLogSourceKind = "app_log" | "test_log" | "ci_log" | "artifact_manifest" | "event_stream";
 
 export type RequestControlOptions = {
   signal?: AbortSignal;
@@ -156,11 +156,11 @@ export declare function createHttpCore(options: {
   postJson: <T = unknown>(path: string, payload: Record<string, JsonValue>, errorFallback: string, options?: RequestControlOptions) => Promise<T>;
 };
 
-export type AgentcoderLogEvent = {
+export type CodeflowLogEvent = {
   ts: string;
   level: string;
-  domain: AgentcoderLogDomain;
-  surface: AgentcoderLogSurface;
+  domain: CodeflowLogDomain;
+  surface: CodeflowLogSurface;
   service: string;
   component: string;
   event: string;
@@ -170,7 +170,7 @@ export type AgentcoderLogEvent = {
   trace_id: string;
   session_id: string;
   test_id: string;
-  source_kind: AgentcoderLogSourceKind;
+  source_kind: CodeflowLogSourceKind;
   artifact_kind: string;
   correlation_kind: "run" | "session" | "test" | "request" | "trace" | "none";
   meta: Record<string, unknown>;
@@ -178,10 +178,10 @@ export type AgentcoderLogEvent = {
   schema_version: "log_event.v2";
 };
 
-export type AgentcoderLogEventInput = {
+export type CodeflowLogEventInput = {
   level?: string;
-  domain?: AgentcoderLogDomain;
-  surface?: AgentcoderLogSurface;
+  domain?: CodeflowLogDomain;
+  surface?: CodeflowLogSurface;
   service?: string;
   component?: string;
   event: string;
@@ -191,14 +191,14 @@ export type AgentcoderLogEventInput = {
   trace_id?: string | null;
   session_id?: string | null;
   test_id?: string | null;
-  source_kind?: AgentcoderLogSourceKind;
+  source_kind?: CodeflowLogSourceKind;
   artifact_kind?: string | null;
   correlation_kind?: "run" | "session" | "test" | "request" | "trace" | "none";
   meta?: Record<string, unknown>;
 };
 
-export declare function buildFrontendLogEvent(input: AgentcoderLogEventInput): AgentcoderLogEvent;
-export declare function emitFrontendLogEvent(input: AgentcoderLogEventInput): AgentcoderLogEvent;
+export declare function buildFrontendLogEvent(input: CodeflowLogEventInput): CodeflowLogEvent;
+export declare function emitFrontendLogEvent(input: CodeflowLogEventInput): CodeflowLogEvent;
 
 export declare function createSseCore(options: {
   baseUrl: string;

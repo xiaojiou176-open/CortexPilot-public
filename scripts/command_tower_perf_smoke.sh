@@ -37,7 +37,7 @@ else
 fi
 
 resolve_python() {
-  agentcoder_python_bin "$ROOT_DIR"
+  codeflow_python_bin "$ROOT_DIR"
 }
 
 PYTHON_BIN="$(resolve_python)" || {
@@ -86,8 +86,8 @@ sessions_p95_target = float(os.environ["COMMAND_TOWER_SLO_SESSIONS_P95_MS"])
 overview_p95_target = float(os.environ["COMMAND_TOWER_SLO_OVERVIEW_P95_MS"])
 token = os.environ.get("COMMAND_TOWER_API_TOKEN", "").strip()
 if mode == "testclient" and not token:
-    os.environ.setdefault("AGENTCODER_API_TOKEN", "local-dev-token")
-    token = os.environ["AGENTCODER_API_TOKEN"]
+    os.environ.setdefault("CODEFLOW_API_TOKEN", "local-dev-token")
+    token = os.environ["CODEFLOW_API_TOKEN"]
 
 endpoints = [
     ("overview", "/api/command-tower/overview", overview_p95_target),
@@ -130,7 +130,7 @@ if mode == "http":
         return run_http_request(path)
 else:
     from fastapi.testclient import TestClient
-    from agentcoder_orch.api.main import app
+    from codeflow_orch.api.main import app
 
     client = TestClient(app)
 

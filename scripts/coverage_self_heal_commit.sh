@@ -23,8 +23,8 @@ done
 
 mkdir -p "$(dirname "$OUTPUT_PATH")"
 
-git config user.email "agentcoder-bot@local"
-git config user.name "agentcoder-bot"
+git config user.email "codeflow-bot@local"
+git config user.name "codeflow-bot"
 
 if [[ -z "$(git status --porcelain)" ]]; then
   printf '%s\n' "no_changes" > "$OUTPUT_PATH"

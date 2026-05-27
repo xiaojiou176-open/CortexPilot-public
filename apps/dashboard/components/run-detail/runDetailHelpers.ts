@@ -1,5 +1,5 @@
 import type { EventRecord, ReportRecord } from "../../lib/types";
-import type { StatusVariant } from "@agentcoder/frontend-shared/statusPresentation";
+import type { StatusVariant } from "@codeflow/frontend-shared/statusPresentation";
 
 export type LifecycleSnapshot = {
   required_path?: string[];

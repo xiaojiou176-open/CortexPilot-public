@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from agentcoder_orch.contract import compiler as compiler_mod
+from codeflow_orch.contract import compiler as compiler_mod
 
 
 def test_compiler_helper_edges(tmp_path: Path, monkeypatch) -> None:

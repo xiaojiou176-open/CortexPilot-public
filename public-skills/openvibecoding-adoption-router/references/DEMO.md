@@ -5,7 +5,7 @@ inspection work instead of only describing one.
 
 ## Demo prompt
 
-Connect Agentcoder and inspect the current public run ledger. Start with
+Connect Codeflow and inspect the current public run ledger. Start with
 `list_runs` or `list_workflows`, then inspect one specific run or workflow.
 If the user is really asking what is blocked, pivot into `list_queue` or
 `get_pending_approvals` and explain the safest next lane.

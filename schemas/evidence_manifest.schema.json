@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://agentcoder.local/schemas/evidence_manifest.schema.json",
-  "title": "Agentcoder Evidence Manifest",
+  "$id": "https://codeflow.local/schemas/evidence_manifest.schema.json",
+  "title": "Codeflow Evidence Manifest",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -18,7 +18,7 @@
   "properties": {
     "manifest_type": {
       "type": "string",
-      "const": "agentcoder_evidence_manifest"
+      "const": "codeflow_evidence_manifest"
     },
     "schema_version": {
       "type": "integer",

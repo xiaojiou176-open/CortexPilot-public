@@ -2,8 +2,8 @@ import json
 from pathlib import Path
 
 import pytest
-from agentcoder_orch.chain.runner import ChainRunner
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.chain.runner import ChainRunner
+from codeflow_orch.store.run_store import RunStore
 import hashlib
 
 
@@ -27,7 +27,7 @@ def _output_schema_artifacts(role: str = "worker") -> list[dict]:
 
 @pytest.fixture(autouse=True)
 def _disable_strict_nontrivial(monkeypatch) -> None:
-    monkeypatch.setenv("AGENTCODER_ACCEPTANCE_STRICT_NONTRIVIAL", "0")
+    monkeypatch.setenv("CODEFLOW_ACCEPTANCE_STRICT_NONTRIVIAL", "0")
 
 
 def _contract(task_id: str, output_name: str = "out.txt") -> dict:

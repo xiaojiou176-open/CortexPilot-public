@@ -23,10 +23,10 @@ def test_collect_source_keys_captures_os_environ_writes(monkeypatch, tmp_path: P
     source.write_text(
         "\n".join(
             [
-                'os.environ["AGENTCODER_RUNNER"] = "agents"',
-                'os.environ.setdefault("AGENTCODER_ALLOW_CODEX_EXEC", "1")',
-                'os.environ.pop("AGENTCODER_FORCE_UNLOCK", None)',
-                'os.getenv("AGENTCODER_RUNTIME_ROOT", ".runtime-cache/agentcoder")',
+                'os.environ["CODEFLOW_RUNNER"] = "agents"',
+                'os.environ.setdefault("CODEFLOW_ALLOW_CODEX_EXEC", "1")',
+                'os.environ.pop("CODEFLOW_FORCE_UNLOCK", None)',
+                'os.getenv("CODEFLOW_RUNTIME_ROOT", ".runtime-cache/codeflow")',
             ]
         ),
         encoding="utf-8",
@@ -35,7 +35,7 @@ def test_collect_source_keys_captures_os_environ_writes(monkeypatch, tmp_path: P
     monkeypatch.setattr(module, "SCAN_ROOTS", ("src",))
     refs = module._collect_source_keys(tmp_path)
 
-    assert "AGENTCODER_RUNNER" in refs
-    assert "AGENTCODER_ALLOW_CODEX_EXEC" in refs
-    assert "AGENTCODER_FORCE_UNLOCK" in refs
-    assert "AGENTCODER_RUNTIME_ROOT" in refs
+    assert "CODEFLOW_RUNNER" in refs
+    assert "CODEFLOW_ALLOW_CODEX_EXEC" in refs
+    assert "CODEFLOW_FORCE_UNLOCK" in refs
+    assert "CODEFLOW_RUNTIME_ROOT" in refs

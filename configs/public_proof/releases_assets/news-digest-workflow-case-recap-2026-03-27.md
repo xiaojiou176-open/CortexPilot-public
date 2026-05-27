@@ -15,7 +15,7 @@ live GitHub social preview, or broader release benchmark has already shipped.
 
 ## The Case In One Paragraph
 
-A PM asks Agentcoder for a `news_digest` on `Seattle AI` over the last `24h`
+A PM asks Codeflow for a `news_digest` on `Seattle AI` over the last `24h`
 from `theverge.com`. The run moves through the normal command-tower path,
 records one Workflow Case, produces a successful digest, and leaves behind a
 proof bundle that another person can inspect without re-running the whole
@@ -38,7 +38,7 @@ operator flow.
 ## Why This Case Matters
 
 This case is the current public baseline because it shows the whole point of
-Agentcoder in one small, honest loop:
+Codeflow in one small, honest loop:
 
 1. a workflow starts from a bounded PM request
 2. Command Tower and the Workflow Case keep the run reviewable
@@ -46,7 +46,7 @@ Agentcoder in one small, honest loop:
 4. the result can be shared as a recap asset instead of forcing every reviewer
    back into the full operator UI
 
-That makes `news_digest` the easiest truthful answer to “What does Agentcoder
+That makes `news_digest` the easiest truthful answer to “What does Codeflow
 actually do today?”
 
 ## What You Can Inspect Today
@@ -65,13 +65,13 @@ actually do today?”
 
 Use wording like:
 
-- "Agentcoder already has one release-proven public workflow case: `news_digest`."
+- "Codeflow already has one release-proven public workflow case: `news_digest`."
 - "The Workflow Case can be reused as a share-ready recap asset."
 - "The public benchmark is currently a single-run `news_digest` baseline."
 
 Avoid wording like:
 
-- "Agentcoder already has a broad public benchmark program."
+- "Codeflow already has a broad public benchmark program."
 - "All public cases are equally release-proven."
 - "This recap proves a live hosted product or live GitHub publication state."
 

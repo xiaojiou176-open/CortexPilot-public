@@ -36,9 +36,9 @@ import { buildRunsMetadata } from "../app/runs/page";
 import { buildDashboardLayoutMetadata } from "../app/layout";
 import DashboardShellChrome from "../components/DashboardShellChrome";
 import { fetchRuns, fetchWorkflows } from "../lib/api";
-import { getUiCopy } from "@agentcoder/frontend-shared/uiCopy";
+import { getUiCopy } from "@codeflow/frontend-shared/uiCopy";
 
-const ORIGINAL_PUBLIC_DOCS_BASE_URL = process.env.NEXT_PUBLIC_AGENTCODER_PUBLIC_DOCS_BASE_URL;
+const ORIGINAL_PUBLIC_DOCS_BASE_URL = process.env.NEXT_PUBLIC_CODEFLOW_PUBLIC_DOCS_BASE_URL;
 
 describe("dashboard home run-summary clarity", () => {
   const mockFetchRuns = vi.mocked(fetchRuns);
@@ -52,8 +52,8 @@ describe("dashboard home run-summary clarity", () => {
       get: () => undefined,
       toString: () => "",
     });
-    if (ORIGINAL_PUBLIC_DOCS_BASE_URL === undefined) delete process.env.NEXT_PUBLIC_AGENTCODER_PUBLIC_DOCS_BASE_URL;
-    else process.env.NEXT_PUBLIC_AGENTCODER_PUBLIC_DOCS_BASE_URL = ORIGINAL_PUBLIC_DOCS_BASE_URL;
+    if (ORIGINAL_PUBLIC_DOCS_BASE_URL === undefined) delete process.env.NEXT_PUBLIC_CODEFLOW_PUBLIC_DOCS_BASE_URL;
+    else process.env.NEXT_PUBLIC_CODEFLOW_PUBLIC_DOCS_BASE_URL = ORIGINAL_PUBLIC_DOCS_BASE_URL;
   });
 
   it("renders first-run CTA and onboarding guidance when no runs", async () => {
@@ -89,45 +89,45 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByText(/official public baseline/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open proof pack" })).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/use-cases/"
+      "https://xiaojiou176-open.github.io/codeflow/use-cases/"
     );
     expect(screen.getByText("Extended surfaces")).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: "See first proven workflow" })[0]).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/use-cases/"
+      "https://xiaojiou176-open.github.io/codeflow/use-cases/"
     );
     expect(screen.queryByRole("link", { name: "Open compatibility matrix" })).not.toBeInTheDocument();
     expect(screen.getByText("Compatibility matrix").closest("a")).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/compatibility/"
+      "https://xiaojiou176-open.github.io/codeflow/compatibility/"
     );
     expect(screen.getByText("Integration guide").closest("a")).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/integrations/"
+      "https://xiaojiou176-open.github.io/codeflow/integrations/"
     );
     expect(screen.getByText("Skills quickstart").closest("a")).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/skills/"
+      "https://xiaojiou176-open.github.io/codeflow/skills/"
     );
     expect(screen.getByRole("link", { name: "Open AI + MCP + API surfaces" })).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/ai-surfaces/"
+      "https://xiaojiou176-open.github.io/codeflow/ai-surfaces/"
     );
     expect(screen.getByRole("link", { name: "Open ecosystem map" })).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/ecosystem/"
+      "https://xiaojiou176-open.github.io/codeflow/ecosystem/"
     );
     expect(screen.getByRole("link", { name: "Open builder quickstart" })).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/builders/"
+      "https://xiaojiou176-open.github.io/codeflow/builders/"
     );
     expect(screen.getByText("Read-only MCP quickstart").closest("a")).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/mcp/"
+      "https://xiaojiou176-open.github.io/codeflow/mcp/"
     );
     expect(screen.getByText("API and contract quickstart").closest("a")).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/api/"
+      "https://xiaojiou176-open.github.io/codeflow/api/"
     );
     expect(screen.getByText("Live Workflow Case gallery")).toBeInTheDocument();
     expect(screen.getByText("Latest results and runs")).toBeInTheDocument();
@@ -135,7 +135,7 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByText("Live Workflow Case gallery").closest("a")).toHaveAttribute("href", "/workflows");
     expect(screen.getAllByRole("link", { name: "See first proven workflow" })[0]).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/use-cases/"
+      "https://xiaojiou176-open.github.io/codeflow/use-cases/"
     );
     expect(screen.getByText("Live command tower").closest("a")).toHaveAttribute("href", "/command-tower");
     expect(screen.queryByRole("link", { name: "Quick approval" })).not.toBeInTheDocument();
@@ -175,7 +175,7 @@ describe("dashboard home run-summary clarity", () => {
   });
 
   it("routes public docs CTAs through the configured docs base", async () => {
-    process.env.NEXT_PUBLIC_AGENTCODER_PUBLIC_DOCS_BASE_URL = "https://docs.example/agentcoder/";
+    process.env.NEXT_PUBLIC_CODEFLOW_PUBLIC_DOCS_BASE_URL = "https://docs.example/codeflow/";
 
     render(await Home());
     const secondLayerGuides = screen.getByTestId("home-second-layer-guides");
@@ -183,43 +183,43 @@ describe("dashboard home run-summary clarity", () => {
 
     expect(screen.getByRole("link", { name: "Open AI + MCP + API surfaces" })).toHaveAttribute(
       "href",
-      "https://docs.example/agentcoder/ai-surfaces/"
+      "https://docs.example/codeflow/ai-surfaces/"
     );
     expect(screen.getByRole("link", { name: "Open ecosystem map" })).toHaveAttribute(
       "href",
-      "https://docs.example/agentcoder/ecosystem/"
+      "https://docs.example/codeflow/ecosystem/"
     );
     expect(screen.getByRole("link", { name: "Open builder quickstart" })).toHaveAttribute(
       "href",
-      "https://docs.example/agentcoder/builders/"
+      "https://docs.example/codeflow/builders/"
     );
     expect(screen.getAllByRole("link", { name: "See first proven workflow" })[0]).toHaveAttribute(
       "href",
-      "https://docs.example/agentcoder/use-cases/"
+      "https://docs.example/codeflow/use-cases/"
     );
     expect(screen.getByText("Compatibility matrix").closest("a")).toHaveAttribute(
       "href",
-      "https://docs.example/agentcoder/compatibility/"
+      "https://docs.example/codeflow/compatibility/"
     );
     expect(screen.getByText("Integration guide").closest("a")).toHaveAttribute(
       "href",
-      "https://docs.example/agentcoder/integrations/"
+      "https://docs.example/codeflow/integrations/"
     );
     expect(screen.getByText("Skills quickstart").closest("a")).toHaveAttribute(
       "href",
-      "https://docs.example/agentcoder/skills/"
+      "https://docs.example/codeflow/skills/"
     );
     expect(screen.getByText("Read-only MCP quickstart").closest("a")).toHaveAttribute(
       "href",
-      "https://docs.example/agentcoder/mcp/"
+      "https://docs.example/codeflow/mcp/"
     );
     expect(screen.getByText("API and contract quickstart").closest("a")).toHaveAttribute(
       "href",
-      "https://docs.example/agentcoder/api/"
+      "https://docs.example/codeflow/api/"
     );
     expect(screen.getByRole("link", { name: "Open ecosystem map" })).toHaveAttribute(
       "href",
-      "https://docs.example/agentcoder/ecosystem/"
+      "https://docs.example/codeflow/ecosystem/"
     );
   });
 
@@ -240,8 +240,8 @@ describe("dashboard home run-summary clarity", () => {
 
   it("renders zh-CN home copy when the locale cookie requests it", async () => {
     mockCookies.mockResolvedValue({
-      get: (name: string) => (name === "agentcoder.ui.locale" ? { value: "zh-CN" } : undefined),
-      toString: () => "agentcoder.ui.locale=zh-CN",
+      get: (name: string) => (name === "codeflow.ui.locale" ? { value: "zh-CN" } : undefined),
+      toString: () => "codeflow.ui.locale=zh-CN",
     });
 
     render(await Home());
@@ -253,28 +253,28 @@ describe("dashboard home run-summary clarity", () => {
     expect(screen.getByText("延伸入口")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "打开 AI、MCP 与 API 页面" })).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/ai-surfaces/"
+      "https://xiaojiou176-open.github.io/codeflow/ai-surfaces/"
     );
     expect(screen.getByRole("link", { name: "打开证明包" })).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/use-cases/"
+      "https://xiaojiou176-open.github.io/codeflow/use-cases/"
     );
     expect(screen.getByRole("link", { name: "打开构建者快速入口" })).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/builders/"
+      "https://xiaojiou176-open.github.io/codeflow/builders/"
     );
     expect(screen.getAllByRole("link", { name: "查看首个已证明工作流" })[0]).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/use-cases/"
+      "https://xiaojiou176-open.github.io/codeflow/use-cases/"
     );
     expect(screen.queryByRole("link", { name: "打开 compatibility matrix" })).not.toBeInTheDocument();
     expect(screen.getByText("兼容性矩阵").closest("a")).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/compatibility/"
+      "https://xiaojiou176-open.github.io/codeflow/compatibility/"
     );
     expect(screen.getByText("集成指南").closest("a")).toHaveAttribute(
       "href",
-      "https://xiaojiou176-open.github.io/agentcoder/integrations/"
+      "https://xiaojiou176-open.github.io/codeflow/integrations/"
     );
     expect(screen.getAllByText("只读 MCP 快速入口").length).toBeGreaterThan(0);
     expect(screen.getAllByText("API 与契约快速入口").length).toBeGreaterThan(0);
@@ -294,8 +294,8 @@ describe("dashboard home run-summary clarity", () => {
 
   it("renders zh-CN dataful home without leaked English gallery and run copy", async () => {
     mockCookies.mockResolvedValueOnce({
-      get: (name: string) => (name === "agentcoder.ui.locale" ? { value: "zh-CN" } : undefined),
-      toString: () => "agentcoder.ui.locale=zh-CN",
+      get: (name: string) => (name === "codeflow.ui.locale" ? { value: "zh-CN" } : undefined),
+      toString: () => "codeflow.ui.locale=zh-CN",
     });
     mockFetchRuns.mockResolvedValueOnce([
       {
@@ -516,8 +516,8 @@ describe("dashboard home run-summary clarity", () => {
 
   it("renders zh-CN high-failure triage and first-screen limit for array status filters", async () => {
     mockCookies.mockResolvedValueOnce({
-      get: (name: string) => (name === "agentcoder.ui.locale" ? { value: "zh-CN" } : undefined),
-      toString: () => "agentcoder.ui.locale=zh-CN",
+      get: (name: string) => (name === "codeflow.ui.locale" ? { value: "zh-CN" } : undefined),
+      toString: () => "codeflow.ui.locale=zh-CN",
     });
     const zhRunsCopy = getUiCopy("zh-CN").dashboard.runsPage;
     mockFetchRuns.mockResolvedValueOnce([
@@ -561,9 +561,9 @@ describe("dashboard home run-summary clarity", () => {
     const enMetadata = buildRunsMetadata("en");
     const zhMetadata = buildRunsMetadata("zh-CN");
 
-    expect(enMetadata.title).toBe("Proof & Replay | Agentcoder");
+    expect(enMetadata.title).toBe("Proof & Replay | Codeflow");
     expect(String(enMetadata.description)).toContain("replay posture");
-    expect(zhMetadata.title).toBe("证明与回放 | Agentcoder");
+    expect(zhMetadata.title).toBe("证明与回放 | Codeflow");
     expect(String(zhMetadata.description)).toContain("证明与回放桌面");
   });
 
@@ -593,7 +593,7 @@ describe("dashboard home run-summary clarity", () => {
 
   it("renders the public shell with English-first layout metadata and chrome copy", () => {
     const metadata = buildDashboardLayoutMetadata("en");
-    expect(metadata.title).toBe("Agentcoder | The open command tower for AI engineering");
+    expect(metadata.title).toBe("Codeflow | The open command tower for AI engineering");
     expect(metadata.description).toContain("Stop babysitting AI coding work.");
 
     render(
@@ -604,9 +604,9 @@ describe("dashboard home run-summary clarity", () => {
 
     expect(screen.getByRole("link", { name: "Skip to dashboard content" })).toHaveAttribute("href", "#dashboard-content");
     expect(screen.getAllByLabelText("Dashboard navigation").length).toBeGreaterThan(0);
-    expect(screen.getByRole("link", { name: "Agentcoder" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Codeflow" })).toBeInTheDocument();
     expect(screen.getByText("plan / delegate / track / resume / prove")).toBeInTheDocument();
-    expect(screen.getByText("Agentcoder command tower")).toBeInTheDocument();
+    expect(screen.getByText("Codeflow command tower")).toBeInTheDocument();
     expect(screen.getByLabelText("Platform status overview")).toBeInTheDocument();
     expect(screen.queryByText("Operator shell")).not.toBeInTheDocument();
     expect(screen.queryByText("Live read-back")).not.toBeInTheDocument();
@@ -622,12 +622,12 @@ describe("dashboard home run-summary clarity", () => {
       </DashboardShellChrome>,
     );
 
-    expect(metadata.title).toBe("Agentcoder | 面向 AI 工程的开放指挥塔");
+    expect(metadata.title).toBe("Codeflow | 面向 AI 工程的开放指挥塔");
     expect(metadata.description).toContain("AI 编码不缺模型");
     expect(screen.getByRole("link", { name: "跳到控制台主内容" })).toHaveAttribute("href", "#dashboard-content");
     expect(screen.getAllByLabelText("控制台导航").length).toBeGreaterThan(0);
     expect(screen.getByText("规划 · 派工 · 追踪 · 续跑 · 验真")).toBeInTheDocument();
-    expect(screen.getByText("Agentcoder 指挥塔")).toBeInTheDocument();
+    expect(screen.getByText("Codeflow 指挥塔")).toBeInTheDocument();
     expect(screen.getByLabelText("平台状态概览")).toBeInTheDocument();
     expect(screen.getByText("实时操作壳层")).toBeInTheDocument();
     expect(screen.queryByText("Live operator shell")).not.toBeInTheDocument();

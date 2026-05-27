@@ -1,4 +1,4 @@
-import { mapBadgeByToken } from "@agentcoder/frontend-api-contract";
+import { mapBadgeByToken } from "@codeflow/frontend-api-contract";
 
 const STATUS_BADGE_FALLBACK = { tone: "warning", label: "Needs review" } as const;
 

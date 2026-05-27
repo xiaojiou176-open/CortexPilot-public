@@ -1,8 +1,8 @@
-import { FRONTEND_API_CONTRACT } from "@agentcoder/frontend-api-contract";
+import { FRONTEND_API_CONTRACT } from "@codeflow/frontend-api-contract";
 import { emitFrontendLogEvent } from "./observability.js";
 
 const READ_ONLY_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
-const MUTATION_ROLE_HEADERS = ["x-agentcoder-role"];
+const MUTATION_ROLE_HEADERS = ["x-codeflow-role"];
 
 function normalizeMutationRole(value) {
   if (typeof value !== "string") {

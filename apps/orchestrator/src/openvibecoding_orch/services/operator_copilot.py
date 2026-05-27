@@ -5,10 +5,10 @@ import json
 from datetime import datetime, timezone
 from typing import Any, Callable
 
-from agentcoder_orch.contract.validator import ContractValidator
-from agentcoder_orch.config import get_runner_config
-from agentcoder_orch.services.control_plane_read_service import ControlPlaneReadService
-from agentcoder_orch.runners.provider_resolution import (
+from codeflow_orch.contract.validator import ContractValidator
+from codeflow_orch.config import get_runner_config
+from codeflow_orch.services.control_plane_read_service import ControlPlaneReadService
+from codeflow_orch.runners.provider_resolution import (
     build_llm_compat_client,
     merge_provider_credentials,
     ProviderCredentials,
@@ -300,7 +300,7 @@ def _build_ai_brief(prompt: str) -> dict[str, Any]:
 
     model_name = str(getattr(runner_cfg, "agents_model", "") or "").strip() or "gemini-2.5-flash"
     instructions = (
-        "You are Agentcoder Operator Copilot v1. "
+        "You are Codeflow Operator Copilot v1. "
         "You explain current run, workflow, or pre-run planning state to an operator using only the provided truth surfaces. "
         "Return JSON only with fields: "
         "summary, likely_cause, compare_takeaway, proof_takeaway, incident_takeaway, queue_takeaway, "
@@ -308,7 +308,7 @@ def _build_ai_brief(prompt: str) -> dict[str, Any]:
         "Do not invent facts beyond the provided context."
     )
     agent = Agent(
-        name="AgentcoderOperatorCopilot",
+        name="CodeflowOperatorCopilot",
         instructions=instructions,
         model=model_name,
         mcp_servers=[],
@@ -376,7 +376,7 @@ def _build_ai_flight_plan_brief(prompt: str) -> dict[str, Any]:
 
     model_name = str(getattr(runner_cfg, "agents_model", "") or "").strip() or "gemini-2.5-flash"
     instructions = (
-        "You are Agentcoder Flight Plan Copilot. "
+        "You are Codeflow Flight Plan Copilot. "
         "You explain pre-run execution plans using only the provided execution-plan truth. "
         "Return JSON only with fields: "
         "summary, risk_takeaway, capability_takeaway, approval_takeaway, "
@@ -384,7 +384,7 @@ def _build_ai_flight_plan_brief(prompt: str) -> dict[str, Any]:
         "Do not invent run results, compare results, or post-run proof."
     )
     agent = Agent(
-        name="AgentcoderFlightPlanCopilot",
+        name="CodeflowFlightPlanCopilot",
         instructions=instructions,
         model=model_name,
         mcp_servers=[],

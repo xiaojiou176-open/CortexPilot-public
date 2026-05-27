@@ -12,7 +12,7 @@ runtime receipts:
 
 ## The Case In One Paragraph
 
-A PM asks Agentcoder for a `topic_brief` on `Seattle AI` over the last
+A PM asks Codeflow for a `topic_brief` on `Seattle AI` over the last
 `24h`. The search-backed path captures public-source links, produces a bounded
 brief, and leaves behind a Workflow Case style receipt that can be reviewed
 without reopening the full operator flow.
@@ -32,7 +32,7 @@ search-backed path:
 
 Use wording like:
 
-- "Agentcoder now treats `topic_brief` as one release-proven secondary search-backed public path."
+- "Codeflow now treats `topic_brief` as one release-proven secondary search-backed public path."
 - "`topic_brief` is a release-proven secondary path, not the official first public baseline."
 - "The search-backed path now has a fresh healthy proof summary, a fresh bundle baseline summary, and a fresh share-ready recap."
 

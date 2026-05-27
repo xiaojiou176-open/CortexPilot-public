@@ -96,7 +96,7 @@ describe("CommandTowerPage", () => {
     await user.click(await screen.findByRole("button", { name: "Show advanced detail" }));
 
     await user.click(screen.getByRole("checkbox", { name: "active" }));
-    await user.type(screen.getByPlaceholderText("agentcoder"), "proj-a");
+    await user.type(screen.getByPlaceholderText("codeflow"), "proj-a");
     await user.click(screen.getByRole("button", { name: "Apply" }));
 
     expect(await screen.findByText("No sessions match the current filters.")).toBeInTheDocument();
@@ -145,7 +145,7 @@ describe("CommandTowerPage", () => {
     expect(screen.queryByRole("complementary", { name: "Command Tower context drawer" })).not.toBeInTheDocument();
 
     fireEvent.keyDown(window, { altKey: true, shiftKey: true, key: "f" });
-    expect(screen.getByPlaceholderText("agentcoder")).toHaveFocus();
+    expect(screen.getByPlaceholderText("codeflow")).toHaveFocus();
 
     Object.defineProperty(window.navigator, "clipboard", {
       configurable: true,
@@ -177,7 +177,7 @@ describe("CommandTowerPage", () => {
     render(<CommandTowerPage />);
     await user.click(await screen.findByRole("button", { name: "Show advanced detail" }));
 
-    const projectInput = screen.getByPlaceholderText("agentcoder");
+    const projectInput = screen.getByPlaceholderText("codeflow");
     await user.type(projectInput, "  project-x  ");
     fireEvent.keyDown(projectInput, { key: "Enter" });
 

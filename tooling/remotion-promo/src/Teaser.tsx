@@ -161,7 +161,7 @@ const FullscreenCard: React.FC<{
   );
 };
 
-export const AgentcoderTeaser: React.FC = () => {
+export const CodeflowTeaser: React.FC = () => {
   const frame = useCurrentFrame();
   const {fps, durationInFrames} = useVideoConfig();
   const introEnter = spring({
@@ -230,7 +230,7 @@ export const AgentcoderTeaser: React.FC = () => {
                 textTransform: "uppercase",
               }}
             >
-              Agentcoder / command tower
+              Codeflow / command tower
             </div>
             <div
               style={{
@@ -412,7 +412,7 @@ export const AgentcoderTeaser: React.FC = () => {
                 fontWeight: 700,
               }}
             >
-              xiaojiou176-open.github.io/agentcoder
+              xiaojiou176-open.github.io/codeflow
             </div>
           </div>
 

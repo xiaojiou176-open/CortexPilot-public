@@ -6,10 +6,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TARGETS = (
-    ROOT / ".runtime-cache" / "agentcoder" / "reports" / "retention_report.json",
-    ROOT / ".runtime-cache" / "agentcoder" / "reports" / "ci" / "current_run" / "source_manifest.json",
-    ROOT / ".runtime-cache" / "agentcoder" / "reports" / "ci" / "current_run" / "consistency.json",
-    ROOT / ".runtime-cache" / "agentcoder" / "reports" / "ci" / "routes" / "local-advisory.json",
+    ROOT / ".runtime-cache" / "codeflow" / "reports" / "retention_report.json",
+    ROOT / ".runtime-cache" / "codeflow" / "reports" / "ci" / "current_run" / "source_manifest.json",
+    ROOT / ".runtime-cache" / "codeflow" / "reports" / "ci" / "current_run" / "consistency.json",
+    ROOT / ".runtime-cache" / "codeflow" / "reports" / "ci" / "routes" / "local-advisory.json",
     ROOT / ".runtime-cache" / "test_output" / "governance" / "closeout_report.json",
     ROOT / ".runtime-cache" / "test_output" / "governance" / "governance_evidence_manifest.json",
     ROOT / ".runtime-cache" / "test_output" / "governance" / "governance_scorecard.json",

@@ -9,9 +9,9 @@ from pathlib import Path
 import pytest
 from fastapi import FastAPI, HTTPException
 
-from agentcoder_orch.api import main_pm_intake_helpers as helpers
-from agentcoder_orch.contract.compiler import build_role_binding_summary
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.api import main_pm_intake_helpers as helpers
+from codeflow_orch.contract.compiler import build_role_binding_summary
+from codeflow_orch.store.run_store import RunStore
 
 
 def test_configure_pm_session_aggregation_delegates(monkeypatch) -> None:
@@ -284,7 +284,7 @@ def test_run_intake_error_branches_and_success(monkeypatch, tmp_path: Path) -> N
         lambda: types.SimpleNamespace(
             repo_root=tmp_path,
             contract_root=tmp_path / "contracts",
-            runtime_contract_root=tmp_path / ".runtime-cache" / "agentcoder" / "contracts",
+            runtime_contract_root=tmp_path / ".runtime-cache" / "codeflow" / "contracts",
         ),
     )
 
@@ -386,7 +386,7 @@ def test_run_intake_error_branches_and_success(monkeypatch, tmp_path: Path) -> N
 
 
 def test_run_intake_strips_intake_only_template_fields_before_execution(monkeypatch, tmp_path: Path) -> None:
-    from agentcoder_orch.contract.validator import ContractValidator
+    from codeflow_orch.contract.validator import ContractValidator
 
     monkeypatch.setattr(helpers, "IntakeStore", lambda: types.SimpleNamespace(append_event=lambda *_a, **_k: None))
     monkeypatch.setattr(
@@ -396,7 +396,7 @@ def test_run_intake_strips_intake_only_template_fields_before_execution(monkeypa
             repo_root=tmp_path,
             runs_root=tmp_path / "runs",
             contract_root=tmp_path / "contracts",
-            runtime_contract_root=tmp_path / ".runtime-cache" / "agentcoder" / "contracts",
+            runtime_contract_root=tmp_path / ".runtime-cache" / "codeflow" / "contracts",
         ),
     )
 
@@ -472,10 +472,10 @@ def test_run_intake_injects_stable_local_workflow_binding_and_restores_env(monke
             repo_root=tmp_path,
             runs_root=tmp_path / "runs",
             contract_root=tmp_path / "contracts",
-            runtime_contract_root=tmp_path / ".runtime-cache" / "agentcoder" / "contracts",
+            runtime_contract_root=tmp_path / ".runtime-cache" / "codeflow" / "contracts",
         ),
     )
-    monkeypatch.delenv("AGENTCODER_TEMPORAL_WORKFLOW_ID", raising=False)
+    monkeypatch.delenv("CODEFLOW_TEMPORAL_WORKFLOW_ID", raising=False)
 
     observed_binding: dict[str, str] = {}
 
@@ -505,14 +505,14 @@ def test_run_intake_injects_stable_local_workflow_binding_and_restores_env(monke
 
     assert result["ok"] is True
     assert result["run_id"] == "run-pm-workflow"
-    assert observed_binding["workflow_id"].startswith("agentcoder-pm-task-pm-intake-pm-intake")
-    assert observed_binding["task_queue"] == "agentcoder-orch"
+    assert observed_binding["workflow_id"].startswith("codeflow-pm-task-pm-intake-pm-intake")
+    assert observed_binding["task_queue"] == "codeflow-orch"
     assert observed_binding["namespace"] == "default"
 
 
 def test_run_intake_persists_planning_artifacts_into_run_bundle(monkeypatch, tmp_path: Path) -> None:
     runs_root = tmp_path / "runs"
-    runtime_contract_root = tmp_path / ".runtime-cache" / "agentcoder" / "contracts"
+    runtime_contract_root = tmp_path / ".runtime-cache" / "codeflow" / "contracts"
     intake_payload = {
         "objective": "Ship one planning artifact bridge",
         "constraints": ["truthful-public-surface"],
@@ -703,11 +703,11 @@ def test_run_intake_returns_run_id_before_background_execution_finishes(monkeypa
         lambda: types.SimpleNamespace(
             repo_root=tmp_path,
             contract_root=tmp_path / "contracts",
-            runtime_contract_root=tmp_path / ".runtime-cache" / "agentcoder" / "contracts",
+            runtime_contract_root=tmp_path / ".runtime-cache" / "codeflow" / "contracts",
         ),
     )
 
-    runs_root = tmp_path / ".runtime-cache" / "agentcoder" / "runs"
+    runs_root = tmp_path / ".runtime-cache" / "codeflow" / "runs"
     started = threading.Event()
     release = threading.Event()
 
@@ -754,7 +754,7 @@ def test_run_intake_surfaces_background_error_when_no_run_id_observed(monkeypatc
         lambda: types.SimpleNamespace(
             repo_root=tmp_path,
             contract_root=tmp_path / "contracts",
-            runtime_contract_root=tmp_path / ".runtime-cache" / "agentcoder" / "contracts",
+            runtime_contract_root=tmp_path / ".runtime-cache" / "codeflow" / "contracts",
         ),
     )
 
@@ -796,7 +796,7 @@ def test_run_intake_prefers_configured_runs_root_for_run_discovery(monkeypatch, 
             repo_root=tmp_path / "wrong-repo-root",
             runs_root=runs_root,
             contract_root=tmp_path / "contracts",
-            runtime_contract_root=tmp_path / ".runtime-cache" / "agentcoder" / "contracts",
+            runtime_contract_root=tmp_path / ".runtime-cache" / "codeflow" / "contracts",
         ),
     )
 

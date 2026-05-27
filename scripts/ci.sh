@@ -10,12 +10,12 @@ is_truthy() {
 }
 
 # Compatibility anchors for policy tests that intentionally introspect scripts/ci.sh.
-ENV_GOV_MAX_DEPRECATED_COUNT="${AGENTCODER_CI_ENV_GOV_MAX_DEPRECATED_COUNT:-10}"
-ENV_GOV_MAX_DEPRECATED_RATIO="${AGENTCODER_CI_ENV_GOV_MAX_DEPRECATED_RATIO:-0.03}"
+ENV_GOV_MAX_DEPRECATED_COUNT="${CODEFLOW_CI_ENV_GOV_MAX_DEPRECATED_COUNT:-10}"
+ENV_GOV_MAX_DEPRECATED_RATIO="${CODEFLOW_CI_ENV_GOV_MAX_DEPRECATED_RATIO:-0.03}"
 # report_env_governance.py --max-deprecated-count "${ENV_GOV_MAX_DEPRECATED_COUNT}" --max-deprecated-ratio "${ENV_GOV_MAX_DEPRECATED_RATIO}"
 # check_env_governance.py --max-deprecated-count "${ENV_GOV_MAX_DEPRECATED_COUNT}" --max-deprecated-ratio "${ENV_GOV_MAX_DEPRECATED_RATIO}"
 
-if ! is_truthy "${AGENTCODER_CI_CONTAINER:-0}" && ! is_truthy "${AGENTCODER_HOST_COMPAT:-0}"; then
+if ! is_truthy "${CODEFLOW_CI_CONTAINER:-0}" && ! is_truthy "${CODEFLOW_HOST_COMPAT:-0}"; then
   exec bash "$ROOT_DIR/scripts/docker_ci.sh" ci "$@"
 fi
 

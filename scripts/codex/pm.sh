@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-CODEX_HOME="$HOME/.codex-homes/agentcoder-pm"
+CODEX_HOME="$HOME/.codex-homes/codeflow-pm"
 export CODEX_HOME
 exec codex "$@"

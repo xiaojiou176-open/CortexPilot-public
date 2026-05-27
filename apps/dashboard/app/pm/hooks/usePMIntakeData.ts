@@ -196,7 +196,7 @@ export function usePMIntakeData() {
   );
   const [effectiveBrowserPolicy, setEffectiveBrowserPolicy] = useState<unknown>(null);
   const [workspacePath, setWorkspacePath] = useState("apps/dashboard");
-  const [repoName, setRepoName] = useState("agentcoder");
+  const [repoName, setRepoName] = useState("codeflow");
   const [chatInput, setChatInput] = useState("");
   const [chatBusy, setChatBusy] = useState(false);
   const [chatError, setChatError] = useState("");

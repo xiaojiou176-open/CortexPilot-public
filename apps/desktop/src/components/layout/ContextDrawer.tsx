@@ -1,4 +1,4 @@
-import { detectPreferredUiLocale } from "@agentcoder/frontend-shared/uiLocale";
+import { detectPreferredUiLocale } from "@codeflow/frontend-shared/uiLocale";
 import { Button } from "../ui/Button";
 import { alertSeverityToBadge } from "../../lib/status";
 import type { DesktopAlert } from "../../lib/api";

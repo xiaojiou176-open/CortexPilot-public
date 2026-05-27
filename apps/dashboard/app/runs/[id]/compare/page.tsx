@@ -152,7 +152,7 @@ export default async function RunComparePage({
       <section className="app-section">
         <div className="compare-room-shell">
           <div className="compare-room-copy">
-            <p className="cell-sub mono muted">Agentcoder / compare truth room</p>
+            <p className="cell-sub mono muted">Codeflow / compare truth room</p>
             <h1 id="run-compare-page-title">Run compare</h1>
             <p>Review the structured replay comparison without digging through the full Run Detail report stack.</p>
             <p className="cell-sub mono muted">

@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from agentcoder_orch.gates import diff_gate
-from agentcoder_orch.gates.diff_gate import validate_diff
+from codeflow_orch.gates import diff_gate
+from codeflow_orch.gates.diff_gate import validate_diff
 
 
 def _git(cmd: list[str], cwd: Path) -> None:
@@ -92,7 +92,7 @@ def test_diff_gate_helpers() -> None:
 
 
 def test_diff_gate_protected_env(monkeypatch) -> None:
-    monkeypatch.setenv("AGENTCODER_PROTECTED_PATHS", "a.txt, b.txt")
+    monkeypatch.setenv("CODEFLOW_PROTECTED_PATHS", "a.txt, b.txt")
     protected = diff_gate._default_protected_paths()
     assert protected == ["a.txt", "b.txt"]
     assert diff_gate._is_protected("a.txt", ["", "a.txt"]) is True

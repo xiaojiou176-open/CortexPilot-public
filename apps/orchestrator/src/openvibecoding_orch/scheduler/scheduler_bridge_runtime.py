@@ -5,12 +5,12 @@ from importlib import import_module
 from pathlib import Path
 from typing import Any
 
-from agentcoder_orch.runners.agents_runner import AgentsRunner
-from agentcoder_orch.runners.app_server_runner import AppServerRunner
-from agentcoder_orch.runners.codex_runner import CodexRunner
-from agentcoder_orch.runners.tool_runner import ToolRunner
-from agentcoder_orch.scheduler import core_helpers, rollback_pipeline, tool_execution_pipeline
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.runners.agents_runner import AgentsRunner
+from codeflow_orch.runners.app_server_runner import AppServerRunner
+from codeflow_orch.runners.codex_runner import CodexRunner
+from codeflow_orch.runners.tool_runner import ToolRunner
+from codeflow_orch.scheduler import core_helpers, rollback_pipeline, tool_execution_pipeline
+from codeflow_orch.store.run_store import RunStore
 from tooling.tampermonkey.runner import run_tampermonkey
 
 
@@ -234,7 +234,7 @@ def _build_runner_via_execution_adapter(
     if runner_name not in _ADAPTER_RUNTIME_RUNNERS:
         return None
     try:
-        execution_adapter = import_module("agentcoder_orch.runners.execution_adapter")
+        execution_adapter = import_module("codeflow_orch.runners.execution_adapter")
     except ModuleNotFoundError:
         return None
     for factory_name in (
@@ -272,7 +272,7 @@ def select_runner(contract: dict[str, Any], store: RunStore) -> object:
         raise ValueError(
             f"unsupported runtime_options.runner: {runtime_runner} (supported: {_SUPPORTED_RUNNERS_TEXT})"
         )
-    runner_name = _normalize_runner_name(runtime_runner, _normalize_runner_name(os.getenv("AGENTCODER_RUNNER"), "agents"))
+    runner_name = _normalize_runner_name(runtime_runner, _normalize_runner_name(os.getenv("CODEFLOW_RUNNER"), "agents"))
     adapter_runner = _build_runner_via_execution_adapter(contract, store, runner_name)
     if adapter_runner is not None:
         if not hasattr(adapter_runner, "run_contract"):

@@ -42,14 +42,14 @@ def _now_ts() -> str:
 
 
 def _default_sessions_root() -> Path:
-    env_root = os.getenv("AGENTCODER_CODEX_SESSIONS_ROOT", "")
+    env_root = os.getenv("CODEFLOW_CODEX_SESSIONS_ROOT", "")
     if env_root:
         return Path(env_root)
     return Path.home() / ".codex" / "sessions"
 
 
 def _default_alias_path() -> Path:
-    env_path = os.getenv("AGENTCODER_SESSION_ALIAS_PATH", "")
+    env_path = os.getenv("CODEFLOW_SESSION_ALIAS_PATH", "")
     if env_path:
         return Path(env_path)
     return _default_sessions_root() / "alias_map.json"

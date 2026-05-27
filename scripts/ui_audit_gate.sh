@@ -7,27 +7,27 @@ cd "$ROOT_DIR"
 source "$ROOT_DIR/scripts/lib/env.sh"
 source "$ROOT_DIR/scripts/lib/test_heartbeat.sh"
 source "$ROOT_DIR/scripts/lib/toolchain_env.sh"
-PYTHON_BIN="${AGENTCODER_PYTHON:-$(agentcoder_python_bin "$ROOT_DIR" || true)}"
+PYTHON_BIN="${CODEFLOW_PYTHON:-$(codeflow_python_bin "$ROOT_DIR" || true)}"
 
-HOST="${AGENTCODER_UI_AUDIT_HOST:-127.0.0.1}"
-API_PORT="${AGENTCODER_UI_AUDIT_API_PORT:-19100}"
-DASHBOARD_PORT="${AGENTCODER_UI_AUDIT_PORT:-3211}"
-DASHBOARD_ROUTE_LIST="${AGENTCODER_UI_AUDIT_DASHBOARD_ROUTES:-/,/pm,/command-tower,/agents,/search}"
+HOST="${CODEFLOW_UI_AUDIT_HOST:-127.0.0.1}"
+API_PORT="${CODEFLOW_UI_AUDIT_API_PORT:-19100}"
+DASHBOARD_PORT="${CODEFLOW_UI_AUDIT_PORT:-3211}"
+DASHBOARD_ROUTE_LIST="${CODEFLOW_UI_AUDIT_DASHBOARD_ROUTES:-/,/pm,/command-tower,/agents,/search}"
 PRIMARY_DASHBOARD_ROUTE="/command-tower"
-DESKTOP_PORT="${AGENTCODER_UI_AUDIT_DESKTOP_PORT:-4311}"
+DESKTOP_PORT="${CODEFLOW_UI_AUDIT_DESKTOP_PORT:-4311}"
 REPORT_DIR="$ROOT_DIR/.runtime-cache/test_output/ui_audit"
 LOG_DIR="$ROOT_DIR/.runtime-cache/logs/runtime/ui_audit"
-mkdir -p "$ROOT_DIR/.runtime-cache/agentcoder/temp"
+mkdir -p "$ROOT_DIR/.runtime-cache/codeflow/temp"
 LIGHTHOUSE_JSON="${REPORT_DIR}/dashboard_lighthouse.json"
 AXE_JSON="${REPORT_DIR}/dashboard_axe.json"
 DESKTOP_LIGHTHOUSE_JSON="${REPORT_DIR}/desktop_lighthouse.json"
 DESKTOP_AXE_JSON="${REPORT_DIR}/desktop_axe.json"
-SNAPSHOT_DIR="$(mktemp -d "${ROOT_DIR}/.runtime-cache/agentcoder/temp/ui_audit_snapshot.XXXXXX")"
+SNAPSHOT_DIR="$(mktemp -d "${ROOT_DIR}/.runtime-cache/codeflow/temp/ui_audit_snapshot.XXXXXX")"
 STAGED_WORKSPACE_ROOT=""
 STAGED_DASHBOARD_DIR="$ROOT_DIR/apps/dashboard"
-API_TOKEN="$(agentcoder_env_get AGENTCODER_UI_AUDIT_API_TOKEN "${AGENTCODER_API_TOKEN:-agentcoder-ui-audit-token}")"
-WARMUP_TIMEOUT_SEC="${AGENTCODER_UI_AUDIT_WARMUP_TIMEOUT_SEC:-90}"
-HEARTBEAT_SEC="${AGENTCODER_UI_AUDIT_HEARTBEAT_INTERVAL_SEC:-20}"
+API_TOKEN="$(codeflow_env_get CODEFLOW_UI_AUDIT_API_TOKEN "${CODEFLOW_API_TOKEN:-codeflow-ui-audit-token}")"
+WARMUP_TIMEOUT_SEC="${CODEFLOW_UI_AUDIT_WARMUP_TIMEOUT_SEC:-90}"
+HEARTBEAT_SEC="${CODEFLOW_UI_AUDIT_HEARTBEAT_INTERVAL_SEC:-20}"
 READY_TIMEOUT_SEC="${WARMUP_TIMEOUT_SEC}"
 if (( READY_TIMEOUT_SEC < 180 )); then
   READY_TIMEOUT_SEC=180
@@ -59,10 +59,10 @@ prepare_staged_dashboard_workspace() {
   # Container UI audit installs can materialize multi-GB node_modules trees.
   # Keep that write-heavy staged workspace off the bind-mounted repo root so
   # Docker Desktop does not drop the container with an unexpected EOF.
-  if [[ "${AGENTCODER_CI_CONTAINER:-0}" == "1" && -n "${RUNNER_TEMP:-}" ]]; then
+  if [[ "${CODEFLOW_CI_CONTAINER:-0}" == "1" && -n "${RUNNER_TEMP:-}" ]]; then
     workspace_parent="${RUNNER_TEMP}/ui-audit-dashboard-workspace"
   else
-    workspace_parent="${ROOT_DIR}/.runtime-cache/agentcoder/temp"
+    workspace_parent="${ROOT_DIR}/.runtime-cache/codeflow/temp"
   fi
   mkdir -p "${workspace_parent}"
   stage_root="$(mktemp -d "${workspace_parent}/ui_audit_dashboard_workspace.XXXXXX")"
@@ -204,10 +204,10 @@ bash scripts/ui_protocol_gate.sh
 
 echo "🚀 [ui-audit] start orchestrator api on :${API_PORT}"
 PYTHONPATH=apps/orchestrator/src \
-AGENTCODER_API_AUTH_REQUIRED=true \
-AGENTCODER_API_TOKEN="$API_TOKEN" \
-AGENTCODER_DASHBOARD_PORT="$DASHBOARD_PORT" \
-"$PYTHON_BIN" -m agentcoder_orch.cli serve --host "$HOST" --port "$API_PORT" \
+CODEFLOW_API_AUTH_REQUIRED=true \
+CODEFLOW_API_TOKEN="$API_TOKEN" \
+CODEFLOW_DASHBOARD_PORT="$DASHBOARD_PORT" \
+"$PYTHON_BIN" -m codeflow_orch.cli serve --host "$HOST" --port "$API_PORT" \
   >"$API_LOG" 2>&1 &
 SERVER_PID_API=$!
 if ! run_with_heartbeat_and_timeout "ui-audit-api-startup" "$READY_TIMEOUT_SEC" "$HEARTBEAT_SEC" -- \
@@ -223,13 +223,13 @@ STAGED_WORKSPACE_ROOT="$(prepare_staged_dashboard_workspace)"
 STAGED_DASHBOARD_DIR="${STAGED_WORKSPACE_ROOT}/apps/dashboard"
 echo "ℹ️ [ui-audit] staged dashboard workspace: ${STAGED_DASHBOARD_DIR}"
 echo "🚀 [ui-audit] install dashboard deps"
-AGENTCODER_DASHBOARD_APP_DIR="${STAGED_DASHBOARD_DIR}" bash "$ROOT_DIR/scripts/install_dashboard_deps.sh"
+CODEFLOW_DASHBOARD_APP_DIR="${STAGED_DASHBOARD_DIR}" bash "$ROOT_DIR/scripts/install_dashboard_deps.sh"
 export PATH="${STAGED_DASHBOARD_DIR}/node_modules/.bin:$PATH"
 
 echo "🚀 [ui-audit] build dashboard"
-if ! NEXT_PUBLIC_AGENTCODER_API_BASE="${API_BASE_URL}" \
-NEXT_PUBLIC_AGENTCODER_API_TOKEN="${API_TOKEN}" \
-AGENTCODER_API_TOKEN="${API_TOKEN}" \
+if ! NEXT_PUBLIC_CODEFLOW_API_BASE="${API_BASE_URL}" \
+NEXT_PUBLIC_CODEFLOW_API_TOKEN="${API_TOKEN}" \
+CODEFLOW_API_TOKEN="${API_TOKEN}" \
 pnpm --dir "${STAGED_DASHBOARD_DIR}" run build >"$DASHBOARD_BUILD_LOG" 2>&1; then
   echo "❌ [ui-audit] dashboard build failed; tail follows"
   tail -n 80 "$DASHBOARD_BUILD_LOG" || true
@@ -238,9 +238,9 @@ fi
 
 echo "🚀 [ui-audit] start dashboard server on :${DASHBOARD_PORT}"
 (
-  export NEXT_PUBLIC_AGENTCODER_API_BASE="${API_BASE_URL}"
-  export NEXT_PUBLIC_AGENTCODER_API_TOKEN="${API_TOKEN}"
-  export AGENTCODER_API_TOKEN="${API_TOKEN}"
+  export NEXT_PUBLIC_CODEFLOW_API_BASE="${API_BASE_URL}"
+  export NEXT_PUBLIC_CODEFLOW_API_TOKEN="${API_TOKEN}"
+  export CODEFLOW_API_TOKEN="${API_TOKEN}"
   cd "${STAGED_DASHBOARD_DIR}"
   exec next start --hostname "$HOST" --port "${DASHBOARD_PORT}"
 ) >"$DASHBOARD_LOG" 2>&1 &
@@ -418,7 +418,7 @@ run_lighthouse() {
     return 0
   fi
 
-  if [[ "${AGENTCODER_UI_AUDIT_ALLOW_LIGHTHOUSE_FAILURE:-0}" == "1" ]]; then
+  if [[ "${CODEFLOW_UI_AUDIT_ALLOW_LIGHTHOUSE_FAILURE:-0}" == "1" ]]; then
     node -e '
 const fs = require("node:fs");
 const path = process.argv[1];
@@ -431,7 +431,7 @@ const stub = {
     accessibility: { score: 0.9 },
     "best-practices": { score: 0.85 },
   },
-  agentcoder_local_audit_only: true,
+  codeflow_local_audit_only: true,
   warning: "Lighthouse crashed in local container run; generated audit-only stub."
 };
 fs.writeFileSync(path, JSON.stringify(stub, null, 2));
@@ -557,7 +557,7 @@ if ! bash "$ROOT_DIR/scripts/install_desktop_deps.sh"; then
     unset NODE_ENV
     export npm_config_production=false
     export NPM_CONFIG_PRODUCTION=false
-    store_dir="${AGENTCODER_PNPM_STORE_DIR:-${XDG_CACHE_HOME:-${HOME:-/tmp}/.cache}/agentcoder/pnpm-store-desktop-inline-ui-audit}"
+    store_dir="${CODEFLOW_PNPM_STORE_DIR:-${XDG_CACHE_HOME:-${HOME:-/tmp}/.cache}/codeflow/pnpm-store-desktop-inline-ui-audit}"
     mkdir -p "$store_dir"
     CI=true pnpm install \
       --ignore-workspace \
@@ -652,9 +652,9 @@ console.log("✅ [ui-audit] lighthouse thresholds pass");
 echo "🚀 [ui-audit] verify axe artifacts"
 node -e '
 const fs = require("node:fs");
-const maxViolations = Number(process.env.AGENTCODER_UI_AUDIT_AXE_MAX_VIOLATIONS ?? "0");
+const maxViolations = Number(process.env.CODEFLOW_UI_AUDIT_AXE_MAX_VIOLATIONS ?? "0");
 if (!Number.isFinite(maxViolations) || maxViolations < 0) {
-  console.error("❌ [ui-audit] AGENTCODER_UI_AUDIT_AXE_MAX_VIOLATIONS must be a non-negative number");
+  console.error("❌ [ui-audit] CODEFLOW_UI_AUDIT_AXE_MAX_VIOLATIONS must be a non-negative number");
   process.exit(1);
 }
 let totalViolations = 0;

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-agentcoder_expand_home_path() {
+codeflow_expand_home_path() {
   local raw="${1:-}"
   if [[ "$raw" == "~" ]]; then
     printf '%s\n' "$HOME"
@@ -9,50 +9,50 @@ agentcoder_expand_home_path() {
   printf '%s\n' "${raw/#\~\//$HOME/}"
 }
 
-agentcoder_machine_cache_root() {
+codeflow_machine_cache_root() {
   local root_dir="${1:?root_dir required}"
-  if [[ -n "${AGENTCODER_MACHINE_CACHE_ROOT:-}" ]]; then
-    agentcoder_expand_home_path "${AGENTCODER_MACHINE_CACHE_ROOT}"
+  if [[ -n "${CODEFLOW_MACHINE_CACHE_ROOT:-}" ]]; then
+    codeflow_expand_home_path "${CODEFLOW_MACHINE_CACHE_ROOT}"
     return 0
   fi
   if [[ -n "${RUNNER_TEMP:-}" && ( "${CI:-}" == "1" || "${CI:-}" == "true" || "${GITHUB_ACTIONS:-}" == "true" ) ]]; then
-    printf '%s\n' "${RUNNER_TEMP}/agentcoder-machine-cache"
+    printf '%s\n' "${RUNNER_TEMP}/codeflow-machine-cache"
     return 0
   fi
   local cache_home="${XDG_CACHE_HOME:-$HOME/.cache}"
-  printf '%s\n' "${cache_home}/agentcoder"
+  printf '%s\n' "${cache_home}/codeflow"
 }
 
-agentcoder_toolchain_cache_root() {
+codeflow_toolchain_cache_root() {
   local root_dir="${1:?root_dir required}"
-  if [[ -n "${AGENTCODER_TOOLCHAIN_CACHE_ROOT:-}" ]]; then
-    printf '%s\n' "${AGENTCODER_TOOLCHAIN_CACHE_ROOT}"
+  if [[ -n "${CODEFLOW_TOOLCHAIN_CACHE_ROOT:-}" ]]; then
+    printf '%s\n' "${CODEFLOW_TOOLCHAIN_CACHE_ROOT}"
     return 0
   fi
   local machine_root
-  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
+  machine_root="$(codeflow_machine_cache_root "$root_dir")"
   printf '%s\n' "${machine_root}/toolchains"
 }
 
-agentcoder_machine_tmp_root() {
+codeflow_machine_tmp_root() {
   local root_dir="${1:?root_dir required}"
   local machine_root
-  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
+  machine_root="$(codeflow_machine_cache_root "$root_dir")"
   printf '%s\n' "${machine_root}/tmp"
 }
 
-agentcoder_docker_buildx_cache_root() {
+codeflow_docker_buildx_cache_root() {
   local root_dir="${1:?root_dir required}"
   local machine_root
-  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
+  machine_root="$(codeflow_machine_cache_root "$root_dir")"
   printf '%s\n' "${machine_root}/docker-buildx-cache"
 }
 
-agentcoder_docker_buildx_cache_dir() {
+codeflow_docker_buildx_cache_dir() {
   local root_dir="${1:?root_dir required}"
   local image_name="${2:?image_name required}"
   local cache_root
-  cache_root="$(agentcoder_docker_buildx_cache_root "$root_dir")"
+  cache_root="$(codeflow_docker_buildx_cache_root "$root_dir")"
   local sanitized
   sanitized="${image_name//:/-}"
   sanitized="${sanitized//\//-}"
@@ -64,9 +64,9 @@ agentcoder_docker_buildx_cache_dir() {
   printf '%s\n' "${cache_root}/${sanitized}"
 }
 
-agentcoder_bootstrap_python_bin() {
-  if [[ -n "${AGENTCODER_BOOTSTRAP_PYTHON:-}" ]] && command -v "${AGENTCODER_BOOTSTRAP_PYTHON}" >/dev/null 2>&1; then
-    command -v "${AGENTCODER_BOOTSTRAP_PYTHON}"
+codeflow_bootstrap_python_bin() {
+  if [[ -n "${CODEFLOW_BOOTSTRAP_PYTHON:-}" ]] && command -v "${CODEFLOW_BOOTSTRAP_PYTHON}" >/dev/null 2>&1; then
+    command -v "${CODEFLOW_BOOTSTRAP_PYTHON}"
     return 0
   fi
   if command -v python3 >/dev/null 2>&1; then
@@ -80,14 +80,14 @@ agentcoder_bootstrap_python_bin() {
   return 1
 }
 
-agentcoder_python_venv_root() {
+codeflow_python_venv_root() {
   local root_dir="${1:?root_dir required}"
   local toolchain_root
-  toolchain_root="$(agentcoder_toolchain_cache_root "$root_dir")"
-  if [[ -n "${AGENTCODER_PYTHON:-}" ]] && [[ -x "${AGENTCODER_PYTHON}" ]]; then
+  toolchain_root="$(codeflow_toolchain_cache_root "$root_dir")"
+  if [[ -n "${CODEFLOW_PYTHON:-}" ]] && [[ -x "${CODEFLOW_PYTHON}" ]]; then
     local parent
-    parent="$(cd "$(dirname "${AGENTCODER_PYTHON}")/.." && pwd)"
-    if [[ -n "${AGENTCODER_TOOLCHAIN_CACHE_ROOT:-}" || -n "${AGENTCODER_MACHINE_CACHE_ROOT:-}" ]]; then
+    parent="$(cd "$(dirname "${CODEFLOW_PYTHON}")/.." && pwd)"
+    if [[ -n "${CODEFLOW_TOOLCHAIN_CACHE_ROOT:-}" || -n "${CODEFLOW_MACHINE_CACHE_ROOT:-}" ]]; then
       if [[ "$parent" == "${toolchain_root}/python/current" ]]; then
         printf '%s\n' "$parent"
         return 0
@@ -104,20 +104,20 @@ agentcoder_python_venv_root() {
   printf '%s\n' "${toolchain_root}/python/current"
 }
 
-agentcoder_python_bin() {
+codeflow_python_bin() {
   local root_dir="${1:?root_dir required}"
   local toolchain_root
-  toolchain_root="$(agentcoder_toolchain_cache_root "$root_dir")"
-  if [[ -n "${AGENTCODER_PYTHON:-}" ]] && [[ -x "${AGENTCODER_PYTHON}" ]]; then
+  toolchain_root="$(codeflow_toolchain_cache_root "$root_dir")"
+  if [[ -n "${CODEFLOW_PYTHON:-}" ]] && [[ -x "${CODEFLOW_PYTHON}" ]]; then
     local parent
-    parent="$(cd "$(dirname "${AGENTCODER_PYTHON}")/.." && pwd)"
-    if [[ -n "${AGENTCODER_TOOLCHAIN_CACHE_ROOT:-}" || -n "${AGENTCODER_MACHINE_CACHE_ROOT:-}" ]]; then
+    parent="$(cd "$(dirname "${CODEFLOW_PYTHON}")/.." && pwd)"
+    if [[ -n "${CODEFLOW_TOOLCHAIN_CACHE_ROOT:-}" || -n "${CODEFLOW_MACHINE_CACHE_ROOT:-}" ]]; then
       if [[ "$parent" == "${toolchain_root}/python/current" ]]; then
-        printf '%s\n' "${AGENTCODER_PYTHON}"
+        printf '%s\n' "${CODEFLOW_PYTHON}"
         return 0
       fi
     else
-      printf '%s\n' "${AGENTCODER_PYTHON}"
+      printf '%s\n' "${CODEFLOW_PYTHON}"
       return 0
     fi
   fi
@@ -128,31 +128,31 @@ agentcoder_python_bin() {
   return 1
 }
 
-agentcoder_export_python_env() {
+codeflow_export_python_env() {
   local root_dir="${1:?root_dir required}"
   local python_bin
-  python_bin="$(agentcoder_python_bin "$root_dir")" || return 1
+  python_bin="$(codeflow_python_bin "$root_dir")" || return 1
   local venv_root
-  venv_root="$(agentcoder_python_venv_root "$root_dir")"
-  export AGENTCODER_PYTHON="${python_bin}"
+  venv_root="$(codeflow_python_venv_root "$root_dir")"
+  export CODEFLOW_PYTHON="${python_bin}"
   export VIRTUAL_ENV="${venv_root}"
 }
 
-agentcoder_cargo_home() {
+codeflow_cargo_home() {
   local root_dir="${1:?root_dir required}"
   local machine_root
-  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
+  machine_root="$(codeflow_machine_cache_root "$root_dir")"
   printf '%s\n' "${machine_root}/cargo"
 }
 
-agentcoder_pnpm_store_dir() {
+codeflow_pnpm_store_dir() {
   local root_dir="${1:?root_dir required}"
-  if [[ -n "${AGENTCODER_PNPM_STORE_DIR:-}" ]]; then
-    printf '%s\n' "${AGENTCODER_PNPM_STORE_DIR}"
+  if [[ -n "${CODEFLOW_PNPM_STORE_DIR:-}" ]]; then
+    printf '%s\n' "${CODEFLOW_PNPM_STORE_DIR}"
     return 0
   fi
   local machine_root
-  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
+  machine_root="$(codeflow_machine_cache_root "$root_dir")"
   if [[ -n "${RUNNER_TEMP:-}" ]]; then
     printf '%s\n' "${machine_root}/pnpm-store-${GITHUB_JOB:-local}-${GITHUB_RUN_ID:-0}-${GITHUB_RUN_ATTEMPT:-0}"
     return 0
@@ -160,43 +160,43 @@ agentcoder_pnpm_store_dir() {
   printf '%s\n' "${machine_root}/pnpm-store"
 }
 
-agentcoder_pnpm_local_retry_prefix() {
+codeflow_pnpm_local_retry_prefix() {
   local root_dir="${1:?root_dir required}"
   local lane="${2:?lane required}"
   local machine_root
-  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
+  machine_root="$(codeflow_machine_cache_root "$root_dir")"
   printf '%s\n' "${machine_root}/pnpm-store-local-${lane}"
 }
 
-agentcoder_pnpm_local_retry_dir() {
+codeflow_pnpm_local_retry_dir() {
   local root_dir="${1:?root_dir required}"
   local lane="${2:?lane required}"
   local prefix
-  prefix="$(agentcoder_pnpm_local_retry_prefix "$root_dir" "$lane")"
+  prefix="$(codeflow_pnpm_local_retry_prefix "$root_dir" "$lane")"
   mkdir -p "$(dirname "$prefix")"
   mktemp -d "${prefix}.XXXXXX"
 }
 
-agentcoder_playwright_browsers_path() {
+codeflow_playwright_browsers_path() {
   local root_dir="${1:?root_dir required}"
   if [[ -n "${PLAYWRIGHT_BROWSERS_PATH:-}" ]]; then
     printf '%s\n' "${PLAYWRIGHT_BROWSERS_PATH}"
     return 0
   fi
   local machine_root
-  machine_root="$(agentcoder_machine_cache_root "$root_dir")"
+  machine_root="$(codeflow_machine_cache_root "$root_dir")"
   printf '%s\n' "${machine_root}/playwright"
 }
 
-agentcoder_cargo_audit_ignore_config() {
+codeflow_cargo_audit_ignore_config() {
   local root_dir="${1:?root_dir required}"
   printf '%s\n' "${root_dir}/configs/cargo_audit_ignored_advisories.json"
 }
 
-agentcoder_cargo_audit_ignore_ids() {
+codeflow_cargo_audit_ignore_ids() {
   local root_dir="${1:?root_dir required}"
   local config_path
-  config_path="$(agentcoder_cargo_audit_ignore_config "$root_dir")"
+  config_path="$(codeflow_cargo_audit_ignore_config "$root_dir")"
   python3 - "$config_path" <<'PY'
 import json
 import sys

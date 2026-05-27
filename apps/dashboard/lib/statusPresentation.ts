@@ -12,10 +12,10 @@ import {
   statusVariantFromCanonical,
   toCanonicalStage,
   toCanonicalStatusFuzzy,
-} from "@agentcoder/frontend-shared/statusPresentation";
+} from "@codeflow/frontend-shared/statusPresentation";
 
-export { knownOutcomeTypeLabelZh, outcomeTypeLabelZh } from "@agentcoder/frontend-shared/statusPresentation";
-export type { UiLocale } from "@agentcoder/frontend-shared/statusPresentation";
+export { knownOutcomeTypeLabelZh, outcomeTypeLabelZh } from "@codeflow/frontend-shared/statusPresentation";
+export type { UiLocale } from "@codeflow/frontend-shared/statusPresentation";
 
 export const DASHBOARD_DEFAULT_LOCALE: UiLocale = "en";
 

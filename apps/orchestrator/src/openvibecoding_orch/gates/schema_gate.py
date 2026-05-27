@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from agentcoder_orch.contract.validator import validate_contract
+from codeflow_orch.contract.validator import validate_contract
 
 
 def run_schema_gate(contract_path: Path) -> dict:

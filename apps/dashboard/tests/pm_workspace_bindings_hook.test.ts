@@ -13,8 +13,8 @@ describe("usePersistedWorkspaceBindings", () => {
     const setWorkspacePath = vi.fn();
     const setRepoName = vi.fn();
 
-    window.localStorage.setItem("agentcoder.pm.workspace", "apps/custom");
-    window.localStorage.setItem("agentcoder.pm.repo", "custom-repo");
+    window.localStorage.setItem("codeflow.pm.workspace", "apps/custom");
+    window.localStorage.setItem("codeflow.pm.repo", "custom-repo");
 
     renderHook(() =>
       usePersistedWorkspaceBindings({
@@ -46,7 +46,7 @@ describe("usePersistedWorkspaceBindings", () => {
 
     await waitFor(() => {
       expect(setWorkspacePath).toHaveBeenCalledWith("apps/dashboard");
-      expect(setRepoName).toHaveBeenCalledWith("agentcoder");
+      expect(setRepoName).toHaveBeenCalledWith("codeflow");
     });
   });
 
@@ -72,21 +72,21 @@ describe("usePersistedWorkspaceBindings", () => {
     );
 
     await waitFor(() => {
-      expect(window.localStorage.getItem("agentcoder.pm.workspace")).toBeNull();
-      expect(window.localStorage.getItem("agentcoder.pm.repo")).toBeNull();
+      expect(window.localStorage.getItem("codeflow.pm.workspace")).toBeNull();
+      expect(window.localStorage.getItem("codeflow.pm.repo")).toBeNull();
     });
 
     rerender({
       workspacePath: " apps/orchestrator ",
-      repoName: " agentcoder-main ",
+      repoName: " codeflow-main ",
     });
 
     await waitFor(() => {
-      expect(window.localStorage.getItem("agentcoder.pm.workspace")).toBe("apps/orchestrator");
-      expect(window.localStorage.getItem("agentcoder.pm.repo")).toBe("agentcoder-main");
+      expect(window.localStorage.getItem("codeflow.pm.workspace")).toBe("apps/orchestrator");
+      expect(window.localStorage.getItem("codeflow.pm.repo")).toBe("codeflow-main");
     });
 
-    expect(setItemSpy).toHaveBeenCalledWith("agentcoder.pm.workspace", "apps/orchestrator");
-    expect(setItemSpy).toHaveBeenCalledWith("agentcoder.pm.repo", "agentcoder-main");
+    expect(setItemSpy).toHaveBeenCalledWith("codeflow.pm.workspace", "apps/orchestrator");
+    expect(setItemSpy).toHaveBeenCalledWith("codeflow.pm.repo", "codeflow-main");
   });
 });

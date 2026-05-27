@@ -6,8 +6,8 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 import pytest
 
-from agentcoder_orch.api import artifact_helpers
-from agentcoder_orch.api import main as api_main
+from codeflow_orch.api import artifact_helpers
+from codeflow_orch.api import main as api_main
 
 
 def _write_manifest(run_dir: Path, payload: dict) -> None:
@@ -34,7 +34,7 @@ def test_run_search_endpoint_fails_loud_when_artifact_helper_breaks(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     runs_root = tmp_path / "runs"
-    monkeypatch.setenv("AGENTCODER_RUNS_ROOT", str(runs_root))
+    monkeypatch.setenv("CODEFLOW_RUNS_ROOT", str(runs_root))
 
     run_id = "run_artifact_counterfactual"
     run_dir = runs_root / run_id

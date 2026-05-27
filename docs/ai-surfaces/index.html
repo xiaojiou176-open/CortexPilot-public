@@ -3,29 +3,29 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agentcoder | AI, MCP, and API surfaces for the command tower</title>
+    <title>Codeflow | AI, MCP, and API surfaces for the command tower</title>
     <meta
       name="description"
-      content="Secondary technical surfaces for Agentcoder, the command tower for AI engineering: advisory AI briefs, read-only MCP, frontend API entrypoints, and contract-facing types for Codex and Claude Code workflows."
+      content="Secondary technical surfaces for Codeflow, the command tower for AI engineering: advisory AI briefs, read-only MCP, frontend API entrypoints, and contract-facing types for Codex and Claude Code workflows."
     />
     <meta
       name="keywords"
-      content="Agentcoder, Agentcoder runtime, AI engineering command tower, advisory AI brief, read-only MCP, frontend API client, workflow automation"
+      content="Codeflow, Codeflow runtime, AI engineering command tower, advisory AI brief, read-only MCP, frontend API client, workflow automation"
     />
-    <link rel="canonical" href="https://xiaojiou176-open.github.io/agentcoder/ai-surfaces/" />
-    <meta property="og:title" content="Agentcoder | AI, MCP, and API surfaces for the command tower" />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/codeflow/ai-surfaces/" />
+    <meta property="og:title" content="Codeflow | AI, MCP, and API surfaces for the command tower" />
     <meta
       property="og:description"
-      content="Secondary technical surfaces for Agentcoder: advisory AI briefs, read-only MCP, and current API entrypoints."
+      content="Secondary technical surfaces for Codeflow: advisory AI briefs, read-only MCP, and current API entrypoints."
     />
     <meta property="og:type" content="article" />
-    <meta property="og:url" content="https://xiaojiou176-open.github.io/agentcoder/ai-surfaces/" />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/codeflow/ai-surfaces/" />
     <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Agentcoder | AI, MCP, and API surfaces for the command tower" />
+    <meta name="twitter:title" content="Codeflow | AI, MCP, and API surfaces for the command tower" />
     <meta
       name="twitter:description"
-      content="Truthful command-tower map for advisory AI briefs, read-only MCP, and API entrypoints in Agentcoder."
+      content="Truthful command-tower map for advisory AI briefs, read-only MCP, and API entrypoints in Codeflow."
     />
     <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
     <link rel="stylesheet" href="../assets/storefront/public-docs-command-deck.css" />
@@ -33,8 +33,8 @@
       {
         "@context": "https://schema.org",
         "@type": "TechArticle",
-        "headline": "Agentcoder AI, MCP, and API surfaces for the command tower",
-        "url": "https://xiaojiou176-open.github.io/agentcoder/ai-surfaces/",
+        "headline": "Codeflow AI, MCP, and API surfaces for the command tower",
+        "url": "https://xiaojiou176-open.github.io/codeflow/ai-surfaces/",
         "description": "Truthful command-tower map for advisory AI briefs, read-only MCP, and current frontend API entrypoints."
       }
     </script>
@@ -57,7 +57,7 @@
         <span class="eyebrow">Secondary technical surfaces</span>
         <h1>AI, MCP, and API surfaces for the command tower</h1>
         <p class="lede">
-          Agentcoder is the command tower for AI engineering. This page is not the top-level product story; it is the
+          Codeflow is the command tower for AI engineering. This page is not the top-level product story; it is the
           secondary technical map that shows which AI-facing, MCP-facing, and API-facing surfaces already exist for
           <strong>Codex</strong> and <strong>Claude Code</strong> workflows.
         </p>
@@ -70,7 +70,7 @@
 
       <h2>1. Explain-only AI operator copilot</h2>
       <p>
-        Agentcoder already exposes a bounded AI operator brief on the workflow path instead of an unbounded floating chat box.
+        Codeflow already exposes a bounded AI operator brief on the workflow path instead of an unbounded floating chat box.
         Today it shows up in three major places:
       </p>
       <ul>
@@ -85,7 +85,7 @@
 
       <h2>2. Read-only MCP surface</h2>
       <p>
-        Agentcoder ships a <strong>real read-only MCP node</strong> for control-plane reads. The current public contract is:
+        Codeflow ships a <strong>real read-only MCP node</strong> for control-plane reads. The current public contract is:
       </p>
       <ul>
         <li>inspect runs, workflow cases, queue posture, approvals, compare, proof, and incident summaries</li>
@@ -102,12 +102,12 @@
 
       <h2>3. Frontend API and contract entrypoints</h2>
       <p>
-        Agentcoder also exposes a thin builder edge for frontend consumers that want the same routes and contracts the dashboard and desktop use today.
+        Codeflow also exposes a thin builder edge for frontend consumers that want the same routes and contracts the dashboard and desktop use today.
       </p>
       <ul>
-        <li><code>@agentcoder/frontend-api-client</code>: thin JS/TS client helpers for runs, Workflow Cases, approvals, and command-tower reads</li>
-        <li><code>@agentcoder/frontend-api-contract</code>: contract-facing route/query names and generated frontend-safe types</li>
-        <li><code>@agentcoder/frontend-shared</code>: shared copy, locale, and status-presentation substrate for dashboard and desktop, kept workspace-only today</li>
+        <li><code>@codeflow/frontend-api-client</code>: thin JS/TS client helpers for runs, Workflow Cases, approvals, and command-tower reads</li>
+        <li><code>@codeflow/frontend-api-contract</code>: contract-facing route/query names and generated frontend-safe types</li>
+        <li><code>@codeflow/frontend-shared</code>: shared copy, locale, and status-presentation substrate for dashboard and desktop, kept workspace-only today</li>
       </ul>
       <p>
         For the public machine-facing HTTP summary, use the
@@ -121,8 +121,8 @@
 
       <h2>4. What we can say truthfully</h2>
       <ul>
-        <li><strong>Codex</strong>: Agentcoder is positioned for Codex workflows as an operator control plane, not as an official Codex product.</li>
-        <li><strong>Claude Code</strong>: Agentcoder is positioned for Claude Code workflows as the same governed command-tower path, not as an Anthropic-managed surface.</li>
+        <li><strong>Codex</strong>: Codeflow is positioned for Codex workflows as an operator control plane, not as an official Codex product.</li>
+        <li><strong>Claude Code</strong>: Codeflow is positioned for Claude Code workflows as the same governed command-tower path, not as an Anthropic-managed surface.</li>
         <li><strong>MCP</strong>: the current protocol story is real, but it is <strong>read-only only</strong>.</li>
         <li><strong>API / builder layer</strong>: current packages are useful integration entrypoints, but they are <strong>not yet a full SDK platform</strong>.</li>
         <li><strong>Queue pilot groundwork</strong>: repo-owned HTTP queue preview/cancel plus a confirm-gated, default-off queue-only MCP pilot server can exist internally without changing the public “read-only MCP” contract.</li>

@@ -2,7 +2,7 @@
 
 ## Mission
 
-Work in Agentcoder as a contract-first engineering agent:
+Work in Codeflow as a contract-first engineering agent:
 
 - keep diffs small and auditable
 - keep code and docs in sync
@@ -54,8 +54,8 @@ Work in Agentcoder as a contract-first engineering agent:
 <!-- GENERATED:ci-topology-summary:end -->
 
 <!-- GENERATED:current-run-evidence-summary:start -->
-- authoritative release-truth builders must consume `.runtime-cache/agentcoder/reports/ci/current_run/source_manifest.json`.
-- the live current-run authority verdict belongs to `python3 scripts/check_ci_current_run_sources.py` and `.runtime-cache/agentcoder/reports/ci/current_run/consistency.json`.
+- authoritative release-truth builders must consume `.runtime-cache/codeflow/reports/ci/current_run/source_manifest.json`.
+- the live current-run authority verdict belongs to `python3 scripts/check_ci_current_run_sources.py` and `.runtime-cache/codeflow/reports/ci/current_run/consistency.json`.
 - current-run builders: `artifact_index/current_run_index`, `cost_profile`, `runner_health`, `slo`, `portal`, `provenance`.
 - docs and wrappers must not hand-maintain live current-run status; they must point readers back to the checker receipts.
 - if the current-run source manifest is missing, authoritative current-run reports must fail closed or run only in explicit advisory mode.
@@ -148,7 +148,7 @@ Work in Agentcoder as a contract-first engineering agent:
   module-local README changes
 - when the live public GitHub surface moves or changes repository URLs, sync the
   root docs/security/storefront entrypoints in the same patch so repo-side
-  links do not drift behind the published `Agentcoder` surface
+  links do not drift behind the published `Codeflow` surface
 - when security reporting wording changes, keep `SECURITY.md`, `SUPPORT.md`,
   issue template contact links, and the root README aligned in the same patch
 - when security-scan or fixture-hygiene work changes tracked test literals or
@@ -202,25 +202,25 @@ Work in Agentcoder as a contract-first engineering agent:
   AI/docs entrypoints in the same patch; current examples include
   `log_lane_summary` + `space_bridge` in `retention_report.json`, serial-only
   heavy cleanup execution ordering, cleanup inventory consistency checks, and
-  the rule that repo-external apply scope stays inside `~/.cache/agentcoder`
+  the rule that repo-external apply scope stays inside `~/.cache/codeflow`
   while shared observation layers remain report-only; current machine-temp
-  examples also include `~/.cache/agentcoder/tmp/docker-ci/runner-temp-*`,
-  `~/.cache/agentcoder/tmp/clean-room-machine-cache.*`, and
-  `~/.cache/agentcoder/tmp/clean-room-preserve.*`, which stay
+  examples also include `~/.cache/codeflow/tmp/docker-ci/runner-temp-*`,
+  `~/.cache/codeflow/tmp/clean-room-machine-cache.*`, and
+  `~/.cache/codeflow/tmp/clean-room-preserve.*`, which stay
   repo-external-related under wave3 instead of defaulting to Darwin `TMPDIR`;
   current closeout slices also include `machine_cache_summary` +
   `machine_cache_auto_prune` in the retention/space-governance bridge, the
   repo-owned Docker runtime receipt at
-  `.runtime-cache/agentcoder/reports/space_governance/docker_runtime.json`,
+  `.runtime-cache/codeflow/reports/space_governance/docker_runtime.json`,
   repo-owned buildx local cache under
-  `~/.cache/agentcoder/docker-buildx-cache/`, plus the repo-owned singleton
-  Chrome root under `~/.cache/agentcoder/browser/chrome-user-data/` that
+  `~/.cache/codeflow/docker-buildx-cache/`, plus the repo-owned singleton
+  Chrome root under `~/.cache/codeflow/browser/chrome-user-data/` that
   `allow_profile` now attaches to over the fixed CDP endpoint instead of
   reusing the default Chrome root; CI / docker / clean-room lanes still fail
   closed back to `ephemeral`
 - when workflow-case / proof-pack / compare / task-pack / queue-scheduling
   contracts change, sync the root AI/docs entrypoints in the same patch; the
-  current examples are `.runtime-cache/agentcoder/workflow-cases/`,
+  current examples are `.runtime-cache/codeflow/workflow-cases/`,
   `proof_pack.json`, dedicated run-compare surfaces, desktop Flight Plan
   preview, and timezone-safe queue scheduling inputs
 - when Version B closeout work changes the public front door, shared locale
@@ -281,7 +281,7 @@ Work in Agentcoder as a contract-first engineering agent:
   `RunDetailPage` / `OverviewPage`
 - when a later Phase 2 wave hardens desktop `Run Detail` / `Overview`
   operator-surface locale coverage or moves more desktop strings onto
-  `@agentcoder/frontend-shared`, keep the root AI entrypoints aligned in the
+  `@codeflow/frontend-shared`, keep the root AI entrypoints aligned in the
   same patch; current examples include locale-aware desktop status labels,
   shared-copy Run Detail table/action chrome, and zh-CN regression coverage
 - when a front-door discoverability wave adds or reprioritizes public
@@ -324,7 +324,7 @@ Work in Agentcoder as a contract-first engineering agent:
   `docs/agent-starters/index.html`, `docs/examples/agent-starters/`,
   `examples/coding-agents/`, `configs/root_allowlist.json`, and the root/docs
   wording that now distinguishes host-platform plugin reality from
-  Agentcoder's own publication state
+  Codeflow's own publication state
 - when a later polish wave compresses the public homepage or dashboard-home
   discovery stack into a clearer route page, sync the root AI/docs entrypoints
   in the same patch; current examples include the homepage mini-nav, reduced
@@ -358,8 +358,8 @@ Work in Agentcoder as a contract-first engineering agent:
 - when a Prompt 8-style slice converges the OpenAPI/frontend-contract
   generation chain or projects `role_binding_read_model` onto dashboard/desktop
   Run Detail surfaces, sync the root AI/docs entrypoints in the same patch;
-  current examples include `docs/api/openapi.agentcoder.json`, the generated
-  `@agentcoder/frontend-api-contract` read-model types, and the read-only
+  current examples include `docs/api/openapi.codeflow.json`, the generated
+  `@codeflow/frontend-api-contract` read-model types, and the read-only
   Run Detail operator summaries that keep `task_contract` as execution
   authority
 - when a Prompt 9-style slice turns role / bundle / runtime truth into
@@ -387,7 +387,7 @@ Work in Agentcoder as a contract-first engineering agent:
   from tool execution parity
 - when a Prompt 10 closeout fix changes how contract package entrypoints load
   under CI/governance paths, sync the root AI/docs entrypoints in the same
-  patch; current examples include lazy-loading `agentcoder_orch.contract`
+  patch; current examples include lazy-loading `codeflow_orch.contract`
   so `ContractValidator` and schedule-boundary governance checks stay below
   runtime-provider dependencies such as `httpx` on Quick Feedback lanes
 - when a Prompt 10 Wave 3 slice hardens builder/client entrypoints into a
@@ -406,10 +406,10 @@ Work in Agentcoder as a contract-first engineering agent:
   queue-first mutation groundwork, sync the root AI/docs entrypoints in the
   same patch; current examples include `render.yaml`,
   `configs/docs_nav_registry.json`, the hosted
-  `AGENTCODER_API_ALLOWED_ORIGINS` env wiring across `.env.example`,
+  `CODEFLOW_API_ALLOWED_ORIGINS` env wiring across `.env.example`,
   `apps/orchestrator/.env.example`, `configs/env.registry.json`, and
   `configs/env_direct_read_allowlist.json`, plus the rule that
-  `apps/orchestrator/src/agentcoder_orch/mcp_queue_pilot_server.py` and queue
+  `apps/orchestrator/src/codeflow_orch/mcp_queue_pilot_server.py` and queue
   preview/cancel routes stay repo-owned operator groundwork rather than live
   hosted proof or public write-capable MCP
 - when a Final-100 hosted/operator follow-up only changes governance,

@@ -8,10 +8,10 @@ import sys
 from pathlib import Path
 from typing import Any, Callable
 
-from agentcoder_orch.chain import chain_lifecycle
-from agentcoder_orch.chain.helpers import _normalize_depends, _step_task_id
-from agentcoder_orch.chain.parsers import _extract_contracts, _extract_handoff_payload
-from agentcoder_orch.chain.runtime_helpers import (
+from codeflow_orch.chain import chain_lifecycle
+from codeflow_orch.chain.helpers import _normalize_depends, _step_task_id
+from codeflow_orch.chain.parsers import _extract_contracts, _extract_handoff_payload
+from codeflow_orch.chain.runtime_helpers import (
     TERMINAL_RUN_STATUSES as _TERMINAL_RUN_STATUSES,
     apply_context_policy as _apply_context_policy,
     deep_merge_payload as _deep_merge_payload,
@@ -28,9 +28,9 @@ from agentcoder_orch.chain.runtime_helpers import (
     schema_allowed_keys as _schema_allowed_keys,
     should_propagate_dependency_patch as _should_propagate_dependency_patch,
 )
-from agentcoder_orch.contract.compiler import compile_plan
-from agentcoder_orch.contract.validator import ContractValidator
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.contract.compiler import compile_plan
+from codeflow_orch.contract.validator import ContractValidator
+from codeflow_orch.store.run_store import RunStore
 
 _HANDOFF_ROLE_ORDER = chain_lifecycle._HANDOFF_ROLE_ORDER
 _agent_role = chain_lifecycle._agent_role
@@ -47,7 +47,7 @@ def execute_task_subprocess(
     mock_mode: bool,
     timeout_sec: float | None,
 ) -> str:
-    cmd = [sys.executable, "-m", "agentcoder_orch.cli", "run", str(contract_ref)]
+    cmd = [sys.executable, "-m", "codeflow_orch.cli", "run", str(contract_ref)]
     if mock_mode:
         cmd.append("--mock")
     env = os.environ.copy()

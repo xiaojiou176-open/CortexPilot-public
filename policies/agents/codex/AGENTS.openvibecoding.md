@@ -1,4 +1,4 @@
-# Project: Agentcoder (Codex-governed)
+# Project: Codeflow (Codex-governed)
 
 ## Red lines
 - File isolation is absolute: no two workers touch the same file.

@@ -1,20 +1,20 @@
 {
-  "name": "@agentcoder/frontend-api-client",
+  "name": "@codeflow/frontend-api-client",
   "version": "0.1.0",
   "private": false,
-  "description": "Thin frontend API client and repo-owned control-plane starter for Agentcoder dashboard, desktop, and web consumers.",
-  "homepage": "https://xiaojiou176-open.github.io/agentcoder/builders/",
+  "description": "Thin frontend API client and repo-owned control-plane starter for Codeflow dashboard, desktop, and web consumers.",
+  "homepage": "https://xiaojiou176-open.github.io/codeflow/builders/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xiaojiou176-open/agentcoder.git",
+    "url": "git+https://github.com/xiaojiou176-open/codeflow.git",
     "directory": "packages/frontend-api-client"
   },
   "bugs": {
-    "url": "https://github.com/xiaojiou176-open/agentcoder/issues"
+    "url": "https://github.com/xiaojiou176-open/codeflow/issues"
   },
   "license": "MIT",
   "keywords": [
-    "agentcoder",
+    "codeflow",
     "frontend",
     "api-client",
     "command-tower",
@@ -40,7 +40,7 @@
     }
   },
   "dependencies": {
-    "@agentcoder/frontend-api-contract": "workspace:^0.1.0"
+    "@codeflow/frontend-api-contract": "workspace:^0.1.0"
   },
   "publishConfig": {
     "access": "public"

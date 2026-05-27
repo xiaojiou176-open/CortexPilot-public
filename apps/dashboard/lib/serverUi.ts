@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
-import { DEFAULT_UI_LOCALE, getUiCopy, type UiCopy, type UiLocale } from "@agentcoder/frontend-shared/uiCopy";
-import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@agentcoder/frontend-shared/uiLocale";
+import { DEFAULT_UI_LOCALE, getUiCopy, type UiCopy, type UiLocale } from "@codeflow/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@codeflow/frontend-shared/uiLocale";
 
 export async function resolveDashboardUiLocale(): Promise<UiLocale> {
   try {

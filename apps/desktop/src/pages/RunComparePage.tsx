@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import type { UiLocale } from "@agentcoder/frontend-shared/uiCopy";
-import { detectPreferredUiLocale } from "@agentcoder/frontend-shared/uiLocale";
+import type { UiLocale } from "@codeflow/frontend-shared/uiCopy";
+import { detectPreferredUiLocale } from "@codeflow/frontend-shared/uiLocale";
 import { fetchOperatorCopilotBrief, fetchReports, fetchRun } from "../lib/api";
 import type { JsonValue, ReportRecord, RunDetailPayload } from "../lib/types";
 import { Badge } from "../components/ui/Badge";
@@ -277,7 +277,7 @@ export function RunComparePage({ runId, onBack, locale = detectPreferredUiLocale
     <div className="content">
       <div className="compare-stage-shell">
         <div className="compare-stage-copy">
-          <span className="cell-sub mono muted">{locale === "zh-CN" ? "Agentcoder / 桌面对比室" : "Agentcoder / desktop compare room"}</span>
+          <span className="cell-sub mono muted">{locale === "zh-CN" ? "Codeflow / 桌面对比室" : "Codeflow / desktop compare room"}</span>
           <div className="section-header">
             <div><h1 className="page-title">{copy.title}</h1><p className="page-subtitle">{copy.subtitle}</p></div>
             <Badge>{runId}</Badge>

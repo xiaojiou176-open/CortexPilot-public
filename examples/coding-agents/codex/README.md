@@ -1,6 +1,6 @@
 # Codex example
 
-This folder shows the narrowest truthful Agentcoder setup for Codex:
+This folder shows the narrowest truthful Codeflow setup for Codex:
 
 - one local marketplace example for the repo-owned skill bundle
 - one shared read-only MCP example for the real control-plane inspection path
@@ -8,11 +8,11 @@ This folder shows the narrowest truthful Agentcoder setup for Codex:
 ## What is here
 
 - `marketplace.example.json`: copy to `.agents/plugins/marketplace.json` when
-  you want Codex to discover the local Agentcoder bundle from this repo clone
+  you want Codex to discover the local Codeflow bundle from this repo clone
 - `../mcp/readonly.mcp.json.example`: shared read-only MCP config example
-- `../plugin-bundles/agentcoder-coding-agent-bundle/`: compatible local skill
+- `../plugin-bundles/codeflow-coding-agent-bundle/`: compatible local skill
   bundle with Codex metadata plus the same repo-owned adoption router skill
-- `../plugin-bundles/agentcoder-coding-agent-bundle/skills/agentcoder-adoption-router/manifest.yaml`:
+- `../plugin-bundles/codeflow-coding-agent-bundle/skills/codeflow-adoption-router/manifest.yaml`:
   registry-shaped metadata for that shared skill
 
 ## Suggested setup
@@ -20,8 +20,8 @@ This folder shows the narrowest truthful Agentcoder setup for Codex:
 1. Copy `marketplace.example.json` to the Codex marketplace path used by your
    repo or home config.
 2. Copy `../mcp/readonly.mcp.json.example` to the MCP config path you use for
-   Codex and replace `__AGENTCODER_REPO_ROOT__`.
-3. Keep the read order aligned with Agentcoder truth sources:
+   Codex and replace `__CODEFLOW_REPO_ROOT__`.
+3. Keep the read order aligned with Codeflow truth sources:
    - `README.md`
    - `docs/README.md`
    - `AGENTS.md`
@@ -31,7 +31,7 @@ This folder shows the narrowest truthful Agentcoder setup for Codex:
 
 - the repo-local proof-first path still works before and after you copy the
   Codex files
-- the local marketplace seed points at your real Agentcoder checkout, not at a
+- the local marketplace seed points at your real Codeflow checkout, not at a
   stale relative path
 - you can route back through `docs/use-cases/index.html` and still explain the
   same Workflow Cases / Proof & Replay loop without claiming an official Codex

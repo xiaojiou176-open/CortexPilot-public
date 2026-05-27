@@ -7,7 +7,7 @@ from typing import Iterable
 def _is_approved(approved_override: bool = False) -> bool:
     if approved_override:
         return True
-    raw = os.getenv("AGENTCODER_NETWORK_APPROVED", "").strip().lower()
+    raw = os.getenv("CODEFLOW_NETWORK_APPROVED", "").strip().lower()
     return raw in {"1", "true", "yes"}
 
 

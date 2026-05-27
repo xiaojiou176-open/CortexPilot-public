@@ -102,9 +102,9 @@ test("http core injects operator role only for mutation methods", async () => {
 
   assert.equal(calls.length, 2);
   assert.equal(calls[0].init.method, "GET");
-  assert.equal(calls[0].init.headers["x-agentcoder-role"], undefined);
+  assert.equal(calls[0].init.headers["x-codeflow-role"], undefined);
   assert.equal(calls[1].init.method, "POST");
-  assert.equal(calls[1].init.headers["x-agentcoder-role"], "OPS");
+  assert.equal(calls[1].init.headers["x-codeflow-role"], "OPS");
   assert.equal(http.canExecuteMutations(), true);
   assert.equal(http.getMutationRole(), "OPS");
 });
@@ -125,5 +125,5 @@ test("http core injects run correlation header when provided", async () => {
   const auth = createAuthCore();
   const http = createHttpCore({ baseUrl: "http://localhost", auth, fetchImpl });
   await http.getJson("/api/runs/run-1", { runId: "run-1" });
-  assert.equal(received.init.headers["x-agentcoder-run-id"], "run-1");
+  assert.equal(received.init.headers["x-codeflow-run-id"], "run-1");
 });

@@ -1,8 +1,8 @@
-# Agentcoder Design System
+# Codeflow Design System
 
 ## Purpose
 
-This file is the canonical design system for Agentcoder's public front door,
+This file is the canonical design system for Codeflow's public front door,
 dashboard, and desktop control-plane surfaces.
 
 Read this as the design constitution for one specific product:
@@ -20,7 +20,7 @@ product identity.
 
 This design system is repo-owned, but it is not donor-free.
 
-Agentcoder's current design absorption stack is:
+Codeflow's current design absorption stack is:
 
 - **Primary donor**: `Linear`
 - **Secondary donors**: `IBM`, `Vercel`
@@ -46,7 +46,7 @@ copying product claims, brand identity, or page structure verbatim.
 
 ## Atmosphere
 
-Agentcoder should feel like an architecture studio crossed with a mission
+Codeflow should feel like an architecture studio crossed with a mission
 control room.
 
 - **Density**: medium-high on control surfaces, medium on the public front door
@@ -69,7 +69,7 @@ Interpretation:
 
 Rules:
 
-- Never use `Inter` for Agentcoder hero or cockpit surfaces.
+- Never use `Inter` for Codeflow hero or cockpit surfaces.
 - Headings should signal confidence through weight and spacing, not giant scale.
 - Monospace belongs to machine facts only: run IDs, queue IDs, lane names,
   file refs, timestamps, contract artifacts.
@@ -96,7 +96,7 @@ Rules:
 
 - Keep one accent color only.
 - No purple glow, no neon blue gradients, no generic AI chroma.
-- Avoid pure black and pure white. Agentcoder should feel calibrated, not harsh.
+- Avoid pure black and pure white. Codeflow should feel calibrated, not harsh.
 - Healthy status can use green, but do not let the whole UI become “green dashboard”.
 
 ## Layout Principles
@@ -192,7 +192,7 @@ That means:
 
 ## Anti-Patterns
 
-Never ship these into Agentcoder:
+Never ship these into Codeflow:
 
 - emoji icons
 - neon purple/blue AI gradients

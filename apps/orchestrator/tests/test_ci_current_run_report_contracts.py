@@ -129,7 +129,7 @@ def test_release_provenance_strict_fails_without_github_metadata(tmp_path: Path)
         str(manifest),
         "--strict",
         "--image",
-        "agentcoder-ci-core:local",
+        "codeflow-ci-core:local",
     )
     assert proc.returncode != 0
     assert "strict mode requires non-empty workflow metadata" in (proc.stdout + proc.stderr)
@@ -250,13 +250,13 @@ def test_current_run_consistency_downgrades_stale_local_advisory_to_advisory(tmp
 def test_ci_control_plane_doctor_can_emit_current_run_source_metadata(tmp_path: Path) -> None:
     out_dir = tmp_path / "doctor"
     env = {
-        "AGENTCODER_CI_CONTROL_PLANE_DOCTOR_OUT_DIR": str(out_dir),
-        "AGENTCODER_DOCTOR_REQUIRE_DOCKER": "0",
-        "AGENTCODER_DOCTOR_REQUIRE_SUDO": "0",
+        "CODEFLOW_CI_CONTROL_PLANE_DOCTOR_OUT_DIR": str(out_dir),
+        "CODEFLOW_DOCTOR_REQUIRE_DOCKER": "0",
+        "CODEFLOW_DOCTOR_REQUIRE_SUDO": "0",
         "RUNNER_TEMP": str(tmp_path / "runner-temp"),
-        "AGENTCODER_CI_SOURCE_RUN_ID": "local-run",
-        "AGENTCODER_CI_SOURCE_ROUTE": "local_full_ci",
-        "AGENTCODER_CI_SOURCE_EVENT": "local",
+        "CODEFLOW_CI_SOURCE_RUN_ID": "local-run",
+        "CODEFLOW_CI_SOURCE_ROUTE": "local_full_ci",
+        "CODEFLOW_CI_SOURCE_EVENT": "local",
     }
     proc = subprocess.run(
         ["bash", str(REPO_ROOT / "scripts" / "ci_control_plane_doctor.sh")],

@@ -197,8 +197,8 @@ describe("CommandTowerHomeLive refresh sequencing", () => {
 
     await ensureDrawerOpen();
 
-    fireEvent.change(screen.getByPlaceholderText(/e\.g\. agentcoder|agentcoder/i), {
-      target: { value: "agentcoder" },
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. codeflow|codeflow/i), {
+      target: { value: "codeflow" },
     });
     fireEvent.click(screen.getByRole("button", { name: /ApplyEnter/i }));
     await waitFor(() => {
@@ -257,7 +257,7 @@ describe("CommandTowerHomeLive refresh sequencing", () => {
         ).length,
       ).toBeGreaterThan(0);
     });
-    expect(screen.getByPlaceholderText(/e\.g\. agentcoder|agentcoder/i)).toHaveFocus();
+    expect(screen.getByPlaceholderText(/e\.g\. codeflow|codeflow/i)).toHaveFocus();
   });
 
   it("ignores global shortcuts when target is contentEditable", async () => {
@@ -379,7 +379,7 @@ describe("CommandTowerHomeLive refresh sequencing", () => {
     });
 
     const filterRegion = screen.getByRole("region", { name: /Filter console|filters/i });
-    fireEvent.change(screen.getByPlaceholderText(/e\.g\. agentcoder|agentcoder/i), {
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. codeflow|codeflow/i), {
       target: { value: "paused-project" },
     });
     fireEvent.click(within(filterRegion).getByRole("button", { name: /Apply filters|Apply/ }));

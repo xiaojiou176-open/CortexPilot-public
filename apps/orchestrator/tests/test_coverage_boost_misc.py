@@ -4,12 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from agentcoder_orch.contract import validator as validator_mod
-from agentcoder_orch.gates import diff_gate
-from agentcoder_orch.gates.mcp_concurrency_gate import validate_mcp_concurrency
-from agentcoder_orch.gates.mcp_gate import validate_mcp_tools
-from agentcoder_orch.runners import agents_prompting
-from agentcoder_orch.runners import common as runner_common
+from codeflow_orch.contract import validator as validator_mod
+from codeflow_orch.gates import diff_gate
+from codeflow_orch.gates.mcp_concurrency_gate import validate_mcp_concurrency
+from codeflow_orch.gates.mcp_gate import validate_mcp_tools
+from codeflow_orch.runners import agents_prompting
+from codeflow_orch.runners import common as runner_common
 
 
 def _init_git_repo(repo: Path) -> None:
@@ -53,19 +53,19 @@ def test_mcp_gate_and_concurrency_paths(tmp_path: Path, monkeypatch) -> None:
     # concurrency gate
     assert validate_mcp_concurrency("single")["ok"] is True
 
-    monkeypatch.delenv("AGENTCODER_MCP_PROXY_ENABLED", raising=False)
+    monkeypatch.delenv("CODEFLOW_MCP_PROXY_ENABLED", raising=False)
     proxy_disabled = validate_mcp_concurrency("proxy")
     assert proxy_disabled["ok"] is False
 
-    monkeypatch.setenv("AGENTCODER_MCP_PROXY_ENABLED", "1")
+    monkeypatch.setenv("CODEFLOW_MCP_PROXY_ENABLED", "1")
     proxy_enabled = validate_mcp_concurrency("proxy")
     assert proxy_enabled["ok"] is True
 
-    monkeypatch.delenv("AGENTCODER_MCP_ALLOW_MULTI", raising=False)
+    monkeypatch.delenv("CODEFLOW_MCP_ALLOW_MULTI", raising=False)
     multi_disabled = validate_mcp_concurrency("multi")
     assert multi_disabled["ok"] is False
 
-    monkeypatch.setenv("AGENTCODER_MCP_ALLOW_MULTI", "yes")
+    monkeypatch.setenv("CODEFLOW_MCP_ALLOW_MULTI", "yes")
     multi_enabled = validate_mcp_concurrency("multi-client")
     assert multi_enabled["ok"] is True
 
@@ -75,7 +75,7 @@ def test_mcp_gate_and_concurrency_paths(tmp_path: Path, monkeypatch) -> None:
 
 def test_runner_common_branches(monkeypatch, tmp_path: Path) -> None:
     contract = {"task_id": "task-1"}
-    monkeypatch.setenv("AGENTCODER_RUN_ID", "run-env")
+    monkeypatch.setenv("CODEFLOW_RUN_ID", "run-env")
     assert runner_common.resolve_run_id(contract) == "run-env"
 
     assert runner_common.normalize_status("ok", "FAILED") == "SUCCESS"
@@ -205,7 +205,7 @@ def test_agents_prompting_branches(tmp_path: Path, monkeypatch) -> None:
     assert "Output JSON only" in decorated
     assert "role prompt" in decorated
 
-    monkeypatch.setenv("AGENTCODER_CODEX_MODEL", "gpt-test")
+    monkeypatch.setenv("CODEFLOW_CODEX_MODEL", "gpt-test")
     codex_payload = agents_prompting.build_codex_payload(
         {"tool_permissions": {"filesystem": "workspace-write", "shell": "deny"}},
         "do",

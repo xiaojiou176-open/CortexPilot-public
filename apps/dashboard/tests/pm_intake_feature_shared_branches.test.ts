@@ -59,7 +59,7 @@ describe("pm intake shared helpers", () => {
       },
       {
         id: "remote-2",
-        role: "Agentcoder Command Tower",
+        role: "Codeflow Command Tower",
         text: "reply",
         createdAt: "2026-03-01T10:01:00.000Z",
         kind: "message",

@@ -1,8 +1,8 @@
-# Agentcoder Stitch Design Source
+# Codeflow Stitch Design Source
 
 ## Product Position
 
-Agentcoder is the **command tower for AI engineering**.
+Codeflow is the **command tower for AI engineering**.
 
 Generate surfaces that feel like a governed architecture studio and an
 operations cockpit at the same time. The design should communicate that humans

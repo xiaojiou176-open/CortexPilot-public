@@ -2,8 +2,8 @@
 
 Use this bundle for tasks like:
 
-- “Connect Agentcoder to OpenHands and inspect the run ledger.”
-- “Which Agentcoder MCP tool should I call first for workflow truth?”
+- “Connect Codeflow to OpenHands and inspect the run ledger.”
+- “Which Codeflow MCP tool should I call first for workflow truth?”
 - “Show me the safest read-only lane for approvals or queue state.”
 - “Inspect proof or incident summaries without mutating anything.”
 

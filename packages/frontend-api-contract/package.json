@@ -1,20 +1,20 @@
 {
-  "name": "@agentcoder/frontend-api-contract",
+  "name": "@codeflow/frontend-api-contract",
   "version": "0.1.0",
   "private": false,
-  "description": "Generated frontend-safe route, query, and type contract surface for Agentcoder control-plane consumers.",
-  "homepage": "https://xiaojiou176-open.github.io/agentcoder/api/",
+  "description": "Generated frontend-safe route, query, and type contract surface for Codeflow control-plane consumers.",
+  "homepage": "https://xiaojiou176-open.github.io/codeflow/api/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xiaojiou176-open/agentcoder.git",
+    "url": "git+https://github.com/xiaojiou176-open/codeflow.git",
     "directory": "packages/frontend-api-contract"
   },
   "bugs": {
-    "url": "https://github.com/xiaojiou176-open/agentcoder/issues"
+    "url": "https://github.com/xiaojiou176-open/codeflow/issues"
   },
   "license": "MIT",
   "keywords": [
-    "agentcoder",
+    "codeflow",
     "frontend",
     "api-contract",
     "types",

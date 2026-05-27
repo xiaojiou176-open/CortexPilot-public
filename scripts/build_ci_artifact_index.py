@@ -22,12 +22,12 @@ from ci_current_run_support import (
 )
 
 
-OUT_DIR = ROOT / ".runtime-cache" / "agentcoder" / "reports" / "ci" / "artifact_index"
+OUT_DIR = ROOT / ".runtime-cache" / "codeflow" / "reports" / "ci" / "artifact_index"
 TARGETS = [
     ROOT / ".runtime-cache" / "test_output",
     ROOT / ".runtime-cache" / "logs",
-    ROOT / ".runtime-cache" / "agentcoder" / "release",
-    ROOT / ".runtime-cache" / "agentcoder" / "reports",
+    ROOT / ".runtime-cache" / "codeflow" / "release",
+    ROOT / ".runtime-cache" / "codeflow" / "reports",
 ]
 
 
@@ -150,7 +150,7 @@ def main() -> int:
     }
 
     artifact_index = {
-        "report_type": "agentcoder_ci_artifact_index",
+        "report_type": "codeflow_ci_artifact_index",
         "generated_at": now_utc(),
         "authoritative": bool(authority["authoritative_current_truth"]),
         "advisory_local_only": advisory_local_only,
@@ -160,7 +160,7 @@ def main() -> int:
         **source_meta,
     }
     current_run_index = {
-        "report_type": "agentcoder_ci_current_run_index",
+        "report_type": "codeflow_ci_current_run_index",
         "generated_at": artifact_index["generated_at"],
         "authoritative": bool(authority["authoritative_current_truth"]),
         "advisory_local_only": advisory_local_only,
@@ -175,7 +175,7 @@ def main() -> int:
         **source_meta,
     }
     verdict = {
-        "report_type": "agentcoder_ci_verdict",
+        "report_type": "codeflow_ci_verdict",
         "generated_at": artifact_index["generated_at"],
         "authoritative": bool(authority["authoritative_current_truth"]),
         "advisory_local_only": advisory_local_only,

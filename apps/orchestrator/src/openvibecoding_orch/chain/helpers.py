@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from agentcoder_orch.gates.diff_gate import _normalize as _normalize_path
+from codeflow_orch.gates.diff_gate import _normalize as _normalize_path
 
 
 def _step_task_id(kind: str, payload: dict[str, Any]) -> str:

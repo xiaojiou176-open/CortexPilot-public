@@ -10,9 +10,9 @@ ones that still need a real capture pass.
 - `first-loop-storyboard.svg`: shareable storyboard of the PM -> Command Tower -> Runs loop
 - `first-loop-storyboard.png`: static storyboard export
 - `first-loop-storyboard.gif`: storyboard animation export
-- `agentcoder-command-tower-teaser-poster.png`: public teaser poster rendered from the repo-owned Remotion source
-- `agentcoder-command-tower-teaser.mp4`: public 18-second teaser rendered from the repo-owned Remotion source
-- `agentcoder-command-tower-teaser.vtt`: English captions for the teaser
+- `codeflow-command-tower-teaser-poster.png`: public teaser poster rendered from the repo-owned Remotion source
+- `codeflow-command-tower-teaser.mp4`: public 18-second teaser rendered from the repo-owned Remotion source
+- `codeflow-command-tower-teaser.vtt`: English captions for the teaser
 - `dashboard-command-tower-current-1440x900.png`: current-brand Command Tower read-back screenshot captured from the latest route-screen evidence
 - `dashboard-home-live-1440x900.png`: healthy English-first dashboard home screenshot captured from a clean local runtime root
 - `dashboard-command-tower-live-1440x900.png`: healthy English-first Command Tower session screenshot captured from the same verified path
@@ -79,7 +79,7 @@ The public storytelling shorthand is now:
 - these tracked captures are safe repo-side proof of a healthy local first public path, not proof of hosted production scale, stable multi-run release averages, or live GitHub publication state.
 - `dashboard-live-degraded-loop.gif` remains a historical degraded capture and should stay labeled as degraded if it is referenced at all.
 - `desktop-shell-live-1440x900.png` is a real screenshot from the desktop snapshot pipeline.
-- `agentcoder-command-tower-teaser.mp4` and `agentcoder-command-tower-teaser-poster.png` are public-facing promo assets rendered from `tooling/remotion-promo/`; they are explainer assets, not evidence of healthy runtime coverage.
+- `codeflow-command-tower-teaser.mp4` and `codeflow-command-tower-teaser-poster.png` are public-facing promo assets rendered from `tooling/remotion-promo/`; they are explainer assets, not evidence of healthy runtime coverage.
 - `dashboard-command-tower-current-1440x900.png` is a current-brand supporting capture from the latest route-screen evidence. It is useful for public read-back, but it does not replace the healthy proof capture contract.
 - `social-preview-1280x640.png` is a repo-tracked upload candidate for the GitHub social preview setting, not proof that the live GitHub setting has already been applied.
 - the first public release draft remains archived in the maintainer-only internal docs bundle that fed the published release notes.
@@ -102,6 +102,6 @@ The public storytelling shorthand is now:
 - the earlier benchmark-route and healthy-proof-route blocker receipts now live
   in the maintainer-only internal docs bundle, not on the default public docs
   surface.
-- `https://xiaojiou176-open.github.io/agentcoder/` is now the live GitHub
+- `https://xiaojiou176-open.github.io/codeflow/` is now the live GitHub
   Pages site backed by `main` / `/docs`.
 - None of these captures should be described as proof of live hosted readiness, live GitHub publication state, or broad production-scale stability.

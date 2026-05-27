@@ -1,4 +1,4 @@
-# Agentcoder Troubleshooting
+# Codeflow Troubleshooting
 
 Use this page when the packet looks correct but the first attach or read-only
 inspection still fails.
@@ -30,6 +30,6 @@ inspection lane.
 
 ## 4. Boundary reminder
 
-This packet is for the public, read-only Agentcoder MCP surface. It does not
+This packet is for the public, read-only Codeflow MCP surface. It does not
 claim a hosted operator service, a write-capable public MCP, or a live
 OpenHands/extensions listing until a new listing is independently confirmed.

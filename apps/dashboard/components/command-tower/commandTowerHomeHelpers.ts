@@ -1,5 +1,5 @@
 import type { CommandTowerAlertsPayload, PmSessionStatus } from "../../lib/types";
-import type { StatusVariant } from "@agentcoder/frontend-shared/statusPresentation";
+import type { StatusVariant } from "@codeflow/frontend-shared/statusPresentation";
 
 export type LiveMode = "running" | "backoff" | "paused";
 export type SortMode = "updated_desc" | "created_desc" | "failed_desc" | "blocked_desc";

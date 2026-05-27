@@ -4,13 +4,13 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-OUT_DIR="${AGENTCODER_CI_CONTROL_PLANE_DOCTOR_OUT_DIR:-.runtime-cache/test_output/ci_control_plane_doctor}"
+OUT_DIR="${CODEFLOW_CI_CONTROL_PLANE_DOCTOR_OUT_DIR:-.runtime-cache/test_output/ci_control_plane_doctor}"
 mkdir -p "$OUT_DIR"
 REPORT_JSON="${OUT_DIR}/report.json"
 REPORT_MD="${OUT_DIR}/summary.md"
 
-REQUIRE_DOCKER="${AGENTCODER_DOCTOR_REQUIRE_DOCKER:-1}"
-REQUIRE_SUDO="${AGENTCODER_DOCTOR_REQUIRE_SUDO:-1}"
+REQUIRE_DOCKER="${CODEFLOW_DOCTOR_REQUIRE_DOCKER:-1}"
+REQUIRE_SUDO="${CODEFLOW_DOCTOR_REQUIRE_SUDO:-1}"
 
 check_cmd() {
   local name="$1"
@@ -45,10 +45,10 @@ if check_cmd jq; then jq_ok=1; fi
 if check_cmd curl; then curl_ok=1; fi
 if [[ -n "${RUNNER_TEMP:-}" ]]; then runner_temp_ok=1; fi
 
-allowlist_json='["AGENTCODER_DOC_GATE_MODE","AGENTCODER_DOC_GATE_BASE_SHA","AGENTCODER_DOC_GATE_HEAD_SHA","AGENTCODER_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE","AGENTCODER_CI_LIVE_PREFLIGHT_PROVIDER_API_MODE","AGENTCODER_CI_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE"]'
-SOURCE_RUN_ID="${AGENTCODER_CI_SOURCE_RUN_ID:-}"
-SOURCE_ROUTE="${AGENTCODER_CI_SOURCE_ROUTE:-}"
-SOURCE_EVENT="${AGENTCODER_CI_SOURCE_EVENT:-}"
+allowlist_json='["CODEFLOW_DOC_GATE_MODE","CODEFLOW_DOC_GATE_BASE_SHA","CODEFLOW_DOC_GATE_HEAD_SHA","CODEFLOW_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE","CODEFLOW_CI_LIVE_PREFLIGHT_PROVIDER_API_MODE","CODEFLOW_CI_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE"]'
+SOURCE_RUN_ID="${CODEFLOW_CI_SOURCE_RUN_ID:-}"
+SOURCE_ROUTE="${CODEFLOW_CI_SOURCE_ROUTE:-}"
+SOURCE_EVENT="${CODEFLOW_CI_SOURCE_EVENT:-}"
 
 python3 - "$REPORT_JSON" "$REPORT_MD" "$docker_ok" "$sudo_ok" "$jq_ok" "$curl_ok" "$runner_temp_ok" "$tool_cache_ok" "$allowlist_json" "$SOURCE_RUN_ID" "$SOURCE_ROUTE" "$SOURCE_EVENT" <<'PY'
 import json
@@ -72,7 +72,7 @@ from pathlib import Path
 ) = sys.argv[1:]
 
 payload = {
-    "report_type": "agentcoder_ci_control_plane_doctor",
+    "report_type": "codeflow_ci_control_plane_doctor",
     "generated_at": datetime.now(timezone.utc).isoformat(),
     "checks": {
         "docker": docker_ok == "1",
@@ -82,7 +82,7 @@ payload = {
         "runner_temp": runner_temp_ok == "1",
         "tool_cache_contract": tool_cache_ok == "1",
     },
-    "strict_ci_agentcoder_allowlist": json.loads(allowlist_json),
+    "strict_ci_codeflow_allowlist": json.loads(allowlist_json),
     "source_run_id": source_run_id,
     "source_route": source_route,
     "source_event": source_event,
@@ -102,7 +102,7 @@ Path(report_md).write_text(
             f"- source_run_id: `{payload['source_run_id']}`",
             f"- source_route: `{payload['source_route']}`",
             f"- source_event: `{payload['source_event']}`",
-            f"- strict_ci_agentcoder_allowlist: `{', '.join(payload['strict_ci_agentcoder_allowlist'])}`",
+            f"- strict_ci_codeflow_allowlist: `{', '.join(payload['strict_ci_codeflow_allowlist'])}`",
             "",
         ]
     )

@@ -10,7 +10,7 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any
 
-from agentcoder_orch.config import get_logging_config, get_runtime_config
+from codeflow_orch.config import get_logging_config, get_runtime_config
 
 
 def _now_ts() -> str:
@@ -154,14 +154,14 @@ def _infer_surface(component: str) -> str:
 
 def _infer_service(surface: str, component: str) -> str:
     if surface == "dashboard":
-        return "agentcoder-dashboard"
+        return "codeflow-dashboard"
     if surface == "desktop":
-        return "agentcoder-desktop"
+        return "codeflow-desktop"
     if surface == "ci":
-        return "agentcoder-ci"
+        return "codeflow-ci"
     if component.strip().lower() == "api":
-        return "agentcoder-orchestrator"
-    return "agentcoder-tooling"
+        return "codeflow-orchestrator"
+    return "codeflow-tooling"
 
 
 def _infer_lane(component: str, event: str, level: str) -> str:
@@ -195,11 +195,11 @@ def _infer_correlation_kind(payload: dict[str, str]) -> str:
 def _build_log_targets() -> dict[str, Path]:
     root = _resolve_logs_root()
     return {
-        "runtime": root / "runtime" / "agentcoder-runtime.jsonl",
-        "error": root / "error" / "agentcoder-error.jsonl",
-        "access": root / "access" / "agentcoder-access.jsonl",
-        "e2e": root / "e2e" / "agentcoder-e2e.jsonl",
-        "governance": root / "governance" / "agentcoder-governance.jsonl",
+        "runtime": root / "runtime" / "codeflow-runtime.jsonl",
+        "error": root / "error" / "codeflow-error.jsonl",
+        "access": root / "access" / "codeflow-access.jsonl",
+        "e2e": root / "e2e" / "codeflow-e2e.jsonl",
+        "governance": root / "governance" / "codeflow-governance.jsonl",
     }
 
 
@@ -302,7 +302,7 @@ def _resolve_log_level() -> int:
 
 
 def get_logger() -> logging.Logger:
-    logger = logging.getLogger("agentcoder")
+    logger = logging.getLogger("codeflow")
     if logger.handlers:
         return logger
     logger.setLevel(_resolve_log_level())

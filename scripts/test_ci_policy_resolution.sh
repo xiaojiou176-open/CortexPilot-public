@@ -61,16 +61,16 @@ run_case() {
   local tmp_home
   local tmp_env_root
   tmp_home="$(mktemp_dir)"
-  tmp_env_root="$tmp_home/.agentcoder-env"
+  tmp_env_root="$tmp_home/.codeflow-env"
   mkdir -p "$tmp_env_root"
   env -i \
     PATH="$PATH" \
     HOME="$tmp_home" \
-    AGENTCODER_DEFAULT_ENV_ROOT="$tmp_env_root" \
+    CODEFLOW_DEFAULT_ENV_ROOT="$tmp_env_root" \
     LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" \
-    AGENTCODER_CI_PM_CHAT_DISABLE_CODEX_CONFIG=1 \
-    AGENTCODER_CI_PM_CHAT_DISABLE_ZSH_ENV=1 \
-    AGENTCODER_CI_PM_CHAT_DISABLE_DOTENV=1 \
+    CODEFLOW_CI_PM_CHAT_DISABLE_CODEX_CONFIG=1 \
+    CODEFLOW_CI_PM_CHAT_DISABLE_ZSH_ENV=1 \
+    CODEFLOW_CI_PM_CHAT_DISABLE_DOTENV=1 \
     "$@" \
     bash "$TARGET_SCRIPT"
 }
@@ -90,31 +90,31 @@ assert_contains "$out" "PM_CHAT_WEB_MODE=prod"
 assert_contains "$out" "PM_CHAT_REQUIRES_KEY=0"
 
 info "case: explicit mode=real with GEMINI key does not require key gate"
-out="$(run_case AGENTCODER_CI_PM_CHAT_MODE=real GEMINI_API_KEY=dummy-gemini-key)"
+out="$(run_case CODEFLOW_CI_PM_CHAT_MODE=real GEMINI_API_KEY=dummy-gemini-key)"
 assert_contains "$out" "PM_CHAT_MODE=real"
 assert_contains "$out" "PM_CHAT_REQUIRES_KEY=0"
 
 info "case: explicit mode=real with OPENAI key does not require key gate"
-out="$(run_case AGENTCODER_CI_PM_CHAT_MODE=real OPENAI_API_KEY=dummy-openai-key)"
+out="$(run_case CODEFLOW_CI_PM_CHAT_MODE=real OPENAI_API_KEY=dummy-openai-key)"
 assert_contains "$out" "PM_CHAT_MODE=real"
 assert_contains "$out" "PM_CHAT_REQUIRES_KEY=0"
 
 info "case: explicit mode=real with ANTHROPIC key does not require key gate"
-out="$(run_case AGENTCODER_CI_PM_CHAT_MODE=real ANTHROPIC_API_KEY=dummy-anthropic-key)"
+out="$(run_case CODEFLOW_CI_PM_CHAT_MODE=real ANTHROPIC_API_KEY=dummy-anthropic-key)"
 assert_contains "$out" "PM_CHAT_MODE=real"
 assert_contains "$out" "PM_CHAT_REQUIRES_KEY=0"
 
 info "case: runtime_options.provider allowed and exported"
-out="$(run_case AGENTCODER_CI_PM_CHAT_RUNTIME_OPTIONS_PROVIDER=gemini)"
+out="$(run_case CODEFLOW_CI_PM_CHAT_RUNTIME_OPTIONS_PROVIDER=gemini)"
 assert_contains "$out" "PM_CHAT_PROVIDER=gemini"
 assert_contains "$out" "PM_CHAT_RUNTIME_OPTIONS_PROVIDER=gemini"
 
 info "case: CI PM-chat provider-group keys are ignored after alias removal"
 out="$(run_case \
-  AGENTCODER_CI_PM_CHAT_PROVIDER_GROUP_PROVIDER=openai \
-  AGENTCODER_CI_PM_CHAT_PROVIDER_GROUP_RUNTIME_OPTIONS_PROVIDER=openai \
-  AGENTCODER_CI_PM_CHAT_PROVIDER_GROUP_BASE_URL=https://api.openai.com/v1 \
-  AGENTCODER_CI_PM_CHAT_PROVIDER_GROUP_MODEL=gpt-4o-mini)"
+  CODEFLOW_CI_PM_CHAT_PROVIDER_GROUP_PROVIDER=openai \
+  CODEFLOW_CI_PM_CHAT_PROVIDER_GROUP_RUNTIME_OPTIONS_PROVIDER=openai \
+  CODEFLOW_CI_PM_CHAT_PROVIDER_GROUP_BASE_URL=https://api.openai.com/v1 \
+  CODEFLOW_CI_PM_CHAT_PROVIDER_GROUP_MODEL=gpt-4o-mini)"
 assert_contains "$out" "PM_CHAT_PROVIDER=''"
 assert_contains "$out" "PM_CHAT_RUNTIME_OPTIONS_PROVIDER=''"
 assert_contains "$out" "PM_CHAT_CODEX_BASE_URL=''"
@@ -122,37 +122,37 @@ assert_contains "$out" "PM_CHAT_CODEX_MODEL=''"
 
 info "case: E2E provider-group keys are ignored after alias removal"
 out="$(run_case \
-  AGENTCODER_E2E_PROVIDER_GROUP_PROVIDER=gemini \
-  AGENTCODER_E2E_PROVIDER_GROUP_RUNTIME_OPTIONS_PROVIDER=gemini \
-  AGENTCODER_E2E_PROVIDER_GROUP_BASE_URL=https://generativelanguage.googleapis.com/v1beta \
-  AGENTCODER_E2E_PROVIDER_GROUP_MODEL=gemini-2.5-flash)"
+  CODEFLOW_E2E_PROVIDER_GROUP_PROVIDER=gemini \
+  CODEFLOW_E2E_PROVIDER_GROUP_RUNTIME_OPTIONS_PROVIDER=gemini \
+  CODEFLOW_E2E_PROVIDER_GROUP_BASE_URL=https://generativelanguage.googleapis.com/v1beta \
+  CODEFLOW_E2E_PROVIDER_GROUP_MODEL=gemini-2.5-flash)"
 assert_contains "$out" "PM_CHAT_PROVIDER=''"
 assert_contains "$out" "PM_CHAT_RUNTIME_OPTIONS_PROVIDER=''"
 assert_contains "$out" "PM_CHAT_CODEX_BASE_URL=''"
 assert_contains "$out" "PM_CHAT_CODEX_MODEL=''"
 
 info "case: custom runtime_options.provider with explicit base_url is allowed"
-out="$(run_case AGENTCODER_CI_PM_CHAT_RUNTIME_OPTIONS_PROVIDER=cliproxyapi AGENTCODER_CI_PM_CHAT_BASE_URL=https://gateway.local/v1)"
+out="$(run_case CODEFLOW_CI_PM_CHAT_RUNTIME_OPTIONS_PROVIDER=cliproxyapi CODEFLOW_CI_PM_CHAT_BASE_URL=https://gateway.local/v1)"
 assert_contains "$out" "PM_CHAT_PROVIDER=cliproxyapi"
 assert_contains "$out" "PM_CHAT_RUNTIME_OPTIONS_PROVIDER=cliproxyapi"
 
 info "case: explicit mode=real with unrelated key still requires key gate"
-out="$(run_case AGENTCODER_CI_PM_CHAT_MODE=real AGENTCODER_EQUILIBRIUM_API_KEY=dummy-equilibrium-key)"
+out="$(run_case CODEFLOW_CI_PM_CHAT_MODE=real CODEFLOW_EQUILIBRIUM_API_KEY=dummy-equilibrium-key)"
 assert_contains "$out" "PM_CHAT_MODE=real"
 assert_contains "$out" "PM_CHAT_REQUIRES_KEY=1"
 
 info "case: explicit mode=real without key requires key gate"
-out="$(run_case AGENTCODER_CI_PM_CHAT_MODE=real)"
+out="$(run_case CODEFLOW_CI_PM_CHAT_MODE=real)"
 assert_contains "$out" "PM_CHAT_MODE=real"
 assert_contains "$out" "PM_CHAT_REQUIRES_KEY=1"
 
 info "case: explicit allow-missing-key bypasses key requirement"
-out="$(run_case AGENTCODER_CI_PM_CHAT_MODE=real AGENTCODER_CI_PM_CHAT_ALLOW_MISSING_KEY=1)"
+out="$(run_case CODEFLOW_CI_PM_CHAT_MODE=real CODEFLOW_CI_PM_CHAT_ALLOW_MISSING_KEY=1)"
 assert_contains "$out" "PM_CHAT_MODE=real"
 assert_contains "$out" "PM_CHAT_REQUIRES_KEY=0"
 
 info "case: explicit overrides for runner and web mode are preserved"
-out="$(run_case AGENTCODER_CI_PM_CHAT_MODE=mock AGENTCODER_CI_PM_CHAT_RUNNER=codex AGENTCODER_CI_PM_CHAT_WEB_MODE=dev)"
+out="$(run_case CODEFLOW_CI_PM_CHAT_MODE=mock CODEFLOW_CI_PM_CHAT_RUNNER=codex CODEFLOW_CI_PM_CHAT_WEB_MODE=dev)"
 assert_contains "$out" "PM_CHAT_MODE=mock"
 assert_contains "$out" "PM_CHAT_RUNNER=codex"
 assert_contains "$out" "PM_CHAT_WEB_MODE=dev"
@@ -166,7 +166,7 @@ model = "gemini-2.5-flash"
 base_url = "https://generativelanguage.googleapis.com/v1beta"
 experimental_bearer_token = "local-proxy-token"
 TOML
-out="$(env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" AGENTCODER_CI_PM_CHAT_DISABLE_ZSH_ENV=1 AGENTCODER_CI_PM_CHAT_DISABLE_DOTENV=1 AGENTCODER_CODEX_CONFIG_PATH="$tmpdir/config.toml" bash "$TARGET_SCRIPT")"
+out="$(env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" CODEFLOW_CI_PM_CHAT_DISABLE_ZSH_ENV=1 CODEFLOW_CI_PM_CHAT_DISABLE_DOTENV=1 CODEFLOW_CODEX_CONFIG_PATH="$tmpdir/config.toml" bash "$TARGET_SCRIPT")"
 assert_contains "$out" "PM_CHAT_MODE=real"
 assert_contains "$out" "PM_CHAT_REQUIRES_KEY=0"
 assert_contains "$out" "PM_CHAT_USE_CODEX_CONFIG=1"
@@ -185,7 +185,7 @@ model = "gemini-2.5-flash"
 base_url = "https://api.openai.com/v1"
 experimental_bearer_token = "${LOCAL_PROXY_TOKEN}"
 TOML
-out="$(env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" AGENTCODER_CI_PM_CHAT_DISABLE_ZSH_ENV=1 AGENTCODER_CI_PM_CHAT_DISABLE_DOTENV=1 AGENTCODER_CODEX_CONFIG_PATH="$tmpdir/config.toml" LOCAL_PROXY_TOKEN=proxy-token-from-env bash "$TARGET_SCRIPT")"
+out="$(env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" CODEFLOW_CI_PM_CHAT_DISABLE_ZSH_ENV=1 CODEFLOW_CI_PM_CHAT_DISABLE_DOTENV=1 CODEFLOW_CODEX_CONFIG_PATH="$tmpdir/config.toml" LOCAL_PROXY_TOKEN=proxy-token-from-env bash "$TARGET_SCRIPT")"
 assert_contains "$out" "PM_CHAT_MODE=real"
 assert_contains "$out" "PM_CHAT_REQUIRES_KEY=0"
 assert_contains "$out" "PM_CHAT_USE_CODEX_CONFIG=1"
@@ -201,7 +201,7 @@ model_provider = "anthropic"
 base_url = "https://api.anthropic.com/v1"
 experimental_bearer_token = "token-should-be-ignored-when-disabled"
 TOML
-out="$(env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" AGENTCODER_CI_PM_CHAT_DISABLE_ZSH_ENV=1 AGENTCODER_CI_PM_CHAT_DISABLE_DOTENV=1 AGENTCODER_CODEX_CONFIG_PATH="$tmpdir/config.toml" AGENTCODER_CI_PM_CHAT_DISABLE_CODEX_CONFIG=1 bash "$TARGET_SCRIPT")"
+out="$(env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" CODEFLOW_CI_PM_CHAT_DISABLE_ZSH_ENV=1 CODEFLOW_CI_PM_CHAT_DISABLE_DOTENV=1 CODEFLOW_CODEX_CONFIG_PATH="$tmpdir/config.toml" CODEFLOW_CI_PM_CHAT_DISABLE_CODEX_CONFIG=1 bash "$TARGET_SCRIPT")"
 assert_contains "$out" "PM_CHAT_MODE=mock"
 assert_contains "$out" "PM_CHAT_REQUIRES_KEY=0"
 assert_contains "$out" "PM_CHAT_USE_CODEX_CONFIG=0"
@@ -215,7 +215,7 @@ model = "gemini-2.5-flash"
 [model_providers.gemini]
 base_url = "https://generativelanguage.googleapis.com/v1beta"
 TOML
-must_fail env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" AGENTCODER_CI_PM_CHAT_DISABLE_ZSH_ENV=1 AGENTCODER_CI_PM_CHAT_DISABLE_DOTENV=1 AGENTCODER_CODEX_CONFIG_PATH="$tmpdir/config.toml" AGENTCODER_CI_PM_CHAT_PROVIDER=openai bash "$TARGET_SCRIPT" >/dev/null
+must_fail env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" CODEFLOW_CI_PM_CHAT_DISABLE_ZSH_ENV=1 CODEFLOW_CI_PM_CHAT_DISABLE_DOTENV=1 CODEFLOW_CODEX_CONFIG_PATH="$tmpdir/config.toml" CODEFLOW_CI_PM_CHAT_PROVIDER=openai bash "$TARGET_SCRIPT" >/dev/null
 rm -rf "$tmpdir"
 
 info "case: env/codex base_url mismatch fail-closed"
@@ -226,7 +226,7 @@ model = "gpt-4o-mini"
 [model_providers.openai]
 base_url = "https://api.openai.com/v1"
 TOML
-must_fail env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" AGENTCODER_CI_PM_CHAT_DISABLE_ZSH_ENV=1 AGENTCODER_CI_PM_CHAT_DISABLE_DOTENV=1 AGENTCODER_CODEX_CONFIG_PATH="$tmpdir/config.toml" AGENTCODER_CI_PM_CHAT_PROVIDER=openai AGENTCODER_CI_PM_CHAT_BASE_URL="https://api.openai.com/v1/alt" bash "$TARGET_SCRIPT" >/dev/null
+must_fail env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" CODEFLOW_CI_PM_CHAT_DISABLE_ZSH_ENV=1 CODEFLOW_CI_PM_CHAT_DISABLE_DOTENV=1 CODEFLOW_CODEX_CONFIG_PATH="$tmpdir/config.toml" CODEFLOW_CI_PM_CHAT_PROVIDER=openai CODEFLOW_CI_PM_CHAT_BASE_URL="https://api.openai.com/v1/alt" bash "$TARGET_SCRIPT" >/dev/null
 rm -rf "$tmpdir"
 
 info "case: env/codex model mismatch fail-closed"
@@ -237,14 +237,14 @@ model = "claude-3-7-sonnet-latest"
 [model_providers.anthropic]
 base_url = "https://api.anthropic.com/v1"
 TOML
-must_fail env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" AGENTCODER_CI_PM_CHAT_DISABLE_ZSH_ENV=1 AGENTCODER_CI_PM_CHAT_DISABLE_DOTENV=1 AGENTCODER_CODEX_CONFIG_PATH="$tmpdir/config.toml" AGENTCODER_CI_PM_CHAT_PROVIDER=anthropic AGENTCODER_CI_PM_CHAT_MODEL="claude-3-5-sonnet-latest" bash "$TARGET_SCRIPT" >/dev/null
+must_fail env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" CODEFLOW_CI_PM_CHAT_DISABLE_ZSH_ENV=1 CODEFLOW_CI_PM_CHAT_DISABLE_DOTENV=1 CODEFLOW_CODEX_CONFIG_PATH="$tmpdir/config.toml" CODEFLOW_CI_PM_CHAT_PROVIDER=anthropic CODEFLOW_CI_PM_CHAT_MODEL="claude-3-5-sonnet-latest" bash "$TARGET_SCRIPT" >/dev/null
 rm -rf "$tmpdir"
 
 info "case: custom runtime_options.provider without base_url fail-closed"
-must_fail run_case AGENTCODER_CI_PM_CHAT_RUNTIME_OPTIONS_PROVIDER=cliproxyapi >/dev/null
+must_fail run_case CODEFLOW_CI_PM_CHAT_RUNTIME_OPTIONS_PROVIDER=cliproxyapi >/dev/null
 
 info "case: runtime_options.provider mismatches env provider fail-closed"
-must_fail run_case AGENTCODER_CI_PM_CHAT_PROVIDER=openai AGENTCODER_CI_PM_CHAT_RUNTIME_OPTIONS_PROVIDER=gemini >/dev/null
+must_fail run_case CODEFLOW_CI_PM_CHAT_PROVIDER=openai CODEFLOW_CI_PM_CHAT_RUNTIME_OPTIONS_PROVIDER=gemini >/dev/null
 
 info "case: runtime_options.provider mismatches codex provider fail-closed"
 tmpdir="$(mktemp_dir)"
@@ -254,25 +254,25 @@ model = "claude-3-7-sonnet-latest"
 [model_providers.anthropic]
 base_url = "https://api.anthropic.com/v1"
 TOML
-must_fail env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" AGENTCODER_CI_PM_CHAT_DISABLE_ZSH_ENV=1 AGENTCODER_CI_PM_CHAT_DISABLE_DOTENV=1 AGENTCODER_CODEX_CONFIG_PATH="$tmpdir/config.toml" AGENTCODER_CI_PM_CHAT_RUNTIME_OPTIONS_PROVIDER=openai bash "$TARGET_SCRIPT" >/dev/null
+must_fail env -i PATH="$PATH" HOME="${HOME:-/tmp}" LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}" CODEFLOW_CI_PM_CHAT_DISABLE_ZSH_ENV=1 CODEFLOW_CI_PM_CHAT_DISABLE_DOTENV=1 CODEFLOW_CODEX_CONFIG_PATH="$tmpdir/config.toml" CODEFLOW_CI_PM_CHAT_RUNTIME_OPTIONS_PROVIDER=openai bash "$TARGET_SCRIPT" >/dev/null
 rm -rf "$tmpdir"
 
 info "case: lower-priority provider env is shadowed by higher-priority provider env"
-must_fail run_case AGENTCODER_CI_PM_CHAT_PROVIDER=gemini AGENTCODER_PROVIDER=openai >/dev/null
+must_fail run_case CODEFLOW_CI_PM_CHAT_PROVIDER=gemini CODEFLOW_PROVIDER=openai >/dev/null
 
 info "case: provider-group alias cannot shadow canonical provider"
 out="$(run_case \
-  AGENTCODER_CI_PM_CHAT_PROVIDER=gemini \
-  AGENTCODER_CI_PM_CHAT_RUNTIME_OPTIONS_PROVIDER=gemini \
-  AGENTCODER_CI_PM_CHAT_PROVIDER_GROUP_PROVIDER=openai)"
+  CODEFLOW_CI_PM_CHAT_PROVIDER=gemini \
+  CODEFLOW_CI_PM_CHAT_RUNTIME_OPTIONS_PROVIDER=gemini \
+  CODEFLOW_CI_PM_CHAT_PROVIDER_GROUP_PROVIDER=openai)"
 assert_contains "$out" "PM_CHAT_PROVIDER=gemini"
 assert_contains "$out" "PM_CHAT_RUNTIME_OPTIONS_PROVIDER=gemini"
 
 info "case: lower-priority model env is shadowed by higher-priority model env"
-must_fail run_case AGENTCODER_CI_PM_CHAT_MODEL=gemini-2.5-flash AGENTCODER_MODEL=gpt-4o-mini >/dev/null
+must_fail run_case CODEFLOW_CI_PM_CHAT_MODEL=gemini-2.5-flash CODEFLOW_MODEL=gpt-4o-mini >/dev/null
 
 info "case: lower-priority base_url env is shadowed by higher-priority base_url env"
-must_fail run_case AGENTCODER_CI_PM_CHAT_BASE_URL=https://gateway.primary/v1 AGENTCODER_E2E_CODEX_BASE_URL=https://gateway.shadow/v1 >/dev/null
+must_fail run_case CODEFLOW_CI_PM_CHAT_BASE_URL=https://gateway.primary/v1 CODEFLOW_E2E_CODEX_BASE_URL=https://gateway.shadow/v1 >/dev/null
 
 info "case: shadow resolver writes default snapshot with expected schema"
 snapshot_path="$ROOT_DIR/.runtime-cache/test_output/ci/ci_policy_snapshot.json"
@@ -403,12 +403,12 @@ cat >"$custom_advanced" <<'JSON'
       "gate_skip_requires_break_glass": true
     },
     "overrides": {
-      "AGENTCODER_CI_PM_CHAT_MODE": "advanced-final",
-      "AGENTCODER_CI_SAMPLE_BREAK_GLASS": "1"
+      "CODEFLOW_CI_PM_CHAT_MODE": "advanced-final",
+      "CODEFLOW_CI_SAMPLE_BREAK_GLASS": "1"
     },
     "break_glass": {
       "ci_gate": {
-        "switch": "AGENTCODER_CI_SAMPLE_BREAK_GLASS",
+        "switch": "CODEFLOW_CI_SAMPLE_BREAK_GLASS",
         "reason": "",
         "ticket": "OPS-123"
       }
@@ -416,9 +416,9 @@ cat >"$custom_advanced" <<'JSON'
   }
 }
 JSON
-AGENTCODER_CI_POLICY_CORE_CONFIG="$custom_core" \
-AGENTCODER_CI_POLICY_PROFILE_CONFIG="$custom_profile" \
-AGENTCODER_CI_POLICY_ADVANCED_CONFIG="$custom_advanced" \
+CODEFLOW_CI_POLICY_CORE_CONFIG="$custom_core" \
+CODEFLOW_CI_POLICY_PROFILE_CONFIG="$custom_profile" \
+CODEFLOW_CI_POLICY_ADVANCED_CONFIG="$custom_advanced" \
 python3 "$SHADOW_RESOLVER" --profile nightly --output-json "$custom_out" >/dev/null
 python3 - <<'PY' "$custom_out"
 import json, pathlib, sys
@@ -427,21 +427,21 @@ data = json.loads(p.read_text(encoding="utf-8"))
 env = data["resolved_env"]
 src = data["source_map"]
 warns = data["warnings"]
-assert env["AGENTCODER_CI_PM_CHAT_MODE"] == "advanced-final", env
-assert env["AGENTCODER_CI_UI_FLAKE_P0_ITER"] == "20", env
-assert env["AGENTCODER_CI_UI_TRUTH_P1_MIN_ITERATIONS"] == "12", env
-assert src["AGENTCODER_CI_PM_CHAT_MODE"] == "advanced.overrides", src
-assert src["AGENTCODER_CI_UI_FLAKE_P0_ITER"] == "profile:nightly", src
-assert src["AGENTCODER_CI_PM_CHAT_RUNNER"] == "core", src
-assert any("AGENTCODER_CI_SAMPLE_BREAK_GLASS_REASON" in w for w in warns), warns
+assert env["CODEFLOW_CI_PM_CHAT_MODE"] == "advanced-final", env
+assert env["CODEFLOW_CI_UI_FLAKE_P0_ITER"] == "20", env
+assert env["CODEFLOW_CI_UI_TRUTH_P1_MIN_ITERATIONS"] == "12", env
+assert src["CODEFLOW_CI_PM_CHAT_MODE"] == "advanced.overrides", src
+assert src["CODEFLOW_CI_UI_FLAKE_P0_ITER"] == "profile:nightly", src
+assert src["CODEFLOW_CI_PM_CHAT_RUNNER"] == "core", src
+assert any("CODEFLOW_CI_SAMPLE_BREAK_GLASS_REASON" in w for w in warns), warns
 assert any("advanced.break_glass.ci_gate.reason" in w for w in warns), warns
 PY
 
 info "case: shadow resolver --emit-env outputs resolved env lines"
-emit_out="$(AGENTCODER_CI_POLICY_CORE_CONFIG="$custom_core" AGENTCODER_CI_POLICY_PROFILE_CONFIG="$custom_profile" AGENTCODER_CI_POLICY_ADVANCED_CONFIG="$custom_advanced" python3 "$SHADOW_RESOLVER" --profile nightly --output-json "$custom_out" --emit-env)"
-assert_contains "$emit_out" "AGENTCODER_CI_PM_CHAT_MODE=advanced-final"
-assert_contains "$emit_out" "AGENTCODER_CI_UI_FLAKE_P0_ITER=20"
-assert_contains "$emit_out" "AGENTCODER_CI_UI_TRUTH_P1_MIN_ITERATIONS=12"
+emit_out="$(CODEFLOW_CI_POLICY_CORE_CONFIG="$custom_core" CODEFLOW_CI_POLICY_PROFILE_CONFIG="$custom_profile" CODEFLOW_CI_POLICY_ADVANCED_CONFIG="$custom_advanced" python3 "$SHADOW_RESOLVER" --profile nightly --output-json "$custom_out" --emit-env)"
+assert_contains "$emit_out" "CODEFLOW_CI_PM_CHAT_MODE=advanced-final"
+assert_contains "$emit_out" "CODEFLOW_CI_UI_FLAKE_P0_ITER=20"
+assert_contains "$emit_out" "CODEFLOW_CI_UI_TRUTH_P1_MIN_ITERATIONS=12"
 rm -rf "$tmpdir"
 
 info "case: shadow resolver validates advanced.break_glass required_fields/scopes/template shape"
@@ -499,9 +499,9 @@ cmd = [
 ]
 env = {
     "PATH": str(pathlib.Path("/usr/bin")) + ":" + str(pathlib.Path("/bin")) + ":" + str(pathlib.Path("/usr/sbin")) + ":" + str(pathlib.Path("/sbin")),
-    "AGENTCODER_CI_POLICY_CORE_CONFIG": core,
-    "AGENTCODER_CI_POLICY_PROFILE_CONFIG": profile,
-    "AGENTCODER_CI_POLICY_ADVANCED_CONFIG": advanced,
+    "CODEFLOW_CI_POLICY_CORE_CONFIG": core,
+    "CODEFLOW_CI_POLICY_PROFILE_CONFIG": profile,
+    "CODEFLOW_CI_POLICY_ADVANCED_CONFIG": advanced,
 }
 result = subprocess.run(cmd, capture_output=True, text=True, env=env, check=True)
 stderr = result.stderr
@@ -548,17 +548,17 @@ cat >"$custom_advanced" <<'JSON'
 {
   "advanced": {
     "overrides": {
-      "AGENTCODER_SAMPLE_NULL": null,
-      "AGENTCODER_SAMPLE_BOOL": true,
-      "AGENTCODER_SAMPLE_INT": 7,
-      "AGENTCODER_SAMPLE_FLOAT": 0.5
+      "CODEFLOW_SAMPLE_NULL": null,
+      "CODEFLOW_SAMPLE_BOOL": true,
+      "CODEFLOW_SAMPLE_INT": 7,
+      "CODEFLOW_SAMPLE_FLOAT": 0.5
     }
   }
 }
 JSON
-AGENTCODER_CI_POLICY_CORE_CONFIG="$custom_core" \
-AGENTCODER_CI_POLICY_PROFILE_CONFIG="$custom_profile" \
-AGENTCODER_CI_POLICY_ADVANCED_CONFIG="$custom_advanced" \
+CODEFLOW_CI_POLICY_CORE_CONFIG="$custom_core" \
+CODEFLOW_CI_POLICY_PROFILE_CONFIG="$custom_profile" \
+CODEFLOW_CI_POLICY_ADVANCED_CONFIG="$custom_advanced" \
 python3 "$SHADOW_RESOLVER" --output-json "$custom_out" --emit-env >/dev/null
 python3 - <<'PY' "$custom_out"
 import json, pathlib, sys
@@ -566,14 +566,14 @@ p = pathlib.Path(sys.argv[1])
 data = json.loads(p.read_text(encoding="utf-8"))
 env = data["resolved_env"]
 src = data["source_map"]
-assert env["AGENTCODER_SAMPLE_NULL"] == "", env
-assert env["AGENTCODER_SAMPLE_BOOL"] == "True", env
-assert env["AGENTCODER_SAMPLE_INT"] == "7", env
-assert env["AGENTCODER_SAMPLE_FLOAT"] == "0.5", env
-assert src["AGENTCODER_SAMPLE_NULL"] == "advanced.overrides", src
-assert src["AGENTCODER_SAMPLE_BOOL"] == "advanced.overrides", src
-assert src["AGENTCODER_SAMPLE_INT"] == "advanced.overrides", src
-assert src["AGENTCODER_SAMPLE_FLOAT"] == "advanced.overrides", src
+assert env["CODEFLOW_SAMPLE_NULL"] == "", env
+assert env["CODEFLOW_SAMPLE_BOOL"] == "True", env
+assert env["CODEFLOW_SAMPLE_INT"] == "7", env
+assert env["CODEFLOW_SAMPLE_FLOAT"] == "0.5", env
+assert src["CODEFLOW_SAMPLE_NULL"] == "advanced.overrides", src
+assert src["CODEFLOW_SAMPLE_BOOL"] == "advanced.overrides", src
+assert src["CODEFLOW_SAMPLE_INT"] == "advanced.overrides", src
+assert src["CODEFLOW_SAMPLE_FLOAT"] == "advanced.overrides", src
 PY
 rm -rf "$tmpdir"
 
@@ -611,13 +611,13 @@ tiers_json="$tmpdir/tiers.json"
 cat >"$registry_json" <<'JSON'
 [
   {
-    "name": "AGENTCODER_CI_STEP8_4_TIMEOUT_SEC",
+    "name": "CODEFLOW_CI_STEP8_4_TIMEOUT_SEC",
     "consumers": ["scripts/ci.sh"]
   },
   {
-    "name": "AGENTCODER_CI_STEP8_4_INVENTORY_TIMEOUT_SEC",
+    "name": "CODEFLOW_CI_STEP8_4_INVENTORY_TIMEOUT_SEC",
     "consumers": ["scripts/ci.sh"],
-    "convergence_target": "AGENTCODER_CI_STEP8_4_TIMEOUT_SEC",
+    "convergence_target": "CODEFLOW_CI_STEP8_4_TIMEOUT_SEC",
     "convergence_status": "merged"
   }
 ]
@@ -627,8 +627,8 @@ cat >"$tiers_json" <<'JSON'
   "default_tier": "core",
   "prefix_rules": [],
   "overrides": {
-    "AGENTCODER_CI_STEP8_4_TIMEOUT_SEC": "core",
-    "AGENTCODER_CI_STEP8_4_INVENTORY_TIMEOUT_SEC": "advanced"
+    "CODEFLOW_CI_STEP8_4_TIMEOUT_SEC": "core",
+    "CODEFLOW_CI_STEP8_4_INVENTORY_TIMEOUT_SEC": "advanced"
   }
 }
 JSON
@@ -652,13 +652,13 @@ tiers_json="$tmpdir/tiers.json"
 cat >"$registry_json" <<'JSON'
 [
   {
-    "name": "AGENTCODER_CI_STEP8_4_TIMEOUT_SEC",
+    "name": "CODEFLOW_CI_STEP8_4_TIMEOUT_SEC",
     "consumers": ["scripts/ci.sh"]
   },
   {
-    "name": "AGENTCODER_CI_STEP8_4_INVENTORY_TIMEOUT_SEC",
+    "name": "CODEFLOW_CI_STEP8_4_INVENTORY_TIMEOUT_SEC",
     "consumers": ["scripts/ci.sh"],
-    "convergence_target": "AGENTCODER_CI_STEP8_4_TIMEOUT_SEC",
+    "convergence_target": "CODEFLOW_CI_STEP8_4_TIMEOUT_SEC",
     "convergence_status": "planned"
   }
 ]
@@ -668,8 +668,8 @@ cat >"$tiers_json" <<'JSON'
   "default_tier": "core",
   "prefix_rules": [],
   "overrides": {
-    "AGENTCODER_CI_STEP8_4_TIMEOUT_SEC": "core",
-    "AGENTCODER_CI_STEP8_4_INVENTORY_TIMEOUT_SEC": "advanced"
+    "CODEFLOW_CI_STEP8_4_TIMEOUT_SEC": "core",
+    "CODEFLOW_CI_STEP8_4_INVENTORY_TIMEOUT_SEC": "advanced"
   }
 }
 JSON
@@ -684,8 +684,8 @@ conv = report["metrics"]["convergence_candidates"]
 assert conv["mergeable_count"] == 1, conv
 assert conv["deletable_count"] == 1, conv
 item = conv["mergeable_keys"][0]
-assert item["name"] == "AGENTCODER_CI_STEP8_4_INVENTORY_TIMEOUT_SEC", item
-assert item["target_group_key"] == "AGENTCODER_CI_STEP8_4_TIMEOUT_SEC", item
+assert item["name"] == "CODEFLOW_CI_STEP8_4_INVENTORY_TIMEOUT_SEC", item
+assert item["target_group_key"] == "CODEFLOW_CI_STEP8_4_TIMEOUT_SEC", item
 PY
 rm -rf "$tmpdir"
 

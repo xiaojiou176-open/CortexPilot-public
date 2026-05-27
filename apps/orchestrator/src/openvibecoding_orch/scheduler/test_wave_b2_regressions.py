@@ -4,19 +4,19 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from agentcoder_orch import cli
-from agentcoder_orch.scheduler.execute_task_pipeline import isolated_execution_env
+from codeflow_orch import cli
+from codeflow_orch.scheduler.execute_task_pipeline import isolated_execution_env
 
 
 def test_isolated_execution_env_restores_environment(monkeypatch) -> None:
-    monkeypatch.setenv("AGENTCODER_RUN_ID", "before-run")
+    monkeypatch.setenv("CODEFLOW_RUN_ID", "before-run")
     monkeypatch.delenv("CODEX_HOME", raising=False)
 
     with isolated_execution_env():
-        monkeypatch.setenv("AGENTCODER_RUN_ID", "during-run")
+        monkeypatch.setenv("CODEFLOW_RUN_ID", "during-run")
         monkeypatch.setenv("CODEX_HOME", "/tmp/codex-home")
 
-    assert cli.os.environ.get("AGENTCODER_RUN_ID") == "before-run"
+    assert cli.os.environ.get("CODEFLOW_RUN_ID") == "before-run"
     assert "CODEX_HOME" not in cli.os.environ
 
 
@@ -25,7 +25,7 @@ def test_cli_force_unlock_scoped_to_allowed_paths(tmp_path: Path, monkeypatch) -
 
     class _FakeValidator:
         def validate_contract_file(self, _path: Path) -> dict[str, object]:
-            return {"allowed_paths": ["apps/orchestrator/src/agentcoder_orch/scheduler/scheduler.py"]}
+            return {"allowed_paths": ["apps/orchestrator/src/codeflow_orch/scheduler/scheduler.py"]}
 
     class _FakeOrchestrator:
         def __init__(self, _repo_root: Path) -> None:
@@ -48,7 +48,7 @@ def test_cli_force_unlock_scoped_to_allowed_paths(tmp_path: Path, monkeypatch) -
     runner = CliRunner()
     result = runner.invoke(cli.app, ["run", str(contract_path), "--mock", "--force-unlock"])
     assert result.exit_code == 0
-    assert captured == [["apps/orchestrator/src/agentcoder_orch/scheduler/scheduler.py"]]
+    assert captured == [["apps/orchestrator/src/codeflow_orch/scheduler/scheduler.py"]]
 
 
 def test_cli_force_unlock_rejects_invalid_allowed_paths(tmp_path: Path, monkeypatch) -> None:

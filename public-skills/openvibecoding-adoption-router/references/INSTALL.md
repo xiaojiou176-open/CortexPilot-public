@@ -1,17 +1,17 @@
-# Install The Current Live Public Agentcoder MCP
+# Install The Current Live Public Codeflow MCP
 
 Use the current live public PyPI package, not a repo-local checkout.
 
 ## Published package
 
-- package: `agentcoder-orchestrator==0.1.0a4`
-- executable: `agentcoder-readonly-mcp`
+- package: `codeflow-orchestrator==0.1.0a4`
+- executable: `codeflow-readonly-mcp`
 - transport: `stdio`
 
 Current truth:
 
-- the executable uses the Agentcoder name
-- the primary live published PyPI package now also uses the Agentcoder name
+- the executable uses the Codeflow name
+- the primary live published PyPI package now also uses the Codeflow name
 - the package path above is the canonical public install path
 
 ## OpenHands example

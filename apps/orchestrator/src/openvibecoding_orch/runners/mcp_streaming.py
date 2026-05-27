@@ -58,7 +58,7 @@ def summarize_mcp_tool_result(result: Any) -> dict[str, Any]:
 
 
 def resolve_stream_log_every() -> int:
-    raw = os.getenv("AGENTCODER_STREAM_LOG_EVERY", "").strip()
+    raw = os.getenv("CODEFLOW_STREAM_LOG_EVERY", "").strip()
     if not raw:
         return 0
     try:

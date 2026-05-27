@@ -12,7 +12,7 @@ runtime receipts:
 
 ## The Case In One Paragraph
 
-A PM asks Agentcoder for a `page_brief` on one public URL. The browser-backed
+A PM asks Codeflow for a `page_brief` on one public URL. The browser-backed
 path captures source material, produces a bounded summary, and leaves behind a
 Workflow Case that can be reviewed without reopening the full operator flow.
 
@@ -31,7 +31,7 @@ browser-backed path:
 
 Use wording like:
 
-- "Agentcoder now treats `page_brief` as one release-proven secondary browser-backed public path."
+- "Codeflow now treats `page_brief` as one release-proven secondary browser-backed public path."
 - "`page_brief` is a release-proven secondary path, not the official first public baseline."
 - "The browser-backed path now has a fresh healthy proof summary, a fresh bundle baseline summary, and a fresh share-ready recap."
 

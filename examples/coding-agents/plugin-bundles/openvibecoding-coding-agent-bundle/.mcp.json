@@ -1,9 +1,9 @@
 {
   "mcpServers": {
-    "agentcoder-readonly": {
+    "codeflow-readonly": {
       "command": "bash",
       "args": [
-        "./bin/run-agentcoder-readonly-mcp.sh"
+        "./bin/run-codeflow-readonly-mcp.sh"
       ]
     }
   }

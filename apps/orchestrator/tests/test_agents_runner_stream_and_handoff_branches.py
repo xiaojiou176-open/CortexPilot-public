@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from agentcoder_orch.runners.agents_runner import AgentsRunner
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.runners.agents_runner import AgentsRunner
+from codeflow_orch.store.run_store import RunStore
 
 
 class DummyRunConfig:
@@ -164,9 +164,9 @@ def _install_fake_agents_sdk(monkeypatch, runner_cb, mcp_cls=DummyMCPDefault, ru
 def test_stream_timeout_fallback_to_runner_run(monkeypatch, tmp_path: Path) -> None:
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_stream_timeout_fallback")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
-    monkeypatch.setenv("AGENTCODER_AGENTS_STREAM_TIMEOUT_FALLBACK", "true")
+    monkeypatch.setenv("CODEFLOW_AGENTS_STREAM_TIMEOUT_FALLBACK", "true")
 
     class TimeoutStreamResult:
         final_output = None
@@ -193,7 +193,7 @@ def test_stream_timeout_fallback_to_runner_run(monkeypatch, tmp_path: Path) -> N
     worker_home = tmp_path / "worker-home"
     worker_home.mkdir(parents=True, exist_ok=True)
     monkeypatch.setattr(
-        "agentcoder_orch.runners.agents_runner._materialize_worker_codex_home",
+        "codeflow_orch.runners.agents_runner._materialize_worker_codex_home",
         lambda *_args, **_kwargs: worker_home,
     )
 
@@ -210,11 +210,11 @@ def test_stream_timeout_fallback_to_runner_run(monkeypatch, tmp_path: Path) -> N
 def test_stream_timeout_retry_then_success_without_fallback(monkeypatch, tmp_path: Path) -> None:
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_stream_timeout_retry_success")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
-    monkeypatch.setenv("AGENTCODER_AGENTS_STREAM_TIMEOUT_FALLBACK", "false")
-    monkeypatch.setenv("AGENTCODER_AGENTS_STREAM_TIMEOUT_RETRIES", "2")
-    monkeypatch.setenv("AGENTCODER_AGENTS_STREAM_RETRY_BACKOFF_SEC", "0.001")
+    monkeypatch.setenv("CODEFLOW_AGENTS_STREAM_TIMEOUT_FALLBACK", "false")
+    monkeypatch.setenv("CODEFLOW_AGENTS_STREAM_TIMEOUT_RETRIES", "2")
+    monkeypatch.setenv("CODEFLOW_AGENTS_STREAM_RETRY_BACKOFF_SEC", "0.001")
 
     call_counter = {"count": 0}
 
@@ -243,7 +243,7 @@ def test_stream_timeout_retry_then_success_without_fallback(monkeypatch, tmp_pat
     worker_home = tmp_path / "worker-home"
     worker_home.mkdir(parents=True, exist_ok=True)
     monkeypatch.setattr(
-        "agentcoder_orch.runners.agents_runner._materialize_worker_codex_home",
+        "codeflow_orch.runners.agents_runner._materialize_worker_codex_home",
         lambda *_args, **_kwargs: worker_home,
     )
 
@@ -261,7 +261,7 @@ def test_stream_timeout_retry_then_success_without_fallback(monkeypatch, tmp_pat
 def test_handoff_chain_max_handoffs_guard(monkeypatch, tmp_path: Path) -> None:
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_chain_guard")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
 
     _install_fake_agents_sdk(monkeypatch, lambda *_args, **_kwargs: DummyStreamResult("{}"))
@@ -286,11 +286,11 @@ def test_handoff_chain_max_handoffs_guard(monkeypatch, tmp_path: Path) -> None:
 def test_handoff_chain_invalid_payload_fails(monkeypatch, tmp_path: Path) -> None:
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_chain_invalid_payload")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
 
     def _runner_cb(agent, _prompt, **_kwargs):
-        if agent.name.startswith("AgentcoderHandoff_"):
+        if agent.name.startswith("CodeflowHandoff_"):
             return DummyStreamResult(json.dumps({"summary": "missing instruction"}))
         return DummyStreamResult(json.dumps({"task_id": "x", "status": "SUCCESS", "summary": "ok", "evidence_refs": {}, "failure": None}))
 
@@ -316,7 +316,7 @@ def test_handoff_chain_invalid_payload_fails(monkeypatch, tmp_path: Path) -> Non
 def test_fixed_output_invalid_when_tool_set_disabled(monkeypatch, tmp_path: Path) -> None:
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_fixed_invalid")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
 
     _install_fake_agents_sdk(monkeypatch, lambda *_args, **_kwargs: DummyStreamResult("{}"))
@@ -335,10 +335,10 @@ def test_fixed_output_invalid_when_tool_set_disabled(monkeypatch, tmp_path: Path
 def test_stream_and_message_handler_success_path(monkeypatch, tmp_path: Path) -> None:
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_stream_success")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
-    monkeypatch.setenv("AGENTCODER_STREAM_LOG_EVERY", "1")
-    monkeypatch.setenv("AGENTCODER_CODEX_BASE_URL", "http://127.0.0.1:1456/v1")
+    monkeypatch.setenv("CODEFLOW_STREAM_LOG_EVERY", "1")
+    monkeypatch.setenv("CODEFLOW_CODEX_BASE_URL", "http://127.0.0.1:1456/v1")
 
     class DummyMCPWithMessages(DummyMCPDefault):
         async def connect(self) -> None:
@@ -401,7 +401,7 @@ def test_stream_and_message_handler_success_path(monkeypatch, tmp_path: Path) ->
     worker_home = tmp_path / "worker-home"
     worker_home.mkdir(parents=True, exist_ok=True)
     monkeypatch.setattr(
-        "agentcoder_orch.runners.agents_runner._materialize_worker_codex_home",
+        "codeflow_orch.runners.agents_runner._materialize_worker_codex_home",
         lambda *_args, **_kwargs: worker_home,
     )
 
@@ -426,9 +426,9 @@ def test_stream_and_message_handler_success_path(monkeypatch, tmp_path: Path) ->
 def test_mcp_connect_timeout_returns_failure(monkeypatch, tmp_path: Path) -> None:
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_connect_timeout")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
-    monkeypatch.setenv("AGENTCODER_MCP_CONNECT_TIMEOUT_SEC", "0.001")
+    monkeypatch.setenv("CODEFLOW_MCP_CONNECT_TIMEOUT_SEC", "0.001")
 
     class SlowConnectMCP(DummyMCPDefault):
         async def connect(self) -> None:
@@ -451,7 +451,7 @@ def test_mcp_connect_timeout_returns_failure(monkeypatch, tmp_path: Path) -> Non
     worker_home = tmp_path / "worker-home"
     worker_home.mkdir(parents=True, exist_ok=True)
     monkeypatch.setattr(
-        "agentcoder_orch.runners.agents_runner._materialize_worker_codex_home",
+        "codeflow_orch.runners.agents_runner._materialize_worker_codex_home",
         lambda *_args, **_kwargs: worker_home,
     )
 
@@ -469,9 +469,9 @@ def test_mcp_connect_timeout_returns_failure(monkeypatch, tmp_path: Path) -> Non
 def test_handoff_chain_success_and_context_exit_path(monkeypatch, tmp_path: Path) -> None:
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_handoff_success")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
-    monkeypatch.setenv("AGENTCODER_MCP_CLEANUP_TIMEOUT_SEC", "0.01")
+    monkeypatch.setenv("CODEFLOW_MCP_CLEANUP_TIMEOUT_SEC", "0.01")
 
     class DummyMCPContextOnly:
         def __init__(
@@ -499,7 +499,7 @@ def test_handoff_chain_success_and_context_exit_path(monkeypatch, tmp_path: Path
             return [DummyTool("fs.read")]
 
     def _runner_cb(agent, _prompt, **_kwargs):
-        if agent.name.startswith("AgentcoderHandoff_"):
+        if agent.name.startswith("CodeflowHandoff_"):
             handoff_payload = {
                 "summary": "handoff ok",
                 "risks": [],
@@ -519,7 +519,7 @@ def test_handoff_chain_success_and_context_exit_path(monkeypatch, tmp_path: Path
     worker_home = tmp_path / "worker-home"
     worker_home.mkdir(parents=True, exist_ok=True)
     monkeypatch.setattr(
-        "agentcoder_orch.runners.agents_runner._materialize_worker_codex_home",
+        "codeflow_orch.runners.agents_runner._materialize_worker_codex_home",
         lambda *_args, **_kwargs: worker_home,
     )
 
@@ -533,7 +533,7 @@ def test_handoff_chain_success_and_context_exit_path(monkeypatch, tmp_path: Path
     }
     contract["timeout_retry"]["timeout_sec"] = 0
     monkeypatch.setattr(
-        "agentcoder_orch.runners.agents_runner.ContractValidator.validate_contract",
+        "codeflow_orch.runners.agents_runner.ContractValidator.validate_contract",
         lambda self, payload: payload,
     )
 
@@ -552,9 +552,9 @@ def test_handoff_chain_success_and_context_exit_path(monkeypatch, tmp_path: Path
 def test_cleanup_without_timeout_uses_direct_cleanup(monkeypatch, tmp_path: Path) -> None:
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_cleanup_direct")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
-    monkeypatch.setenv("AGENTCODER_MCP_CLEANUP_TIMEOUT_SEC", "0")
+    monkeypatch.setenv("CODEFLOW_MCP_CLEANUP_TIMEOUT_SEC", "0")
 
     def _runner_cb(_agent, _prompt, **_kwargs):
         payload = {
@@ -571,14 +571,14 @@ def test_cleanup_without_timeout_uses_direct_cleanup(monkeypatch, tmp_path: Path
     worker_home = tmp_path / "worker-home"
     worker_home.mkdir(parents=True, exist_ok=True)
     monkeypatch.setattr(
-        "agentcoder_orch.runners.agents_runner._materialize_worker_codex_home",
+        "codeflow_orch.runners.agents_runner._materialize_worker_codex_home",
         lambda *_args, **_kwargs: worker_home,
     )
 
     contract = _base_contract("task_cleanup_direct")
     contract["timeout_retry"]["timeout_sec"] = 0
     monkeypatch.setattr(
-        "agentcoder_orch.runners.agents_runner.ContractValidator.validate_contract",
+        "codeflow_orch.runners.agents_runner.ContractValidator.validate_contract",
         lambda self, payload: payload,
     )
 

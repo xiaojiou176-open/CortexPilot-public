@@ -6,9 +6,9 @@ from typing import Any
 from urllib.parse import urlsplit, urlunsplit
 from urllib.request import urlopen
 
-from agentcoder_orch.config import get_runner_config
-from agentcoder_orch.runners import common as runner_common
-from agentcoder_orch.transport.codex_profile_pool import pick_profile
+from codeflow_orch.config import get_runner_config
+from codeflow_orch.runners import common as runner_common
+from codeflow_orch.transport.codex_profile_pool import pick_profile
 
 
 def path_allowed(path: str, allowed_paths: list[Any]) -> bool:
@@ -56,7 +56,7 @@ def mock_output_path(contract: dict[str, Any]) -> str:
 
 
 def resolve_profile() -> str | None:
-    profile = os.getenv("AGENTCODER_CODEX_PROFILE", "").strip()
+    profile = os.getenv("CODEFLOW_CODEX_PROFILE", "").strip()
     if profile:
         return profile
     return pick_profile()

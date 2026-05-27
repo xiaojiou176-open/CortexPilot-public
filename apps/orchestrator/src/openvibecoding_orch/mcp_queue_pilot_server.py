@@ -14,10 +14,10 @@ except Exception:  # noqa: BLE001
 
 JSONRPC_VERSION = "2.0"
 _DEFAULT_MUTATION_ROLES = {"OWNER", "ARCHITECT", "OPS", "TECH_LEAD"}
-_APPLY_ENABLE_ENV = "AGENTCODER_MCP_QUEUE_PILOT_ENABLE_APPLY"
+_APPLY_ENABLE_ENV = "CODEFLOW_MCP_QUEUE_PILOT_ENABLE_APPLY"
 SERVER_INFO = {
-    "name": "agentcoder-queue-pilot",
-    "title": "Agentcoder Queue Pilot MCP",
+    "name": "codeflow-queue-pilot",
+    "title": "Codeflow Queue Pilot MCP",
     "version": "0.1.0",
 }
 
@@ -48,7 +48,7 @@ def _optional_text_arg(arguments: dict[str, Any], key: str) -> str | None:
 
 
 def _mutation_roles() -> set[str]:
-    raw = os.getenv("AGENTCODER_APPROVAL_ALLOWED_ROLES", "").strip()
+    raw = os.getenv("CODEFLOW_APPROVAL_ALLOWED_ROLES", "").strip()
     if not raw:
         return set(_DEFAULT_MUTATION_ROLES)
     parsed = {item.strip().upper() for item in raw.split(",") if item.strip()}
@@ -122,7 +122,7 @@ class QueuePilotToolSpec:
         }
 
 
-class AgentcoderQueuePilotMcpServer:
+class CodeflowQueuePilotMcpServer:
     def __init__(
         self,
         *,
@@ -130,7 +130,7 @@ class AgentcoderQueuePilotMcpServer:
         enqueue_fn: Callable[[str, dict[str, Any]], dict[str, Any]] | None = None,
     ) -> None:
         if preview_enqueue_fn is None or enqueue_fn is None:
-            from agentcoder_orch.api import main as api_main
+            from codeflow_orch.api import main as api_main
 
             preview_enqueue_fn = preview_enqueue_fn or api_main.preview_enqueue_run_queue
             enqueue_fn = enqueue_fn or api_main.enqueue_run_queue
@@ -319,4 +319,4 @@ class AgentcoderQueuePilotMcpServer:
 
 
 def serve_queue_pilot_mcp() -> None:
-    AgentcoderQueuePilotMcpServer().serve_forever()
+    CodeflowQueuePilotMcpServer().serve_forever()

@@ -3,11 +3,11 @@ import json
 import os
 from pathlib import Path
 
-from agentcoder_orch.runners import app_server_runner as app_server_module
-from agentcoder_orch.runners import codex_runner as codex_module
-from agentcoder_orch.runners.app_server_runner import AppServerRunner
-from agentcoder_orch.runners.codex_runner import CodexRunner
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.runners import app_server_runner as app_server_module
+from codeflow_orch.runners import codex_runner as codex_module
+from codeflow_orch.runners.app_server_runner import AppServerRunner
+from codeflow_orch.runners.codex_runner import CodexRunner
+from codeflow_orch.store.run_store import RunStore
 
 
 def _output_schema_artifacts(role: str = "worker") -> list[dict]:
@@ -55,7 +55,7 @@ def _base_contract() -> dict:
 def test_mock_runner_success(tmp_path: Path, monkeypatch):
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_mock")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
 
     worktree = tmp_path / "worktree"
     worktree.mkdir()
@@ -107,7 +107,7 @@ def test_mock_runner_success(tmp_path: Path, monkeypatch):
 def test_app_server_mock_runner_success(tmp_path: Path, monkeypatch):
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_app_server_mock")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
 
     worktree = tmp_path / "worktree"
     worktree.mkdir()
@@ -159,7 +159,7 @@ def test_app_server_mock_runner_success(tmp_path: Path, monkeypatch):
 def test_runner_missing_instruction_fails(tmp_path: Path, monkeypatch):
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_fail")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
 
     worktree = tmp_path / "worktree"
     worktree.mkdir()
@@ -200,7 +200,7 @@ def test_runner_missing_instruction_fails(tmp_path: Path, monkeypatch):
 def test_runner_mcp_tools_denied(tmp_path: Path, monkeypatch):
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_denied")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
 
     worktree = tmp_path / "worktree"
     worktree.mkdir()

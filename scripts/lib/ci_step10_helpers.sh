@@ -2,29 +2,29 @@
 
 run_ci_step10_pm_chat_e2e() {
   echo "🚀 [STEP 10/12] Start: PM Chat Command Tower E2E"
-  if [[ "$CI_SLICE" == "resilience-and-e2e" && "${GITHUB_EVENT_NAME:-}" == "pull_request" && "${AGENTCODER_CI_PM_CHAT_ON_PR:-0}" != "1" ]]; then
+  if [[ "$CI_SLICE" == "resilience-and-e2e" && "${GITHUB_EVENT_NAME:-}" == "pull_request" && "${CODEFLOW_CI_PM_CHAT_ON_PR:-0}" != "1" ]]; then
     echo "ℹ️ [ci] skip PM chat on PR resilience slice; PR path keeps minimal real external probe only"
-  elif [ "${AGENTCODER_CI_PM_CHAT_E2E:-1}" = "1" ]; then
+  elif [ "${CODEFLOW_CI_PM_CHAT_E2E:-1}" = "1" ]; then
     if ! load_pm_chat_policy_env_or_fail; then
       echo "❌ [ci] failed to load PM chat policy env from resolver"
       exit 1
     fi
-    if [[ "${CI_PROFILE:-}" == "strict" ]] && [[ "${AGENTCODER_CI_PM_CHAT_ALLOW_MISSING_KEY:-0}" == "1" ]]; then
-      echo "❌ [ci] AGENTCODER_CI_PM_CHAT_ALLOW_MISSING_KEY=1 is forbidden in strict profile" >&2
+    if [[ "${CI_PROFILE:-}" == "strict" ]] && [[ "${CODEFLOW_CI_PM_CHAT_ALLOW_MISSING_KEY:-0}" == "1" ]]; then
+      echo "❌ [ci] CODEFLOW_CI_PM_CHAT_ALLOW_MISSING_KEY=1 is forbidden in strict profile" >&2
       exit 1
     fi
-    if [[ -n "${CI:-}" ]] && [[ "${AGENTCODER_CI_PM_CHAT_ALLOW_MISSING_KEY:-0}" == "1" ]]; then
+    if [[ -n "${CI:-}" ]] && [[ "${CODEFLOW_CI_PM_CHAT_ALLOW_MISSING_KEY:-0}" == "1" ]]; then
       PM_CHAT_MISSING_KEY_BREAK_GLASS_ACTIVE="$(resolve_ci_break_glass \
         "pm_chat_allow_missing_key" \
-        "AGENTCODER_CI_PM_CHAT_ALLOW_MISSING_KEY_BREAK_GLASS" \
-        "AGENTCODER_CI_PM_CHAT_ALLOW_MISSING_KEY_BREAK_GLASS_REASON" \
-        "AGENTCODER_CI_PM_CHAT_ALLOW_MISSING_KEY_BREAK_GLASS_TICKET")" || {
-        echo "❌ [ci] AGENTCODER_CI_PM_CHAT_ALLOW_MISSING_KEY=1 requires valid break-glass metadata"
+        "CODEFLOW_CI_PM_CHAT_ALLOW_MISSING_KEY_BREAK_GLASS" \
+        "CODEFLOW_CI_PM_CHAT_ALLOW_MISSING_KEY_BREAK_GLASS_REASON" \
+        "CODEFLOW_CI_PM_CHAT_ALLOW_MISSING_KEY_BREAK_GLASS_TICKET")" || {
+        echo "❌ [ci] CODEFLOW_CI_PM_CHAT_ALLOW_MISSING_KEY=1 requires valid break-glass metadata"
         exit 1
       }
       if [[ "$PM_CHAT_MISSING_KEY_BREAK_GLASS_ACTIVE" != "1" ]]; then
-        echo "❌ [ci] AGENTCODER_CI_PM_CHAT_ALLOW_MISSING_KEY=1 is blocked (fail-closed)."
-        echo "❌ [ci] set AGENTCODER_CI_PM_CHAT_ALLOW_MISSING_KEY_BREAK_GLASS=1 with reason/ticket."
+        echo "❌ [ci] CODEFLOW_CI_PM_CHAT_ALLOW_MISSING_KEY=1 is blocked (fail-closed)."
+        echo "❌ [ci] set CODEFLOW_CI_PM_CHAT_ALLOW_MISSING_KEY_BREAK_GLASS=1 with reason/ticket."
         exit 1
       fi
       echo "⚠️ [ci] PM chat missing-key override enabled via audited break-glass"
@@ -34,26 +34,26 @@ run_ci_step10_pm_chat_e2e() {
       exit 1
     fi
     if [[ -n "${CI:-}" ]] && [[ "$PM_CHAT_MODE" != "real" ]]; then
-      if [[ "${AGENTCODER_CI_PM_CHAT_ALLOW_MOCK_ON_CI:-0}" != "1" ]]; then
-        echo "❌ [ci] PM chat E2E must run in real mode on CI (set AGENTCODER_CI_PM_CHAT_ALLOW_MOCK_ON_CI=1 for emergency override)"
+      if [[ "${CODEFLOW_CI_PM_CHAT_ALLOW_MOCK_ON_CI:-0}" != "1" ]]; then
+        echo "❌ [ci] PM chat E2E must run in real mode on CI (set CODEFLOW_CI_PM_CHAT_ALLOW_MOCK_ON_CI=1 for emergency override)"
         exit 1
       fi
       PM_CHAT_MOCK_MODE_BREAK_GLASS_ACTIVE="$(resolve_ci_break_glass \
         "pm_chat_allow_mock_on_ci" \
-        "AGENTCODER_CI_PM_CHAT_ALLOW_MOCK_ON_CI_BREAK_GLASS" \
-        "AGENTCODER_CI_PM_CHAT_ALLOW_MOCK_ON_CI_BREAK_GLASS_REASON" \
-        "AGENTCODER_CI_PM_CHAT_ALLOW_MOCK_ON_CI_BREAK_GLASS_TICKET")" || {
-        echo "❌ [ci] AGENTCODER_CI_PM_CHAT_ALLOW_MOCK_ON_CI=1 requires valid break-glass metadata"
+        "CODEFLOW_CI_PM_CHAT_ALLOW_MOCK_ON_CI_BREAK_GLASS" \
+        "CODEFLOW_CI_PM_CHAT_ALLOW_MOCK_ON_CI_BREAK_GLASS_REASON" \
+        "CODEFLOW_CI_PM_CHAT_ALLOW_MOCK_ON_CI_BREAK_GLASS_TICKET")" || {
+        echo "❌ [ci] CODEFLOW_CI_PM_CHAT_ALLOW_MOCK_ON_CI=1 requires valid break-glass metadata"
         exit 1
       }
       if [[ "$PM_CHAT_MOCK_MODE_BREAK_GLASS_ACTIVE" != "1" ]]; then
-        echo "❌ [ci] AGENTCODER_CI_PM_CHAT_ALLOW_MOCK_ON_CI=1 is blocked (fail-closed)."
-        echo "❌ [ci] set AGENTCODER_CI_PM_CHAT_ALLOW_MOCK_ON_CI_BREAK_GLASS=1 with reason/ticket."
+        echo "❌ [ci] CODEFLOW_CI_PM_CHAT_ALLOW_MOCK_ON_CI=1 is blocked (fail-closed)."
+        echo "❌ [ci] set CODEFLOW_CI_PM_CHAT_ALLOW_MOCK_ON_CI_BREAK_GLASS=1 with reason/ticket."
         exit 1
       fi
       echo "⚠️ [ci] PM chat mock mode override enabled via audited break-glass"
     fi
-    if [[ -z "${CI:-}" ]] && [[ "${PM_CHAT_HAS_LLM_KEY:-0}" != "1" ]] && [[ -z "${AGENTCODER_CI_PM_CHAT_MODE:-}" ]] && [[ "$PM_CHAT_MODE" == "mock" ]]; then
+    if [[ -z "${CI:-}" ]] && [[ "${PM_CHAT_HAS_LLM_KEY:-0}" != "1" ]] && [[ -z "${CODEFLOW_CI_PM_CHAT_MODE:-}" ]] && [[ "$PM_CHAT_MODE" == "mock" ]]; then
       echo "⚠️ [WARN] missing LLM credentials in env/config, fallback PM chat E2E mode to mock"
     fi
     if [[ "$PM_CHAT_REQUIRES_KEY" == "1" ]]; then
@@ -64,8 +64,8 @@ run_ci_step10_pm_chat_e2e() {
       fi
       exit 1
     fi
-    PM_CHAT_MAX_ATTEMPTS="${AGENTCODER_CI_PM_CHAT_MAX_ATTEMPTS:-4}"
-    STEP10_PM_CHAT_ATTEMPT_TIMEOUT_SEC="$(resolve_step_timeout "AGENTCODER_CI_STEP10_PM_CHAT_ATTEMPT_TIMEOUT_SEC" "2400" "AGENTCODER_CI_STEP10_TIMEOUT_SEC" "AGENTCODER_CI_STEP_TIMEOUT_SEC")"
+    PM_CHAT_MAX_ATTEMPTS="${CODEFLOW_CI_PM_CHAT_MAX_ATTEMPTS:-4}"
+    STEP10_PM_CHAT_ATTEMPT_TIMEOUT_SEC="$(resolve_step_timeout "CODEFLOW_CI_STEP10_PM_CHAT_ATTEMPT_TIMEOUT_SEC" "2400" "CODEFLOW_CI_STEP10_TIMEOUT_SEC" "CODEFLOW_CI_STEP_TIMEOUT_SEC")"
     if [[ "$PM_CHAT_MAX_ATTEMPTS" -lt 1 ]]; then
       PM_CHAT_MAX_ATTEMPTS=1
     fi
@@ -74,20 +74,20 @@ run_ci_step10_pm_chat_e2e() {
     while [[ "$pm_chat_attempt" -le "$PM_CHAT_MAX_ATTEMPTS" ]]; do
       echo "🚀 [ci] PM chat E2E attempt ${pm_chat_attempt}/${PM_CHAT_MAX_ATTEMPTS}"
       set +e
-      AGENTCODER_E2E_RUN_MODE="$PM_CHAT_MODE" \
-      AGENTCODER_E2E_RUNNER="$PM_CHAT_RUNNER" \
-      AGENTCODER_E2E_WEB_MODE="$PM_CHAT_WEB_MODE" \
-      AGENTCODER_E2E_USE_CODEX_CONFIG="$PM_CHAT_USE_CODEX_CONFIG" \
-      AGENTCODER_E2E_RUNTIME_OPTIONS_PROVIDER="${PM_CHAT_RUNTIME_OPTIONS_PROVIDER:-}" \
-      AGENTCODER_E2E_CODEX_BASE_URL="${PM_CHAT_CODEX_BASE_URL:-}" \
-      AGENTCODER_E2E_CODEX_PROVIDER="${PM_CHAT_CODEX_PROVIDER:-}" \
-      AGENTCODER_E2E_CODEX_MODEL="${PM_CHAT_CODEX_MODEL:-}" \
-      AGENTCODER_E2E_CODEX_KEY_SOURCE="${PM_CHAT_CODEX_KEY_SOURCE:-}" \
-      AGENTCODER_MCP_CONNECT_TIMEOUT_SEC="${AGENTCODER_CI_PM_CHAT_MCP_CONNECT_TIMEOUT_SEC:-${AGENTCODER_MCP_CONNECT_TIMEOUT_SEC:-120}}" \
-      AGENTCODER_MCP_TIMEOUT_SEC="${AGENTCODER_CI_PM_CHAT_MCP_TIMEOUT_SEC:-${AGENTCODER_MCP_TIMEOUT_SEC:-1200}}" \
-      AGENTCODER_E2E_API_POST_TIMEOUT_SEC="${AGENTCODER_CI_PM_CHAT_API_POST_TIMEOUT_SEC:-420}" \
-      AGENTCODER_E2E_STATUS_STAGNATION_SEC="${AGENTCODER_CI_PM_CHAT_STATUS_STAGNATION_SEC:-420}" \
-      AGENTCODER_E2E_REEXEC_STRICT=true \
+      CODEFLOW_E2E_RUN_MODE="$PM_CHAT_MODE" \
+      CODEFLOW_E2E_RUNNER="$PM_CHAT_RUNNER" \
+      CODEFLOW_E2E_WEB_MODE="$PM_CHAT_WEB_MODE" \
+      CODEFLOW_E2E_USE_CODEX_CONFIG="$PM_CHAT_USE_CODEX_CONFIG" \
+      CODEFLOW_E2E_RUNTIME_OPTIONS_PROVIDER="${PM_CHAT_RUNTIME_OPTIONS_PROVIDER:-}" \
+      CODEFLOW_E2E_CODEX_BASE_URL="${PM_CHAT_CODEX_BASE_URL:-}" \
+      CODEFLOW_E2E_CODEX_PROVIDER="${PM_CHAT_CODEX_PROVIDER:-}" \
+      CODEFLOW_E2E_CODEX_MODEL="${PM_CHAT_CODEX_MODEL:-}" \
+      CODEFLOW_E2E_CODEX_KEY_SOURCE="${PM_CHAT_CODEX_KEY_SOURCE:-}" \
+      CODEFLOW_MCP_CONNECT_TIMEOUT_SEC="${CODEFLOW_CI_PM_CHAT_MCP_CONNECT_TIMEOUT_SEC:-${CODEFLOW_MCP_CONNECT_TIMEOUT_SEC:-120}}" \
+      CODEFLOW_MCP_TIMEOUT_SEC="${CODEFLOW_CI_PM_CHAT_MCP_TIMEOUT_SEC:-${CODEFLOW_MCP_TIMEOUT_SEC:-1200}}" \
+      CODEFLOW_E2E_API_POST_TIMEOUT_SEC="${CODEFLOW_CI_PM_CHAT_API_POST_TIMEOUT_SEC:-420}" \
+      CODEFLOW_E2E_STATUS_STAGNATION_SEC="${CODEFLOW_CI_PM_CHAT_STATUS_STAGNATION_SEC:-420}" \
+      CODEFLOW_E2E_REEXEC_STRICT=true \
       run_with_timeout_heartbeat_and_cleanup \
         "step10:pm-chat-e2e:attempt-${pm_chat_attempt}" \
         "${STEP10_PM_CHAT_ATTEMPT_TIMEOUT_SEC}" \
@@ -122,8 +122,8 @@ run_ci_step10_pm_chat_e2e() {
       "success" \
       ".runtime-cache/test_output/ci_retry_telemetry/pm_chat_command_tower_e2e.json"
   else
-    require_skip_gate_break_glass_or_fail "AGENTCODER_CI_PM_CHAT_E2E" "pm_chat_e2e_skip"
-    echo "⚠️ [WARN] AGENTCODER_CI_PM_CHAT_E2E=0, skip PM chat e2e gate (break-glass)"
+    require_skip_gate_break_glass_or_fail "CODEFLOW_CI_PM_CHAT_E2E" "pm_chat_e2e_skip"
+    echo "⚠️ [WARN] CODEFLOW_CI_PM_CHAT_E2E=0, skip PM chat e2e gate (break-glass)"
   fi
   echo "✅ [STEP 10/12] Completed"
 }

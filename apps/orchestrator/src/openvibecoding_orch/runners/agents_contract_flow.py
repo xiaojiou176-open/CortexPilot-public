@@ -5,14 +5,14 @@ from importlib import import_module
 from pathlib import Path
 from typing import Any, Callable
 
-from agentcoder_orch.runners.agents_runner import AgentsRunner
-from agentcoder_orch.runners.common import resolve_run_id
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.runners.agents_runner import AgentsRunner
+from codeflow_orch.runners.common import resolve_run_id
+from codeflow_orch.store.run_store import RunStore
 
 
-_LANGGRAPH_MODULE = "agentcoder_orch.runners.langgraph_contract_subflow"
+_LANGGRAPH_MODULE = "codeflow_orch.runners.langgraph_contract_subflow"
 _LANGGRAPH_ENTRYPOINT = "run_langgraph_contract_subflow"
-_LANGGRAPH_FLAG_ENV = "AGENTCODER_LANGGRAPH_CONTRACT_SUBFLOW"
+_LANGGRAPH_FLAG_ENV = "CODEFLOW_LANGGRAPH_CONTRACT_SUBFLOW"
 _LANGGRAPH_TRUE_SET = {"1", "true", "yes", "on"}
 _FAILED_STATUSES = {"FAILED", "ERROR", "BLOCKED"}
 

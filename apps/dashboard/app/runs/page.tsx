@@ -1,8 +1,8 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { getUiCopy } from "@agentcoder/frontend-shared/uiCopy";
-import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@agentcoder/frontend-shared/uiLocale";
+import { getUiCopy } from "@codeflow/frontend-shared/uiCopy";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@codeflow/frontend-shared/uiLocale";
 
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
@@ -21,16 +21,16 @@ const CJK_TEXT_RE = /[\u3400-\u9fff]/;
 export function buildRunsMetadata(locale: "en" | "zh-CN"): Metadata {
   if (locale === "zh-CN") {
     return {
-      title: "证明与回放 | Agentcoder",
+      title: "证明与回放 | Codeflow",
       description:
-        "在 Agentcoder 的证明与回放桌面查看最新结果、回放姿态、失败线索和下一步操作。",
+        "在 Codeflow 的证明与回放桌面查看最新结果、回放姿态、失败线索和下一步操作。",
     };
   }
 
   return {
-    title: "Proof & Replay | Agentcoder",
+    title: "Proof & Replay | Codeflow",
     description:
-      "Inspect latest outcomes, replay posture, failure clues, and next operator actions from the Agentcoder proof and replay surface.",
+      "Inspect latest outcomes, replay posture, failure clues, and next operator actions from the Codeflow proof and replay surface.",
   };
 }
 
@@ -124,7 +124,7 @@ export default async function RunsPage({ searchParams }: RunsPageProps) {
       <header className="app-section">
         <div className="section-header">
           <div>
-            <p className="cell-sub mono muted">{locale === "zh-CN" ? "Agentcoder / 证明与回放桌" : "Agentcoder / proof and replay"}</p>
+            <p className="cell-sub mono muted">{locale === "zh-CN" ? "Codeflow / 证明与回放桌" : "Codeflow / proof and replay"}</p>
             <h1 id="runs-page-title" className="page-title">{runsPageCopy.title}</h1>
             <p className="page-subtitle">{runsPageCopy.subtitle}</p>
             <p className="desk-question">

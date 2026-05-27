@@ -695,7 +695,7 @@
   border-color: var(--color-border-primary-soft);
 }
 
-.pm-chat-bubble.is-agentcoder {
+.pm-chat-bubble.is-codeflow {
   justify-self: start;
   align-self: flex-start;
   background: var(--color-bg-surface);

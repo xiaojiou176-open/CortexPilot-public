@@ -10,11 +10,11 @@ Starts both:
 - Desktop Vite dev server
 
 Optional environment variables:
-- AGENTCODER_DEV_HOST (default: 127.0.0.1)
-- AGENTCODER_API_PORT (default: 10000)
-- AGENTCODER_DESKTOP_PORT (default: 18173)
-- AGENTCODER_API_AUTH_REQUIRED (default: true)
-- AGENTCODER_API_TOKEN (default: agentcoder-dev-token)
+- CODEFLOW_DEV_HOST (default: 127.0.0.1)
+- CODEFLOW_API_PORT (default: 10000)
+- CODEFLOW_DESKTOP_PORT (default: 18173)
+- CODEFLOW_API_AUTH_REQUIRED (default: true)
+- CODEFLOW_API_TOKEN (default: codeflow-dev-token)
 
 Notes:
 - If a requested port is already in use, the script automatically shifts to the next available port without taking over existing processes.
@@ -25,17 +25,17 @@ fi
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 source "$ROOT_DIR/scripts/lib/env.sh"
-PYTHON_BIN="${AGENTCODER_PYTHON:-}"
+PYTHON_BIN="${CODEFLOW_PYTHON:-}"
 
-HOST="${AGENTCODER_DEV_HOST:-127.0.0.1}"
-API_PORT="${AGENTCODER_API_PORT:-10000}"
-DESKTOP_PORT="${AGENTCODER_DESKTOP_PORT:-18173}"
-API_AUTH_REQUIRED="${AGENTCODER_API_AUTH_REQUIRED:-true}"
-DEV_API_TOKEN="${AGENTCODER_API_TOKEN:-agentcoder-dev-token}"
+HOST="${CODEFLOW_DEV_HOST:-127.0.0.1}"
+API_PORT="${CODEFLOW_API_PORT:-10000}"
+DESKTOP_PORT="${CODEFLOW_DESKTOP_PORT:-18173}"
+API_AUTH_REQUIRED="${CODEFLOW_API_AUTH_REQUIRED:-true}"
+DEV_API_TOKEN="${CODEFLOW_API_TOKEN:-codeflow-dev-token}"
 
-PID_DIR="$ROOT_DIR/.runtime-cache/agentcoder/temp"
+PID_DIR="$ROOT_DIR/.runtime-cache/codeflow/temp"
 LOG_DIR="$ROOT_DIR/.runtime-cache/logs/runtime"
-PID_FILE="$PID_DIR/agentcoder-dev-api.pid"
+PID_FILE="$PID_DIR/codeflow-dev-api.pid"
 API_LOG_FILE="$LOG_DIR/api-dev.log"
 
 mkdir -p "$PID_DIR" "$LOG_DIR"
@@ -77,11 +77,11 @@ resolve_port() {
   echo "$resolved_port"
 }
 
-API_PORT="$(resolve_port "$API_PORT" "API" "AGENTCODER_API_PORT")"
-DESKTOP_PORT="$(resolve_port "$DESKTOP_PORT" "Desktop" "AGENTCODER_DESKTOP_PORT" "$API_PORT")"
+API_PORT="$(resolve_port "$API_PORT" "API" "CODEFLOW_API_PORT")"
+DESKTOP_PORT="$(resolve_port "$DESKTOP_PORT" "Desktop" "CODEFLOW_DESKTOP_PORT" "$API_PORT")"
 
 if [ -z "$PYTHON_BIN" ] || [ ! -x "$PYTHON_BIN" ]; then
-  echo "❌ managed Python toolchain not found: ${AGENTCODER_PYTHON:-<unset>}"
+  echo "❌ managed Python toolchain not found: ${CODEFLOW_PYTHON:-<unset>}"
   echo "Run: ./scripts/bootstrap.sh"
   exit 1
 fi
@@ -98,10 +98,10 @@ fi
 
 echo "🚀 starting Orchestrator API: http://$HOST:$API_PORT"
 PYTHONPATH=apps/orchestrator/src \
-AGENTCODER_API_AUTH_REQUIRED="$API_AUTH_REQUIRED" \
-AGENTCODER_API_TOKEN="$DEV_API_TOKEN" \
-AGENTCODER_DASHBOARD_PORT="$DESKTOP_PORT" \
-"$PYTHON_BIN" -m agentcoder_orch.cli serve \
+CODEFLOW_API_AUTH_REQUIRED="$API_AUTH_REQUIRED" \
+CODEFLOW_API_TOKEN="$DEV_API_TOKEN" \
+CODEFLOW_DASHBOARD_PORT="$DESKTOP_PORT" \
+"$PYTHON_BIN" -m codeflow_orch.cli serve \
   --host "$HOST" --port "$API_PORT" \
   >"$API_LOG_FILE" 2>&1 &
 API_PID=$!
@@ -135,6 +135,6 @@ if [[ "$auth_required_normalized" == "1" || "$auth_required_normalized" == "true
 fi
 
 echo "🔐 API auth required: $API_AUTH_REQUIRED"
-VITE_AGENTCODER_API_BASE="http://$HOST:$API_PORT" \
-VITE_AGENTCODER_API_TOKEN="$desktop_api_token" \
+VITE_CODEFLOW_API_BASE="http://$HOST:$API_PORT" \
+VITE_CODEFLOW_API_TOKEN="$desktop_api_token" \
 bash scripts/run_workspace_app.sh desktop dev -- --host "$HOST" --port "$DESKTOP_PORT"

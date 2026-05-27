@@ -11,19 +11,19 @@ is_truthy() {
   [[ "${normalized}" == "1" || "${normalized}" == "true" || "${normalized}" == "yes" || "${normalized}" == "on" ]]
 }
 
-if ! is_truthy "${AGENTCODER_CI_CONTAINER:-0}" && ! is_truthy "${AGENTCODER_HOST_COMPAT:-0}"; then
+if ! is_truthy "${CODEFLOW_CI_CONTAINER:-0}" && ! is_truthy "${CODEFLOW_HOST_COMPAT:-0}"; then
   exec bash "$ROOT_DIR/scripts/docker_ci.sh" pre-commit "$@"
 fi
 
 mkdir -p .runtime-cache/test_output/pre_commit
 RUN_ID="$(date +%Y%m%d_%H%M%S)"
-scope="${AGENTCODER_PRECOMMIT_SCOPE:-changed}"
-if [[ "${AGENTCODER_PRECOMMIT_FULL:-0}" == "1" ]]; then
+scope="${CODEFLOW_PRECOMMIT_SCOPE:-changed}"
+if [[ "${CODEFLOW_PRECOMMIT_FULL:-0}" == "1" ]]; then
   scope="full"
 fi
 
 if [[ "$scope" != "changed" && "$scope" != "full" ]]; then
-  echo "❌ [pre-commit-quality-gate] unsupported AGENTCODER_PRECOMMIT_SCOPE=$scope (expected: changed|full)"
+  echo "❌ [pre-commit-quality-gate] unsupported CODEFLOW_PRECOMMIT_SCOPE=$scope (expected: changed|full)"
   exit 2
 fi
 

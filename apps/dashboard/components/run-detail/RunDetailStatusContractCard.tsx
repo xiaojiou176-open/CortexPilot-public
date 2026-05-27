@@ -1,6 +1,6 @@
 "use client";
 
-import { DEFAULT_UI_LOCALE, getUiCopy } from "@agentcoder/frontend-shared/uiCopy";
+import { DEFAULT_UI_LOCALE, getUiCopy } from "@codeflow/frontend-shared/uiCopy";
 import Link from "next/link";
 import ContractViewer from "../ContractViewer";
 import { Badge } from "../ui/badge";

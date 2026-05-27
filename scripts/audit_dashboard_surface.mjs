@@ -210,13 +210,13 @@ function startServer(command, args, env = {}) {
 function startManagedApiServer(apiPort, apiToken) {
   const command = [
     "source scripts/lib/toolchain_env.sh",
-    `PYTHON_BIN="$(agentcoder_python_bin "${ROOT}")"`,
+    `PYTHON_BIN="$(codeflow_python_bin "${ROOT}")"`,
     'if [[ -z "$PYTHON_BIN" || ! -x "$PYTHON_BIN" ]]; then echo "missing managed python" >&2; exit 1; fi',
     `export PYTHONPATH="${resolve(ROOT, "apps/orchestrator/src")}"`,
     'export PYTHONDONTWRITEBYTECODE=1',
-    'export AGENTCODER_API_AUTH_REQUIRED=true',
-    `export AGENTCODER_API_TOKEN="${apiToken}"`,
-    `exec "$PYTHON_BIN" -B -m agentcoder_orch.cli serve --host 127.0.0.1 --port ${apiPort}`,
+    'export CODEFLOW_API_AUTH_REQUIRED=true',
+    `export CODEFLOW_API_TOKEN="${apiToken}"`,
+    `exec "$PYTHON_BIN" -B -m codeflow_orch.cli serve --host 127.0.0.1 --port ${apiPort}`,
   ].join(" && ");
   return spawn("bash", ["-lc", command], {
     cwd: ROOT,
@@ -286,16 +286,16 @@ async function main() {
 
   const apiPort = await findOpenPort(19400, 19420);
   const dashboardPort = await findOpenPort(19421, 19450);
-  const apiToken = "agentcoder-dashboard-audit-token";
+  const apiToken = "codeflow-dashboard-audit-token";
   const apiBase = `http://127.0.0.1:${apiPort}`;
   const dashboardBase = `http://127.0.0.1:${dashboardPort}`;
 
   const api = startManagedApiServer(apiPort, apiToken);
 
   const dashboard = startServer("pnpm", ["--dir", "apps/dashboard", "dev", "--hostname", "127.0.0.1", "--port", String(dashboardPort)], {
-    NEXT_PUBLIC_AGENTCODER_API_BASE: apiBase,
-    NEXT_PUBLIC_AGENTCODER_API_TOKEN: apiToken,
-    AGENTCODER_API_TOKEN: apiToken,
+    NEXT_PUBLIC_CODEFLOW_API_BASE: apiBase,
+    NEXT_PUBLIC_CODEFLOW_API_TOKEN: apiToken,
+    CODEFLOW_API_TOKEN: apiToken,
   });
 
   const browser = await chromium.launch();

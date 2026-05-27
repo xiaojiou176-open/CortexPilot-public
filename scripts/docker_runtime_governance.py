@@ -12,10 +12,10 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_REPORT = ROOT / ".runtime-cache" / "agentcoder" / "reports" / "space_governance" / "docker_runtime.json"
-DEFAULT_IMAGE = os.environ.get("AGENTCODER_DOCKER_RUNTIME_IMAGE", "agentcoder-ci-core:local")
-DEFAULT_DESKTOP_IMAGE = os.environ.get("AGENTCODER_DOCKER_DESKTOP_NATIVE_IMAGE", "agentcoder-ci-desktop-native:local")
-DEFAULT_VOLUME_PREFIX = os.environ.get("AGENTCODER_DOCKER_VOLUME_PREFIX", "agentcoder")
+DEFAULT_REPORT = ROOT / ".runtime-cache" / "codeflow" / "reports" / "space_governance" / "docker_runtime.json"
+DEFAULT_IMAGE = os.environ.get("CODEFLOW_DOCKER_RUNTIME_IMAGE", "codeflow-ci-core:local")
+DEFAULT_DESKTOP_IMAGE = os.environ.get("CODEFLOW_DOCKER_DESKTOP_NATIVE_IMAGE", "codeflow-ci-desktop-native:local")
+DEFAULT_VOLUME_PREFIX = os.environ.get("CODEFLOW_DOCKER_VOLUME_PREFIX", "codeflow")
 
 
 def _human_size(num_bytes: int) -> str:
@@ -30,7 +30,7 @@ def _human_size(num_bytes: int) -> str:
 
 
 def _machine_cache_root() -> Path:
-    explicit = os.environ.get("AGENTCODER_MACHINE_CACHE_ROOT", "").strip()
+    explicit = os.environ.get("CODEFLOW_MACHINE_CACHE_ROOT", "").strip()
     if explicit:
         return Path(explicit).expanduser()
     runner_temp = os.environ.get("RUNNER_TEMP", "").strip()
@@ -38,11 +38,11 @@ def _machine_cache_root() -> Path:
         "GITHUB_ACTIONS", ""
     ).strip().lower() == "true"
     if ci and runner_temp:
-        return Path(runner_temp) / "agentcoder-machine-cache"
+        return Path(runner_temp) / "codeflow-machine-cache"
     xdg_cache_home = os.environ.get("XDG_CACHE_HOME", "").strip()
     if xdg_cache_home:
-        return Path(xdg_cache_home).expanduser() / "agentcoder"
-    return Path.home() / ".cache" / "agentcoder"
+        return Path(xdg_cache_home).expanduser() / "codeflow"
+    return Path.home() / ".cache" / "codeflow"
 
 
 def _docker_buildx_cache_root() -> Path:

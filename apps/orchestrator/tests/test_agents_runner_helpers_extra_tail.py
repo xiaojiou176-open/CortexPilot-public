@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from agentcoder_orch.runners.agents_runner import AgentsRunner
-from agentcoder_orch.store.run_store import RunStore
+from codeflow_orch.runners.agents_runner import AgentsRunner
+from codeflow_orch.store.run_store import RunStore
 
 from .test_agents_runner_helpers_extra import _base_contract, agents_runner
 
@@ -44,7 +44,7 @@ def test_agents_patch_initialized_runtime_behaviors() -> None:
         _elicitation_callback=lambda *_a, **_k: None,
         _list_roots_callback=lambda *_a, **_k: None,
         _task_handlers=DummyHandlers(),
-        _client_info={"name": "agentcoder", "version": "0.1.0"},
+        _client_info={"name": "codeflow", "version": "0.1.0"},
         send_request=_send_request_supported,
         send_notification=_send_notification,
         _server_capabilities=None,
@@ -68,7 +68,7 @@ def test_agents_patch_initialized_runtime_behaviors() -> None:
         _elicitation_callback=lambda *_a, **_k: None,
         _list_roots_callback=lambda *_a, **_k: None,
         _task_handlers=DummyHandlers(),
-        _client_info={"name": "agentcoder", "version": "0.1.0"},
+        _client_info={"name": "codeflow", "version": "0.1.0"},
         send_request=_send_request_unsupported,
         send_notification=_send_notification,
         _server_capabilities=None,
@@ -149,9 +149,9 @@ def test_agents_runner_hard_timebox_timeout(tmp_path: Path, monkeypatch) -> None
 
     store = RunStore(runs_root=tmp_path)
     run_id = store.create_run("task_timebox_timeout")
-    monkeypatch.setenv("AGENTCODER_RUN_ID", run_id)
-    monkeypatch.setenv("AGENTCODER_CODEX_TIMEBOX_SEC", "0.2")
-    monkeypatch.setenv("AGENTCODER_STREAM_LOG_EVERY", "1")
+    monkeypatch.setenv("CODEFLOW_RUN_ID", run_id)
+    monkeypatch.setenv("CODEFLOW_CODEX_TIMEBOX_SEC", "0.2")
+    monkeypatch.setenv("CODEFLOW_STREAM_LOG_EVERY", "1")
 
     runner = AgentsRunner(store)
     repo_root = Path(__file__).resolve().parents[3]

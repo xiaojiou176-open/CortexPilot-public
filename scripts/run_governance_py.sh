@@ -11,13 +11,13 @@ if [[ $# -lt 1 ]]; then
 fi
 
 resolve_python_bin() {
-  if [[ -n "${AGENTCODER_PYTHON:-}" && -x "${AGENTCODER_PYTHON}" ]]; then
-    printf '%s\n' "${AGENTCODER_PYTHON}"
+  if [[ -n "${CODEFLOW_PYTHON:-}" && -x "${CODEFLOW_PYTHON}" ]]; then
+    printf '%s\n' "${CODEFLOW_PYTHON}"
     return 0
   fi
 
   local managed_python=""
-  managed_python="$(agentcoder_python_bin "$ROOT_DIR" 2>/dev/null || true)"
+  managed_python="$(codeflow_python_bin "$ROOT_DIR" 2>/dev/null || true)"
   if [[ -x "$managed_python" ]]; then
     printf '%s\n' "$managed_python"
     return 0
@@ -28,7 +28,7 @@ resolve_python_bin() {
     return 0
   fi
 
-  echo "missing python interpreter: set AGENTCODER_PYTHON or bootstrap the managed toolchain" >&2
+  echo "missing python interpreter: set CODEFLOW_PYTHON or bootstrap the managed toolchain" >&2
   return 1
 }
 

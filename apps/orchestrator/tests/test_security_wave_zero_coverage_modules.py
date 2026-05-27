@@ -4,11 +4,11 @@ from pathlib import Path
 
 import pytest
 
-from agentcoder_orch.queue import test_store as queue_test_store
-from agentcoder_orch.scheduler import test_test_pipeline_security as pipeline_security
-from agentcoder_orch.scheduler import test_wave_b1_security as wave_b1_security
-from agentcoder_orch.scheduler import test_wave_b2_regressions as wave_b2_regressions
-from agentcoder_orch.store import test_run_store_security as run_store_security
+from codeflow_orch.queue import test_store as queue_test_store
+from codeflow_orch.scheduler import test_test_pipeline_security as pipeline_security
+from codeflow_orch.scheduler import test_wave_b1_security as wave_b1_security
+from codeflow_orch.scheduler import test_wave_b2_regressions as wave_b2_regressions
+from codeflow_orch.store import test_run_store_security as run_store_security
 
 
 def test_proxy_wave_b1_mcp_payload_is_redacted() -> None:

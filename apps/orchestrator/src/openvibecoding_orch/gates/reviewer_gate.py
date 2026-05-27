@@ -14,9 +14,9 @@ _CRITICAL_IGNORED_PATTERNS = (
     "*.key",
     "policies/*",
     "tooling/mcp/*",
-    "apps/orchestrator/src/agentcoder_orch/api/*",
-    "apps/orchestrator/src/agentcoder_orch/scheduler/*",
-    "apps/orchestrator/src/agentcoder_orch/runners/*",
+    "apps/orchestrator/src/codeflow_orch/api/*",
+    "apps/orchestrator/src/codeflow_orch/scheduler/*",
+    "apps/orchestrator/src/codeflow_orch/runners/*",
 )
 
 
@@ -137,7 +137,7 @@ def validate_reviewer_isolation(worktree: Path, snapshot: dict) -> dict:
         "changed": changed,
         "reason": "" if ok else "reviewer modified working tree",
     }
-    verbose = os.getenv("AGENTCODER_REVIEWER_SNAPSHOT_VERBOSE", "").strip().lower() in {"1", "true", "yes"}
+    verbose = os.getenv("CODEFLOW_REVIEWER_SNAPSHOT_VERBOSE", "").strip().lower() in {"1", "true", "yes"}
     if verbose:
         payload["before"] = before
         payload["after"] = after

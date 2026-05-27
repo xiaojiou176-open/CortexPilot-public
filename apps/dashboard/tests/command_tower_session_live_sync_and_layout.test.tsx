@@ -1,7 +1,7 @@
 import { createRef, type ComponentProps } from "react";
 import { act, fireEvent, render, renderHook, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { getUiCopy } from "@agentcoder/frontend-shared/uiCopy";
+import { getUiCopy } from "@codeflow/frontend-shared/uiCopy";
 
 import CommandTowerHomeLayout from "../components/command-tower/CommandTowerHomeLayout";
 import { useDrawerPreferences } from "../components/command-tower/hooks/useDrawerPreferences";
@@ -780,8 +780,8 @@ describe("command tower session live sync + home layout", () => {
   });
 
   it("hydrates and persists drawer preferences when testMode is disabled", async () => {
-    const collapsedStorageKey = "agentcoder.test.drawer.collapsed";
-    const pinnedStorageKey = "agentcoder.test.drawer.pinned";
+    const collapsedStorageKey = "codeflow.test.drawer.collapsed";
+    const pinnedStorageKey = "codeflow.test.drawer.pinned";
     window.localStorage.setItem(collapsedStorageKey, "1");
     window.localStorage.setItem(pinnedStorageKey, "0");
 
@@ -810,8 +810,8 @@ describe("command tower session live sync + home layout", () => {
   });
 
   it("keeps default drawer preferences when testMode is enabled", async () => {
-    const collapsedStorageKey = "agentcoder.test.drawer.collapsed.default";
-    const pinnedStorageKey = "agentcoder.test.drawer.pinned.default";
+    const collapsedStorageKey = "codeflow.test.drawer.collapsed.default";
+    const pinnedStorageKey = "codeflow.test.drawer.pinned.default";
     window.localStorage.setItem(collapsedStorageKey, "0");
     window.localStorage.setItem(pinnedStorageKey, "0");
 

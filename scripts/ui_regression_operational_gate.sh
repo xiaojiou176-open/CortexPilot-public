@@ -14,12 +14,12 @@ P1_COMMANDS_FILE="${UI_REGRESSION_P1_COMMANDS_FILE:-scripts/ui_regression_p1.com
 P2_CRITICAL_COMMANDS_FILE="${UI_REGRESSION_P2_CRITICAL_COMMANDS_FILE:-scripts/ui_regression_p2_critical.commands}"
 TRUTH_REPORT="${UI_REGRESSION_TRUTH_REPORT:-.runtime-cache/test_output/ui_regression/ui_e2e_truth_gate.json}"
 STRICT_TRUTH="${UI_REGRESSION_TRUTH_STRICT:-1}"
-EXTERNAL_WEB_PROBE="${AGENTCODER_CI_EXTERNAL_WEB_PROBE_GATE:-1}"
-EXTERNAL_WEB_PROBE_URL="${AGENTCODER_EXTERNAL_WEB_PROBE_URL:-https://example.com}"
-EXTERNAL_WEB_PROBE_PROVIDER_API_MODE="${AGENTCODER_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE:-auto}"
-EXTERNAL_WEB_PROBE_PROVIDER_TIMEOUT_SEC="${AGENTCODER_EXTERNAL_WEB_PROBE_PROVIDER_TIMEOUT_SEC:-15}"
-EXTERNAL_WEB_PROBE_HARD_TIMEOUT_SEC="${AGENTCODER_EXTERNAL_WEB_PROBE_HARD_TIMEOUT_SEC:-180}"
-PYTHON_BIN="${AGENTCODER_UI_REGRESSION_PYTHON:-${AGENTCODER_PYTHON:-}}"
+EXTERNAL_WEB_PROBE="${CODEFLOW_CI_EXTERNAL_WEB_PROBE_GATE:-1}"
+EXTERNAL_WEB_PROBE_URL="${CODEFLOW_EXTERNAL_WEB_PROBE_URL:-https://example.com}"
+EXTERNAL_WEB_PROBE_PROVIDER_API_MODE="${CODEFLOW_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE:-auto}"
+EXTERNAL_WEB_PROBE_PROVIDER_TIMEOUT_SEC="${CODEFLOW_EXTERNAL_WEB_PROBE_PROVIDER_TIMEOUT_SEC:-15}"
+EXTERNAL_WEB_PROBE_HARD_TIMEOUT_SEC="${CODEFLOW_EXTERNAL_WEB_PROBE_HARD_TIMEOUT_SEC:-180}"
+PYTHON_BIN="${CODEFLOW_UI_REGRESSION_PYTHON:-${CODEFLOW_PYTHON:-}}"
 HEARTBEAT_SEC="${UI_REGRESSION_HEARTBEAT_SEC:-20}"
 FAST_GATE_TIMEOUT_SEC="${UI_REGRESSION_FAST_GATE_TIMEOUT_SEC:-900}"
 EXTERNAL_PROBE_TIMEOUT_SEC="$EXTERNAL_WEB_PROBE_HARD_TIMEOUT_SEC"
@@ -103,7 +103,7 @@ resolve_external_probe_provider_mode_or_fail() {
     require|auto|off)
       ;;
     *)
-      echo "❌ [ui-ops] invalid AGENTCODER_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE=${mode} (allowed: require|auto|off)" >&2
+      echo "❌ [ui-ops] invalid CODEFLOW_EXTERNAL_WEB_PROBE_PROVIDER_API_MODE=${mode} (allowed: require|auto|off)" >&2
       exit 2
       ;;
   esac
@@ -201,7 +201,7 @@ if [[ "$EXTERNAL_WEB_PROBE" == "1" ]]; then
   probe_pid=$!
 else
   require_break_glass_or_fail "external_web_probe_gate_skip"
-  echo "⚠️ [ui-ops] skip external web probe (AGENTCODER_CI_EXTERNAL_WEB_PROBE_GATE=0, break-glass audited)"
+  echo "⚠️ [ui-ops] skip external web probe (CODEFLOW_CI_EXTERNAL_WEB_PROBE_GATE=0, break-glass audited)"
 fi
 
 wait "$realism_pid"
@@ -290,19 +290,19 @@ fi
 
 if [[ "$REQUIRE_FULL_STRICT" == "1" ]]; then
   run_with_heartbeat_and_timeout "ui-ops-full-strict-ui" "${UI_REGRESSION_FULL_STRICT_TIMEOUT_SEC:-7200}" "$HEARTBEAT_SEC" -- \
-    env AGENTCODER_UI_FULL_E2E_RUN_ID="$full_strict_run_id" npm run ui:e2e:full:gemini:strict
+    env CODEFLOW_UI_FULL_E2E_RUN_ID="$full_strict_run_id" npm run ui:e2e:full:gemini:strict
   if [[ ! -f "$full_strict_click_report" ]]; then
     echo "❌ [ui-ops] full strict click inventory report missing: $full_strict_click_report" >&2
     exit 1
   fi
 fi
 
-AGENTCODER_UI_TRUTH_GATE_STRICT="$STRICT_TRUTH" \
-AGENTCODER_UI_P0_REPORT="$p0_report" \
-AGENTCODER_UI_P1_REPORT="$p1_report" \
-AGENTCODER_UI_CLICK_INVENTORY_REPORT="$full_strict_click_report" \
-AGENTCODER_UI_CLICK_INVENTORY_REQUIRED="$CLICK_INVENTORY_REQUIRED" \
-AGENTCODER_UI_TRUTH_GATE_REPORT="$TRUTH_REPORT" \
+CODEFLOW_UI_TRUTH_GATE_STRICT="$STRICT_TRUTH" \
+CODEFLOW_UI_P0_REPORT="$p0_report" \
+CODEFLOW_UI_P1_REPORT="$p1_report" \
+CODEFLOW_UI_CLICK_INVENTORY_REPORT="$full_strict_click_report" \
+CODEFLOW_UI_CLICK_INVENTORY_REQUIRED="$CLICK_INVENTORY_REQUIRED" \
+CODEFLOW_UI_TRUTH_GATE_REPORT="$TRUTH_REPORT" \
 bash scripts/ui_e2e_truth_gate.sh
 
 python3 scripts/ui_regression_trend_append.py \

@@ -3,44 +3,44 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Agentcoder | Compatibility matrix for Codex, Claude Code, OpenClaw, MCP, and skills</title>
+    <title>Codeflow | Compatibility matrix for Codex, Claude Code, OpenClaw, MCP, and skills</title>
     <meta
       name="description"
-      content="Compatibility matrix for Agentcoder, the command tower for AI engineering, across Codex, Claude Code, OpenClaw, read-only MCP, repo-owned skills, builder packages, Workflow Cases, and truthful plugin boundaries."
+      content="Compatibility matrix for Codeflow, the command tower for AI engineering, across Codex, Claude Code, OpenClaw, read-only MCP, repo-owned skills, builder packages, Workflow Cases, and truthful plugin boundaries."
     />
     <meta
       name="keywords"
-      content="Agentcoder, Agentcoder runtime, compatibility matrix, Codex, Claude Code, OpenClaw, MCP, skills, plugin boundary, Workflow Cases, Proof and Replay"
+      content="Codeflow, Codeflow runtime, compatibility matrix, Codex, Claude Code, OpenClaw, MCP, skills, plugin boundary, Workflow Cases, Proof and Replay"
     />
-    <link rel="canonical" href="https://xiaojiou176-open.github.io/agentcoder/compatibility/" />
+    <link rel="canonical" href="https://xiaojiou176-open.github.io/codeflow/compatibility/" />
     <meta
       property="og:title"
-      content="Agentcoder | Compatibility matrix for Codex, Claude Code, OpenClaw, MCP, and skills"
+      content="Codeflow | Compatibility matrix for Codex, Claude Code, OpenClaw, MCP, and skills"
     />
     <meta
       property="og:description"
-      content="One truthful map for how Codex, Claude Code, OpenClaw, read-only MCP, repo-owned skills, and builder packages fit into Agentcoder today."
+      content="One truthful map for how Codex, Claude Code, OpenClaw, read-only MCP, repo-owned skills, and builder packages fit into Codeflow today."
     />
     <meta property="og:type" content="article" />
-    <meta property="og:url" content="https://xiaojiou176-open.github.io/agentcoder/compatibility/" />
+    <meta property="og:url" content="https://xiaojiou176-open.github.io/codeflow/compatibility/" />
     <meta property="og:image" content="../assets/storefront/social-preview-1280x640.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
-      content="Agentcoder | Compatibility matrix for Codex, Claude Code, OpenClaw, MCP, and skills"
+      content="Codeflow | Compatibility matrix for Codex, Claude Code, OpenClaw, MCP, and skills"
     />
     <meta
       name="twitter:description"
-      content="One truthful map for how Codex, Claude Code, OpenClaw, read-only MCP, repo-owned skills, and builder packages fit into Agentcoder today."
+      content="One truthful map for how Codex, Claude Code, OpenClaw, read-only MCP, repo-owned skills, and builder packages fit into Codeflow today."
     />
     <meta name="twitter:image" content="../assets/storefront/social-preview-1280x640.png" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "TechArticle",
-        "headline": "Agentcoder compatibility matrix for Codex, Claude Code, OpenClaw, MCP, and skills",
-        "url": "https://xiaojiou176-open.github.io/agentcoder/compatibility/",
-        "description": "Truthful compatibility matrix for Agentcoder across Codex, Claude Code, OpenClaw, read-only MCP, repo-owned skills, builder packages, Workflow Cases, and Proof & Replay."
+        "headline": "Codeflow compatibility matrix for Codex, Claude Code, OpenClaw, MCP, and skills",
+        "url": "https://xiaojiou176-open.github.io/codeflow/compatibility/",
+        "description": "Truthful compatibility matrix for Codeflow across Codex, Claude Code, OpenClaw, read-only MCP, repo-owned skills, builder packages, Workflow Cases, and Proof & Replay."
       }
     </script>
     <script type="application/ld+json">
@@ -50,15 +50,15 @@
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "Is Agentcoder an official Codex or Claude Code plugin?",
+            "name": "Is Codeflow an official Codex or Claude Code plugin?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No. Agentcoder is the command tower for AI engineering, not an official Codex or Claude marketplace listing. Codex now has official CLI and IDE surfaces, Claude Code has official MCP/tooling surfaces, and OpenClaw has official plugin and skills surfaces, but the current public story still ships governed workflow compatibility, read-only MCP, repo-owned skills, builder packages, and local bundle examples rather than a published listing."
+              "text": "No. Codeflow is the command tower for AI engineering, not an official Codex or Claude marketplace listing. Codex now has official CLI and IDE surfaces, Claude Code has official MCP/tooling surfaces, and OpenClaw has official plugin and skills surfaces, but the current public story still ships governed workflow compatibility, read-only MCP, repo-owned skills, builder packages, and local bundle examples rather than a published listing."
             }
           },
           {
             "@type": "Question",
-            "name": "Does OpenClaw have first-class native support in Agentcoder today?",
+            "name": "Does OpenClaw have first-class native support in Codeflow today?",
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "No. OpenClaw stays in the adjacent coding-agent layer unless a mapped bundle or native plugin path is explicitly shipped and tested."
@@ -275,7 +275,7 @@
           which entry surface fits our team today, and what should we avoid overclaiming?
         </p>
         <p class="lede">
-          In plain language: Agentcoder already works with real
+          In plain language: Codeflow already works with real
           <strong>Codex</strong> and <strong>Claude Code</strong> workflows, can sit next to
           <strong>OpenClaw</strong> without fake plugin claims, and still ships a
           <strong>read-only MCP</strong> boundary rather than a hosted operator story.
@@ -387,10 +387,10 @@
               </tr>
               <tr>
                 <td><strong>Official plugin/store path</strong></td>
-                <td>Native CLI / IDE surfaces exist; Agentcoder is not published as a Codex directory item today</td>
-                <td>Official plugin surfaces exist; Agentcoder is not published there today</td>
-                <td>Official plugins + ClawHub exist; Agentcoder is not published there today</td>
-                <td>Keep host-platform reality separate from Agentcoder publication state and the underlying Agentcoder runtime names.</td>
+                <td>Native CLI / IDE surfaces exist; Codeflow is not published as a Codex directory item today</td>
+                <td>Official plugin surfaces exist; Codeflow is not published there today</td>
+                <td>Official plugins + ClawHub exist; Codeflow is not published there today</td>
+                <td>Keep host-platform reality separate from Codeflow publication state and the underlying Codeflow runtime names.</td>
               </tr>
             </tbody>
           </table>
@@ -402,11 +402,11 @@
         <div class="grid">
           <article class="card">
             <span class="badge primary">Good framing</span>
-            <p>"Agentcoder works with Codex and Claude Code workflows through Workflow Cases, Proof &amp; Replay, read-only MCP, repo-owned skills, and builder entrypoints."</p>
+            <p>"Codeflow works with Codex and Claude Code workflows through Workflow Cases, Proof &amp; Replay, read-only MCP, repo-owned skills, and builder entrypoints."</p>
           </article>
           <article class="card">
             <span class="badge warn">Bad framing</span>
-            <p>"Agentcoder already ships the official Codex, Claude Code, or OpenClaw plugin."</p>
+            <p>"Codeflow already ships the official Codex, Claude Code, or OpenClaw plugin."</p>
           </article>
           <article class="card">
             <span class="badge primary">Good framing</span>
@@ -414,7 +414,7 @@
           </article>
           <article class="card">
             <span class="badge warn">Bad framing</span>
-            <p>"OpenClaw is a first-class native surface inside Agentcoder today."</p>
+            <p>"OpenClaw is a first-class native surface inside Codeflow today."</p>
           </article>
         </div>
       </section>

@@ -1653,7 +1653,7 @@ body {
   border-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
 }
 
-.pm-chat-bubble.is-agentcoder {
+.pm-chat-bubble.is-codeflow {
   background: color-mix(in srgb, var(--color-bg-elevated) 96%, white);
 }
 

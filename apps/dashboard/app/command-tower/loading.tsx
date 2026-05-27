@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@agentcoder/frontend-shared/uiLocale";
+import { normalizeUiLocale, UI_LOCALE_STORAGE_KEY } from "@codeflow/frontend-shared/uiLocale";
 
 export default async function CommandTowerLoading() {
   const cookieStore = await cookies();

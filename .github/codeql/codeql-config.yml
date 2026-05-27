@@ -1,4 +1,4 @@
-name: agentcoder-codeql
+name: codeflow-codeql
 
 paths-ignore:
   - .runtime-cache/**

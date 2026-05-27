@@ -103,9 +103,9 @@ describe("planner page", () => {
     const enMetadata = buildPlannerMetadata("en");
     const zhMetadata = buildPlannerMetadata("zh-CN");
 
-    expect(enMetadata.title).toBe("Planner desk | Agentcoder");
+    expect(enMetadata.title).toBe("Planner desk | Codeflow");
     expect(String(enMetadata.description)).toContain("worker prompt contracts");
-    expect(zhMetadata.title).toBe("规划桌 | Agentcoder");
+    expect(zhMetadata.title).toBe("规划桌 | Codeflow");
     expect(String(zhMetadata.description)).toContain("解阻塞任务");
   });
 
